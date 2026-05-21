@@ -1,12 +1,30 @@
 {
-  "name": "ufopredictor",
+  "name": "ufo-predictor",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "node -e \"console.log('UFO Predictor static prototype ready')\"",
-    "start": "serve legacy/static-prototype -l tcp://0.0.0.0:$PORT"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
   },
   "dependencies": {
-    "serve": "^14.2.5"
+    "@tailwindcss/postcss": "latest",
+    "clsx": "latest",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "tailwind-merge": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest"
   }
 }
