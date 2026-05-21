@@ -1,0 +1,5 @@
+node_modules/
+.env
+.env.local
+.railway/
+npm-debug.log*

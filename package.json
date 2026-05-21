@@ -1,0 +1,12 @@
+{
+  "name": "ufopredictor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node -e \"console.log('UFO Predictor static prototype ready')\"",
+    "start": "serve legacy/static-prototype -l tcp://0.0.0.0:$PORT"
+  },
+  "dependencies": {
+    "serve": "^14.2.5"
+  }
+}

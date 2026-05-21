@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="UFO Predictor, prototipo web de predicciones probabilisticas de futbol con IA narrativa."
+    />
+    <title>UFO Predictor</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#inicio" aria-label="UFO Predictor">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>UFO Predictor</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Principal">
+        <a href="#predicciones">Predicciones</a>
+        <a href="#planes">Planes</a>
+        <a href="#modelo">Modelo</a>
+        <a href="#arquitectura">Arquitectura</a>
+      </nav>
+      <a class="nav-cta" href="#planes">Ver acceso</a>
+    </header>
+
+    <main id="inicio">
+      <section class="app-shell" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">Mundial 2026 · Prototipo estatico</p>
+          <h1 id="hero-title">Predicciones de futbol con senales probabilisticas</h1>
+          <p class="why">
+            UFO Predictor combina power scores, goles esperados, Poisson, mercado y
+            explicaciones narrativas para mostrar pronosticos claros sin prometer resultados.
+          </p>
+          <div class="preview-grid" aria-label="Resumen del producto">
+            <article>
+              <span>01</span>
+              <strong>Modelo explicable</strong>
+              <p>La IA no decide el resultado: explica calculos estadisticos versionados.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <strong>Golden Hour</strong>
+              <p>El sistema compara predicciones antes y despues de alineaciones.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <strong>Acceso premium</strong>
+              <p>Planes dinamicos para desbloquear partidos y analisis avanzados.</p>
+            </article>
+          </div>
+        </div>
+
+        <aside class="phone-panel" id="predicciones" aria-labelledby="match-title">
+          <div class="panel-header">
+            <span class="eyebrow">Partido destacado</span>
+            <span class="status-pill">Mock data</span>
+          </div>
+          <article class="match-card featured">
+            <div class="match-meta">
+              <span>Grupo A</span>
+              <span>12 Jun 2026</span>
+            </div>
+            <div class="teams" id="match-title">
+              <div>
+                <small>Local</small>
+                <strong>Mexico</strong>
+              </div>
+              <span class="vs">VS</span>
+              <div>
+                <small>Visitante</small>
+                <strong>Alemania</strong>
+              </div>
+            </div>
+            <div class="prob-grid">
+              <div><span>Local</span><strong>29%</strong></div>
+              <div><span>Empate</span><strong>27%</strong></div>
+              <div><span>Visitante</span><strong>44%</strong></div>
+            </div>
+            <div class="signal-row">
+              <span>Marcador probable</span>
+              <strong>1 - 2</strong>
+            </div>
+            <div class="signal-row">
+              <span>Riesgo</span>
+              <strong>Medio alto</strong>
+            </div>
+          </article>
+        </aside>
+      </section>
+
+      <section class="section" aria-labelledby="timeline-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Prediction Timeline</p>
+            <h2 id="timeline-title">Como cambia una senal antes del partido</h2>
+          </div>
+          <p>Las predicciones se guardan versionadas para comparar cada etapa.</p>
+        </div>
+        <div class="timeline" role="group" aria-label="Momentos de prediccion">
+          <button class="time-chip active" type="button" data-stage="24">24h</button>
+          <button class="time-chip" type="button" data-stage="6">6h</button>
+          <button class="time-chip" type="button" data-stage="60">60m</button>
+          <button class="time-chip" type="button" data-stage="ko">KO</button>
+        </div>
+        <p class="why" id="timeline-copy">
+          El modelo abre con ventaja ligera para Alemania por ELO y rendimiento reciente,
+          pero mantiene riesgo alto por sede y volatilidad de torneo.
+        </p>
+      </section>
+
+      <section class="section" id="planes" aria-labelledby="plans-title">
+        <div class="section-heading compact">
+          <p class="eyebrow">Planes dinamicos</p>
+          <h2 id="plans-title">Acceso pensado para Mundial 2026</h2>
+          <p>El prototipo usa mock data, pero respeta la estructura de planes futura.</p>
+        </div>
+        <div class="offer-grid">
+          <article class="offer-card">
+            <div class="offer-top"><span>Free</span><strong>$0</strong></div>
+            <h3>Vista basica</h3>
+            <ul>
+              <li>Predicciones limitadas</li>
+              <li>Probabilidades principales</li>
+              <li>Centro de transparencia</li>
+            </ul>
+          </article>
+          <article class="offer-card hero-offer">
+            <div class="offer-top"><span>World Cup Pass</span><strong>Premium</strong></div>
+            <h3>Mundial completo</h3>
+            <ul>
+              <li>Desbloqueo por partido</li>
+              <li>Model vs Market</li>
+              <li>Golden Hour Delta</li>
+            </ul>
+          </article>
+          <article class="offer-card">
+            <div class="offer-top"><span>Team Pass</span><strong>Equipo</strong></div>
+            <h3>Seguimiento selectivo</h3>
+            <ul>
+              <li>Partidos de un equipo</li>
+              <li>Alertas narrativas</li>
+              <li>Historial versionado</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split" id="modelo" aria-labelledby="model-title">
+        <div>
+          <p class="eyebrow">Modelo v0.1</p>
+          <h2 id="model-title">Estadistica primero, narrativa despues</h2>
+          <p class="why">
+            El motor inicial usa Team Power Score, Expected Goals, Poisson, Market Blend,
+            Confidence Score y Risk Level.
+          </p>
+          <div class="decision-list">
+            <div><span>Mercados</span><strong>1X2, O/U 2.5, BTTS</strong></div>
+            <div><span>Salida</span><strong>Top 3 marcadores</strong></div>
+            <div><span>Guardado</span><strong>Predicciones versionadas</strong></div>
+          </div>
+        </div>
+        <div class="scoreboard" aria-label="Indicadores mock">
+          <div><span>Confianza</span><strong>67%</strong></div>
+          <div><span>Edge vs mercado</span><strong>+5.4</strong></div>
+          <div><span>BTTS</span><strong>58%</strong></div>
+          <div><span>Over 2.5</span><strong>53%</strong></div>
+        </div>
+      </section>
+
+      <section class="section" id="arquitectura" aria-labelledby="arch-title">
+        <div class="section-heading compact">
+          <p class="eyebrow">Arquitectura objetivo</p>
+          <h2 id="arch-title">Preparado para crecer hacia Next.js, Supabase y workers</h2>
+          <p>Este despliegue inicial sirve el prototipo estatico mientras se construye la app real.</p>
+        </div>
+        <div class="architecture-grid">
+          <article>
+            <span>Web/PWA</span>
+            <h3>Next.js App Router</h3>
+            <p>Stack objetivo para la siguiente fase del producto.</p>
+          </article>
+          <article>
+            <span>Datos</span>
+            <h3>Supabase</h3>
+            <p>PostgreSQL, Auth, RLS y almacenamiento de predicciones.</p>
+          </article>
+          <article>
+            <span>Runtime</span>
+            <h3>Railway</h3>
+            <p>Web app, API routes, workers y cron jobs en servicios separados.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>UFO Predictor</span>
+      <span>Predicciones probabilisticas, no consejos de apuesta.</span>
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
