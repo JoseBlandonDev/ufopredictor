@@ -1,0 +1,9 @@
+{
+  "name": "matchsignal-brief",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "node -e \"console.log('static site ready')\""
+  }
+}
