@@ -1,366 +1,302 @@
+<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
+<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
+
 # IMPLEMENTATION_PLAN.md — UFO Predictor
 
-Este plan divide el desarrollo en épicas. No está organizado por fechas porque el equipo trabajará en tiempo libre. El orden importa más que el calendario, pequeño detalle que evita convertir el proyecto en una máquina de culpa.
+## Propósito
+
+Este documento reemplaza el plan lineal inicial del prototipo por un plan operativo por fases. El proyecto ya avanzó de una maqueta visual con mocks a una base técnica real con Supabase, autenticación, roles, Beta Lab y Data Intake.
+
+La ejecución técnica reciente fue realizada localmente por Jonathan con apoyo de herramientas asistidas para implementación y revisión. El objetivo de esta documentación no es asignar crédito personal, sino dejar trazabilidad clara del estado real del proyecto y de lo que sigue.
 
 ---
 
-# Épica 1: Setup del proyecto
+# Resumen ejecutivo del avance
 
-## Objetivo
-Crear la base técnica y documental del proyecto.
+UFO Predictor ya cuenta con:
 
-## Tareas
+- Prototipo visual en Next.js.
+- Branding inicial UFO Predictor.
+- Supabase schema inicial.
+- Supabase remoto aplicado y validado.
+- Runtime clients de Supabase.
+- Auth real con email/password.
+- Roles `free_user` y `admin`.
+- Rutas protegidas para dashboard y admin.
+- Beta Lab Foundation para fixtures internos pre-Mundial.
+- Data Intake Minimal con fuente/calidad de datos y resultados validados.
 
-1. Crear/usar repo GitHub `ufopredictor`.
-2. Crear rama de trabajo `feature/project-context` para subir contexto.
-3. Agregar archivos:
-   - `PROJECT_RULES.md`
-   - `docs/PROJECT_CONTEXT_UFO_PREDICTOR.md`
-   - `docs/DATA_DICTIONARY.md`
-   - `docs/IMPLEMENTATION_PLAN.md`
-   - `prompts/CODEX_00_RECOGNIZE_CONTEXT.md`
-   - `prompts/CODEX_01_CREATE_PROTOTYPE.md`
-4. Crear `.env.example`.
-5. Crear README inicial.
-6. Definir convención de ramas.
-
-## Criterio de listo
-El repo tiene el contexto completo subido y puede ser leído por Codex antes de escribir código.
+Esto cambia el enfoque del roadmap: ya no estamos solo construyendo una UI mock, sino una plataforma con datos, permisos y base para evaluación de modelo.
 
 ---
 
-# Épica 2: Prototipo visual con mock data
+# Fase A — Fundación técnica
 
-## Objetivo
-Crear primera versión navegable sin conectar servicios reales.
+## A01. Setup y contexto del proyecto
 
-## Tareas
+**Estado:** Done  
+**Ejecutado:** Jonathan, con apoyo Codex/ChatGPT  
+**Resultado:** repo, documentación base, reglas, contexto para Codex, `.env.example`, README inicial.
 
-1. Inicializar Next.js App Router + TypeScript.
-2. Instalar Tailwind CSS.
-3. Instalar/configurar shadcn/ui.
-4. Crear layout base.
-5. Crear `lib/mock-data.ts`.
-6. Crear páginas:
-   - `/`
-   - `/predictions`
-   - `/matches/[slug]`
-   - `/pricing`
-   - `/transparency`
-   - `/dashboard`
-   - `/admin`
-   - `/admin/beta-lab`
-7. Crear componentes:
-   - `MatchCard`
-   - `PredictionSummaryCard`
-   - `ProbabilityBar`
-   - `ConfidenceBadge`
-   - `RiskBadge`
-   - `PremiumLockCard`
-   - `PlanCard`
-   - `PredictionTimeline`
-   - `GoldenHourDelta`
-   - `ModelVsMarket`
-   - `TransparencyStats`
-   - `AdminWorkerStatus`
-8. Simular free vs premium con props/mock.
+## A02. Prototipo visual con mock data
 
-## Criterio de listo
-La app corre localmente y se puede navegar con datos mock.
+**Estado:** Done  
+**Resultado:** app Next.js navegable con rutas principales, branding, mock data y estructura de componentes.
 
----
+Rutas incluidas:
 
-# Épica 3: Tipos y contratos internos
+- `/`
+- `/predictions`
+- `/matches/[slug]`
+- `/pricing`
+- `/transparency`
+- `/dashboard`
+- `/admin`
+- `/admin/beta-lab`
 
-## Objetivo
-Crear tipos TypeScript coherentes antes de conectar base de datos real.
+## A03. Tipos y contratos internos
 
-## Tareas
+**Estado:** Done / Iterativo  
+**Resultado:** tipos base en `types/`, mock data alineado y tipos de base actualizados manualmente conforme migraciones.
 
-1. Crear `types/football.ts`.
-2. Crear `types/prediction.ts`.
-3. Crear `types/plans.ts`.
-4. Crear `types/database.ts`.
-5. Crear `types/email.ts`.
-6. Alinear mock data con estos tipos.
+## A04. Planes dinámicos mock y paywall visual
 
-## Criterio de listo
-El prototipo usa tipos compartidos y no objetos sueltos inventados en cada componente.
+**Estado:** Done parcial  
+**Resultado:** planes y locks visuales existen en prototipo.  
+**Pendiente:** backend real de entitlements y filtrado premium.
+
+## A05. Supabase schema inicial
+
+**Estado:** Done  
+**Resultado:** migración `0001_initial_schema.sql`, seed inicial y tablas base.
+
+## A06. Fix de integridad de schema
+
+**Estado:** Done  
+**Resultado:** integridad entre `matches`, `seasons` y `competitions` reforzada con FK compuesta.
+
+## A07. Supabase runtime clients
+
+**Estado:** Done  
+**Resultado:** clientes Supabase browser/server/admin y documentación de variables.
+
+## A08. Auth y roles
+
+**Estado:** Done  
+**Resultado:** registro/login/logout, callback, perfiles automáticos, roles `free_user` y `admin`, dashboard/admin protegidos.
 
 ---
 
-# Épica 4: Sistema de planes dinámicos mock
+# Fase B — Laboratorio interno pre-Mundial
 
-## Objetivo
-Simular la lógica de planes dinámicos desde el prototipo.
+Objetivo: probar datos, fixtures, resultados y modelo antes del Mundial 2026 usando competiciones internas o fixtures de calibración, sin convertir esto todavía en producto público multi-liga.
 
-## Tareas
+## B01. Beta Lab Foundation
 
-1. Crear mock de planes:
-   - Free.
-   - World Cup Pass.
-   - 10 Match Pack.
-   - Knockout Pass.
-   - Semifinals + Final Pass.
-   - Team Pass.
-   - Premium Monthly.
-2. Crear tipos `Plan`, `PlanFeature`, `UserEntitlement`, `UserMatchUnlock`.
-3. Crear helper mock `canAccessMatch`.
-4. Crear UI de features por plan.
-5. Crear componentes de bloqueo premium.
+**Estado:** Done  
+**Resultado:** migración `0003_beta_lab_foundation.sql`.
 
-## Criterio de listo
-La página `/pricing` y `/matches/[slug]` muestran diferencias free/premium coherentes.
+Incluye:
 
----
+- `competitions.usage_scope`: `public_product`, `internal_lab`.
+- `matches.access_scope`: `public`, `premium`, `admin_only`, `lab_only`.
+- `matches.lab_status`: `candidate`, `ready`, `review`, `needs_data`, `archived`.
+- `prediction_versions.run_scope`: `public_product`, `internal_lab`.
+- Seed lab sintético.
+- `/admin/beta-lab` ajustado para mostrar laboratorio interno.
 
-# Épica 5: Motor predictivo v0.1 mock/funcional local
+## B02. Data Intake Minimal
 
-## Objetivo
-Implementar el modelo estadístico en código puro, usando datos fake al inicio.
+**Estado:** Done  
+**Resultado:** migración `0004_data_intake_minimal.sql`.
 
-## Tareas
+Incluye:
 
-1. Crear carpeta `lib/prediction-engine/`.
-2. Implementar:
-   - `normalize.ts`
-   - `team-power.ts`
-   - `expected-goals.ts`
-   - `poisson.ts`
-   - `markets.ts`
-   - `confidence-risk.ts`
-   - `generate-prediction.ts`
-3. Implementar Poisson.
-4. Generar matriz de marcadores.
-5. Calcular 1X2.
-6. Calcular Over/Under 2.5.
-7. Calcular BTTS.
-8. Calcular top 3 marcadores.
-9. Calcular confidence y risk.
-10. Mostrar resultado en UI.
+- `matches.intake_source`: `mock`, `manual`, `csv_import`.
+- `matches.data_quality`: `unreviewed`, `reviewed`, `verified`, `rejected`.
+- `matches.source_note`, `reviewed_at`, `reviewed_by`.
+- Nueva tabla `match_results` como fuente validada del marcador real.
+- Seed actualizado con resultados lab.
+- `/admin/beta-lab` muestra fuente, calidad, notas y resultados.
 
-## Criterio de listo
-El prototipo puede generar una predicción local a partir de inputs mock.
+## B03. Prediction Engine v0.1 Lab
 
----
+**Estado:** Next  
+**Objetivo:** crear un motor estadístico simple, determinístico y medible para Lab.
 
-# Épica 6: Skeleton de Supabase
+Alcance inicial:
 
-## Objetivo
-Preparar estructura para conectar Supabase después.
+- Funciones puras en `lib/prediction-engine/`.
+- Team Power Score.
+- Expected goals.
+- Poisson.
+- 1X2.
+- Over/Under 2.5.
+- BTTS.
+- Top marcadores.
+- Confidence y risk.
+- Tests básicos.
 
-## Tareas
+No incluye:
 
-1. Crear `lib/supabase/client.ts`.
-2. Crear `lib/supabase/server.ts`.
-3. Crear placeholders de queries.
-4. Crear carpeta `supabase/migrations`.
-5. Crear SQL draft o notas con tablas principales.
-6. Crear TODOs para RLS.
+- APIs reales.
+- LLM.
+- Odds reales.
+- Paywall.
 
-## Criterio de listo
-El código tiene lugar claro para conectar Supabase sin reescribir toda la app.
+## B04. Model Evaluation / Backtesting
 
----
+**Estado:** Next  
+**Objetivo:** comparar predicciones generadas contra `match_results`.
 
-# Épica 7: Skeleton de APIs externas
+Debe medir:
 
-## Objetivo
-Preparar integración futura con API-Football/Sportmonks y odds.
+- Acierto 1X2.
+- Acierto BTTS.
+- Acierto Over/Under 2.5.
+- Error de goles.
+- Desempeño por `model_version`.
 
-## Tareas
+## B05. Lab Supabase Queries
 
-1. Crear `lib/football-api/provider.ts`.
-2. Crear `lib/football-api/api-football.ts`.
-3. Crear `lib/football-api/sportmonks.ts`.
-4. Crear `lib/odds-api/provider.ts`.
-5. Definir interfaces:
-   - `fetchFixtures`.
-   - `fetchLineups`.
-   - `fetchResults`.
-   - `fetchOdds`.
-6. No llamar APIs reales todavía.
+**Estado:** Next  
+**Objetivo:** reemplazar parte de los mocks del Beta Lab por lecturas server-side desde Supabase.
 
-## Criterio de listo
-La arquitectura permite cambiar proveedor sin reescribir UI o workers.
+Debe mantener:
 
----
+- admin-only.
+- datos `internal_lab` / `lab_only`.
+- sin exponer fixtures lab en la UI pública.
 
-# Épica 8: Skeleton de workers
+## B06. Lab Admin Review Flow
 
-## Objetivo
-Dejar estructura de workers/crons lista para Railway.
+**Estado:** Next  
+**Objetivo:** permitir revisión básica de calidad y resultados desde admin, sin depender del SQL Editor.
 
-## Tareas
+Alcance inicial:
 
-1. Crear carpeta `workers/`.
-2. Crear workers vacíos con TODOs:
-   - `sync-fixtures.ts`
-   - `sync-teams.ts`
-   - `sync-form.ts`
-   - `sync-odds.ts`
-   - `sync-lineups.ts`
-   - `generate-prediction.ts`
-   - `generate-narrative.ts`
-   - `validate-results.ts`
-   - `alert-premium.ts`
-   - `send-daily-summary.ts`
-   - `check-plan-expirations.ts`
-3. Crear helper `lib/workers/run-worker.ts`.
-4. Crear mock worker runs para admin.
+- Acciones controladas server-side.
+- Marcar fixture como `reviewed` o `verified`.
+- Registrar o editar resultado de partido.
+- No abrir escrituras a usuarios normales.
 
-## Criterio de listo
-Admin/Beta Lab puede mostrar workers mock y el repo tiene estructura real para implementarlos después.
+## B07. Lab Worker Simulation / Minimal Workers
+
+**Estado:** Later  
+**Objetivo:** preparar ejecución controlada para generar predicciones y validar resultados.
 
 ---
 
-# Épica 9: Skeleton de IA narrativa
+# Fase C — MVP Mundial funcional
 
-## Objetivo
-Preparar capa intercambiable para OpenAI/Gemini/Claude.
+Objetivo: convertir la app en un MVP funcional enfocado en Mundial 2026.
 
-## Tareas
+## C01. Public Predictions from DB
 
-1. Crear `lib/ai/provider.ts`.
-2. Crear `lib/ai/schemas/prediction-narrative.ts`.
-3. Crear `prompts/narrative.ts`.
-4. Crear función mock `generateNarrative`.
-5. Validar output conceptual con Zod.
-6. No llamar LLM real todavía.
+**Estado:** Next/Later  
+**Objetivo:** que `/predictions` y `/matches/[slug]` lean datos reales desde Supabase.
 
-## Criterio de listo
-El prototipo puede mostrar narrativa mock con estructura lista para LLM real.
+## C02. Plans & Entitlements Backend
 
----
+**Estado:** Next/Later  
+**Objetivo:** convertir planes mock en permisos reales.
 
-# Épica 10: Skeleton de Resend
+## C03. Paywall Backend Enforcement
 
-## Objetivo
-Preparar emails transaccionales y alertas.
+**Estado:** Next/Later  
+**Objetivo:** filtrar datos premium desde backend. Los locks visuales no bastan.
 
-## Tareas
+## C04. Transparency Real v0.1
 
-1. Crear `lib/email/resend.ts`.
-2. Crear `lib/email/send-email.ts`.
-3. Crear templates:
-   - `welcome.tsx`.
-   - `purchase-confirmation.tsx`.
-   - `golden-hour-alert.tsx`.
-   - `daily-summary.tsx`.
-   - `plan-expiration.tsx`.
-4. Usar mocks/TODOs, no enviar emails reales.
+**Estado:** Next/Later  
+**Objetivo:** mostrar métricas reales usando `match_results` y `prediction_results`.
 
-## Criterio de listo
-La estructura de Resend existe y no rompe build aunque no haya API key.
+## C05. Admin Operations v0.1
 
----
+**Estado:** Later  
+**Objetivo:** panel operativo mínimo para monitorear predicciones, resultados y workers.
 
-# Épica 11: Admin/Beta Lab
+## C06. Staging Deploy
 
-## Objetivo
-Crear panel interno para visualizar estado del sistema.
+**Estado:** Later  
+**Objetivo:** desplegar una URL estable para revisión del equipo.
 
-## Tareas
+## C07. MVP QA / Security Pass
 
-1. Crear `/admin`.
-2. Crear `/admin/beta-lab`.
-3. Mostrar partidos mock.
-4. Mostrar predicciones mock.
-5. Mostrar worker runs mock.
-6. Mostrar métricas mock.
-7. Crear botones deshabilitados/TODO:
-   - Recalcular predicción.
-   - Regenerar narrativa.
-   - Sync odds.
-
-## Criterio de listo
-Existe panel visual para operación futura.
+**Estado:** Later  
+**Objetivo:** revisar RLS, rutas protegidas, secretos, disclaimers y responsive.
 
 ---
 
-# Épica 12: Transparency Center
+# Fase D — Producto comercial / post-Mundial
 
-## Objetivo
-Mostrar rendimiento del modelo.
+## D01. Sports API Integration
 
-## Tareas
+**Estado:** Later  
+**Objetivo:** conectar API-Football o Sportmonks.
 
-1. Crear mock de predicciones pasadas.
-2. Mostrar accuracy por mercado.
-3. Mostrar tabla de historial.
-4. Mostrar pre-lineup vs post-lineup.
-5. Agregar disclaimers.
+## D02. Odds Provider Integration
 
-## Criterio de listo
-La página `/transparency` existe y comunica transparencia sin prometer resultados.
+**Estado:** Later  
+**Objetivo:** conectar cuotas reales y calcular Model vs Market.
 
----
+## D03. Workers reales / Railway Cron
 
-# Épica 13: Preparación para Railway
+**Estado:** Later  
+**Objetivo:** sincronizar datos, generar predicciones, validar resultados y alertar.
 
-## Objetivo
-Dejar el proyecto listo para despliegue futuro.
+## D04. LLM Narratives
 
-## Tareas
+**Estado:** Later  
+**Objetivo:** IA narrativa sobre predicciones ya calculadas.
 
-1. Crear `.env.example`.
-2. Crear notas de Railway en README.
-3. Evitar dependencias innecesarias.
-4. Confirmar `npm run build`.
-5. Confirmar `npm run dev`.
+## D05. Resend Emails / Alerts
 
-## Criterio de listo
-El proyecto puede correr local y está listo para configurar Railway después.
+**Estado:** Later  
+**Objetivo:** bienvenida, alertas premium, resumen diario y vencimientos.
 
----
+## D06. Payments
 
-# Épica 14: QA inicial
+**Estado:** Later  
+**Objetivo:** integrar Stripe, PayPal, Mercado Pago u otra pasarela.
 
-## Objetivo
-Evitar errores obvios en el prototipo.
+## D07. Observability / Logs
 
-## Tareas
-
-1. Revisar rutas.
-2. Revisar responsive.
-3. Revisar imports.
-4. Revisar TypeScript.
-5. Revisar que no haya secretos.
-6. Revisar que no se haya incluido módulo de polla/quiniela.
-7. Revisar que no haya promesas de ganancias.
-
-## Criterio de listo
-El prototipo compila y representa correctamente el MVP.
+**Estado:** Later  
+**Objetivo:** monitoreo, errores, trazabilidad de workers y operaciones.
 
 ---
 
-# Orden recomendado
+# Fase E — Ligas v2
 
-1. Épica 1: Setup.
-2. Épica 2: UI mock.
-3. Épica 3: Tipos.
-4. Épica 4: Planes dinámicos mock.
-5. Épica 5: Motor predictivo local.
-6. Épica 6-10: Skeletons de integraciones.
-7. Épica 11: Admin/Beta Lab.
-8. Épica 12: Transparency.
-9. Épica 13: Railway readiness.
-10. Épica 14: QA.
+## E01. Producto público multi-liga
+
+**Estado:** Future  
+**Objetivo:** ampliar más allá del Mundial hacia ligas, Champions, torneos regionales y amistosos como producto público.
+
+Importante:
+
+- El Lab pre-Mundial no es Ligas v2.
+- El Lab usa fixtures internos para calibrar modelo.
+- Ligas v2 requerirá UX, pricing, APIs, cobertura, permisos y estrategia comercial propios.
 
 ---
 
-# Primer prototipo funcional mínimo
+# Próximas tres épicas recomendadas
 
-Debe demostrar:
+1. `feature/prediction-engine-v01`
+2. `feature/model-evaluation-lab`
+3. `feature/lab-supabase-queries`
 
-- Home funcional.
-- Listado de partidos mock.
-- Detalle de partido mock.
-- Planes dinámicos mock.
-- Simulación free/premium.
-- Prediction Timeline.
-- Golden Hour Delta mock.
-- Model vs Market mock.
-- Transparency Center mock.
-- Admin/Beta Lab mock.
-- Skeletons de Supabase, Resend, APIs externas, LLM y workers.
+---
+
+# Reglas de alcance vigentes
+
+- No trabajar directo en `main`.
+- Una rama por épica o sub-épica clara.
+- No conectar APIs reales sin decisión de proveedor.
+- No implementar LLM como calculador.
+- No prometer ganancias.
+- No implementar módulo de polla/quiniela/pool en el MVP principal.
+- No convertir Beta Lab en producto público de ligas.
+- Los datos premium deben filtrarse desde backend.

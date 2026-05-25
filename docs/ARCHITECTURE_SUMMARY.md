@@ -1,74 +1,108 @@
+<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
+<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
+
 # ARCHITECTURE_SUMMARY.md — UFO Predictor
 
-## Stack final
+## Stack actual
 
 | Área | Herramienta |
 |---|---|
 | Lenguaje | TypeScript |
 | Framework | Next.js App Router |
 | Frontend | React |
-| UI | Tailwind CSS + shadcn/ui |
-| Runtime/hosting | Railway |
-| Base de datos | Supabase PostgreSQL |
-| Auth | Supabase Auth |
-| Seguridad | Supabase RLS |
-| Storage | Supabase Storage |
-| Emails | Resend + React Email |
-| Workers/crons | Railway Cron / Railway Services |
-| Validación | Zod |
-| Repo | GitHub |
-| API fútbol | API-Football o Sportmonks |
-| API cuotas | Proveedor principal o The Odds API |
-| IA narrativa | OpenAI / Gemini / Claude API |
-| Analytics | PostHog + GA4 |
-| Pagos | Stripe / PayPal / Mercado Pago |
+| UI | Tailwind CSS + componentes compatibles con shadcn/ui |
+| DB/Auth | Supabase PostgreSQL + Supabase Auth |
+| Seguridad | Supabase RLS inicial |
+| Runtime futuro | Railway |
+| Emails futuro | Resend + React Email |
+| Workers futuro | Railway Services / Cron |
+| IA narrativa futura | OpenAI / Gemini / Claude por decidir |
+| Datos fútbol futuro | API-Football o Sportmonks |
+| Odds futuro | The Odds API u otro proveedor |
 
 ---
 
-# Arquitectura
+# Arquitectura actual
 
 ```txt
-GitHub Monorepo
-        ↓
-Railway
-  - Next.js Web/PWA
-  - API Routes / Server Actions
-  - Workers / Cron Jobs
-        ↓
-Supabase
-  - PostgreSQL
-  - Auth
-  - RLS
-  - Storage
-        ↓
-External Services
-  - API-Football / Sportmonks
-  - Odds provider
-  - OpenAI / Gemini / Claude
-  - Resend
-  - Payment provider
+Next.js Web/PWA
+   ↓
+Supabase runtime clients
+   ↓
+Supabase PostgreSQL + Auth + RLS
+   ↓
+Beta Lab / Data Intake / futuras predicciones
 ```
 
 ---
 
-# Decisiones cerradas
+# Qué ya está conectado
 
-- Web/PWA, no app nativa.
-- Railway como host del MVP.
-- Supabase para DB/Auth/RLS.
-- Resend para emails.
-- Planes dinámicos.
-- Modelo estadístico propio.
-- LLM solo narrativa.
-- Módulo polla/quiniela fuera del MVP principal.
+- Supabase DB.
+- Supabase Auth.
+- Supabase runtime clients.
+- Roles `free_user` y `admin`.
+- Rutas protegidas.
+- Migraciones y seed hasta Data Intake Minimal.
 
 ---
 
-# Decisiones pendientes
+# Qué está preparado pero no conectado completamente
 
-- API-Football vs Sportmonks.
-- The Odds API sí/no.
-- OpenAI vs Gemini vs Claude.
-- Pasarela de pago.
-- Precios exactos.
-- Diseño final.
+- UI pública de predicciones.
+- Detalle de partido.
+- Pricing/paywall.
+- Transparency Center.
+- Admin/Beta Lab con mocks extendidos.
+- Workers.
+- IA narrativa.
+- APIs deportivas.
+- Odds.
+
+---
+
+# Beta Lab
+
+El Beta Lab es una capa interna/admin para probar fixtures, resultados y modelos antes del Mundial 2026.
+
+Soporte actual:
+
+- `competitions.usage_scope = internal_lab`.
+- `matches.access_scope = lab_only`.
+- `prediction_versions.run_scope = internal_lab`.
+- `matches.intake_source`.
+- `matches.data_quality`.
+- `match_results`.
+
+No es soporte público de ligas v2.
+
+---
+
+# Flujo previsto de predicción
+
+```txt
+Fixture validado
+↓
+Datos de entrada normalizados
+↓
+Prediction Engine v0.1
+↓
+prediction_versions + prediction_markets
+↓
+match_results
+↓
+prediction_results / evaluación
+↓
+Transparency real
+```
+
+---
+
+# Principios técnicos
+
+- El modelo estadístico calcula.
+- La IA solo explica.
+- Los datos premium se filtran en backend.
+- El Lab se mantiene interno.
+- No exponer secretos.
+- No trabajar directo en `main`.
