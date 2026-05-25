@@ -85,6 +85,7 @@ create table public.seasons (
   ends_at date not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  unique (id, competition_id),
   unique (competition_id, year),
   check (ends_at >= starts_at)
 );
@@ -130,7 +131,7 @@ create table public.matches (
   external_id text unique,
   slug text not null unique,
   competition_id uuid not null references public.competitions(id),
-  season_id uuid not null references public.seasons(id),
+  season_id uuid not null,
   home_team_id uuid not null references public.teams(id),
   away_team_id uuid not null references public.teams(id),
   venue_id uuid references public.venues(id) on delete set null,
@@ -140,6 +141,7 @@ create table public.matches (
     check (status in ('scheduled', 'live', 'finished', 'postponed', 'cancelled')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  foreign key (season_id, competition_id) references public.seasons(id, competition_id),
   check (home_team_id <> away_team_id)
 );
 
