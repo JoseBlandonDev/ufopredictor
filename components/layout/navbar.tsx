@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { BarChart3, Gauge, LayoutDashboard, RadioTower } from "lucide-react";
+import { BarChart3, Gauge, LayoutDashboard, LogIn, RadioTower } from "lucide-react";
 
 const navItems = [
   { href: "/predictions", label: "Predicciones", icon: Gauge },
@@ -41,12 +41,21 @@ export function Navbar() {
             );
           })}
         </div>
-        <Link
-          href="/admin/beta-lab"
-          className="rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10"
-        >
-          Laboratorio beta
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/login"
+            className="flex items-center gap-2 rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10"
+          >
+            <LogIn className="h-3.5 w-3.5" />
+            Ingresar
+          </Link>
+          <Link
+            href="/admin/beta-lab"
+            className="hidden rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 sm:block"
+          >
+            Laboratorio beta
+          </Link>
+        </div>
       </nav>
       <div className="flex gap-1 overflow-x-auto border-t border-white/5 px-4 py-2 md:hidden">
         {navItems.map((item) => (
