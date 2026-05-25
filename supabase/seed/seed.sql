@@ -261,3 +261,219 @@ values
     '{"llmProvider": "mock", "locale": "es/en"}'::jsonb
   )
 on conflict (id) do nothing;
+
+-- Internal Beta Lab fixtures. These synthetic competitions are not part of the public product catalog.
+
+insert into public.competitions (id, external_id, name, slug, country, type, usage_scope)
+values
+  (
+    '00000000-0000-4000-8000-000000010001',
+    'mock-lab-orbital-cup',
+    'Copa Orbital de Clubes',
+    'lab-orbital-cup',
+    null,
+    'cup',
+    'internal_lab'
+  ),
+  (
+    '00000000-0000-4000-8000-000000010002',
+    'mock-lab-calibration-friendlies',
+    'Amistosos de Calibracion',
+    'lab-calibration-friendlies',
+    null,
+    'international',
+    'internal_lab'
+  )
+on conflict (slug) do update set
+  name = excluded.name,
+  external_id = excluded.external_id,
+  type = excluded.type,
+  usage_scope = excluded.usage_scope;
+
+insert into public.seasons (id, competition_id, name, year, starts_at, ends_at)
+values
+  (
+    '00000000-0000-4000-8000-000000010011',
+    (select id from public.competitions where slug = 'lab-orbital-cup'),
+    'Calibracion 2026',
+    2026,
+    '2026-04-01',
+    '2026-05-20'
+  ),
+  (
+    '00000000-0000-4000-8000-000000010012',
+    (select id from public.competitions where slug = 'lab-calibration-friendlies'),
+    'Ventana mayo 2026',
+    2026,
+    '2026-05-01',
+    '2026-05-31'
+  )
+on conflict (competition_id, year) do update set
+  name = excluded.name,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at;
+
+insert into public.teams (id, external_id, name, slug, country, fifa_rank, elo_rating)
+values
+  ('00000000-0000-4000-8000-000000010101', 'mock-aurora-fc', 'Aurora FC', 'aurora-fc', 'Mockland', null, 1740),
+  ('00000000-0000-4000-8000-000000010102', 'mock-atletico-meridian', 'Atletico Meridian', 'atletico-meridian', 'Mockland', null, 1762),
+  ('00000000-0000-4000-8000-000000010103', 'mock-pacifico-sur', 'Pacifico Sur', 'pacifico-sur', 'Mockland', null, 1708),
+  ('00000000-0000-4000-8000-000000010104', 'mock-estrella-norte', 'Estrella Norte', 'estrella-norte', 'Mockland', null, 1721)
+on conflict (slug) do update set
+  name = excluded.name,
+  external_id = excluded.external_id,
+  country = excluded.country,
+  fifa_rank = excluded.fifa_rank,
+  elo_rating = excluded.elo_rating;
+
+insert into public.matches (
+  id,
+  external_id,
+  slug,
+  competition_id,
+  season_id,
+  home_team_id,
+  away_team_id,
+  kickoff_at,
+  stage,
+  status,
+  access_scope,
+  lab_status
+)
+values
+  (
+    '00000000-0000-4000-8000-000000010301',
+    'mock-lab-aurora-meridian',
+    'lab-aurora-vs-meridian',
+    (select id from public.competitions where slug = 'lab-orbital-cup'),
+    (select id from public.seasons where competition_id = (select id from public.competitions where slug = 'lab-orbital-cup') and year = 2026),
+    (select id from public.teams where slug = 'aurora-fc'),
+    (select id from public.teams where slug = 'atletico-meridian'),
+    '2026-05-14T23:00:00Z',
+    'Final mock de calibracion',
+    'finished',
+    'lab_only',
+    'ready'
+  ),
+  (
+    '00000000-0000-4000-8000-000000010302',
+    'mock-lab-pacifico-estrella',
+    'lab-pacifico-vs-estrella',
+    (select id from public.competitions where slug = 'lab-orbital-cup'),
+    (select id from public.seasons where competition_id = (select id from public.competitions where slug = 'lab-orbital-cup') and year = 2026),
+    (select id from public.teams where slug = 'pacifico-sur'),
+    (select id from public.teams where slug = 'estrella-norte'),
+    '2026-05-27T22:00:00Z',
+    'Semifinal mock',
+    'scheduled',
+    'lab_only',
+    'review'
+  ),
+  (
+    '00000000-0000-4000-8000-000000010303',
+    'mock-lab-meridian-pacifico',
+    'lab-meridian-vs-pacifico',
+    (select id from public.competitions where slug = 'lab-calibration-friendlies'),
+    (select id from public.seasons where competition_id = (select id from public.competitions where slug = 'lab-calibration-friendlies') and year = 2026),
+    (select id from public.teams where slug = 'atletico-meridian'),
+    (select id from public.teams where slug = 'pacifico-sur'),
+    '2026-05-29T19:30:00Z',
+    'Amistoso mock',
+    'scheduled',
+    'lab_only',
+    'needs_data'
+  )
+on conflict (slug) do update set
+  kickoff_at = excluded.kickoff_at,
+  stage = excluded.stage,
+  status = excluded.status,
+  access_scope = excluded.access_scope,
+  lab_status = excluded.lab_status;
+
+insert into public.prediction_versions (
+  id,
+  match_id,
+  model_version_id,
+  prediction_type,
+  home_win_prob,
+  draw_prob,
+  away_win_prob,
+  expected_home_goals,
+  expected_away_goals,
+  most_likely_score,
+  top_scores_json,
+  confidence_score,
+  risk_level,
+  run_scope
+)
+values
+  (
+    '00000000-0000-4000-8000-000000012101',
+    (select id from public.matches where slug = 'lab-aurora-vs-meridian'),
+    (select id from public.model_versions where version = 'v0.1'),
+    'pre_kickoff',
+    33,
+    29,
+    38,
+    1.18,
+    1.30,
+    '1-1',
+    '[{"score": "1-1", "probability": 13.1}, {"score": "1-2", "probability": 9.8}, {"score": "0-1", "probability": 9.2}]'::jsonb,
+    57,
+    'medium',
+    'internal_lab'
+  ),
+  (
+    '00000000-0000-4000-8000-000000012102',
+    (select id from public.matches where slug = 'lab-pacifico-vs-estrella'),
+    (select id from public.model_versions where version = 'v0.1'),
+    'pre_match_24h',
+    42,
+    30,
+    28,
+    1.41,
+    1.04,
+    '1-0',
+    '[{"score": "1-0", "probability": 12.0}, {"score": "1-1", "probability": 11.7}, {"score": "2-1", "probability": 8.6}]'::jsonb,
+    54,
+    'high',
+    'internal_lab'
+  )
+on conflict (id) do nothing;
+
+insert into public.prediction_results (
+  id,
+  prediction_version_id,
+  actual_home_goals,
+  actual_away_goals,
+  winner_correct,
+  btts_correct,
+  over_2_5_correct,
+  exact_score_correct,
+  goal_error,
+  error_summary,
+  validated_at
+)
+values (
+  '00000000-0000-4000-8000-000000012401',
+  '00000000-0000-4000-8000-000000012101',
+  1,
+  1,
+  false,
+  true,
+  false,
+  true,
+  0,
+  'Validacion mock interna para probar trazabilidad historica del laboratorio.',
+  '2026-05-15T02:00:00Z'
+)
+on conflict (prediction_version_id) do update set
+  actual_home_goals = excluded.actual_home_goals,
+  actual_away_goals = excluded.actual_away_goals,
+  winner_correct = excluded.winner_correct,
+  btts_correct = excluded.btts_correct,
+  over_2_5_correct = excluded.over_2_5_correct,
+  exact_score_correct = excluded.exact_score_correct,
+  goal_error = excluded.goal_error,
+  error_summary = excluded.error_summary,
+  validated_at = excluded.validated_at;
