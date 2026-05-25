@@ -24,6 +24,9 @@ surfaces remain backed by mock data.
 - `supabase/migrations/0003_beta_lab_foundation.sql` separates public-product
   competitions from internal laboratory fixtures and marks internal prediction
   runs without exposing them as public league coverage.
+- `supabase/migrations/0004_data_intake_minimal.sql` records source and review
+  quality for internal fixtures, and adds verified match results with limited
+  RLS access for authenticated readers and administrators.
 
 ## Runtime Environment
 
@@ -76,13 +79,26 @@ with `access_scope = 'lab_only'` is operational test data, not a public
 product listing. `prediction_versions.run_scope = 'internal_lab'` keeps
 experimental output distinguishable from World Cup product predictions.
 
-The current admin screen renders separated mock laboratory fixtures while the
-data access policies and real prediction engine remain unimplemented. This
-foundation is expressly not public league support or a version 2.0 launch.
+The current admin screen renders separated mock laboratory fixtures while
+product data queries and the real prediction engine remain unimplemented.
+This foundation is expressly not public league support or a version 2.0
+launch.
+
+## Data Intake Minimal
+
+Data Intake Minimal lets Beta Lab represent internal fixtures and final scores
+captured from mock or manual review workflows. It does not connect to
+API-Football, Sportmonks, odds feeds, CSV uploads, or any live data provider.
+
+`matches.intake_source` and `matches.data_quality` identify where an internal
+fixture came from and whether it is ready for later model work.
+`match_results` is the validated source for the real final score of a match.
+`prediction_results` remains a separate evaluation record: it measures a
+prediction version against that validated final result.
 
 If Supabase CLI is not available, verify this foundation only in an approved
 empty development project through Supabase SQL Editor: apply migration files
-in numeric order (`0001`, `0002`, `0003`) and then run
+in numeric order (`0001`, `0002`, `0003`, `0004`) and then run
 `supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
 `lab_only` remain for internal review only. Do not run the seed over production
 or any remote project with data that has not been approved for reset.
@@ -95,11 +111,15 @@ Supabase Data API configuration. This includes the explicitly sensitive tables:
 `profiles`, `subscriptions`, `user_entitlements`, `user_match_unlocks`, and
 `email_events`.
 
-The only policy created now lets an authenticated user read their own profile.
+The original profile policy lets an authenticated user read their own profile.
 Profile updates are deliberately deferred because a broad update policy could
 allow a client to change `role`. Public catalog reads, filtered prediction
 reads, subscriptions, entitlements, unlocks, and email events remain TODO
 items for the API, auth/paywall, and email epics.
+
+Data Intake adds narrowly scoped policies for `match_results`: authenticated
+users can read verified results, while only profiles with `role = 'admin'`
+can read unverified rows or create, update, and delete results.
 
 ## Applying After Review
 

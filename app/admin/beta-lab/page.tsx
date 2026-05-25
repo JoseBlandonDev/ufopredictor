@@ -12,6 +12,24 @@ export default async function BetaLabPage() {
     review: "en revisión",
     needs_data: "requiere datos",
   };
+  const intakeSourceLabels = {
+    mock: "Mock",
+    manual: "Manual",
+    csv_import: "CSV",
+  };
+  const dataQualityLabels = {
+    unreviewed: "Sin revisar",
+    reviewed: "Revisado",
+    verified: "Verificado",
+    rejected: "Rechazado",
+  };
+  const resultStatusLabels = {
+    pending_review: "Pendiente de revisión",
+    verified: "Verificado",
+    rejected: "Rechazado",
+  };
+  const pendingReviewCount = labMatches.filter((match) => match.dataQuality !== "verified").length;
+  const verifiedCount = labMatches.filter((match) => match.dataQuality === "verified").length;
 
   return (
     <div className="space-y-6">
@@ -33,6 +51,19 @@ export default async function BetaLabPage() {
         ))}
       </div>
 
+      <section className="grid gap-4 sm:grid-cols-2">
+        <div className="panel rounded-lg p-5">
+          <p className="text-sm text-[var(--muted)]">Datos pendientes de revisión</p>
+          <p className="mt-2 font-mono text-3xl text-[var(--warning)]">{pendingReviewCount}</p>
+          <p className="mt-2 text-xs text-[var(--muted)]">Fixtures mock o manuales que aún no están verificados.</p>
+        </div>
+        <div className="panel rounded-lg p-5">
+          <p className="text-sm text-[var(--muted)]">Datos verificados</p>
+          <p className="mt-2 font-mono text-3xl text-[var(--accent)]">{verifiedCount}</p>
+          <p className="mt-2 text-xs text-[var(--muted)]">Resultados listos para evaluación histórica posterior.</p>
+        </div>
+      </section>
+
       <section className="panel rounded-lg p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Fixtures internos de prueba</h2>
@@ -44,7 +75,7 @@ export default async function BetaLabPage() {
           {labMatches.map((match) => {
             const prediction = labPredictions.find((item) => item.matchId === match.id);
             return (
-              <div key={match.id} className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[1fr_190px_170px]">
+              <div key={match.id} className="grid gap-4 rounded-lg border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[minmax(250px,1fr)_210px_170px]">
                 <div>
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-md border border-[var(--line)] px-2 py-1 font-mono text-xs text-[var(--accent)]">
@@ -53,13 +84,25 @@ export default async function BetaLabPage() {
                     <span className="rounded-md border border-white/10 px-2 py-1 text-xs text-[var(--muted)]">
                       {match.competition.name}
                     </span>
+                    <span className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-2 py-1 text-xs text-[var(--accent)]">
+                      {intakeSourceLabels[match.intakeSource]}
+                    </span>
                   </div>
                   <p className="mt-3 font-medium">{match.homeTeam} vs {match.awayTeam}</p>
                   <p className="mt-1 text-xs text-[var(--muted)]">{match.stage}</p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">{match.sourceNote}</p>
                 </div>
                 <div className="space-y-2 text-xs">
                   <p className="rounded-md border border-[var(--warning)]/25 bg-[var(--warning)]/10 px-2 py-1 text-[var(--warning)]">
                     {betaStatusLabels[match.labStatus]}
+                  </p>
+                  <p className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-2 py-1 text-[var(--accent)]">
+                    Calidad: {dataQualityLabels[match.dataQuality]}
+                  </p>
+                  <p className="font-mono text-[var(--muted)]">
+                    {match.result
+                      ? `Resultado: ${match.result.homeGoals}-${match.result.awayGoals} / ${resultStatusLabels[match.result.verificationStatus]}`
+                      : "Resultado: pendiente"}
                   </p>
                   <p className="font-mono text-[var(--muted)]">
                     {prediction?.modelVersion ?? "sin predicción"} / {prediction?.runScope ?? "internal_lab"}
