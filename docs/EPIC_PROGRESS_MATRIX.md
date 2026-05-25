@@ -1,4 +1,4 @@
-<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
+<!-- UFO Predictor | Status updated for Lab Supabase Queries -->
 
 # EPIC_PROGRESS_MATRIX.md — UFO Predictor
 
@@ -14,8 +14,8 @@
 | B02 | Lab | Data Intake Minimal | Done | `feature/data-intake-minimal` | SQL + seed + UI + lint/build | Cerrado antes de reunión. |
 | B02F | Lab | Fix RLS resultados Lab | Done | `fix/lab-results-rls` | SQL review + lint/build | `lab_only` permanece admin-only. |
 | B03 | Lab | Prediction Engine v0.1 | Done | `feature/prediction-engine-v01` | Vitest + lint/build | Motor puro disponible. |
-| B04 | Lab | Model Evaluation / Backtesting | In progress | `feature/model-evaluation-lab` | Tests esperados | Evaluar contra resultados verificados sin persistencia. |
-| B05 | Lab | Lab Supabase Queries | Next | `feature/lab-supabase-queries` | localhost + Supabase | Reemplazar mocks del Lab gradualmente. |
+| B04 | Lab | Model Evaluation / Backtesting | Done | `feature/model-evaluation-lab` | Vitest + lint/build | Evaluacion pura disponible sin persistencia. |
+| B05 | Lab | Lab Supabase Queries | In progress | `feature/lab-supabase-queries` | lint/build + Supabase admin review pendiente | Leer Lab real con policies admin-only. |
 | B06 | Lab | Lab Admin Review Flow | Next | `feature/lab-admin-review-flow` | Admin-only + RLS | Revisar datos desde admin. |
 | C01 | MVP Mundial | Public Predictions from DB | Later | TBD | Supabase + UI | Conectar UI pública a DB. |
 | C02 | MVP Mundial | Plans & Entitlements Backend | Later | TBD | Permissions tests | Free/premium real. |
