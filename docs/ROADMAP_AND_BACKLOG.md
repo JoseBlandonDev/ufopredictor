@@ -1,5 +1,4 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
+<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
 
 # ROADMAP_AND_BACKLOG.md — UFO Predictor
 
@@ -28,15 +27,16 @@ El proyecto ya superó el prototipo inicial. Ahora el foco es construir un siste
 | A06 | Fundación | Auth y roles | `feature/auth-roles` | Supabase real + localhost + lint/build | Login, registro, admin/free_user. |
 | B01 | Lab | Beta Lab Foundation | `feature/beta-lab-foundation` | Supabase SQL + seed + UI + lint/build | `internal_lab`, `lab_only`, `run_scope`. |
 | B02 | Lab | Data Intake Minimal | `feature/data-intake-minimal` | Supabase SQL + seed + UI + lint/build | `match_results`, fuente/calidad de datos. |
+| B02F | Lab | Fix RLS resultados Lab | `fix/lab-results-rls` | SQL review + lint/build | Evita lectura no-admin de resultados internos. |
+| B03 | Lab | Prediction Engine v0.1 Lab | `feature/prediction-engine-v01` | Vitest + lint/build | Motor puro deterministico. |
 
 ---
 
-# Next
+# In Progress / Next
 
 | ID | Épica | Prioridad | Objetivo | Dependencias |
 |---|---|---:|---|---|
-| B03 | Prediction Engine v0.1 Lab | P0 | Generar predicciones simples, determinísticas y medibles en Lab. | B02 |
-| B04 | Model Evaluation / Backtesting | P0 | Comparar predicciones contra resultados validados. | B03, B02 |
+| B04 | Model Evaluation / Backtesting | P0 | En curso: comparar predicciones contra resultados validados sin persistir. | B03, B02 |
 | B05 | Lab Supabase Queries | P0 | Leer datos reales del Lab desde Supabase en admin. | B02, Auth |
 | B06 | Lab Admin Review Flow | P1 | Revisar fixtures/resultados desde admin. | B05 |
 | C01 | Public Predictions from DB | P0 | Conectar predicciones públicas a Supabase. | B03, B05 |

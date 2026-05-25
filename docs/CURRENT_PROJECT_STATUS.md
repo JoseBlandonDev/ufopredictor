@@ -1,5 +1,4 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
+<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
 
 # CURRENT_PROJECT_STATUS.md — UFO Predictor
 
@@ -10,8 +9,10 @@ UFO Predictor ya no está en fase de prototipo puro. El proyecto cuenta con una 
 Estado asumido para esta versión del documento:
 
 - `feature/data-intake-minimal` ya fue cerrado y mergeado antes de la reunión.
-- Supabase remoto tiene aplicadas las migraciones hasta `0004_data_intake_minimal.sql`.
+- Supabase remoto tiene aplicadas las migraciones hasta `0005_restrict_lab_match_results_rls.sql`.
 - El seed actualizado fue ejecutado y validado.
+- Prediction Engine v0.1 Lab ya fue mergeado.
+- La lectura RLS de `match_results` ya restringe resultados internos del Lab.
 
 ---
 
@@ -59,6 +60,8 @@ Estado asumido para esta versión del documento:
   - `reviewed_at`.
   - `reviewed_by`.
   - tabla `match_results`.
+- Prediction Engine v0.1 Lab puro y testeado.
+- RLS restringida para resultados `internal_lab` / `lab_only`.
 
 ## Admin
 
@@ -86,7 +89,6 @@ Estos elementos existen en UI/mock, pero no están completamente conectados a da
 
 # Qué NO existe todavía
 
-- Prediction Engine funcional.
 - Backtesting real.
 - Evaluación automática contra `match_results`.
 - Lecturas reales de Beta Lab desde Supabase.
@@ -105,7 +107,18 @@ Estos elementos existen en UI/mock, pero no están completamente conectados a da
 
 ---
 
-# Último trabajo completado
+# Ultimo trabajo completado
+
+## Prediction Engine v0.1 Lab y fix RLS
+
+**Estado:** Done
+
+Incluye:
+
+- Motor puro en `lib/prediction-engine/`.
+- Tests deterministas con Vitest.
+- Migracion `0005_restrict_lab_match_results_rls.sql`.
+- Restriccion de resultados del Lab a la policy admin.
 
 ## Data Intake Minimal
 
@@ -124,13 +137,14 @@ Incluye:
 
 ---
 
-# Próximo paso recomendado
+# Trabajo actual
 
 ```txt
-feature/prediction-engine-v01
+feature/model-evaluation-lab
 ```
 
-Objetivo: crear el primer motor estadístico v0.1 para Lab, sin APIs reales, sin LLM y sin odds reales.
+Objetivo: evaluar predicciones contra resultados verificados mediante logica
+pura compatible con `prediction_results`, sin persistencia en Supabase.
 
 ---
 

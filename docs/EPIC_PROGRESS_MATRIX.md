@@ -1,5 +1,4 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
+<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
 
 # EPIC_PROGRESS_MATRIX.md — UFO Predictor
 
@@ -13,8 +12,9 @@
 | A06 | Fundación | Auth y roles | Done | `feature/auth-roles` | Supabase real + localhost | Cerrado. |
 | B01 | Lab | Beta Lab Foundation | Done | `feature/beta-lab-foundation` | SQL + seed + UI | Cerrado. |
 | B02 | Lab | Data Intake Minimal | Done | `feature/data-intake-minimal` | SQL + seed + UI + lint/build | Cerrado antes de reunión. |
-| B03 | Lab | Prediction Engine v0.1 | Next | `feature/prediction-engine-v01` | Tests esperados | Crear motor puro. |
-| B04 | Lab | Model Evaluation / Backtesting | Next | `feature/model-evaluation-lab` | Tests + DB validation | Evaluar contra `match_results`. |
+| B02F | Lab | Fix RLS resultados Lab | Done | `fix/lab-results-rls` | SQL review + lint/build | `lab_only` permanece admin-only. |
+| B03 | Lab | Prediction Engine v0.1 | Done | `feature/prediction-engine-v01` | Vitest + lint/build | Motor puro disponible. |
+| B04 | Lab | Model Evaluation / Backtesting | In progress | `feature/model-evaluation-lab` | Tests esperados | Evaluar contra resultados verificados sin persistencia. |
 | B05 | Lab | Lab Supabase Queries | Next | `feature/lab-supabase-queries` | localhost + Supabase | Reemplazar mocks del Lab gradualmente. |
 | B06 | Lab | Lab Admin Review Flow | Next | `feature/lab-admin-review-flow` | Admin-only + RLS | Revisar datos desde admin. |
 | C01 | MVP Mundial | Public Predictions from DB | Later | TBD | Supabase + UI | Conectar UI pública a DB. |
