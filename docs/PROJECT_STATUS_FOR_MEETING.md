@@ -1,124 +1,128 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
-
 # PROJECT_STATUS_FOR_MEETING.md — UFO Predictor
 
 ## Resumen ejecutivo
 
-UFO Predictor avanzó de prototipo visual a una base técnica funcional. Ya existen Supabase, Auth, roles, Beta Lab y Data Intake Minimal. Esto permite preparar el siguiente bloque: motor predictivo v0.1 y evaluación interna antes del Mundial 2026.
+UFO Predictor ya dejó de ser solo una maqueta visual. El proyecto cuenta con una base técnica real: Supabase, Auth, roles, Admin/Beta Lab, motor predictivo v0.1, evaluación de predicciones y lecturas reales de datos Lab desde Supabase.
 
-La ejecución reciente fue coordinada por Jonathan con apoyo de Codex/ChatGPT para implementación y revisión. Las decisiones de producto y priorización siguen abiertas para el equipo.
+El producto sigue en fase interna pre-Mundial. Todavía no es un MVP público final.
+
+Principio permanente:
+
+> El modelo estadístico calcula. La IA explica.
 
 ---
 
-# Qué ya está listo
+## Qué ya existe
 
-## Producto / UI
+### Producto / UI
 
-- Prototipo navegable.
-- Branding inicial UFO Predictor.
-- UI en español.
-- Rutas principales del MVP.
-- Dashboard y Admin.
-- Beta Lab visible.
+- App Next.js navegable.
+- Branding UFO Predictor.
+- Home, predicciones, detalle de partido, pricing, transparency, dashboard y admin.
+- Login/register con Supabase Auth.
+- Dashboard protegido.
+- Admin protegido.
+- Beta Lab admin protegido.
 
-## Backend / Supabase
+### Supabase / Auth
 
-- Schema inicial.
-- Seed inicial.
-- Supabase remoto aplicado.
+- Schema inicial aplicado.
 - Auth email/password.
 - Roles `free_user` y `admin`.
-- Rutas protegidas.
+- Profiles automáticos.
+- Runtime clients.
 - RLS inicial.
+- Policies Lab reforzadas.
 
-## Lab interno
+### Beta Lab
 
 - Competiciones internas `internal_lab`.
 - Partidos `lab_only`.
-- Ejecuciones `internal_lab`.
-- Fuente/calidad del dato.
-- Resultados validados en `match_results`.
-- Panel admin muestra estado de fixtures lab.
+- Fuente/calidad de datos.
+- Resultados reales registrados en `match_results`.
+- Predicciones internas en `prediction_versions`.
+- Evaluaciones persistidas en `prediction_results`.
+- `/admin/beta-lab` ya lee datos reales desde Supabase.
+
+### Motor predictivo
+
+- `lib/prediction-engine/` implementado.
+- Calcula probabilidades 1X2, BTTS, Over/Under 2.5, xG, marcadores probables, confidence/risk.
+- Tests con Vitest.
+
+### Evaluación del modelo
+
+- `lib/model-evaluation/` implementado.
+- Calcula aciertos y errores contra resultados reales.
+- Produce métricas individuales y agregadas.
+- Tests con Vitest.
 
 ---
 
-# Últimas épicas completadas
+## Qué validamos recientemente
 
-| Épica | Resultado |
-|---|---|
-| Auth y roles | Login, registro, perfil, admin/free_user, rutas protegidas. |
-| Beta Lab Foundation | Separación entre producto público y laboratorio interno. |
-| Data Intake Minimal | Fuente/calidad de datos y resultados validados para Lab. |
+- `npm run test`.
+- `npm run lint`.
+- `npm run build`.
+- Supabase SQL Editor con migraciones `0005` y `0006`.
+- Usuario admin puede ver `/admin/beta-lab`.
+- Incógnito/no autenticado redirige a login para `/admin/beta-lab`.
 
----
+Datos visibles actuales en Beta Lab:
 
-# Qué cambió respecto al plan inicial
-
-El plan inicial contemplaba un prototipo y skeletons. Al conectar Supabase y Auth surgió una necesidad más clara: construir un Lab interno para probar el modelo antes del Mundial.
-
-Esto agregó nuevas épicas necesarias:
-
-- Beta Lab Foundation.
-- Data Intake Minimal.
-- Prediction Engine v0.1 Lab.
-- Model Evaluation / Backtesting.
-- Lab Admin Review Flow.
-
-Esto no es desviación: es la capa necesaria para no llegar al Mundial sin pruebas reales.
+- 3 fixtures Lab.
+- 2 predicciones Lab.
+- 1 resultado registrado.
+- 1 evaluación persistida.
+- 2 fixtures pendientes de revisión.
 
 ---
 
-# Qué falta para una beta interna útil
+## Qué sigue siendo mock o pendiente
 
-1. Prediction Engine v0.1.
-2. Evaluación del modelo contra resultados.
-3. Consultas reales de Supabase en Beta Lab.
-4. Flujo admin para revisar fixtures/resultados.
-5. Transparency v0.1 interna.
-
----
-
-# Qué falta para MVP Mundial funcional
-
-- Predicciones públicas desde DB.
-- Paywall backend real.
-- Entitlements.
-- Transparency real.
-- Deploy/staging.
-- QA/security.
+- Worker runs siguen mock.
+- No hay escritura admin desde UI todavía.
+- No hay CRUD/review flow.
+- No hay workers reales.
+- No hay API deportiva.
+- No hay odds reales.
+- No hay LLM real.
+- No hay pagos.
+- No hay Google Auth.
+- No hay predicciones públicas desde DB.
+- No hay paywall backend real.
 
 ---
 
-# Qué queda para producto comercial
+## Próximo bloque recomendado
 
-- API deportiva real.
-- Odds reales.
-- Workers reales.
-- Narrativa LLM.
-- Emails.
-- Pagos.
-- Ligas v2.
+Dividir Lab Admin Review Flow en tareas pequeñas.
 
----
-
-# Próxima prioridad recomendada
+### Próxima tarea recomendada
 
 ```txt
-feature/prediction-engine-v01
+feature/lab-fixture-review-actions
 ```
 
-Objetivo: generar predicciones simples y medibles en el Lab.
+Objetivo: permitir que admin revise fixtures Lab desde UI.
 
-No debe incluir todavía APIs reales, LLM, pagos ni odds.
+Campos candidatos:
+
+- `matches.lab_status`.
+- `matches.data_quality`.
+- `matches.source_note`.
+- `matches.reviewed_at`.
+- `matches.reviewed_by`.
+
+### Después
+
+```txt
+feature/lab-match-result-actions
+feature/lab-evaluation-persistence
+```
 
 ---
 
-# Decisiones requeridas del equipo
+## Mensaje simple para equipo
 
-- Qué competiciones/amistosos usar para Lab.
-- Cuándo instalar formalmente Supabase CLI y Docker local.
-- Qué proveedor deportivo evaluar primero.
-- Cuál será el criterio mínimo para considerar útil el modelo v0.1.
-- Qué tan pronto conectar staging.
-- Cuándo priorizar paywall frente a motor/evaluación.
+Ya tenemos el laboratorio interno funcionando con datos reales de Supabase. Podemos ver fixtures de prueba, predicciones, resultados y evaluaciones desde el panel admin. El siguiente paso es permitir que el admin revise y actualice esos datos desde la interfaz, en vez de depender del SQL Editor.

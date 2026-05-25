@@ -1,11 +1,8 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
-
 # OPEN_DECISIONS.md — UFO Predictor
 
 ## Propósito
 
-Este documento lista decisiones pendientes. Su objetivo es evitar que se implementen soluciones definitivas antes de que el equipo cierre criterios de producto, datos, infraestructura o monetización.
+Este documento lista decisiones pendientes. Su objetivo es evitar implementar soluciones definitivas antes de que el equipo cierre criterios de producto, datos, infraestructura o monetización.
 
 ---
 
@@ -13,7 +10,7 @@ Este documento lista decisiones pendientes. Su objetivo es evitar que se impleme
 
 ## Supabase CLI / entorno local
 
-**Estado:** pendiente.
+**Estado:** pendiente / en radar.
 
 Opciones:
 
@@ -21,7 +18,9 @@ Opciones:
 2. Instalar Supabase CLI con Docker para entorno local.
 3. Usar ambos: migraciones versionadas + staging remoto + local para pruebas.
 
-**Recomendación:** crear una épica pequeña `feature/supabase-cli-local-setup` antes de que crezcan las migraciones.
+**Estado actual:** las migraciones hasta `0006_admin_lab_read_policies.sql` se han aplicado manualmente en Supabase SQL Editor.
+
+**Recomendación:** crear `feature/supabase-cli-local-setup` cuando el equipo quiera optimizar flujo. No bloquear Lab Admin Review por esto.
 
 ## Railway staging
 
@@ -29,10 +28,35 @@ Opciones:
 
 Decidir:
 
-- rama de deploy,
-- variables de entorno,
-- Supabase staging,
+- rama de deploy;
+- variables de entorno;
+- Supabase staging;
 - proceso de rollback.
+
+---
+
+# Auth
+
+## Google Auth
+
+**Estado:** en radar.
+
+Conviene implementarlo como épica separada:
+
+```txt
+feature/google-auth
+```
+
+Alcance futuro:
+
+- configurar Google Provider en Supabase;
+- botón de login/register;
+- callback;
+- profile automático;
+- rol inicial `free_user`;
+- admin sigue siendo asignación controlada/manual.
+
+No mezclar con Lab Admin Review Flow.
 
 ---
 
@@ -44,27 +68,20 @@ Decidir:
 
 Criterios:
 
-- cobertura Mundial 2026,
-- fixtures,
-- resultados,
-- alineaciones,
-- forma reciente,
-- límites y costos,
-- estabilidad,
+- cobertura Mundial 2026;
+- fixtures;
+- resultados;
+- alineaciones;
+- forma reciente;
+- límites y costos;
+- estabilidad;
 - documentación.
 
-## Competiciones para Lab pre-Mundial
+## Competiciones para Lab real
 
 **Estado:** pendiente.
 
 Decidir qué competiciones/amistosos se usarán para calibración interna antes del Mundial.
-
-Ejemplos candidatos:
-
-- Champions League.
-- amistosos internacionales.
-- ligas latinoamericanas o europeas cercanas a terminar.
-- torneos con datos fáciles de validar manualmente.
 
 Importante: esto es Beta Lab, no producto público multi-liga.
 
@@ -72,23 +89,58 @@ Importante: esto es Beta Lab, no producto público multi-liga.
 
 # Modelo predictivo
 
-## Métricas mínimas de Prediction Engine v0.1
-
-**Estado:** pendiente.
-
-Medir inicialmente:
-
-- 1X2.
-- BTTS.
-- Over/Under 2.5.
-- error de goles.
-- calibración básica de probabilidades.
-
 ## Criterio de aceptación del modelo v0.1
 
 **Estado:** pendiente.
 
-Definir qué nivel de consistencia o trazabilidad esperamos para considerar útil el motor lab.
+Ya existe:
+
+- Prediction Engine v0.1 Lab.
+- Model Evaluation Lab.
+- Lab Supabase Queries.
+
+Falta definir qué nivel de consistencia/calibración esperamos antes de usarlo para predicciones públicas.
+
+## Calibración
+
+**Estado:** futuro.
+
+No cambiar pesos/fórmula sin datos de evaluación suficientes.
+
+Posible rama futura:
+
+```txt
+feature/model-calibration-lab
+```
+
+---
+
+# Lab Admin
+
+## Lab Fixture Review Actions
+
+**Estado:** próximo.
+
+Decidir detalles de UX y alcance:
+
+- acciones rápidas;
+- server actions vs route handlers;
+- campos editables;
+- RLS update admin-only.
+
+## Match Result Actions
+
+**Estado:** próximo/después.
+
+Decidir si crear/editar `match_results` se hace junto a fixture review o en sub-épica separada.
+
+Recomendación actual: sub-épica separada.
+
+## Evaluation Persistence
+
+**Estado:** próximo/después.
+
+Decidir flujo para persistir `prediction_results` usando `lib/model-evaluation/`.
 
 ---
 
@@ -100,8 +152,8 @@ Definir qué nivel de consistencia o trazabilidad esperamos para considerar úti
 
 Opciones:
 
-- odds del proveedor deportivo principal,
-- The Odds API,
+- odds del proveedor deportivo principal;
+- The Odds API;
 - otro proveedor.
 
 Regla vigente: no usar lenguaje agresivo de apuestas ni prometer ganancias.
@@ -116,9 +168,9 @@ Regla vigente: no usar lenguaje agresivo de apuestas ni prometer ganancias.
 
 Opciones:
 
-- OpenAI,
-- Gemini,
-- Claude,
+- OpenAI;
+- Gemini;
+- Claude;
 - combinación.
 
 Regla permanente: el LLM no calcula probabilidades; solo explica resultados ya calculados.
@@ -133,9 +185,9 @@ Regla permanente: el LLM no calcula probabilidades; solo explica resultados ya c
 
 Opciones:
 
-- Stripe,
-- PayPal,
-- Mercado Pago,
+- Stripe;
+- PayPal;
+- Mercado Pago;
 - combinación.
 
 ## Precios y planes finales
@@ -143,27 +195,6 @@ Opciones:
 **Estado:** pendiente.
 
 El sistema debe permitir planes configurables; no hardcodear precios finales en lógica.
-
----
-
-# Auth y operación
-
-## Asignación de administradores
-
-**Estado:** temporalmente manual.
-
-Actual: edición manual de `profiles.role`.  
-Pendiente: definir flujo operacional o panel seguro.
-
-## Lab review flow
-
-**Estado:** pendiente.
-
-Decidir cómo se revisarán fixtures/resultados desde admin:
-
-- acciones server-side,
-- panel CRUD limitado,
-- proceso manual temporal.
 
 ---
 

@@ -1,164 +1,201 @@
-<!-- UFO Predictor | Status updated for Lab Supabase Queries -->
-
 # NEXT_EPICS_PLAN.md — UFO Predictor
 
 ## Propósito
 
-Definir las próximas épicas después de Data Intake Minimal. Este documento debe guiar prompts de Codex y evitar mezclar alcance.
+Definir las próximas épicas después de Lab Supabase Queries. Este documento guía prompts de Codex y evita mezclar alcances.
 
 ---
 
-# 1. Prediction Engine v0.1 Lab
+## Estado actual
 
-**Estado:** Done. Motor puro y testeado mergeado en `main`.
+Ya están cerradas:
+
+- Beta Lab Foundation.
+- Data Intake Minimal.
+- Prediction Engine v0.1 Lab.
+- Restrict Lab Match Results RLS.
+- Model Evaluation / Backtesting Lab.
+- Lab Supabase Queries.
+
+`/admin/beta-lab` ya lee datos reales desde Supabase para fixtures, predicciones, resultados y evaluaciones. Worker runs siguen mock.
+
+---
+
+# 1. Lab Fixture Review Actions
+
+## Rama sugerida
+
+```txt
+feature/lab-fixture-review-actions
+```
 
 ## Objetivo
 
-Crear el primer motor estadístico explicable, determinístico y testeable.
+Permitir que un admin revise fixtures Lab desde `/admin/beta-lab`, sin CRUD completo y sin editar resultados todavía.
 
 ## Alcance
 
-- `lib/prediction-engine/`.
-- Normalización de inputs.
-- Team Power Score.
-- Expected goals.
-- Poisson.
-- Mercados 1X2, OU 2.5, BTTS.
-- Top scores.
-- Confidence/risk.
-- Tests básicos.
+- Mantener `requireAdmin`.
+- Implementar server actions o route handlers seguros.
+- Actualizar en `matches`:
+  - `lab_status`;
+  - `data_quality`;
+  - `source_note`;
+  - `reviewed_at`;
+  - `reviewed_by`.
+- Agregar policies RLS update admin-only si hace falta.
+- Refrescar la página después de acciones.
+- Mantener filtros `internal_lab` / `lab_only`.
 
 ## No-alcance
 
-- APIs reales.
-- LLM.
-- Odds reales.
-- Paywall.
+- Crear/editar `match_results`.
+- Ejecutar motor predictivo.
+- Persistir evaluaciones.
 - Workers reales.
-- UI pública masiva.
-
-## Archivos probables
-
-- `lib/prediction-engine/`
-- `types/prediction.ts`
-- `docs/MODEL_V01.md`
-- tests con Vitest o framework decidido.
-
-## Validación
-
-- Tests unitarios.
-- `npm run lint`.
-- `npm run build`.
+- API deportiva.
+- Odds.
+- LLM.
+- Pagos.
+- Google Auth.
 
 ---
 
-# 2. Model Evaluation / Backtesting
+# 2. Lab Match Result Actions
 
-**Estado:** Done. Capa pura y testeada mergeada en `main`.
+## Rama sugerida
 
-## Objetivo
-
-Comparar predicciones con resultados validados.
-
-## Alcance
-
-- Usar `match_results` como verdad del partido.
-- Generar payloads compatibles con `prediction_results`, sin persistirlos en esta epica.
-- Calcular métricas por mercado.
-- Preparar datos para Transparency.
-
-## No-alcance
-
-- Backtesting masivo avanzado.
-- Experimentos múltiples complejos.
-- Tabla `model_evaluations` si no es estrictamente necesaria.
-- Lectura o escritura real en Supabase.
-
-## Validación
-
-- Tests contra fixtures conocidos.
-- Verificar métricas esperadas.
-
-## Dependencia de seguridad cerrada
-
-- `fix/lab-results-rls` ya restringe resultados `internal_lab` / `lab_only`
-  para que no sean legibles por usuarios no-admin.
-
----
-
-# 3. Lab Supabase Queries
-
-**Estado:** In progress en `feature/lab-supabase-queries`.
+```txt
+feature/lab-match-result-actions
+```
 
 ## Objetivo
 
-Mover Beta Lab de mock extendido a consultas server-side controladas.
+Permitir crear o editar resultados reales de fixtures Lab desde admin.
 
 ## Alcance
 
-- Leer `competitions`, `matches`, `teams`, `model_versions`, `prediction_versions`, `match_results` y `prediction_results`.
-- Filtrar `internal_lab` y `lab_only`.
-- Mantener admin-only con policies RLS de lectura y el cliente server-side de la sesion autenticada.
+- Crear/actualizar `match_results`.
+- Validar `home_goals` y `away_goals`.
+- Manejar `verification_status`.
+- Registrar `reviewed_at` y `reviewed_by`.
+- Mantener admin-only.
+- Mantener RLS.
 
 ## No-alcance
 
-- CRUD completo.
-- Escrituras desde UI.
-- Uso de service role para alimentar la UI.
-- Publicar Lab en frontend público.
-
-## Validación
-
-- Admin puede ver datos reales.
-- Free user no puede acceder.
-- No se exponen datos lab públicamente.
-
----
-
-# 4. Lab Admin Review Flow
-
-## Objetivo
-
-Permitir revisión básica de fixtures/resultados desde admin.
-
-## Alcance
-
-- Marcar `data_quality`.
-- Registrar/actualizar `match_results`.
-- Acciones server-side.
-- RLS/role guard admin.
-
-## No-alcance
-
-- Upload CSV real.
-- API real.
+- Backtesting masivo.
 - Workers.
+- API deportiva.
+- Evaluación automática si no se decide incluir.
 
 ---
 
-# 5. Public Predictions from DB
+# 3. Lab Evaluation Persistence Flow
+
+## Rama sugerida
+
+```txt
+feature/lab-evaluation-persistence
+```
 
 ## Objetivo
 
-Conectar `/predictions` y `/matches/[slug]` a datos de Supabase.
+Persistir evaluaciones calculadas por `lib/model-evaluation/` en `prediction_results`.
 
 ## Alcance
 
-- Leer partidos públicos.
-- Leer predicciones publicables.
-- Mantener datos premium filtrados.
+- Tomar `prediction_version` y `match_result`.
+- Usar `lib/model-evaluation/`.
+- Crear/actualizar `prediction_results`.
+- Mantener admin-only o flujo server-side controlado.
+- Agregar tests para payloads y edge cases.
+
+## No-alcance
+
+- Workers reales.
+- Backtesting avanzado.
+- API deportiva.
+- Odds.
+- LLM.
+
+---
+
+# 4. Google Auth
+
+## Rama sugerida
+
+```txt
+feature/google-auth
+```
+
+## Estado
+
+En radar, no urgente.
+
+## Objetivo
+
+Reducir fricción de registro/login usando Supabase OAuth con Google.
+
+## Alcance futuro
+
+- Configurar Google Provider en Supabase.
+- Botón “Continuar con Google”.
+- Validar callback.
+- Confirmar creación de profile.
+- Rol inicial `free_user`.
+- Mantener asignación admin controlada/manual.
+
+---
+
+# 5. Supabase CLI Local Setup
+
+## Rama sugerida
+
+```txt
+feature/supabase-cli-local-setup
+```
+
+## Estado
+
+En radar. No urgente.
+
+## Objetivo
+
+Mejorar flujo de migraciones y validación local.
+
+## Notas
+
+- Puede requerir Docker.
+- Puede consumir espacio local.
+- Hasta nueva decisión, migraciones se siguen aplicando manualmente en Supabase SQL Editor.
+
+---
+
+# 6. Public Predictions from DB
+
+## Rama futura
+
+```txt
+feature/public-predictions-from-db
+```
+
+## Objetivo
+
+Conectar `/predictions` y `/matches/[slug]` a datos reales desde Supabase.
 
 ## Dependencias
 
-- Prediction Engine.
-- Paywall básico o helper de permisos.
+- Lab más maduro.
+- Paywall/permissions helper o estrategia de filtrado.
+- Predicciones publicables.
 
 ---
 
-# Recomendación de orden
+## Orden recomendado
 
-1. Prediction Engine v0.1 Lab.
-2. Model Evaluation / Backtesting.
-3. Lab Supabase Queries.
-4. Lab Admin Review Flow.
-5. Public Predictions from DB.
+1. `feature/lab-fixture-review-actions`.
+2. `feature/lab-match-result-actions`.
+3. `feature/lab-evaluation-persistence`.
+4. `feature/google-auth` o `feature/supabase-cli-local-setup`, según prioridad operativa.
+5. `feature/public-predictions-from-db`.
