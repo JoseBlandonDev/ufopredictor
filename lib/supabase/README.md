@@ -1,7 +1,8 @@
-# Supabase Schema Foundation
+# Supabase Runtime Foundation
 
-This directory documents the versioned database foundation for UFO Predictor.
-The app is not connected to Supabase in this epic.
+This directory holds the database foundation and lazy Supabase client factories
+for UFO Predictor. No page, authentication flow, or real user operation is
+connected to Supabase in this epic.
 
 ## Files
 
@@ -11,6 +12,35 @@ The app is not connected to Supabase in this epic.
 - `supabase/seed/seed.sql` adds deterministic sample data aligned with the
   current prototype: World Cup 2026 data, plans, one example prediction,
   narrative content, and mock worker executions. It creates no users.
+- `lib/supabase/client.ts` creates a browser client for future Client
+  Components using only the public URL and anon key.
+- `lib/supabase/server.ts` creates a cookie-aware server client for future
+  Server Components, Server Actions, and Route Handlers. It also exposes a
+  server-only admin factory for explicitly privileged backend tasks.
+
+## Runtime Environment
+
+Configure these values in `.env.local` for local development or in the chosen
+hosting environment. Do not commit real values.
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are the only
+  values permitted in browser code. The anon key is safe only with correct RLS.
+- `SUPABASE_SERVICE_ROLE_KEY` bypasses RLS and is restricted to
+  `server.ts`, which imports `server-only`. Never import its admin factory from
+  a Client Component.
+- Clients are created inside functions rather than at module import time, so
+  builds do not require configured Supabase credentials unless code actually
+  invokes a factory.
+
+The project currently uses the requested legacy anon/service-role variable
+names. A future deployment decision may adopt Supabase publishable/secret key
+names without exposing privileged credentials to the browser.
 
 ## RLS Scope
 
@@ -61,7 +91,7 @@ link a project, use credentials, or execute remote migrations.
 
 ## Not Implemented
 
-- Supabase client or server initialization in the Next.js app.
-- Login, callbacks, middleware, or protected routes.
+- Page-level reads or writes using Supabase.
+- Login, callbacks, auth proxy, roles, or protected routes.
 - Complete RLS/paywall enforcement.
 - Payments, real providers, Resend, LLM calls, or live workers.

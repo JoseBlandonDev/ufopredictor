@@ -9,12 +9,15 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/postcss": "latest",
     "clsx": "latest",
     "lucide-react": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "server-only": "0.0.1",
     "tailwind-merge": "latest",
     "zod": "latest"
   },
