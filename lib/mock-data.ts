@@ -34,6 +34,14 @@ type LabMatch = {
   homeTeam: string;
   awayTeam: string;
   labStatus: "ready" | "review" | "needs_data";
+  intakeSource: "mock" | "manual" | "csv_import";
+  dataQuality: "unreviewed" | "reviewed" | "verified" | "rejected";
+  sourceNote: string;
+  result: {
+    homeGoals: number;
+    awayGoals: number;
+    verificationStatus: "pending_review" | "verified" | "rejected";
+  } | null;
 };
 
 type LabPrediction = {
@@ -265,6 +273,10 @@ export const labMatches: LabMatch[] = [
     homeTeam: "Aurora FC",
     awayTeam: "Atlético Meridian",
     labStatus: "ready",
+    intakeSource: "mock",
+    dataQuality: "verified",
+    sourceNote: "Resultado sintético revisado para calibración interna.",
+    result: { homeGoals: 1, awayGoals: 1, verificationStatus: "verified" },
   },
   {
     id: "lab-match-pacifico-estrella",
@@ -274,6 +286,10 @@ export const labMatches: LabMatch[] = [
     homeTeam: "Pacífico Sur",
     awayTeam: "Estrella Norte",
     labStatus: "review",
+    intakeSource: "manual",
+    dataQuality: "reviewed",
+    sourceNote: "Fixture manual pendiente de resultado final.",
+    result: null,
   },
   {
     id: "lab-match-meridian-pacifico",
@@ -283,6 +299,10 @@ export const labMatches: LabMatch[] = [
     homeTeam: "Atlético Meridian",
     awayTeam: "Pacífico Sur",
     labStatus: "needs_data",
+    intakeSource: "manual",
+    dataQuality: "unreviewed",
+    sourceNote: "Carga incompleta para probar revisión de datos.",
+    result: null,
   },
 ];
 

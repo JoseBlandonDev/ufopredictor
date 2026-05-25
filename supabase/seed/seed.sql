@@ -338,7 +338,11 @@ insert into public.matches (
   stage,
   status,
   access_scope,
-  lab_status
+  lab_status,
+  intake_source,
+  data_quality,
+  source_note,
+  reviewed_at
 )
 values
   (
@@ -353,7 +357,11 @@ values
     'Final mock de calibracion',
     'finished',
     'lab_only',
-    'ready'
+    'ready',
+    'mock',
+    'verified',
+    'Resultado sintético revisado para validar el flujo interno de calibración.',
+    '2026-05-15T02:00:00Z'
   ),
   (
     '00000000-0000-4000-8000-000000010302',
@@ -367,7 +375,11 @@ values
     'Semifinal mock',
     'scheduled',
     'lab_only',
-    'review'
+    'review',
+    'manual',
+    'reviewed',
+    'Fixture manual de prueba pendiente de resultado final.',
+    '2026-05-24T16:00:00Z'
   ),
   (
     '00000000-0000-4000-8000-000000010303',
@@ -381,14 +393,22 @@ values
     'Amistoso mock',
     'scheduled',
     'lab_only',
-    'needs_data'
+    'needs_data',
+    'manual',
+    'unreviewed',
+    'Fixture manual incompleto para probar la cola de revisión.',
+    null
   )
 on conflict (slug) do update set
   kickoff_at = excluded.kickoff_at,
   stage = excluded.stage,
   status = excluded.status,
   access_scope = excluded.access_scope,
-  lab_status = excluded.lab_status;
+  lab_status = excluded.lab_status,
+  intake_source = excluded.intake_source,
+  data_quality = excluded.data_quality,
+  source_note = excluded.source_note,
+  reviewed_at = excluded.reviewed_at;
 
 insert into public.prediction_versions (
   id,
@@ -440,6 +460,34 @@ values
     'internal_lab'
   )
 on conflict (id) do nothing;
+
+insert into public.match_results (
+  id,
+  match_id,
+  home_goals,
+  away_goals,
+  verification_status,
+  intake_source,
+  source_note,
+  reviewed_at
+)
+values (
+  '00000000-0000-4000-8000-000000012301',
+  (select id from public.matches where slug = 'lab-aurora-vs-meridian'),
+  1,
+  1,
+  'verified',
+  'mock',
+  'Marcador mock validado para pruebas internas de Data Intake Minimal.',
+  '2026-05-15T02:00:00Z'
+)
+on conflict (match_id) do update set
+  home_goals = excluded.home_goals,
+  away_goals = excluded.away_goals,
+  verification_status = excluded.verification_status,
+  intake_source = excluded.intake_source,
+  source_note = excluded.source_note,
+  reviewed_at = excluded.reviewed_at;
 
 insert into public.prediction_results (
   id,

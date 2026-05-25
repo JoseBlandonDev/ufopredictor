@@ -155,6 +155,11 @@ export type MatchRow = {
   status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
   access_scope: "public" | "premium" | "admin_only" | "lab_only";
   lab_status: "candidate" | "ready" | "review" | "needs_data" | "archived" | null;
+  intake_source: "mock" | "manual" | "csv_import";
+  data_quality: "unreviewed" | "reviewed" | "verified" | "rejected";
+  source_note: string | null;
+  reviewed_at: Timestamp | null;
+  reviewed_by: string | null;
   created_at: Timestamp;
   updated_at: Timestamp;
 };
@@ -263,6 +268,19 @@ export type PredictionResultRow = {
   created_at: Timestamp;
 };
 
+export type MatchResultRow = {
+  id: string;
+  match_id: string;
+  home_goals: number;
+  away_goals: number;
+  verification_status: "pending_review" | "verified" | "rejected";
+  intake_source: "mock" | "manual" | "csv_import";
+  source_note: string | null;
+  reviewed_at: Timestamp | null;
+  reviewed_by: string | null;
+  recorded_at: Timestamp;
+};
+
 export type WorkerRunRow = {
   id: string;
   worker_name: string;
@@ -309,6 +327,7 @@ export type DatabaseTables = {
   prediction_markets: PredictionMarketRow;
   prediction_narratives: PredictionNarrativeRow;
   prediction_results: PredictionResultRow;
+  match_results: MatchResultRow;
   worker_runs: WorkerRunRow;
   email_events: EmailEventRow;
 };
@@ -334,6 +353,7 @@ type DatabaseInserts = {
   prediction_markets: Insert<PredictionMarketRow, "prediction_version_id" | "market" | "selection" | "probability">;
   prediction_narratives: Insert<PredictionNarrativeRow, "prediction_version_id" | "locale" | "free_summary">;
   prediction_results: Insert<PredictionResultRow, "prediction_version_id" | "actual_home_goals" | "actual_away_goals">;
+  match_results: Insert<MatchResultRow, "match_id" | "home_goals" | "away_goals">;
   worker_runs: Insert<WorkerRunRow, "worker_name" | "status">;
   email_events: Insert<EmailEventRow, "email" | "type">;
 };
