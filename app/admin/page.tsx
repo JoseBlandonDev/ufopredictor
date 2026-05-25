@@ -1,16 +1,25 @@
 import Link from "next/link";
 import { AdminWorkerStatus } from "@/components/admin-worker-status";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { requireAdmin } from "@/lib/auth/session";
 import { matches, predictions, workerRuns } from "@/lib/mock-data";
 
-export default function AdminPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminPage() {
+  await requireAdmin();
+
   return (
     <div className="space-y-6">
-      <section>
-        <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Administración</p>
-        <h1 className="mt-3 text-4xl font-semibold">Operación interna simulada</h1>
-        <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          Superficie futura para workers, generación de predicciones, logs y revisión de calidad de datos.
-        </p>
+      <section className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Administración</p>
+          <h1 className="mt-3 text-4xl font-semibold">Operación interna simulada</h1>
+          <p className="mt-3 max-w-2xl text-[var(--muted)]">
+            Acceso restringido a perfiles administradores. Workers, predicciones y logs continúan como datos mock.
+          </p>
+        </div>
+        <LogoutButton />
       </section>
       <div className="metric-grid">
         <div className="panel rounded-lg p-5">

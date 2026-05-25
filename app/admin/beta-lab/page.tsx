@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { AdminWorkerStatus } from "@/components/admin-worker-status";
+import { requireAdmin } from "@/lib/auth/session";
 import { matches, performanceMetrics, predictions, workerRuns } from "@/lib/mock-data";
 
-export default function BetaLabPage() {
+export const dynamic = "force-dynamic";
+
+export default async function BetaLabPage() {
+  await requireAdmin("/admin/beta-lab");
+
   const betaStatusLabels = {
     ready: "listo",
     review: "en revisión",
@@ -15,7 +20,7 @@ export default function BetaLabPage() {
         <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Admin / Laboratorio beta</p>
         <h1 className="mt-3 text-4xl font-semibold">Laboratorio de operación predictiva</h1>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          Los botones están deshabilitados hasta que existan Supabase, workers, proveedores y el motor predictivo real.
+          Área protegida para administradores. Los botones están deshabilitados hasta que existan workers, proveedores y el motor predictivo real.
         </p>
       </section>
 

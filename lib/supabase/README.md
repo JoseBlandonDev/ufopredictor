@@ -1,8 +1,8 @@
 # Supabase Runtime Foundation
 
 This directory holds the database foundation and lazy Supabase client factories
-for UFO Predictor. No page, authentication flow, or real user operation is
-connected to Supabase in this epic.
+for UFO Predictor. Authentication now uses these factories, while product data
+surfaces remain backed by mock data.
 
 ## Files
 
@@ -17,6 +17,10 @@ connected to Supabase in this epic.
 - `lib/supabase/server.ts` creates a cookie-aware server client for future
   Server Components, Server Actions, and Route Handlers. It also exposes a
   server-only admin factory for explicitly privileged backend tasks.
+- `lib/supabase/proxy.ts` refreshes authenticated cookies for protected
+  routes through the root `proxy.ts` matcher.
+- `supabase/migrations/0002_auth_profile_provisioning.sql` creates a
+  `free_user` profile whenever Supabase Auth registers a new user.
 
 ## Runtime Environment
 
@@ -41,6 +45,25 @@ SUPABASE_SERVICE_ROLE_KEY=
 The project currently uses the requested legacy anon/service-role variable
 names. A future deployment decision may adopt Supabase publishable/secret key
 names without exposing privileged credentials to the browser.
+
+## Email And Password Auth
+
+This iteration implements:
+
+- `/login` for email/password sign-in.
+- `/register` for email/password registration.
+- `/auth/callback` for exchanging the PKCE confirmation code into a session.
+- Server-side protection for `/dashboard`, `/admin`, and `/admin/beta-lab`.
+
+`/dashboard` requires a verified Supabase user. The admin routes additionally
+require that the authenticated user's `profiles.role` equals `admin`.
+Registration never accepts an application role: the database trigger writes
+new profiles with `role = 'free_user'`. Assigning administrators remains a
+trusted database operation for a later operational decision.
+
+Session refresh occurs in `proxy.ts` only for protected routes. Authorization
+is still repeated inside the Server Component helper and uses
+`supabase.auth.getUser()` rather than trusting session cookie contents.
 
 ## RLS Scope
 
@@ -89,9 +112,25 @@ For a linked staging project, linking and `supabase db push` must happen only
 after human review and with the intended project confirmed. This epic does not
 link a project, use credentials, or execute remote migrations.
 
+## Manual Auth Verification
+
+Complete this check only after migrations are applied to an approved Supabase
+environment and valid values are set in `.env.local`:
+
+1. Enable email/password authentication in Supabase and add
+   `http://localhost:3000/auth/callback` to the allowed redirect URLs.
+2. Register at `/register` and, when email confirmation is enabled, follow the
+   confirmation link.
+3. Confirm that `/dashboard` becomes accessible and that `public.profiles`
+   contains a new row with `role = 'free_user'`.
+4. Confirm that the same account is redirected away from `/admin`.
+5. Assign `role = 'admin'` through an approved trusted SQL/admin workflow,
+   then confirm access to `/admin` and `/admin/beta-lab`.
+6. Use **Cerrar sesión** and confirm `/dashboard` redirects to `/login`.
+
 ## Not Implemented
 
-- Page-level reads or writes using Supabase.
-- Login, callbacks, auth proxy, roles, or protected routes.
+- Product-data reads or writes using Supabase.
+- Social login, magic links, password reset, or profile editing.
 - Complete RLS/paywall enforcement.
 - Payments, real providers, Resend, LLM calls, or live workers.
