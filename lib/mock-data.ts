@@ -23,6 +23,27 @@ const worldCup = {
 
 const byId = Object.fromEntries(teams.map((team) => [team.id, team])) as Record<string, Team>;
 
+type LabMatch = {
+  id: string;
+  competition: {
+    name: string;
+    usageScope: "internal_lab";
+  };
+  stage: string;
+  kickoffAt: string;
+  homeTeam: string;
+  awayTeam: string;
+  labStatus: "ready" | "review" | "needs_data";
+};
+
+type LabPrediction = {
+  matchId: string;
+  modelVersion: "mock-v0.1";
+  runScope: "internal_lab";
+  status: "generated" | "pending_data";
+  confidenceScore: number | null;
+};
+
 export const matches: Match[] = [
   {
     id: "match-colombia-portugal",
@@ -232,6 +253,60 @@ export const predictions: Prediction[] = [
     premiumAnalysis: "La proyección nace de mayor eficiencia ofensiva y un puntaje de confianza superior, mientras el perfil de transición de Marruecos mantiene el BTTS cerca del equilibrio.",
     whyItChanged: "Aún no hay cambio confirmado de alineación; el movimiento viene de actualizaciones de mercado y forma.",
     generatedAt: "2026-07-09T18:04:00Z",
+  },
+];
+
+export const labMatches: LabMatch[] = [
+  {
+    id: "lab-match-aurora-meridian",
+    competition: { name: "Copa Orbital de Clubes", usageScope: "internal_lab" },
+    stage: "Final mock de calibración",
+    kickoffAt: "2026-05-14T23:00:00Z",
+    homeTeam: "Aurora FC",
+    awayTeam: "Atlético Meridian",
+    labStatus: "ready",
+  },
+  {
+    id: "lab-match-pacifico-estrella",
+    competition: { name: "Copa Orbital de Clubes", usageScope: "internal_lab" },
+    stage: "Semifinal mock",
+    kickoffAt: "2026-05-27T22:00:00Z",
+    homeTeam: "Pacífico Sur",
+    awayTeam: "Estrella Norte",
+    labStatus: "review",
+  },
+  {
+    id: "lab-match-meridian-pacifico",
+    competition: { name: "Amistosos de Calibración", usageScope: "internal_lab" },
+    stage: "Amistoso mock",
+    kickoffAt: "2026-05-29T19:30:00Z",
+    homeTeam: "Atlético Meridian",
+    awayTeam: "Pacífico Sur",
+    labStatus: "needs_data",
+  },
+];
+
+export const labPredictions: LabPrediction[] = [
+  {
+    matchId: "lab-match-aurora-meridian",
+    modelVersion: "mock-v0.1",
+    runScope: "internal_lab",
+    status: "generated",
+    confidenceScore: 57,
+  },
+  {
+    matchId: "lab-match-pacifico-estrella",
+    modelVersion: "mock-v0.1",
+    runScope: "internal_lab",
+    status: "generated",
+    confidenceScore: 54,
+  },
+  {
+    matchId: "lab-match-meridian-pacifico",
+    modelVersion: "mock-v0.1",
+    runScope: "internal_lab",
+    status: "pending_data",
+    confidenceScore: null,
   },
 ];
 

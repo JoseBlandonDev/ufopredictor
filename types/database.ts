@@ -89,6 +89,7 @@ export type CompetitionRow = {
   slug: string;
   country: string | null;
   type: "international" | "league" | "cup";
+  usage_scope: "public_product" | "internal_lab";
   created_at: Timestamp;
   updated_at: Timestamp;
 };
@@ -152,6 +153,8 @@ export type MatchRow = {
   kickoff_at: Timestamp;
   stage: string | null;
   status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
+  access_scope: "public" | "premium" | "admin_only" | "lab_only";
+  lab_status: "candidate" | "ready" | "review" | "needs_data" | "archived" | null;
   created_at: Timestamp;
   updated_at: Timestamp;
 };
@@ -219,6 +222,7 @@ export type PredictionVersionRow = {
   top_scores_json: Json;
   confidence_score: number;
   risk_level: "low" | "medium" | "high";
+  run_scope: "public_product" | "internal_lab";
   created_at: Timestamp;
 };
 

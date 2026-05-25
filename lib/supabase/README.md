@@ -21,6 +21,9 @@ surfaces remain backed by mock data.
   routes through the root `proxy.ts` matcher.
 - `supabase/migrations/0002_auth_profile_provisioning.sql` creates a
   `free_user` profile whenever Supabase Auth registers a new user.
+- `supabase/migrations/0003_beta_lab_foundation.sql` separates public-product
+  competitions from internal laboratory fixtures and marks internal prediction
+  runs without exposing them as public league coverage.
 
 ## Runtime Environment
 
@@ -64,6 +67,25 @@ trusted database operation for a later operational decision.
 Session refresh occurs in `proxy.ts` only for protected routes. Authorization
 is still repeated inside the Server Component helper and uses
 `supabase.auth.getUser()` rather than trusting session cookie contents.
+
+## Internal Beta Lab
+
+Beta Lab supports synthetic, admin-only fixtures for pre-World Cup model
+calibration. A competition with `usage_scope = 'internal_lab'` and a match
+with `access_scope = 'lab_only'` is operational test data, not a public
+product listing. `prediction_versions.run_scope = 'internal_lab'` keeps
+experimental output distinguishable from World Cup product predictions.
+
+The current admin screen renders separated mock laboratory fixtures while the
+data access policies and real prediction engine remain unimplemented. This
+foundation is expressly not public league support or a version 2.0 launch.
+
+If Supabase CLI is not available, verify this foundation only in an approved
+empty development project through Supabase SQL Editor: apply migration files
+in numeric order (`0001`, `0002`, `0003`) and then run
+`supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
+`lab_only` remain for internal review only. Do not run the seed over production
+or any remote project with data that has not been approved for reset.
 
 ## RLS Scope
 
@@ -131,6 +153,7 @@ environment and valid values are set in `.env.local`:
 ## Not Implemented
 
 - Product-data reads or writes using Supabase.
+- Public browsing or commercial access to Beta Lab competitions.
 - Social login, magic links, password reset, or profile editing.
 - Complete RLS/paywall enforcement.
 - Payments, real providers, Resend, LLM calls, or live workers.
