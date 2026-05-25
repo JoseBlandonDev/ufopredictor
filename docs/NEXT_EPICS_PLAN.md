@@ -1,5 +1,4 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
+<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
 
 # NEXT_EPICS_PLAN.md — UFO Predictor
 
@@ -10,6 +9,8 @@ Definir las próximas épicas después de Data Intake Minimal. Este documento de
 ---
 
 # 1. Prediction Engine v0.1 Lab
+
+**Estado:** Done. Motor puro y testeado mergeado en `main`.
 
 ## Objetivo
 
@@ -53,6 +54,8 @@ Crear el primer motor estadístico explicable, determinístico y testeable.
 
 # 2. Model Evaluation / Backtesting
 
+**Estado:** In progress en `feature/model-evaluation-lab`.
+
 ## Objetivo
 
 Comparar predicciones con resultados validados.
@@ -60,7 +63,7 @@ Comparar predicciones con resultados validados.
 ## Alcance
 
 - Usar `match_results` como verdad del partido.
-- Generar o actualizar `prediction_results`.
+- Generar payloads compatibles con `prediction_results`, sin persistirlos en esta epica.
 - Calcular métricas por mercado.
 - Preparar datos para Transparency.
 
@@ -69,11 +72,17 @@ Comparar predicciones con resultados validados.
 - Backtesting masivo avanzado.
 - Experimentos múltiples complejos.
 - Tabla `model_evaluations` si no es estrictamente necesaria.
+- Lectura o escritura real en Supabase.
 
 ## Validación
 
 - Tests contra fixtures conocidos.
 - Verificar métricas esperadas.
+
+## Dependencia de seguridad cerrada
+
+- `fix/lab-results-rls` ya restringe resultados `internal_lab` / `lab_only`
+  para que no sean legibles por usuarios no-admin.
 
 ---
 

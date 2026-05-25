@@ -166,16 +166,34 @@ Los fixtures sinteticos Lab y las pruebas Vitest cubren:
 
 ---
 
-## No incluido en esta epica
+## Model Evaluation / Backtesting Lab
+
+La capa pura `lib/model-evaluation/` evalua el output del motor contra un
+resultado validado, sin consultar ni escribir Supabase.
+
+Reglas implementadas:
+
+- solo resultados con estado `verified` son evaluables;
+- mercados probabilisticos con diferencia entre lideres menor o igual a
+  `0.01` puntos porcentuales quedan ambiguos y su acierto se representa como
+  `null`;
+- `mostLikelyScore` es la fuente unica para acierto de marcador exacto y
+  `goal_error`; una discrepancia con el primer `topScorelines` genera warning;
+- `goal_error` usa `mostLikelyScore`:
+  `abs(predicted_home - actual_home) + abs(predicted_away - actual_away)`;
+- el payload generado es compatible conceptualmente con `prediction_results`;
+- la agregacion calcula accuracies por mercado y error de goles promedio,
+  excluyendo valores ambiguos del denominador del mercado correspondiente.
+
+---
+
+## No incluido en estas epicas de logica pura
 
 - persistencia o lectura en Supabase;
-- evaluacion contra `match_results` o backtesting;
+- ejecucion automatica contra filas reales de `match_results`;
 - integracion UI o Beta Lab;
 - workers;
 - APIs deportivas;
 - odds reales;
 - narrativas LLM;
 - pagos, permisos o cambios RLS.
-
-La evaluacion contra resultados validados corresponde a la siguiente epica de
-Model Evaluation / Backtesting.
