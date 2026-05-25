@@ -1,4 +1,4 @@
-<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
+<!-- UFO Predictor | Status updated for Lab Supabase Queries -->
 
 # ROADMAP_AND_BACKLOG.md — UFO Predictor
 
@@ -29,6 +29,7 @@ El proyecto ya superó el prototipo inicial. Ahora el foco es construir un siste
 | B02 | Lab | Data Intake Minimal | `feature/data-intake-minimal` | Supabase SQL + seed + UI + lint/build | `match_results`, fuente/calidad de datos. |
 | B02F | Lab | Fix RLS resultados Lab | `fix/lab-results-rls` | SQL review + lint/build | Evita lectura no-admin de resultados internos. |
 | B03 | Lab | Prediction Engine v0.1 Lab | `feature/prediction-engine-v01` | Vitest + lint/build | Motor puro deterministico. |
+| B04 | Lab | Model Evaluation / Backtesting | `feature/model-evaluation-lab` | Vitest + lint/build | Evaluacion pura compatible con `prediction_results`. |
 
 ---
 
@@ -36,8 +37,7 @@ El proyecto ya superó el prototipo inicial. Ahora el foco es construir un siste
 
 | ID | Épica | Prioridad | Objetivo | Dependencias |
 |---|---|---:|---|---|
-| B04 | Model Evaluation / Backtesting | P0 | En curso: comparar predicciones contra resultados validados sin persistir. | B03, B02 |
-| B05 | Lab Supabase Queries | P0 | Leer datos reales del Lab desde Supabase en admin. | B02, Auth |
+| B05 | Lab Supabase Queries | P0 | En curso: leer datos reales del Lab desde Supabase con RLS admin-only. | B02, B04, Auth |
 | B06 | Lab Admin Review Flow | P1 | Revisar fixtures/resultados desde admin. | B05 |
 | C01 | Public Predictions from DB | P0 | Conectar predicciones públicas a Supabase. | B03, B05 |
 | C02 | Plans & Entitlements Backend | P0 | Acceso real free/premium. | Auth, schema |

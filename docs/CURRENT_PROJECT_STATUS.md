@@ -1,4 +1,4 @@
-<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
+<!-- UFO Predictor | Status updated for Lab Supabase Queries -->
 
 # CURRENT_PROJECT_STATUS.md — UFO Predictor
 
@@ -9,9 +9,10 @@ UFO Predictor ya no está en fase de prototipo puro. El proyecto cuenta con una 
 Estado asumido para esta versión del documento:
 
 - `feature/data-intake-minimal` ya fue cerrado y mergeado antes de la reunión.
-- Supabase remoto tiene aplicadas las migraciones hasta `0005_restrict_lab_match_results_rls.sql`.
+- Supabase remoto tiene aplicadas las migraciones hasta `0005_restrict_lab_match_results_rls.sql`; `0006_admin_lab_read_policies.sql` se prepara en la epica actual.
 - El seed actualizado fue ejecutado y validado.
 - Prediction Engine v0.1 Lab ya fue mergeado.
+- Model Evaluation Lab ya fue mergeado.
 - La lectura RLS de `match_results` ya restringe resultados internos del Lab.
 
 ---
@@ -61,13 +62,16 @@ Estado asumido para esta versión del documento:
   - `reviewed_by`.
   - tabla `match_results`.
 - Prediction Engine v0.1 Lab puro y testeado.
+- Model Evaluation Lab puro y testeado, compatible con `prediction_results`.
 - RLS restringida para resultados `internal_lab` / `lab_only`.
+- Lecturas server-side admin-only del Lab en implementacion.
 
 ## Admin
 
 - `/admin` protegido por rol admin.
 - `/admin/beta-lab` protegido por rol admin.
-- Beta Lab muestra fixtures internos, fuente/calidad de datos y resultados registrados.
+- Beta Lab consulta fixtures, predicciones, resultados registrados y evaluaciones persistidas mediante la sesion real del admin.
+- Worker status permanece rotulado como mock.
 
 ---
 
@@ -90,8 +94,7 @@ Estos elementos existen en UI/mock, pero no están completamente conectados a da
 # Qué NO existe todavía
 
 - Backtesting real.
-- Evaluación automática contra `match_results`.
-- Lecturas reales de Beta Lab desde Supabase.
+- Escrituras o CRUD del Beta Lab sobre Supabase.
 - CRUD/review flow de Lab desde admin.
 - Public predictions desde DB.
 - Paywall backend real.
@@ -140,11 +143,11 @@ Incluye:
 # Trabajo actual
 
 ```txt
-feature/model-evaluation-lab
+feature/lab-supabase-queries
 ```
 
-Objetivo: evaluar predicciones contra resultados verificados mediante logica
-pura compatible con `prediction_results`, sin persistencia en Supabase.
+Objetivo: leer datos reales del Lab desde Supabase en `/admin/beta-lab`,
+manteniendo acceso admin-only mediante RLS y sin escrituras.
 
 ---
 

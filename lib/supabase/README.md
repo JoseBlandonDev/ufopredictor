@@ -30,6 +30,10 @@ surfaces remain backed by mock data.
 - `supabase/migrations/0005_restrict_lab_match_results_rls.sql` prevents
   non-admin authenticated readers from seeing results for internal-lab,
   `lab_only`, or `admin_only` fixtures.
+- `supabase/migrations/0006_admin_lab_read_policies.sql` permits authenticated
+  administrators to read only the internal Lab competitions, fixtures, teams,
+  prediction versions, model versions, and persisted prediction results needed
+  by the Beta Lab screen.
 
 ## Runtime Environment
 
@@ -82,10 +86,11 @@ with `access_scope = 'lab_only'` is operational test data, not a public
 product listing. `prediction_versions.run_scope = 'internal_lab'` keeps
 experimental output distinguishable from World Cup product predictions.
 
-The current admin screen renders separated mock laboratory fixtures while
-product data queries and the real prediction engine remain unimplemented.
-This foundation is expressly not public league support or a version 2.0
-launch.
+The current admin screen reads internal fixtures, related teams, stored
+predictions, registered match results, and any persisted prediction
+evaluations through the authenticated server client. Worker status remains
+clearly labelled mock data. This is expressly not public league support or a
+version 2.0 launch.
 
 ## Data Intake Minimal
 
@@ -131,6 +136,13 @@ Because product-data read policies for `matches` and `competitions` are still
 deferred, `0005` does not independently expose verified product results. It
 only ensures that future authenticated product reads cannot cross the internal
 Lab boundary through `match_results`.
+
+Migration `0006` adds narrowly-scoped read policies for the authenticated
+administrator screen. It allows only administrator profiles to read
+`internal_lab` competitions, their `lab_only` matches, referenced teams,
+internal prediction/model versions, and related `prediction_results`. The UI
+uses `createSupabaseServerClient()` with the signed-in admin session; it does
+not use the service-role client to bypass RLS.
 
 ## Applying After Review
 
@@ -183,7 +195,7 @@ environment and valid values are set in `.env.local`:
 
 ## Not Implemented
 
-- Product-data reads or writes using Supabase.
+- Public product-data reads or any UI writes using Supabase.
 - Public browsing or commercial access to Beta Lab competitions.
 - Social login, magic links, password reset, or profile editing.
 - Complete RLS/paywall enforcement.

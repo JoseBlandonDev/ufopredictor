@@ -1,4 +1,4 @@
-<!-- UFO Predictor | Status updated for Model Evaluation / Backtesting Lab -->
+<!-- UFO Predictor | Status updated for Lab Supabase Queries -->
 
 # NEXT_EPICS_PLAN.md — UFO Predictor
 
@@ -54,7 +54,7 @@ Crear el primer motor estadístico explicable, determinístico y testeable.
 
 # 2. Model Evaluation / Backtesting
 
-**Estado:** In progress en `feature/model-evaluation-lab`.
+**Estado:** Done. Capa pura y testeada mergeada en `main`.
 
 ## Objetivo
 
@@ -88,20 +88,23 @@ Comparar predicciones con resultados validados.
 
 # 3. Lab Supabase Queries
 
+**Estado:** In progress en `feature/lab-supabase-queries`.
+
 ## Objetivo
 
 Mover Beta Lab de mock extendido a consultas server-side controladas.
 
 ## Alcance
 
-- Leer `competitions`, `matches`, `prediction_versions`, `match_results`.
+- Leer `competitions`, `matches`, `teams`, `model_versions`, `prediction_versions`, `match_results` y `prediction_results`.
 - Filtrar `internal_lab` y `lab_only`.
-- Mantener admin-only.
+- Mantener admin-only con policies RLS de lectura y el cliente server-side de la sesion autenticada.
 
 ## No-alcance
 
 - CRUD completo.
 - Escrituras desde UI.
+- Uso de service role para alimentar la UI.
 - Publicar Lab en frontend público.
 
 ## Validación
