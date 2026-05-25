@@ -1,84 +1,83 @@
+<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
+<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
+
 # MODEL_V01.md — Modelo predictivo v0.1
 
-## 1. Principio central
+## Principio central
 
 El modelo estadístico calcula. La IA explica.
 
-No permitir que el LLM decida resultados por intuición textual. El LLM solo recibe un JSON calculado y genera narrativa clara.
+El LLM no debe decidir resultados ni inventar probabilidades.
 
 ---
 
-# 2. Flujo general
+# Estrategia pre-modelo: Lab interno
+
+Antes de lanzar predicciones públicas del Mundial, el modelo v0.1 debe probarse en el Beta Lab.
+
+El Lab usará:
+
+- fixtures internos o manuales,
+- competiciones `internal_lab`,
+- partidos `lab_only`,
+- resultados validados en `match_results`,
+- predicciones `run_scope = internal_lab`.
+
+Objetivo: llegar al Mundial con un motor ya probado contra datos revisables, no improvisar cuando empiece el evento.
+
+---
+
+# Flujo general
 
 ```txt
 Datos del partido
 ↓
-Normalización de variables
+Normalización
 ↓
 Team Power Score
 ↓
 Expected Goals
 ↓
-Distribución Poisson
+Poisson
 ↓
 Matriz de marcadores
 ↓
 Mercados: 1X2, OU 2.5, BTTS, marcador probable
 ↓
-Market Blend
+Confidence + Risk
 ↓
-Confidence Score + Risk Level
+Evaluación contra match_results
 ↓
-Narrativa IA
+Narrativa IA futura
 ```
 
 ---
 
-# 3. Variables del Team Power Score
+# Variables del Team Power Score
 
-Cada variable se normaliza de 0 a 1.
-
-| Variable | Peso | Descripción |
+| Variable | Peso inicial | Descripción |
 |---|---:|---|
-| `rating_score` | 25% | Fuerza general según Elo/ranking |
-| `recent_form_score` | 20% | Últimos 5-10 partidos |
-| `attack_score` | 15% | Capacidad ofensiva reciente |
-| `defense_score` | 15% | Solidez defensiva reciente |
-| `market_score` | 15% | Señal de cuotas |
-| `lineup_context_score` | 10% | Alineación, bajas, sede, contexto |
+| `rating_score` | 25% | Fuerza general según Elo/ranking. |
+| `recent_form_score` | 20% | Últimos 5-10 partidos. |
+| `attack_score` | 15% | Capacidad ofensiva reciente. |
+| `defense_score` | 15% | Solidez defensiva reciente. |
+| `market_score` | 15% | Señal de cuotas, opcional inicialmente. |
+| `lineup_context_score` | 10% | Alineación, bajas, sede, contexto. |
 
-Fórmula:
-
-```txt
-Team Power Score =
-0.25 * rating_score
-+ 0.20 * recent_form_score
-+ 0.15 * attack_score
-+ 0.15 * defense_score
-+ 0.15 * market_score
-+ 0.10 * lineup_context_score
-```
+Para Lab v0.1, `market_score` y `lineup_context_score` pueden iniciar con defaults si no hay datos reales.
 
 ---
 
-# 4. Expected Goals
+# Expected Goals
 
-Usar `base_goal_rate`, inicialmente aproximado en 1.35 goles por equipo por partido.
+Usar `base_goal_rate`, inicialmente aproximado en 1.35 goles por equipo.
 
 ```txt
-xG_A = base_goal_rate
-* attack_multiplier_A
-* defense_multiplier_B
-* strength_multiplier_A
-* context_multiplier_A
+xG_A = base_goal_rate * attack_multiplier_A * defense_multiplier_B * strength_multiplier_A * context_multiplier_A
 ```
 
 ```txt
-xG_B = base_goal_rate
-* attack_multiplier_B
-* defense_multiplier_A
-* strength_multiplier_B
-* context_multiplier_B
+xG_B = base_goal_rate * attack_multiplier_B * defense_multiplier_A * strength_multiplier_B * context_multiplier_B
 ```
 
 Límites:
@@ -88,202 +87,60 @@ Límites:
 
 ---
 
-# 5. Multiplicadores
-
-## Attack multiplier
-
-```txt
-attack_multiplier = 0.75 + (attack_score * 0.50)
-```
-
-## Defense multiplier
-
-```txt
-defense_multiplier = 1.25 - (defense_score * 0.50)
-```
-
-## Strength multiplier
-
-```txt
-strength_multiplier = 0.85 + (team_power_score * 0.30)
-```
-
-## Context multiplier
-
-```txt
-context_multiplier = 0.90 + (lineup_context_score * 0.20)
-```
-
----
-
-# 6. Poisson
-
-Fórmula:
-
-```txt
-P(k goles) = (λ^k * e^-λ) / k!
-```
-
-Donde:
-
-- λ = goles esperados.
-- k = número de goles.
-
-Calcular de 0 a 5 goles para cada equipo y generar matriz de marcadores.
-
----
-
-# 7. Mercados
+# Mercados iniciales
 
 ## 1X2
 
-```txt
-home_win_prob = sum(P(score_A > score_B))
-draw_prob = sum(P(score_A = score_B))
-away_win_prob = sum(P(score_A < score_B))
-```
+- Home win.
+- Draw.
+- Away win.
 
 ## Over/Under 2.5
 
-```txt
-over_2_5 = sum(P(total_goals >= 3))
-under_2_5 = sum(P(total_goals <= 2))
-```
+- Over 2.5.
+- Under 2.5.
 
 ## BTTS
 
-```txt
-btts_yes = sum(P(score_A >= 1 AND score_B >= 1))
-btts_no = 1 - btts_yes
-```
+- Yes.
+- No.
 
 ## Marcador probable
 
-Ordenar matriz por probabilidad y tomar top 3.
+Top 3 scores desde matriz Poisson.
 
 ---
 
-# 8. Market Blend
+# Evaluación en Lab
 
-Combinar modelo propio con mercado:
+El motor v0.1 debe guardar predicciones antes del partido y luego evaluarlas contra `match_results`.
+
+Métricas mínimas:
+
+- `winner_correct`.
+- `btts_correct`.
+- `over_2_5_correct`.
+- `exact_score_correct`.
+- `goal_error`.
+
+---
+
+# No incluir todavía
+
+- Goleadores.
+- Tarjetas.
+- Corners.
+- Parlays.
+- Apuestas directas.
+- LLM como calculador.
+- Odds reales obligatorias.
+
+---
+
+# Próxima implementación recomendada
 
 ```txt
-final_probabilities = 0.70 * model_probabilities + 0.30 * market_probabilities
+feature/prediction-engine-v01
 ```
 
-Este peso puede ajustarse tras beta.
-
----
-
-# 9. Confidence Score
-
-Factores:
-
-- data_quality.
-- probability_gap.
-- market_alignment.
-- lineup_confirmed.
-- model_stability.
-
-Fórmula inicial:
-
-```txt
-confidence_score =
-0.25 * data_quality
-+ 0.25 * probability_gap_score
-+ 0.20 * market_alignment
-+ 0.20 * lineup_confirmed_score
-+ 0.10 * model_stability
-```
-
----
-
-# 10. Risk Level
-
-Factores:
-
-- low_probability_gap.
-- high_draw_probability.
-- knockout_match.
-- rotation_uncertainty.
-- missing_lineups.
-- odds_volatility.
-- team_inconsistency.
-
-Fórmula inicial:
-
-```txt
-risk_score =
-0.25 * closeness_risk
-+ 0.20 * draw_risk
-+ 0.20 * odds_volatility
-+ 0.15 * lineup_uncertainty
-+ 0.10 * knockout_context
-+ 0.10 * team_inconsistency
-```
-
-Clasificación:
-
-- 0.00 - 0.33 = Low.
-- 0.34 - 0.66 = Medium.
-- 0.67 - 1.00 = High.
-
----
-
-# 11. Golden Hour Delta
-
-Cuando salen alineaciones oficiales:
-
-```txt
-delta_home = post_lineup_home_prob - pre_lineup_home_prob
-delta_draw = post_lineup_draw_prob - pre_lineup_draw_prob
-delta_away = post_lineup_away_prob - pre_lineup_away_prob
-```
-
-Si `abs(delta) >= 5%`, mostrar Golden Hour Delta.
-
----
-
-# 12. Model vs Market
-
-```txt
-edge = model_probability - market_probability
-```
-
-Clasificación:
-
-- 0-3% = no edge.
-- 3-6% = slight edge.
-- 6-10% = notable edge.
-- 10%+ = strong edge.
-
-No decir “apuesta”. Usar “posible valor detectado”.
-
----
-
-# 13. JSON de salida esperado
-
-```json
-{
-  "match_id": "colombia-portugal-2026",
-  "model_version": "v0.1",
-  "prediction_type": "pre_match_24h",
-  "home_win_prob": 25,
-  "draw_prob": 27,
-  "away_win_prob": 48,
-  "expected_home_goals": 1.05,
-  "expected_away_goals": 1.48,
-  "most_likely_score": "1-1",
-  "top_scores": [
-    {"score": "1-1", "probability": 12.2},
-    {"score": "1-2", "probability": 10.8},
-    {"score": "0-1", "probability": 9.7}
-  ],
-  "over_2_5": 49,
-  "under_2_5": 51,
-  "btts_yes": 53,
-  "btts_no": 47,
-  "confidence_score": 62,
-  "risk_level": "medium"
-}
-```
+Debe empezar como código puro con tests, usando datos del Lab/mock y sin depender de APIs reales.
