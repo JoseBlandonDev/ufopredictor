@@ -27,6 +27,9 @@ surfaces remain backed by mock data.
 - `supabase/migrations/0004_data_intake_minimal.sql` records source and review
   quality for internal fixtures, and adds verified match results with limited
   RLS access for authenticated readers and administrators.
+- `supabase/migrations/0005_restrict_lab_match_results_rls.sql` prevents
+  non-admin authenticated readers from seeing results for internal-lab,
+  `lab_only`, or `admin_only` fixtures.
 
 ## Runtime Environment
 
@@ -98,7 +101,7 @@ prediction version against that validated final result.
 
 If Supabase CLI is not available, verify this foundation only in an approved
 empty development project through Supabase SQL Editor: apply migration files
-in numeric order (`0001`, `0002`, `0003`, `0004`) and then run
+in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`) and then run
 `supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
 `lab_only` remain for internal review only. Do not run the seed over production
 or any remote project with data that has not been approved for reset.
@@ -117,9 +120,17 @@ allow a client to change `role`. Public catalog reads, filtered prediction
 reads, subscriptions, entitlements, unlocks, and email events remain TODO
 items for the API, auth/paywall, and email epics.
 
-Data Intake adds narrowly scoped policies for `match_results`: authenticated
-users can read verified results, while only profiles with `role = 'admin'`
-can read unverified rows or create, update, and delete results.
+Data Intake initially added a verified-results read policy for authenticated
+users. Migration `0005` narrows that policy to verified results whose related
+match is `public` or `premium` inside a `public_product` competition. Results
+for `internal_lab`, `lab_only`, and `admin_only` fixtures remain readable only
+through the admin policy. Only profiles with `role = 'admin'` can read
+unverified rows or create, update, and delete results.
+
+Because product-data read policies for `matches` and `competitions` are still
+deferred, `0005` does not independently expose verified product results. It
+only ensures that future authenticated product reads cannot cross the internal
+Lab boundary through `match_results`.
 
 ## Applying After Review
 
