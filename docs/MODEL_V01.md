@@ -1,199 +1,205 @@
-<!-- UFO Predictor | Prediction Engine v0.1 Lab implemented -->
-
-# MODEL_V01.md - Modelo predictivo v0.1 Lab
+# MODEL_V01.md — Modelo predictivo v0.1
 
 ## Principio central
 
-El modelo estadistico calcula. La IA explica.
+El modelo estadístico calcula. La IA explica.
 
-Prediction Engine v0.1 Lab es un modulo TypeScript puro y deterministico. No
-consulta Supabase, no escribe predicciones, no consume APIs, odds reales ni
-LLM.
+El LLM no debe decidir resultados ni inventar probabilidades.
 
 ---
 
-## Implementacion actual
+## Estado actual
 
-El motor vive en `lib/prediction-engine/` y expone `generatePrediction(input)`.
-Recibe dos equipos y contexto minimo, normaliza las senales disponibles y
-produce:
-
-- probabilidades `1X2`;
-- probabilidades `BTTS`;
-- probabilidades `Over/Under 2.5`;
-- tres marcadores mas probables y `mostLikelyScore`;
-- goles esperados para local y visitante;
-- `confidence`, `risk`, `factors` y `notes`;
-- proyecciones compatibles conceptualmente con `prediction_versions` y
-  `prediction_markets`, sin persistirlas.
-
-Los calculos probabilisticos internos usan escala `0..1`. El output exportado
-usa porcentajes `0..100`, compatible con los contratos actuales de base de
-datos.
-
----
-
-## Inputs y defaults
-
-Cada equipo puede entregar las siguientes senales en escala `0..100`:
-
-| Senal | Peso inicial | Default si falta |
-|---|---:|---:|
-| `ratingScore` | 25% | 50 |
-| `recentFormScore` | 20% | 50 |
-| `attackScore` | 15% | 50 |
-| `defenseScore` | 15% | 50 |
-| `marketScore` | 15% | 50 |
-| `lineupContextScore` | 10% | 50 |
-
-Valores no finitos se sustituyen por `50`; valores fuera del rango se acotan
-a `0..100`. `marketScore = 50` es una senal neutral: no implica consumo de
-odds reales.
-
-Contexto:
-
-- `runScope` default: `internal_lab`.
-- `predictionType` default: `pre_match_24h`.
-- `neutralVenue = true` fuerza contexto local neutral (`50`).
-- `homeAdvantageScore` default: `55` si no es sede neutral.
-
----
-
-## Team Power Score
-
-El power score de cada equipo es un promedio ponderado:
+Prediction Engine v0.1 Lab ya está implementado como módulo puro en:
 
 ```txt
-power = ratingScore * 0.25
-      + recentFormScore * 0.20
-      + attackScore * 0.15
-      + defenseScore * 0.15
-      + marketScore * 0.15
-      + lineupContextScore * 0.10
+lib/prediction-engine/
 ```
 
-La configuracion queda versionada como `modelVersion = "v0.1-lab"` en
-`config.ts`.
-
----
-
-## Expected Goals
-
-Configuracion inicial:
+Model Evaluation Lab ya está implementado como módulo puro en:
 
 ```txt
-baseGoalRate = 1.35
-minExpectedGoals = 0.20
-maxExpectedGoals = 3.50
+lib/model-evaluation/
 ```
 
-Formula implementada para cada lado:
+Ambos módulos tienen tests con Vitest.
+
+---
+
+# Estrategia pre-modelo: Lab interno
+
+Antes de lanzar predicciones públicas del Mundial, el modelo v0.1 debe probarse en el Beta Lab.
+
+El Lab usa:
+
+- fixtures internos o manuales;
+- competiciones `internal_lab`;
+- partidos `lab_only`;
+- resultados validados en `match_results`;
+- predicciones `run_scope = internal_lab`;
+- evaluaciones en `prediction_results`.
+
+Objetivo: llegar al Mundial con un motor probado contra datos revisables, no improvisar cuando empiece el evento.
+
+---
+
+# Flujo general
 
 ```txt
-xG = baseGoalRate
-   * attackMultiplier
-   * opponentDefenseMultiplier
-   * strengthMultiplier
-   * venueContextMultiplier
+Datos del partido
+↓
+Normalización
+↓
+Team Power Score
+↓
+Expected Goals
+↓
+Poisson
+↓
+Matriz de marcadores
+↓
+Mercados: 1X2, OU 2.5, BTTS, marcador probable
+↓
+Confidence + Risk
+↓
+Evaluación contra match_results
+↓
+Narrativa IA futura
 ```
 
-Multiplicadores:
+---
+
+# Variables del Team Power Score
+
+| Variable | Peso inicial | Descripción |
+|---|---:|---|
+| `rating_score` | 25% | Fuerza general según Elo/ranking. |
+| `recent_form_score` | 20% | Últimos 5-10 partidos. |
+| `attack_score` | 15% | Capacidad ofensiva reciente. |
+| `defense_score` | 15% | Solidez defensiva reciente. |
+| `market_score` | 15% | Señal de cuotas, opcional inicialmente. |
+| `lineup_context_score` | 10% | Alineación, bajas, sede, contexto. |
+
+Para Lab v0.1, `market_score` y `lineup_context_score` pueden iniciar con defaults si no hay datos reales.
+
+---
+
+# Expected Goals
+
+Usar `baseGoalRate`, inicialmente aproximado en 1.35 goles por equipo.
 
 ```txt
-attackMultiplier = 1 + ((attackScore - 50) / 50) * 0.35
-opponentDefenseMultiplier = 1 + ((50 - opponentDefenseScore) / 50) * 0.30
-strengthMultiplier = clamp(1 + ((power - opponentPower) / 100) * 0.55, 0.65, 1.35)
-venueContextMultiplier = 1 + ((contextScore - 50) / 50) * 0.12
+xG_A = base_goal_rate * attack_multiplier_A * defense_multiplier_B * strength_multiplier_A * context_multiplier_A
 ```
-
-El resultado final siempre se acota a `0.20..3.50`.
-
----
-
-## Poisson y mercados
-
-El motor calcula probabilidades Poisson de `0` a `10` goles por equipo,
-construye una matriz de marcadores y normaliza la masa cubierta por esa
-matriz.
-
-Desde ella deriva:
-
-- `1X2`: local, empate y visitante.
-- `BTTS`: si/no.
-- `Over/Under 2.5`: over/under.
-- `topScorelines`: los tres marcadores con mayor probabilidad.
-- `mostLikelyScore`: primer elemento de `topScorelines`.
-
----
-
-## Confidence, risk y explicabilidad
-
-`confidence` combina cobertura de datos y separacion entre los dos resultados
-`1X2` mas probables:
 
 ```txt
-confidence = clamp(
-  40 + dataCompleteness * 30 + min(outcomeMargin, 35) * 0.70,
-  0,
-  100
-)
+xG_B = base_goal_rate * attack_multiplier_B * defense_multiplier_A * strength_multiplier_B * context_multiplier_B
 ```
 
-`risk` se clasifica asi:
+Límites:
 
-- `high`: `confidence < 60` o margen `1X2 < 8`.
-- `low`: `confidence >= 75` y margen `1X2 >= 15`.
-- `medium`: cualquier caso intermedio.
-
-El output incluye factores deterministas sobre diferencias principales de
-senales, power score y xG, junto con notas cuando se utilizaron defaults.
+- xG mínimo: 0.20.
+- xG máximo: 3.50.
 
 ---
 
-## Tests implementados
+# Mercados iniciales
 
-Los fixtures sinteticos Lab y las pruebas Vitest cubren:
+## 1X2
 
-- ausencia de `NaN` o infinitos;
-- suma aproximada de `1X2 = 100`;
-- probabilidades dentro de `0..100`;
-- orden descendente de top scorelines;
-- determinismo para inputs identicos;
-- limites de xG;
-- defaults seguros con datos incompletos;
-- mayor probabilidad de victoria para un equipo claramente superior;
-- proyeccion conceptual para persistencia futura.
+- Home win.
+- Draw.
+- Away win.
 
----
+## Over/Under 2.5
 
-## Model Evaluation / Backtesting Lab
+- Over 2.5.
+- Under 2.5.
 
-La capa pura `lib/model-evaluation/` evalua el output del motor contra un
-resultado validado, sin consultar ni escribir Supabase.
+## BTTS
 
-Reglas implementadas:
+- Yes.
+- No.
 
-- solo resultados con estado `verified` son evaluables;
-- mercados probabilisticos con diferencia entre lideres menor o igual a
-  `0.01` puntos porcentuales quedan ambiguos y su acierto se representa como
-  `null`;
-- `mostLikelyScore` es la fuente unica para acierto de marcador exacto y
-  `goal_error`; una discrepancia con el primer `topScorelines` genera warning;
-- `goal_error` usa `mostLikelyScore`:
-  `abs(predicted_home - actual_home) + abs(predicted_away - actual_away)`;
-- el payload generado es compatible conceptualmente con `prediction_results`;
-- la agregacion calcula accuracies por mercado y error de goles promedio,
-  excluyendo valores ambiguos del denominador del mercado correspondiente.
+## Marcador probable
+
+Top 3 scores desde matriz Poisson.
 
 ---
 
-## No incluido en estas epicas de logica pura
+# Output del motor
 
-- persistencia o lectura en Supabase;
-- ejecucion automatica contra filas reales de `match_results`;
-- integracion UI o Beta Lab;
-- workers;
-- APIs deportivas;
-- odds reales;
-- narrativas LLM;
-- pagos, permisos o cambios RLS.
+Reglas vigentes:
+
+- El motor puede calcular internamente probabilidades en `0..1`.
+- El output público/exportado usa porcentajes `0..100`.
+- La API pública del barrel debe exponer `generatePrediction`, configuración versionada y tipos necesarios.
+- Helpers internos como Poisson/matriz no deben exponerse como API pública si devuelven escala `0..1`.
+
+---
+
+# Evaluación en Lab
+
+El módulo `lib/model-evaluation/` compara predicciones contra resultados verificados.
+
+Métricas mínimas:
+
+- `winner_correct`.
+- `btts_correct`.
+- `over_2_5_correct`.
+- `exact_score_correct`.
+- `goal_error`.
+- `error_summary`.
+
+## Fórmula de `goal_error`
+
+```txt
+goal_error = abs(predicted_home_goals - actual_home_goals)
+           + abs(predicted_away_goals - actual_away_goals)
+```
+
+La fuente del marcador predicho es `mostLikelyScore`, no xG.
+
+`mostLikelyScore` también es fuente única para:
+
+- `exact_score_correct`;
+- `goal_error`;
+- `error_summary`.
+
+Si `topScorelines[0]` no coincide con `mostLikelyScore`, la evaluación puede registrar warning interno, pero no debe usar `topScorelines[0]` para `exact_score_correct`.
+
+## Resultados no verificados
+
+Resultados con `verification_status` distinto a `verified` quedan no evaluables.
+
+## Mercados ambiguos
+
+Empates probabilísticos dentro de tolerancia se tratan como `ambiguous` / `not_evaluable` para evitar atribuir aciertos artificiales.
+
+---
+
+# No incluir todavía
+
+- Goleadores.
+- Tarjetas.
+- Corners.
+- Parlays.
+- Apuestas directas.
+- LLM como calculador.
+- Odds reales obligatorias.
+- Calibración avanzada.
+- Workers reales.
+
+---
+
+# Próxima implementación recomendada
+
+No cambiar fórmula del motor sin más datos. El siguiente bloque recomendado es operativo/admin:
+
+```txt
+feature/lab-fixture-review-actions
+feature/lab-match-result-actions
+feature/lab-evaluation-persistence
+```
+
+La calibración del modelo debe venir después de acumular más resultados/evaluaciones.

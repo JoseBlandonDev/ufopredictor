@@ -1,6 +1,3 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
-
 # DATA_DICTIONARY.md — UFO Predictor
 
 ## Propósito
@@ -71,6 +68,16 @@ Diccionario de datos operativo para MVP, Lab interno y futuras integraciones.
 | `reviewed_by` | uuid | Usuario que revisó. |
 | `created_at` | timestamptz | Creación. |
 | `updated_at` | timestamptz | Actualización. |
+
+### Próximo uso admin
+
+Los próximos campos candidatos para edición desde `/admin/beta-lab` son:
+
+- `lab_status`;
+- `data_quality`;
+- `source_note`;
+- `reviewed_at`;
+- `reviewed_by`.
 
 ---
 
@@ -155,6 +162,15 @@ Evaluación de una predicción contra un resultado real/validado.
 | `error_summary` | text | Resumen. |
 | `validated_at` | timestamptz | Fecha validación. |
 
+### Evaluación actual
+
+La lógica pura existe en `lib/model-evaluation/`.
+
+- Usa `mostLikelyScore` como fuente única para marcador predicho.
+- `goal_error = abs(pred_home - actual_home) + abs(pred_away - actual_away)`.
+- Mercados ambiguos se manejan sin inflar métricas.
+- Resultados no verificados son no evaluables.
+
 ---
 
 # Planes y acceso
@@ -177,14 +193,18 @@ Pendiente: implementar backend real de paywall y entitlements.
 
 Registra ejecuciones de workers presentes o futuros.
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `worker_name` | text | Nombre. |
-| `status` | text | `running`, `success`, `failed`. |
-| `started_at` | timestamptz | Inicio. |
-| `finished_at` | timestamptz | Fin. |
-| `records_processed` | integer | Registros. |
-| `error_message` | text | Error. |
-| `metadata_json` | jsonb | Metadata. |
-| `created_at` | timestamptz | Creación. |
+Actualmente, worker runs visibles en UI siguen mock. Workers reales no están implementados.
+
+---
+
+# RLS Lab actual
+
+Migraciones relevantes:
+
+- `0005_restrict_lab_match_results_rls.sql`: restringe lectura no-admin de resultados Lab.
+- `0006_admin_lab_read_policies.sql`: habilita lecturas admin-only para datos Lab necesarios en `/admin/beta-lab`.
+
+Regla vigente:
+
+- Datos `lab_only` / `internal_lab` son internos/admin.
+- No exponer Lab en rutas públicas.

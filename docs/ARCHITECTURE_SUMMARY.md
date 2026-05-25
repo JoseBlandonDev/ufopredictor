@@ -1,6 +1,3 @@
-<!-- UFO Predictor | Updated roadmap after Beta Lab + Data Intake -->
-<!-- Status assumes feature/data-intake-minimal has been committed, pushed, PR'd and merged before the team meeting. -->
-
 # ARCHITECTURE_SUMMARY.md — UFO Predictor
 
 ## Stack actual
@@ -12,7 +9,7 @@
 | Frontend | React |
 | UI | Tailwind CSS + componentes compatibles con shadcn/ui |
 | DB/Auth | Supabase PostgreSQL + Supabase Auth |
-| Seguridad | Supabase RLS inicial |
+| Seguridad | Supabase RLS + guards app-side |
 | Runtime futuro | Railway |
 | Emails futuro | Resend + React Email |
 | Workers futuro | Railway Services / Cron |
@@ -22,7 +19,7 @@
 
 ---
 
-# Arquitectura actual
+## Arquitectura actual
 
 ```txt
 Next.js Web/PWA
@@ -31,12 +28,12 @@ Supabase runtime clients
    ↓
 Supabase PostgreSQL + Auth + RLS
    ↓
-Beta Lab / Data Intake / futuras predicciones
+Beta Lab / Data Intake / Prediction Engine / Model Evaluation
 ```
 
 ---
 
-# Qué ya está conectado
+## Qué ya está conectado
 
 - Supabase DB.
 - Supabase Auth.
@@ -44,26 +41,63 @@ Beta Lab / Data Intake / futuras predicciones
 - Roles `free_user` y `admin`.
 - Rutas protegidas.
 - Migraciones y seed hasta Data Intake Minimal.
+- Policies RLS Lab hasta `0006_admin_lab_read_policies.sql`.
+- `/admin/beta-lab` con lecturas reales desde Supabase.
 
 ---
 
-# Qué está preparado pero no conectado completamente
+## Módulos actuales
 
-- UI pública de predicciones.
-- Detalle de partido.
-- Pricing/paywall.
-- Transparency Center.
-- Admin/Beta Lab con mocks extendidos.
-- Workers.
-- IA narrativa.
-- APIs deportivas.
-- Odds.
+### `lib/prediction-engine/`
+
+Motor estadístico v0.1 Lab.
+
+Calcula:
+
+- Team Power Score.
+- Expected goals.
+- Poisson.
+- 1X2.
+- BTTS.
+- Over/Under 2.5.
+- Top scorelines.
+- Confidence/risk.
+
+### `lib/model-evaluation/`
+
+Evaluación pura de predicciones contra resultados reales.
+
+Calcula:
+
+- `winner_correct`.
+- `btts_correct`.
+- `over_2_5_correct`.
+- `exact_score_correct`.
+- `goal_error`.
+- `error_summary`.
+- métricas agregadas.
+
+### `lib/supabase/lab-queries.ts`
+
+Queries server-side para `/admin/beta-lab`.
+
+Lee:
+
+- competitions `internal_lab`.
+- matches `lab_only`.
+- equipos.
+- prediction versions `internal_lab`.
+- match results.
+- prediction results.
+- model versions.
+
+Usa `createSupabaseServerClient()` con sesión real. No usa service role para alimentar UI.
 
 ---
 
-# Beta Lab
+## Beta Lab
 
-El Beta Lab es una capa interna/admin para probar fixtures, resultados y modelos antes del Mundial 2026.
+El Beta Lab es una capa interna/admin para probar fixtures, resultados, predicciones y evaluación antes del Mundial 2026.
 
 Soporte actual:
 
@@ -73,32 +107,46 @@ Soporte actual:
 - `matches.intake_source`.
 - `matches.data_quality`.
 - `match_results`.
+- `prediction_results`.
 
 No es soporte público de ligas v2.
 
 ---
 
-# Flujo previsto de predicción
+## Qué está preparado pero no conectado completamente
+
+- UI pública de predicciones.
+- Detalle público de partido.
+- Pricing/paywall.
+- Transparency Center.
+- Workers.
+- IA narrativa.
+- APIs deportivas.
+- Odds.
+
+---
+
+## Flujo previsto de predicción/evaluación
 
 ```txt
 Fixture validado
 ↓
-Datos de entrada normalizados
-↓
 Prediction Engine v0.1
 ↓
-prediction_versions + prediction_markets
+prediction_versions / mercados futuros
 ↓
 match_results
 ↓
-prediction_results / evaluación
+Model Evaluation
+↓
+prediction_results
 ↓
 Transparency real
 ```
 
 ---
 
-# Principios técnicos
+## Principios técnicos
 
 - El modelo estadístico calcula.
 - La IA solo explica.
@@ -106,3 +154,4 @@ Transparency real
 - El Lab se mantiene interno.
 - No exponer secretos.
 - No trabajar directo en `main`.
+- No usar service role para alimentar UI salvo justificación explícita.
