@@ -1,8 +1,9 @@
 # Supabase Runtime Foundation
 
 This directory holds the database foundation and lazy Supabase client factories
-for UFO Predictor. Authentication and the public `/predictions` listing now use
-these factories, while other public product surfaces remain backed by mock data.
+for UFO Predictor. Authentication, public predictions, the visible plan
+catalog, and each signed-in user's access summary now use these factories.
+Premium product surfaces remain intentionally unavailable or mock-only.
 
 ## Files
 
@@ -49,6 +50,9 @@ these factories, while other public product surfaces remain backed by mock data.
   authenticated visitors to read only the product-public competitions,
   fixtures, related teams/venues, and published prediction versions required by
   `/predictions`.
+- `supabase/migrations/0012_plans_entitlements_backend.sql` exposes only the
+  current public plan catalog and lets authenticated users read only their own
+  subscriptions, current entitlements, and current match unlocks.
 
 ## Runtime Environment
 
@@ -130,6 +134,30 @@ C01 does not grant public reads for `prediction_markets`,
 premium, `lab_only`, or `internal_lab` records. `/matches/[slug]` remains
 outside this read path and still belongs to a later product-data epic.
 
+## Plans And Entitlements Backend
+
+`/pricing` now reads only active, currently visible `plans` and their
+`plan_features` through the authenticated-or-anonymous server client. Plan
+features are public catalog/marketing values; they must not contain secrets,
+private authorization rules, or sensitive operational configuration. No
+checkout or payment workflow exists in this phase.
+
+`/dashboard` remains authenticated and reads only the signed-in user's current
+access state: active subscriptions, unexpired entitlements, and unexpired
+match unlocks. The pure permission contract distinguishes these sources:
+
+- `public_basic_access` for generally publishable free content;
+- `beta_free_access` for a future server-controlled beta allocation;
+- `entitlement_access` for a current entitlement or match unlock;
+- `admin_access` for an explicit administrative bypass where a future query
+  deliberately permits it.
+
+A `premium_user` profile role or an active subscription is not, by itself, an
+authorization to return protected prediction content. Future premium queries
+must apply entitlement or unlock decisions in their server-side projection
+before data reaches the browser. C02 does not open premium matches,
+`prediction_markets`, `prediction_narratives`, or `prediction_results`.
+
 ## Data Intake Minimal
 
 Data Intake Minimal lets Beta Lab represent internal fixtures and final scores
@@ -144,7 +172,7 @@ prediction version against that validated final result.
 
 If Supabase CLI is not available, verify this foundation only in an approved
 empty development project through Supabase SQL Editor: apply migration files
-in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`, `0009`, `0010`, `0011`) and then run
+in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`, `0009`, `0010`, `0011`, `0012`) and then run
 `supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
 `lab_only` remain for internal review only. Do not run the seed over production
 or any remote project with data that has not been approved for reset.
@@ -160,9 +188,9 @@ Supabase Data API configuration. This includes the explicitly sensitive tables:
 The original profile policy lets an authenticated user read their own profile.
 Profile updates are deliberately deferred because a broad update policy could
 allow a client to change `role`. C01 adds only filtered public reads for the
-minimum prediction listing. Subscriptions, entitlements, unlocks, protected
-premium projections, and email events remain TODO items for the API,
-auth/paywall, and email epics.
+minimum prediction listing. C02 adds own-row reads for subscriptions and
+current rights, but protected premium projections and email events remain TODO
+items for later access and email epics.
 
 Data Intake initially added a verified-results read policy for authenticated
 users. Migration `0005` narrows that policy to verified results whose related
@@ -214,6 +242,12 @@ are in the public-product path. It does not change existing internal/admin
 policies or mutation grants. The repository contains existing authenticated
 grants needed for the Lab workflows; C01 deliberately avoids global privilege
 cleanup so those flows are not disrupted.
+
+Migration `0012` adds public `SELECT` policies for only current active plans
+and their public catalog features. Authenticated users may read only their own
+subscriptions, current entitlements, and current match unlocks. It adds no
+insert, update, or delete capability, and it does not change Lab or prediction
+content policies.
 
 ## Applying After Review
 
@@ -271,5 +305,5 @@ environment and valid values are set in `.env.local`:
   persistence.
 - Public browsing or commercial access to Beta Lab competitions.
 - Social login, magic links, password reset, or profile editing.
-- Complete RLS/paywall enforcement.
+- Premium projection and final paywall enforcement.
 - Payments, real providers, Resend, LLM calls, or live workers.
