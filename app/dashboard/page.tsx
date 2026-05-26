@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireUser } from "@/lib/auth/session";
-import { mockUser, plans, matches } from "@/lib/mock-data";
+import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
 
 export const dynamic = "force-dynamic";
 
@@ -11,57 +11,131 @@ type DashboardPageProps = {
   }>;
 };
 
+const roleLabels = {
+  admin: "Administrador",
+  free_user: "Cuenta gratuita",
+  premium_user: "Cuenta premium futura",
+};
+
+function dateLabel(value: string | null) {
+  if (!value) {
+    return "Sin vencimiento";
+  }
+
+  return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" }).format(
+    new Date(value),
+  );
+}
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const user = await requireUser("/dashboard");
   const params = await searchParams;
-  const activePlan = plans.find((plan) => plan.slug === mockUser.planSlug);
-  const unlockedMatchIds = new Set(mockUser.matchUnlocks.map((unlock) => unlock.matchId));
-  const unlockedMatches = matches.filter((match) => unlockedMatchIds.has(match.id));
+  const summary = await getViewerEntitlementSummary();
 
   return (
     <div className="space-y-6">
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Panel</p>
+          <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">
+            Panel
+          </p>
           <h1 className="mt-3 text-4xl font-semibold">Consola del observador</h1>
           <p className="mt-3 max-w-2xl text-[var(--muted)]">
-            Sesión activa para <span className="text-white">{user.email}</span>. Planes y desbloqueos permanecen simulados en esta fase.
+            Sesión activa para <span className="text-white">{user.email}</span>. Tu
+            estado de acceso se consulta de forma segura; la beta todavía no sirve
+            contenido premium.
           </p>
         </div>
         <LogoutButton />
       </section>
+
       {params.error === "admin-access-required" ? (
         <p className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4 text-sm text-[var(--warning)]">
           Tu perfil no tiene permisos de administrador para acceder a esa sección.
         </p>
       ) : null}
-      <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-        <section className="panel rounded-lg p-5">
-          <h2 className="text-lg font-semibold">Plan actual</h2>
-          <p className="mt-3 font-mono text-3xl">{activePlan?.name}</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">{activePlan?.description}</p>
-          <Link href="/pricing" className="mt-5 inline-block rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)] shadow-[0_0_20px_rgba(0,215,255,0.2)]">
-            Ver planes
-          </Link>
-        </section>
-        <section className="panel rounded-lg p-5">
-          <h2 className="text-lg font-semibold">Partidos desbloqueados</h2>
-          <div className="mt-4 space-y-3">
-            {unlockedMatches.map((match) => (
-              <Link key={match.id} href={`/matches/${match.slug}`} className="block rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                <p className="font-medium">
-                  {match.homeTeam.name} vs {match.awayTeam.name}
-                </p>
-                <p className="mt-1 text-sm text-[var(--muted)]">{match.stage}</p>
+
+      {summary.status === "unavailable" ? (
+        <p className="panel rounded-lg p-5 text-sm text-[var(--muted)]">{summary.message}</p>
+      ) : (
+        <>
+          <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
+            <section className="panel rounded-lg p-5">
+              <h2 className="text-lg font-semibold">Estado de acceso</h2>
+              <p className="mt-3 font-mono text-2xl">{roleLabels[summary.role]}</p>
+              <p className="mt-2 text-sm text-[var(--muted)]">
+                Suscripciones activas: {summary.activeSubscriptions.length}. El rol de
+                perfil por sí solo no desbloquea contenido protegido.
+              </p>
+              <Link
+                href="/pricing"
+                className="mt-5 inline-block rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)] shadow-[0_0_20px_rgba(0,215,255,0.2)]"
+              >
+                Ver planes beta
               </Link>
-            ))}
+            </section>
+
+            <section className="panel rounded-lg p-5">
+              <h2 className="text-lg font-semibold">Entitlements vigentes</h2>
+              <div className="mt-4 space-y-3">
+                {summary.entitlements.length === 0 ? (
+                  <p className="text-sm text-[var(--muted)]">
+                    No tienes derechos adicionales vigentes. Mantienes el acceso público
+                    básico disponible en la beta.
+                  </p>
+                ) : (
+                  summary.entitlements.map((entitlement) => (
+                    <div
+                      key={entitlement.id}
+                      className="rounded-lg border border-white/10 bg-white/[0.03] p-4"
+                    >
+                      <p className="font-medium">{entitlement.entitlement_type}</p>
+                      <p className="mt-1 text-sm text-[var(--muted)]">
+                        {entitlement.resource_type}: {entitlement.resource_id}
+                      </p>
+                      <p className="mt-1 text-xs text-[var(--muted)]">
+                        Vigencia: {dateLabel(entitlement.ends_at)}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
           </div>
-        </section>
-      </div>
+
+          <section className="panel rounded-lg p-5">
+            <h2 className="text-lg font-semibold">Desbloqueos de partido vigentes</h2>
+            <div className="mt-4 space-y-3">
+              {summary.matchUnlocks.length === 0 ? (
+                <p className="text-sm text-[var(--muted)]">
+                  No tienes partidos desbloqueados. El detalle premium aún no está
+                  habilitado en el producto.
+                </p>
+              ) : (
+                summary.matchUnlocks.map((unlock) => (
+                  <div
+                    key={unlock.id}
+                    className="rounded-lg border border-white/10 bg-white/[0.03] p-4"
+                  >
+                    <p className="font-medium">Acceso a partido</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">ID: {unlock.match_id}</p>
+                    <p className="mt-1 text-xs text-[var(--muted)]">
+                      Vigencia: {dateLabel(unlock.expires_at)}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        </>
+      )}
+
       <section className="panel rounded-lg p-5">
-        <h2 className="text-lg font-semibold">Preferencias</h2>
+        <h2 className="text-lg font-semibold">Beta freemium</h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          El perfil autenticado ya está preparado. Idioma, selección favorita y alertas quedan para próximas iteraciones.
+          El backend ya distingue acceso público, acceso beta controlado, derechos
+          vigentes y bypass administrativo. Pagos y contenido premium permanecen fuera
+          de esta fase.
         </p>
       </section>
     </div>

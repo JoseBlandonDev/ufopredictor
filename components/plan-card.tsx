@@ -7,7 +7,7 @@ export function PlanCard({ plan }: { plan: Plan }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-            {plan.isActive ? "Plan simulado activo" : "Preparado"}
+            {plan.isActive ? "Catálogo beta" : "Acceso futuro"}
           </p>
           <h3 className="mt-2 text-xl font-semibold">{plan.name}</h3>
         </div>

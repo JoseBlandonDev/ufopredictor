@@ -1,12 +1,22 @@
-# Permissions Skeleton
+# Permissions Foundation
 
-TODO: replace mock access checks with backend-enforced entitlement filtering.
+`entitlements.ts` defines pure, deterministic access decisions for future
+server-side premium projections. It distinguishes public basic access,
+server-controlled beta free access, current entitlement or match unlock
+access, and an explicit admin bypass.
 
-Planned scope:
+Implemented scope:
 
-- derive access from `subscriptions`, `user_entitlements`, and `user_match_unlocks`
-- filter premium prediction fields on the server
-- avoid relying on visual locks as the only paywall
-- support match packs, competition passes, stage passes, and team passes
+- check subscription status without treating a subscription alone as access;
+- require a current entitlement or current match unlock for protected resource
+  access, unless an explicit beta or admin rule applies;
+- test the pure decisions independently of Supabase.
 
-The current `can-access-match.ts` helper is mock-only for the prototype.
+Premium prediction query projections are not implemented yet. When added,
+they must invoke these rules server-side before returning protected fields;
+visual locks are not an authorization boundary. Any future
+`betaFreeResourceIds` values must be assembled from trusted server
+configuration or grants, never from client input.
+
+The existing `can-access-match.ts` helper remains mock-only for the unconnected
+match-detail prototype.
