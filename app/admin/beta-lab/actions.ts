@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
+import { evaluatePrediction } from "@/lib/model-evaluation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const reviewLabFixtureSchema = z.object({
@@ -33,12 +34,65 @@ const saveLabMatchResultSchema = z.object({
     .max(500, "La nota no puede superar 500 caracteres."),
 });
 
+const persistLabEvaluationSchema = z.object({
+  predictionVersionId: z.string().uuid(),
+});
+
+const topScorelinesSchema = z.array(
+  z.object({
+    score: z.string().regex(/^\d+-\d+$/),
+    probability: z.number().min(0).max(100),
+  }),
+);
+
+type StoredMarket = {
+  market: "btts" | "over_2_5";
+  selection: string;
+  probability: number;
+};
+
+function resolveEvaluationMarkets(markets: StoredMarket[]) {
+  const expectedKeys = new Set(["btts:yes", "btts:no", "over_2_5:over", "over_2_5:under"]);
+  const probabilities = new Map<string, number>();
+
+  for (const market of markets) {
+    const key = `${market.market}:${market.selection}`;
+
+    if (!expectedKeys.has(key) || probabilities.has(key)) {
+      return null;
+    }
+
+    probabilities.set(key, market.probability);
+  }
+
+  if (probabilities.size !== expectedKeys.size) {
+    return null;
+  }
+
+  return {
+    btts: {
+      yes: probabilities.get("btts:yes")!,
+      no: probabilities.get("btts:no")!,
+    },
+    overUnder25: {
+      over: probabilities.get("over_2_5:over")!,
+      under: probabilities.get("over_2_5:under")!,
+    },
+  };
+}
+
 function redirectWithStatus(status: "saved" | "invalid" | "error"): never {
   redirect(`/admin/beta-lab?review=${status}`);
 }
 
 function redirectWithResultStatus(status: "saved" | "invalid" | "error"): never {
   redirect(`/admin/beta-lab?result=${status}`);
+}
+
+function redirectWithEvaluationStatus(
+  status: "saved" | "invalid" | "unverified" | "incomplete" | "not_evaluable" | "error",
+): never {
+  redirect(`/admin/beta-lab?evaluation=${status}`);
 }
 
 export async function reviewLabFixtureAction(formData: FormData) {
@@ -149,4 +203,151 @@ export async function saveLabMatchResultAction(formData: FormData) {
 
   revalidatePath("/admin/beta-lab");
   redirectWithResultStatus("saved");
+}
+
+export async function persistLabEvaluationAction(formData: FormData) {
+  const input = persistLabEvaluationSchema.safeParse({
+    predictionVersionId: formData.get("predictionVersionId"),
+  });
+
+  if (!input.success) {
+    redirectWithEvaluationStatus("invalid");
+  }
+
+  await requireAdmin("/admin/beta-lab");
+  const supabase = await createSupabaseServerClient();
+  const { data: prediction, error: predictionError } = await supabase
+    .from("prediction_versions")
+    .select(
+      "id, match_id, run_scope, home_win_prob, draw_prob, away_win_prob, most_likely_score, top_scores_json",
+    )
+    .eq("id", input.data.predictionVersionId)
+    .eq("run_scope", "internal_lab")
+    .maybeSingle();
+
+  if (predictionError || !prediction) {
+    redirectWithEvaluationStatus("error");
+  }
+
+  const { data: labMatch, error: labMatchError } = await supabase
+    .from("matches")
+    .select("id, competition_id")
+    .eq("id", prediction.match_id)
+    .eq("access_scope", "lab_only")
+    .maybeSingle();
+
+  if (labMatchError || !labMatch) {
+    redirectWithEvaluationStatus("error");
+  }
+
+  const { data: labCompetition, error: labCompetitionError } = await supabase
+    .from("competitions")
+    .select("id")
+    .eq("id", labMatch.competition_id)
+    .eq("usage_scope", "internal_lab")
+    .maybeSingle();
+
+  if (labCompetitionError || !labCompetition) {
+    redirectWithEvaluationStatus("error");
+  }
+
+  const [
+    { data: result, error: resultError },
+    { data: marketData, error: marketError },
+  ] = await Promise.all([
+    supabase
+      .from("match_results")
+      .select("match_id, home_goals, away_goals, verification_status")
+      .eq("match_id", labMatch.id)
+      .maybeSingle(),
+    supabase
+      .from("prediction_markets")
+      .select("market, selection, probability")
+      .eq("prediction_version_id", prediction.id)
+      .in("market", ["btts", "over_2_5"]),
+  ]);
+
+  if (resultError || marketError) {
+    redirectWithEvaluationStatus("error");
+  }
+
+  if (!result || result.verification_status !== "verified") {
+    redirectWithEvaluationStatus("unverified");
+  }
+
+  const markets = resolveEvaluationMarkets((marketData ?? []) as StoredMarket[]);
+  const topScorelines = topScorelinesSchema.safeParse(prediction.top_scores_json);
+
+  if (!markets || !topScorelines.success) {
+    redirectWithEvaluationStatus("incomplete");
+  }
+
+  const evaluation = evaluatePrediction(
+    {
+      predictionVersionId: prediction.id,
+      matchId: prediction.match_id,
+      probabilities: {
+        oneXTwo: {
+          homeWin: prediction.home_win_prob,
+          draw: prediction.draw_prob,
+          awayWin: prediction.away_win_prob,
+        },
+        btts: markets.btts,
+        overUnder25: markets.overUnder25,
+      },
+      mostLikelyScore: prediction.most_likely_score,
+      topScorelines: topScorelines.data,
+    },
+    {
+      matchId: result.match_id,
+      homeGoals: result.home_goals,
+      awayGoals: result.away_goals,
+      verificationStatus: result.verification_status,
+    },
+  );
+
+  if (evaluation.status !== "evaluable") {
+    redirectWithEvaluationStatus("not_evaluable");
+  }
+
+  const { prediction_version_id, ...evaluationFields } = evaluation.predictionResultsPayload;
+  const persistedFields = {
+    ...evaluationFields,
+    validated_at: new Date().toISOString(),
+  };
+  const { data: existingEvaluation, error: existingEvaluationError } = await supabase
+    .from("prediction_results")
+    .select("id")
+    .eq("prediction_version_id", prediction_version_id)
+    .maybeSingle();
+
+  if (existingEvaluationError) {
+    redirectWithEvaluationStatus("error");
+  }
+
+  const mutation = existingEvaluation
+    ? supabase
+        .from("prediction_results")
+        .update(persistedFields)
+        .eq("id", existingEvaluation.id)
+        .eq("prediction_version_id", prediction_version_id)
+        .select("id")
+        .maybeSingle()
+    : supabase
+        .from("prediction_results")
+        .insert({
+          prediction_version_id,
+          ...persistedFields,
+        })
+        .select("id")
+        .maybeSingle();
+
+  const { data, error } = await mutation;
+
+  if (error || !data) {
+    redirectWithEvaluationStatus("error");
+  }
+
+  revalidatePath("/admin/beta-lab");
+  redirectWithEvaluationStatus("saved");
 }

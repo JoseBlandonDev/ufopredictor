@@ -6,6 +6,7 @@ import type {
   MatchResultRow,
   MatchRow,
   ModelVersionRow,
+  PredictionMarketRow,
   PredictionResultRow,
   PredictionVersionRow,
   TeamRow,
@@ -51,6 +52,7 @@ type LabPrediction = Pick<
   | "created_at"
 >;
 type LabModelVersion = Pick<ModelVersionRow, "id" | "version">;
+type LabMarket = Pick<PredictionMarketRow, "prediction_version_id" | "market" | "selection">;
 type LabEvaluation = Pick<
   PredictionResultRow,
   | "prediction_version_id"
@@ -84,6 +86,9 @@ export type LabFixtureView = {
         mostLikelyScore: string;
         confidenceScore: number;
         riskLevel: PredictionVersionRow["risk_level"];
+        hasCompleteMarkets: boolean;
+        hasVerifiedResult: boolean;
+        hasPersistedEvaluation: boolean;
         evaluation: LabEvaluation | null;
       }
     | null;
@@ -107,6 +112,27 @@ function unavailable(): LabDashboardData {
     status: "unavailable",
     message: "No fue posible consultar los datos internos del laboratorio en este momento.",
   };
+}
+
+function hasCompleteEvaluationMarkets(markets: LabMarket[]) {
+  const expectedKeys = new Set(["btts:yes", "btts:no", "over_2_5:over", "over_2_5:under"]);
+  const presentKeys = new Set<string>();
+
+  for (const market of markets) {
+    if (market.market !== "btts" && market.market !== "over_2_5") {
+      continue;
+    }
+
+    const key = `${market.market}:${market.selection}`;
+
+    if (!expectedKeys.has(key) || presentKeys.has(key)) {
+      return false;
+    }
+
+    presentKeys.add(key);
+  }
+
+  return presentKeys.size === expectedKeys.size;
 }
 
 export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
@@ -201,11 +227,13 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
 
   let modelVersions: LabModelVersion[] = [];
   let evaluations: LabEvaluation[] = [];
+  let markets: LabMarket[] = [];
 
   if (predictions.length > 0) {
     const [
       { data: modelVersionData, error: modelVersionError },
       { data: evaluationData, error: evaluationError },
+      { data: marketData, error: marketError },
     ] = await Promise.all([
       supabase.from("model_versions").select("id, version").in("id", modelVersionIds),
       supabase
@@ -214,14 +242,20 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
           "prediction_version_id, winner_correct, btts_correct, over_2_5_correct, exact_score_correct, goal_error, error_summary",
         )
         .in("prediction_version_id", predictionIds),
+      supabase
+        .from("prediction_markets")
+        .select("prediction_version_id, market, selection")
+        .in("prediction_version_id", predictionIds)
+        .in("market", ["btts", "over_2_5"]),
     ]);
 
-    if (modelVersionError || evaluationError) {
+    if (modelVersionError || evaluationError || marketError) {
       return unavailable();
     }
 
     modelVersions = (modelVersionData ?? []) as LabModelVersion[];
     evaluations = (evaluationData ?? []) as LabEvaluation[];
+    markets = (marketData ?? []) as LabMarket[];
   }
 
   const competitionById = new Map(competitions.map((competition) => [competition.id, competition]));
@@ -231,6 +265,13 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
   const evaluationByPredictionId = new Map(
     evaluations.map((evaluation) => [evaluation.prediction_version_id, evaluation]),
   );
+  const marketsByPredictionId = new Map<string, LabMarket[]>();
+
+  markets.forEach((market) => {
+    const predictionMarkets = marketsByPredictionId.get(market.prediction_version_id) ?? [];
+    predictionMarkets.push(market);
+    marketsByPredictionId.set(market.prediction_version_id, predictionMarkets);
+  });
   const latestPredictionByMatchId = new Map<string, LabPrediction>();
 
   predictions.forEach((prediction) => {
@@ -241,6 +282,8 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
 
   const fixtures = matches.map((match) => {
     const prediction = latestPredictionByMatchId.get(match.id);
+    const result = resultByMatchId.get(match.id) ?? null;
+    const evaluation = prediction ? evaluationByPredictionId.get(prediction.id) ?? null : null;
 
     return {
       id: match.id,
@@ -255,7 +298,7 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
       sourceNote: match.source_note,
       reviewedAt: match.reviewed_at,
       reviewedBy: match.reviewed_by,
-      result: resultByMatchId.get(match.id) ?? null,
+      result,
       prediction: prediction
         ? {
             id: prediction.id,
@@ -265,7 +308,10 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
             mostLikelyScore: prediction.most_likely_score,
             confidenceScore: prediction.confidence_score,
             riskLevel: prediction.risk_level,
-            evaluation: evaluationByPredictionId.get(prediction.id) ?? null,
+            hasCompleteMarkets: hasCompleteEvaluationMarkets(marketsByPredictionId.get(prediction.id) ?? []),
+            hasVerifiedResult: result?.verification_status === "verified",
+            hasPersistedEvaluation: evaluation !== null,
+            evaluation,
           }
         : null,
     } satisfies LabFixtureView;
