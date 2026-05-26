@@ -1,199 +1,158 @@
 # CURRENT_PROJECT_STATUS.md — UFO Predictor
 
-## Estado general
+# UFO Predictor — estado actualizado post Lab Admin Flow
 
-UFO Predictor ya no está en fase de prototipo puro. El proyecto cuenta con una base técnica funcional para avanzar en el Lab pre-Mundial y preparar luego el MVP Mundial.
+Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
 
-Estado actual asumido:
+Principio permanente: **el modelo estadístico calcula. La IA explica.**
 
-- `feature/lab-supabase-queries` ya fue cerrado y mergeado.
-- Supabase remoto tiene aplicadas migraciones hasta `0006_admin_lab_read_policies.sql`.
-- Las migraciones `0005` y `0006` fueron aplicadas manualmente en Supabase SQL Editor.
-- `/admin/beta-lab` ya lee datos reales desde Supabase para fixtures, predicciones, resultados y evaluaciones.
+UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+
 
 ---
 
-## Qué ya existe
+## Estado ejecutivo
 
-### Frontend
+UFO Predictor ya tiene un **MVP interno de Lab para desarrolladores/admin**. No es aún MVP público/comercial.
 
-- App Next.js con App Router.
-- UI base en español.
-- Código y nombres técnicos en inglés.
-- Branding UFO Predictor.
-- Rutas principales:
-  - `/`
-  - `/predictions`
-  - `/matches/[slug]`
-  - `/pricing`
-  - `/transparency`
-  - `/dashboard`
-  - `/admin`
-  - `/admin/beta-lab`
-  - `/login`
-  - `/register`
-  - `/auth/callback`
+El flujo interno funciona así:
 
-### Supabase
+```txt
+/admin/beta-lab
+  → lee fixtures internos Lab
+  → permite revisión admin
+  → permite crear/editar resultados reales
+  → lee predicciones internas y markets persistidos
+  → calcula evaluación con lib/model-evaluation
+  → persiste/actualiza prediction_results
+```
 
-- Schema inicial.
-- Seed inicial.
-- Migraciones versionadas hasta `0006_admin_lab_read_policies.sql`.
-- Supabase remoto aplicado.
-- Runtime clients browser/server/admin.
+---
+
+## Estado Git / PRs recientes
+
+Mergeado en `main`:
+
+```txt
+#15 feat: add lab fixture review actions
+#16 feat: add lab match result actions
+#17 chore: seed internal lab prediction markets
+#18 feat: persist lab evaluations
+```
+
+---
+
+## Estado Supabase remoto
+
+Migraciones aplicadas manualmente hasta:
+
+```txt
+0010_admin_lab_evaluation_persistence.sql
+```
+
+Migraciones relevantes recientes:
+
+```txt
+0007_admin_lab_fixture_review_actions.sql
+0008_admin_lab_match_result_actions.sql
+0009_seed_internal_lab_prediction_markets.sql
+0010_admin_lab_evaluation_persistence.sql
+```
+
+### RLS / grants recientes
+
+- `matches`: update admin-only para campos de revisión Lab.
+- `match_results`: insert/update admin-only para resultados Lab verificados o pendientes; sin delete.
+- `prediction_markets`: select admin-only para markets internos Lab.
+- `prediction_results`: insert/update admin-only para evaluaciones Lab; sin delete.
+- Grants de escritura limitados por columna donde aplica.
+
+---
+
+## Funcionalidades operativas
+
+### App y auth
+
+- Next.js App Router.
+- Supabase remoto conectado.
 - Auth email/password.
-- Profiles automáticos.
 - Roles `free_user` y `admin`.
-- RLS inicial y RLS Lab reforzada.
+- `/dashboard` y `/admin` protegidos.
+- `/admin/beta-lab` requiere admin.
 
-### Auth / Admin
+### Lab Admin
 
-- Login, registro y logout.
-- Callback Auth.
-- Perfiles automáticos.
-- Dashboard protegido.
-- Admin protegido.
-- `/admin/beta-lab` protegido con `requireAdmin`.
-- Incógnito/no autenticado redirige a login en `/admin/beta-lab`.
+`/admin/beta-lab` ya permite:
 
-### Beta Lab
-
-- Soporte para `internal_lab` en competiciones.
-- Soporte para `lab_only` en partidos.
-- Soporte para `internal_lab` en ejecuciones de predicción.
-- Data Intake Minimal:
-  - `intake_source`;
+- leer fixtures Lab reales desde Supabase;
+- mostrar equipos, competiciones, predicciones, model versions, resultados y evaluaciones;
+- revisar fixtures:
+  - `lab_status`;
   - `data_quality`;
   - `source_note`;
   - `reviewed_at`;
   - `reviewed_by`;
-  - tabla `match_results`.
-- `prediction_results` para evaluación persistida.
-- `/admin/beta-lab` lee desde Supabase:
-  - fixtures Lab;
-  - equipos;
-  - prediction versions;
-  - match results;
-  - prediction results;
-  - model versions.
+- crear/editar `match_results`:
+  - goles local/visita;
+  - `verification_status`;
+  - `intake_source`;
+  - `source_note`;
+  - `reviewed_at`;
+  - `reviewed_by`;
+- leer `prediction_markets` internos Lab;
+- persistir/actualizar `prediction_results` usando `lib/model-evaluation/`.
 
-### Prediction Engine
+### Motor y evaluación
 
-Existe en `lib/prediction-engine/`.
-
-Incluye:
-
-- Team Power Score.
-- Expected goals.
-- Poisson.
-- Matriz de marcadores.
-- 1X2.
-- BTTS.
-- Over/Under 2.5.
-- Top scorelines.
-- Confidence/risk.
-- Tests.
-
-### Model Evaluation
-
-Existe en `lib/model-evaluation/`.
-
-Incluye:
-
-- Evaluación individual contra resultados verificados.
-- `winner_correct`.
-- `btts_correct`.
-- `over_2_5_correct`.
-- `exact_score_correct`.
-- `goal_error`.
-- `error_summary`.
-- Métricas agregadas.
-- Manejo de mercados ambiguos.
-- Tests.
+- `lib/prediction-engine/` existe y tiene tests.
+- `lib/model-evaluation/` existe y tiene tests.
+- B06c usa `evaluatePrediction()` para persistir métricas.
+- La UI admin **no ejecuta Prediction Engine** ni genera nuevas predicciones.
 
 ---
 
-## Qué existe parcialmente o como mock
+## Datos actuales relevantes
 
-- Predicciones públicas visibles en UI.
-- Detalle público de partido.
-- Pricing.
-- Paywall visual.
-- Transparency Center.
-- Worker status / worker runs.
-- Narrativa IA.
-- Model vs Market.
-- Golden Hour Delta.
-
-En `/admin/beta-lab`, fixtures/predicciones/resultados/evaluaciones ya vienen desde Supabase; worker runs siguen mock y marcados como mock.
+- Hay fixtures Lab `lab_only`.
+- Hay competiciones `internal_lab`.
+- Hay `prediction_versions` internas.
+- Hay `prediction_markets` mínimos para Lab:
+  - `btts` yes/no;
+  - `over_2_5` over/under.
+- Hay `match_results` para fixtures Lab.
+- Hay al menos una evaluación persistida en `prediction_results`.
 
 ---
 
-## Qué NO existe todavía
+## Sigue mock / no implementado
 
-- Escrituras admin desde UI.
-- Review flow de fixtures desde admin.
-- Crear/editar `match_results` desde admin.
-- Persistencia automática de nuevas evaluaciones.
-- Workers reales.
-- Lectura pública de predicciones desde DB.
-- Paywall backend real.
-- Entitlements reales aplicados al contenido.
-- API deportiva real.
-- Odds reales.
-- LLM real.
-- Resend real.
-- Pagos reales.
-- Google Auth.
-- Supabase CLI / entorno local.
-- Deploy/staging final.
-- Producto público multi-liga.
+- `workerRuns` sigue mock.
+- No hay workers reales.
+- No hay API deportiva.
+- No hay odds reales.
+- No hay LLM real.
+- No hay pagos.
+- No hay Google Auth.
+- No hay Supabase CLI local.
+- No hay predicciones públicas desde DB.
+- No hay backend de entitlements/paywall.
+- No hay staging final.
+- No hay Transparency real conectada a métricas.
 
 ---
 
-## Último trabajo completado
+## Siguiente recomendación
 
-### Lab Supabase Queries
-
-**Rama:** `feature/lab-supabase-queries`  
-**Estado:** Done  
-**Validación:** Supabase SQL Editor, localhost/admin UI, incógnito redirect, test/lint/build.
-
-Incluye:
-
-- Migración `0006_admin_lab_read_policies.sql`.
-- Policies admin-only para lecturas Lab.
-- `lib/supabase/lab-queries.ts`.
-- `/admin/beta-lab` usando datos reales desde Supabase.
-- Worker runs conservados como mock.
-
----
-
-## Próximo paso recomendado
-
-Dividir Lab Admin Review Flow en sub-épicas.
-
-Primera sub-épica recomendada:
+Después de actualizar docs, seguir con:
 
 ```txt
-feature/lab-fixture-review-actions
+feature/public-predictions-from-db
 ```
 
-Objetivo: permitir acciones admin controladas para revisar fixtures Lab.
+Decisión previa necesaria:
 
----
+```txt
+Definir qué prediction_versions pasan de internal_lab a public_product.
+```
 
-## Riesgos actuales
-
-- Empezar escrituras admin sin RLS update claro.
-- Mezclar fixture review, result editing y evaluation persistence en una sola rama gigante.
-- Usar service role para alimentar UI admin sin necesidad.
-- Empezar APIs reales antes de consolidar el Lab.
-- Mantener worker runs mock por demasiado tiempo sin etiqueta clara.
-- No formalizar Supabase CLI / migraciones locales antes de que crezcan más migraciones.
-
----
-
-## Regla operativa
-
-Cada nueva épica debe iniciar desde `main` actualizado y en su propia rama. Codex debe revisar contexto, estado de Git y alcance antes de modificar archivos.
+No publicar datos Lab internos por accidente. Parece obvio, lo que significa que alguien lo rompería si no lo escribimos.

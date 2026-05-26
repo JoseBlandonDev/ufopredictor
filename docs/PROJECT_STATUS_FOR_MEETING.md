@@ -2,7 +2,7 @@
 
 ## Resumen ejecutivo
 
-UFO Predictor ya dejó de ser solo una maqueta visual. El proyecto cuenta con una base técnica real: Supabase, Auth, roles, Admin/Beta Lab, motor predictivo v0.1, evaluación de predicciones y lecturas reales de datos Lab desde Supabase.
+UFO Predictor ya dejó de ser solo una maqueta visual. El proyecto cuenta con una base técnica real: Supabase, Auth, roles, Admin/Beta Lab, motor predictivo v0.1, evaluación de predicciones y flujo admin interno con datos reales.
 
 El producto sigue en fase interna pre-Mundial. Todavía no es un MVP público final.
 
@@ -19,7 +19,7 @@ Principio permanente:
 - App Next.js navegable.
 - Branding UFO Predictor.
 - Home, predicciones, detalle de partido, pricing, transparency, dashboard y admin.
-- Login/register con Supabase Auth.
+- Login/register con Supabase Auth por correo y contraseña.
 - Dashboard protegido.
 - Admin protegido.
 - Beta Lab admin protegido.
@@ -33,28 +33,34 @@ Principio permanente:
 - Runtime clients.
 - RLS inicial.
 - Policies Lab reforzadas.
+- Migraciones aplicadas manualmente hasta `0010_admin_lab_evaluation_persistence.sql`.
 
 ### Beta Lab
 
-- Competiciones internas `internal_lab`.
-- Partidos `lab_only`.
-- Fuente/calidad de datos.
-- Resultados reales registrados en `match_results`.
-- Predicciones internas en `prediction_versions`.
-- Evaluaciones persistidas en `prediction_results`.
-- `/admin/beta-lab` ya lee datos reales desde Supabase.
+`/admin/beta-lab` ya permite operar el flujo interno del modelo:
+
+- Leer competiciones internas `internal_lab`.
+- Leer partidos `lab_only`.
+- Revisar fixtures desde UI.
+- Actualizar estado/calidad/notas de fixtures.
+- Crear y editar resultados reales en `match_results`.
+- Leer predicciones internas en `prediction_versions`.
+- Leer mercados internos en `prediction_markets`.
+- Persistir o actualizar evaluaciones en `prediction_results`.
+- Mostrar estado de evaluación y métricas persistidas.
 
 ### Motor predictivo
 
 - `lib/prediction-engine/` implementado.
 - Calcula probabilidades 1X2, BTTS, Over/Under 2.5, xG, marcadores probables, confidence/risk.
 - Tests con Vitest.
+- No se ejecuta todavía desde UI admin ni desde workers.
 
 ### Evaluación del modelo
 
 - `lib/model-evaluation/` implementado.
-- Calcula aciertos y errores contra resultados reales.
-- Produce métricas individuales y agregadas.
+- Calcula aciertos y errores contra resultados reales verificados.
+- B06c ya usa este módulo para persistir evaluaciones desde el Beta Lab.
 - Tests con Vitest.
 
 ---
@@ -64,65 +70,77 @@ Principio permanente:
 - `npm run test`.
 - `npm run lint`.
 - `npm run build`.
-- Supabase SQL Editor con migraciones `0005` y `0006`.
-- Usuario admin puede ver `/admin/beta-lab`.
-- Incógnito/no autenticado redirige a login para `/admin/beta-lab`.
+- Supabase SQL Editor con migraciones `0007`, `0008`, `0009` y `0010`.
+- Usuario admin puede ver y operar `/admin/beta-lab`.
+- Admin puede actualizar evaluación y ver `?evaluation=saved`.
+- `prediction_results` guarda métricas calculadas y `validated_at`.
+- `DELETE` no está concedido para `anon` ni `authenticated` sobre `prediction_results`.
 
 Datos visibles actuales en Beta Lab:
 
-- 3 fixtures Lab.
-- 2 predicciones Lab.
-- 1 resultado registrado.
-- 1 evaluación persistida.
-- 2 fixtures pendientes de revisión.
+- Fixtures Lab.
+- Predicciones Lab.
+- Markets internos.
+- Resultados registrados.
+- Evaluaciones persistidas.
+- Worker runs mock.
 
 ---
 
 ## Qué sigue siendo mock o pendiente
 
 - Worker runs siguen mock.
-- No hay escritura admin desde UI todavía.
-- No hay CRUD/review flow.
 - No hay workers reales.
 - No hay API deportiva.
 - No hay odds reales.
 - No hay LLM real.
 - No hay pagos.
 - No hay Google Auth.
+- No hay Supabase CLI local.
 - No hay predicciones públicas desde DB.
+- No hay detalle público real desde DB.
 - No hay paywall backend real.
+- No hay entitlements reales.
+- No hay staging final.
+
+---
+
+## Punto actual del proyecto
+
+Ya tenemos un MVP interno funcional para desarrolladores/admin:
+
+```txt
+fixture Lab → revisión → resultado real → predicción + markets → evaluación → prediction_results
+```
+
+El siguiente salto es pasar de Lab interno a superficies públicas con datos reales, sin exponer datos internos ni premium.
 
 ---
 
 ## Próximo bloque recomendado
 
-Dividir Lab Admin Review Flow en tareas pequeñas.
-
-### Próxima tarea recomendada
+Primero cerrar documentación post B06c, si todavía no está mergeada:
 
 ```txt
-feature/lab-fixture-review-actions
+docs/update-project-context-after-lab-admin-flow
 ```
 
-Objetivo: permitir que admin revise fixtures Lab desde UI.
-
-Campos candidatos:
-
-- `matches.lab_status`.
-- `matches.data_quality`.
-- `matches.source_note`.
-- `matches.reviewed_at`.
-- `matches.reviewed_by`.
-
-### Después
+Después:
 
 ```txt
-feature/lab-match-result-actions
-feature/lab-evaluation-persistence
+feature/public-predictions-from-db
+```
+
+Antes de C01 hay que decidir:
+
+```txt
+Qué prediction_versions pasan de internal_lab a public_product.
 ```
 
 ---
 
 ## Mensaje simple para equipo
 
-Ya tenemos el laboratorio interno funcionando con datos reales de Supabase. Podemos ver fixtures de prueba, predicciones, resultados y evaluaciones desde el panel admin. El siguiente paso es permitir que el admin revise y actualice esos datos desde la interfaz, en vez de depender del SQL Editor.
+Ya tenemos el laboratorio interno funcionando con datos reales de Supabase. Desde el panel admin se pueden revisar partidos de prueba, cargar resultados reales y guardar evaluaciones del modelo contra esos resultados.
+
+Todavía no es el MVP público final, pero ya tenemos el ciclo interno principal del producto funcionando: predicción, resultado y evaluación.

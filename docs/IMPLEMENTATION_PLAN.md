@@ -2,11 +2,17 @@
 
 ## Propósito
 
-Este documento reemplaza el plan lineal inicial del prototipo por un plan operativo por fases. El proyecto ya avanzó de una maqueta visual con mocks a una base técnica real con Supabase, autenticación, roles, Beta Lab, Data Intake, motor predictivo, evaluación y lecturas reales del Lab desde Supabase.
+Plan operativo por fases para UFO Predictor. El proyecto ya avanzó de una maqueta visual con mocks a una base técnica real con Supabase, autenticación, roles, Beta Lab, Data Intake, motor predictivo, evaluación y flujo admin interno completo.
+
+Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+
+Principio permanente:
+
+> El modelo estadístico calcula. La IA explica.
 
 ---
 
-# Resumen ejecutivo del avance
+## Resumen ejecutivo del avance
 
 UFO Predictor ya cuenta con:
 
@@ -23,9 +29,14 @@ UFO Predictor ya cuenta con:
 - Prediction Engine v0.1 Lab.
 - Model Evaluation Lab.
 - Lab Supabase Queries para `/admin/beta-lab`.
-- RLS Lab reforzada con migraciones `0005` y `0006`.
+- Lab Admin Flow completo:
+  - revisión de fixtures;
+  - creación/edición de resultados reales;
+  - lectura de prediction markets internos;
+  - persistencia de evaluaciones.
+- RLS/grants Lab hasta `0010_admin_lab_evaluation_persistence.sql`.
 
-Esto cambia el enfoque del roadmap: ya no estamos solo construyendo UI mock, sino una plataforma con datos, permisos, modelo, evaluación y operación interna parcial.
+El proyecto ya tiene un MVP interno de Lab para desarrolladores/admin. Todavía no es MVP público/comercial.
 
 ---
 
@@ -33,43 +44,43 @@ Esto cambia el enfoque del roadmap: ya no estamos solo construyendo UI mock, sin
 
 ## A01. Setup y contexto del proyecto
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** repo, documentación base, reglas, contexto para Codex, `.env.example`, README inicial.
 
 ## A02. Prototipo visual con mock data
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** app Next.js navegable con rutas principales, branding, mock data y estructura de componentes.
 
 ## A03. Tipos y contratos internos
 
-**Estado:** Done / Iterativo  
-**Resultado:** tipos base en `types/`, mock data alineado y tipos de base actualizados manualmente conforme migraciones.
+**Estado:** Done / Iterativo
+**Resultado:** tipos base en `types/`, mock data alineado y tipos de base actualizados conforme migraciones.
 
 ## A04. Planes dinámicos mock y paywall visual
 
-**Estado:** Done parcial  
-**Resultado:** planes y locks visuales existen en prototipo.  
+**Estado:** Done parcial
+**Resultado:** planes y locks visuales existen en prototipo.
 **Pendiente:** backend real de entitlements y filtrado premium.
 
 ## A05. Supabase schema inicial
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** migración `0001_initial_schema.sql`, seed inicial y tablas base.
 
 ## A06. Fix de integridad de schema
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** integridad entre `matches`, `seasons` y `competitions` reforzada.
 
 ## A07. Supabase runtime clients
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** clientes Supabase browser/server/admin y documentación de variables.
 
 ## A08. Auth y roles
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** registro/login/logout, callback, perfiles automáticos, roles `free_user` y `admin`, dashboard/admin protegidos.
 
 ---
@@ -80,7 +91,7 @@ Objetivo: probar datos, fixtures, resultados, modelo y evaluación antes del Mun
 
 ## B01. Beta Lab Foundation
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** migración `0003_beta_lab_foundation.sql`.
 
 Incluye:
@@ -90,11 +101,11 @@ Incluye:
 - `matches.lab_status`: `candidate`, `ready`, `review`, `needs_data`, `archived`.
 - `prediction_versions.run_scope`: `public_product`, `internal_lab`.
 - Seed lab sintético.
-- `/admin/beta-lab` ajustado para laboratorio interno.
+- `/admin/beta-lab` protegido.
 
 ## B02. Data Intake Minimal
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** migración `0004_data_intake_minimal.sql`.
 
 Incluye:
@@ -102,12 +113,12 @@ Incluye:
 - `matches.intake_source`.
 - `matches.data_quality`.
 - `matches.source_note`, `reviewed_at`, `reviewed_by`.
-- Nueva tabla `match_results`.
-- Seed actualizado con resultados lab.
+- Tabla `match_results`.
+- Seed actualizado con resultados Lab.
 
 ## B03. Prediction Engine v0.1 Lab
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** motor estadístico simple, determinístico y medible para Lab.
 
 Incluye:
@@ -132,14 +143,14 @@ No incluye:
 
 ## SEC01. Restrict Lab Match Results RLS
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** migración `0005_restrict_lab_match_results_rls.sql`.
 
 Cierra fuga potencial donde resultados `verified` de Lab podían ser legibles para usuarios autenticados no-admin.
 
 ## B04. Model Evaluation / Backtesting Lab
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** capa pura para comparar predicciones contra `match_results`.
 
 Incluye:
@@ -156,7 +167,7 @@ Incluye:
 
 ## B05. Lab Supabase Queries
 
-**Estado:** Done  
+**Estado:** Done
 **Resultado:** `/admin/beta-lab` lee datos reales desde Supabase.
 
 Incluye:
@@ -169,67 +180,111 @@ Incluye:
 
 ## B06a. Lab Fixture Review Actions
 
-**Estado:** Next  
-**Objetivo:** permitir revisión básica de fixtures desde admin.
+**Estado:** Done
+**Resultado:** PR #15 y migración `0007_admin_lab_fixture_review_actions.sql`.
 
-Alcance inicial recomendado:
+Incluye:
 
-- Actualizar `matches.lab_status`.
-- Actualizar `matches.data_quality`.
-- Actualizar `matches.source_note`.
-- Setear `reviewed_at` y `reviewed_by`.
-- Server actions o route handlers seguros.
-- RLS update admin-only si hace falta.
+- Actualización admin-only de `matches.lab_status`.
+- Actualización admin-only de `matches.data_quality`.
+- Actualización admin-only de `matches.source_note`.
+- Seteo server-side de `reviewed_at` y `reviewed_by`.
 
 ## B06b. Lab Match Result Actions
 
-**Estado:** Next  
-**Objetivo:** permitir crear/editar resultados reales desde admin.
+**Estado:** Done
+**Resultado:** PR #16 y migración `0008_admin_lab_match_result_actions.sql`.
+
+Incluye:
+
+- Crear/editar `match_results` desde `/admin/beta-lab`.
+- Insert/update admin-only para resultados Lab.
+- Sin delete.
+- Validación de scope Lab.
+
+## B06-pre. Internal Lab Prediction Markets Seed
+
+**Estado:** Done
+**Resultado:** PR #17 y migración `0009_seed_internal_lab_prediction_markets.sql`.
+
+Incluye:
+
+- Markets internos mínimos para predicciones Lab:
+  - `btts` yes/no;
+  - `over_2_5` over/under.
+- Backfill remoto y seed reproducible.
 
 ## B06c. Lab Evaluation Persistence Flow
 
-**Estado:** Next  
-**Objetivo:** persistir evaluaciones calculadas usando `lib/model-evaluation/`.
+**Estado:** Done
+**Resultado:** PR #18 y migración `0010_admin_lab_evaluation_persistence.sql`.
+
+Incluye:
+
+- Lectura admin-only de `prediction_markets` internos.
+- Insert/update admin-only de `prediction_results`.
+- Sin delete.
+- Server Action que usa `lib/model-evaluation/`.
+- UI para persistir/actualizar evaluaciones desde `/admin/beta-lab`.
 
 ---
 
 # Fase C — MVP Mundial funcional
 
-Objetivo: convertir la app en un MVP funcional enfocado en Mundial 2026.
+Objetivo: convertir la app en un MVP público mínimo enfocado en Mundial 2026.
+
+## DOCS01. Update project context after Lab Admin Flow
+
+**Estado:** Next si no está mergeada
+**Objetivo:** sincronizar documentación oficial post PR #15-#18.
 
 ## C01. Public Predictions from DB
 
-**Estado:** Later  
-**Objetivo:** que `/predictions` y `/matches/[slug]` lean datos reales desde Supabase.
+**Estado:** Next
+**Objetivo:** que `/predictions` lea datos reales publicables desde Supabase.
+
+Decisión previa:
+
+```txt
+Definir qué prediction_versions pasan de internal_lab a public_product.
+```
+
+Alcance recomendado:
+
+- Leer solo datos publicables.
+- Mantener Lab aislado.
+- No exponer premium indebidamente.
+- No ejecutar Prediction Engine.
+- No workers, odds ni LLM.
+
+## C05. Match Detail from DB
+
+**Estado:** Later / puede unirse parcialmente a C01
+**Objetivo:** que `/matches/[slug]` lea detalle real desde Supabase.
 
 ## C02. Plans & Entitlements Backend
 
-**Estado:** Later  
+**Estado:** Next después de C01
 **Objetivo:** convertir planes mock en permisos reales.
 
 ## C03. Paywall Backend Enforcement
 
-**Estado:** Later  
+**Estado:** Later
 **Objetivo:** filtrar datos premium desde backend.
 
 ## C04. Transparency Real v0.1
 
-**Estado:** Later  
-**Objetivo:** mostrar métricas reales usando `match_results` y `prediction_results`.
-
-## C05. Admin Operations v0.1
-
-**Estado:** Later  
-**Objetivo:** panel operativo mínimo para monitorear predicciones, resultados y workers.
+**Estado:** Later
+**Objetivo:** mostrar métricas reales usando `prediction_results`.
 
 ## C06. Staging Deploy
 
-**Estado:** Later  
+**Estado:** Later
 **Objetivo:** desplegar una URL estable para revisión del equipo.
 
 ## C07. MVP QA / Security Pass
 
-**Estado:** Later  
+**Estado:** Later
 **Objetivo:** revisar RLS, rutas protegidas, secretos, disclaimers y responsive.
 
 ---
@@ -274,11 +329,11 @@ Objetivo: convertir la app en un MVP funcional enfocado en Mundial 2026.
 
 ---
 
-# Próximas tres tareas recomendadas
+# Próximas tareas recomendadas
 
-1. `feature/lab-fixture-review-actions`
-2. `feature/lab-match-result-actions`
-3. `feature/lab-evaluation-persistence`
+1. `docs/update-project-context-after-lab-admin-flow`, si esta actualización documental aún no está mergeada.
+2. `feature/public-predictions-from-db`.
+3. `feature/plans-entitlements-backend` o `feature/paywall-enforcement`, según alcance que salga de C01.
 
 ---
 
@@ -290,5 +345,6 @@ Objetivo: convertir la app en un MVP funcional enfocado en Mundial 2026.
 - No implementar LLM como calculador.
 - No prometer ganancias.
 - No implementar módulo de polla/quiniela/pool en el MVP principal.
-- No convertir Beta Lab en producto público de ligas.
+- No convertir Beta Lab en producto público.
 - Los datos premium deben filtrarse desde backend.
+- No exponer `internal_lab` ni `lab_only` en rutas públicas.

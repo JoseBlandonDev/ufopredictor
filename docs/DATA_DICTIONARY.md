@@ -4,6 +4,12 @@
 
 Diccionario de datos operativo para MVP, Lab interno y futuras integraciones.
 
+Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+
+Principio permanente:
+
+> El modelo estadístico calcula. La IA explica.
+
 ---
 
 # Usuarios
@@ -69,15 +75,17 @@ Diccionario de datos operativo para MVP, Lab interno y futuras integraciones.
 | `created_at` | timestamptz | Creación. |
 | `updated_at` | timestamptz | Actualización. |
 
-### Próximo uso admin
+### Uso admin actual
 
-Los próximos campos candidatos para edición desde `/admin/beta-lab` son:
+Desde `/admin/beta-lab`, un admin puede actualizar campos de revisión Lab:
 
 - `lab_status`;
 - `data_quality`;
 - `source_note`;
 - `reviewed_at`;
 - `reviewed_by`.
+
+RLS/grants limitan esta escritura a fixtures `lab_only` asociados a competiciones `internal_lab`.
 
 ---
 
@@ -100,12 +108,23 @@ Fuente validada del marcador real de un partido.
 | `reviewed_by` | uuid | Usuario admin/revisor. |
 | `recorded_at` | timestamptz | Fecha de registro. |
 
+### Uso admin actual
+
+Desde `/admin/beta-lab`, un admin puede crear o editar `match_results` para fixtures Lab.
+
+Reglas:
+
+- insert/update admin-only;
+- sin delete para `anon` ni `authenticated`;
+- limitado a partidos `lab_only` en competiciones `internal_lab`;
+- `reviewed_at` y `reviewed_by` se setean server-side.
+
 ### Diferencia clave
 
 - `match_results` representa el resultado real/validado del partido.
 - `prediction_results` representa la evaluación de una predicción contra ese resultado.
 
-No mezclar ambas responsabilidades.
+No mezclar ambas responsabilidades. Parece obvio, por eso lo escribimos dos veces en espíritu.
 
 ---
 
@@ -144,6 +163,39 @@ Versiona el modelo estadístico.
 | `risk_level` | text | `low`, `medium`, `high`. |
 | `created_at` | timestamptz | Creación. |
 
+### Uso actual
+
+- Predicciones internas usan `run_scope = internal_lab`.
+- Predicciones públicas futuras deberán usar `run_scope = public_product` o criterio equivalente decidido en C01.
+
+## `prediction_markets`
+
+Mercados asociados a una versión de predicción.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | uuid | ID. |
+| `prediction_version_id` | uuid | FK a `prediction_versions`. |
+| `market` | text | Mercado. Ej. `match_winner`, `btts`, `over_2_5`, `exact_score`. |
+| `selection` | text | Selección del mercado. Ej. `yes`, `no`, `over`, `under`, equipo, marcador. |
+| `probability` | numeric | Probabilidad en escala 0-100. |
+| `confidence` | numeric | Confianza 0-100. |
+| `is_premium` | boolean | Si debe considerarse premium. |
+| `created_at` | timestamptz | Creación. |
+
+### Uso Lab actual
+
+Para predicciones internas Lab existen mercados mínimos:
+
+- `btts` + `yes`;
+- `btts` + `no`;
+- `over_2_5` + `over`;
+- `over_2_5` + `under`.
+
+La migración `0009_seed_internal_lab_prediction_markets.sql` hace backfill/seed de esos markets.
+
+La migración `0010_admin_lab_evaluation_persistence.sql` agrega lectura admin-only de markets internos Lab.
+
 ## `prediction_results`
 
 Evaluación de una predicción contra un resultado real/validado.
@@ -166,10 +218,18 @@ Evaluación de una predicción contra un resultado real/validado.
 
 La lógica pura existe en `lib/model-evaluation/`.
 
-- Usa `mostLikelyScore` como fuente única para marcador predicho.
-- `goal_error = abs(pred_home - actual_home) + abs(pred_away - actual_away)`.
-- Mercados ambiguos se manejan sin inflar métricas.
-- Resultados no verificados son no evaluables.
+B06c ya permite persistir/actualizar `prediction_results` desde `/admin/beta-lab`.
+
+Reglas:
+
+- Se evalúan solo resultados verificados.
+- Se requiere predicción interna Lab.
+- Se requieren mercados completos BTTS y OU 2.5.
+- La Server Action acepta solo `predictionVersionId`.
+- Las métricas se calculan server-side con `evaluatePrediction()`.
+- Insert/update admin-only.
+- Sin delete.
+- `prediction_version_id` no es actualizable en update.
 
 ---
 
@@ -203,8 +263,13 @@ Migraciones relevantes:
 
 - `0005_restrict_lab_match_results_rls.sql`: restringe lectura no-admin de resultados Lab.
 - `0006_admin_lab_read_policies.sql`: habilita lecturas admin-only para datos Lab necesarios en `/admin/beta-lab`.
+- `0007_admin_lab_fixture_review_actions.sql`: habilita update admin-only de campos de revisión de `matches`.
+- `0008_admin_lab_match_result_actions.sql`: habilita insert/update admin-only de `match_results`, sin delete.
+- `0009_seed_internal_lab_prediction_markets.sql`: seed/backfill de mercados internos mínimos.
+- `0010_admin_lab_evaluation_persistence.sql`: habilita lectura admin-only de `prediction_markets` y persistencia admin-only de `prediction_results`, sin delete.
 
 Regla vigente:
 
 - Datos `lab_only` / `internal_lab` son internos/admin.
 - No exponer Lab en rutas públicas.
+- Datos premium deben filtrarse desde backend.

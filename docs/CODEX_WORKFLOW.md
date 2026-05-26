@@ -2,32 +2,44 @@
 
 ## Propósito
 
-Codex debe usarse como ejecutor técnico sobre el repo. ChatGPT puede apoyar planificación, prompts y revisión de alcance.
+Codex debe usarse como ejecutor técnico sobre el repo. ChatGPT puede apoyar planificación, prompts, revisión de alcance y control de ramas/PRs.
+
+Este documento está actualizado al estado posterior al PR #18 (`feat: persist lab evaluations`).
+
+Principio permanente:
+
+> El modelo estadístico calcula. La IA explica.
+
+UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
 
 ---
 
-# Regla principal
+## Regla principal
 
 Una conversación de Codex debe trabajar sobre una épica o sub-épica clara.
 
 No mezclar en una sola rama:
 
+- documentación general;
 - Supabase schema;
 - Auth;
 - motor predictivo;
+- evaluación;
 - APIs deportivas;
 - odds;
 - Resend;
 - workers;
 - pagos;
 - UI polish;
-- documentación general;
 - Google Auth;
-- acciones admin.
+- acciones admin;
+- features públicas.
+
+Una rama debe tener un objetivo claro y pequeño. Sí, el software ya es suficientemente caótico sin meter cinco incendios en el mismo commit.
 
 ---
 
-# Antes de modificar archivos
+## Antes de modificar archivos
 
 Codex debe ejecutar o revisar:
 
@@ -51,32 +63,82 @@ Luego debe leer documentación clave:
 - `package.json`
 - `docs/START_HERE_FOR_NEW_CONVERSATIONS.md`
 - `docs/CURRENT_PROJECT_STATUS.md`
-- `docs/IMPLEMENTATION_PLAN.md`
-- `docs/ROADMAP_AND_BACKLOG.md`
+- `docs/CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
+- `docs/CODEX_HANDOFF_CURRENT.md`
 - `docs/EPIC_PROGRESS_MATRIX.md`
 - `docs/NEXT_EPICS_PLAN.md`
+- `docs/ROADMAP_AND_BACKLOG.md`
 - `docs/OPEN_DECISIONS.md`
+- `docs/DOCS_AND_SOURCES_INVENTORY.md`
 - `docs/DATA_DICTIONARY.md`
 - `docs/MODEL_V01.md`
-- `docs/CODEX_HANDOFF_CURRENT.md`
+
+Si algún documento secundario contradice las fuentes activas, priorizar:
+
+1. `START_HERE_FOR_NEW_CONVERSATIONS.md`
+2. `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
+3. `CURRENT_PROJECT_STATUS.md`
+4. `CODEX_HANDOFF_CURRENT.md`
+5. `EPIC_PROGRESS_MATRIX.md`
+6. `NEXT_EPICS_PLAN.md`
+7. `ROADMAP_AND_BACKLOG.md`
+8. `OPEN_DECISIONS.md`
+9. este documento
 
 ---
 
-# Estado operativo actual relevante
+## Estado operativo actual relevante
+
+`main` incluye hasta PR #18:
+
+```txt
+#15 feat: add lab fixture review actions
+#16 feat: add lab match result actions
+#17 chore: seed internal lab prediction markets
+#18 feat: persist lab evaluations
+```
+
+Supabase remoto tiene migraciones aplicadas manualmente hasta:
+
+```txt
+0010_admin_lab_evaluation_persistence.sql
+```
 
 Ya existen:
 
-- Prediction Engine v0.1 Lab.
-- Model Evaluation Lab.
-- Lab Supabase Queries.
-- RLS Lab reforzada con `0005` y `0006`.
-- `/admin/beta-lab` leyendo datos reales parcialmente.
+- Prediction Engine v0.1 Lab en `lib/prediction-engine/`.
+- Model Evaluation Lab en `lib/model-evaluation/`.
+- Lab Supabase Queries en `lib/supabase/lab-queries.ts`.
+- Auth email/password.
+- Roles `free_user` y `admin`.
+- `/admin/beta-lab` protegido con `requireAdmin`.
+- Lab Admin Flow completo:
+  - revisión de fixtures Lab;
+  - creación/edición de `match_results`;
+  - lectura de `prediction_markets`;
+  - persistencia/actualización de `prediction_results`.
+- RLS/grants Lab reforzados hasta `0010`.
 
-No rehacer esos módulos salvo que la tarea lo pida explícitamente.
+No existe todavía:
+
+- predicciones públicas desde DB;
+- detalle público real desde DB;
+- paywall backend;
+- entitlements reales;
+- workers reales;
+- API deportiva;
+- odds;
+- LLM real;
+- pagos;
+- Google Auth;
+- Supabase CLI local;
+- staging final.
+
+`workerRuns` sigue mock. No rehacerlo en features que no sean workers.
 
 ---
 
-# Reglas para épicas con Supabase
+## Reglas para épicas con Supabase
 
 Si Codex crea o modifica migraciones/seed, debe informar:
 
@@ -97,12 +159,38 @@ Para cambios RLS:
 - pegar SQL completo;
 - usar `drop policy if exists` cuando sea apropiado;
 - incluir queries para verificar policies;
+- verificar grants por tabla y por columna cuando aplique;
 - verificar admin/no-admin cuando aplique;
 - no usar service role para alimentar UI salvo justificación explícita.
 
 ---
 
-# Reglas para build
+## Reglas para features públicas
+
+La siguiente feature técnica recomendada después de la rama docs es:
+
+```txt
+feature/public-predictions-from-db
+```
+
+Antes de implementarla se debe decidir cómo separar:
+
+```txt
+internal_lab → public_product
+```
+
+Reglas:
+
+- No exponer datos `internal_lab` ni `lab_only` en rutas públicas.
+- No enviar datos premium al frontend sin backend gating.
+- No ejecutar Prediction Engine desde rutas públicas.
+- No llamar LLM.
+- No introducir pagos, odds, workers o API deportiva dentro de C01.
+- Empezar con lectura controlada desde Supabase.
+
+---
+
+## Reglas para build
 
 Codex debe correr:
 
@@ -117,11 +205,24 @@ Si hay tests:
 npm run test
 ```
 
-Si `next-env.d.ts` se modifica durante build, debe revertirlo si no forma parte del cambio.
+Si `next-env.d.ts` se modifica durante build, debe revertirlo si no forma parte del cambio:
+
+```bash
+git restore next-env.d.ts
+```
+
+Para ramas docs-only, al menos debe correr:
+
+```bash
+git diff --check
+git diff --name-only -- . ':!docs/'
+```
+
+El segundo comando debe producir salida vacía en una rama docs-only.
 
 ---
 
-# GitHub CLI
+## GitHub CLI
 
 GitHub CLI está disponible/autenticado en el entorno del usuario.
 
@@ -139,18 +240,7 @@ Merge solo después de revisión.
 
 ---
 
-# Reglas de herramientas
-
-No mezclar instalación de herramientas con una épica funcional salvo autorización explícita.
-
-Ejemplo:
-
-- Instalar Supabase CLI debe ir en su propia tarea/rama si modifica config o flujo.
-- No meter Supabase CLI dentro de Lab Admin Review o cualquier épica funcional sin permiso.
-
----
-
-# Servicios reales
+## Servicios reales
 
 Por defecto, Codex no debe conectar servicios reales salvo instrucción explícita:
 
@@ -162,11 +252,11 @@ Por defecto, Codex no debe conectar servicios reales salvo instrucción explíci
 - workers reales;
 - Google Auth.
 
-Supabase ya está conectado para schema/auth/lab, pero nuevas escrituras o queries reales deben ser acotadas y revisadas.
+Supabase ya está conectado para schema/auth/lab. Nuevas escrituras, policies o queries reales deben ser acotadas y revisadas.
 
 ---
 
-# Formato de respuesta final
+## Formato de respuesta final
 
 Al terminar una tarea, Codex debe responder:
 
@@ -184,7 +274,7 @@ Al terminar una tarea, Codex debe responder:
 
 ---
 
-# Commits y push
+## Commits y push
 
 Codex no debe hacer commit ni push salvo instrucción explícita.
 
