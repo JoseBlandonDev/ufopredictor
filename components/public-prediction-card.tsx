@@ -1,4 +1,5 @@
-import { Clock, MapPin } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ProbabilityBar } from "@/components/probability-bar";
 import { RiskBadge } from "@/components/risk-badge";
@@ -52,9 +53,15 @@ export function PublicPredictionCard({ prediction }: { prediction: PublicPredict
         />
       </div>
       <p className="mt-4 text-xs text-[var(--muted)]">
-        Vista pública básica. El detalle del partido y los análisis ampliados aún no están
-        conectados a datos reales.
+        Vista pública básica. Los análisis ampliados permanecen fuera de esta vista.
       </p>
+      <Link
+        href={`/matches/${prediction.matchSlug}`}
+        className="mt-4 inline-flex items-center gap-2 text-sm text-[var(--accent)]"
+      >
+        Ver detalle público
+        <ArrowRight className="h-4 w-4" />
+      </Link>
     </article>
   );
 }
