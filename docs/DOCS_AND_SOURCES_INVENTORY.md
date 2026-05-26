@@ -1,98 +1,87 @@
-# DOCS_AND_SOURCES_INVENTORY.md — UFO Predictor
+# DOCS AND SOURCES INVENTORY — UFO Predictor
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+## Purpose
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+This file explains which docs are active sources of truth and which are secondary/historical references.
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+## Active Sources Of Truth
 
+Prioritize these when starting a new ChatGPT/Codex conversation:
 
----
+1. `START_HERE_FOR_NEW_CONVERSATIONS.md`
+2. `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
+3. `CURRENT_PROJECT_STATUS.md`
+4. `CODEX_HANDOFF_CURRENT.md`
+5. `EPIC_PROGRESS_MATRIX.md`
+6. `NEXT_EPICS_PLAN.md`
+7. `ROADMAP_AND_BACKLOG.md`
+8. `OPEN_DECISIONS.md`
+9. `DATA_DICTIONARY.md`
+10. `CODEX_WORKFLOW.md`
+11. `DOCS_AND_SOURCES_INVENTORY.md`
 
-## Fuentes principales activas
+## Secondary / Historical References
 
-Estos documentos deben considerarse fuentes activas para nuevas conversaciones:
+These may be useful, but active sources override them if there is a conflict:
 
-| Documento | Rol |
-|---|---|
-| `START_HERE_FOR_NEW_CONVERSATIONS.md` | Entrada rápida para nuevas conversaciones. |
-| `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md` | Fuente principal consolidada para ChatGPT. |
-| `CURRENT_PROJECT_STATUS.md` | Estado técnico actual. |
-| `CODEX_HANDOFF_CURRENT.md` | Handoff operativo para Codex. |
-| `EPIC_PROGRESS_MATRIX.md` | Matriz de Done/Next/Later. |
-| `NEXT_EPICS_PLAN.md` | Plan de próximas épicas. |
-| `ROADMAP_AND_BACKLOG.md` | Roadmap amplio y backlog. |
-| `OPEN_DECISIONS.md` | Decisiones abiertas. |
-| `CODEX_WORKFLOW.md` | Protocolo de trabajo con Codex. |
+- `ARCHITECTURE_SUMMARY.md`
+- `IMPLEMENTATION_PLAN.md`
+- `MODEL_V01.md`
+- `PROJECT_STATUS_FOR_MEETING.md`
+- `PROJECT_CONTEXT_UFO_PREDICTOR.md`
 
----
+## Current Baseline To Reflect Across Docs
 
-## Documentos de soporte
-
-| Documento | Uso recomendado |
-|---|---|
-| `ARCHITECTURE_SUMMARY.md` | Resumen arquitectónico, actualizar solo si cambia arquitectura real. |
-| `DATA_DICTIONARY.md` | Diccionario de datos, actualizar si cambian tablas/columnas. |
-| `MODEL_V01.md` | Contrato del modelo/evaluación, no cambiar fórmula sin decisión explícita. |
-| `IMPLEMENTATION_PLAN.md` | Puede quedar como histórico o plan de referencia. |
-| `PROJECT_STATUS_FOR_MEETING.md` | Uso puntual para reuniones; no debe ser fuente principal si queda viejo. |
-| `PROJECT_CONTEXT_UFO_PREDICTOR.md` | Contexto fundacional/histórico. |
-
----
-
-## Estado de actualización post B06c
-
-Deben estar sincronizados con:
+Main includes through:
 
 ```txt
-PR #15, #16, #17, #18
-Migraciones 0007, 0008, 0009, 0010
+PR #21 — feat: add plans entitlements backend
 ```
 
-Especialmente:
+Completed:
 
-- B06a/B06b/B06c ya no son Next; son Done.
-- `feature/lab-prediction-markets-seed` fue tarea desbloqueadora y también está Done.
-- El siguiente foco ya no es Lab Admin Flow; es documentación y luego public predictions from DB.
+- C01 — Public Predictions From DB
+- C02 — Plans & Entitlements Backend
 
----
-
-## Qué reemplazar en fuentes del proyecto
-
-Para actualizar las fuentes activas del proyecto, reemplazar como mínimo:
+Supabase remote manually applied through:
 
 ```txt
-START_HERE_FOR_NEW_CONVERSATIONS.md
-CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md
-CURRENT_PROJECT_STATUS.md
-CODEX_HANDOFF_CURRENT.md
-EPIC_PROGRESS_MATRIX.md
-NEXT_EPICS_PLAN.md
-ROADMAP_AND_BACKLOG.md
-DOCS_AND_SOURCES_INVENTORY.md
-OPEN_DECISIONS.md
+0012_plans_entitlements_backend.sql
 ```
 
-Opcionalmente revisar:
+## Operational Documentation Rules
 
-```txt
-ARCHITECTURE_SUMMARY.md
-DATA_DICTIONARY.md
-MODEL_V01.md
-```
+Update docs when:
 
----
+- starting a new long ChatGPT project conversation;
+- a major epic changes project direction;
+- current context is too heavy for safe continuation;
+- Codex needs a new baseline to avoid stale assumptions.
 
-## Riesgo de fuentes desactualizadas
+Do not necessarily update the full docs after every PR.
 
-Si una conversación nueva usa fuentes viejas, probablemente intentará:
+For routine PRs, update only relevant technical docs if needed.
 
-- rehacer B06a/B06b/B06c;
-- ignorar migraciones `0007` a `0010`;
-- suponer que `/admin/beta-lab` no escribe datos;
-- recomendar tareas equivocadas;
-- mezclar Lab con producto público.
+For conversation handoff PRs, update the full active set.
 
-Ese es el tipo de caos que Markdown produce cuando nadie lo vigila.
+## Current Full Refresh Reason
+
+This refresh is justified because the project completed:
+
+- PR #20 / C01: public predictions from DB;
+- PR #21 / C02: plans and entitlements backend;
+- manual remote migrations through 0012;
+- beta/freemium strategy clarification;
+- Supabase manual migration rule clarification.
+
+## Prompt Files
+
+Prompt files may be included for handoff convenience:
+
+- `PROMPT_NEW_CHATGPT_CONVERSATION_POST_C02.md`
+- `PROMPT_CODEX_RECOGNITION_POST_C02.md`
+- `PROMPT_CODEX_APPLY_SECOND_CONVERSATION_GUIDANCE.md`
+
+These are operational handoff aids, not architectural sources.

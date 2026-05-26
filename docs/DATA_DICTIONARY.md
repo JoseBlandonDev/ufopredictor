@@ -1,275 +1,202 @@
-# DATA_DICTIONARY.md — UFO Predictor
+# DATA DICTIONARY — UFO Predictor
 
-## Propósito
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Diccionario de datos operativo para MVP, Lab interno y futuras integraciones.
-
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
-
-Principio permanente:
-
-> El modelo estadístico calcula. La IA explica.
-
----
-
-# Usuarios
+This document summarizes the main database concepts used by current features. It is not a substitute for `types/database.ts` or migrations.
 
-## `profiles`
+## Scope Fields
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | Igual al id de Supabase Auth user. |
-| `email` | text | Email principal. |
-| `full_name` | text | Nombre opcional. |
-| `avatar_url` | text | Avatar opcional. |
-| `country` | text | País. |
-| `preferred_language` | text | Idioma preferido. |
-| `role` | text | `free_user`, `premium_user`, `admin`. |
-| `created_at` | timestamptz | Creación. |
-| `updated_at` | timestamptz | Actualización. |
+### `competitions.usage_scope`
 
----
+Known usage:
 
-# Competiciones y partidos
+- `internal_lab` — internal Lab only.
+- `public_product` — allowed for public product surfaces.
 
-## `competitions`
+### `matches.access_scope`
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `external_id` | text | ID proveedor externo. |
-| `name` | text | Nombre. |
-| `slug` | text | Slug. |
-| `country` | text | País. |
-| `type` | text | `international`, `league`, `cup`, etc. |
-| `usage_scope` | text | `public_product` o `internal_lab`. |
-| `created_at` | timestamptz | Creación. |
-| `updated_at` | timestamptz | Actualización. |
+Known usage:
 
-### Uso
+- `lab_only` — internal Lab only.
+- `public` — public product.
+- future premium/admin scopes may exist or be added later.
 
-- `public_product`: competición visible o pensada para producto principal.
-- `internal_lab`: competición usada solo para laboratorio interno pre-Mundial.
+### `prediction_versions.run_scope`
 
-## `matches`
+Known usage:
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `external_id` | text | ID proveedor externo. |
-| `competition_id` | uuid | FK a competitions. |
-| `season_id` | uuid | FK a seasons. |
-| `home_team_id` | uuid | Equipo local. |
-| `away_team_id` | uuid | Equipo visitante. |
-| `venue_id` | uuid | Sede. |
-| `kickoff_at` | timestamptz | Fecha/hora. |
-| `stage` | text | Fase. |
-| `status` | text | `scheduled`, `live`, `finished`, etc. |
-| `access_scope` | text | `public`, `premium`, `admin_only`, `lab_only`. |
-| `lab_status` | text | `candidate`, `ready`, `review`, `needs_data`, `archived`. Solo si `access_scope = lab_only`. |
-| `intake_source` | text | `mock`, `manual`, `csv_import`. |
-| `data_quality` | text | `unreviewed`, `reviewed`, `verified`, `rejected`. |
-| `source_note` | text | Nota de procedencia. |
-| `reviewed_at` | timestamptz | Fecha de revisión. |
-| `reviewed_by` | uuid | Usuario que revisó. |
-| `created_at` | timestamptz | Creación. |
-| `updated_at` | timestamptz | Actualización. |
+- `internal_lab` — internal Lab predictions.
+- `public_product` — public product predictions.
 
-### Uso admin actual
+## Core Product Tables
 
-Desde `/admin/beta-lab`, un admin puede actualizar campos de revisión Lab:
+### `competitions`
 
-- `lab_status`;
-- `data_quality`;
-- `source_note`;
-- `reviewed_at`;
-- `reviewed_by`.
-
-RLS/grants limitan esta escritura a fixtures `lab_only` asociados a competiciones `internal_lab`.
+Represents competitions.
 
----
+Used by:
 
-# Resultados reales
+- Lab fixtures;
+- public predictions;
+- future match detail.
 
-## `match_results`
+Public reads require `usage_scope = 'public_product'`.
 
-Fuente validada del marcador real de un partido.
+### `matches`
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `match_id` | uuid | FK única a `matches`. |
-| `home_goals` | integer | Goles local. |
-| `away_goals` | integer | Goles visitante. |
-| `verification_status` | text | `pending_review`, `verified`, `rejected`. |
-| `intake_source` | text | `mock`, `manual`, `csv_import`. |
-| `source_note` | text | Nota de procedencia. |
-| `reviewed_at` | timestamptz | Fecha de revisión. |
-| `reviewed_by` | uuid | Usuario admin/revisor. |
-| `recorded_at` | timestamptz | Fecha de registro. |
-
-### Uso admin actual
-
-Desde `/admin/beta-lab`, un admin puede crear o editar `match_results` para fixtures Lab.
-
-Reglas:
-
-- insert/update admin-only;
-- sin delete para `anon` ni `authenticated`;
-- limitado a partidos `lab_only` en competiciones `internal_lab`;
-- `reviewed_at` y `reviewed_by` se setean server-side.
+Represents fixtures/matches.
 
-### Diferencia clave
+Used by:
 
-- `match_results` representa el resultado real/validado del partido.
-- `prediction_results` representa la evaluación de una predicción contra ese resultado.
+- Lab Admin;
+- public predictions;
+- future match detail.
 
-No mezclar ambas responsabilidades. Parece obvio, por eso lo escribimos dos veces en espíritu.
+Public reads require:
 
----
-
-# Predicciones
-
-## `model_versions`
-
-Versiona el modelo estadístico.
+- `access_scope = 'public'`;
+- associated competition is `public_product`.
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `version` | text | Ej. `v0.1`. |
-| `description` | text | Descripción. |
-| `weights_json` | jsonb | Pesos/configuración. |
-| `is_active` | boolean | Activa. |
-| `created_at` | timestamptz | Creación. |
+### `teams`
 
-## `prediction_versions`
+Represents teams.
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `match_id` | uuid | Partido. |
-| `model_version_id` | uuid | Versión del modelo. |
-| `prediction_type` | text | `pre_match_24h`, `pre_match_6h`, `post_lineup`, `pre_kickoff`. |
-| `run_scope` | text | `public_product` o `internal_lab`. |
-| `home_win_prob` | numeric | Probabilidad local. |
-| `draw_prob` | numeric | Probabilidad empate. |
-| `away_win_prob` | numeric | Probabilidad visitante. |
-| `expected_home_goals` | numeric | xG local. |
-| `expected_away_goals` | numeric | xG visitante. |
-| `most_likely_score` | text | Marcador probable. |
-| `top_scores_json` | jsonb | Top marcadores. |
-| `confidence_score` | numeric | 0-100. |
-| `risk_level` | text | `low`, `medium`, `high`. |
-| `created_at` | timestamptz | Creación. |
+Public reads are allowed only when teams are used by public product matches.
 
-### Uso actual
+### `venues`
 
-- Predicciones internas usan `run_scope = internal_lab`.
-- Predicciones públicas futuras deberán usar `run_scope = public_product` o criterio equivalente decidido en C01.
+Represents venues.
 
-## `prediction_markets`
+Public reads are allowed only when venues are used by public product matches.
 
-Mercados asociados a una versión de predicción.
+### `prediction_versions`
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `prediction_version_id` | uuid | FK a `prediction_versions`. |
-| `market` | text | Mercado. Ej. `match_winner`, `btts`, `over_2_5`, `exact_score`. |
-| `selection` | text | Selección del mercado. Ej. `yes`, `no`, `over`, `under`, equipo, marcador. |
-| `probability` | numeric | Probabilidad en escala 0-100. |
-| `confidence` | numeric | Confianza 0-100. |
-| `is_premium` | boolean | Si debe considerarse premium. |
-| `created_at` | timestamptz | Creación. |
+Represents generated prediction versions.
 
-### Uso Lab actual
+Public reads require:
 
-Para predicciones internas Lab existen mercados mínimos:
+- `run_scope = 'public_product'`;
+- associated match is public;
+- associated competition is public product.
 
-- `btts` + `yes`;
-- `btts` + `no`;
-- `over_2_5` + `over`;
-- `over_2_5` + `under`.
+## Lab / Evaluation Tables
 
-La migración `0009_seed_internal_lab_prediction_markets.sql` hace backfill/seed de esos markets.
+### `prediction_markets`
 
-La migración `0010_admin_lab_evaluation_persistence.sql` agrega lectura admin-only de markets internos Lab.
+Represents markets and market-level predictions.
 
-## `prediction_results`
+Currently internal/premium-sensitive.
 
-Evaluación de una predicción contra un resultado real/validado.
+Not publicly open.
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | uuid | ID. |
-| `prediction_version_id` | uuid | Predicción evaluada. |
-| `actual_home_goals` | integer | Goles reales local. |
-| `actual_away_goals` | integer | Goles reales visitante. |
-| `winner_correct` | boolean | Acierto 1X2. |
-| `btts_correct` | boolean | Acierto BTTS. |
-| `over_2_5_correct` | boolean | Acierto OU 2.5. |
-| `exact_score_correct` | boolean | Acierto marcador exacto. |
-| `goal_error` | numeric | Error absoluto goles. |
-| `error_summary` | text | Resumen. |
-| `validated_at` | timestamptz | Fecha validación. |
+### `prediction_results`
 
-### Evaluación actual
+Represents persisted evaluation results for predictions.
 
-La lógica pura existe en `lib/model-evaluation/`.
+Used by Lab Admin.
 
-B06c ya permite persistir/actualizar `prediction_results` desde `/admin/beta-lab`.
+Not publicly open.
 
-Reglas:
+### `match_results`
 
-- Se evalúan solo resultados verificados.
-- Se requiere predicción interna Lab.
-- Se requieren mercados completos BTTS y OU 2.5.
-- La Server Action acepta solo `predictionVersionId`.
-- Las métricas se calculan server-side con `evaluatePrediction()`.
-- Insert/update admin-only.
-- Sin delete.
-- `prediction_version_id` no es actualizable en update.
+Represents final match results entered/reviewed by admin flows.
 
----
+Used for evaluation.
 
-# Planes y acceso
+Not part of public product yet.
 
-Tablas principales:
+## Plans And Entitlements Tables
 
-- `plans`
-- `plan_features`
-- `subscriptions`
-- `user_entitlements`
-- `user_match_unlocks`
+Implemented by C02 foundation.
 
-Pendiente: implementar backend real de paywall y entitlements.
+### `plans`
 
----
+Represents visible commercial/catalog plans.
 
-# Operación
+Public reads are allowed only for active/current visible plans.
 
-## `worker_runs`
+Current visible examples:
 
-Registra ejecuciones de workers presentes o futuros.
+- Free
+- 10 Match Pack
+- World Cup Pass
 
-Actualmente, worker runs visibles en UI siguen mock. Workers reales no están implementados.
+Future examples:
 
----
+- Team Pass
+- Semifinals / Final Pass
+- Premium Monthly
 
-# RLS Lab actual
+### `plan_features`
 
-Migraciones relevantes:
+Represents public catalog/marketing features for plans.
 
-- `0005_restrict_lab_match_results_rls.sql`: restringe lectura no-admin de resultados Lab.
-- `0006_admin_lab_read_policies.sql`: habilita lecturas admin-only para datos Lab necesarios en `/admin/beta-lab`.
-- `0007_admin_lab_fixture_review_actions.sql`: habilita update admin-only de campos de revisión de `matches`.
-- `0008_admin_lab_match_result_actions.sql`: habilita insert/update admin-only de `match_results`, sin delete.
-- `0009_seed_internal_lab_prediction_markets.sql`: seed/backfill de mercados internos mínimos.
-- `0010_admin_lab_evaluation_persistence.sql`: habilita lectura admin-only de `prediction_markets` y persistencia admin-only de `prediction_results`, sin delete.
+Important:
 
-Regla vigente:
+Do not store secrets, internal authorization rules, or sensitive operational config in `plan_features`.
 
-- Datos `lab_only` / `internal_lab` son internos/admin.
-- No exponer Lab en rutas públicas.
-- Datos premium deben filtrarse desde backend.
+### `subscriptions`
+
+Represents a user's subscription or plan state.
+
+Authenticated users may read only their own rows.
+
+A subscription alone does not unlock protected content.
+
+### `user_entitlements`
+
+Represents effective rights for a user.
+
+Authenticated users may read only their own current rows.
+
+Possible future resource types:
+
+- `global`
+- `competition`
+- `stage`
+- `team`
+- `match`
+- `match_pack`
+
+Exact mapping to match access remains a future decision.
+
+### `user_match_unlocks`
+
+Represents explicit match-level unlocks.
+
+Authenticated users may read only their own current rows.
+
+Likely useful for:
+
+- individual match purchases;
+- 10 match pack selected matches;
+- manually granted beta access.
+
+## Access Concepts
+
+Implemented in `lib/permissions/entitlements.ts`.
+
+Access sources:
+
+- `public_basic_access`
+- `beta_free_access`
+- `entitlement_access`
+- `admin_access`
+- `none`
+
+Rules:
+
+- Public resources are accessible without premium rights.
+- Protected resources require entitlement/unlock/admin/beta access.
+- Active subscription marks subscribed state but does not alone grant protected content.
+- `premium_user` role alone does not unlock all premium content.
+
+## Future Data Dictionary Work
+
+Before premium match detail, define:
+
+- free vs premium fields;
+- entitlement-to-match resolution;
+- stage/team/competition identifiers;
+- pack consumption behavior;
+- whether premium projections use views, RPC, or server-only queries.

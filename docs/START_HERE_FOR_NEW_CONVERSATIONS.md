@@ -1,187 +1,256 @@
-# START_HERE_FOR_NEW_CONVERSATIONS.md — UFO Predictor
+# START HERE FOR NEW CONVERSATIONS — UFO Predictor
 
-## Leer primero
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Este documento es el punto de entrada para conversaciones nuevas de ChatGPT o Codex sobre UFO Predictor.
+This is the first document to read when starting a new ChatGPT or Codex conversation for UFO Predictor.
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+## Current Baseline
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+Main includes work through:
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+- PR #18 — `feat: persist lab evaluations`
+- PR #19 — `docs: update project context after lab admin flow`
+- PR #20 — `feat: read public predictions from db`
+- PR #21 — `feat: add plans entitlements backend`
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
-
-
----
-
-## Estado actual resumido
-
-El proyecto ya tiene un **Lab interno funcional para desarrolladores/admin**, con ciclo completo:
+Current baseline:
 
 ```txt
-fixture Lab → revisión admin → resultado verificado → predicción interna + markets → evaluación → prediction_results persistido
+main includes PR #21
+C01 is done
+C02 is done
 ```
 
-Ya existe:
+## Supabase Remote State
 
-- App Next.js App Router.
-- TypeScript + Tailwind.
-- Supabase remoto conectado.
-- Auth email/password funcionando.
-- Roles `free_user` y `admin`.
-- Dashboard/admin protegidos.
-- `/admin/beta-lab` protegido con `requireAdmin`.
-- Supabase schema aplicado manualmente en remoto hasta `0010_admin_lab_evaluation_persistence.sql`.
-- Beta Lab Foundation.
-- Data Intake Minimal.
-- `match_results` con RLS reforzada.
-- `prediction_results` con lectura admin y persistencia admin-only.
-- `prediction_markets` con mercados internos mínimos para predicciones Lab.
-- Prediction Engine v0.1 Lab en `lib/prediction-engine/`.
-- Model Evaluation Lab en `lib/model-evaluation/`.
-- Lab Supabase Queries en `lib/supabase/lab-queries.ts`.
-- `/admin/beta-lab` leyendo datos reales de Supabase para fixtures, equipos, predicciones, mercados, resultados, evaluaciones y model versions.
-- `/admin/beta-lab` permite revisar fixtures Lab.
-- `/admin/beta-lab` permite crear/editar resultados reales Lab.
-- `/admin/beta-lab` permite persistir/actualizar evaluaciones Lab usando `lib/model-evaluation/`.
-
-Sigue mock o no implementado:
-
-- worker runs reales, aunque `workerRuns` sigue visible como mock.
-- API deportiva real.
-- odds reales.
-- LLM narrativo real.
-- pagos.
-- Google Auth.
-- Supabase CLI local.
-- predicciones públicas desde DB.
-- paywall backend/entitlements reales.
-- staging final.
-- Transparency pública conectada a métricas reales.
-
----
-
-## Últimas tareas mergeadas
+Supabase remote has been manually updated through:
 
 ```txt
-#15 feat: add lab fixture review actions
-#16 feat: add lab match result actions
-#17 chore: seed internal lab prediction markets
-#18 feat: persist lab evaluations
+0012_plans_entitlements_backend.sql
 ```
 
-Migraciones aplicadas manualmente en Supabase remoto:
+Important applied migrations:
+
+- `0011_public_prediction_reads.sql`
+- `0012_plans_entitlements_backend.sql`
+
+## Critical Supabase Rule
+
+Supabase CLI local is not configured.
+
+Codex creates migration files, but Codex does not apply migrations to the remote Supabase project.
+
+All remote migrations must be applied manually by the user in Supabase SQL Editor.
+
+Never assume a local migration file is already applied to the remote database. After every migration:
+
+1. Review SQL.
+2. Apply manually in Supabase SQL Editor.
+3. Run SQL validation queries.
+4. Run UI validation.
+5. Run local validation:
+   - `npm run test`
+   - `npm run lint`
+   - `npm run build`
+6. Restore `next-env.d.ts` if Next modifies it.
+
+## Product Principle
+
+The statistical model calculates.
+
+The AI explains.
+
+Do not use LLM output as the source of prediction probabilities. The model and database contracts must stay deterministic and auditable.
+
+## Current Functional State
+
+### `/admin/beta-lab`
+
+Operational internal Lab Admin Flow.
+
+It can:
+
+- read real Lab fixtures from Supabase;
+- review Lab fixtures;
+- create and edit `match_results`;
+- read internal `prediction_markets`;
+- persist and update `prediction_results`;
+- show evaluation readiness and persisted metrics.
+
+Still mock:
+
+- `workerRuns`.
+
+### `/predictions`
+
+Operational public product surface.
+
+It now reads public predictions from Supabase using a safe public projection.
+
+It only shows public/basic prediction data.
+
+It does not expose:
+
+- internal Lab data;
+- premium markets;
+- premium narratives;
+- prediction results/evaluations;
+- private admin data.
+
+### `/pricing`
+
+Operational beta catalog surface.
+
+It reads real active plans from Supabase.
+
+It does not implement:
+
+- checkout;
+- payments;
+- Stripe;
+- purchases.
+
+### `/dashboard`
+
+Operational authenticated access summary.
+
+It reads the signed-in user's real access state:
+
+- profile role;
+- active subscriptions;
+- current entitlements;
+- current match unlocks.
+
+It does not serve premium prediction content.
+
+### `/matches/[slug]`
+
+Still mock.
+
+This is the next recommended product surface to connect to real DB data, but only in a public/free-only way.
+
+## Current Product Strategy
+
+UFO Predictor is moving toward a beta/freemium organic phase before the World Cup.
+
+The beta strategy is:
+
+- show controlled free value;
+- avoid giving away all premium data;
+- avoid mass advertising until results, UX, costs, and infrastructure are validated;
+- use finals, friendlies, and pre-World Cup fixtures to learn organically;
+- keep premium access prepared but not overexposed.
+
+Free tiers for Supabase, Railway, and APIs may be enough for early beta, but paid infrastructure should be expected as usage grows.
+
+## Plans And Access Strategy
+
+Do not create ten visible plans just because the database can technically survive it.
+
+The commercial model should use few visible plans and granular internal permissions.
+
+Possible visible plans:
+
+- Free
+- 10 Match Pack
+- World Cup Pass
+- Team Pass
+- Semifinals / Final Pass
+- Premium Monthly later
+
+Internal access should be granular:
+
+- competition entitlement;
+- stage entitlement;
+- team entitlement;
+- match unlock;
+- quantity / pack consumption.
+
+Important rules:
 
 ```txt
-0007_admin_lab_fixture_review_actions.sql
-0008_admin_lab_match_result_actions.sql
-0009_seed_internal_lab_prediction_markets.sql
-0010_admin_lab_evaluation_persistence.sql
+premium_user role alone does not unlock all premium content.
+active subscription alone does not unlock protected content.
+effective access comes from current entitlements or current match unlocks.
 ```
 
----
+Admin can have explicit bypass only where a future server query deliberately permits it.
 
-## Lo que NO se debe rehacer
+## What Is Not Implemented Yet
 
-- No recrear el proyecto Next.js.
-- No rehacer el prototipo visual inicial.
-- No duplicar schema inicial.
-- No rehacer Auth/roles.
-- No rehacer Beta Lab Foundation.
-- No rehacer Data Intake Minimal.
-- No reimplementar Prediction Engine.
-- No reimplementar Model Evaluation.
-- No volver a mocks en `/admin/beta-lab` para fixtures, predicciones, resultados o evaluaciones.
-- No convertir Beta Lab en producto público.
-- No tocar `.env.local`.
-- No usar service role desde UI/server actions normales.
+Still not implemented:
 
----
+- real `/matches/[slug]` data;
+- final premium enforcement;
+- public `prediction_markets`;
+- public `prediction_narratives`;
+- public `prediction_results`;
+- payments;
+- Stripe;
+- checkout;
+- odds;
+- LLM;
+- real workers;
+- sports API;
+- Google Auth;
+- Supabase CLI local;
+- final staging.
 
-## Siguiente bloque recomendado
-
-Primero actualizar documentación del proyecto, si este archivo no está ya sincronizado en repo/fuentes:
+## Recommended Next Epic
 
 ```txt
-docs/update-project-context-after-lab-admin-flow
+feature/match-detail-public-from-db
 ```
 
-Después, siguiente feature técnica recomendada:
+Goal:
 
-```txt
-feature/public-predictions-from-db
-```
+Connect `/matches/[slug]` to real Supabase data in a public/free-only way.
 
-Objetivo: conectar superficies públicas a datos reales de Supabase, sin exponer Lab ni premium indebidamente.
+Allowed:
 
-Antes de implementar C01 hay una decisión clave:
+- real match;
+- competition;
+- teams;
+- venue;
+- kickoff;
+- stage/status;
+- public prediction basics if available.
 
-> ¿Qué predicciones pasan de `internal_lab` a `public_product`, y bajo qué criterio?
+Not allowed yet:
 
-No conectar `/predictions` a cualquier dato interno sin definir criterio de publicación.
+- premium markets;
+- premium narratives;
+- prediction results/evaluations;
+- final paywall;
+- payments;
+- odds;
+- LLM;
+- workers;
+- sports API.
 
----
+## Recommended Workflow For Next Conversation
 
-## Próximas épicas probables
+1. Start new ChatGPT conversation using updated docs.
+2. Ask Codex for recognition only.
+3. Codex should confirm main includes PR #21.
+4. Codex should inspect current state and propose C03 scope.
+5. Do not implement until ChatGPT reviews Codex's recognition.
+6. Keep all future migrations manual in Supabase SQL Editor.
 
-1. `feature/public-predictions-from-db`
-   Leer predicciones publicables desde DB para `/predictions` y posiblemente `/matches/[slug]`.
+## Active Source Priority
 
-2. `feature/plans-entitlements-backend`
-   Crear base backend para free/premium/admin.
+Prioritize these documents:
 
-3. `feature/paywall-enforcement`
-   Filtrar datos premium desde backend. No basta ocultar cosas en frontend, aunque sería muy humano intentarlo.
+- `START_HERE_FOR_NEW_CONVERSATIONS.md`
+- `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
+- `CURRENT_PROJECT_STATUS.md`
+- `CODEX_HANDOFF_CURRENT.md`
+- `EPIC_PROGRESS_MATRIX.md`
+- `NEXT_EPICS_PLAN.md`
+- `ROADMAP_AND_BACKLOG.md`
+- `DOCS_AND_SOURCES_INVENTORY.md`
+- `OPEN_DECISIONS.md`
+- `DATA_DICTIONARY.md`
+- `CODEX_WORKFLOW.md`
 
-4. `feature/transparency-real-v01`
-   Mostrar métricas reales desde `prediction_results`.
-
-5. `feature/staging-deploy`
-   URL estable para QA y revisión.
-
-6. `feature/supabase-cli-local-setup`
-   Mejorar flujo local de migraciones. No es glamoroso; por eso importa.
-
----
-
-## Flujo recomendado con Codex
-
-1. Confirmar:
-
-```bash
-git status
-git branch
-git pull origin main
-```
-
-2. Crear rama específica.
-3. Pedir reconocimiento y plan antes de implementar.
-4. Revisar respuesta de Codex en ChatGPT.
-5. Implementar alcance pequeño.
-6. Correr:
-
-```bash
-npm run test
-npm run lint
-npm run build
-```
-
-7. Si hay migración, aplicarla manualmente en Supabase SQL Editor y validar policies/grants/datos.
-8. Commit/push/PR.
-9. Merge a `main`.
-10. Sincronizar local y borrar rama.
-
----
-
-## Reglas permanentes
-
-- No trabajar directo en `main`.
-- No exponer secretos.
-- No tocar `.env.local`.
-- No prometer ganancias.
-- No implementar polla/quiniela/pool en el MVP principal.
-- Los datos premium deben filtrarse desde backend.
-- El LLM no decide resultados ni probabilidades.
-- El Lab sigue siendo interno/admin.
-- El modelo estadístico calcula. La IA explica.
+Treat older secondary documents as historical if they contradict active sources.

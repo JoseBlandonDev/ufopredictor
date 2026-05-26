@@ -1,229 +1,353 @@
-# CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md — UFO Predictor
+# CHATGPT PROJECT SOURCE — UFO Predictor Current
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+This is the main contextual source for ChatGPT conversations in the UFO Predictor project.
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+## Project Identity
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+UFO Predictor is a football prediction product.
 
+It combines:
 
----
+- deterministic statistical prediction logic;
+- transparent public prediction surfaces;
+- internal Lab evaluation workflows;
+- future premium access via plans and entitlements;
+- eventual AI-generated explanations.
 
-## Qué es UFO Predictor
-
-UFO Predictor es una web/PWA de predicciones probabilísticas de fútbol, inicialmente enfocada en el Mundial 2026.
-
-No es casa de apuestas. No recibe apuestas. No promete ganancias.
-
-La propuesta central es combinar:
-
-- modelo estadístico propio;
-- visualización clara;
-- transparencia de métricas;
-- IA futura solo para explicar, no para calcular.
-
----
-
-## Principio permanente
+Permanent principle:
 
 ```txt
-El modelo estadístico calcula. La IA explica.
+The statistical model calculates.
+The AI explains.
 ```
 
-El LLM no debe:
+LLMs must not be treated as the source of prediction probabilities.
 
-- calcular probabilidades;
-- decidir resultados;
-- modificar outputs del modelo;
-- inventar confianza.
+## Current Repository State
 
-La IA futura solo debe narrar o explicar datos ya calculados y persistidos.
-
----
-
-## Estado actual de producto
-
-### MVP interno de Lab
-
-Estado: **funcional para desarrolladores/admin**.
-
-Flujo completo actual:
+Main includes work through:
 
 ```txt
-Fixture Lab
-→ revisión admin
-→ resultado real verificado
-→ predicción interna + markets persistidos
-→ evaluatePrediction()
-→ prediction_results persistido
-→ visualización en /admin/beta-lab
+PR #21 — feat: add plans entitlements backend
 ```
 
-### MVP público
+Recent PRs:
 
-Estado: **pendiente**.
+| PR | Title | Status |
+|---:|---|---|
+| #18 | `feat: persist lab evaluations` | Done |
+| #19 | `docs: update project context after lab admin flow` | Done |
+| #20 | `feat: read public predictions from db` | Done |
+| #21 | `feat: add plans entitlements backend` | Done |
 
-Las superficies públicas todavía no consumen datos reales completamente:
+## Current Supabase Remote State
 
-- `/predictions` sigue mock/parcial.
-- `/matches/[slug]` sigue mock/parcial.
-- `/transparency` no usa métricas reales agregadas.
-- `/pricing` no tiene backend de entitlements.
+Remote Supabase has been updated manually through:
 
----
+```txt
+0012_plans_entitlements_backend.sql
+```
 
-## Stack técnico
+Important applied migrations:
 
-- Next.js App Router.
-- TypeScript.
-- Tailwind.
-- Supabase remoto.
-- Auth email/password.
-- Roles `free_user` y `admin`.
-- RLS en tablas sensibles.
-- Server Actions para flujos admin.
+- `0011_public_prediction_reads.sql`
+- `0012_plans_entitlements_backend.sql`
 
----
+Supabase CLI local is not configured.
 
-## Módulos importantes
+All remote migrations are applied manually in Supabase SQL Editor.
 
-### `lib/prediction-engine/`
+Do not assume a migration file in the repo is applied remotely until the user confirms manual application and validation.
 
-Prediction Engine v0.1 Lab.
+## What Works Now
 
-Uso actual:
+### Internal Lab Admin Flow
 
-- módulo puro;
-- tests existentes;
-- no se ejecuta desde UI admin;
-- no genera predicciones automáticamente.
+The internal Lab flow is operational at:
 
-### `lib/model-evaluation/`
+```txt
+/admin/beta-lab
+```
 
-Model Evaluation Lab.
+It supports:
 
-Uso actual:
+- reading Lab fixtures from Supabase;
+- reviewing fixtures;
+- creating/editing `match_results`;
+- reading internal `prediction_markets`;
+- persisting/updating `prediction_results`;
+- showing evaluation readiness;
+- showing persisted evaluation metrics.
 
-- módulo puro;
-- tests existentes;
-- usado por B06c para persistir evaluaciones en `prediction_results`.
+Still mock:
 
-### `lib/supabase/lab-queries.ts`
+- worker runs.
 
-Lee datos reales para `/admin/beta-lab`:
+### Public Predictions
 
-- fixtures;
+The public predictions listing is operational at:
+
+```txt
+/predictions
+```
+
+It reads from Supabase using a public projection.
+
+It shows:
+
+- competition;
+- match;
 - teams;
-- competitions;
-- prediction_versions;
-- prediction_markets;
-- match_results;
-- prediction_results;
-- model_versions.
+- venue;
+- kickoff;
+- public 1X2 probabilities;
+- confidence;
+- risk level.
 
-No ejecuta evaluación; solo lee y deriva estados.
+It does not expose:
 
----
+- Lab data;
+- premium markets;
+- premium narratives;
+- prediction results;
+- evaluation data.
 
-## Supabase y migraciones
+### Pricing
 
-Remoto aplicado manualmente hasta:
-
-```txt
-0010_admin_lab_evaluation_persistence.sql
-```
-
-Migraciones clave recientes:
-
-| Migración | Propósito |
-|---|---|
-| `0007_admin_lab_fixture_review_actions.sql` | Update admin-only para review de fixtures Lab. |
-| `0008_admin_lab_match_result_actions.sql` | Insert/update admin-only para resultados Lab, sin delete. |
-| `0009_seed_internal_lab_prediction_markets.sql` | Backfill/seed de markets internos BTTS y OU 2.5. |
-| `0010_admin_lab_evaluation_persistence.sql` | Select admin-only de markets y persistencia admin-only de evaluaciones. |
-
----
-
-## Estado de `/admin/beta-lab`
-
-Funciona:
-
-- Revisión de fixtures.
-- Captura/edición de resultados.
-- Detección de resultado verificado.
-- Detección de markets completos.
-- Persistencia/actualización de evaluaciones.
-- Visualización de métricas persistidas.
-
-Sigue mock:
-
-- workerRuns.
-
-No debe hacerse público.
-
----
-
-## Últimas tareas cerradas
+The beta pricing/catalog page is operational at:
 
 ```txt
-#15 feat: add lab fixture review actions
-#16 feat: add lab match result actions
-#17 chore: seed internal lab prediction markets
-#18 feat: persist lab evaluations
+/pricing
 ```
 
----
+It reads active plans from Supabase.
 
-## Siguiente bloque recomendado
+It does not implement:
 
-Si docs no están sincronizados:
+- checkout;
+- payments;
+- Stripe;
+- purchases.
+
+### Dashboard
+
+The authenticated dashboard is operational at:
 
 ```txt
-docs/update-project-context-after-lab-admin-flow
+/dashboard
 ```
 
-Después:
+It reads the current user's access summary from Supabase:
+
+- role;
+- active subscriptions;
+- current entitlements;
+- current match unlocks.
+
+It does not return premium prediction content.
+
+### Match Detail
+
+The match detail route remains mock:
 
 ```txt
-feature/public-predictions-from-db
+/matches/[slug]
 ```
 
-Con decisión previa:
+This is the next recommended surface to connect to DB, using public/free-only data.
+
+## C01 — Public Predictions From DB
+
+Status: Done.
+
+Goal:
+
+Connect `/predictions` to real public prediction data.
+
+Main safety constraints:
+
+- only `competitions.usage_scope = public_product`;
+- only `matches.access_scope = public`;
+- only `prediction_versions.run_scope = public_product`.
+
+Important files:
+
+- `app/predictions/page.tsx`
+- `components/public-prediction-card.tsx`
+- `lib/supabase/public-prediction-queries.ts`
+- `supabase/migrations/0011_public_prediction_reads.sql`
+
+C01 deliberately did not open:
+
+- `prediction_markets`;
+- `prediction_narratives`;
+- `prediction_results`.
+
+## C02 — Plans & Entitlements Backend
+
+Status: Done.
+
+Goal:
+
+Create the backend foundation for plans, entitlements, beta/freemium access, and future premium enforcement.
+
+Important files:
+
+- `app/pricing/page.tsx`
+- `app/dashboard/page.tsx`
+- `components/plan-card.tsx`
+- `lib/supabase/entitlement-queries.ts`
+- `lib/permissions/entitlements.ts`
+- `lib/permissions/entitlements.test.ts`
+- `supabase/migrations/0012_plans_entitlements_backend.sql`
+- `lib/supabase/README.md`
+- `lib/permissions/README.md`
+
+Access decision sources:
+
+- `public_basic_access`
+- `beta_free_access`
+- `entitlement_access`
+- `admin_access`
+- `none`
+
+Rules:
+
+- `premium_user` role does not unlock all content.
+- Active subscription does not unlock protected content by itself.
+- Current entitlements and match unlocks are the effective access source.
+- Beta free access must be server-controlled.
+- Admin bypass must be explicit in future queries.
+
+## Beta/Freemium Strategy
+
+The product should support an organic beta/freemium phase before the World Cup.
+
+The beta should:
+
+- show useful free value;
+- avoid exposing all premium data;
+- avoid mass advertising until confidence grows;
+- validate results, UX, infrastructure, and costs;
+- use finals, friendlies, and pre-World Cup fixtures for early learning.
+
+Infrastructure may start on free tiers, but scaling likely requires paid:
+
+- Supabase;
+- Railway;
+- sports data APIs;
+- odds APIs;
+- workers;
+- LLM if added.
+
+## Plans And Access Strategy
+
+Commercial plans should stay simple.
+
+Internal permissions should be granular.
+
+Possible visible plans:
+
+- Free
+- 10 Match Pack
+- World Cup Pass
+- Team Pass
+- Semifinals / Final Pass
+- Premium Monthly later
+
+Internal access models:
+
+- competition entitlement;
+- stage entitlement;
+- team entitlement;
+- match unlock;
+- quantity / pack consumption.
+
+Future work must decide how these rights map to concrete match access.
+
+Example:
+
+- `competition` entitlement can cover matches in a competition;
+- `stage` entitlement can cover semifinals/final;
+- `team` entitlement can cover matches involving a team;
+- `match unlock` can cover a specific match;
+- `quantity` can support a pack like 10 selected matches.
+
+## What Is Still Missing
+
+Not implemented:
+
+- real `/matches/[slug]`;
+- final premium enforcement;
+- public or entitled `prediction_markets`;
+- public or entitled `prediction_narratives`;
+- public or entitled `prediction_results`;
+- payments;
+- Stripe;
+- checkout;
+- odds;
+- LLM;
+- real workers;
+- sports API;
+- Google Auth;
+- Supabase CLI local;
+- final staging.
+
+## Recommended Next Epic
 
 ```txt
-Definir qué predicciones pasan de internal_lab a public_product.
+feature/match-detail-public-from-db
 ```
 
----
+Purpose:
 
-## No implementado todavía
+Connect `/matches/[slug]` to real Supabase data using public/free-only projection.
 
-- Supabase CLI local.
-- Google Auth.
-- Workers reales.
-- API deportiva.
-- Odds.
-- LLM narrativo.
-- Pagos.
-- Entitlements backend.
-- Paywall backend.
-- Staging final.
-- Public predictions DB.
-- Public match detail DB.
-- Transparency real.
+Allowed:
 
----
+- match details;
+- competition;
+- teams;
+- venue;
+- kickoff;
+- status/stage;
+- public prediction basics.
 
-## Reglas para futuras tareas
+Forbidden in this epic:
 
-- No trabajar directo en `main`.
-- Crear rama por tarea.
-- Pedir reconocimiento antes de implementar.
-- Mantener alcance pequeño.
-- Para migraciones: revisar SQL antes de aplicar.
-- Para RLS: validar policies, grants y columnas.
-- No tocar `.env.local`.
-- No usar service role salvo tarea explícita de backend segura.
-- No mezclar pagos/LLM/odds/workers con features públicas iniciales.
+- premium markets;
+- premium narratives;
+- prediction results/evaluations;
+- final paywall;
+- payments;
+- odds;
+- LLM;
+- workers;
+- sports API.
+
+## Suggested Next Conversation Flow
+
+1. Start new ChatGPT conversation with this document and active docs.
+2. Ask Codex for recognition only.
+3. Codex should confirm main includes PR #21.
+4. Codex should inspect `/matches/[slug]`, public prediction query, entitlements, and schema.
+5. ChatGPT should review Codex's recognition before implementation.
+6. Then create `feature/match-detail-public-from-db`.
+
+## Trust The Active Docs
+
+If older documents contradict this file, prefer:
+
+- `START_HERE_FOR_NEW_CONVERSATIONS.md`
+- `CURRENT_PROJECT_STATUS.md`
+- `CODEX_HANDOFF_CURRENT.md`
+- `EPIC_PROGRESS_MATRIX.md`
+- `NEXT_EPICS_PLAN.md`
+- `ROADMAP_AND_BACKLOG.md`
+- `OPEN_DECISIONS.md`
+- `DATA_DICTIONARY.md`
+- `CODEX_WORKFLOW.md`
+
+Secondary documents may be historical.

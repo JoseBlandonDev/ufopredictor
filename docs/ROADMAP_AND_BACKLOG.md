@@ -1,160 +1,164 @@
-# ROADMAP_AND_BACKLOG.md — UFO Predictor
+# ROADMAP AND BACKLOG — UFO Predictor
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+## Current Phase
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+UFO Predictor is transitioning from Lab foundation to public beta product foundation.
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+Completed foundations:
 
+- internal Lab Admin Flow;
+- public predictions listing from DB;
+- plans and entitlements backend foundation.
 
----
+Next product need:
 
-## Roadmap actualizado
+- public/free match detail from DB.
 
-### Fase 1 — Fundación técnica
+## Product Strategy
 
-Estado: **Done**
+The product should enter a controlled beta/freemium phase before the World Cup.
 
-- Proyecto Next.js.
-- Prototipo inicial.
-- Supabase schema inicial.
-- Auth/roles.
-- Admin guard.
-- Runtime clients.
+Strategy:
 
-### Fase 2 — Lab interno
+- show useful free value;
+- keep premium data protected;
+- do not run mass promotion until results, UX, costs, and infrastructure are validated;
+- use finals, friendlies, and pre-World Cup fixtures for organic learning.
 
-Estado: **Done para MVP interno de desarrolladores**
+## Roadmap Sequence
 
-Incluye:
+### 1. C03 — Match Detail Public From DB
 
-- Beta Lab Foundation.
-- Data Intake Minimal.
-- Prediction Engine v0.1.
-- Model Evaluation Lab.
-- Lab Supabase Queries.
-- Fixture Review Actions.
-- Match Result Actions.
-- Internal Lab Prediction Markets Seed.
-- Lab Evaluation Persistence.
-
-Resultado:
+Branch:
 
 ```txt
-/admin/beta-lab ya permite operar manualmente el ciclo interno de evaluación del modelo.
+feature/match-detail-public-from-db
 ```
 
-### Fase 3 — Producto público mínimo
+Goal:
 
-Estado: **Next**
+Replace mock `/matches/[slug]` with real public/free DB data.
 
-Objetivo: que superficies públicas consuman datos reales de Supabase sin exponer Lab ni premium indebidamente.
+### 2. Premium Access Enforcement
 
-Backlog recomendado:
+Goal:
 
-1. `feature/public-predictions-from-db`
-2. `feature/match-detail-from-db`
-3. `feature/plans-entitlements-backend`
-4. `feature/paywall-enforcement`
-5. `feature/transparency-real-v01`
-6. `feature/staging-deploy`
-7. `feature/qa-security-pass`
+Use C02 entitlement logic to ensure premium projections are filtered server-side.
 
-### Fase 4 — Automatización y datos externos
+### 3. Entitled Match Detail Premium Projection
 
-Estado: **Later**
+Goal:
 
-- API deportiva.
-- Workers reales.
-- Sync fixtures/results.
-- Odds ingestion.
-- Backtesting batch.
-- Observabilidad.
+Expose premium match sections only to authorized users.
 
-### Fase 5 — Comercial/IA
+Possible premium sections later:
 
-Estado: **Later**
+- markets;
+- narratives;
+- scorelines;
+- model vs market;
+- Golden Hour Delta;
+- post-result evaluation.
 
-- Pagos.
-- LLM narrativo.
-- Google Auth.
-- Correos/notificaciones.
+### 4. Data Intake / Sports API
 
----
+Goal:
 
-## Backlog por prioridad
+Choose and integrate a real sports data provider.
 
-### P0 — inmediato
+Must consider:
 
-#### DOCS01 — Update project context after Lab Admin Flow
+- cost;
+- quota;
+- reliability;
+- World Cup coverage;
+- fixtures;
+- lineups if needed;
+- results.
 
-Actualizar docs/fuentes para que conversaciones nuevas no intenten rehacer B06.
+### 5. Workers Runtime
 
-### P1 — MVP público mínimo
+Goal:
 
-#### C01 — Public Predictions from DB
+Replace mock worker runs with real scheduled jobs.
 
-Conectar `/predictions` a Supabase.
+Likely jobs:
 
-Pendiente decisión:
+- sync fixtures;
+- sync results;
+- generate predictions;
+- generate narratives;
+- evaluate predictions.
 
-```txt
-Qué datos son public_product y cómo se separan de internal_lab.
-```
+### 6. Odds Integration
 
-#### C02 — Plans & Entitlements Backend
+Goal:
 
-Base real de permisos free/premium/admin.
+Support model vs market comparisons.
 
-#### C03 — Paywall Enforcement
+Requires odds provider decision and cost planning.
 
-Filtrado backend. No enviar premium al cliente sin permiso.
+### 7. LLM Explanation Layer
 
-#### C04 — Transparency Real v0.1
+Goal:
 
-Métricas reales desde `prediction_results`.
+Generate explanations after deterministic model outputs exist.
 
-### P2 — Operación
+Rule:
 
-#### C06 — Staging Deploy
+The AI explains; it does not calculate.
 
-Deploy estable para QA.
+### 8. Payments / Stripe
 
-#### C07 — QA/Security Pass
+Goal:
 
-Revisión de:
+Enable checkout/subscriptions when product is ready.
 
-- RLS;
-- grants;
-- server actions;
-- rutas admin;
-- exposición accidental de Lab.
+Not urgent during early beta.
 
-### P3 — Mejoras
+### 9. Google Auth
 
-- Supabase CLI local.
-- Google Auth.
-- Mejor UX admin.
-- Backtesting manual/semiautomático.
+Goal:
 
-### P4 — Automatización avanzada
+Add social login when auth experience needs it.
 
-- Sports API.
-- Odds.
-- Workers.
-- LLM narrative.
-- Payments.
+### 10. Staging / Production Hardening
 
----
+Goal:
 
-## No alcance para el siguiente sprint
+Prepare final staging and production release.
 
-- No pagos.
-- No LLM.
-- No odds.
-- No workers.
-- No API deportiva.
-- No rehacer Lab.
-- No convertir Lab en producto público.
+## Backlog: Product
+
+- Real public match detail.
+- Premium section design.
+- Entitlement-to-match resolver.
+- 10 match pack consumption model.
+- Team pass access rules.
+- Stage pass access rules.
+- Competition pass access rules.
+- Admin plan/access management later.
+- Beta invite / soft launch messaging.
+- Cost monitoring plan.
+
+## Backlog: Technical
+
+- Server-only match detail query.
+- Public match detail RLS if needed.
+- Premium-safe projection functions.
+- Audit existing broad grants without breaking Lab.
+- Real worker runtime.
+- Sports API provider adapter.
+- Odds provider adapter.
+- LLM narrative adapter.
+- Staging environment.
+- Observability/logging.
+
+## Backlog: Documentation
+
+- Update active docs when switching major conversations.
+- Keep Supabase manual migration rule visible.
+- Keep current PR/migration baseline in `START_HERE` and `CURRENT_PROJECT_STATUS`.
+- Treat secondary docs as historical when they conflict with active docs.

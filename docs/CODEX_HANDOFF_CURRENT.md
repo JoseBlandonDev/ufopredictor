@@ -1,171 +1,334 @@
-# CODEX_HANDOFF_CURRENT.md — UFO Predictor
+# CODEX HANDOFF CURRENT — UFO Predictor
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+## Role For Codex
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+You are the implementation assistant for the UFO Predictor repository.
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+You must follow project scope strictly.
 
+Do not create broad features, do not infer missing business logic, and do not assume Supabase remote migrations are applied automatically.
 
----
+## Current Git Baseline
 
-## Contexto operativo
+Current main includes:
 
-Antes de cualquier tarea:
+```txt
+cc68936 Merge pull request #21 from JoseBlandonDev/feature/plans-entitlements-backend
+```
+
+Recent PRs:
+
+| PR | Title | Status |
+|---:|---|---|
+| #18 | `feat: persist lab evaluations` | Done |
+| #19 | `docs: update project context after lab admin flow` | Done |
+| #20 | `feat: read public predictions from db` | Done |
+| #21 | `feat: add plans entitlements backend` | Done |
+
+Before any new work, run:
 
 ```bash
+git checkout main
+git pull origin main
 git status
 git branch
-git pull origin main
+git log --oneline -5
 ```
 
-Debe trabajarse desde `main` limpio y actualizado, creando una rama específica.
+## Current Supabase Remote State
 
-No tocar `.env.local`. No usar service role en flujos UI/server actions normales.
-
----
-
-## Estado actual en `main`
-
-`main` incluye hasta:
+Remote Supabase has been manually migrated through:
 
 ```txt
-#18 feat: persist lab evaluations
+0012_plans_entitlements_backend.sql
 ```
 
-PRs recientes cerrados:
+Important applied migrations:
+
+- `0011_public_prediction_reads.sql`
+- `0012_plans_entitlements_backend.sql`
+
+## Critical Supabase Rule
+
+Supabase CLI local is not configured.
+
+Codex must not assume migrations are applied remotely.
+
+Codex may create SQL migration files, but the user applies them manually in Supabase SQL Editor.
+
+For every migration task, Codex must:
+
+1. Create the local migration file.
+2. Show the complete SQL in the final response.
+3. Provide validation queries.
+4. State clearly that the migration has not been applied remotely unless the user confirms it.
+5. Not claim remote validation until the user applies the SQL manually and shares results.
+
+## Current Functional State
+
+### `/admin/beta-lab`
+
+Operational internal Lab workflow.
+
+Can:
+
+- read Lab fixtures;
+- review fixtures;
+- create/edit match results;
+- read internal prediction markets;
+- persist/update prediction results;
+- show readiness and persisted evaluation metrics.
+
+Do not touch unless explicitly requested.
+
+Still mock:
+
+- worker runs.
+
+### `/predictions`
+
+Reads real public prediction data from Supabase.
+
+Implemented in C01.
+
+Must remain public/basic only.
+
+Do not expose:
+
+- internal Lab fixtures;
+- premium matches;
+- prediction markets;
+- prediction narratives;
+- prediction results;
+- evaluation metrics.
+
+### `/pricing`
+
+Reads real active plan catalog from Supabase.
+
+Implemented in C02.
+
+No checkout, payments, or Stripe.
+
+### `/dashboard`
+
+Reads current user's access summary from Supabase.
+
+Implemented in C02.
+
+Shows:
+
+- role;
+- active subscriptions;
+- current entitlements;
+- current match unlocks.
+
+Does not serve premium prediction content.
+
+### `/matches/[slug]`
+
+Still mock.
+
+Recommended next work is to connect it to DB in public/free-only mode.
+
+## Product Principle
+
+The statistical model calculates.
+
+The AI explains.
+
+Do not use LLMs to generate prediction probabilities.
+
+## C01 Summary — Public Predictions From DB
+
+Status: Done.
+
+Files:
+
+- `app/predictions/page.tsx`
+- `components/public-prediction-card.tsx`
+- `lib/supabase/public-prediction-queries.ts`
+- `supabase/migrations/0011_public_prediction_reads.sql`
+
+Scope:
+
+- public predictions listing from Supabase;
+- public product only;
+- no Lab;
+- no premium;
+- no match detail real data.
+
+## C02 Summary — Plans & Entitlements Backend
+
+Status: Done.
+
+Files:
+
+- `app/pricing/page.tsx`
+- `app/dashboard/page.tsx`
+- `components/plan-card.tsx`
+- `lib/supabase/entitlement-queries.ts`
+- `lib/permissions/entitlements.ts`
+- `lib/permissions/entitlements.test.ts`
+- `supabase/migrations/0012_plans_entitlements_backend.sql`
+- `lib/supabase/README.md`
+- `lib/permissions/README.md`
+
+Scope:
+
+- public active plans;
+- public plan features;
+- own-row subscriptions;
+- own-row current entitlements;
+- own-row current match unlocks;
+- pure permission logic;
+- tests for entitlement decisions;
+- `/pricing` from DB;
+- `/dashboard` from DB.
+
+Key rules:
+
+- `premium_user` does not unlock all content.
+- Active subscription does not unlock protected content by itself.
+- Entitlements/unlocks are the effective access source.
+- Beta free access must be server-controlled.
+- Admin bypass is explicit, not automatic everywhere.
+
+## Beta / Freemium Product Strategy
+
+UFO Predictor should support a controlled beta/freemium phase before the World Cup.
+
+The strategy:
+
+- expose useful free value;
+- do not give away all premium data;
+- avoid mass advertising until results, UX, infrastructure, and costs are validated;
+- start organically with finals, friendlies, and pre-World Cup fixtures.
+
+Free infrastructure tiers may be used during beta, but costs are expected later.
+
+## Plans And Permissions Strategy
+
+Do not create many public-facing plans unless product needs it.
+
+Prefer few commercial plans with granular internal rights.
+
+Potential visible plans:
+
+- Free
+- 10 Match Pack
+- World Cup Pass
+- Team Pass
+- Semifinals / Final Pass
+- Premium Monthly later
+
+Internal access models:
+
+- competition entitlement;
+- stage entitlement;
+- team entitlement;
+- match unlock;
+- quantity / pack consumption.
+
+Future work must define how entitlements translate to concrete match access.
+
+## Recommended Next Epic
 
 ```txt
-#15 feat: add lab fixture review actions
-#16 feat: add lab match result actions
-#17 chore: seed internal lab prediction markets
-#18 feat: persist lab evaluations
+feature/match-detail-public-from-db
 ```
 
-Supabase remoto tiene migraciones aplicadas manualmente hasta:
+Goal:
 
-```txt
-0010_admin_lab_evaluation_persistence.sql
-```
+Connect `/matches/[slug]` to real DB data with public/free-only projection.
 
----
+Allowed:
 
-## Qué ya existe
+- match;
+- competition;
+- teams;
+- venue;
+- kickoff;
+- status/stage;
+- public prediction basics if available.
 
-### Lab Admin Flow
+Not allowed:
 
-`/admin/beta-lab` permite:
+- premium markets;
+- premium narratives;
+- prediction results/evaluations;
+- final paywall enforcement;
+- payments;
+- Stripe;
+- checkout;
+- odds;
+- LLM;
+- workers;
+- sports API.
 
-- revisar fixtures Lab;
-- crear/editar `match_results`;
-- leer `prediction_markets` internos;
-- persistir/actualizar `prediction_results`;
-- ver estados de readiness:
-  - resultado verificado;
-  - markets completos;
-  - evaluación persistida.
+## Required Codex Behavior
 
-### Seguridad/RLS reciente
+For the next epic, Codex should first do recognition only.
 
-- `0007`: update admin-only para campos de revisión de `matches` Lab.
-- `0008`: insert/update admin-only para `match_results` Lab, sin delete.
-- `0009`: seed/backfill de markets internos mínimos.
-- `0010`: select admin-only para `prediction_markets`; insert/update admin-only para `prediction_results`, sin delete.
+Do not implement immediately.
 
-### Motor/evaluación
+Recognition should inspect:
 
-- `lib/prediction-engine/` existe.
-- `lib/model-evaluation/` existe.
-- B06c usa `evaluatePrediction()`.
-- La UI admin no ejecuta Prediction Engine.
+- current main;
+- route `/matches/[slug]`;
+- public prediction query module;
+- entitlement logic;
+- existing mock data contracts;
+- Supabase schema/types;
+- current RLS policies relevant to public match data.
 
----
+Then propose minimal implementation scope.
 
-## Qué no existe todavía
+## Out Of Scope Until Explicitly Approved
 
-- Predicciones públicas desde DB.
-- Public match detail desde DB.
-- Paywall backend.
-- Entitlements reales.
-- Workers reales.
-- API deportiva.
-- Odds.
-- LLM real.
-- Pagos.
-- Google Auth.
-- Supabase CLI local.
-- Staging final.
+Do not implement:
 
----
+- payments;
+- Stripe;
+- checkout;
+- premium content serving;
+- public `prediction_markets`;
+- public `prediction_narratives`;
+- public `prediction_results`;
+- odds;
+- LLM;
+- real workers;
+- sports API;
+- Google Auth;
+- Supabase CLI setup;
+- broad dashboard redesign;
+- Lab Admin changes.
 
-## Próxima tarea recomendada
+## Validation Expectations
 
-### Si la documentación aún no está actualizada
-
-Rama:
+Before any commit:
 
 ```bash
-docs/update-project-context-after-lab-admin-flow
-```
-
-Solo docs. No código. No migraciones.
-
-### Si docs ya están sincronizados
-
-Rama recomendada:
-
-```bash
-feature/public-predictions-from-db
-```
-
-Primero hacer reconocimiento. No implementar directo.
-
-Objetivo: conectar superficies públicas a predicciones reales publicables.
-
-Decisión previa:
-
-```txt
-Definir criterio internal_lab → public_product.
-```
-
----
-
-## Prompt corto para próxima feature técnica
-
-```txt
-Quiero iniciar feature/public-predictions-from-db.
-Primero solo haz reconocimiento técnico y plan. No modifiques archivos.
-Antes de cualquier cambio ejecuta git branch y git status.
-Debo estar en main limpio.
-Revisa cómo separar internal_lab de public_product y propón alcance mínimo para conectar /predictions a datos reales sin exponer Lab ni premium.
-No implementes paywall, pagos, odds, LLM, workers ni Prediction Engine.
-```
-
----
-
-## Validaciones estándar
-
-Para cada rama:
-
-```bash
+git diff --check
 npm run test
 npm run lint
 npm run build
-git status
+git status --short
+git diff --name-only
+git diff --stat
 ```
 
-Si `next-env.d.ts` cambia por build y no corresponde:
+If `next-env.d.ts` changes:
 
 ```bash
 git restore next-env.d.ts
 ```
 
-Para migraciones Supabase:
+For migrations:
 
-- aplicar manualmente en SQL Editor si no hay CLI local;
-- verificar `pg_policies`;
-- verificar `information_schema.column_privileges`;
-- probar UI;
-- solo después commit/push/PR.
+- user applies SQL manually;
+- run SQL validation;
+- run UI validation;
+- then commit/push/PR.

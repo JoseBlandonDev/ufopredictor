@@ -1,146 +1,97 @@
-# NEXT_EPICS_PLAN.md — UFO Predictor
+# NEXT EPICS PLAN — UFO Predictor
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+## Current Position
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+Completed:
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+- C01 — Public Predictions From DB
+- C02 — Plans & Entitlements Backend
 
+Current app state:
 
----
+- `/predictions` reads real public predictions.
+- `/pricing` reads real active plans.
+- `/dashboard` reads real viewer access summary.
+- `/admin/beta-lab` remains operational.
+- `/matches/[slug]` remains mock.
 
-## Estado base para este plan
-
-B06a, B06b, B06-pre y B06c ya están cerradas.
-
-Ya existe flujo admin Lab completo:
-
-```txt
-revisar fixture → guardar resultado → persistir evaluación
-```
-
-Por tanto, **no volver a planear Lab Fixture Review, Lab Match Result Actions ni Lab Evaluation Persistence como pendientes**.
-
----
-
-## Siguiente paso inmediato
-
-### DOCS01 — `docs/update-project-context-after-lab-admin-flow`
-
-Objetivo: sincronizar documentación oficial tras PR #15-#18.
-
-Archivos principales a actualizar:
-
-- `START_HERE_FOR_NEW_CONVERSATIONS.md`
-- `CURRENT_PROJECT_STATUS.md`
-- `CODEX_HANDOFF_CURRENT.md`
-- `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
-- `EPIC_PROGRESS_MATRIX.md`
-- `NEXT_EPICS_PLAN.md`
-- `ROADMAP_AND_BACKLOG.md`
-- `DOCS_AND_SOURCES_INVENTORY.md`
-- `OPEN_DECISIONS.md`
-
-No tocar código ni migraciones.
-
----
-
-## Siguiente feature técnica recomendada
-
-### C01 — `feature/public-predictions-from-db`
-
-Objetivo: conectar `/predictions` a datos reales publicables desde Supabase.
-
-#### Decisión previa obligatoria
-
-Definir criterio para que una predicción pase de:
+## Recommended Next Epic: C03
 
 ```txt
-internal_lab → public_product
+feature/match-detail-public-from-db
 ```
 
-Opciones posibles:
+## C03 Goal
 
-1. Agregar/usar campo de scope existente en `prediction_versions`.
-2. Crear flujo admin de publicación.
-3. Seed controlado de predicciones publicables para MVP.
-4. Empezar con read-only de predicciones ya marcadas como `public_product`.
+Connect `/matches/[slug]` to real Supabase data in a public/free-only way.
 
-#### Alcance recomendado C01
+This is the next best product step because the public listing is now real, but clicking into a match still leads to mock data.
 
-- Leer solo predicciones publicables.
-- Mantener Lab aislado.
-- No mostrar datos premium sin backend gating.
-- No crear paywall falso solo frontend.
-- No ejecutar Prediction Engine.
-- No llamar LLM.
-- No workers.
+## C03 Allowed Scope
 
-#### Archivos probables
+- Fetch match by slug.
+- Fetch competition metadata.
+- Fetch home/away teams.
+- Fetch venue.
+- Fetch kickoff/status/stage.
+- Fetch public prediction version if available.
+- Render a public/basic detail page.
+- Keep the page safe for anonymous users.
+- Avoid premium fields entirely.
 
-- `app/predictions/page.tsx`
-- `app/matches/[slug]/page.tsx` si entra en alcance
-- `lib/supabase/public-queries.ts` o equivalente
-- `types/database.ts`
-- posible migración si falta scope/policy pública
+## C03 Not Allowed
 
----
+Do not implement:
 
-## Después de C01
+- `prediction_markets` public access;
+- `prediction_narratives` public access;
+- `prediction_results` public access;
+- premium analysis;
+- final paywall enforcement;
+- payments;
+- Stripe;
+- checkout;
+- odds;
+- LLM;
+- sports API;
+- real workers;
+- Lab Admin changes.
 
-### C02 — `feature/plans-entitlements-backend`
+## Why Not Premium Yet
 
-Objetivo: establecer backend real para acceso free/premium/admin.
+C02 created access foundations, but premium projections are not implemented.
 
-Debe definir:
+Premium serving requires a separate enforcement layer that ensures protected fields never reach the browser without entitlement checks.
 
-- usuario free;
-- usuario premium;
-- admin;
-- qué campos se pueden servir a cada rol;
-- cómo se representan entitlements.
+C03 should avoid premium entirely and focus on replacing mock detail with real public data.
 
-No requiere pagos al inicio.
+## Product Strategy Context
 
-### C03 — `feature/paywall-enforcement`
+UFO Predictor is preparing for a controlled beta/freemium phase before the World Cup.
 
-Objetivo: asegurar que datos premium no viajen al cliente sin permiso.
+The beta should:
 
-No basta esconder UI. El servidor debe filtrar.
+- show value without giving away all premium data;
+- build confidence organically;
+- avoid mass promotion until model performance, UX, infra, and costs are validated.
 
-### C04 — `feature/transparency-real-v01`
+## After C03
 
-Objetivo: usar `prediction_results` para mostrar métricas reales agregadas.
+Potential next sequence:
 
-Alcance mínimo:
+1. C03 — Match Detail Public From DB
+2. C04 — Premium Access Enforcement Skeleton
+3. C05 — Entitled Match Detail Premium Projection
+4. C06 — Data Intake / Sports API research or minimal integration
+5. C07 — Workers runtime
+6. Later — odds, LLM narratives, payments/Stripe, Google Auth
 
-- métricas Lab o publicables;
-- win accuracy;
-- BTTS accuracy;
-- OU 2.5 accuracy;
-- exact score rate;
-- goal error promedio.
+## Supabase Rule For Every Future Epic
 
-### C06 — `feature/staging-deploy`
+Supabase CLI local is not configured.
 
-Objetivo: ambiente estable para QA.
+Codex may create migration files but must not assume they are applied remotely.
 
----
-
-## Later
-
-- Supabase CLI local.
-- Google Auth.
-- API deportiva.
-- Odds.
-- Workers reales.
-- LLM narrative.
-- Pagos.
-
----
-
-## Regla de alcance
-
-El Lab interno no debe volverse público por accidente. El público debe consumir una capa separada, filtrada y explícitamente marcada como publicable.
+The user applies migrations manually in Supabase SQL Editor and validates them before commit/PR.
