@@ -25,6 +25,8 @@ type LabMatch = Pick<
   | "intake_source"
   | "data_quality"
   | "source_note"
+  | "reviewed_at"
+  | "reviewed_by"
 >;
 type LabResult = Pick<
   MatchResultRow,
@@ -64,6 +66,8 @@ export type LabFixtureView = {
   intakeSource: MatchRow["intake_source"];
   dataQuality: MatchRow["data_quality"];
   sourceNote: string | null;
+  reviewedAt: string | null;
+  reviewedBy: string | null;
   result: LabResult | null;
   prediction:
     | {
@@ -125,7 +129,7 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
   const { data: matchData, error: matchError } = await supabase
     .from("matches")
     .select(
-      "id, competition_id, home_team_id, away_team_id, stage, kickoff_at, lab_status, intake_source, data_quality, source_note",
+      "id, competition_id, home_team_id, away_team_id, stage, kickoff_at, lab_status, intake_source, data_quality, source_note, reviewed_at, reviewed_by",
     )
     .in(
       "competition_id",
@@ -240,6 +244,8 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
       intakeSource: match.intake_source,
       dataQuality: match.data_quality,
       sourceNote: match.source_note,
+      reviewedAt: match.reviewed_at,
+      reviewedBy: match.reviewed_by,
       result: resultByMatchId.get(match.id) ?? null,
       prediction: prediction
         ? {

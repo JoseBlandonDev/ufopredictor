@@ -1,4 +1,5 @@
 import { AdminWorkerStatus } from "@/components/admin-worker-status";
+import { reviewLabFixtureAction } from "@/app/admin/beta-lab/actions";
 import { requireAdmin } from "@/lib/auth/session";
 import { workerRuns } from "@/lib/mock-data";
 import { getAdminLabDashboardData } from "@/lib/supabase/lab-queries";
@@ -13,9 +14,14 @@ function formatMetric(value: boolean | null) {
   return value ? "acierto" : "fallo";
 }
 
-export default async function BetaLabPage() {
+type BetaLabPageProps = {
+  searchParams: Promise<{ review?: string }>;
+};
+
+export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
   await requireAdmin("/admin/beta-lab");
 
+  const { review } = await searchParams;
   const labData = await getAdminLabDashboardData();
   const betaStatusLabels = {
     candidate: "candidato",
@@ -40,6 +46,23 @@ export default async function BetaLabPage() {
     verified: "Verificado",
     rejected: "Rechazado",
   };
+  const reviewMessages = {
+    saved: {
+      className: "border-[var(--accent)]/35 bg-[var(--accent)]/10 text-[var(--accent)]",
+      text: "Revisión del fixture guardada correctamente.",
+    },
+    invalid: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "No se guardó la revisión: verifica estado, calidad y nota.",
+    },
+    error: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "No se pudo guardar la revisión. Intenta nuevamente o revisa permisos.",
+    },
+  };
+  const reviewMessage = review && review in reviewMessages
+    ? reviewMessages[review as keyof typeof reviewMessages]
+    : null;
 
   return (
     <div className="space-y-6">
@@ -50,6 +73,12 @@ export default async function BetaLabPage() {
           Fixtures de calibracion pre-Mundial visibles solo para administracion. Estas competiciones no forman parte del producto publico de ligas.
         </p>
       </section>
+
+      {reviewMessage ? (
+        <p className={`rounded-lg border p-4 text-sm ${reviewMessage.className}`}>
+          {reviewMessage.text}
+        </p>
+      ) : null}
 
       {labData.status === "unavailable" ? (
         <section className="panel rounded-lg border border-[var(--warning)]/35 p-5">
@@ -107,7 +136,7 @@ export default async function BetaLabPage() {
                 {labData.fixtures.map((match) => (
                   <div
                     key={match.id}
-                    className="grid gap-4 rounded-lg border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[minmax(250px,1fr)_280px_170px]"
+                    className="grid gap-4 rounded-lg border border-white/10 bg-white/[0.03] p-4 lg:grid-cols-[minmax(250px,1fr)_280px_270px]"
                   >
                     <div>
                       <div className="flex flex-wrap gap-2">
@@ -125,6 +154,11 @@ export default async function BetaLabPage() {
                       <p className="mt-1 text-xs text-[var(--muted)]">{match.stage ?? "Etapa sin registrar"}</p>
                       <p className="mt-2 text-xs text-[var(--muted)]">
                         {match.sourceNote ?? "Sin nota de fuente registrada."}
+                      </p>
+                      <p className="mt-2 text-xs text-[var(--muted)]">
+                        {match.reviewedAt
+                          ? `Última revisión: ${new Date(match.reviewedAt).toLocaleString("es-CO")}`
+                          : "Revisión administrativa pendiente."}
                       </p>
                     </div>
                     <div className="space-y-2 text-xs">
@@ -164,10 +198,54 @@ export default async function BetaLabPage() {
                         </div>
                       ) : null}
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <button disabled className="rounded-md border border-white/10 px-3 py-2 text-xs text-[var(--muted)]">Recalcular</button>
-                      <button disabled className="rounded-md border border-white/10 px-3 py-2 text-xs text-[var(--muted)]">Narrativa</button>
-                    </div>
+                    <form action={reviewLabFixtureAction} className="space-y-3">
+                      <input type="hidden" name="matchId" value={match.id} />
+                      <label className="block text-xs text-[var(--muted)]">
+                        Estado Lab
+                        <select
+                          name="lab_status"
+                          defaultValue={match.labStatus ?? "candidate"}
+                          required
+                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        >
+                          <option value="candidate">Candidato</option>
+                          <option value="ready">Listo</option>
+                          <option value="review">En revisión</option>
+                          <option value="needs_data">Requiere datos</option>
+                          <option value="archived">Archivado</option>
+                        </select>
+                      </label>
+                      <label className="block text-xs text-[var(--muted)]">
+                        Calidad de datos
+                        <select
+                          name="data_quality"
+                          defaultValue={match.dataQuality}
+                          required
+                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        >
+                          <option value="unreviewed">Sin revisar</option>
+                          <option value="reviewed">Revisado</option>
+                          <option value="verified">Verificado</option>
+                          <option value="rejected">Rechazado</option>
+                        </select>
+                      </label>
+                      <label className="block text-xs text-[var(--muted)]">
+                        Nota de fuente
+                        <textarea
+                          name="source_note"
+                          defaultValue={match.sourceNote ?? ""}
+                          maxLength={500}
+                          rows={3}
+                          className="mt-1 w-full resize-y rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        />
+                      </label>
+                      <button
+                        type="submit"
+                        className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
+                      >
+                        Guardar revisión
+                      </button>
+                    </form>
                   </div>
                 ))}
               </div>
