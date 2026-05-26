@@ -42,6 +42,9 @@ surfaces remain backed by mock data.
 - `supabase/migrations/0009_seed_internal_lab_prediction_markets.sql`
   backfills BTTS and over/under market rows for the existing internal Lab
   prediction versions so later evaluation persistence has complete inputs.
+- `supabase/migrations/0010_admin_lab_evaluation_persistence.sql` permits
+  administrators to read internal Lab prediction markets and insert or update
+  evaluations derived from verified Lab results, without granting deletion.
 
 ## Runtime Environment
 
@@ -98,7 +101,10 @@ The current admin screen reads internal fixtures, related teams, stored
 predictions, registered match results, and any persisted prediction
 evaluations through the authenticated server client. Worker status remains
 clearly labelled mock data. An authenticated admin may update fixture review
-metadata and create or edit real results for Lab fixtures from this screen.
+metadata, create or edit real results for Lab fixtures, and persist evaluations
+for internal predictions with complete markets and verified results from this
+screen. Evaluation persistence invokes the existing pure evaluation module; it
+does not generate new predictions or execute the prediction engine.
 This is expressly not public league support or a version 2.0 launch.
 
 ## Data Intake Minimal
@@ -115,7 +121,7 @@ prediction version against that validated final result.
 
 If Supabase CLI is not available, verify this foundation only in an approved
 empty development project through Supabase SQL Editor: apply migration files
-in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`, `0009`) and then run
+in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`, `0009`, `0010`) and then run
 `supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
 `lab_only` remain for internal review only. Do not run the seed over production
 or any remote project with data that has not been approved for reset.
@@ -172,6 +178,12 @@ rows using `0..100` probabilities; the seed file mirrors the same rows for
 fresh development environments. It does not add application read or write
 policies for `prediction_markets`.
 
+Migration `0010` adds admin-only reads for `prediction_markets` associated with
+internal Lab predictions, and column-limited insert/update access to
+`prediction_results` only when a verified Lab match result and the required
+BTTS and over/under markets exist. It grants no deletion and does not allow the
+UI to generate or modify prediction versions or markets.
+
 ## Applying After Review
 
 Do not apply this migration to a remote project that has data until it has
@@ -223,7 +235,8 @@ environment and valid values are set in `.env.local`:
 
 ## Not Implemented
 
-- Public product-data reads or writes, and admin writes beyond Lab fixture review or match-result entry.
+- Public product-data reads or writes, and admin writes beyond Lab fixture review,
+  match-result entry, or controlled evaluation persistence.
 - Public browsing or commercial access to Beta Lab competitions.
 - Social login, magic links, password reset, or profile editing.
 - Complete RLS/paywall enforcement.

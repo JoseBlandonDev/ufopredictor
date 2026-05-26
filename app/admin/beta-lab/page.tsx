@@ -1,5 +1,9 @@
 import { AdminWorkerStatus } from "@/components/admin-worker-status";
-import { reviewLabFixtureAction, saveLabMatchResultAction } from "@/app/admin/beta-lab/actions";
+import {
+  persistLabEvaluationAction,
+  reviewLabFixtureAction,
+  saveLabMatchResultAction,
+} from "@/app/admin/beta-lab/actions";
 import { requireAdmin } from "@/lib/auth/session";
 import { workerRuns } from "@/lib/mock-data";
 import { getAdminLabDashboardData } from "@/lib/supabase/lab-queries";
@@ -15,13 +19,13 @@ function formatMetric(value: boolean | null) {
 }
 
 type BetaLabPageProps = {
-  searchParams: Promise<{ review?: string; result?: string }>;
+  searchParams: Promise<{ review?: string; result?: string; evaluation?: string }>;
 };
 
 export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
   await requireAdmin("/admin/beta-lab");
 
-  const { review, result } = await searchParams;
+  const { review, result, evaluation } = await searchParams;
   const labData = await getAdminLabDashboardData();
   const betaStatusLabels = {
     candidate: "candidato",
@@ -80,6 +84,35 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
   const resultMessage = result && result in resultMessages
     ? resultMessages[result as keyof typeof resultMessages]
     : null;
+  const evaluationMessages = {
+    saved: {
+      className: "border-[var(--accent)]/35 bg-[var(--accent)]/10 text-[var(--accent)]",
+      text: "Evaluación persistida correctamente.",
+    },
+    invalid: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "No se pudo procesar la evaluación solicitada.",
+    },
+    unverified: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "La evaluación requiere un resultado real verificado.",
+    },
+    incomplete: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "La predicción no tiene mercados completos o datos válidos para evaluar.",
+    },
+    not_evaluable: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "La predicción no es evaluable con los datos almacenados.",
+    },
+    error: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "No se pudo persistir la evaluación. Intenta nuevamente o revisa permisos.",
+    },
+  };
+  const evaluationMessage = evaluation && evaluation in evaluationMessages
+    ? evaluationMessages[evaluation as keyof typeof evaluationMessages]
+    : null;
 
   return (
     <div className="space-y-6">
@@ -100,6 +133,12 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
       {resultMessage ? (
         <p className={`rounded-lg border p-4 text-sm ${resultMessage.className}`}>
           {resultMessage.text}
+        </p>
+      ) : null}
+
+      {evaluationMessage ? (
+        <p className={`rounded-lg border p-4 text-sm ${evaluationMessage.className}`}>
+          {evaluationMessage.text}
         </p>
       ) : null}
 
@@ -227,6 +266,40 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
                             {formatMetric(match.prediction.evaluation.over_2_5_correct)}
                           </p>
                         </div>
+                      ) : null}
+                      {match.prediction ? (
+                        <>
+                          {match.prediction.hasPersistedEvaluation ? (
+                            <p className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-2 py-2 text-[var(--accent)]">
+                              Evaluación ya persistida; puede actualizarse con el resultado verificado actual.
+                            </p>
+                          ) : null}
+                          {!match.prediction.hasVerifiedResult ? (
+                            <p className="rounded-md border border-[var(--warning)]/25 bg-[var(--warning)]/10 px-2 py-2 text-[var(--warning)]">
+                              Falta un resultado verificado para evaluar.
+                            </p>
+                          ) : !match.prediction.hasCompleteMarkets ? (
+                            <p className="rounded-md border border-[var(--warning)]/25 bg-[var(--warning)]/10 px-2 py-2 text-[var(--warning)]">
+                              Faltan mercados BTTS u Over/Under 2.5 completos.
+                            </p>
+                          ) : (
+                            <form action={persistLabEvaluationAction}>
+                              <input
+                                type="hidden"
+                                name="predictionVersionId"
+                                value={match.prediction.id}
+                              />
+                              <button
+                                type="submit"
+                                className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
+                              >
+                                {match.prediction.hasPersistedEvaluation
+                                  ? "Actualizar evaluación"
+                                  : "Persistir evaluación"}
+                              </button>
+                            </form>
+                          )}
+                        </>
                       ) : null}
                     </div>
                     <form action={reviewLabFixtureAction} className="space-y-3">
