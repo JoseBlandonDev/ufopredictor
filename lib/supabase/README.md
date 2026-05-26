@@ -39,6 +39,9 @@ surfaces remain backed by mock data.
 - `supabase/migrations/0008_admin_lab_match_result_actions.sql` permits
   administrators to insert or update real results only for internal Lab
   fixtures, without granting deletion.
+- `supabase/migrations/0009_seed_internal_lab_prediction_markets.sql`
+  backfills BTTS and over/under market rows for the existing internal Lab
+  prediction versions so later evaluation persistence has complete inputs.
 
 ## Runtime Environment
 
@@ -112,7 +115,7 @@ prediction version against that validated final result.
 
 If Supabase CLI is not available, verify this foundation only in an approved
 empty development project through Supabase SQL Editor: apply migration files
-in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`) and then run
+in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`, `0009`) and then run
 `supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
 `lab_only` remain for internal review only. Do not run the seed over production
 or any remote project with data that has not been approved for reset.
@@ -162,6 +165,12 @@ Only an authenticated administrator may insert or update results whose match
 is `lab_only` within an `internal_lab` competition. Insert and update
 privileges are limited to result-entry columns, `match_id` cannot be changed
 after insertion, and delete access is not granted.
+
+Migration `0009` is a controlled data backfill for the already-seeded internal
+Lab prediction versions. It inserts their minimum BTTS and over/under market
+rows using `0..100` probabilities; the seed file mirrors the same rows for
+fresh development environments. It does not add application read or write
+policies for `prediction_markets`.
 
 ## Applying After Review
 
