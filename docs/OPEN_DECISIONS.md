@@ -1,213 +1,138 @@
 # OPEN_DECISIONS.md — UFO Predictor
 
-## Propósito
+# UFO Predictor — estado actualizado post Lab Admin Flow
 
-Este documento lista decisiones pendientes. Su objetivo es evitar implementar soluciones definitivas antes de que el equipo cierre criterios de producto, datos, infraestructura o monetización.
+Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+
+Principio permanente: **el modelo estadístico calcula. La IA explica.**
+
+UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+
 
 ---
 
-# Infraestructura
+## Decisiones abiertas prioritarias
 
-## Supabase CLI / entorno local
+### D01 — Criterio para publicar predicciones
 
-**Estado:** pendiente / en radar.
+Antes de `feature/public-predictions-from-db`, decidir:
+
+```txt
+¿Qué prediction_versions pasan de internal_lab a public_product?
+```
 
 Opciones:
 
-1. Seguir validando migraciones en Supabase remoto/staging con SQL Editor.
-2. Instalar Supabase CLI con Docker para entorno local.
-3. Usar ambos: migraciones versionadas + staging remoto + local para pruebas.
+1. Usar `prediction_versions.run_scope = 'public_product'`.
+2. Crear acción admin para promover predicción interna a pública.
+3. Crear seed inicial de predicciones publicables para MVP.
+4. Crear tabla/campo adicional de publicación.
 
-**Estado actual:** las migraciones hasta `0006_admin_lab_read_policies.sql` se han aplicado manualmente en Supabase SQL Editor.
+Recomendación inicial:
 
-**Recomendación:** crear `feature/supabase-cli-local-setup` cuando el equipo quiera optimizar flujo. No bloquear Lab Admin Review por esto.
-
-## Railway staging
-
-**Estado:** pendiente.
-
-Decidir:
-
-- rama de deploy;
-- variables de entorno;
-- Supabase staging;
-- proceso de rollback.
+- usar scope explícito;
+- no exponer `internal_lab`;
+- empezar read-only;
+- no agregar flujo de publicación complejo hasta tener C01 funcionando.
 
 ---
 
-# Auth
+### D02 — Qué ve un usuario free vs premium
 
-## Google Auth
+Definir campos visibles para:
 
-**Estado:** en radar.
+- visitante anónimo;
+- `free_user`;
+- premium futuro;
+- admin.
 
-Conviene implementarlo como épica separada:
+Ejemplo:
+
+| Dato | Free | Premium |
+|---|---:|---:|
+| 1X2 básico | Sí | Sí |
+| confidence | Limitado | Sí |
+| top scorelines | Limitado | Sí |
+| BTTS/OU | Quizá limitado | Sí |
+| explicación IA | No o teaser | Sí |
+
+Nada premium debe viajar al frontend si el usuario no tiene permiso.
+
+---
+
+### D03 — Paywall backend vs visual
+
+Decisión recomendada:
 
 ```txt
-feature/google-auth
-```
-
-Alcance futuro:
-
-- configurar Google Provider en Supabase;
-- botón de login/register;
-- callback;
-- profile automático;
-- rol inicial `free_user`;
-- admin sigue siendo asignación controlada/manual.
-
-No mezclar con Lab Admin Review Flow.
-
----
-
-# Datos deportivos
-
-## API-Football vs Sportmonks
-
-**Estado:** pendiente.
-
-Criterios:
-
-- cobertura Mundial 2026;
-- fixtures;
-- resultados;
-- alineaciones;
-- forma reciente;
-- límites y costos;
-- estabilidad;
-- documentación.
-
-## Competiciones para Lab real
-
-**Estado:** pendiente.
-
-Decidir qué competiciones/amistosos se usarán para calibración interna antes del Mundial.
-
-Importante: esto es Beta Lab, no producto público multi-liga.
-
----
-
-# Modelo predictivo
-
-## Criterio de aceptación del modelo v0.1
-
-**Estado:** pendiente.
-
-Ya existe:
-
-- Prediction Engine v0.1 Lab.
-- Model Evaluation Lab.
-- Lab Supabase Queries.
-
-Falta definir qué nivel de consistencia/calibración esperamos antes de usarlo para predicciones públicas.
-
-## Calibración
-
-**Estado:** futuro.
-
-No cambiar pesos/fórmula sin datos de evaluación suficientes.
-
-Posible rama futura:
-
-```txt
-feature/model-calibration-lab
+Paywall debe aplicarse en backend/query layer, no solo en componentes UI.
 ```
 
 ---
 
-# Lab Admin
+### D04 — Transparencia pública
 
-## Lab Fixture Review Actions
+Decidir si `/transparency` inicialmente muestra:
 
-**Estado:** próximo.
+1. métricas Lab internas;
+2. métricas solo publicables;
+3. métricas agregadas mixtas pero sin revelar Lab.
 
-Decidir detalles de UX y alcance:
-
-- acciones rápidas;
-- server actions vs route handlers;
-- campos editables;
-- RLS update admin-only.
-
-## Match Result Actions
-
-**Estado:** próximo/después.
-
-Decidir si crear/editar `match_results` se hace junto a fixture review o en sub-épica separada.
-
-Recomendación actual: sub-épica separada.
-
-## Evaluation Persistence
-
-**Estado:** próximo/después.
-
-Decidir flujo para persistir `prediction_results` usando `lib/model-evaluation/`.
+Recomendación: empezar con métricas publicables o claramente etiquetadas como Lab/Internal.
 
 ---
 
-# Odds
+### D05 — Staging
 
-## Proveedor de odds
+Decidir plataforma y ambiente:
 
-**Estado:** pendiente.
-
-Opciones:
-
-- odds del proveedor deportivo principal;
-- The Odds API;
-- otro proveedor.
-
-Regla vigente: no usar lenguaje agresivo de apuestas ni prometer ganancias.
+- Vercel para app;
+- Supabase remoto separado para staging o usar proyecto actual con cuidado;
+- variables `.env` gestionadas fuera del repo.
 
 ---
 
-# IA narrativa
+### D06 — Supabase CLI local
 
-## Proveedor LLM
+Pendiente decidir cuándo invertir en CLI local.
 
-**Estado:** pendiente.
+Pros:
 
-Opciones:
+- migraciones reproducibles;
+- menos SQL manual;
+- resets locales.
 
-- OpenAI;
-- Gemini;
-- Claude;
-- combinación.
+Contras:
 
-Regla permanente: el LLM no calcula probabilidades; solo explica resultados ya calculados.
+- tiempo de setup;
+- riesgo de distracción antes de C01.
 
----
-
-# Pagos y monetización
-
-## Pasarela de pago
-
-**Estado:** pendiente.
-
-Opciones:
-
-- Stripe;
-- PayPal;
-- Mercado Pago;
-- combinación.
-
-## Precios y planes finales
-
-**Estado:** pendiente.
-
-El sistema debe permitir planes configurables; no hardcodear precios finales en lógica.
+Recomendación: hacerlo antes de muchas migraciones públicas/paywall, pero no bloquear C01 si el flujo manual sigue controlado.
 
 ---
 
-# Producto
+### D07 — Google Auth
 
-## Ligas v2
+No bloquea MVP interno ni C01.
 
-**Estado:** futuro.
+Recomendación: después de definir producto público y entitlements.
 
-No forma parte del MVP Mundial. El Beta Lab puede usar ligas/amistosos internamente, pero el soporte comercial multi-liga debe planearse aparte.
+---
 
-## Módulo polla/quiniela/pool
+### D08 — Workers/API/Odds
 
-**Estado:** fuera del MVP principal.
+No mezclar con C01.
 
-No debe bloquear el producto principal de predicciones probabilísticas.
+Primero producto público desde datos ya controlados. Luego automatización.
+
+---
+
+## Decisiones ya tomadas
+
+- El Lab es interno/admin.
+- El modelo estadístico calcula.
+- La IA explica.
+- No hay apuestas ni promesas de ganancia.
+- Server Actions admin usan sesión real, no service role.
+- RLS y grants por columna son obligatorios para escrituras admin sensibles.
+- `workerRuns` sigue mock hasta épica de workers reales.

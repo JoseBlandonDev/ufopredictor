@@ -1,162 +1,171 @@
-# UFO Predictor — Codex Handoff Current
+# CODEX_HANDOFF_CURRENT.md — UFO Predictor
 
-## Propósito
+# UFO Predictor — estado actualizado post Lab Admin Flow
 
-Documento corto para arrancar conversaciones de Codex con contexto actualizado. Codex debe leer esto antes de proponer o modificar archivos.
+Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
 
----
+Principio permanente: **el modelo estadístico calcula. La IA explica.**
 
-## Estado actual
+UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
 
-Rama base esperada para nuevas tareas: `main` actualizado.
-
-Últimas épicas/tareas mergeadas:
-
-1. `feat: add prediction engine v0.1 lab`
-2. `fix: restrict lab match results rls`
-3. `feat: add model evaluation lab`
-4. `feat: add lab Supabase queries`
-
-El proyecto ya tiene:
-
-- Next.js App Router.
-- Supabase remoto conectado.
-- Supabase Auth email/password.
-- Roles `free_user` y `admin`.
-- Dashboard/admin protegidos.
-- `/admin/beta-lab` protegido con `requireAdmin`.
-- Beta Lab Foundation.
-- Data Intake Minimal.
-- `match_results`.
-- `prediction_results`.
-- RLS reforzada para Lab.
-- `lib/prediction-engine/`.
-- `lib/model-evaluation/`.
-- `lib/supabase/lab-queries.ts`.
-- `/admin/beta-lab` leyendo datos reales de Supabase para fixtures, predicciones, resultados y evaluaciones.
-
-Sigue mock:
-
-- worker runs / estado de workers.
 
 ---
 
-## No rehacer
+## Contexto operativo
 
-No rehacer:
+Antes de cualquier tarea:
 
-- prototipo visual;
-- Supabase schema inicial;
-- Auth/roles;
-- Beta Lab Foundation;
-- Data Intake Minimal;
-- Prediction Engine;
-- Model Evaluation;
-- Lab Supabase Queries.
+```bash
+git status
+git branch
+git pull origin main
+```
+
+Debe trabajarse desde `main` limpio y actualizado, creando una rama específica.
+
+No tocar `.env.local`. No usar service role en flujos UI/server actions normales.
 
 ---
 
-## Próximo bloque recomendado
+## Estado actual en `main`
 
-Dividir Lab Admin Review Flow en sub-épicas pequeñas.
-
-Próxima rama recomendada:
+`main` incluye hasta:
 
 ```txt
-feature/lab-fixture-review-actions
+#18 feat: persist lab evaluations
 ```
 
-Objetivo:
+PRs recientes cerrados:
 
-- permitir revisión de fixtures Lab desde admin;
-- actualizar campos de `matches`;
-- no editar todavía `match_results`, salvo decisión explícita;
-- no hacer CRUD gigante.
+```txt
+#15 feat: add lab fixture review actions
+#16 feat: add lab match result actions
+#17 chore: seed internal lab prediction markets
+#18 feat: persist lab evaluations
+```
 
-Campos candidatos en `matches`:
+Supabase remoto tiene migraciones aplicadas manualmente hasta:
 
-- `lab_status`;
-- `data_quality`;
-- `source_note`;
-- `reviewed_at`;
-- `reviewed_by`.
+```txt
+0010_admin_lab_evaluation_persistence.sql
+```
 
 ---
 
-## Reglas para Codex
+## Qué ya existe
 
-Antes de modificar:
+### Lab Admin Flow
 
-```bash
-git branch
-git status
-```
+`/admin/beta-lab` permite:
 
-Si corresponde:
+- revisar fixtures Lab;
+- crear/editar `match_results`;
+- leer `prediction_markets` internos;
+- persistir/actualizar `prediction_results`;
+- ver estados de readiness:
+  - resultado verificado;
+  - markets completos;
+  - evaluación persistida.
 
-```bash
-git checkout main
-git pull origin main
-git checkout -b <rama>
-```
+### Seguridad/RLS reciente
 
-No hacer commit, push ni PR salvo instrucción explícita.
+- `0007`: update admin-only para campos de revisión de `matches` Lab.
+- `0008`: insert/update admin-only para `match_results` Lab, sin delete.
+- `0009`: seed/backfill de markets internos mínimos.
+- `0010`: select admin-only para `prediction_markets`; insert/update admin-only para `prediction_results`, sin delete.
 
-No tocar:
+### Motor/evaluación
 
-- `.env.local`;
-- secretos;
-- pagos;
-- API deportiva;
-- odds;
-- LLM;
-- workers reales;
-- rutas públicas, salvo que la épica lo pida.
-
-Para tareas con Supabase:
-
-- explicar migración;
-- pegar SQL completo;
-- incluir queries manuales de verificación;
-- indicar si requiere SQL Editor;
-- no usar service role para alimentar UI salvo justificación explícita.
-
-Supabase CLI todavía no está configurado. Las migraciones se han aplicado manualmente con Supabase SQL Editor.
-
-GitHub CLI está disponible/autenticado para PRs, pero Codex no debe usarlo sin autorización explícita.
+- `lib/prediction-engine/` existe.
+- `lib/model-evaluation/` existe.
+- B06c usa `evaluatePrediction()`.
+- La UI admin no ejecuta Prediction Engine.
 
 ---
 
-## Validaciones esperadas
+## Qué no existe todavía
 
-Para cambios TypeScript/UI:
+- Predicciones públicas desde DB.
+- Public match detail desde DB.
+- Paywall backend.
+- Entitlements reales.
+- Workers reales.
+- API deportiva.
+- Odds.
+- LLM real.
+- Pagos.
+- Google Auth.
+- Supabase CLI local.
+- Staging final.
+
+---
+
+## Próxima tarea recomendada
+
+### Si la documentación aún no está actualizada
+
+Rama:
+
+```bash
+docs/update-project-context-after-lab-admin-flow
+```
+
+Solo docs. No código. No migraciones.
+
+### Si docs ya están sincronizados
+
+Rama recomendada:
+
+```bash
+feature/public-predictions-from-db
+```
+
+Primero hacer reconocimiento. No implementar directo.
+
+Objetivo: conectar superficies públicas a predicciones reales publicables.
+
+Decisión previa:
+
+```txt
+Definir criterio internal_lab → public_product.
+```
+
+---
+
+## Prompt corto para próxima feature técnica
+
+```txt
+Quiero iniciar feature/public-predictions-from-db.
+Primero solo haz reconocimiento técnico y plan. No modifiques archivos.
+Antes de cualquier cambio ejecuta git branch y git status.
+Debo estar en main limpio.
+Revisa cómo separar internal_lab de public_product y propón alcance mínimo para conectar /predictions a datos reales sin exponer Lab ni premium.
+No implementes paywall, pagos, odds, LLM, workers ni Prediction Engine.
+```
+
+---
+
+## Validaciones estándar
+
+Para cada rama:
 
 ```bash
 npm run test
 npm run lint
 npm run build
+git status
 ```
 
-Para cambios solo docs:
+Si `next-env.d.ts` cambia por build y no corresponde:
 
 ```bash
-npm run lint
-npm run build
+git restore next-env.d.ts
 ```
 
-Si `next-env.d.ts` cambia por build, debe restaurarse y no quedar en el diff final.
+Para migraciones Supabase:
 
----
-
-## Formato de respuesta final esperado
-
-1. Rama actual.
-2. Objetivo implementado.
-3. Archivos modificados/creados.
-4. Cambios en BD si aplica.
-5. SQL completo si aplica.
-6. Validaciones ejecutadas.
-7. Estado final de git.
-8. Qué no implementó deliberadamente.
-9. Riesgos/decisiones abiertas.
-10. Recomendación de commit/push.
+- aplicar manualmente en SQL Editor si no hay CLI local;
+- verificar `pg_policies`;
+- verificar `information_schema.column_privileges`;
+- probar UI;
+- solo después commit/push/PR.

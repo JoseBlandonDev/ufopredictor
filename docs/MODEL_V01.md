@@ -24,9 +24,11 @@ lib/model-evaluation/
 
 Ambos módulos tienen tests con Vitest.
 
+B06c ya usa `lib/model-evaluation/` desde `/admin/beta-lab` para persistir o actualizar evaluaciones en `prediction_results`.
+
 ---
 
-# Estrategia pre-modelo: Lab interno
+## Estrategia pre-modelo: Lab interno
 
 Antes de lanzar predicciones públicas del Mundial, el modelo v0.1 debe probarse en el Beta Lab.
 
@@ -37,13 +39,14 @@ El Lab usa:
 - partidos `lab_only`;
 - resultados validados en `match_results`;
 - predicciones `run_scope = internal_lab`;
-- evaluaciones en `prediction_results`.
+- mercados internos en `prediction_markets`;
+- evaluaciones persistidas en `prediction_results`.
 
-Objetivo: llegar al Mundial con un motor probado contra datos revisables, no improvisar cuando empiece el evento.
+Objetivo: llegar al Mundial con un motor probado contra datos revisables, no improvisar cuando empiece el evento. La improvisación es encantadora en jazz, no en RLS.
 
 ---
 
-# Flujo general
+## Flujo general
 
 ```txt
 Datos del partido
@@ -62,14 +65,16 @@ Mercados: 1X2, OU 2.5, BTTS, marcador probable
 ↓
 Confidence + Risk
 ↓
-Evaluación contra match_results
+Evaluación contra match_results verificados
+↓
+prediction_results persistido
 ↓
 Narrativa IA futura
 ```
 
 ---
 
-# Variables del Team Power Score
+## Variables del Team Power Score
 
 | Variable | Peso inicial | Descripción |
 |---|---:|---|
@@ -84,7 +89,7 @@ Para Lab v0.1, `market_score` y `lineup_context_score` pueden iniciar con defaul
 
 ---
 
-# Expected Goals
+## Expected Goals
 
 Usar `baseGoalRate`, inicialmente aproximado en 1.35 goles por equipo.
 
@@ -103,31 +108,31 @@ Límites:
 
 ---
 
-# Mercados iniciales
+## Mercados iniciales
 
-## 1X2
+### 1X2
 
 - Home win.
 - Draw.
 - Away win.
 
-## Over/Under 2.5
+### Over/Under 2.5
 
 - Over 2.5.
 - Under 2.5.
 
-## BTTS
+### BTTS
 
 - Yes.
 - No.
 
-## Marcador probable
+### Marcador probable
 
 Top 3 scores desde matriz Poisson.
 
 ---
 
-# Output del motor
+## Output del motor
 
 Reglas vigentes:
 
@@ -138,7 +143,7 @@ Reglas vigentes:
 
 ---
 
-# Evaluación en Lab
+## Evaluación en Lab
 
 El módulo `lib/model-evaluation/` compara predicciones contra resultados verificados.
 
@@ -150,6 +155,23 @@ Métricas mínimas:
 - `exact_score_correct`.
 - `goal_error`.
 - `error_summary`.
+
+### Persistencia actual
+
+B06c permite persistir/actualizar evaluaciones desde `/admin/beta-lab`.
+
+La Server Action:
+
+- exige admin;
+- usa sesión real de Supabase;
+- exige `match_results.verification_status = verified`;
+- exige markets completos:
+  - `btts` yes/no;
+  - `over_2_5` over/under;
+- usa `evaluatePrediction()`;
+- inserta o actualiza `prediction_results`.
+
+La UI admin no acepta métricas desde el cliente. El cliente solo solicita persistir evaluación para una predicción concreta.
 
 ## Fórmula de `goal_error`
 
@@ -178,7 +200,7 @@ Empates probabilísticos dentro de tolerancia se tratan como `ambiguous` / `not_
 
 ---
 
-# No incluir todavía
+## No incluir todavía
 
 - Goleadores.
 - Tarjetas.
@@ -189,17 +211,25 @@ Empates probabilísticos dentro de tolerancia se tratan como `ambiguous` / `not_
 - Odds reales obligatorias.
 - Calibración avanzada.
 - Workers reales.
+- Publicación automática de predicciones.
+- Backtesting batch.
 
 ---
 
-# Próxima implementación recomendada
+## Próxima implementación recomendada
 
-No cambiar fórmula del motor sin más datos. El siguiente bloque recomendado es operativo/admin:
+No cambiar fórmula del motor sin más datos.
+
+El siguiente bloque recomendado no es tocar el modelo. Es conectar el producto público a datos controlados:
 
 ```txt
-feature/lab-fixture-review-actions
-feature/lab-match-result-actions
-feature/lab-evaluation-persistence
+feature/public-predictions-from-db
+```
+
+Antes de esa feature hay que definir:
+
+```txt
+Qué prediction_versions pasan de internal_lab a public_product.
 ```
 
 La calibración del modelo debe venir después de acumular más resultados/evaluaciones.
