@@ -1,8 +1,8 @@
 # Supabase Runtime Foundation
 
 This directory holds the database foundation and lazy Supabase client factories
-for UFO Predictor. Authentication now uses these factories, while product data
-surfaces remain backed by mock data.
+for UFO Predictor. Authentication and the public `/predictions` listing now use
+these factories, while other public product surfaces remain backed by mock data.
 
 ## Files
 
@@ -45,6 +45,10 @@ surfaces remain backed by mock data.
 - `supabase/migrations/0010_admin_lab_evaluation_persistence.sql` permits
   administrators to read internal Lab prediction markets and insert or update
   evaluations derived from verified Lab results, without granting deletion.
+- `supabase/migrations/0011_public_prediction_reads.sql` permits anonymous and
+  authenticated visitors to read only the product-public competitions,
+  fixtures, related teams/venues, and published prediction versions required by
+  `/predictions`.
 
 ## Runtime Environment
 
@@ -107,6 +111,25 @@ screen. Evaluation persistence invokes the existing pure evaluation module; it
 does not generate new predictions or execute the prediction engine.
 This is expressly not public league support or a version 2.0 launch.
 
+## Public Predictions Read
+
+`/predictions` reads a minimum public card projection through
+`createSupabaseServerClient()`. Migration `0011` requires all three product
+boundaries before a prediction can be read:
+
+- `competitions.usage_scope = 'public_product'`;
+- `matches.access_scope = 'public'`;
+- `prediction_versions.run_scope = 'public_product'`.
+
+When more than one public prediction version exists for the same public match,
+the current UI displays the most recent row by `created_at`. This is a
+temporary read convention until an explicit publication lifecycle is defined.
+
+C01 does not grant public reads for `prediction_markets`,
+`prediction_narratives`, or `prediction_results`, and it does not expose
+premium, `lab_only`, or `internal_lab` records. `/matches/[slug]` remains
+outside this read path and still belongs to a later product-data epic.
+
 ## Data Intake Minimal
 
 Data Intake Minimal lets Beta Lab represent internal fixtures and final scores
@@ -121,7 +144,7 @@ prediction version against that validated final result.
 
 If Supabase CLI is not available, verify this foundation only in an approved
 empty development project through Supabase SQL Editor: apply migration files
-in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`, `0009`, `0010`) and then run
+in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`, `0009`, `0010`, `0011`) and then run
 `supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
 `lab_only` remain for internal review only. Do not run the seed over production
 or any remote project with data that has not been approved for reset.
@@ -136,9 +159,10 @@ Supabase Data API configuration. This includes the explicitly sensitive tables:
 
 The original profile policy lets an authenticated user read their own profile.
 Profile updates are deliberately deferred because a broad update policy could
-allow a client to change `role`. Public catalog reads, filtered prediction
-reads, subscriptions, entitlements, unlocks, and email events remain TODO
-items for the API, auth/paywall, and email epics.
+allow a client to change `role`. C01 adds only filtered public reads for the
+minimum prediction listing. Subscriptions, entitlements, unlocks, protected
+premium projections, and email events remain TODO items for the API,
+auth/paywall, and email epics.
 
 Data Intake initially added a verified-results read policy for authenticated
 users. Migration `0005` narrows that policy to verified results whose related
@@ -183,6 +207,13 @@ internal Lab predictions, and column-limited insert/update access to
 `prediction_results` only when a verified Lab match result and the required
 BTTS and over/under markets exist. It grants no deletion and does not allow the
 UI to generate or modify prediction versions or markets.
+
+Migration `0011` adds public `SELECT` policies and required `SELECT` grants
+only for competitions, matches, teams, venues, and prediction versions that
+are in the public-product path. It does not change existing internal/admin
+policies or mutation grants. The repository contains existing authenticated
+grants needed for the Lab workflows; C01 deliberately avoids global privilege
+cleanup so those flows are not disrupted.
 
 ## Applying After Review
 
@@ -235,8 +266,9 @@ environment and valid values are set in `.env.local`:
 
 ## Not Implemented
 
-- Public product-data reads or writes, and admin writes beyond Lab fixture review,
-  match-result entry, or controlled evaluation persistence.
+- Public product-data writes, public match-detail reads, and admin writes
+  beyond Lab fixture review, match-result entry, or controlled evaluation
+  persistence.
 - Public browsing or commercial access to Beta Lab competitions.
 - Social login, magic links, password reset, or profile editing.
 - Complete RLS/paywall enforcement.
