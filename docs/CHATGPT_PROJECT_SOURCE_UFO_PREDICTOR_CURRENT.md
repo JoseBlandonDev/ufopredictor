@@ -1,6 +1,6 @@
 # CHATGPT PROJECT SOURCE — UFO Predictor Current
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 This is the main contextual source for ChatGPT conversations in the UFO Predictor project.
 
@@ -12,6 +12,7 @@ It combines:
 
 - deterministic statistical prediction logic;
 - transparent public prediction surfaces;
+- public/free match detail;
 - internal Lab evaluation workflows;
 - future premium access via plans and entitlements;
 - eventual AI-generated explanations.
@@ -30,7 +31,7 @@ LLMs must not be treated as the source of prediction probabilities.
 Main includes work through:
 
 ```txt
-PR #21 — feat: add plans entitlements backend
+PR #23 — feat: read public match detail from db
 ```
 
 Recent PRs:
@@ -41,25 +42,64 @@ Recent PRs:
 | #19 | `docs: update project context after lab admin flow` | Done |
 | #20 | `feat: read public predictions from db` | Done |
 | #21 | `feat: add plans entitlements backend` | Done |
+| #22 | `docs: update project context after c02` | Done |
+| #23 | `feat: read public match detail from db` | Done |
 
 ## Current Supabase Remote State
 
 Remote Supabase has been updated manually through:
 
 ```txt
-0012_plans_entitlements_backend.sql
+0013_public_match_detail_projection_hardening.sql
 ```
 
 Important applied migrations:
 
 - `0011_public_prediction_reads.sql`
 - `0012_plans_entitlements_backend.sql`
+- `0013_public_match_detail_projection_hardening.sql`
 
 Supabase CLI local is not configured.
 
 All remote migrations are applied manually in Supabase SQL Editor.
 
 Do not assume a migration file in the repo is applied remotely until the user confirms manual application and validation.
+
+## Tool Usage / Cost Discipline
+
+ChatGPT is the planning, direction, review, and documentation layer.
+
+Codex is the controlled repository execution layer.
+
+Antigravity is an auxiliary tool for visual prototypes, UI/product exploration, isolated demos, and Google stack experiments.
+
+OpenCode is an auxiliary tool for low-cost audit, second opinions, candidate tests, simple scripts, repetitive tasks, and non-critical support.
+
+Manual user actions remain required for Supabase SQL Editor, remote SQL validation, GitHub UI, final PR/merge confirmations, and sharing console results.
+
+Every ChatGPT-generated Codex prompt must start with:
+
+```txt
+USO RECOMENDADO:
+- Herramienta:
+- Modelo/intensidad:
+- Modo:
+- Motivo:
+- Riesgo:
+- Scope permitido:
+- No tocar:
+- Validaciones:
+- Debo volver a ChatGPT cuando:
+
+PROMPT PARA CODEX:
+...
+```
+
+Codex Bajo/Medio is appropriate for recognition, file discovery, diff summaries, validation commands, simple mechanical edits, and git operations after approval.
+
+Codex Alto/Fuerte is appropriate for SQL migrations, RLS, Supabase queries, auth, entitlements, premium filtering, security-sensitive changes, and access logic.
+
+Codex should not be used as a general LLM for broad strategy, commercial decisions, brainstorming, or long documentation unless repo inspection is required.
 
 ## What Works Now
 
@@ -93,7 +133,11 @@ The public predictions listing is operational at:
 /predictions
 ```
 
-It reads from Supabase using a public projection.
+It reads from Supabase using:
+
+```txt
+public_prediction_summaries
+```
 
 It shows:
 
@@ -104,7 +148,8 @@ It shows:
 - kickoff;
 - public 1X2 probabilities;
 - confidence;
-- risk level.
+- risk level;
+- public detail link.
 
 It does not expose:
 
@@ -112,7 +157,48 @@ It does not expose:
 - premium markets;
 - premium narratives;
 - prediction results;
-- evaluation data.
+- evaluation data;
+- expected goals;
+- scorelines;
+- odds;
+- premium analysis.
+
+### Public Match Detail
+
+The match detail route is operational at:
+
+```txt
+/matches/[slug]
+```
+
+It reads real public/free-only match detail from Supabase using:
+
+```txt
+public_match_details
+public_prediction_summaries
+```
+
+It shows:
+
+- competition;
+- match teams;
+- venue;
+- kickoff;
+- status/stage;
+- public prediction basics when available.
+
+It does not expose:
+
+- `prediction_markets`;
+- `prediction_narratives`;
+- `prediction_results`;
+- premium analysis;
+- expected goals;
+- scorelines;
+- BTTS;
+- over/under;
+- Golden Hour Delta;
+- Model vs Market.
 
 ### Pricing
 
@@ -148,16 +234,6 @@ It reads the current user's access summary from Supabase:
 
 It does not return premium prediction content.
 
-### Match Detail
-
-The match detail route remains mock:
-
-```txt
-/matches/[slug]
-```
-
-This is the next recommended surface to connect to DB, using public/free-only data.
-
 ## C01 — Public Predictions From DB
 
 Status: Done.
@@ -166,20 +242,9 @@ Goal:
 
 Connect `/predictions` to real public prediction data.
 
-Main safety constraints:
+Current public predictions now read from `public_prediction_summaries`, introduced by C03.
 
-- only `competitions.usage_scope = public_product`;
-- only `matches.access_scope = public`;
-- only `prediction_versions.run_scope = public_product`.
-
-Important files:
-
-- `app/predictions/page.tsx`
-- `components/public-prediction-card.tsx`
-- `lib/supabase/public-prediction-queries.ts`
-- `supabase/migrations/0011_public_prediction_reads.sql`
-
-C01 deliberately did not open:
+C01/C03 deliberately do not open:
 
 - `prediction_markets`;
 - `prediction_narratives`;
@@ -202,24 +267,43 @@ Important files:
 - `lib/permissions/entitlements.ts`
 - `lib/permissions/entitlements.test.ts`
 - `supabase/migrations/0012_plans_entitlements_backend.sql`
-- `lib/supabase/README.md`
-- `lib/permissions/README.md`
-
-Access decision sources:
-
-- `public_basic_access`
-- `beta_free_access`
-- `entitlement_access`
-- `admin_access`
-- `none`
 
 Rules:
 
-- `premium_user` role does not unlock all content.
+- `premium_user` does not unlock all content.
 - Active subscription does not unlock protected content by itself.
-- Current entitlements and match unlocks are the effective access source.
+- Entitlements/unlocks are the effective access source.
 - Beta free access must be server-controlled.
-- Admin bypass must be explicit in future queries.
+- Admin bypass is explicit, not automatic everywhere.
+
+## C03 — Match Detail Public From DB
+
+Status: Done.
+
+Goal:
+
+Connect `/matches/[slug]` to real Supabase data using a public/free-only projection.
+
+Important files:
+
+- `app/matches/[slug]/page.tsx`
+- `app/predictions/page.tsx`
+- `components/public-prediction-card.tsx`
+- `lib/supabase/public-match-detail-queries.ts`
+- `lib/supabase/public-prediction-queries.ts`
+- `supabase/migrations/0013_public_match_detail_projection_hardening.sql`
+
+C03 delivered:
+
+- `public_match_details`;
+- `public_prediction_summaries`;
+- anon public view access only;
+- blocked anon base-table and premium-table access;
+- DB-backed match detail;
+- empty state for public matches without prediction;
+- 404 for non-public/nonexistent slugs.
+
+C03 did not implement premium content.
 
 ## Beta/Freemium Strategy
 
@@ -232,15 +316,6 @@ The beta should:
 - avoid mass advertising until confidence grows;
 - validate results, UX, infrastructure, and costs;
 - use finals, friendlies, and pre-World Cup fixtures for early learning.
-
-Infrastructure may start on free tiers, but scaling likely requires paid:
-
-- Supabase;
-- Railway;
-- sports data APIs;
-- odds APIs;
-- workers;
-- LLM if added.
 
 ## Plans And Access Strategy
 
@@ -267,20 +342,12 @@ Internal access models:
 
 Future work must decide how these rights map to concrete match access.
 
-Example:
-
-- `competition` entitlement can cover matches in a competition;
-- `stage` entitlement can cover semifinals/final;
-- `team` entitlement can cover matches involving a team;
-- `match unlock` can cover a specific match;
-- `quantity` can support a pack like 10 selected matches.
-
 ## What Is Still Missing
 
 Not implemented:
 
-- real `/matches/[slug]`;
 - final premium enforcement;
+- entitled/premium match detail;
 - public or entitled `prediction_markets`;
 - public or entitled `prediction_narratives`;
 - public or entitled `prediction_results`;
@@ -298,29 +365,25 @@ Not implemented:
 ## Recommended Next Epic
 
 ```txt
-feature/match-detail-public-from-db
+feature/premium-access-enforcement-skeleton
 ```
 
 Purpose:
 
-Connect `/matches/[slug]` to real Supabase data using public/free-only projection.
+Create the server-side skeleton for premium access enforcement before exposing premium data.
 
 Allowed:
 
-- match details;
-- competition;
-- teams;
-- venue;
-- kickoff;
-- status/stage;
-- public prediction basics.
+- inspect entitlements/access logic;
+- define free vs premium fields;
+- create server-only enforcement patterns;
+- test entitlement access behavior;
+- keep premium data closed.
 
-Forbidden in this epic:
+Forbidden in the next epic unless explicitly approved:
 
-- premium markets;
-- premium narratives;
-- prediction results/evaluations;
-- final paywall;
+- public premium tables;
+- premium content UI;
 - payments;
 - odds;
 - LLM;
@@ -329,12 +392,12 @@ Forbidden in this epic:
 
 ## Suggested Next Conversation Flow
 
-1. Start new ChatGPT conversation with this document and active docs.
-2. Ask Codex for recognition only.
-3. Codex should confirm main includes PR #21.
-4. Codex should inspect `/matches/[slug]`, public prediction query, entitlements, and schema.
-5. ChatGPT should review Codex's recognition before implementation.
-6. Then create `feature/match-detail-public-from-db`.
+1. Start new ChatGPT conversation with updated docs.
+2. ChatGPT generates Codex recognition prompt with execution card.
+3. Ask Codex for recognition only.
+4. Codex should confirm main includes PR #23.
+5. Codex should inspect C02 entitlements, C03 projections, match detail, schema, and RLS/grants.
+6. ChatGPT should review Codex's recognition before implementation.
 
 ## Trust The Active Docs
 

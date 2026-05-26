@@ -1,33 +1,33 @@
 # CURRENT PROJECT STATUS — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 ## Executive Summary
 
-UFO Predictor has completed the internal Lab Admin Flow, public predictions from DB, and the backend foundation for plans and entitlements.
+UFO Predictor has completed the internal Lab Admin Flow, public predictions from DB, plans/entitlements backend, and public/free match detail from DB.
 
 Current baseline:
 
 ```txt
-main includes PR #21: feat: add plans entitlements backend
+main includes PR #23: feat: read public match detail from db
 ```
 
 The project now has:
 
 - internal Lab workflow using Supabase;
 - public predictions listing from Supabase;
+- public/free match detail from Supabase;
 - public beta plans catalog from Supabase;
 - authenticated dashboard access summary from Supabase;
 - pure entitlement logic with tests;
-- manual Supabase migrations applied through `0012`.
+- public projection hardening for anonymous users;
+- manual Supabase migrations applied through `0013`.
 
 The next recommended feature is:
 
 ```txt
-feature/match-detail-public-from-db
+feature/premium-access-enforcement-skeleton
 ```
-
-This should connect `/matches/[slug]` to real DB data in a public/free-only way.
 
 ## Recent PRs
 
@@ -37,13 +37,15 @@ This should connect `/matches/[slug]` to real DB data in a public/free-only way.
 | #19 | `docs: update project context after lab admin flow` | Done |
 | #20 | `feat: read public predictions from db` | Done |
 | #21 | `feat: add plans entitlements backend` | Done |
+| #22 | `docs: update project context after c02` | Done |
+| #23 | `feat: read public match detail from db` | Done |
 
 ## Supabase Remote State
 
 Remote Supabase has been updated manually through:
 
 ```txt
-0012_plans_entitlements_backend.sql
+0013_public_match_detail_projection_hardening.sql
 ```
 
 Important applied migrations:
@@ -52,6 +54,7 @@ Important applied migrations:
 |---|---|---|
 | `0011_public_prediction_reads.sql` | Public read policies for public predictions | Yes, manually |
 | `0012_plans_entitlements_backend.sql` | Plans and own-row entitlement reads | Yes, manually |
+| `0013_public_match_detail_projection_hardening.sql` | Public projection views and anon hardening | Yes, manually |
 
 ## Supabase Migration Rule
 
@@ -74,17 +77,23 @@ Required validation after migration:
 7. Run `npm run test`, `npm run lint`, and `npm run build`.
 8. Restore `next-env.d.ts` if modified by build.
 
+## Tool Usage Rule
+
+Every ChatGPT-generated Codex prompt must include the execution card.
+
+Codex is used for controlled repo execution. ChatGPT plans, reviews, scopes, documents, and generates prompts. Antigravity and OpenCode are auxiliary tools only. Manual user steps remain required for Supabase SQL Editor, GitHub UI, and remote validations.
+
 ## Current Route Status
 
 | Route | Status |
 |---|---|
 | `/` | Prototype landing page, still contains simulated featured predictions |
-| `/predictions` | Real public predictions from Supabase |
+| `/predictions` | Real public predictions from Supabase via `public_prediction_summaries` |
+| `/matches/[slug]` | Real public/free-only match detail from Supabase via public views |
 | `/pricing` | Real active plans catalog from Supabase |
 | `/dashboard` | Authenticated viewer access summary from Supabase |
 | `/admin` | Admin shell, partially mock |
 | `/admin/beta-lab` | Internal Lab workflow operational |
-| `/matches/[slug]` | Still mock |
 | `/transparency` | Still simulated transparency metrics |
 | `/login`, `/register`, `/auth/callback` | Auth foundation present |
 
@@ -105,9 +114,13 @@ Still mock:
 
 ## `/predictions`
 
-Implemented by C01.
+Implemented by C01 and hardened by C03.
 
-Reads public predictions from Supabase.
+Reads public predictions from Supabase using:
+
+```txt
+public_prediction_summaries
+```
 
 Safety constraints:
 
@@ -125,7 +138,40 @@ Relevant files:
 - `app/predictions/page.tsx`
 - `components/public-prediction-card.tsx`
 - `lib/supabase/public-prediction-queries.ts`
-- `supabase/migrations/0011_public_prediction_reads.sql`
+- `supabase/migrations/0013_public_match_detail_projection_hardening.sql`
+
+## `/matches/[slug]`
+
+Implemented by C03.
+
+Reads real public/free-only match detail from Supabase using:
+
+```txt
+public_match_details
+public_prediction_summaries
+```
+
+Shows:
+
+- competition;
+- match;
+- teams;
+- venue;
+- kickoff;
+- status/stage;
+- public 1X2 prediction basics if available.
+
+Behavior:
+
+- public match with prediction: shows metadata + 1X2/confidence/risk;
+- public match without prediction: shows empty state;
+- nonexistent or non-public slug: 404.
+
+Relevant files:
+
+- `app/matches/[slug]/page.tsx`
+- `lib/supabase/public-match-detail-queries.ts`
+- `supabase/migrations/0013_public_match_detail_projection_hardening.sql`
 
 ## `/pricing`
 
@@ -141,13 +187,6 @@ Current constraints:
 - no purchase flow;
 - plan features are treated as public catalog/marketing values.
 
-Relevant files:
-
-- `app/pricing/page.tsx`
-- `components/plan-card.tsx`
-- `lib/supabase/entitlement-queries.ts`
-- `supabase/migrations/0012_plans_entitlements_backend.sql`
-
 ## `/dashboard`
 
 Implemented by C02 as a real access summary.
@@ -160,12 +199,6 @@ Reads:
 - current match unlocks.
 
 It does not serve premium prediction content.
-
-Relevant files:
-
-- `app/dashboard/page.tsx`
-- `lib/supabase/entitlement-queries.ts`
-- `lib/permissions/entitlements.ts`
 
 ## Entitlements Foundation
 
@@ -239,8 +272,8 @@ Future work must define how those entitlements translate into access to concrete
 
 Still missing:
 
-- real `/matches/[slug]`;
 - final premium enforcement;
+- entitled/premium match detail sections;
 - public/premium-safe `prediction_markets`;
 - public/premium-safe `prediction_narratives`;
 - public/premium-safe `prediction_results`;
@@ -258,28 +291,23 @@ Still missing:
 ## Recommended Next Epic
 
 ```txt
-feature/match-detail-public-from-db
+feature/premium-access-enforcement-skeleton
 ```
 
 Goal:
 
-Connect `/matches/[slug]` to Supabase using only public/free data.
+Create the backend skeleton for safe premium access enforcement before exposing premium data.
 
 Allowed:
 
-- match metadata;
-- competition;
-- home/away teams;
-- venue;
-- kickoff;
-- stage/status;
-- public prediction basics.
+- inspect and strengthen entitlement resolver patterns;
+- define premium-safe server projection boundaries;
+- keep premium data filtered server-side;
+- add pure tests where useful.
 
 Not allowed:
 
-- premium markets;
-- premium narratives;
-- prediction results/evaluations;
+- public premium tables;
 - final paywall;
 - payments;
 - odds;
