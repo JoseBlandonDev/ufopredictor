@@ -36,6 +36,9 @@ surfaces remain backed by mock data.
   by the Beta Lab screen.
 - `supabase/migrations/0007_admin_lab_fixture_review_actions.sql` permits
   administrators to update only the review metadata of internal Lab fixtures.
+- `supabase/migrations/0008_admin_lab_match_result_actions.sql` permits
+  administrators to insert or update real results only for internal Lab
+  fixtures, without granting deletion.
 
 ## Runtime Environment
 
@@ -91,9 +94,9 @@ experimental output distinguishable from World Cup product predictions.
 The current admin screen reads internal fixtures, related teams, stored
 predictions, registered match results, and any persisted prediction
 evaluations through the authenticated server client. Worker status remains
-clearly labelled mock data. An authenticated admin may update only fixture
-review metadata from this screen. This is expressly not public league support
-or a version 2.0 launch.
+clearly labelled mock data. An authenticated admin may update fixture review
+metadata and create or edit real results for Lab fixtures from this screen.
+This is expressly not public league support or a version 2.0 launch.
 
 ## Data Intake Minimal
 
@@ -109,7 +112,7 @@ prediction version against that validated final result.
 
 If Supabase CLI is not available, verify this foundation only in an approved
 empty development project through Supabase SQL Editor: apply migration files
-in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`) and then run
+in numeric order (`0001`, `0002`, `0003`, `0004`, `0005`, `0006`, `0007`, `0008`) and then run
 `supabase/seed/seed.sql`. Confirm that rows marked `internal_lab` and
 `lab_only` remain for internal review only. Do not run the seed over production
 or any remote project with data that has not been approved for reset.
@@ -133,7 +136,8 @@ users. Migration `0005` narrows that policy to verified results whose related
 match is `public` or `premium` inside a `public_product` competition. Results
 for `internal_lab`, `lab_only`, and `admin_only` fixtures remain readable only
 through the admin policy. Only profiles with `role = 'admin'` can read
-unverified rows or create, update, and delete results.
+internal Lab rows or create and update Lab results; result deletion is not
+granted to the authenticated UI workflow.
 
 Because product-data read policies for `matches` and `competitions` are still
 deferred, `0005` does not independently expose verified product results. It
@@ -152,6 +156,12 @@ Only an authenticated administrator may update review fields on a `lab_only`
 match belonging to an `internal_lab` competition. Table privileges are reduced
 to `lab_status`, `data_quality`, `source_note`, `reviewed_at`, and
 `reviewed_by`; no general fixture update is granted.
+
+Migration `0008` replaces broad legacy mutation policies on `match_results`.
+Only an authenticated administrator may insert or update results whose match
+is `lab_only` within an `internal_lab` competition. Insert and update
+privileges are limited to result-entry columns, `match_id` cannot be changed
+after insertion, and delete access is not granted.
 
 ## Applying After Review
 
@@ -204,7 +214,7 @@ environment and valid values are set in `.env.local`:
 
 ## Not Implemented
 
-- Public product-data reads or writes, and admin writes beyond Lab fixture review metadata.
+- Public product-data reads or writes, and admin writes beyond Lab fixture review or match-result entry.
 - Public browsing or commercial access to Beta Lab competitions.
 - Social login, magic links, password reset, or profile editing.
 - Complete RLS/paywall enforcement.
