@@ -30,7 +30,14 @@ type LabMatch = Pick<
 >;
 type LabResult = Pick<
   MatchResultRow,
-  "match_id" | "home_goals" | "away_goals" | "verification_status"
+  | "match_id"
+  | "home_goals"
+  | "away_goals"
+  | "verification_status"
+  | "intake_source"
+  | "source_note"
+  | "reviewed_at"
+  | "reviewed_by"
 >;
 type LabPrediction = Pick<
   PredictionVersionRow,
@@ -166,7 +173,9 @@ export async function getAdminLabDashboardData(): Promise<LabDashboardData> {
     supabase.from("teams").select("id, name").in("id", teamIds),
     supabase
       .from("match_results")
-      .select("match_id, home_goals, away_goals, verification_status")
+      .select(
+        "match_id, home_goals, away_goals, verification_status, intake_source, source_note, reviewed_at, reviewed_by",
+      )
       .in("match_id", matchIds),
     supabase
       .from("prediction_versions")

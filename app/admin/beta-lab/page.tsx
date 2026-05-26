@@ -1,5 +1,5 @@
 import { AdminWorkerStatus } from "@/components/admin-worker-status";
-import { reviewLabFixtureAction } from "@/app/admin/beta-lab/actions";
+import { reviewLabFixtureAction, saveLabMatchResultAction } from "@/app/admin/beta-lab/actions";
 import { requireAdmin } from "@/lib/auth/session";
 import { workerRuns } from "@/lib/mock-data";
 import { getAdminLabDashboardData } from "@/lib/supabase/lab-queries";
@@ -15,13 +15,13 @@ function formatMetric(value: boolean | null) {
 }
 
 type BetaLabPageProps = {
-  searchParams: Promise<{ review?: string }>;
+  searchParams: Promise<{ review?: string; result?: string }>;
 };
 
 export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
   await requireAdmin("/admin/beta-lab");
 
-  const { review } = await searchParams;
+  const { review, result } = await searchParams;
   const labData = await getAdminLabDashboardData();
   const betaStatusLabels = {
     candidate: "candidato",
@@ -63,6 +63,23 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
   const reviewMessage = review && review in reviewMessages
     ? reviewMessages[review as keyof typeof reviewMessages]
     : null;
+  const resultMessages = {
+    saved: {
+      className: "border-[var(--accent)]/35 bg-[var(--accent)]/10 text-[var(--accent)]",
+      text: "Resultado real guardado correctamente.",
+    },
+    invalid: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "No se guardó el resultado: verifica goles, estado y fuente.",
+    },
+    error: {
+      className: "border-[var(--warning)]/35 bg-[var(--warning)]/10 text-[var(--warning)]",
+      text: "No se pudo guardar el resultado. Intenta nuevamente o revisa permisos.",
+    },
+  };
+  const resultMessage = result && result in resultMessages
+    ? resultMessages[result as keyof typeof resultMessages]
+    : null;
 
   return (
     <div className="space-y-6">
@@ -77,6 +94,12 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
       {reviewMessage ? (
         <p className={`rounded-lg border p-4 text-sm ${reviewMessage.className}`}>
           {reviewMessage.text}
+        </p>
+      ) : null}
+
+      {resultMessage ? (
+        <p className={`rounded-lg border p-4 text-sm ${resultMessage.className}`}>
+          {resultMessage.text}
         </p>
       ) : null}
 
@@ -173,6 +196,14 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
                           ? `Resultado: ${match.result.home_goals}-${match.result.away_goals} / ${resultStatusLabels[match.result.verification_status]}`
                           : "Resultado: pendiente"}
                       </p>
+                      {match.result ? (
+                        <p className="text-[var(--muted)]">
+                          Fuente resultado: {intakeSourceLabels[match.result.intake_source]}
+                          {match.result.reviewed_at
+                            ? ` / Revisado: ${new Date(match.result.reviewed_at).toLocaleString("es-CO")}`
+                            : ""}
+                        </p>
+                      ) : null}
                       <p className="font-mono text-[var(--muted)]">
                         {match.prediction
                           ? `${match.prediction.modelVersion} / ${match.prediction.runScope}`
@@ -244,6 +275,78 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
                         className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
                       >
                         Guardar revisión
+                      </button>
+                    </form>
+                    <form
+                      action={saveLabMatchResultAction}
+                      className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-4 lg:col-span-3 lg:grid-cols-[110px_110px_180px_160px_minmax(220px,1fr)_180px] lg:items-end"
+                    >
+                      <input type="hidden" name="matchId" value={match.id} />
+                      <label className="block text-xs text-[var(--muted)]">
+                        Goles local
+                        <input
+                          type="number"
+                          name="home_goals"
+                          min={0}
+                          step={1}
+                          defaultValue={match.result?.home_goals ?? 0}
+                          required
+                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        />
+                      </label>
+                      <label className="block text-xs text-[var(--muted)]">
+                        Goles visita
+                        <input
+                          type="number"
+                          name="away_goals"
+                          min={0}
+                          step={1}
+                          defaultValue={match.result?.away_goals ?? 0}
+                          required
+                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        />
+                      </label>
+                      <label className="block text-xs text-[var(--muted)]">
+                        Verificación
+                        <select
+                          name="verification_status"
+                          defaultValue={match.result?.verification_status ?? "pending_review"}
+                          required
+                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        >
+                          <option value="pending_review">Pendiente</option>
+                          <option value="verified">Verificado</option>
+                          <option value="rejected">Rechazado</option>
+                        </select>
+                      </label>
+                      <label className="block text-xs text-[var(--muted)]">
+                        Fuente
+                        <select
+                          name="intake_source"
+                          defaultValue={match.result?.intake_source ?? "manual"}
+                          required
+                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        >
+                          <option value="manual">Manual</option>
+                          <option value="mock">Mock</option>
+                          <option value="csv_import">CSV</option>
+                        </select>
+                      </label>
+                      <label className="block text-xs text-[var(--muted)]">
+                        Nota del resultado
+                        <input
+                          type="text"
+                          name="source_note"
+                          defaultValue={match.result?.source_note ?? ""}
+                          maxLength={500}
+                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                        />
+                      </label>
+                      <button
+                        type="submit"
+                        className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
+                      >
+                        Guardar resultado
                       </button>
                     </form>
                   </div>
