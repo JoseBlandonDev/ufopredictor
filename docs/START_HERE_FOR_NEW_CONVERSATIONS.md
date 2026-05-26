@@ -1,8 +1,8 @@
 # START HERE FOR NEW CONVERSATIONS — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
-This is the first document to read when starting a new ChatGPT or Codex conversation for UFO Predictor.
+This is the first document to read when starting a new ChatGPT, Codex, or handoff conversation for UFO Predictor.
 
 ## Current Baseline
 
@@ -12,13 +12,16 @@ Main includes work through:
 - PR #19 — `docs: update project context after lab admin flow`
 - PR #20 — `feat: read public predictions from db`
 - PR #21 — `feat: add plans entitlements backend`
+- PR #22 — `docs: update project context after c02`
+- PR #23 — `feat: read public match detail from db`
 
 Current baseline:
 
 ```txt
-main includes PR #21
+main includes PR #23
 C01 is done
 C02 is done
+C03 is done
 ```
 
 ## Supabase Remote State
@@ -26,13 +29,14 @@ C02 is done
 Supabase remote has been manually updated through:
 
 ```txt
-0012_plans_entitlements_backend.sql
+0013_public_match_detail_projection_hardening.sql
 ```
 
 Important applied migrations:
 
 - `0011_public_prediction_reads.sql`
 - `0012_plans_entitlements_backend.sql`
+- `0013_public_match_detail_projection_hardening.sql`
 
 ## Critical Supabase Rule
 
@@ -62,6 +66,28 @@ The AI explains.
 
 Do not use LLM output as the source of prediction probabilities. The model and database contracts must stay deterministic and auditable.
 
+## Codex Prompt Rule
+
+Every ChatGPT-generated Codex prompt for UFO Predictor must start with an execution card:
+
+```txt
+USO RECOMENDADO:
+- Herramienta:
+- Modelo/intensidad:
+- Modo:
+- Motivo:
+- Riesgo:
+- Scope permitido:
+- No tocar:
+- Validaciones:
+- Debo volver a ChatGPT cuando:
+
+PROMPT PARA CODEX:
+...
+```
+
+Codex is the controlled repository execution layer, not a general strategy LLM. ChatGPT handles planning, scope, review, documentation, and prompt generation. Antigravity and OpenCode are auxiliary tools only; they do not replace Codex for repo execution.
+
 ## Current Functional State
 
 ### `/admin/beta-lab`
@@ -85,9 +111,23 @@ Still mock:
 
 Operational public product surface.
 
-It now reads public predictions from Supabase using a safe public projection.
+It reads public predictions from Supabase through the explicit public projection:
 
-It only shows public/basic prediction data.
+```txt
+public_prediction_summaries
+```
+
+It only shows public/basic prediction data:
+
+- competition;
+- match;
+- teams;
+- venue;
+- kickoff;
+- public 1X2 probabilities;
+- confidence;
+- risk level;
+- link to public match detail.
 
 It does not expose:
 
@@ -95,7 +135,49 @@ It does not expose:
 - premium markets;
 - premium narratives;
 - prediction results/evaluations;
-- private admin data.
+- private admin data;
+- expected goals, scorelines, odds, or premium analysis.
+
+### `/matches/[slug]`
+
+Operational public/free-only match detail.
+
+It reads real public match data from Supabase through:
+
+```txt
+public_match_details
+public_prediction_summaries
+```
+
+It shows:
+
+- match slug;
+- kickoff;
+- status/stage;
+- competition name/slug;
+- home/away team names/slugs/logos/flags;
+- venue name/city;
+- public 1X2 prediction basics when available.
+
+Behavior:
+
+- public match with prediction: shows metadata and public 1X2/confidence/risk;
+- public match without prediction: shows an empty state;
+- nonexistent, internal, lab-only, or non-public slug: 404;
+- no mock fallback.
+
+It does not expose:
+
+- `prediction_markets`;
+- `prediction_narratives`;
+- `prediction_results`;
+- premium analysis;
+- expected goals;
+- scorelines;
+- BTTS;
+- over/under;
+- Golden Hour Delta;
+- Model vs Market.
 
 ### `/pricing`
 
@@ -123,15 +205,28 @@ It reads the signed-in user's real access state:
 
 It does not serve premium prediction content.
 
-### `/matches/[slug]`
+## Public Projection Hardening
 
-Still mock.
+C03 introduced `0013_public_match_detail_projection_hardening.sql`.
 
-This is the next recommended product surface to connect to real DB data, but only in a public/free-only way.
+This migration created explicit public views:
+
+- `public_match_details`
+- `public_prediction_summaries`
+
+Security posture after manual validation:
+
+- `anon` reads approved public views only.
+- `anon` no longer reads base public product tables directly.
+- `anon` cannot read `prediction_markets`.
+- `anon` cannot read `prediction_narratives`.
+- `anon` cannot read `prediction_results`.
+- public views expose only approved columns.
+- `authenticated` grants needed by Lab/Admin remain intentionally preserved for now.
 
 ## Current Product Strategy
 
-UFO Predictor is moving toward a beta/freemium organic phase before the World Cup.
+UFO Predictor is moving toward a controlled beta/freemium organic phase before the World Cup.
 
 The beta strategy is:
 
@@ -141,11 +236,9 @@ The beta strategy is:
 - use finals, friendlies, and pre-World Cup fixtures to learn organically;
 - keep premium access prepared but not overexposed.
 
-Free tiers for Supabase, Railway, and APIs may be enough for early beta, but paid infrastructure should be expected as usage grows.
-
 ## Plans And Access Strategy
 
-Do not create ten visible plans just because the database can technically survive it.
+Do not create many visible plans just because the database can support granular permissions.
 
 The commercial model should use few visible plans and granular internal permissions.
 
@@ -180,11 +273,11 @@ Admin can have explicit bypass only where a future server query deliberately per
 
 Still not implemented:
 
-- real `/matches/[slug]` data;
 - final premium enforcement;
-- public `prediction_markets`;
-- public `prediction_narratives`;
-- public `prediction_results`;
+- entitled/premium match detail sections;
+- public or entitled `prediction_markets`;
+- public or entitled `prediction_narratives`;
+- public or entitled `prediction_results`;
 - payments;
 - Stripe;
 - checkout;
@@ -199,30 +292,36 @@ Still not implemented:
 ## Recommended Next Epic
 
 ```txt
-feature/match-detail-public-from-db
+feature/premium-access-enforcement-skeleton
+```
+
+Suggested code:
+
+```txt
+C04 — Premium Access Enforcement Skeleton
 ```
 
 Goal:
 
-Connect `/matches/[slug]` to real Supabase data in a public/free-only way.
+Create the server-side enforcement skeleton for premium access before exposing any premium match detail data.
 
-Allowed:
+Allowed in C04:
 
-- real match;
-- competition;
-- teams;
-- venue;
-- kickoff;
-- stage/status;
-- public prediction basics if available.
+- inspect entitlement/access logic;
+- define free vs protected projection boundaries;
+- create pure access resolver tests if needed;
+- prepare server-only premium access checks;
+- keep premium data closed unless explicitly authorized by a safe server projection.
 
 Not allowed yet:
 
-- premium markets;
-- premium narratives;
-- prediction results/evaluations;
-- final paywall;
+- public `prediction_markets`;
+- public `prediction_narratives`;
+- public `prediction_results`;
+- final premium UI with real premium content;
 - payments;
+- Stripe;
+- checkout;
 - odds;
 - LLM;
 - workers;
@@ -231,11 +330,12 @@ Not allowed yet:
 ## Recommended Workflow For Next Conversation
 
 1. Start new ChatGPT conversation using updated docs.
-2. Ask Codex for recognition only.
-3. Codex should confirm main includes PR #21.
-4. Codex should inspect current state and propose C03 scope.
-5. Do not implement until ChatGPT reviews Codex's recognition.
-6. Keep all future migrations manual in Supabase SQL Editor.
+2. ChatGPT should generate a Codex recognition prompt with the execution card.
+3. Ask Codex for recognition only.
+4. Codex should confirm main includes PR #23.
+5. Codex should inspect C02 entitlements, C03 public projections, match detail, and current schema.
+6. Do not implement until ChatGPT reviews Codex's recognition.
+7. Keep all future migrations manual in Supabase SQL Editor.
 
 ## Active Source Priority
 
@@ -248,9 +348,9 @@ Prioritize these documents:
 - `EPIC_PROGRESS_MATRIX.md`
 - `NEXT_EPICS_PLAN.md`
 - `ROADMAP_AND_BACKLOG.md`
-- `DOCS_AND_SOURCES_INVENTORY.md`
 - `OPEN_DECISIONS.md`
 - `DATA_DICTIONARY.md`
 - `CODEX_WORKFLOW.md`
+- `DOCS_AND_SOURCES_INVENTORY.md`
 
 Treat older secondary documents as historical if they contradict active sources.

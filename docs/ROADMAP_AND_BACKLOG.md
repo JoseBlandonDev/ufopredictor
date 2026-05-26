@@ -1,20 +1,22 @@
 # ROADMAP AND BACKLOG — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 ## Current Phase
 
-UFO Predictor is transitioning from Lab foundation to public beta product foundation.
+UFO Predictor has moved from Lab foundation into public beta product foundation.
 
 Completed foundations:
 
 - internal Lab Admin Flow;
 - public predictions listing from DB;
-- plans and entitlements backend foundation.
+- plans and entitlements backend foundation;
+- public/free match detail from DB;
+- explicit public projection hardening for anonymous users.
 
 Next product need:
 
-- public/free match detail from DB.
+- premium access enforcement skeleton.
 
 ## Product Strategy
 
@@ -31,27 +33,38 @@ Strategy:
 
 ### 1. C03 — Match Detail Public From DB
 
+Status: Done.
+
 Branch:
 
 ```txt
 feature/match-detail-public-from-db
 ```
 
+Delivered:
+
+- real public `/matches/[slug]`;
+- `public_match_details`;
+- `public_prediction_summaries`;
+- public projection hardening with `0013`.
+
+### 2. C04 — Premium Access Enforcement Skeleton
+
+Branch:
+
+```txt
+feature/premium-access-enforcement-skeleton
+```
+
 Goal:
 
-Replace mock `/matches/[slug]` with real public/free DB data.
-
-### 2. Premium Access Enforcement
-
-Goal:
-
-Use C02 entitlement logic to ensure premium projections are filtered server-side.
+Use C02 entitlement logic to create safe server-side enforcement patterns before premium fields are exposed.
 
 ### 3. Entitled Match Detail Premium Projection
 
 Goal:
 
-Expose premium match sections only to authorized users.
+Expose premium match sections only to authorized users through backend-filtered projections.
 
 Possible premium sections later:
 
@@ -132,8 +145,8 @@ Prepare final staging and production release.
 
 ## Backlog: Product
 
-- Real public match detail.
 - Premium section design.
+- Free vs premium field boundary.
 - Entitlement-to-match resolver.
 - 10 match pack consumption model.
 - Team pass access rules.
@@ -145,20 +158,21 @@ Prepare final staging and production release.
 
 ## Backlog: Technical
 
-- Server-only match detail query.
-- Public match detail RLS if needed.
 - Premium-safe projection functions.
-- Audit existing broad grants without breaking Lab.
+- Entitlement-based match access resolver.
+- Audit existing broad authenticated grants without breaking Lab.
 - Real worker runtime.
 - Sports API provider adapter.
 - Odds provider adapter.
 - LLM narrative adapter.
 - Staging environment.
 - Observability/logging.
+- Data encoding cleanup for seeded team names such as `JapÃ³n` / `MÃ©xico`.
 
 ## Backlog: Documentation
 
 - Update active docs when switching major conversations.
 - Keep Supabase manual migration rule visible.
 - Keep current PR/migration baseline in `START_HERE` and `CURRENT_PROJECT_STATUS`.
+- Keep Codex Prompt Execution Card rule visible.
 - Treat secondary docs as historical when they conflict with active docs.

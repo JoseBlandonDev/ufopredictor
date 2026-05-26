@@ -1,6 +1,6 @@
 # EPIC PROGRESS MATRIX — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 ## Completed Milestones
 
@@ -12,6 +12,7 @@ _Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 | B06c | Lab Evaluation Persistence | Done | Persist/update prediction_results using model evaluation. |
 | C01 | Public Predictions From DB | Done | `/predictions` reads public_product data from Supabase. |
 | C02 | Plans & Entitlements Backend | Done | `/pricing` and `/dashboard` read real plan/access data. |
+| C03 | Match Detail Public From DB | Done | `/matches/[slug]` reads real public/free-only match detail from Supabase; public projection hardening added in `0013`. |
 
 ## Recent PR Mapping
 
@@ -21,18 +22,21 @@ _Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 | #19 | Update project context after Lab Admin Flow | Done |
 | #20 | Read public predictions from DB | Done |
 | #21 | Add plans entitlements backend | Done |
+| #22 | Update project context after C02 | Done |
+| #23 | Read public match detail from DB | Done |
 
 ## Current Foundation
 
 | Area | Status |
 |---|---|
-| Supabase schema | Present through migration `0012` remotely applied manually |
+| Supabase schema | Present through migration `0013` remotely applied manually |
 | Lab Admin Flow | Operational |
-| Public predictions listing | Real DB-backed |
+| Public predictions listing | Real DB-backed via `public_prediction_summaries` |
+| Public match detail | Real DB-backed via `public_match_details` + `public_prediction_summaries` |
 | Pricing catalog | Real DB-backed |
 | Dashboard access summary | Real DB-backed |
 | Entitlement pure logic | Implemented and tested |
-| Match detail | Mock |
+| Public projection hardening | Implemented for `anon` via explicit public views |
 | Premium content enforcement | Not implemented |
 | Payments | Not implemented |
 | Workers | Mock/not real |
@@ -44,29 +48,27 @@ _Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
 | Code | Epic | Recommended Branch | Status |
 |---|---|---|---|
-| C03 | Match Detail Public From DB | `feature/match-detail-public-from-db` | Next |
+| C04 | Premium Access Enforcement Skeleton | `feature/premium-access-enforcement-skeleton` | Next |
 
-## C03 Recommended Scope
+## C04 Recommended Scope
 
-Connect `/matches/[slug]` to real DB data using public/free-only projection.
+Create a server-side skeleton for premium access enforcement before serving premium match detail.
 
 Allowed:
 
-- match by slug;
-- competition;
-- teams;
-- venue;
-- kickoff;
-- stage/status;
-- public prediction basics if available.
+- inspect C02 entitlement logic;
+- inspect C03 public projections;
+- define free vs protected boundaries;
+- create or refine pure access helpers/tests;
+- prepare server-only filtering patterns;
+- keep premium data closed.
 
 Not allowed:
 
-- `prediction_markets` public access;
-- `prediction_narratives` public access;
-- `prediction_results` public access;
-- premium analysis;
-- final paywall;
+- public `prediction_markets` access;
+- public `prediction_narratives` access;
+- public `prediction_results` access;
+- actual premium content UI unless explicitly approved;
 - payments;
 - odds;
 - LLM;
@@ -77,8 +79,7 @@ Not allowed:
 
 | Candidate | Description | Dependency |
 |---|---|---|
-| Premium Access Enforcement | Server-side projection filtering for premium fields | C02, C03 |
-| Match Detail Premium Sections | Premium markets/narratives/results with entitlements | Premium enforcement |
+| Match Detail Premium Sections | Premium markets/narratives/results with entitlements | Premium enforcement skeleton |
 | Data Intake / Sports API | Real fixtures/results provider | Cost/provider decision |
 | Workers Runtime | Real scheduled jobs | Data provider + infra |
 | Odds Integration | Model vs market comparisons | Odds provider decision |
@@ -93,6 +94,7 @@ Not allowed:
 - The AI explains.
 - Supabase migrations are applied manually in SQL Editor.
 - Codex creates SQL files but does not apply remote migrations.
+- Every ChatGPT-to-Codex prompt must include the execution card.
 - No premium data should travel to the frontend without backend entitlement filtering.
 - Visual locks are not authorization.
 - `premium_user` role does not unlock everything.

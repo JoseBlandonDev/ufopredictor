@@ -1,6 +1,6 @@
 # DOCS AND SOURCES INVENTORY — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 ## Purpose
 
@@ -37,19 +37,40 @@ These may be useful, but active sources override them if there is a conflict:
 Main includes through:
 
 ```txt
-PR #21 — feat: add plans entitlements backend
+PR #23 — feat: read public match detail from db
 ```
 
 Completed:
 
 - C01 — Public Predictions From DB
 - C02 — Plans & Entitlements Backend
+- C03 — Match Detail Public From DB
 
 Supabase remote manually applied through:
 
 ```txt
-0012_plans_entitlements_backend.sql
+0013_public_match_detail_projection_hardening.sql
 ```
+
+## C03 Documentation Baseline
+
+C03 added:
+
+- DB-backed public/free-only `/matches/[slug]`;
+- `public_match_details` public view;
+- `public_prediction_summaries` public view;
+- `/predictions` reading from public projection;
+- public detail links from prediction cards;
+- 404 for non-public or nonexistent slugs;
+- empty state for public matches without public predictions.
+
+C03 did not add:
+
+- premium match detail;
+- public `prediction_markets`;
+- public `prediction_narratives`;
+- public `prediction_results`;
+- payments, Stripe, checkout, odds, LLM, workers, sports API, Google Auth, Supabase CLI, or staging.
 
 ## Operational Documentation Rules
 
@@ -66,22 +87,52 @@ For routine PRs, update only relevant technical docs if needed.
 
 For conversation handoff PRs, update the full active set.
 
+## Tool Usage Documentation Rule
+
+Active docs must preserve the Codex Prompt Execution Card rule.
+
+Every ChatGPT-generated Codex prompt must include:
+
+```txt
+USO RECOMENDADO:
+- Herramienta:
+- Modelo/intensidad:
+- Modo:
+- Motivo:
+- Riesgo:
+- Scope permitido:
+- No tocar:
+- Validaciones:
+- Debo volver a ChatGPT cuando:
+
+PROMPT PARA CODEX:
+...
+```
+
+This rule belongs primarily in:
+
+- `CODEX_WORKFLOW.md`
+- `START_HERE_FOR_NEW_CONVERSATIONS.md`
+- `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
+- `CODEX_HANDOFF_CURRENT.md`
+
 ## Current Full Refresh Reason
 
 This refresh is justified because the project completed:
 
-- PR #20 / C01: public predictions from DB;
-- PR #21 / C02: plans and entitlements backend;
-- manual remote migrations through 0012;
-- beta/freemium strategy clarification;
-- Supabase manual migration rule clarification.
+- PR #23 / C03: public match detail from DB;
+- manual remote migration through 0013;
+- public projection hardening;
+- Codex prompt execution card discipline;
+- post-C03 handoff into C04.
 
 ## Prompt Files
 
-Prompt files may be included for handoff convenience:
+Prompt files may be included for handoff convenience.
 
-- `PROMPT_NEW_CHATGPT_CONVERSATION_POST_C02.md`
-- `PROMPT_CODEX_RECOGNITION_POST_C02.md`
-- `PROMPT_CODEX_APPLY_SECOND_CONVERSATION_GUIDANCE.md`
+Suggested post-C03 prompt files:
 
-These are operational handoff aids, not architectural sources.
+- `PROMPT_NEW_CHATGPT_CONVERSATION_POST_C03.md`
+- `PROMPT_CODEX_RECOGNITION_C04.md`
+
+Prompt files are operational handoff aids, not architectural sources.

@@ -1,6 +1,6 @@
 # MODEL V01 — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 This is a secondary model reference.
 
@@ -18,11 +18,13 @@ The project has a deterministic prediction engine prototype and model evaluation
 
 Lab Admin can persist evaluation results using `lib/model-evaluation`.
 
-Public predictions read persisted `prediction_versions` from Supabase.
+Public predictions and public match detail read persisted public `prediction_versions` from Supabase through approved public projections.
 
 ## Public Product Current Use
 
 `/predictions` shows public 1X2 probabilities, confidence, and risk from DB-backed public prediction versions.
+
+`/matches/[slug]` can show the same public/basic prediction summary when a public prediction exists.
 
 ## What Is Not Yet Modeled In Production
 

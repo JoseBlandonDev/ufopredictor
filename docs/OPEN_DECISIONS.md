@@ -1,6 +1,6 @@
 # OPEN DECISIONS — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 ## D01 — Public vs Internal Scope
 
@@ -9,10 +9,9 @@ Current decision:
 - `internal_lab` remains internal.
 - `public_product` powers public product views.
 - `/predictions` uses only public/product-safe data.
+- `/matches/[slug]` now uses only public/free-safe data through explicit public views.
 
-Status: Partially resolved for C01.
-
-Still relevant for future match detail and premium projections.
+Status: Mostly resolved for public/free surfaces. Still relevant for premium projections.
 
 ## D02 — Supabase Migration Workflow
 
@@ -82,7 +81,7 @@ Possible rules:
 - `match` covers one exact match.
 - `quantity` supports match-pack consumption.
 
-Status: Open, likely needed before premium match detail.
+Status: Open, likely needed in C04/C05.
 
 ## D06 — Pack Consumption Model
 
@@ -110,6 +109,7 @@ Known premium candidates:
 - prediction markets;
 - narratives;
 - scorelines;
+- expected goals;
 - model vs market;
 - Golden Hour Delta;
 - deeper confidence/risk explanations;
@@ -173,3 +173,33 @@ Open question:
 When to create final staging and production release infrastructure.
 
 Status: Deferred until public beta scope is clearer.
+
+## D13 — Tool Usage / Codex Prompt Discipline
+
+Decision:
+
+ChatGPT is the planning, direction, review, and documentation layer.
+
+Codex is the controlled repository execution layer.
+
+Antigravity and OpenCode are auxiliary tools used to save capacity and use the right tool for the right job. They do not replace Codex for repository execution.
+
+Every ChatGPT-generated prompt for Codex must include the execution card:
+
+```txt
+USO RECOMENDADO:
+- Herramienta:
+- Modelo/intensidad:
+- Modo:
+- Motivo:
+- Riesgo:
+- Scope permitido:
+- No tocar:
+- Validaciones:
+- Debo volver a ChatGPT cuando:
+
+PROMPT PARA CODEX:
+...
+```
+
+Status: Resolved operating rule.

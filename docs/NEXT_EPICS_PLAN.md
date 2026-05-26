@@ -1,6 +1,6 @@
 # NEXT EPICS PLAN — UFO Predictor
 
-_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
+_Last updated: post PR #23 / C03 Match Detail Public From DB_
 
 ## Current Position
 
@@ -8,48 +8,46 @@ Completed:
 
 - C01 — Public Predictions From DB
 - C02 — Plans & Entitlements Backend
+- C03 — Match Detail Public From DB
 
 Current app state:
 
-- `/predictions` reads real public predictions.
+- `/predictions` reads real public predictions from `public_prediction_summaries`.
+- `/matches/[slug]` reads real public/free-only match detail from `public_match_details` and optional prediction data from `public_prediction_summaries`.
 - `/pricing` reads real active plans.
 - `/dashboard` reads real viewer access summary.
 - `/admin/beta-lab` remains operational.
-- `/matches/[slug]` remains mock.
 
-## Recommended Next Epic: C03
+## Recommended Next Epic: C04
 
 ```txt
-feature/match-detail-public-from-db
+feature/premium-access-enforcement-skeleton
 ```
 
-## C03 Goal
+## C04 Goal
 
-Connect `/matches/[slug]` to real Supabase data in a public/free-only way.
+Create the server-side premium access enforcement skeleton before exposing any premium match detail data.
 
-This is the next best product step because the public listing is now real, but clicking into a match still leads to mock data.
+C04 exists because C02 created entitlements and C03 created safe public match detail, but premium data still needs a hard backend access boundary before it can be served.
 
-## C03 Allowed Scope
+## C04 Allowed Scope
 
-- Fetch match by slug.
-- Fetch competition metadata.
-- Fetch home/away teams.
-- Fetch venue.
-- Fetch kickoff/status/stage.
-- Fetch public prediction version if available.
-- Render a public/basic detail page.
-- Keep the page safe for anonymous users.
-- Avoid premium fields entirely.
+- Inspect entitlement/access logic from C02.
+- Inspect public projection boundaries from C03.
+- Define free vs protected field boundaries.
+- Prepare server-only premium access query patterns.
+- Add or refine pure tests for entitlement/match access resolution.
+- Keep `prediction_markets`, `prediction_narratives`, and `prediction_results` closed publicly.
+- Keep `/matches/[slug]` public/free-only unless an explicitly safe protected projection is approved.
 
-## C03 Not Allowed
+## C04 Not Allowed
 
 Do not implement:
 
-- `prediction_markets` public access;
-- `prediction_narratives` public access;
-- `prediction_results` public access;
-- premium analysis;
-- final paywall enforcement;
+- public `prediction_markets` access;
+- public `prediction_narratives` access;
+- public `prediction_results` access;
+- final premium match detail UI;
 - payments;
 - Stripe;
 - checkout;
@@ -57,15 +55,16 @@ Do not implement:
 - LLM;
 - sports API;
 - real workers;
-- Lab Admin changes.
+- Google Auth;
+- Supabase CLI setup.
 
-## Why Not Premium Yet
+## Why Not Premium Detail Immediately
 
-C02 created access foundations, but premium projections are not implemented.
+C02 created access foundations, but premium serving still requires server-side projection filtering.
 
-Premium serving requires a separate enforcement layer that ensures protected fields never reach the browser without entitlement checks.
+C03 proved the pattern for public/free-only projections. C04 should extend the discipline to protected access without leaking premium fields.
 
-C03 should avoid premium entirely and focus on replacing mock detail with real public data.
+Visual locks are not authorization. Apparently this must be said because frontend locks are the cardboard doors of security.
 
 ## Product Strategy Context
 
@@ -77,16 +76,27 @@ The beta should:
 - build confidence organically;
 - avoid mass promotion until model performance, UX, infra, and costs are validated.
 
-## After C03
+## After C04
 
-Potential next sequence:
+Potential sequence:
 
-1. C03 — Match Detail Public From DB
-2. C04 — Premium Access Enforcement Skeleton
-3. C05 — Entitled Match Detail Premium Projection
-4. C06 — Data Intake / Sports API research or minimal integration
-5. C07 — Workers runtime
-6. Later — odds, LLM narratives, payments/Stripe, Google Auth
+1. C04 — Premium Access Enforcement Skeleton
+2. C05 — Entitled Match Detail Premium Projection
+3. C06 — Data Intake / Sports API research or minimal integration
+4. C07 — Workers runtime
+5. Later — odds, LLM narratives, payments/Stripe, Google Auth
+
+## Tool Discipline For C04
+
+Any prompt from ChatGPT to Codex must include the execution card.
+
+C04 should use:
+
+- Tool: Codex
+- Intensity: Alto/Fuerte
+- Mode: recognition first, no changes
+- Reason: premium enforcement touches authorization and possible premium leakage
+- Return to ChatGPT: after recognition and before implementation
 
 ## Supabase Rule For Every Future Epic
 
