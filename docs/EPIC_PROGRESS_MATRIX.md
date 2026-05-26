@@ -1,85 +1,99 @@
-# EPIC_PROGRESS_MATRIX.md — UFO Predictor
+# EPIC PROGRESS MATRIX — UFO Predictor
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+## Completed Milestones
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
-
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
-
-
----
-
-## Matriz de progreso
-
-| ID | Épica / tarea | Estado | Notas |
+| Code | Epic / Task | Status | Notes |
 |---|---|---|---|
-| A01 | Project context & docs foundation | Done | Fuentes iniciales creadas. |
-| A02 | Initial UFO Predictor prototype | Done | Prototipo Next/Tailwind inicial. |
-| A03 | Initial Supabase schema | Done | Schema base. |
-| A04 | Match season/competition integrity | Done | Integridad corregida. |
-| A05 | Supabase runtime clients | Done | Browser/server clients. |
-| A06 | Supabase auth and role guards | Done | Email/password + `free_user`/`admin`. |
-| B01 | Beta Lab Foundation | Done | `/admin/beta-lab` protegido. |
-| B02 | Data Intake Foundation | Done | Fixtures/resultados mínimos. |
-| B03 | Prediction Engine v0.1 Lab | Done | `lib/prediction-engine/` + tests. |
-| SEC01 | Restrict lab match results RLS | Done | RLS reforzada para resultados Lab. |
-| B04 | Model Evaluation Lab | Done | `lib/model-evaluation/` + tests. |
-| B05 | Lab Supabase Queries | Done | `/admin/beta-lab` lee datos reales. |
-| B06a | Lab Fixture Review Actions | Done | PR #15, migración `0007`. |
-| B06b | Lab Match Result Actions | Done | PR #16, migración `0008`. |
-| B06-pre | Seed Internal Lab Prediction Markets | Done | PR #17, migración `0009`. |
-| B06c | Lab Evaluation Persistence | Done | PR #18, migración `0010`. |
-| DOCS01 | Update context after Lab Admin Flow | Next | Sincronizar docs/fuentes. |
-| C01 | Public Predictions from DB | Next | Conectar `/predictions` a datos publicables. |
-| C02 | Plans & Entitlements Backend | Next | Base real free/premium/admin. |
-| C03 | Paywall Enforcement | Later | Backend gating, no solo UI. |
-| C04 | Transparency Real v0.1 | Later | Métricas desde `prediction_results`. |
-| C05 | Match Detail from DB | Later | `/matches/[slug]` real. |
-| C06 | Staging Deploy | Later | Deploy estable para QA. |
-| C07 | QA/Security Pass | Later | Revisión RLS, auth, rutas. |
-| D01 | Google Auth | Later | Mejora UX auth. |
-| D02 | Supabase CLI Local Setup | Later | Flujo local sano. |
-| E01 | Sports API ingestion | Later | Datos externos reales. |
-| E02 | Odds ingestion | Later | Mercado/cuotas. |
-| E03 | Worker pipeline | Later | Automatización. |
-| E04 | LLM narrative | Later | IA explica outputs ya calculados. |
-| E05 | Payments | Later | Comercialización real. |
+| B06a | Lab Fixture Review Actions | Done | Admin review fields/actions for Lab fixtures. |
+| B06b | Lab Match Result Actions | Done | Admin can create/edit match results. |
+| B06-pre | Seed Internal Lab Prediction Markets | Done | Internal Lab prediction markets seeded/readable. |
+| B06c | Lab Evaluation Persistence | Done | Persist/update prediction_results using model evaluation. |
+| C01 | Public Predictions From DB | Done | `/predictions` reads public_product data from Supabase. |
+| C02 | Plans & Entitlements Backend | Done | `/pricing` and `/dashboard` read real plan/access data. |
 
----
+## Recent PR Mapping
 
-## Estado por bloque
+| PR | Scope | Status |
+|---:|---|---|
+| #18 | Persist Lab evaluations | Done |
+| #19 | Update project context after Lab Admin Flow | Done |
+| #20 | Read public predictions from DB | Done |
+| #21 | Add plans entitlements backend | Done |
 
-### Fundación
+## Current Foundation
 
-Estado: **cerrada para MVP interno**.
+| Area | Status |
+|---|---|
+| Supabase schema | Present through migration `0012` remotely applied manually |
+| Lab Admin Flow | Operational |
+| Public predictions listing | Real DB-backed |
+| Pricing catalog | Real DB-backed |
+| Dashboard access summary | Real DB-backed |
+| Entitlement pure logic | Implemented and tested |
+| Match detail | Mock |
+| Premium content enforcement | Not implemented |
+| Payments | Not implemented |
+| Workers | Mock/not real |
+| Sports API | Not implemented |
+| Odds | Not implemented |
+| LLM | Not implemented |
 
-### Lab interno
+## Active / Next Epic
 
-Estado: **cerrado en núcleo operativo**.
+| Code | Epic | Recommended Branch | Status |
+|---|---|---|---|
+| C03 | Match Detail Public From DB | `feature/match-detail-public-from-db` | Next |
 
-El Lab ya permite:
+## C03 Recommended Scope
 
-```txt
-fixture review + match result entry + prediction markets + evaluation persistence
-```
+Connect `/matches/[slug]` to real DB data using public/free-only projection.
 
-### Producto público
+Allowed:
 
-Estado: **pendiente**.
+- match by slug;
+- competition;
+- teams;
+- venue;
+- kickoff;
+- stage/status;
+- public prediction basics if available.
 
-Superficies públicas siguen mock/parciales:
+Not allowed:
 
-- `/predictions`;
-- `/matches/[slug]`;
-- `/pricing`;
-- `/transparency`.
+- `prediction_markets` public access;
+- `prediction_narratives` public access;
+- `prediction_results` public access;
+- premium analysis;
+- final paywall;
+- payments;
+- odds;
+- LLM;
+- workers;
+- sports API.
 
----
+## Future Epics Candidate Queue
 
-## Siguiente foco
+| Candidate | Description | Dependency |
+|---|---|---|
+| Premium Access Enforcement | Server-side projection filtering for premium fields | C02, C03 |
+| Match Detail Premium Sections | Premium markets/narratives/results with entitlements | Premium enforcement |
+| Data Intake / Sports API | Real fixtures/results provider | Cost/provider decision |
+| Workers Runtime | Real scheduled jobs | Data provider + infra |
+| Odds Integration | Model vs market comparisons | Odds provider decision |
+| LLM Explanations | Narrative explanation layer | Model outputs + premium rules |
+| Payments / Stripe | Checkout/subscriptions | Product/pricing decision |
+| Google Auth | Social login | Auth decision |
+| Staging | Deployment/staging hardening | Infra readiness |
 
-1. Actualizar documentación.
-2. Definir criterio `internal_lab → public_product`.
-3. Implementar `feature/public-predictions-from-db`.
+## Important Project Rules
+
+- The model calculates.
+- The AI explains.
+- Supabase migrations are applied manually in SQL Editor.
+- Codex creates SQL files but does not apply remote migrations.
+- No premium data should travel to the frontend without backend entitlement filtering.
+- Visual locks are not authorization.
+- `premium_user` role does not unlock everything.
+- Active subscription alone does not unlock protected content.

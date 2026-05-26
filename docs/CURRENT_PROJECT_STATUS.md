@@ -1,158 +1,288 @@
-# CURRENT_PROJECT_STATUS.md — UFO Predictor
+# CURRENT PROJECT STATUS — UFO Predictor
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+## Executive Summary
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+UFO Predictor has completed the internal Lab Admin Flow, public predictions from DB, and the backend foundation for plans and entitlements.
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
-
-
----
-
-## Estado ejecutivo
-
-UFO Predictor ya tiene un **MVP interno de Lab para desarrolladores/admin**. No es aún MVP público/comercial.
-
-El flujo interno funciona así:
+Current baseline:
 
 ```txt
-/admin/beta-lab
-  → lee fixtures internos Lab
-  → permite revisión admin
-  → permite crear/editar resultados reales
-  → lee predicciones internas y markets persistidos
-  → calcula evaluación con lib/model-evaluation
-  → persiste/actualiza prediction_results
+main includes PR #21: feat: add plans entitlements backend
 ```
 
----
+The project now has:
 
-## Estado Git / PRs recientes
+- internal Lab workflow using Supabase;
+- public predictions listing from Supabase;
+- public beta plans catalog from Supabase;
+- authenticated dashboard access summary from Supabase;
+- pure entitlement logic with tests;
+- manual Supabase migrations applied through `0012`.
 
-Mergeado en `main`:
+The next recommended feature is:
 
 ```txt
-#15 feat: add lab fixture review actions
-#16 feat: add lab match result actions
-#17 chore: seed internal lab prediction markets
-#18 feat: persist lab evaluations
+feature/match-detail-public-from-db
 ```
 
----
+This should connect `/matches/[slug]` to real DB data in a public/free-only way.
 
-## Estado Supabase remoto
+## Recent PRs
 
-Migraciones aplicadas manualmente hasta:
+| PR | Title | Status |
+|---:|---|---|
+| #18 | `feat: persist lab evaluations` | Done |
+| #19 | `docs: update project context after lab admin flow` | Done |
+| #20 | `feat: read public predictions from db` | Done |
+| #21 | `feat: add plans entitlements backend` | Done |
+
+## Supabase Remote State
+
+Remote Supabase has been updated manually through:
 
 ```txt
-0010_admin_lab_evaluation_persistence.sql
+0012_plans_entitlements_backend.sql
 ```
 
-Migraciones relevantes recientes:
+Important applied migrations:
+
+| Migration | Purpose | Remote Applied |
+|---|---|---|
+| `0011_public_prediction_reads.sql` | Public read policies for public predictions | Yes, manually |
+| `0012_plans_entitlements_backend.sql` | Plans and own-row entitlement reads | Yes, manually |
+
+## Supabase Migration Rule
+
+Supabase CLI local is not configured.
+
+Codex does not apply migrations to remote Supabase.
+
+Codex may create SQL migration files, but the user must apply them manually in Supabase SQL Editor.
+
+Do not treat a migration as active until manual application and validation are confirmed.
+
+Required validation after migration:
+
+1. Inspect SQL.
+2. Apply in Supabase SQL Editor.
+3. Validate policies in `pg_policies`.
+4. Validate grants.
+5. Validate `anon` and `authenticated` behavior.
+6. Validate UI.
+7. Run `npm run test`, `npm run lint`, and `npm run build`.
+8. Restore `next-env.d.ts` if modified by build.
+
+## Current Route Status
+
+| Route | Status |
+|---|---|
+| `/` | Prototype landing page, still contains simulated featured predictions |
+| `/predictions` | Real public predictions from Supabase |
+| `/pricing` | Real active plans catalog from Supabase |
+| `/dashboard` | Authenticated viewer access summary from Supabase |
+| `/admin` | Admin shell, partially mock |
+| `/admin/beta-lab` | Internal Lab workflow operational |
+| `/matches/[slug]` | Still mock |
+| `/transparency` | Still simulated transparency metrics |
+| `/login`, `/register`, `/auth/callback` | Auth foundation present |
+
+## `/admin/beta-lab`
+
+Current real capabilities:
+
+- reads Lab fixtures from Supabase;
+- supports fixture review;
+- supports match result creation/editing;
+- reads internal `prediction_markets`;
+- persists/updates `prediction_results`;
+- displays readiness and persisted evaluation metrics.
+
+Still mock:
+
+- worker runs.
+
+## `/predictions`
+
+Implemented by C01.
+
+Reads public predictions from Supabase.
+
+Safety constraints:
+
+- only public product competitions;
+- only public matches;
+- only public product prediction versions;
+- no Lab data;
+- no premium markets;
+- no premium narratives;
+- no prediction results;
+- no premium analysis.
+
+Relevant files:
+
+- `app/predictions/page.tsx`
+- `components/public-prediction-card.tsx`
+- `lib/supabase/public-prediction-queries.ts`
+- `supabase/migrations/0011_public_prediction_reads.sql`
+
+## `/pricing`
+
+Implemented by C02.
+
+Reads active visible plans and public plan features from Supabase.
+
+Current constraints:
+
+- no checkout;
+- no payments;
+- no Stripe;
+- no purchase flow;
+- plan features are treated as public catalog/marketing values.
+
+Relevant files:
+
+- `app/pricing/page.tsx`
+- `components/plan-card.tsx`
+- `lib/supabase/entitlement-queries.ts`
+- `supabase/migrations/0012_plans_entitlements_backend.sql`
+
+## `/dashboard`
+
+Implemented by C02 as a real access summary.
+
+Reads:
+
+- current profile role;
+- active subscriptions;
+- current entitlements;
+- current match unlocks.
+
+It does not serve premium prediction content.
+
+Relevant files:
+
+- `app/dashboard/page.tsx`
+- `lib/supabase/entitlement-queries.ts`
+- `lib/permissions/entitlements.ts`
+
+## Entitlements Foundation
+
+C02 added pure access logic.
+
+Access sources:
+
+- `public_basic_access`
+- `beta_free_access`
+- `entitlement_access`
+- `admin_access`
+- `none`
+
+Important rules:
+
+- `premium_user` role does not unlock all content by itself.
+- Active subscription does not unlock protected content by itself.
+- Protected access requires entitlement or match unlock unless an explicit admin/beta rule applies.
+- Beta free access must be assembled server-side, never from client input.
+
+Tests:
+
+- `lib/permissions/entitlements.test.ts`
+
+## Product Strategy
+
+UFO Predictor is preparing for a beta/freemium organic phase before the World Cup.
+
+The beta should:
+
+- show useful free value;
+- avoid giving away all premium data;
+- avoid mass advertising until the model, UX, infrastructure, and costs are validated;
+- allow organic testing with finals, friendlies, and pre-World Cup fixtures.
+
+Infrastructure may begin on free tiers, but costs are expected later for:
+
+- Supabase;
+- Railway;
+- sports data APIs;
+- odds APIs;
+- LLM usage if added;
+- workers and cron.
+
+## Plans Strategy
+
+The product should avoid too many public-facing plans.
+
+Visible plans should be few and understandable.
+
+Potential plan types:
+
+- Free
+- 10 Match Pack
+- World Cup Pass
+- Team Pass
+- Semifinals / Final Pass
+- Premium Monthly later
+
+Internal access should be granular:
+
+- competition entitlement;
+- stage entitlement;
+- team entitlement;
+- match unlock;
+- quantity / pack consumption.
+
+Future work must define how those entitlements translate into access to concrete matches.
+
+## Not Implemented Yet
+
+Still missing:
+
+- real `/matches/[slug]`;
+- final premium enforcement;
+- public/premium-safe `prediction_markets`;
+- public/premium-safe `prediction_narratives`;
+- public/premium-safe `prediction_results`;
+- payments;
+- Stripe;
+- checkout;
+- odds;
+- LLM;
+- real workers;
+- sports API;
+- Google Auth;
+- Supabase CLI local;
+- staging final.
+
+## Recommended Next Epic
 
 ```txt
-0007_admin_lab_fixture_review_actions.sql
-0008_admin_lab_match_result_actions.sql
-0009_seed_internal_lab_prediction_markets.sql
-0010_admin_lab_evaluation_persistence.sql
+feature/match-detail-public-from-db
 ```
 
-### RLS / grants recientes
+Goal:
 
-- `matches`: update admin-only para campos de revisión Lab.
-- `match_results`: insert/update admin-only para resultados Lab verificados o pendientes; sin delete.
-- `prediction_markets`: select admin-only para markets internos Lab.
-- `prediction_results`: insert/update admin-only para evaluaciones Lab; sin delete.
-- Grants de escritura limitados por columna donde aplica.
+Connect `/matches/[slug]` to Supabase using only public/free data.
 
----
+Allowed:
 
-## Funcionalidades operativas
+- match metadata;
+- competition;
+- home/away teams;
+- venue;
+- kickoff;
+- stage/status;
+- public prediction basics.
 
-### App y auth
+Not allowed:
 
-- Next.js App Router.
-- Supabase remoto conectado.
-- Auth email/password.
-- Roles `free_user` y `admin`.
-- `/dashboard` y `/admin` protegidos.
-- `/admin/beta-lab` requiere admin.
-
-### Lab Admin
-
-`/admin/beta-lab` ya permite:
-
-- leer fixtures Lab reales desde Supabase;
-- mostrar equipos, competiciones, predicciones, model versions, resultados y evaluaciones;
-- revisar fixtures:
-  - `lab_status`;
-  - `data_quality`;
-  - `source_note`;
-  - `reviewed_at`;
-  - `reviewed_by`;
-- crear/editar `match_results`:
-  - goles local/visita;
-  - `verification_status`;
-  - `intake_source`;
-  - `source_note`;
-  - `reviewed_at`;
-  - `reviewed_by`;
-- leer `prediction_markets` internos Lab;
-- persistir/actualizar `prediction_results` usando `lib/model-evaluation/`.
-
-### Motor y evaluación
-
-- `lib/prediction-engine/` existe y tiene tests.
-- `lib/model-evaluation/` existe y tiene tests.
-- B06c usa `evaluatePrediction()` para persistir métricas.
-- La UI admin **no ejecuta Prediction Engine** ni genera nuevas predicciones.
-
----
-
-## Datos actuales relevantes
-
-- Hay fixtures Lab `lab_only`.
-- Hay competiciones `internal_lab`.
-- Hay `prediction_versions` internas.
-- Hay `prediction_markets` mínimos para Lab:
-  - `btts` yes/no;
-  - `over_2_5` over/under.
-- Hay `match_results` para fixtures Lab.
-- Hay al menos una evaluación persistida en `prediction_results`.
-
----
-
-## Sigue mock / no implementado
-
-- `workerRuns` sigue mock.
-- No hay workers reales.
-- No hay API deportiva.
-- No hay odds reales.
-- No hay LLM real.
-- No hay pagos.
-- No hay Google Auth.
-- No hay Supabase CLI local.
-- No hay predicciones públicas desde DB.
-- No hay backend de entitlements/paywall.
-- No hay staging final.
-- No hay Transparency real conectada a métricas.
-
----
-
-## Siguiente recomendación
-
-Después de actualizar docs, seguir con:
-
-```txt
-feature/public-predictions-from-db
-```
-
-Decisión previa necesaria:
-
-```txt
-Definir qué prediction_versions pasan de internal_lab a public_product.
-```
-
-No publicar datos Lab internos por accidente. Parece obvio, lo que significa que alguien lo rompería si no lo escribimos.
+- premium markets;
+- premium narratives;
+- prediction results/evaluations;
+- final paywall;
+- payments;
+- odds;
+- LLM;
+- workers;
+- API sports integration.

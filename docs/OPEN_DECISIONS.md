@@ -1,138 +1,175 @@
-# OPEN_DECISIONS.md — UFO Predictor
+# OPEN DECISIONS — UFO Predictor
 
-# UFO Predictor — estado actualizado post Lab Admin Flow
+_Last updated: post PR #21 / C02 Plans & Entitlements Backend_
 
-Actualizado después de mergear PR #18 (`feat: persist lab evaluations`).
+## D01 — Public vs Internal Scope
 
-Principio permanente: **el modelo estadístico calcula. La IA explica.**
+Current decision:
 
-UFO Predictor no es casa de apuestas, no recibe apuestas y no promete ganancias.
+- `internal_lab` remains internal.
+- `public_product` powers public product views.
+- `/predictions` uses only public/product-safe data.
 
+Status: Partially resolved for C01.
 
----
+Still relevant for future match detail and premium projections.
 
-## Decisiones abiertas prioritarias
+## D02 — Supabase Migration Workflow
 
-### D01 — Criterio para publicar predicciones
+Decision:
 
-Antes de `feature/public-predictions-from-db`, decidir:
+Supabase CLI local is not configured.
 
-```txt
-¿Qué prediction_versions pasan de internal_lab a public_product?
-```
+Codex creates migration SQL files but does not apply remote migrations.
 
-Opciones:
+The user applies every remote migration manually in Supabase SQL Editor.
 
-1. Usar `prediction_versions.run_scope = 'public_product'`.
-2. Crear acción admin para promover predicción interna a pública.
-3. Crear seed inicial de predicciones publicables para MVP.
-4. Crear tabla/campo adicional de publicación.
+Every migration must include manual validation queries.
 
-Recomendación inicial:
+Status: Resolved as operating rule.
 
-- usar scope explícito;
-- no exponer `internal_lab`;
-- empezar read-only;
-- no agregar flujo de publicación complejo hasta tener C01 funcionando.
+## D03 — Beta/Freemium Strategy
 
----
+Decision:
 
-### D02 — Qué ve un usuario free vs premium
+Run a controlled organic beta/freemium phase before the World Cup.
 
-Definir campos visibles para:
+The beta should:
 
-- visitante anónimo;
-- `free_user`;
-- premium futuro;
-- admin.
+- show useful free value;
+- avoid giving away all premium data;
+- avoid mass advertising until validation improves;
+- use finals, friendlies, and pre-World Cup fixtures for learning.
 
-Ejemplo:
+Status: Current product direction.
 
-| Dato | Free | Premium |
-|---|---:|---:|
-| 1X2 básico | Sí | Sí |
-| confidence | Limitado | Sí |
-| top scorelines | Limitado | Sí |
-| BTTS/OU | Quizá limitado | Sí |
-| explicación IA | No o teaser | Sí |
+## D04 — Plans vs Permissions
 
-Nada premium debe viajar al frontend si el usuario no tiene permiso.
+Decision:
 
----
+Use few visible commercial plans and granular internal permissions.
 
-### D03 — Paywall backend vs visual
+Possible visible plans:
 
-Decisión recomendada:
+- Free
+- 10 Match Pack
+- World Cup Pass
+- Team Pass
+- Semifinals / Final Pass
+- Premium Monthly later
 
-```txt
-Paywall debe aplicarse en backend/query layer, no solo en componentes UI.
-```
+Internal permission models:
 
----
+- competition entitlement;
+- stage entitlement;
+- team entitlement;
+- match unlock;
+- quantity / pack consumption.
 
-### D04 — Transparencia pública
+Status: Direction accepted; exact entitlement-to-match mapping remains open.
 
-Decidir si `/transparency` inicialmente muestra:
+## D05 — Entitlement To Match Resolver
 
-1. métricas Lab internas;
-2. métricas solo publicables;
-3. métricas agregadas mixtas pero sin revelar Lab.
+Open question:
 
-Recomendación: empezar con métricas publicables o claramente etiquetadas como Lab/Internal.
+How should each entitlement type translate to actual match access?
 
----
+Possible rules:
 
-### D05 — Staging
+- `competition` covers all matches in a competition.
+- `stage` covers matches in a given stage.
+- `team` covers matches involving a team.
+- `match` covers one exact match.
+- `quantity` supports match-pack consumption.
 
-Decidir plataforma y ambiente:
+Status: Open, likely needed before premium match detail.
 
-- Vercel para app;
-- Supabase remoto separado para staging o usar proyecto actual con cuidado;
-- variables `.env` gestionadas fuera del repo.
+## D06 — Pack Consumption Model
 
----
+Open question:
 
-### D06 — Supabase CLI local
+For a 10 Match Pack, should the system:
 
-Pendiente decidir cuándo invertir en CLI local.
+1. store a quantity entitlement and decrement usage, or
+2. create explicit `user_match_unlocks` when the user chooses matches?
 
-Pros:
+Current recommendation:
 
-- migraciones reproducibles;
-- menos SQL manual;
-- resets locales.
+Use explicit `user_match_unlocks` after the user selects matches, because it is clearer and auditable.
 
-Contras:
+Status: Open.
 
-- tiempo de setup;
-- riesgo de distracción antes de C01.
+## D07 — Premium Content Boundaries
 
-Recomendación: hacerlo antes de muchas migraciones públicas/paywall, pero no bloquear C01 si el flujo manual sigue controlado.
+Open question:
 
----
+Which fields are free and which are premium?
 
-### D07 — Google Auth
+Known premium candidates:
 
-No bloquea MVP interno ni C01.
+- prediction markets;
+- narratives;
+- scorelines;
+- model vs market;
+- Golden Hour Delta;
+- deeper confidence/risk explanations;
+- post-result evaluation.
 
-Recomendación: después de definir producto público y entitlements.
+Status: Open. Must be resolved before serving premium match details.
 
----
+## D08 — Sports Data Provider
 
-### D08 — Workers/API/Odds
+Open question:
 
-No mezclar con C01.
+Which sports API provider should be used?
 
-Primero producto público desde datos ya controlados. Luego automatización.
+Criteria:
 
----
+- World Cup coverage;
+- fixture quality;
+- results speed;
+- pricing;
+- quotas;
+- reliability.
 
-## Decisiones ya tomadas
+Status: Not selected.
 
-- El Lab es interno/admin.
-- El modelo estadístico calcula.
-- La IA explica.
-- No hay apuestas ni promesas de ganancia.
-- Server Actions admin usan sesión real, no service role.
-- RLS y grants por columna son obligatorios para escrituras admin sensibles.
-- `workerRuns` sigue mock hasta épica de workers reales.
+## D09 — Odds Provider
+
+Open question:
+
+Whether to integrate odds, and with which provider.
+
+Status: Not selected.
+
+## D10 — LLM Narrative Strategy
+
+Open question:
+
+When to add LLM explanations and how much of them should be premium.
+
+Current rule:
+
+The model calculates. The AI explains.
+
+Status: Deferred.
+
+## D11 — Payments
+
+Open question:
+
+When to implement payments/Stripe.
+
+Current direction:
+
+Not during early beta unless product readiness and demand justify it.
+
+Status: Deferred.
+
+## D12 — Staging / Production Readiness
+
+Open question:
+
+When to create final staging and production release infrastructure.
+
+Status: Deferred until public beta scope is clearer.
