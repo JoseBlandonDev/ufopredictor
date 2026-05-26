@@ -6,7 +6,7 @@ export default function NotFound() {
       <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Señal perdida</p>
       <h1 className="mt-4 text-4xl font-semibold">Partido no encontrado</h1>
       <p className="mt-3 text-[var(--muted)]">
-        La predicción solicitada no está en la cartelera simulada del Mundial 2026.
+        El partido solicitado no está disponible en la cartelera pública.
       </p>
       <Link
         href="/predictions"

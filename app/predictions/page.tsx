@@ -32,7 +32,7 @@ export default async function PredictionsPage() {
         <div className="grid gap-4 xl:grid-cols-2">
           {data.predictions.map((prediction) => (
             <PublicPredictionCard
-              key={prediction.predictionVersionId}
+              key={prediction.matchSlug}
               prediction={prediction}
             />
           ))}
