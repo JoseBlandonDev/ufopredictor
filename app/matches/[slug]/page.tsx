@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ProbabilityBar } from "@/components/probability-bar";
 import { RiskBadge } from "@/components/risk-badge";
 import { getPublicMatchDetailData } from "@/lib/supabase/public-match-detail-queries";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { MatchRow } from "@/types/database";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +21,10 @@ const statusLabels: Record<MatchRow["status"], string> = {
 export default async function MatchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const data = await getPublicMatchDetailData(slug);
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (data.status === "not_found") {
     notFound();
@@ -34,7 +40,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   }
 
   const { match } = data;
-  const kickoff = new Intl.DateTimeFormat("es-CO", {
+  const kickoff = new Intl.DateTimeFormat("en", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "America/Bogota",
@@ -45,7 +51,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
     <div className="space-y-6">
       <section className="panel rounded-lg p-5">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          {match.competitionName} {match.stage ? `· ${match.stage}` : ""}
+          {match.competitionName} {match.stage ? `- ${match.stage}` : ""}
         </p>
         <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
           <h1 className="text-3xl font-semibold">
@@ -93,7 +99,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
           </div>
           <p className="mt-5 text-xs text-[var(--muted)]">
             Publicada el{" "}
-            {new Intl.DateTimeFormat("es-CO", {
+            {new Intl.DateTimeFormat("en", {
               dateStyle: "medium",
               timeStyle: "short",
               timeZone: "America/Bogota",
@@ -110,10 +116,48 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         </section>
       )}
 
+      <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+          {user ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
+        </p>
+        <h2 className="mt-2 text-lg font-semibold">
+          {user
+            ? "Los previews seleccionados aparecerán antes del Mundial cuando este partido esté habilitado."
+            : "Crea una cuenta gratis para acceder a previews seleccionados antes del Mundial."}
+        </h2>
+        <p className="mt-2 text-sm text-[var(--muted)]">
+          El análisis premium llegará más adelante.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
+            >
+              Abrir panel
+            </Link>
+          ) : (
+            <>
+              <Link
+                href={`/register?next=/matches/${match.matchSlug}`}
+                className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
+              >
+                Crear cuenta gratis
+              </Link>
+              <Link
+                href={`/login?next=/matches/${match.matchSlug}`}
+                className="rounded-md border border-white/15 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Iniciar sesión
+              </Link>
+            </>
+          )}
+        </div>
+      </section>
+
       <section className="panel rounded-lg p-5">
         <p className="text-sm text-[var(--muted)]">
-          Esta vista expone únicamente información pública básica del partido y probabilidades
-          calculadas por el modelo estadístico cuando están disponibles.
+          Esta página solo expone metadata pública básica del partido y probabilidades del modelo cuando están disponibles.
         </p>
       </section>
     </div>

@@ -13,7 +13,7 @@ type DashboardPageProps = {
 
 const roleLabels = {
   admin: "Administrador",
-  free_user: "Cuenta gratuita",
+  free_user: "Cuenta gratis",
   premium_user: "Cuenta premium futura",
 };
 
@@ -22,9 +22,7 @@ function dateLabel(value: string | null) {
     return "Sin vencimiento";
   }
 
-  return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" }).format(
-    new Date(value),
-  );
+  return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" }).format(new Date(value));
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
@@ -36,22 +34,29 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     <div className="space-y-6">
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">
-            Panel
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold">Consola del observador</h1>
+          <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Panel</p>
+          <h1 className="mt-3 text-4xl font-semibold">Panel de observador</h1>
           <p className="mt-3 max-w-2xl text-[var(--muted)]">
-            Sesión activa para <span className="text-white">{user.email}</span>. Tu
-            estado de acceso se consulta de forma segura; la beta todavía no sirve
-            contenido premium.
+            Sesión activa para <span className="text-white">{user.email}</span>. El estado de acceso
+            se valida server-side y los payloads premium permanecen fuera de esta fase.
           </p>
         </div>
         <LogoutButton />
       </section>
 
+      <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
+        <h2 className="text-lg font-semibold">Tu acceso gratis</h2>
+        <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+          <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
+          <li>Los previews seleccionados previos al Mundial se habilitarán para cuentas gratis.</li>
+          <li>El seguimiento de partidos y favoritos llegará próximamente.</li>
+          <li>Los planes premium y el análisis avanzado llegarán más adelante.</li>
+        </ul>
+      </section>
+
       {params.error === "admin-access-required" ? (
         <p className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4 text-sm text-[var(--warning)]">
-          Tu perfil no tiene permisos de administrador para acceder a esa sección.
+          Tu perfil no tiene permisos de administrador para esa sección.
         </p>
       ) : null}
 
@@ -64,24 +69,23 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <h2 className="text-lg font-semibold">Estado de acceso</h2>
               <p className="mt-3 font-mono text-2xl">{roleLabels[summary.role]}</p>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                Suscripciones activas: {summary.activeSubscriptions.length}. El rol de
-                perfil por sí solo no desbloquea contenido protegido.
+                Suscripciones activas: {summary.activeSubscriptions.length}. El rol de perfil por sí solo
+                no desbloquea contenido protegido.
               </p>
               <Link
                 href="/pricing"
                 className="mt-5 inline-block rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)] shadow-[0_0_20px_rgba(0,215,255,0.2)]"
               >
-                Ver planes beta
+                Ver ruta de planes
               </Link>
             </section>
 
             <section className="panel rounded-lg p-5">
-              <h2 className="text-lg font-semibold">Entitlements vigentes</h2>
+              <h2 className="text-lg font-semibold">Derechos actuales</h2>
               <div className="mt-4 space-y-3">
                 {summary.entitlements.length === 0 ? (
                   <p className="text-sm text-[var(--muted)]">
-                    No tienes derechos adicionales vigentes. Mantienes el acceso público
-                    básico disponible en la beta.
+                    Aún no tienes derechos adicionales. El acceso público básico sigue disponible.
                   </p>
                 ) : (
                   summary.entitlements.map((entitlement) => (
@@ -104,12 +108,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
 
           <section className="panel rounded-lg p-5">
-            <h2 className="text-lg font-semibold">Desbloqueos de partido vigentes</h2>
+            <h2 className="text-lg font-semibold">Partidos desbloqueados</h2>
             <div className="mt-4 space-y-3">
               {summary.matchUnlocks.length === 0 ? (
                 <p className="text-sm text-[var(--muted)]">
-                  No tienes partidos desbloqueados. El detalle premium aún no está
-                  habilitado en el producto.
+                  Aún no tienes partidos desbloqueados. El detalle premium todavía no está habilitado.
                 </p>
               ) : (
                 summary.matchUnlocks.map((unlock) => (
@@ -133,9 +136,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <section className="panel rounded-lg p-5">
         <h2 className="text-lg font-semibold">Beta freemium</h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          El backend ya distingue acceso público, acceso beta controlado, derechos
-          vigentes y bypass administrativo. Pagos y contenido premium permanecen fuera
-          de esta fase.
+          El backend ya distingue acceso público, acceso beta controlado server-side, derechos actuales
+          y bypass administrativo explícito. Los pagos y payloads premium permanecen fuera de alcance.
         </p>
       </section>
     </div>
