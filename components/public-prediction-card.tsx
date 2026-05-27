@@ -13,15 +13,14 @@ export function PublicPredictionCard({ prediction }: { prediction: PublicPredict
     minute: "2-digit",
     timeZone: "America/Bogota",
   }).format(new Date(prediction.kickoffAt));
-  const venueLabel =
-    prediction.venueCity ?? prediction.venueName ?? "Sede por confirmar";
+  const venueLabel = prediction.venueCity ?? prediction.venueName ?? "Sede por confirmar";
 
   return (
     <article className="panel rounded-lg p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-            {prediction.competitionName} {prediction.stage ? `· ${prediction.stage}` : ""}
+            {prediction.competitionName} {prediction.stage ? `- ${prediction.stage}` : ""}
           </p>
           <h2 className="mt-2 text-xl font-semibold">
             {prediction.homeTeamName} <span className="text-[var(--muted)]">vs</span>{" "}
@@ -53,7 +52,7 @@ export function PublicPredictionCard({ prediction }: { prediction: PublicPredict
         />
       </div>
       <p className="mt-4 text-xs text-[var(--muted)]">
-        Vista pública básica. Los análisis ampliados permanecen fuera de esta vista.
+        Vista pública básica. Los previews para cuentas gratis aparecerán antes del Mundial.
       </p>
       <Link
         href={`/matches/${prediction.matchSlug}`}
