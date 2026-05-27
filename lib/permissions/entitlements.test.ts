@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   isActiveSubscription,
+  resolvePremiumMatchAccess,
   resolveResourceAccess,
+  type PremiumMatchResource,
   type ViewerAccessContext,
 } from "./entitlements";
 import type {
@@ -17,6 +19,16 @@ const premiumMatch = {
   resourceId: "match-premium",
   matchId: "match-premium",
 } as const;
+const protectedMatch: PremiumMatchResource = {
+  access: "premium",
+  resourceType: "match",
+  resourceId: "match-premium",
+  matchId: "match-premium",
+  competitionId: "competition-world-cup",
+  stageAccessKey: "competition-world-cup:semifinal",
+  homeTeamId: "team-home",
+  awayTeamId: "team-away",
+};
 const emptyViewer: ViewerAccessContext = {
   viewerKind: "anon",
   role: null,
@@ -165,6 +177,242 @@ describe("resolveResourceAccess", () => {
       resolveResourceAccess(
         { ...emptyViewer, viewerKind: "authenticated", role: "admin" },
         premiumMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "admin_access", canAccess: true });
+  });
+});
+
+describe("resolvePremiumMatchAccess", () => {
+  it("denies a protected match without a viewer or rights", () => {
+    expect(resolvePremiumMatchAccess(emptyViewer, protectedMatch, now)).toMatchObject({
+      source: "none",
+      canAccess: false,
+    });
+  });
+
+  it("does not grant access from premium role alone", () => {
+    expect(
+      resolvePremiumMatchAccess(
+        { ...emptyViewer, viewerKind: "authenticated", role: "premium_user" },
+        protectedMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "none", canAccess: false });
+  });
+
+  it("reports an active subscription without granting protected access", () => {
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          viewerKind: "authenticated",
+          role: "premium_user",
+          subscriptions: [subscription()],
+        },
+        protectedMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "none", canAccess: false, isSubscribed: true });
+  });
+
+  it("grants an exact current match entitlement", () => {
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          viewerKind: "authenticated",
+          role: "free_user",
+          entitlements: [entitlement()],
+        },
+        protectedMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "entitlement_access", canAccess: true });
+  });
+
+  it("grants a current match unlock and rejects an expired unlock", () => {
+    const viewer = {
+      ...emptyViewer,
+      viewerKind: "authenticated" as const,
+      role: "free_user" as const,
+      matchUnlocks: [unlock()],
+    };
+
+    expect(resolvePremiumMatchAccess(viewer, protectedMatch, now).canAccess).toBe(true);
+    expect(
+      resolvePremiumMatchAccess(
+        { ...viewer, matchUnlocks: [unlock({ expires_at: "2026-05-25T00:00:00.000Z" })] },
+        protectedMatch,
+        now,
+      ).canAccess,
+    ).toBe(false);
+  });
+
+  it("grants only a matching competition entitlement", () => {
+    const viewer = {
+      ...emptyViewer,
+      viewerKind: "authenticated" as const,
+      role: "free_user" as const,
+      entitlements: [
+        entitlement({
+          entitlement_type: "competition_access",
+          resource_type: "competition",
+          resource_id: "competition-world-cup",
+        }),
+      ],
+    };
+
+    expect(resolvePremiumMatchAccess(viewer, protectedMatch, now).canAccess).toBe(true);
+    expect(
+      resolvePremiumMatchAccess(
+        viewer,
+        { ...protectedMatch, competitionId: "competition-other" },
+        now,
+      ).canAccess,
+    ).toBe(false);
+  });
+
+  it("grants only a matching stage entitlement", () => {
+    const viewer = {
+      ...emptyViewer,
+      viewerKind: "authenticated" as const,
+      role: "free_user" as const,
+      entitlements: [
+        entitlement({
+          entitlement_type: "stage_access",
+          resource_type: "stage",
+          resource_id: "competition-world-cup:semifinal",
+        }),
+      ],
+    };
+
+    expect(resolvePremiumMatchAccess(viewer, protectedMatch, now).canAccess).toBe(true);
+    expect(
+      resolvePremiumMatchAccess(
+        viewer,
+        { ...protectedMatch, stageAccessKey: "competition-world-cup:final" },
+        now,
+      ).canAccess,
+    ).toBe(false);
+  });
+
+  it("does not grant stage access from a non-canonical stage label", () => {
+    const viewer = {
+      ...emptyViewer,
+      viewerKind: "authenticated" as const,
+      role: "free_user" as const,
+      entitlements: [
+        entitlement({
+          entitlement_type: "stage_access",
+          resource_type: "stage",
+          resource_id: "semifinal",
+        }),
+      ],
+    };
+
+    expect(resolvePremiumMatchAccess(viewer, protectedMatch, now).canAccess).toBe(false);
+  });
+
+  it("grants a team entitlement for either participating team only", () => {
+    const viewerFor = (resourceId: string) => ({
+      ...emptyViewer,
+      viewerKind: "authenticated" as const,
+      role: "free_user" as const,
+      entitlements: [
+        entitlement({
+          entitlement_type: "team_access",
+          resource_type: "team",
+          resource_id: resourceId,
+        }),
+      ],
+    });
+
+    expect(resolvePremiumMatchAccess(viewerFor("team-home"), protectedMatch, now).canAccess).toBe(true);
+    expect(resolvePremiumMatchAccess(viewerFor("team-away"), protectedMatch, now).canAccess).toBe(true);
+    expect(resolvePremiumMatchAccess(viewerFor("team-other"), protectedMatch, now).canAccess).toBe(false);
+  });
+
+  it("grants a current global entitlement and rejects an expired global entitlement", () => {
+    const globalEntitlement = entitlement({
+      entitlement_type: "global_premium_access",
+      resource_type: "global",
+      resource_id: "premium",
+    });
+
+    expect(
+      resolvePremiumMatchAccess(
+        { ...emptyViewer, entitlements: [globalEntitlement] },
+        protectedMatch,
+        now,
+      ).canAccess,
+    ).toBe(true);
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          entitlements: [entitlement({ ...globalEntitlement, ends_at: "2026-05-25T00:00:00.000Z" })],
+        },
+        protectedMatch,
+        now,
+      ).canAccess,
+    ).toBe(false);
+  });
+
+  it("does not grant consumable match-pack quantity without an explicit unlock", () => {
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          viewerKind: "authenticated",
+          role: "premium_user",
+          entitlements: [
+            entitlement({
+              entitlement_type: "match_pack",
+              resource_type: "match",
+              resource_id: protectedMatch.matchId,
+              quantity: 10,
+            }),
+          ],
+        },
+        protectedMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "none", canAccess: false });
+  });
+
+  it("grants beta access only when trusted server context includes the match", () => {
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          viewerKind: "authenticated",
+          role: "free_user",
+          betaFreeResourceIds: [protectedMatch.matchId],
+        },
+        protectedMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "beta_free_access", canAccess: true });
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          viewerKind: "authenticated",
+          role: "free_user",
+          betaFreeResourceIds: ["match-other"],
+        },
+        protectedMatch,
+        now,
+      ).canAccess,
+    ).toBe(false);
+  });
+
+  it("returns explicit admin access for an administrator", () => {
+    expect(
+      resolvePremiumMatchAccess(
+        { ...emptyViewer, viewerKind: "authenticated", role: "admin" },
+        protectedMatch,
         now,
       ),
     ).toMatchObject({ source: "admin_access", canAccess: true });

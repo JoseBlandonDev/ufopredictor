@@ -30,6 +30,18 @@ export type AccessResource = {
   matchId?: string;
 };
 
+export type PremiumMatchResource = {
+  access: "premium";
+  resourceType: "match";
+  resourceId: string;
+  matchId: string;
+  competitionId: string;
+  // Derive server-side as a canonical stable key (for example `${competitionId}:${stage}`).
+  stageAccessKey: string | null;
+  homeTeamId: string;
+  awayTeamId: string;
+};
+
 export type ResolvedAccess = {
   source: AccessSource;
   canAccess: boolean;
@@ -64,6 +76,10 @@ function entitlementCoversResource(
   entitlement: UserEntitlementRow,
   resource: AccessResource,
 ) {
+  if (entitlement.quantity !== null || entitlement.entitlement_type === "match_pack") {
+    return false;
+  }
+
   if (entitlement.resource_type === "global") {
     return true;
   }
@@ -74,25 +90,64 @@ function entitlementCoversResource(
   );
 }
 
+function entitlementCoversPremiumMatch(
+  entitlement: UserEntitlementRow,
+  resource: PremiumMatchResource,
+) {
+  if (entitlement.quantity !== null || entitlement.entitlement_type === "match_pack") {
+    return false;
+  }
+
+  switch (entitlement.resource_type) {
+    case "global":
+      return true;
+    case "match":
+      return entitlement.resource_id === resource.matchId;
+    case "competition":
+      return entitlement.resource_id === resource.competitionId;
+    case "stage":
+      return (
+        resource.stageAccessKey !== null &&
+        entitlement.resource_id === resource.stageAccessKey
+      );
+    case "team":
+      return (
+        entitlement.resource_id === resource.homeTeamId ||
+        entitlement.resource_id === resource.awayTeamId
+      );
+  }
+}
+
+function resolvedAccess(
+  viewer: ViewerAccessContext,
+  source: AccessSource,
+  canAccess: boolean,
+  now: Date,
+): ResolvedAccess {
+  return {
+    source,
+    canAccess,
+    isSubscribed: viewer.subscriptions.some((subscription) =>
+      isActiveSubscription(subscription, now),
+    ),
+  };
+}
+
 export function resolveResourceAccess(
   viewer: ViewerAccessContext,
   resource: AccessResource,
   now = new Date(),
 ): ResolvedAccess {
-  const isSubscribed = viewer.subscriptions.some((subscription) =>
-    isActiveSubscription(subscription, now),
-  );
-
   if (resource.access === "public") {
-    return { source: "public_basic_access", canAccess: true, isSubscribed };
+    return resolvedAccess(viewer, "public_basic_access", true, now);
   }
 
   if (viewer.role === "admin") {
-    return { source: "admin_access", canAccess: true, isSubscribed };
+    return resolvedAccess(viewer, "admin_access", true, now);
   }
 
   if (viewer.betaFreeResourceIds?.includes(resource.resourceId)) {
-    return { source: "beta_free_access", canAccess: true, isSubscribed };
+    return resolvedAccess(viewer, "beta_free_access", true, now);
   }
 
   const hasEntitlement = viewer.entitlements.some(
@@ -108,8 +163,38 @@ export function resolveResourceAccess(
     );
 
   if (hasEntitlement || hasUnlock) {
-    return { source: "entitlement_access", canAccess: true, isSubscribed };
+    return resolvedAccess(viewer, "entitlement_access", true, now);
   }
 
-  return { source: "none", canAccess: false, isSubscribed };
+  return resolvedAccess(viewer, "none", false, now);
+}
+
+export function resolvePremiumMatchAccess(
+  viewer: ViewerAccessContext,
+  resource: PremiumMatchResource,
+  now = new Date(),
+): ResolvedAccess {
+  if (viewer.role === "admin") {
+    return resolvedAccess(viewer, "admin_access", true, now);
+  }
+
+  if (viewer.betaFreeResourceIds?.includes(resource.matchId)) {
+    return resolvedAccess(viewer, "beta_free_access", true, now);
+  }
+
+  const hasEntitlement = viewer.entitlements.some(
+    (entitlement) =>
+      isCurrentEntitlement(entitlement, now) &&
+      entitlementCoversPremiumMatch(entitlement, resource),
+  );
+  const hasUnlock = viewer.matchUnlocks.some(
+    (unlock) =>
+      unlock.match_id === resource.matchId && isCurrentMatchUnlock(unlock, now),
+  );
+
+  if (hasEntitlement || hasUnlock) {
+    return resolvedAccess(viewer, "entitlement_access", true, now);
+  }
+
+  return resolvedAccess(viewer, "none", false, now);
 }
