@@ -1,52 +1,132 @@
 # NEXT EPICS PLAN — UFO Predictor
 
-_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
+_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
 
-## Current position
+Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+
+
+## Current Position
 
 Completed:
 
-- C04 Premium Access Enforcement Skeleton
-- C05 Gate 0 Product Audit
-- C05 Gate 1 Registered Free Value Wall
+- C01 — Public Predictions From DB
+- C02 — Plans & Entitlements Backend
+- C03 — Match Detail Public From DB
+- C04 — Premium Access Enforcement Skeleton
+- C05 Gate 0 — Anonymous vs Registered Free Product Audit
+- C05 Gate 1 — Registered Free Value Wall
+- C05 Gate 2A — Presentation Boundary sin SQL, current branch/pending commit or PR if not merged
 
-Next:
+Current app state:
 
-```text
-C05 Gate 2 — Data Boundary: Anonymous vs Registered Free
+- `/predictions` reads real public predictions from `public_prediction_summaries`.
+- `/matches/[slug]` reads real public/free-only match detail from `public_match_details` and optional prediction data from `public_prediction_summaries`.
+- `/pricing` reads real active plans/catalog.
+- `/dashboard` reads real viewer access summary.
+- `/admin/beta-lab` remains operational.
+- C05 Gate 2A differentiates Anonymous vs Registered Free in presentation only.
+
+## Recommended Next Epic / Gate: C05 Gate 2B
+
+```txt
+C05 Gate 2B — Real Data Boundary / Projection Decision
 ```
 
-## Recommended sequence
+## C05 Gate 2B Goal
 
-### C05 Gate 2 — Data Boundary: Anonymous vs Registered Free
+Decide whether the presentation-only boundary from Gate 2A should become a real backend/data boundary.
 
-Recognition/planning first.
+Gate 2A deliberately did not change:
 
-Decide:
+- SQL;
+- RLS;
+- migrations;
+- views;
+- queries;
+- premium tables;
+- premium payload.
 
-- what anonymous sees;
-- what Registered Free sees;
-- what World Cup packages reserve;
-- what post-World Cup subscriptions reserve;
-- whether new projections/views are required;
-- whether SQL/RLS is required.
+Gate 2B should answer:
 
-### C05 Gate 3 — Registered Free Capture Foundation
+1. Should Anonymous continue seeing full 1X2?
+2. Should confidence/risk be separated at DB/query level?
+3. Should preview signals require a registered-free projection?
+4. Is a new anon vs registered-free view needed?
+5. Is RPC/server-only shaping safer?
+6. Can this wait until C07 premium projection?
 
-Potential implementation after Gate 2.
+## C05 Gate 2B Allowed Scope
 
-Candidate features:
+Recognition/planning first:
 
-- favorites;
-- watchlist;
-- preferred teams;
-- preferred competitions;
-- preview interest/click events;
-- onboarding preferences.
+- inspect current public views and UI rendering;
+- compare Anonymous vs Registered Free data shapes;
+- evaluate whether any currently displayed field is sensitive;
+- propose minimal boundary approach;
+- avoid implementation until scope is approved.
 
-### C06 — World Cup Premium Package Foundation
+If implementation is approved later, possible scope:
 
-Define and model World Cup products:
+- create a new projection view;
+- create server-only query shape;
+- add tests if pure logic is introduced;
+- update UI to consume different shapes.
+
+## C05 Gate 2B Not Allowed Without Explicit Approval
+
+Do not implement:
+
+- public `prediction_markets` access;
+- public `prediction_narratives` access;
+- public `prediction_results` access;
+- final premium match detail UI;
+- payments;
+- Stripe;
+- checkout;
+- odds;
+- LLM;
+- sports API;
+- real workers;
+- Google Auth;
+- Supabase CLI setup;
+- broad dashboard redesign;
+- Lab Admin changes.
+
+## After C05 Gate 2B
+
+Potential sequence:
+
+1. C05 Gate 2B — Real Data Boundary / Projection Decision
+2. C05 Gate 3 — Registered Free Capture Foundation
+3. C06 — World Cup Premium Package Foundation
+4. C07 — Entitled Premium Match Projection
+5. C08 — Trust / Transparency Real v0.1
+6. D — Data Intake / Sports API
+7. D/E — Workers Runtime
+8. E — Payments / World Cup Packages / Post-World-Cup Subscriptions
+9. F — Odds / LLM Explanations
+10. G — Google Auth / i18n / Staging / Observability
+
+## Product Strategy Context
+
+UFO Predictor is preparing for a controlled beta/freemium phase before the World Cup.
+
+The beta should:
+
+- show value without giving away all premium data;
+- build confidence organically;
+- avoid mass promotion until model performance, UX, infra, and costs are validated;
+- capture Registered Free users before World Cup premium packages.
+
+Funnel:
+
+```txt
+Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions
+```
+
+## World Cup Commercial Context
+
+World Cup premium is expected to be package/pass/unlock based:
 
 - World Cup Full Pass;
 - 10 Match Pack;
@@ -55,44 +135,28 @@ Define and model World Cup products:
 - Group Pass;
 - Stage/Semifinals/Final Pass.
 
-This may reuse C02 entitlements and C04 access resolver concepts.
+Monthly subscriptions come later, after the World Cup, for recurring American/European leagues.
 
-### C07 — Entitled Premium Match Projection
+## Tool Discipline For Gate 2B
 
-Serve premium match payload only after authorization.
+ChatGPT should provide:
 
-Options to evaluate:
+```txt
+EJECUCIÓN RECOMENDADA
+...
 
-- protected view;
-- RPC;
-- server-only query with C04 enforcement;
-- a combination.
+PROMPT LIMPIO PARA CODEX
+...
+```
 
-### C08 — Trust / Transparency Real v0.1
+Use Codex 5.3-Codex Medium for recognition/planning.
 
-Replace mock transparency with real metrics, but separate:
+Escalate to stronger model/intelligence only if SQL/RLS/auth/premium access changes are approved.
 
-- Lab/Internal results;
-- Beta Calibration;
-- Trust-Eligible predictions.
+## Supabase Rule For Every Future Epic
 
-### D/E/F/G future tracks
+Supabase CLI local is not configured as the normal workflow.
 
-- Sports API and workers.
-- World Cup checkout/payment for packages.
-- Post-World Cup monthly subscriptions.
-- LLM explanation layer.
-- i18n EN/ES.
-- Google Auth.
+Codex may create migration files but must not assume they are applied remotely.
 
-## Security rules
-
-- Visual locks, blur, and teaser cards are not authorization.
-- Premium payload must not be sent to the browser unless access has been authorized server-side.
-- `premium_user` alone does not unlock protected content.
-- Active subscription alone does not unlock protected content.
-- `quantity` / `match_pack` does not grant direct access without explicit match unlock materialization.
-- `trustedBetaFreeMatchIds` must be assembled server-side; never from client/query params.
-- `stageAccessKey` must be canonical and server-derived, for example `competitionId:stage`.
-- Do not use service role for normal product UI.
-
+The user applies migrations manually in Supabase SQL Editor and validates them before commit/PR.

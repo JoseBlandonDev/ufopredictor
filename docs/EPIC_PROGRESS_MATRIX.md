@@ -1,53 +1,122 @@
 # EPIC PROGRESS MATRIX — UFO Predictor
 
-_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
+_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
 
-## Completed epics/tasks
+Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
 
-| ID | Name | Status | PR / note |
-|---|---|---:|---|
-| A01 | Initial project context/docs | ✅ Done | Foundation docs/context. |
-| A02 | Initial UFO Predictor prototype | ✅ Done | Initial app prototype. |
-| A03 | Initial Supabase schema | ✅ Done | Base DB. |
-| A04 | Match/season/competition integrity | ✅ Done | Integrity hardening. |
-| A05 | Supabase runtime clients | ✅ Done | Browser/server/admin clients. |
-| A06 | Supabase auth and role guards | ✅ Done | Auth/roles. |
-| B01 | Beta Lab Foundation | ✅ Done | `/admin/beta-lab`. |
-| B02 | Data Intake Foundation | ✅ Done | Fixtures/results base. |
-| B03 | Prediction Engine v0.1 Lab | ✅ Done | Pure engine + tests. |
-| B04 | Model Evaluation Lab | ✅ Done | Evaluation logic + tests. |
-| B05 | Lab Supabase Queries | ✅ Done | Lab reads real data. |
-| B06a | Lab Fixture Review Actions | ✅ Done | Admin review actions. |
-| B06b | Lab Match Result Actions | ✅ Done | Admin result actions. |
-| B06-pre | Seed Internal Lab Prediction Markets | ✅ Done | Internal market seeds. |
-| B06c | Lab Evaluation Persistence | ✅ Done | Persisted evaluation results. |
-| C01 | Public Predictions From DB | ✅ Done | PR #20. |
-| C02 | Plans & Entitlements Backend | ✅ Done | PR #21. |
-| C03 | Match Detail Public From DB | ✅ Done | PR #23. |
-| C04 | Premium Access Enforcement Skeleton | ✅ Done | PR #25. |
-| C05-G0 | Anonymous vs Registered Free Product Audit | ✅ Done | Recognition/product decision. |
-| C05-G1 | Registered Free Value Wall | ✅ Done | PR #26. |
 
-## Active / next work
+## Completed Milestones
 
-| ID | Name | Status | Notes |
-|---|---|---:|---|
-| C05-G2 | Data Boundary: Anonymous vs Registered Free | ⏭️ Next | Decide public/free/premium field split and SQL/RLS needs. |
-| C05-G3 | Registered Free Capture Foundation | ⏳ Planned | Favorites, watchlist, preferences, usage events. |
-| C06 | World Cup Premium Package Foundation | ⏳ Planned | Full pass, packs, country/team, group/stage, unlocks. |
-| C07 | Entitled Premium Match Projection | ⏳ Planned | Serve authorized premium payload safely. |
-| C08 | Trust / Transparency Real v0.1 | ⏳ Planned | Replace mock transparency with real evaluated metrics. |
-| D01 | Sports API Provider Decision | ⏳ Future | Provider/cost/coverage. |
-| D02 | Sports API Integration | ⏳ Future | Fixtures/results sync. |
-| D03 | Workers Runtime | ⏳ Future | Automation jobs. |
-| E01 | World Cup Package Checkout | ⏳ Future | Only after package/product decisions. |
-| E02 | Post-World Cup Monthly Subscriptions | ⏳ Future | Recurring league coverage. |
-| F01 | LLM Explanation Layer | ⏳ Future | AI explains calculated outputs only. |
-| G01 | i18n EN/ES | ⏳ Future | Public UI bilingual later. |
-| G02 | Google Auth | ⏳ Future | Lower registration friction. |
+| Code | Epic / Task | Status | Notes |
+|---|---|---|---|
+| B06a | Lab Fixture Review Actions | Done | Admin review fields/actions for Lab fixtures. |
+| B06b | Lab Match Result Actions | Done | Admin can create/edit match results. |
+| B06-pre | Seed Internal Lab Prediction Markets | Done | Internal Lab prediction markets seeded/readable. |
+| B06c | Lab Evaluation Persistence | Done | Persist/update prediction_results using model evaluation. |
+| C01 | Public Predictions From DB | Done | `/predictions` reads public_product data from Supabase. |
+| C02 | Plans & Entitlements Backend | Done | `/pricing` and `/dashboard` read real plan/access data. |
+| C03 | Match Detail Public From DB | Done | `/matches/[slug]` reads real public/free-only match detail from Supabase; public projection hardening added in `0013`. |
+| C04 | Premium Access Enforcement Skeleton | Done | Server-side/pure access skeleton, no premium payload opened. |
+| C05-G0 | Anonymous vs Registered Free Product Audit | Done | Product decision/audit; no code. |
+| C05-G1 | Registered Free Value Wall | Done | Spanish UI/copy value wall; no data boundary change. |
+| C05-G2A | Presentation Boundary sin SQL | Done / pending PR if active branch | Presentation-only split between Anonymous and Registered Free using existing public fields. |
 
-## Current progress marker
+## Recent PR Mapping
 
-```text
-We are post C05 Gate 1 and preparing C05 Gate 2.
-```
+| PR | Scope | Status |
+|---:|---|---|
+| #18 | Persist Lab evaluations | Done |
+| #19 | Update project context after Lab Admin Flow | Done |
+| #20 | Read public predictions from DB | Done |
+| #21 | Add plans entitlements backend | Done |
+| #22 | Update project context after C02 | Done |
+| #23 | Read public match detail from DB | Done |
+| #24 | Update project context after C03 | Done |
+| #25 | Add premium match access enforcement skeleton | Done |
+| #26 | Add registered free value wall | Done |
+| #27 | Update project context after C05 Gate 1 | Done |
+
+## Current Foundation
+
+| Area | Status |
+|---|---|
+| Supabase schema | Present through migration `0013` remotely applied manually |
+| Lab Admin Flow | Operational |
+| Public predictions listing | Real DB-backed via `public_prediction_summaries` |
+| Public match detail | Real DB-backed via `public_match_details` + `public_prediction_summaries` |
+| Pricing catalog | Real DB-backed, no checkout |
+| Dashboard access summary | Real DB-backed |
+| Entitlement pure logic | Implemented and tested |
+| Premium access skeleton | Implemented server-side/pure, no payload opened |
+| Public projection hardening | Implemented for `anon` via explicit public views |
+| Registered Free value wall | Implemented UI/copy |
+| Anonymous vs Registered Free presentation boundary | Implemented without SQL/query changes |
+| Real data boundary anon vs registered free | Not implemented; Gate 2B decision pending |
+| Premium content projection | Not implemented |
+| Payments | Not implemented |
+| Workers | Mock/not real |
+| Sports API | Not implemented |
+| Odds | Not implemented |
+| LLM | Not implemented |
+| i18n | Not implemented |
+
+## Active / Next Epic
+
+| Code | Epic | Recommended Branch | Status |
+|---|---|---|---|
+| C05-G2B | Real Data Boundary / Projection Decision | `feature/registered-free-data-boundary` or planning only | Next decision |
+| C05-G3 | Registered Free Capture Foundation | TBD | Future |
+| C06 | World Cup Premium Package Foundation | TBD | Future |
+| C07 | Entitled Premium Match Projection | TBD | Future |
+
+## C05 Gate 2A Scope Summary
+
+Done/pending merge:
+
+- Anonymous retains metadata + full public 1X2.
+- Anonymous sees confidence/risk as basic signal/teaser.
+- Registered Free sees confidence/risk complete and more context.
+- Preview signals remain placeholder/teaser.
+- Dashboard reinforces value of free account.
+
+Not done:
+
+- no SQL;
+- no RLS;
+- no migrations;
+- no new views;
+- no query changes;
+- no premium tables;
+- no premium payload;
+- no real data boundary.
+
+## Future Epics Candidate Queue
+
+| Candidate | Description | Dependency |
+|---|---|---|
+| C05 Gate 2B | Real anon vs registered-free data boundary decision | Gate 2A complete |
+| C05 Gate 3 | Favorites/watchlist/interest capture | Product decision + likely SQL/RLS |
+| C06 | World Cup package foundation | Product/package mapping |
+| C07 | Premium match projection | Premium package + access resolver |
+| C08 | Trust/Transparency real v0.1 | Evaluation data and eligibility rules |
+| Data Intake / Sports API | Real fixtures/results provider | Cost/provider decision |
+| Workers Runtime | Real scheduled jobs | Data provider + infra |
+| Odds Integration | Model vs market comparisons | Odds provider decision |
+| LLM Explanations | Narrative explanation layer | Model outputs + premium rules |
+| Payments / Stripe | World Cup package checkout and later subscriptions | Product/pricing decision |
+| Google Auth | Social login | Auth decision |
+| i18n EN/ES | Public bilingual site | Translation/router decision |
+| Staging | Deployment/staging hardening | Infra readiness |
+
+## Important Project Rules
+
+- The model calculates.
+- The AI explains.
+- Supabase migrations are applied manually in SQL Editor.
+- Codex creates SQL files but does not apply remote migrations.
+- ChatGPT-to-Codex instructions must separate `EJECUCIÓN RECOMENDADA` and `PROMPT LIMPIO PARA CODEX`.
+- No premium data should travel to the frontend without backend entitlement filtering.
+- Visual locks/blur/teasers are not authorization.
+- `premium_user` role does not unlock everything.
+- Active subscription alone does not unlock protected content.
+- `match_pack` quantity does not grant access without explicit unlocks.

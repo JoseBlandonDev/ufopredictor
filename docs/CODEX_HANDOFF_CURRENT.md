@@ -1,171 +1,383 @@
 # CODEX HANDOFF CURRENT — UFO Predictor
 
-_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
+_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
 
-Use this document to hand off the current repo state to Codex.
-
-## Current baseline
-
-- `main` includes PR #25: `feat: add premium match access enforcement skeleton`.
-- `main` includes PR #26: `feat: add registered free value wall`.
-- Working tree expected after sync: clean `main`.
-- Supabase remote has manual migrations applied through `0013_public_match_detail_projection_hardening.sql`.
-- Supabase CLI local is still not part of the normal workflow.
-- Premium base tables remain closed to public product surfaces:
-  - `prediction_markets`
-  - `prediction_narratives`
-  - `prediction_results`
+Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
 
 
-## Current branch expectation
+## Role For Codex
 
-Start from clean `main`.
+You are the implementation assistant for the UFO Predictor repository.
+
+You must follow project scope strictly.
+
+Do not create broad features, do not infer missing business logic, and do not assume Supabase remote migrations are applied automatically.
+
+## Required Prompt Format
+
+ChatGPT-generated Codex prompts must be given as two separate blocks:
+
+```txt
+EJECUCIÓN RECOMENDADA
+- Herramienta:
+- Modelo:
+- Inteligencia:
+- Tamaño:
+- Riesgo:
+- Motivo:
+- Manual/PowerShell vs Codex:
+
+PROMPT LIMPIO PARA CODEX
+...
+```
+
+The execution recommendation is for the user. The clean prompt is the part copied into Codex.
+
+## Current Git Baseline
+
+Current main includes:
+
+```txt
+PR #27 — docs: update project context after c05 gate 1
+```
+
+Recent PRs:
+
+| PR | Title | Status |
+|---:|---|---|
+| #20 | `feat: read public predictions from db` | Done |
+| #21 | `feat: add plans entitlements backend` | Done |
+| #22 | `docs: update project context after c02` | Done |
+| #23 | `feat: read public match detail from db` | Done |
+| #24 | `docs: update project context after c03` | Done |
+| #25 | `feat: add premium match access enforcement skeleton` | Done |
+| #26 | `feat: add registered free value wall` | Done |
+| #27 | `docs: update project context after c05 gate 1` | Done |
+
+Active working branch may include:
+
+```txt
+C05 Gate 2A — Presentation Boundary sin SQL
+```
+
+If so, treat it as pending commit/PR until the user confirms merge.
+
+Before new work, run:
 
 ```bash
 git checkout main
 git pull origin main
 git status
-git log --oneline -8
+git branch
+git log --oneline -5
 ```
 
-Expected recent commits include:
+If continuing active work, first confirm branch and `git status --short`.
 
-- `feat: add registered free value wall (#26)`
-- `feat: add premium match access enforcement skeleton (#25)`
+## Current Supabase Remote State
 
-## Completed work since previous docs baseline
+Remote Supabase has been manually migrated through:
 
-### PR #25 / C04
-
-Premium access enforcement skeleton:
-
-- `PremiumMatchResource`
-- `resolvePremiumMatchAccess()`
-- canonical `stageAccessKey`
-- server-only helper
-- tests
-
-No SQL, no RLS/grants, no premium payload.
-
-### PR #26 / C05 Gate 1
-
-Registered Free value wall:
-
-- Spanish public copy
-- anonymous/authenticated messaging on `/predictions` and `/matches/[slug]`
-- dashboard free value messaging
-- pricing roadmap/free-now/premium-later messaging
-
-No SQL, no RLS/grants, no data boundary change, no premium payload.
-
-## Next Codex task should be recognition first
-
-```text
-C05 Gate 2 — Data Boundary: Anonymous vs Registered Free
+```txt
+0013_public_match_detail_projection_hardening.sql
 ```
 
-Do not implement first. Inspect and recommend.
+Important applied migrations:
 
-## Scope for C05 Gate 2 recognition
+- `0011_public_prediction_reads.sql`
+- `0012_plans_entitlements_backend.sql`
+- `0013_public_match_detail_projection_hardening.sql`
 
-Inspect:
+No migration beyond 0013 is assumed to be remotely applied.
 
-- `app/page.tsx`
-- `app/predictions/page.tsx`
-- `app/matches/[slug]/page.tsx`
+## Critical Supabase Rule
+
+Supabase CLI local is not configured as the normal workflow.
+
+Codex must not assume migrations are applied remotely.
+
+Codex may create SQL migration files, but the user applies them manually in Supabase SQL Editor.
+
+For every migration task, Codex must:
+
+1. Create the local migration file.
+2. Show the complete SQL in the final response.
+3. Provide validation queries.
+4. State clearly that the migration has not been applied remotely unless the user confirms it.
+5. Not claim remote validation until the user applies the SQL manually and shares results.
+
+## Current Functional State
+
+### `/admin/beta-lab`
+
+Operational internal Lab workflow.
+
+Can:
+
+- read Lab fixtures;
+- review fixtures;
+- create/edit match results;
+- read internal prediction markets;
+- persist/update prediction results;
+- show readiness and persisted evaluation metrics.
+
+Do not touch unless explicitly requested.
+
+Still mock:
+
+- worker runs.
+
+### `/predictions`
+
+Reads real public prediction data from Supabase through:
+
+```txt
+public_prediction_summaries
+```
+
+Gate 2A presentation behavior:
+
+- Anonymous sees public metadata + complete 1X2 probabilities.
+- Anonymous sees confidence/risk as basic teaser/presentation signal.
+- Registered Free sees confidence/risk fully rendered with more context.
+
+Must remain public/basic only until a real data boundary is approved.
+
+Do not expose:
+
+- internal Lab fixtures;
+- premium matches;
+- prediction markets;
+- prediction narratives;
+- prediction results;
+- evaluation metrics;
+- expected goals;
+- scorelines;
+- premium analysis.
+
+### `/matches/[slug]`
+
+Reads real public/free-only match detail from Supabase through:
+
+```txt
+public_match_details
+public_prediction_summaries
+```
+
+Gate 2A presentation behavior:
+
+- Anonymous sees match metadata + complete public 1X2.
+- Anonymous sees confidence/risk as basic teaser/presentation signal.
+- Registered Free sees confidence/risk fully rendered and account-active context.
+- Preview signals are still placeholder/teaser.
+
+Must remain public/free-only until a protected projection is approved.
+
+Allowed public fields:
+
+- match metadata;
+- competition metadata;
+- home/away teams;
+- venue;
+- kickoff;
+- stage/status;
+- public 1X2.
+
+Do not expose premium fields.
+
+### `/pricing`
+
+Reads real active plan catalog from Supabase.
+
+No checkout, payments, or Stripe.
+
+World Cup premium packages can be previewed as catalog/roadmap but not sold unless checkout is explicitly implemented later.
+
+### `/dashboard`
+
+Reads current user's access summary from Supabase.
+
+Shows:
+
+- role;
+- active subscriptions;
+- current entitlements;
+- current match unlocks;
+- free account value messaging.
+
+Does not serve premium prediction content.
+
+## C01 Summary — Public Predictions From DB
+
+Status: Done.
+
+Current public predictions use `public_prediction_summaries` from C03.
+
+## C02 Summary — Plans & Entitlements Backend
+
+Status: Done.
+
+Files:
+
 - `app/pricing/page.tsx`
 - `app/dashboard/page.tsx`
-- `components/public-prediction-card.tsx`
 - `components/plan-card.tsx`
-- `lib/supabase/public-prediction-queries.ts`
-- `lib/supabase/public-match-detail-queries.ts`
-- `lib/supabase/viewer-access-queries.ts`
+- `lib/supabase/entitlement-queries.ts`
 - `lib/permissions/entitlements.ts`
-- `types/database.ts`
-- migrations `0011`, `0012`, `0013`
+- `lib/permissions/entitlements.test.ts`
+- `supabase/migrations/0012_plans_entitlements_backend.sql`
 
-Answer:
+Key rules:
 
-- what anonymous sees today;
-- what Registered Free sees today;
-- what should remain public;
-- what should move behind free registration;
-- what should be reserved for World Cup premium packages;
-- whether SQL/RLS/new views are required;
-- risks to premium data boundaries.
+- `premium_user` does not unlock all content.
+- Active subscription does not unlock protected content by itself.
+- Entitlements/unlocks are the effective access source.
+- Beta free access must be server-controlled.
+- Admin bypass is explicit, not automatic everywhere.
 
-## Product decisions added in this refresh
+## C03 Summary — Match Detail Public From DB
 
-### User funnel
+Status: Done.
 
-The active product funnel is:
+Files:
 
-```text
-Anonymous → Registered Free → World Cup premium packages → post-World Cup monthly subscriptions
+- `app/matches/[slug]/page.tsx`
+- `app/predictions/page.tsx`
+- `components/public-prediction-card.tsx`
+- `lib/supabase/public-match-detail-queries.ts`
+- `lib/supabase/public-prediction-queries.ts`
+- `supabase/migrations/0013_public_match_detail_projection_hardening.sql`
+
+Scope:
+
+- public match detail from DB;
+- public prediction summaries through explicit views;
+- anon hardened to public views only;
+- no premium data opened.
+
+## C04 Summary — Premium Access Enforcement Skeleton
+
+Status: Done.
+
+Scope:
+
+- server-side/pure access decision skeleton;
+- `PremiumMatchResource`;
+- canonical `stageAccessKey`;
+- entitlement/unlock/admin/beta decision logic;
+- tests;
+- no SQL;
+- no premium data served.
+
+## C05 Gate 0 / Gate 1 / Gate 2A Summary
+
+Status:
+
+- Gate 0: Done, product audit/decision.
+- Gate 1: Done, registered free value wall in Spanish UI.
+- Gate 2A: Implemented in active branch/pending PR, presentation boundary without SQL.
+
+Gate 2A did not change data boundary. It renders different presentation for Anonymous vs Registered Free using already-public fields.
+
+## Product Principle
+
+The statistical model calculates.
+
+The AI explains.
+
+Do not use LLMs to generate prediction probabilities.
+
+## Beta / Freemium Product Strategy
+
+UFO Predictor supports a controlled beta/freemium phase before the World Cup.
+
+The strategy:
+
+- expose useful free value;
+- do not give away all premium data;
+- avoid mass advertising until results, UX, infrastructure, and costs are validated;
+- start organically with finals, friendlies, and pre-World Cup fixtures;
+- capture Registered Free users before World Cup package monetization.
+
+## Commercial Direction
+
+Funnel:
+
+```txt
+Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions
 ```
 
-There is no separate `beta/free expanded` plan. `Registered Free` is the permanent free authenticated user state.
+World Cup premium should be package/pass/unlock based:
 
-### Registered Free
+- Full World Cup Pass;
+- 10 Match Pack;
+- Single Match Unlock;
+- Country/Team Pass;
+- Group Pass;
+- Stage/Semifinals/Final Pass.
 
-Registered Free exists before, during, and after the World Cup. What changes is the amount of preview access granted by product/editorial policy:
+Monthly subscriptions are expected after the World Cup for recurring league coverage.
 
-- Pre-World Cup: more generous selected previews to validate the model, UX, and user interest.
-- World Cup: free users still receive value beyond anonymous users, but premium package value is protected.
-- Post-World Cup: free remains useful for discovery and retention while monthly subscriptions become relevant for recurring league coverage.
+## Recommended Next Decision
 
-### World Cup monetization
+```txt
+C05 Gate 2B — Real Data Boundary / Projection Decision
+```
 
-Premium packages are intended for the World Cup phase. Candidate products include:
+Goal:
 
-- World Cup Full Pass
-- 10 Match Pack
-- Single Match Unlock
-- Country/Team Pass
-- Group Pass
-- Stage Pass, including semifinals/final style passes
+Decide whether the presentation-only split from Gate 2A should become a real backend/data boundary.
 
-Monthly subscriptions are expected after the World Cup for American and European leagues and recurring coverage.
+Possible implementations:
 
-### Language
+- new `anon` vs `registered_free` projection views;
+- RPC;
+- server-only query shaping;
+- RLS if appropriate.
 
-- Public UI now remains Spanish until an i18n pass is planned.
-- Future public UI should support English and Spanish.
-- Internal data, keys, identifiers, types, slugs, and model terminology should prefer canonical English.
-- Do not mix new public copy into accidental Spanglish.
+## Out Of Scope Until Explicitly Approved
 
+Do not implement:
 
-## Security rules
+- payments;
+- Stripe;
+- checkout;
+- public or entitled premium content serving;
+- public `prediction_markets`;
+- public `prediction_narratives`;
+- public `prediction_results`;
+- odds;
+- LLM;
+- real workers;
+- sports API;
+- Google Auth;
+- Supabase CLI setup;
+- broad dashboard redesign;
+- Lab Admin changes.
 
-- Visual locks, blur, and teaser cards are not authorization.
-- Premium payload must not be sent to the browser unless access has been authorized server-side.
-- `premium_user` alone does not unlock protected content.
-- Active subscription alone does not unlock protected content.
-- `quantity` / `match_pack` does not grant direct access without explicit match unlock materialization.
-- `trustedBetaFreeMatchIds` must be assembled server-side; never from client/query params.
-- `stageAccessKey` must be canonical and server-derived, for example `competitionId:stage`.
-- Do not use service role for normal product UI.
+## Validation Expectations
 
+Before any commit:
 
-## Codex prompt format rule
+```bash
+git diff --check
+npm run test
+npm run lint
+npm run build
+git status --short
+git diff --name-only
+git diff --stat
+```
 
-ChatGPT must separate execution guidance from the copyable Codex prompt.
+If `next-env.d.ts` changes:
 
-### EJECUCIÓN RECOMENDADA
+```bash
+git restore next-env.d.ts
+```
 
-This block is for the user. It should include:
+For migrations:
 
-- tool
-- model
-- intelligence level
-- task size
-- risk
-- reason
-- whether PowerShell/manual work is enough
-
-### PROMPT LIMPIO PARA CODEX
-
-This block is the only block intended to be copied into Codex. It should contain the task instructions and must not be polluted with model/tool meta-commentary.
-
-Use manual PowerShell for simple `git status`, `git diff`, validations, commit, push, and PR flow when the user is already comfortable doing it. Use Codex for code/doc changes, and reserve GPT-5.5 or high intelligence for SQL, RLS, auth, entitlements, server-side access, premium filtering, and other sensitive security work.
-
+- user applies SQL manually;
+- run SQL validation;
+- run UI validation;
+- then commit/push/PR.
