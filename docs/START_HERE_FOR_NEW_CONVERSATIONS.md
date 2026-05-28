@@ -1,356 +1,181 @@
 # START HERE FOR NEW CONVERSATIONS — UFO Predictor
 
-_Last updated: post PR #23 / C03 Match Detail Public From DB_
+_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
 
-This is the first document to read when starting a new ChatGPT, Codex, or handoff conversation for UFO Predictor.
+Use this file first when starting a new ChatGPT conversation inside the UFO Predictor project.
 
-## Current Baseline
+## Current baseline
 
-Main includes work through:
+- `main` includes PR #25: `feat: add premium match access enforcement skeleton`.
+- `main` includes PR #26: `feat: add registered free value wall`.
+- Working tree expected after sync: clean `main`.
+- Supabase remote has manual migrations applied through `0013_public_match_detail_projection_hardening.sql`.
+- Supabase CLI local is still not part of the normal workflow.
+- Premium base tables remain closed to public product surfaces:
+  - `prediction_markets`
+  - `prediction_narratives`
+  - `prediction_results`
 
-- PR #18 — `feat: persist lab evaluations`
-- PR #19 — `docs: update project context after lab admin flow`
-- PR #20 — `feat: read public predictions from db`
-- PR #21 — `feat: add plans entitlements backend`
-- PR #22 — `docs: update project context after c02`
-- PR #23 — `feat: read public match detail from db`
 
-Current baseline:
+## What was completed since the previous docs refresh
 
-```txt
-main includes PR #23
-C01 is done
-C02 is done
-C03 is done
+### C04 — Premium Access Enforcement Skeleton ✅
+
+Merged as PR #25.
+
+Implemented:
+
+- `PremiumMatchResource`
+- `resolvePremiumMatchAccess()`
+- canonical `stageAccessKey`
+- server-only access decision helper
+- pure tests for match, competition, team, stage, global, unlock, beta grant, admin bypass, and denial cases
+
+C04 did not:
+
+- create SQL
+- change RLS/grants
+- touch Supabase remote
+- open premium tables
+- serve premium payload
+
+### C05 Gate 0 — Anonymous vs Registered Free Product Audit ✅
+
+Completed as recognition/product decision, not code.
+
+Main finding: registering free did not yet create enough visible value beyond the anonymous experience. The product funnel was clarified.
+
+### C05 Gate 1 — Registered Free Value Wall ✅
+
+Merged as PR #26.
+
+Implemented UI/copy improvements in Spanish:
+
+- `/` now explains public value, registered free previews, and premium later.
+- `/predictions` has anonymous vs authenticated messaging.
+- `/matches/[slug]` has anonymous vs authenticated preview messaging.
+- `/dashboard` communicates free user value, not only technical access state.
+- `/pricing` clarifies free account now, premium packages/catalog preview later, and no checkout/payment yet.
+
+Gate 1 did not change data boundaries, SQL, RLS, Supabase remote, or premium payload.
+
+## Product decisions added in this refresh
+
+### User funnel
+
+The active product funnel is:
+
+```text
+Anonymous → Registered Free → World Cup premium packages → post-World Cup monthly subscriptions
 ```
 
-## Supabase Remote State
+There is no separate `beta/free expanded` plan. `Registered Free` is the permanent free authenticated user state.
 
-Supabase remote has been manually updated through:
+### Registered Free
 
-```txt
-0013_public_match_detail_projection_hardening.sql
-```
+Registered Free exists before, during, and after the World Cup. What changes is the amount of preview access granted by product/editorial policy:
 
-Important applied migrations:
+- Pre-World Cup: more generous selected previews to validate the model, UX, and user interest.
+- World Cup: free users still receive value beyond anonymous users, but premium package value is protected.
+- Post-World Cup: free remains useful for discovery and retention while monthly subscriptions become relevant for recurring league coverage.
 
-- `0011_public_prediction_reads.sql`
-- `0012_plans_entitlements_backend.sql`
-- `0013_public_match_detail_projection_hardening.sql`
+### World Cup monetization
 
-## Critical Supabase Rule
+Premium packages are intended for the World Cup phase. Candidate products include:
 
-Supabase CLI local is not configured.
-
-Codex creates migration files, but Codex does not apply migrations to the remote Supabase project.
-
-All remote migrations must be applied manually by the user in Supabase SQL Editor.
-
-Never assume a local migration file is already applied to the remote database. After every migration:
-
-1. Review SQL.
-2. Apply manually in Supabase SQL Editor.
-3. Run SQL validation queries.
-4. Run UI validation.
-5. Run local validation:
-   - `npm run test`
-   - `npm run lint`
-   - `npm run build`
-6. Restore `next-env.d.ts` if Next modifies it.
-
-## Product Principle
-
-The statistical model calculates.
-
-The AI explains.
-
-Do not use LLM output as the source of prediction probabilities. The model and database contracts must stay deterministic and auditable.
-
-## Codex Prompt Rule
-
-Every ChatGPT-generated Codex prompt for UFO Predictor must start with an execution card:
-
-```txt
-USO RECOMENDADO:
-- Herramienta:
-- Modelo/intensidad:
-- Modo:
-- Motivo:
-- Riesgo:
-- Scope permitido:
-- No tocar:
-- Validaciones:
-- Debo volver a ChatGPT cuando:
-
-PROMPT PARA CODEX:
-...
-```
-
-Codex is the controlled repository execution layer, not a general strategy LLM. ChatGPT handles planning, scope, review, documentation, and prompt generation. Antigravity and OpenCode are auxiliary tools only; they do not replace Codex for repo execution.
-
-## Current Functional State
-
-### `/admin/beta-lab`
-
-Operational internal Lab Admin Flow.
-
-It can:
-
-- read real Lab fixtures from Supabase;
-- review Lab fixtures;
-- create and edit `match_results`;
-- read internal `prediction_markets`;
-- persist and update `prediction_results`;
-- show evaluation readiness and persisted metrics.
-
-Still mock:
-
-- `workerRuns`.
-
-### `/predictions`
-
-Operational public product surface.
-
-It reads public predictions from Supabase through the explicit public projection:
-
-```txt
-public_prediction_summaries
-```
-
-It only shows public/basic prediction data:
-
-- competition;
-- match;
-- teams;
-- venue;
-- kickoff;
-- public 1X2 probabilities;
-- confidence;
-- risk level;
-- link to public match detail.
-
-It does not expose:
-
-- internal Lab data;
-- premium markets;
-- premium narratives;
-- prediction results/evaluations;
-- private admin data;
-- expected goals, scorelines, odds, or premium analysis.
-
-### `/matches/[slug]`
-
-Operational public/free-only match detail.
-
-It reads real public match data from Supabase through:
-
-```txt
-public_match_details
-public_prediction_summaries
-```
-
-It shows:
-
-- match slug;
-- kickoff;
-- status/stage;
-- competition name/slug;
-- home/away team names/slugs/logos/flags;
-- venue name/city;
-- public 1X2 prediction basics when available.
-
-Behavior:
-
-- public match with prediction: shows metadata and public 1X2/confidence/risk;
-- public match without prediction: shows an empty state;
-- nonexistent, internal, lab-only, or non-public slug: 404;
-- no mock fallback.
-
-It does not expose:
-
-- `prediction_markets`;
-- `prediction_narratives`;
-- `prediction_results`;
-- premium analysis;
-- expected goals;
-- scorelines;
-- BTTS;
-- over/under;
-- Golden Hour Delta;
-- Model vs Market.
-
-### `/pricing`
-
-Operational beta catalog surface.
-
-It reads real active plans from Supabase.
-
-It does not implement:
-
-- checkout;
-- payments;
-- Stripe;
-- purchases.
-
-### `/dashboard`
-
-Operational authenticated access summary.
-
-It reads the signed-in user's real access state:
-
-- profile role;
-- active subscriptions;
-- current entitlements;
-- current match unlocks.
-
-It does not serve premium prediction content.
-
-## Public Projection Hardening
-
-C03 introduced `0013_public_match_detail_projection_hardening.sql`.
-
-This migration created explicit public views:
-
-- `public_match_details`
-- `public_prediction_summaries`
-
-Security posture after manual validation:
-
-- `anon` reads approved public views only.
-- `anon` no longer reads base public product tables directly.
-- `anon` cannot read `prediction_markets`.
-- `anon` cannot read `prediction_narratives`.
-- `anon` cannot read `prediction_results`.
-- public views expose only approved columns.
-- `authenticated` grants needed by Lab/Admin remain intentionally preserved for now.
-
-## Current Product Strategy
-
-UFO Predictor is moving toward a controlled beta/freemium organic phase before the World Cup.
-
-The beta strategy is:
-
-- show controlled free value;
-- avoid giving away all premium data;
-- avoid mass advertising until results, UX, costs, and infrastructure are validated;
-- use finals, friendlies, and pre-World Cup fixtures to learn organically;
-- keep premium access prepared but not overexposed.
-
-## Plans And Access Strategy
-
-Do not create many visible plans just because the database can support granular permissions.
-
-The commercial model should use few visible plans and granular internal permissions.
-
-Possible visible plans:
-
-- Free
+- World Cup Full Pass
 - 10 Match Pack
-- World Cup Pass
-- Team Pass
-- Semifinals / Final Pass
-- Premium Monthly later
+- Single Match Unlock
+- Country/Team Pass
+- Group Pass
+- Stage Pass, including semifinals/final style passes
 
-Internal access should be granular:
+Monthly subscriptions are expected after the World Cup for American and European leagues and recurring coverage.
 
-- competition entitlement;
-- stage entitlement;
-- team entitlement;
-- match unlock;
-- quantity / pack consumption.
+### Language
 
-Important rules:
+- Public UI now remains Spanish until an i18n pass is planned.
+- Future public UI should support English and Spanish.
+- Internal data, keys, identifiers, types, slugs, and model terminology should prefer canonical English.
+- Do not mix new public copy into accidental Spanglish.
 
-```txt
-premium_user role alone does not unlock all premium content.
-active subscription alone does not unlock protected content.
-effective access comes from current entitlements or current match unlocks.
+
+## Current next step
+
+Next recommended work:
+
+```text
+C05 Gate 2 — Data Boundary: Anonymous vs Registered Free
 ```
 
-Admin can have explicit bypass only where a future server query deliberately permits it.
+Purpose:
 
-## What Is Not Implemented Yet
+- decide what anonymous users can see;
+- decide what Registered Free users can see;
+- decide what must be reserved for World Cup premium packages;
+- determine whether new views/projections, SQL, or RLS are required;
+- keep premium base tables closed.
 
-Still not implemented:
+Do not jump directly to premium payload before Gate 2 is decided.
 
-- final premium enforcement;
-- entitled/premium match detail sections;
-- public or entitled `prediction_markets`;
-- public or entitled `prediction_narratives`;
-- public or entitled `prediction_results`;
-- payments;
-- Stripe;
-- checkout;
-- odds;
-- LLM;
-- real workers;
-- sports API;
-- Google Auth;
-- Supabase CLI local;
-- final staging.
+## Security rules
 
-## Recommended Next Epic
+- Visual locks, blur, and teaser cards are not authorization.
+- Premium payload must not be sent to the browser unless access has been authorized server-side.
+- `premium_user` alone does not unlock protected content.
+- Active subscription alone does not unlock protected content.
+- `quantity` / `match_pack` does not grant direct access without explicit match unlock materialization.
+- `trustedBetaFreeMatchIds` must be assembled server-side; never from client/query params.
+- `stageAccessKey` must be canonical and server-derived, for example `competitionId:stage`.
+- Do not use service role for normal product UI.
 
-```txt
-feature/premium-access-enforcement-skeleton
+
+## Codex prompt format rule
+
+ChatGPT must separate execution guidance from the copyable Codex prompt.
+
+### EJECUCIÓN RECOMENDADA
+
+This block is for the user. It should include:
+
+- tool
+- model
+- intelligence level
+- task size
+- risk
+- reason
+- whether PowerShell/manual work is enough
+
+### PROMPT LIMPIO PARA CODEX
+
+This block is the only block intended to be copied into Codex. It should contain the task instructions and must not be polluted with model/tool meta-commentary.
+
+Use manual PowerShell for simple `git status`, `git diff`, validations, commit, push, and PR flow when the user is already comfortable doing it. Use Codex for code/doc changes, and reserve GPT-5.5 or high intelligence for SQL, RLS, auth, entitlements, server-side access, premium filtering, and other sensitive security work.
+
+
+## Recommended first prompt for the next ChatGPT conversation
+
+```text
+We are continuing UFO Predictor from baseline post PR #26 / C05 Gate 1.
+
+Main is expected to include:
+- PR #25: feat: add premium match access enforcement skeleton
+- PR #26: feat: add registered free value wall
+
+Current task is to plan C05 Gate 2 — Data Boundary: Anonymous vs Registered Free.
+Do not implement yet. First review the updated docs, summarize current status, confirm open decisions, and prepare a Codex recognition prompt with execution recommendation separated from the clean prompt.
+
+Important product decisions:
+- User funnel: Anonymous → Registered Free → World Cup premium packages → post-World Cup monthly subscriptions.
+- Registered Free is permanent, not a separate beta plan.
+- Pre-World Cup selected previews are used to validate the model/UX and capture registrations.
+- World Cup monetization is expected to be package/pass based.
+- Monthly subscriptions are expected after the World Cup for recurring league coverage.
+- Public UI is currently Spanish; future i18n EN/ES is planned but not implemented.
+- Internal data/keys/types should prefer canonical English.
+
+Security rules:
+- Visual locks are not authorization.
+- Do not open prediction_markets, prediction_narratives, or prediction_results.
+- Do not send premium payload to the browser without server-side authorization.
 ```
-
-Suggested code:
-
-```txt
-C04 — Premium Access Enforcement Skeleton
-```
-
-Goal:
-
-Create the server-side enforcement skeleton for premium access before exposing any premium match detail data.
-
-Allowed in C04:
-
-- inspect entitlement/access logic;
-- define free vs protected projection boundaries;
-- create pure access resolver tests if needed;
-- prepare server-only premium access checks;
-- keep premium data closed unless explicitly authorized by a safe server projection.
-
-Not allowed yet:
-
-- public `prediction_markets`;
-- public `prediction_narratives`;
-- public `prediction_results`;
-- final premium UI with real premium content;
-- payments;
-- Stripe;
-- checkout;
-- odds;
-- LLM;
-- workers;
-- sports API.
-
-## Recommended Workflow For Next Conversation
-
-1. Start new ChatGPT conversation using updated docs.
-2. ChatGPT should generate a Codex recognition prompt with the execution card.
-3. Ask Codex for recognition only.
-4. Codex should confirm main includes PR #23.
-5. Codex should inspect C02 entitlements, C03 public projections, match detail, and current schema.
-6. Do not implement until ChatGPT reviews Codex's recognition.
-7. Keep all future migrations manual in Supabase SQL Editor.
-
-## Active Source Priority
-
-Prioritize these documents:
-
-- `START_HERE_FOR_NEW_CONVERSATIONS.md`
-- `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
-- `CURRENT_PROJECT_STATUS.md`
-- `CODEX_HANDOFF_CURRENT.md`
-- `EPIC_PROGRESS_MATRIX.md`
-- `NEXT_EPICS_PLAN.md`
-- `ROADMAP_AND_BACKLOG.md`
-- `OPEN_DECISIONS.md`
-- `DATA_DICTIONARY.md`
-- `CODEX_WORKFLOW.md`
-- `DOCS_AND_SOURCES_INVENTORY.md`
-
-Treat older secondary documents as historical if they contradict active sources.

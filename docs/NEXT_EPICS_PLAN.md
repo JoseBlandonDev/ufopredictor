@@ -1,107 +1,98 @@
 # NEXT EPICS PLAN — UFO Predictor
 
-_Last updated: post PR #23 / C03 Match Detail Public From DB_
+_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
 
-## Current Position
+## Current position
 
 Completed:
 
-- C01 — Public Predictions From DB
-- C02 — Plans & Entitlements Backend
-- C03 — Match Detail Public From DB
+- C04 Premium Access Enforcement Skeleton
+- C05 Gate 0 Product Audit
+- C05 Gate 1 Registered Free Value Wall
 
-Current app state:
+Next:
 
-- `/predictions` reads real public predictions from `public_prediction_summaries`.
-- `/matches/[slug]` reads real public/free-only match detail from `public_match_details` and optional prediction data from `public_prediction_summaries`.
-- `/pricing` reads real active plans.
-- `/dashboard` reads real viewer access summary.
-- `/admin/beta-lab` remains operational.
-
-## Recommended Next Epic: C04
-
-```txt
-feature/premium-access-enforcement-skeleton
+```text
+C05 Gate 2 — Data Boundary: Anonymous vs Registered Free
 ```
 
-## C04 Goal
+## Recommended sequence
 
-Create the server-side premium access enforcement skeleton before exposing any premium match detail data.
+### C05 Gate 2 — Data Boundary: Anonymous vs Registered Free
 
-C04 exists because C02 created entitlements and C03 created safe public match detail, but premium data still needs a hard backend access boundary before it can be served.
+Recognition/planning first.
 
-## C04 Allowed Scope
+Decide:
 
-- Inspect entitlement/access logic from C02.
-- Inspect public projection boundaries from C03.
-- Define free vs protected field boundaries.
-- Prepare server-only premium access query patterns.
-- Add or refine pure tests for entitlement/match access resolution.
-- Keep `prediction_markets`, `prediction_narratives`, and `prediction_results` closed publicly.
-- Keep `/matches/[slug]` public/free-only unless an explicitly safe protected projection is approved.
+- what anonymous sees;
+- what Registered Free sees;
+- what World Cup packages reserve;
+- what post-World Cup subscriptions reserve;
+- whether new projections/views are required;
+- whether SQL/RLS is required.
 
-## C04 Not Allowed
+### C05 Gate 3 — Registered Free Capture Foundation
 
-Do not implement:
+Potential implementation after Gate 2.
 
-- public `prediction_markets` access;
-- public `prediction_narratives` access;
-- public `prediction_results` access;
-- final premium match detail UI;
-- payments;
-- Stripe;
-- checkout;
-- odds;
-- LLM;
-- sports API;
-- real workers;
-- Google Auth;
-- Supabase CLI setup.
+Candidate features:
 
-## Why Not Premium Detail Immediately
+- favorites;
+- watchlist;
+- preferred teams;
+- preferred competitions;
+- preview interest/click events;
+- onboarding preferences.
 
-C02 created access foundations, but premium serving still requires server-side projection filtering.
+### C06 — World Cup Premium Package Foundation
 
-C03 proved the pattern for public/free-only projections. C04 should extend the discipline to protected access without leaking premium fields.
+Define and model World Cup products:
 
-Visual locks are not authorization. Apparently this must be said because frontend locks are the cardboard doors of security.
+- World Cup Full Pass;
+- 10 Match Pack;
+- Single Match Unlock;
+- Country/Team Pass;
+- Group Pass;
+- Stage/Semifinals/Final Pass.
 
-## Product Strategy Context
+This may reuse C02 entitlements and C04 access resolver concepts.
 
-UFO Predictor is preparing for a controlled beta/freemium phase before the World Cup.
+### C07 — Entitled Premium Match Projection
 
-The beta should:
+Serve premium match payload only after authorization.
 
-- show value without giving away all premium data;
-- build confidence organically;
-- avoid mass promotion until model performance, UX, infra, and costs are validated.
+Options to evaluate:
 
-## After C04
+- protected view;
+- RPC;
+- server-only query with C04 enforcement;
+- a combination.
 
-Potential sequence:
+### C08 — Trust / Transparency Real v0.1
 
-1. C04 — Premium Access Enforcement Skeleton
-2. C05 — Entitled Match Detail Premium Projection
-3. C06 — Data Intake / Sports API research or minimal integration
-4. C07 — Workers runtime
-5. Later — odds, LLM narratives, payments/Stripe, Google Auth
+Replace mock transparency with real metrics, but separate:
 
-## Tool Discipline For C04
+- Lab/Internal results;
+- Beta Calibration;
+- Trust-Eligible predictions.
 
-Any prompt from ChatGPT to Codex must include the execution card.
+### D/E/F/G future tracks
 
-C04 should use:
+- Sports API and workers.
+- World Cup checkout/payment for packages.
+- Post-World Cup monthly subscriptions.
+- LLM explanation layer.
+- i18n EN/ES.
+- Google Auth.
 
-- Tool: Codex
-- Intensity: Alto/Fuerte
-- Mode: recognition first, no changes
-- Reason: premium enforcement touches authorization and possible premium leakage
-- Return to ChatGPT: after recognition and before implementation
+## Security rules
 
-## Supabase Rule For Every Future Epic
+- Visual locks, blur, and teaser cards are not authorization.
+- Premium payload must not be sent to the browser unless access has been authorized server-side.
+- `premium_user` alone does not unlock protected content.
+- Active subscription alone does not unlock protected content.
+- `quantity` / `match_pack` does not grant direct access without explicit match unlock materialization.
+- `trustedBetaFreeMatchIds` must be assembled server-side; never from client/query params.
+- `stageAccessKey` must be canonical and server-derived, for example `competitionId:stage`.
+- Do not use service role for normal product UI.
 
-Supabase CLI local is not configured.
-
-Codex may create migration files but must not assume they are applied remotely.
-
-The user applies migrations manually in Supabase SQL Editor and validates them before commit/PR.
