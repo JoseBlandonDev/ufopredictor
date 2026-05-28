@@ -6,12 +6,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export default async function PredictionsPage() {
-  const data = await getPublicPredictionsData();
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const isAuthenticated = Boolean(user);
+  const viewer = user ? "registered_free" : "anonymous";
+  const isAuthenticated = viewer === "registered_free";
+  const data = await getPublicPredictionsData(viewer);
 
   return (
     <div className="space-y-6">
@@ -77,11 +78,7 @@ export default async function PredictionsPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
           {data.predictions.map((prediction) => (
-            <PublicPredictionCard
-              key={prediction.matchSlug}
-              prediction={prediction}
-              isAuthenticated={isAuthenticated}
-            />
+            <PublicPredictionCard key={prediction.matchSlug} prediction={prediction} />
           ))}
         </div>
       )}

@@ -3,6 +3,8 @@ import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
 
+export type PublicPredictionViewer = "anonymous" | "registered_free";
+
 type PublicPredictionSummaryRow = {
   match_slug: string;
   kickoff_at: string;
@@ -28,8 +30,9 @@ type PublicPredictionSummaryRow = {
   risk_level: PredictionVersionRow["risk_level"];
 };
 
-export type PublicPredictionCardView = {
+type PublicPredictionCardBaseView = {
   predictionCreatedAt: string;
+  viewer: PublicPredictionViewer;
   matchSlug: string;
   kickoffAt: string;
   stage: string | null;
@@ -49,9 +52,21 @@ export type PublicPredictionCardView = {
   homeWinProb: number;
   drawProb: number;
   awayWinProb: number;
+};
+
+export type PublicPredictionCardAnonymousView = PublicPredictionCardBaseView & {
+  viewer: "anonymous";
+};
+
+export type PublicPredictionCardRegisteredView = PublicPredictionCardBaseView & {
+  viewer: "registered_free";
   confidenceScore: number;
   riskLevel: PredictionVersionRow["risk_level"];
 };
+
+export type PublicPredictionCardView =
+  | PublicPredictionCardAnonymousView
+  | PublicPredictionCardRegisteredView;
 
 export type PublicPredictionsData =
   | {
@@ -70,8 +85,9 @@ function unavailable(): PublicPredictionsData {
   };
 }
 
-function toCardView(prediction: PublicPredictionSummaryRow): PublicPredictionCardView {
+function toCardBaseView(prediction: PublicPredictionSummaryRow): PublicPredictionCardBaseView {
   return {
+    viewer: "anonymous",
     predictionCreatedAt: prediction.prediction_created_at,
     matchSlug: prediction.match_slug,
     kickoffAt: prediction.kickoff_at,
@@ -92,12 +108,33 @@ function toCardView(prediction: PublicPredictionSummaryRow): PublicPredictionCar
     homeWinProb: prediction.home_win_prob,
     drawProb: prediction.draw_prob,
     awayWinProb: prediction.away_win_prob,
-    confidenceScore: prediction.confidence_score,
-    riskLevel: prediction.risk_level,
   };
 }
 
-export async function getPublicPredictionsData(): Promise<PublicPredictionsData> {
+export function toPredictionCardView(
+  prediction: PublicPredictionSummaryRow,
+  viewer: PublicPredictionViewer,
+): PublicPredictionCardView {
+  const base = toCardBaseView(prediction);
+
+  if (viewer === "registered_free") {
+    return {
+      ...base,
+      viewer,
+      confidenceScore: prediction.confidence_score,
+      riskLevel: prediction.risk_level,
+    };
+  }
+
+  return {
+    ...base,
+    viewer,
+  };
+}
+
+export async function getPublicPredictionsData(
+  viewer: PublicPredictionViewer,
+): Promise<PublicPredictionsData> {
   let supabase;
 
   try {
@@ -119,6 +156,8 @@ export async function getPublicPredictionsData(): Promise<PublicPredictionsData>
 
   return {
     status: "ready",
-    predictions: ((data ?? []) as PublicPredictionSummaryRow[]).map(toCardView),
+    predictions: ((data ?? []) as PublicPredictionSummaryRow[]).map((prediction) =>
+      toPredictionCardView(prediction, viewer),
+    ),
   };
 }

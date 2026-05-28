@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { PublicPredictionViewer } from "@/lib/supabase/public-prediction-queries";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
 
 type PublicMatchDetailRow = {
@@ -32,6 +33,7 @@ type PublicMatchPredictionRow = {
 };
 
 export type PublicMatchDetailView = {
+  viewer: PublicPredictionViewer;
   matchSlug: string;
   kickoffAt: string;
   stage: string | null;
@@ -48,15 +50,30 @@ export type PublicMatchDetailView = {
   awayTeamFlagUrl: string | null;
   venueName: string | null;
   venueCity: string | null;
-  prediction: {
-    createdAt: string;
-    homeWinProb: number;
-    drawProb: number;
-    awayWinProb: number;
-    confidenceScore: number;
-    riskLevel: PredictionVersionRow["risk_level"];
-  } | null;
+  prediction: PublicMatchPredictionView | null;
 };
+
+type PublicMatchPredictionBaseView = {
+  viewer: PublicPredictionViewer;
+  createdAt: string;
+  homeWinProb: number;
+  drawProb: number;
+  awayWinProb: number;
+};
+
+export type PublicMatchPredictionAnonymousView = PublicMatchPredictionBaseView & {
+  viewer: "anonymous";
+};
+
+export type PublicMatchPredictionRegisteredView = PublicMatchPredictionBaseView & {
+  viewer: "registered_free";
+  confidenceScore: number;
+  riskLevel: PredictionVersionRow["risk_level"];
+};
+
+export type PublicMatchPredictionView =
+  | PublicMatchPredictionAnonymousView
+  | PublicMatchPredictionRegisteredView;
 
 export type PublicMatchDetailData =
   | {
@@ -78,7 +95,35 @@ function unavailable(): PublicMatchDetailData {
   };
 }
 
-export async function getPublicMatchDetailData(slug: string): Promise<PublicMatchDetailData> {
+export function toMatchPredictionView(
+  prediction: PublicMatchPredictionRow,
+  viewer: PublicPredictionViewer,
+): PublicMatchPredictionView {
+  if (viewer === "registered_free") {
+    return {
+      viewer,
+      createdAt: prediction.prediction_created_at,
+      homeWinProb: prediction.home_win_prob,
+      drawProb: prediction.draw_prob,
+      awayWinProb: prediction.away_win_prob,
+      confidenceScore: prediction.confidence_score,
+      riskLevel: prediction.risk_level,
+    };
+  }
+
+  return {
+    viewer,
+    createdAt: prediction.prediction_created_at,
+    homeWinProb: prediction.home_win_prob,
+    drawProb: prediction.draw_prob,
+    awayWinProb: prediction.away_win_prob,
+  };
+}
+
+export async function getPublicMatchDetailData(
+  slug: string,
+  viewer: PublicPredictionViewer,
+): Promise<PublicMatchDetailData> {
   let supabase;
 
   try {
@@ -121,6 +166,7 @@ export async function getPublicMatchDetailData(slug: string): Promise<PublicMatc
   return {
     status: "ready",
     match: {
+      viewer,
       matchSlug: match.match_slug,
       kickoffAt: match.kickoff_at,
       stage: match.stage,
@@ -137,16 +183,7 @@ export async function getPublicMatchDetailData(slug: string): Promise<PublicMatc
       awayTeamFlagUrl: match.away_team_flag_url,
       venueName: match.venue_name,
       venueCity: match.venue_city,
-      prediction: prediction
-        ? {
-            createdAt: prediction.prediction_created_at,
-            homeWinProb: prediction.home_win_prob,
-            drawProb: prediction.draw_prob,
-            awayWinProb: prediction.away_win_prob,
-            confidenceScore: prediction.confidence_score,
-            riskLevel: prediction.risk_level,
-          }
-        : null,
+      prediction: prediction ? toMatchPredictionView(prediction, viewer) : null,
     },
   };
 }
