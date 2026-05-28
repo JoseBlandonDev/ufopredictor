@@ -1,46 +1,35 @@
 # MODEL V01 — UFO Predictor
 
-_Last updated: post PR #23 / C03 Match Detail Public From DB_
+_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
 
-This is a secondary model reference.
+## Current model positioning
 
-## Principle
+The statistical model calculates probabilities. AI explanations are future and must not override calculated outputs.
 
-The statistical model calculates.
+## Current model/product status
 
-The AI explains.
+- Prediction Engine v0.1 exists for Lab use.
+- Evaluation logic exists for Lab use.
+- Public predictions are shown from DB-backed public summaries.
+- `/transparency` is still mock/simulated and must not be treated as production trust evidence.
 
-Prediction probabilities should come from deterministic model code and persisted prediction versions, not from LLM narratives.
+## Pre-World Cup beta use
 
-## Current Model State
+Relevant pre-World Cup matches should be used to validate and improve the model:
 
-The project has a deterministic prediction engine prototype and model evaluation utilities.
+- league finals;
+- attractive national-team friendlies;
+- high-interest matches;
+- matches useful for calibration.
 
-Lab Admin can persist evaluation results using `lib/model-evaluation`.
+These should help tune variables/formula, validate UX, and gather user interest before World Cup premium packages go live.
 
-Public predictions and public match detail read persisted public `prediction_versions` from Supabase through approved public projections.
+## Future Trust Center
 
-## Public Product Current Use
+Trust metrics should separate:
 
-`/predictions` shows public 1X2 probabilities, confidence, and risk from DB-backed public prediction versions.
+- Lab/Internal results;
+- Beta Calibration;
+- Trust-Eligible predictions.
 
-`/matches/[slug]` can show the same public/basic prediction summary when a public prediction exists.
-
-## What Is Not Yet Modeled In Production
-
-- real sports data ingestion;
-- real odds integration;
-- production-grade calibration;
-- automated workers;
-- LLM narratives;
-- premium market projections.
-
-## Future Considerations
-
-Before larger beta promotion:
-
-- validate predictions against real results;
-- separate pre-alignment and post-alignment metrics;
-- document model confidence and risk language;
-- avoid overpromising accuracy;
-- keep disclaimers visible.
+Do not count early calibration noise as public production trust.

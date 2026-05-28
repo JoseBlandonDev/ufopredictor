@@ -1,205 +1,90 @@
 # OPEN DECISIONS — UFO Predictor
 
-_Last updated: post PR #23 / C03 Match Detail Public From DB_
+_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
 
-## D01 — Public vs Internal Scope
+## Closed/updated decisions
 
-Current decision:
+### D01 — Codex prompt format
 
-- `internal_lab` remains internal.
-- `public_product` powers public product views.
-- `/predictions` uses only public/product-safe data.
-- `/matches/[slug]` now uses only public/free-safe data through explicit public views.
+Decision: use separate blocks.
 
-Status: Mostly resolved for public/free surfaces. Still relevant for premium projections.
+- `EJECUCIÓN RECOMENDADA` is for the user.
+- `PROMPT LIMPIO PARA CODEX` is the copyable Codex prompt.
 
-## D02 — Supabase Migration Workflow
+Do not put the model/tool recommendation inside the same copyable prompt block.
 
-Decision:
-
-Supabase CLI local is not configured.
-
-Codex creates migration SQL files but does not apply remote migrations.
-
-The user applies every remote migration manually in Supabase SQL Editor.
-
-Every migration must include manual validation queries.
-
-Status: Resolved as operating rule.
-
-## D03 — Beta/Freemium Strategy
+### D02 — User funnel
 
 Decision:
 
-Run a controlled organic beta/freemium phase before the World Cup.
-
-The beta should:
-
-- show useful free value;
-- avoid giving away all premium data;
-- avoid mass advertising until validation improves;
-- use finals, friendlies, and pre-World Cup fixtures for learning.
-
-Status: Current product direction.
-
-## D04 — Plans vs Permissions
-
-Decision:
-
-Use few visible commercial plans and granular internal permissions.
-
-Possible visible plans:
-
-- Free
-- 10 Match Pack
-- World Cup Pass
-- Team Pass
-- Semifinals / Final Pass
-- Premium Monthly later
-
-Internal permission models:
-
-- competition entitlement;
-- stage entitlement;
-- team entitlement;
-- match unlock;
-- quantity / pack consumption.
-
-Status: Direction accepted; exact entitlement-to-match mapping remains open.
-
-## D05 — Entitlement To Match Resolver
-
-Open question:
-
-How should each entitlement type translate to actual match access?
-
-Possible rules:
-
-- `competition` covers all matches in a competition.
-- `stage` covers matches in a given stage.
-- `team` covers matches involving a team.
-- `match` covers one exact match.
-- `quantity` supports match-pack consumption.
-
-Status: Open, likely needed in C04/C05.
-
-## D06 — Pack Consumption Model
-
-Open question:
-
-For a 10 Match Pack, should the system:
-
-1. store a quantity entitlement and decrement usage, or
-2. create explicit `user_match_unlocks` when the user chooses matches?
-
-Current recommendation:
-
-Use explicit `user_match_unlocks` after the user selects matches, because it is clearer and auditable.
-
-Status: Open.
-
-## D07 — Premium Content Boundaries
-
-Open question:
-
-Which fields are free and which are premium?
-
-Known premium candidates:
-
-- prediction markets;
-- narratives;
-- scorelines;
-- expected goals;
-- model vs market;
-- Golden Hour Delta;
-- deeper confidence/risk explanations;
-- post-result evaluation.
-
-Status: Open. Must be resolved before serving premium match details.
-
-## D08 — Sports Data Provider
-
-Open question:
-
-Which sports API provider should be used?
-
-Criteria:
-
-- World Cup coverage;
-- fixture quality;
-- results speed;
-- pricing;
-- quotas;
-- reliability.
-
-Status: Not selected.
-
-## D09 — Odds Provider
-
-Open question:
-
-Whether to integrate odds, and with which provider.
-
-Status: Not selected.
-
-## D10 — LLM Narrative Strategy
-
-Open question:
-
-When to add LLM explanations and how much of them should be premium.
-
-Current rule:
-
-The model calculates. The AI explains.
-
-Status: Deferred.
-
-## D11 — Payments
-
-Open question:
-
-When to implement payments/Stripe.
-
-Current direction:
-
-Not during early beta unless product readiness and demand justify it.
-
-Status: Deferred.
-
-## D12 — Staging / Production Readiness
-
-Open question:
-
-When to create final staging and production release infrastructure.
-
-Status: Deferred until public beta scope is clearer.
-
-## D13 — Tool Usage / Codex Prompt Discipline
-
-Decision:
-
-ChatGPT is the planning, direction, review, and documentation layer.
-
-Codex is the controlled repository execution layer.
-
-Antigravity and OpenCode are auxiliary tools used to save capacity and use the right tool for the right job. They do not replace Codex for repository execution.
-
-Every ChatGPT-generated prompt for Codex must include the execution card:
-
-```txt
-USO RECOMENDADO:
-- Herramienta:
-- Modelo/intensidad:
-- Modo:
-- Motivo:
-- Riesgo:
-- Scope permitido:
-- No tocar:
-- Validaciones:
-- Debo volver a ChatGPT cuando:
-
-PROMPT PARA CODEX:
-...
+```text
+Anonymous → Registered Free → World Cup premium packages → post-World Cup monthly subscriptions
 ```
 
-Status: Resolved operating rule.
+No separate `beta/free expanded` plan exists.
+
+### D03 — Registered Free
+
+Decision: Registered Free is permanent and exists before, during, and after the World Cup. Access previews may vary by product phase.
+
+### D04 — World Cup premium monetization
+
+Decision: World Cup monetization should use packages/passes/unlocks rather than monthly subscriptions as the first premium motion.
+
+Candidate products:
+
+- Full World Cup Pass
+- 10 Match Pack
+- Single Match Unlock
+- Country/Team Pass
+- Group Pass
+- Stage Pass
+
+### D05 — Post-World Cup subscriptions
+
+Decision: monthly subscriptions are expected after the World Cup for recurring American/European league coverage.
+
+### D06 — Stage access
+
+Decision: stage authorization must use canonical server-derived `stageAccessKey`, for example `competitionId:stage`. Do not authorize by loose stage strings like `semifinal`.
+
+### D07 — Match packs
+
+Decision: `quantity` / `match_pack` does not grant direct content access. Actual access should materialize as explicit `user_match_unlocks` or equivalent server-side grants.
+
+### D08 — Beta grants
+
+Decision: `trustedBetaFreeMatchIds` must be server-side trusted context, never client/query param input.
+
+### D09 — Current public UI language
+
+Decision: current public UI should remain Spanish. Future i18n EN/ES is planned, but not implemented. Internal canonical data/keys should prefer English.
+
+## Still open
+
+### O01 — C05 Gate 2 data boundary
+
+- Does anonymous keep full 1X2?
+- What does Registered Free unlock beyond messaging?
+- What is reserved for World Cup packages?
+- Is SQL/RLS required?
+
+### O02 — C05 Gate 3 capture foundation
+
+- Which data is captured first: favorites, watchlist, preferences, or events?
+- Do we implement first-party analytics or keep it minimal?
+
+### O03 — Premium projection pattern
+
+- View vs RPC vs server-only query.
+- How to integrate access decision before returning premium payload.
+
+### O04 — Trust Score eligibility
+
+- Which predictions count publicly?
+- What model version/date becomes Trust-Eligible?
+- How to separate Beta Calibration from production Trust metrics?
+
+### O05 — Sports API provider
+
+Provider/cost/coverage decision is still open.

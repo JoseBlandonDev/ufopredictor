@@ -1,105 +1,64 @@
 # IMPLEMENTATION PLAN — UFO Predictor
 
-_Last updated: post PR #23 / C03 Match Detail Public From DB_
+_Last updated: post PR #26 / C05 Gate 1 Registered Free Value Wall_
 
-This is a secondary planning document. Active next-step planning lives in `NEXT_EPICS_PLAN.md` and `ROADMAP_AND_BACKLOG.md`.
+## Current implementation baseline
 
-## Completed Implementation Blocks
+Completed through PR #26.
 
-### Lab Admin Flow
+## Next implementation sequence
 
-Completed:
+### Step 1 — C05 Gate 2 Recognition
 
-- Lab fixture review actions;
-- match result actions;
-- internal Lab prediction markets;
-- persisted Lab evaluations.
+No code first. Determine the data boundary between Anonymous and Registered Free.
 
-### C01 — Public Predictions From DB
+Deliverable:
 
-Completed:
+- matrix of fields/capabilities by user state;
+- SQL/RLS requirements if any;
+- risks and recommended first implementation.
 
-- public prediction listing from Supabase;
-- public prediction card;
-- `/predictions` from DB.
+### Step 2 — C05 Gate 2 Implementation, if approved
 
-Current C01 data path is now hardened through C03's `public_prediction_summaries` view.
+Possible outputs:
 
-### C02 — Plans & Entitlements Backend
+- new public anonymous projection;
+- registered-free projection;
+- query branching by session;
+- UI adjustments.
 
-Completed:
+Only after review. SQL/RLS would require higher-intelligence Codex and manual Supabase application.
 
-- public active plans;
-- public plan features;
-- own-row subscriptions;
-- own-row entitlements;
-- own-row match unlocks;
-- pure access logic;
-- tests;
-- `/pricing` from DB;
-- `/dashboard` from DB.
+### Step 3 — C05 Gate 3 Capture Foundation
 
-### C03 — Match Detail Public From DB
+Add capture mechanisms for free registered interest if approved:
 
-Completed:
+- favorites;
+- watchlist;
+- preferences;
+- events.
 
-- server-only match detail public query;
-- real `/matches/[slug]` for public matches;
-- safe 404/empty states;
-- public prediction basics if available;
-- `public_match_details` view;
-- `public_prediction_summaries` view;
-- anon public projection hardening;
-- no premium data opened.
+### Step 4 — C06 World Cup Premium Package Foundation
 
-## Next Implementation Block
+Model/package the World Cup monetization layer:
 
-### C04 — Premium Access Enforcement Skeleton
+- full pass;
+- packs;
+- team/country;
+- group/stage;
+- single match unlocks.
 
-Branch:
+### Step 5 — C07 Entitled Premium Match Projection
 
-```txt
-feature/premium-access-enforcement-skeleton
-```
+Serve premium payload only through authorized server-side boundary.
 
-Implement or prepare:
+### Step 6 — Trust, sports data, workers, payments, i18n
 
-- server-only premium access resolver pattern;
-- free vs protected field boundary;
-- entitlement-based match access skeleton;
-- pure tests for access decisions;
-- no premium data leakage.
+Later tracks.
 
-Do not implement:
+## Important implementation constraints
 
-- public `prediction_markets`;
-- public `prediction_narratives`;
-- public `prediction_results`;
-- final premium UI;
-- payments;
-- odds;
-- LLM;
-- workers;
-- sports API.
-
-## Migration Handling
-
-If C04 needs a migration, Codex creates SQL only.
-
-The user applies it manually in Supabase SQL Editor.
-
-No remote migration is assumed until manually confirmed.
-
-## Validation Standard
-
-Before commit:
-
-```bash
-git diff --check
-npm run test
-npm run lint
-npm run build
-git status --short
-```
-
-Restore `next-env.d.ts` if changed.
+- Do not combine C05 Gate 2 SQL/RLS with premium payload serving.
+- Do not combine docs refresh with functional code unless explicitly scoped.
+- Keep UI public Spanish until i18n is deliberately implemented.
+- Keep internal canonical data/keys in English where possible.
