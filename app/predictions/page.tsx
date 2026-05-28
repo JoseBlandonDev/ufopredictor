@@ -11,6 +11,7 @@ export default async function PredictionsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const isAuthenticated = Boolean(user);
 
   return (
     <div className="space-y-6">
@@ -20,22 +21,22 @@ export default async function PredictionsPage() {
         </p>
         <h1 className="mt-3 text-4xl font-semibold">Panel público de predicciones Mundial 2026</h1>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          Las probabilidades 1X2 básicas, confianza y riesgo están disponibles públicamente.
-          Los datos internos del Lab y el análisis premium quedan fuera de esta vista.
+          Las probabilidades 1X2 básicas están disponibles públicamente. Los datos internos del
+          Lab y el análisis premium quedan fuera de esta vista.
         </p>
       </section>
 
       <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
         <h2 className="text-lg font-semibold">
-          {user ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
+          {isAuthenticated ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
         </h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          {user
-            ? "Las señales preview seleccionadas aparecerán antes del Mundial."
-            : "Crea una cuenta gratis para desbloquear previews seleccionados, señales del modelo y contexto previo al Mundial."}
+          {isAuthenticated
+            ? "Ya ves el contexto completo de confianza/riesgo en las predicciones públicas. Las señales preview seleccionadas aparecerán antes del Mundial."
+            : "Crea una cuenta gratis para desbloquear el contexto completo de confianza/riesgo, previews seleccionados y señales del modelo antes del Mundial."}
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          {user ? (
+          {isAuthenticated ? (
             <Link
               href="/dashboard"
               className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
@@ -76,7 +77,11 @@ export default async function PredictionsPage() {
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">
           {data.predictions.map((prediction) => (
-            <PublicPredictionCard key={prediction.matchSlug} prediction={prediction} />
+            <PublicPredictionCard
+              key={prediction.matchSlug}
+              prediction={prediction}
+              isAuthenticated={isAuthenticated}
+            />
           ))}
         </div>
       )}

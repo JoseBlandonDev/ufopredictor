@@ -25,6 +25,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const isAuthenticated = Boolean(user);
 
   if (data.status === "not_found") {
     notFound();
@@ -40,7 +41,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   }
 
   const { match } = data;
-  const kickoff = new Intl.DateTimeFormat("en", {
+  const kickoff = new Intl.DateTimeFormat("es-CO", {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "America/Bogota",
@@ -83,10 +84,19 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               </p>
               <h2 className="mt-2 text-xl font-semibold">Probabilidades 1X2 publicadas</h2>
             </div>
-            <div className="flex gap-2">
-              <ConfidenceBadge score={match.prediction.confidenceScore} />
-              <RiskBadge level={match.prediction.riskLevel} />
-            </div>
+            {isAuthenticated ? (
+              <div className="flex gap-2">
+                <ConfidenceBadge score={match.prediction.confidenceScore} />
+                <RiskBadge level={match.prediction.riskLevel} />
+              </div>
+            ) : (
+              <div className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
+                  Señal básica
+                </p>
+                <p className="mt-1 text-xs text-[var(--muted)]">Confianza/riesgo completo con cuenta gratis</p>
+              </div>
+            )}
           </div>
           <div className="mt-6 max-w-2xl">
             <ProbabilityBar
@@ -98,8 +108,13 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             />
           </div>
           <p className="mt-5 text-xs text-[var(--muted)]">
+            {isAuthenticated
+              ? "Vista registrada gratis: contexto completo de confianza/riesgo y lectura pública del partido."
+              : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
+          </p>
+          <p className="mt-2 text-xs text-[var(--muted)]">
             Publicada el{" "}
-            {new Intl.DateTimeFormat("en", {
+            {new Intl.DateTimeFormat("es-CO", {
               dateStyle: "medium",
               timeStyle: "short",
               timeZone: "America/Bogota",
@@ -111,25 +126,24 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         <section className="panel rounded-lg p-6">
           <h2 className="text-lg font-semibold">Predicción aún no publicada</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            El partido está disponible públicamente, pero todavía no existe una predicción básica publicada.
+            El partido está disponible públicamente, pero todavía no existe una predicción básica
+            publicada.
           </p>
         </section>
       )}
 
       <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          {user ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
+          {isAuthenticated ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
         </p>
         <h2 className="mt-2 text-lg font-semibold">
-          {user
+          {isAuthenticated
             ? "Los previews seleccionados aparecerán antes del Mundial cuando este partido esté habilitado."
             : "Crea una cuenta gratis para acceder a previews seleccionados antes del Mundial."}
         </h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          El análisis premium llegará más adelante.
-        </p>
+        <p className="mt-2 text-sm text-[var(--muted)]">El análisis premium llegará más adelante.</p>
         <div className="mt-4 flex flex-wrap gap-3">
-          {user ? (
+          {isAuthenticated ? (
             <Link
               href="/dashboard"
               className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
@@ -157,7 +171,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
 
       <section className="panel rounded-lg p-5">
         <p className="text-sm text-[var(--muted)]">
-          Esta página solo expone metadata pública básica del partido y probabilidades del modelo cuando están disponibles.
+          Esta página solo expone metadata pública básica del partido y probabilidades del modelo
+          cuando están disponibles.
         </p>
       </section>
     </div>

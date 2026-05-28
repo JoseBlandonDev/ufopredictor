@@ -5,7 +5,12 @@ import { ProbabilityBar } from "@/components/probability-bar";
 import { RiskBadge } from "@/components/risk-badge";
 import type { PublicPredictionCardView } from "@/lib/supabase/public-prediction-queries";
 
-export function PublicPredictionCard({ prediction }: { prediction: PublicPredictionCardView }) {
+type PublicPredictionCardProps = {
+  prediction: PublicPredictionCardView;
+  isAuthenticated: boolean;
+};
+
+export function PublicPredictionCard({ prediction, isAuthenticated }: PublicPredictionCardProps) {
   const date = new Intl.DateTimeFormat("es-CO", {
     month: "short",
     day: "numeric",
@@ -37,10 +42,19 @@ export function PublicPredictionCard({ prediction }: { prediction: PublicPredict
             </span>
           </div>
         </div>
-        <div className="flex gap-2">
-          <ConfidenceBadge score={prediction.confidenceScore} />
-          <RiskBadge level={prediction.riskLevel} />
-        </div>
+        {isAuthenticated ? (
+          <div className="flex gap-2">
+            <ConfidenceBadge score={prediction.confidenceScore} />
+            <RiskBadge level={prediction.riskLevel} />
+          </div>
+        ) : (
+          <div className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
+              Señal básica
+            </p>
+            <p className="mt-1 text-xs text-[var(--muted)]">Confianza/riesgo completo con cuenta gratis</p>
+          </div>
+        )}
       </div>
       <div className="mt-5">
         <ProbabilityBar
@@ -52,7 +66,9 @@ export function PublicPredictionCard({ prediction }: { prediction: PublicPredict
         />
       </div>
       <p className="mt-4 text-xs text-[var(--muted)]">
-        Vista pública básica. Los previews para cuentas gratis aparecerán antes del Mundial.
+        {isAuthenticated
+          ? "Vista registrada gratis: confianza y riesgo completos en el panel público."
+          : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
       </p>
       <Link
         href={`/matches/${prediction.matchSlug}`}

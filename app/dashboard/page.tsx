@@ -48,9 +48,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <h2 className="text-lg font-semibold">Tu acceso gratis</h2>
         <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
           <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
+          <li>Tu cuenta gratis activa el contexto completo de confianza/riesgo en vistas públicas.</li>
           <li>Los previews seleccionados previos al Mundial se habilitarán para cuentas gratis.</li>
           <li>El seguimiento de partidos y favoritos llegará próximamente.</li>
-          <li>Los planes premium y el análisis avanzado llegarán más adelante.</li>
+          <li>Los paquetes premium del Mundial y el análisis avanzado llegarán más adelante.</li>
         </ul>
       </section>
 
@@ -69,8 +70,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <h2 className="text-lg font-semibold">Estado de acceso</h2>
               <p className="mt-3 font-mono text-2xl">{roleLabels[summary.role]}</p>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                Suscripciones activas: {summary.activeSubscriptions.length}. El rol de perfil por sí solo
-                no desbloquea contenido protegido.
+                Suscripciones activas: {summary.activeSubscriptions.length}. El rol de perfil por sí
+                solo no desbloquea contenido protegido.
               </p>
               <Link
                 href="/pricing"
@@ -136,8 +137,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <section className="panel rounded-lg p-5">
         <h2 className="text-lg font-semibold">Beta freemium</h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          El backend ya distingue acceso público, acceso beta controlado server-side, derechos actuales
-          y bypass administrativo explícito. Los pagos y payloads premium permanecen fuera de alcance.
+          El backend ya distingue acceso público, acceso beta controlado server-side, derechos
+          actuales y bypass administrativo explícito. Los pagos y payloads premium permanecen fuera
+          de alcance.
         </p>
       </section>
     </div>
