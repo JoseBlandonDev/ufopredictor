@@ -5,8 +5,10 @@ import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ProbabilityBar } from "@/components/probability-bar";
 import { RiskBadge } from "@/components/risk-badge";
 import { getPublicMatchDetailData } from "@/lib/supabase/public-match-detail-queries";
+import { getSavedMatchStateBySlug } from "@/lib/supabase/saved-matches-queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { MatchRow } from "@/types/database";
+import { removeSavedMatchAction, saveMatchAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   const viewer = user ? "registered_free" : "anonymous";
   const isAuthenticated = viewer === "registered_free";
   const data = await getPublicMatchDetailData(slug, viewer);
+  const savedState = await getSavedMatchStateBySlug(slug);
 
   if (data.status === "not_found") {
     notFound();
@@ -48,6 +51,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
     timeZone: "America/Bogota",
   }).format(new Date(match.kickoffAt));
   const venue = [match.venueName, match.venueCity].filter(Boolean).join(", ") || "Sede por confirmar";
+  const saveAction = saveMatchAction.bind(null, match.matchSlug);
+  const removeAction = removeSavedMatchAction.bind(null, match.matchSlug);
 
   return (
     <div className="space-y-6">
@@ -132,6 +137,53 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
           </p>
         </section>
       )}
+
+      <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+          Partidos guardados
+        </p>
+        {savedState.status === "ready" && savedState.isAuthenticated ? (
+          <>
+            <h2 className="mt-2 text-lg font-semibold">
+              {savedState.isSaved ? "Partido guardado en tu watchlist" : "Guardar partido en tu watchlist"}
+            </h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              {savedState.isSaved
+                ? "Puedes quitar este partido en cualquier momento."
+                : "Guarda este partido para seguirlo más tarde desde tu cuenta."}
+            </p>
+            <form action={savedState.isSaved ? removeAction : saveAction} className="mt-4">
+              <button
+                type="submit"
+                className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
+              >
+                {savedState.isSaved ? "Quitar de guardados" : "Guardar partido"}
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <h2 className="mt-2 text-lg font-semibold">Guarda este partido con una cuenta gratis</h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              Crea una cuenta o inicia sesión para guardar este partido en tu watchlist.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link
+                href={`/register?next=/matches/${match.matchSlug}`}
+                className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
+              >
+                Crear cuenta gratis
+              </Link>
+              <Link
+                href={`/login?next=/matches/${match.matchSlug}`}
+                className="rounded-md border border-white/15 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Iniciar sesión
+              </Link>
+            </div>
+          </>
+        )}
+      </section>
 
       <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
