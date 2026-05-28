@@ -20,12 +20,13 @@ const statusLabels: Record<MatchRow["status"], string> = {
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const data = await getPublicMatchDetailData(slug);
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const isAuthenticated = Boolean(user);
+  const viewer = user ? "registered_free" : "anonymous";
+  const isAuthenticated = viewer === "registered_free";
+  const data = await getPublicMatchDetailData(slug, viewer);
 
   if (data.status === "not_found") {
     notFound();
@@ -84,7 +85,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               </p>
               <h2 className="mt-2 text-xl font-semibold">Probabilidades 1X2 publicadas</h2>
             </div>
-            {isAuthenticated ? (
+            {match.prediction.viewer === "registered_free" ? (
               <div className="flex gap-2">
                 <ConfidenceBadge score={match.prediction.confidenceScore} />
                 <RiskBadge level={match.prediction.riskLevel} />

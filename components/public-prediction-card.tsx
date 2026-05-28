@@ -7,10 +7,9 @@ import type { PublicPredictionCardView } from "@/lib/supabase/public-prediction-
 
 type PublicPredictionCardProps = {
   prediction: PublicPredictionCardView;
-  isAuthenticated: boolean;
 };
 
-export function PublicPredictionCard({ prediction, isAuthenticated }: PublicPredictionCardProps) {
+export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) {
   const date = new Intl.DateTimeFormat("es-CO", {
     month: "short",
     day: "numeric",
@@ -42,7 +41,7 @@ export function PublicPredictionCard({ prediction, isAuthenticated }: PublicPred
             </span>
           </div>
         </div>
-        {isAuthenticated ? (
+        {prediction.viewer === "registered_free" ? (
           <div className="flex gap-2">
             <ConfidenceBadge score={prediction.confidenceScore} />
             <RiskBadge level={prediction.riskLevel} />
@@ -66,7 +65,7 @@ export function PublicPredictionCard({ prediction, isAuthenticated }: PublicPred
         />
       </div>
       <p className="mt-4 text-xs text-[var(--muted)]">
-        {isAuthenticated
+        {prediction.viewer === "registered_free"
           ? "Vista registrada gratis: confianza y riesgo completos en el panel público."
           : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
       </p>
