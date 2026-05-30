@@ -1,37 +1,25 @@
 # OPEN DECISIONS — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
 ## O01 — Anonymous vs Registered Free Real Data Boundary
 
-Decision status: Open / C05 Gate 2B.
+Decision status: mostly resolved for current C05 scope.
 
-C05 Gate 2A implemented only a presentation boundary.
-
-Current Gate 2A decision:
+Current decision:
 
 - Anonymous keeps match metadata + complete public 1X2 probabilities.
 - Anonymous sees confidence/risk as basic signal/teaser.
-- Registered Free sees confidence/risk fully rendered with additional context.
-- Preview signals remain placeholder/teaser.
-- No SQL/RLS/migrations/new views/query changes.
-- No premium tables and no premium payload.
+- Anonymous does not receive `confidenceScore` / `riskLevel` in shaped UI DTO.
+- Registered Free receives confidence/risk fully rendered with additional context.
+- No premium payload is introduced.
 
-Open Gate 2B question:
+Remaining relevance:
 
-Should this become a real backend/data boundary?
-
-Options:
-
-1. Keep current presentation boundary temporarily.
-2. Create separate anonymous and registered-free projection views.
-3. Use RPC/server-only query shaping.
-4. Use RLS where appropriate.
-
-This must be decided before adding any sensitive fields that should not reach Anonymous users.
+If future sensitive fields are introduced, they must be protected at backend/query/projection level before reaching unauthorized users.
 
 ## D01 — Public vs Internal Scope
 
@@ -41,9 +29,9 @@ Current decision:
 - `public_product` powers public product views.
 - `/predictions` uses only public/product-safe data.
 - `/matches/[slug]` uses only public/free-safe data through explicit public views.
-- C05 Gate 2A did not change the DB/data boundary.
+- C05 saved matches added user-owned capture data without opening premium prediction tables.
 
-Status: Mostly resolved for public/free surfaces. Still relevant for Gate 2B and premium projections.
+Status: resolved for current public/free surfaces; still relevant for C07 premium projection.
 
 ## D02 — Supabase Migration Workflow
 
@@ -60,10 +48,10 @@ Every migration must include manual validation queries.
 Remote Supabase is currently applied manually through:
 
 ```txt
-0013_public_match_detail_projection_hardening.sql
+0014_user_saved_matches.sql
 ```
 
-Status: Resolved as operating rule.
+Status: resolved operating rule.
 
 ## D03 — Beta/Freemium Strategy
 
@@ -74,7 +62,7 @@ Run a controlled organic beta/freemium phase before the World Cup.
 Funnel:
 
 ```txt
-Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions
+Anonymous -> Registered Free -> World Cup premium packages -> post-World-Cup monthly subscriptions
 ```
 
 Registered Free is permanent, not a separate temporary beta/free expanded plan.
@@ -82,12 +70,12 @@ Registered Free is permanent, not a separate temporary beta/free expanded plan.
 The beta should:
 
 - show useful free value;
-- avoid giving away all premium data;
+- avoid giving away premium data;
 - avoid mass advertising until validation improves;
-- use finals, friendlies, and pre-World Cup fixtures for learning;
+- use finals, friendlies, and pre-World-Cup fixtures for learning;
 - capture Registered Free users before World Cup package monetization.
 
-Status: Current product direction.
+Status: current product direction.
 
 ## D04 — Plans vs Permissions
 
@@ -106,7 +94,7 @@ World Cup package candidates:
 - Stage Pass;
 - Semifinals / Final Pass.
 
-Post-World Cup commercial candidates:
+Post-World-Cup commercial candidates:
 
 - Premium Monthly;
 - league/competition subscriptions;
@@ -120,11 +108,11 @@ Internal permission models:
 - match unlock;
 - quantity / pack consumption materialized as explicit unlocks.
 
-Status: Direction accepted; exact UI/product packaging remains iterative.
+Status: direction accepted; exact UI/product packaging remains iterative and is next for C06.
 
 ## D05 — Entitlement To Match Resolver
 
-Decision status: Partially resolved by C04.
+Decision status: partially resolved by C04.
 
 C04 established the access skeleton:
 
@@ -138,12 +126,12 @@ C04 established the access skeleton:
 
 Still open:
 
-- exact production mapping for all World Cup package variants;
+- exact production mapping for World Cup package variants;
 - how a Group Pass maps to resource IDs;
 - how semifinals/final package resources are represented in seeds/admin tooling;
 - how premium payload projection consumes the resolver in C07.
 
-Status: C04 skeleton done; production package mapping remains open.
+Status: C04 skeleton done; C06 should refine production package mapping.
 
 ## D06 — Pack Consumption Model
 
@@ -151,20 +139,20 @@ Decision:
 
 For a 10 Match Pack, do not treat `quantity/match_pack` as direct content authorization.
 
-The current recommendation is:
+Recommendation:
 
 1. User purchases or receives a match pack entitlement.
 2. User selects concrete matches.
-3. The system creates explicit `user_match_unlocks`.
+3. System creates explicit `user_match_unlocks`.
 4. Premium access checks rely on unlocks/entitlements, not vague quantity alone.
 
-Status: Direction accepted; final UX/data flow remains open.
+Status: direction accepted; final UX/data flow remains open.
 
 ## D07 — Premium Content Boundaries
 
 Open question:
 
-Which fields are free, registered-free, World Cup package premium, and post-World Cup subscription premium?
+Which fields are free, registered-free, World Cup package premium, and post-World-Cup subscription premium?
 
 Known premium candidates:
 
@@ -178,14 +166,14 @@ Known premium candidates:
 - post-result evaluation;
 - historical/trust details beyond public summary.
 
-Current C05 Gate 2A boundary:
+Current C05 boundary:
 
 - Anonymous keeps 1X2 public.
-- Anonymous gets confidence/risk as basic signal/teaser.
-- Registered Free sees confidence/risk fully rendered.
+- Anonymous does not receive confidence/risk DTO fields.
+- Registered Free sees confidence/risk.
 - Premium payload is not introduced.
 
-Status: Still open for true premium payload and Gate 2B real boundary.
+Status: still open for true premium payload and C07 projection.
 
 ## D08 — Sports Data Provider
 
@@ -203,7 +191,7 @@ Criteria:
 - reliability;
 - finals/friendlies coverage before the World Cup.
 
-Status: Not selected.
+Status: not selected.
 
 ## D09 — Odds Provider
 
@@ -211,7 +199,7 @@ Open question:
 
 Whether to integrate odds, and with which provider.
 
-Status: Not selected. Do not implement before product/legal/commercial readiness.
+Status: not selected. Do not implement before product/legal/commercial readiness.
 
 ## D10 — LLM Narrative Strategy
 
@@ -223,7 +211,7 @@ Current rule:
 
 The model calculates. The AI explains.
 
-Status: Deferred.
+Status: deferred.
 
 ## D11 — Payments
 
@@ -233,11 +221,11 @@ When to implement payments/Stripe.
 
 Current direction:
 
-- No checkout during current C05 gates.
+- No checkout during current C05/C06 planning unless explicitly approved.
 - World Cup packages likely need payments before/during the World Cup.
 - Monthly subscriptions are expected after the World Cup.
 
-Status: Deferred until package/product scope is explicit.
+Status: deferred until package/product scope is explicit.
 
 ## D12 — Staging / Production Readiness
 
@@ -245,7 +233,7 @@ Open question:
 
 When to create final staging and production release infrastructure.
 
-Status: Deferred until public beta and package scope are clearer.
+Status: deferred until public beta and package scope are clearer.
 
 ## D13 — Tool Usage / Codex Prompt Discipline
 
@@ -255,7 +243,7 @@ ChatGPT is the planning, direction, review, and documentation layer.
 
 Codex is the controlled repository execution layer.
 
-Antigravity and OpenCode are auxiliary tools used to save capacity and use the right tool for the right job. They do not replace Codex for repository execution.
+Manual PowerShell/Git should handle simple commands.
 
 ChatGPT-generated Codex work must be split into two blocks:
 
@@ -267,7 +255,7 @@ PROMPT LIMPIO PARA CODEX
 ...
 ```
 
-Status: Resolved operating rule.
+Status: resolved operating rule.
 
 ## D14 — Language / i18n Strategy
 
@@ -278,9 +266,9 @@ Decision:
 - Internal identifiers, keys, types, slugs, entitlement types: prefer canonical English.
 - Do not mix public copy into accidental Spanglish.
 
-Status: Direction accepted; i18n not implemented.
+Status: direction accepted; i18n not implemented.
 
-## D15 — Pre-World Cup Beta Match Selection
+## D15 — Pre-World-Cup Beta Match Selection
 
 Decision:
 
@@ -299,4 +287,29 @@ Purpose:
 - capture Registered Free users;
 - demonstrate value before World Cup premium packages.
 
-Status: Product direction accepted; specific match selection tooling not implemented.
+Status: product direction accepted; specific match selection tooling not implemented.
+
+## D16 — Saved Matches / Watchlist Foundation
+
+Decision:
+
+Registered Free users can save public matches and view them in dashboard.
+
+Implementation:
+
+- `public.user_saved_matches`;
+- `match_id` FK to `public.matches`;
+- `user_id` FK to `auth.users`;
+- own-row RLS;
+- save/remove from `/matches/[slug]`;
+- minimal dashboard list.
+
+Not implemented yet:
+
+- save button in `/predictions` cards;
+- notifications;
+- analytics/interest events;
+- favorite teams/competitions;
+- advanced preferences.
+
+Status: v1 implemented in PR #29; future enhancements optional.

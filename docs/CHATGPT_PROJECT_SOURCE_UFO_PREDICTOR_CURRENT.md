@@ -1,11 +1,11 @@
 # CHATGPT PROJECT SOURCE — UFO Predictor Current
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-This is the compact-but-complete source document for ChatGPT conversations inside the UFO Predictor project. It should be used together with `START_HERE_FOR_NEW_CONVERSATIONS.md`, `CURRENT_PROJECT_STATUS.md`, `CODEX_HANDOFF_CURRENT.md`, and the roadmap docs.
+This is the compact-but-complete source document for ChatGPT conversations inside the UFO Predictor project. Use it together with `START_HERE_FOR_NEW_CONVERSATIONS.md`, `CURRENT_PROJECT_STATUS.md`, `CODEX_HANDOFF_CURRENT.md`, and roadmap docs.
 
 ## Project Identity
 
@@ -31,17 +31,19 @@ Completed:
 - Premium access enforcement skeleton.
 - Registered Free value wall.
 - Presentation boundary between Anonymous and Registered Free.
+- Server-side Anonymous DTO shaping for confidence/risk.
+- Registered Free saved matches/watchlist foundation.
 
-Current next decision:
+Current next block:
 
 ```txt
-C05 Gate 2B — Real Data Boundary / Projection Decision
+C06 — World Cup Premium Package Foundation
 ```
 
 ## Current Funnel
 
 ```txt
-Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions
+Anonymous -> Registered Free -> World Cup premium packages -> post-World-Cup monthly subscriptions
 ```
 
 Registered Free is permanent.
@@ -63,7 +65,7 @@ No accidental Spanglish in public copy.
 Remote Supabase has migrations manually applied through:
 
 ```txt
-0013_public_match_detail_projection_hardening.sql
+0014_user_saved_matches.sql
 ```
 
 Supabase CLI local is not configured as the normal workflow.
@@ -75,34 +77,52 @@ Public views:
 - `public_match_details`
 - `public_prediction_summaries`
 
+Important view note:
+
+- `public_match_details` exposes `match_id` for server-side saved-match resolution on public matches.
+- `public_prediction_summaries` does not expose `match_id`.
+
 Premium/internal tables remain closed:
 
 - `prediction_markets`
 - `prediction_narratives`
 - `prediction_results`
 
+Registered Free capture table:
+
+- `user_saved_matches`
+
+`user_saved_matches` has own-row RLS. `authenticated` has `SELECT`, `INSERT`, and `DELETE`; `anon` has no access; no `UPDATE` policy exists.
+
 ## Route State
 
 - `/`: landing/value surface; may still use static/mock featured cards.
-- `/predictions`: real public predictions from `public_prediction_summaries`; Gate 2A presentation split.
-- `/matches/[slug]`: real public/free match detail from public views; Gate 2A presentation split.
+- `/predictions`: real public predictions from `public_prediction_summaries`; Anonymous DTO excludes confidence/risk; Registered Free DTO includes confidence/risk.
+- `/matches/[slug]`: real public/free match detail; save/remove match toggle for Registered Free; Anonymous sees CTA.
 - `/pricing`: DB-backed plan catalog, no checkout.
-- `/dashboard`: real access summary and free account value surface.
+- `/dashboard`: real access summary and saved matches list.
 - `/admin/beta-lab`: operational internal Lab.
 - `/transparency`: still simulated.
 
-## Gate 2A Summary
+## C05 Summary
 
-C05 Gate 2A is presentation-only:
+C05 is complete.
 
-- Anonymous keeps metadata + full 1X2.
-- Anonymous sees confidence/risk as signal/teaser.
-- Registered Free sees confidence/risk complete with more context.
-- Preview signals remain placeholder/teaser.
-- No SQL/RLS/migration/new view/query change.
-- No premium payload.
+Anonymous:
 
-It is not a security/data boundary.
+- sees metadata + full 1X2;
+- receives teaser presentation for confidence/risk;
+- does not receive `confidenceScore` / `riskLevel` in shaped UI DTO;
+- sees CTA to create account for saved matches.
+
+Registered Free:
+
+- receives confidence/risk DTO fields;
+- sees richer context;
+- can save/remove public matches from match detail;
+- can see saved matches in dashboard.
+
+Premium payload remains closed.
 
 ## Security Rules
 
@@ -142,18 +162,30 @@ PROMPT LIMPIO PARA CODEX
 
 Do not put model/tool recommendations inside the clean Codex prompt unless necessary.
 
+## Operational Rules From C05
+
+- Use manual PowerShell/Git for simple commands and validation output collection.
+- Use Codex for repo inspection, code edits, implementation, migrations, and non-trivial technical reports.
+- Do not merge every micro-step to `main`.
+- Prefer coherent feature branches with multiple commits for one functional block.
+- Refresh docs at stage close, conversation handoff, or important decision changes, not after every small step.
+
 ## How To Work
 
-For new sensitive gates:
+For sensitive gates:
 
 1. Recognition first.
 2. Analyze Codex response in ChatGPT.
 3. Decide scope.
-4. Only then implement.
+4. Implement only after scope approval.
+5. Apply Supabase migrations manually if required.
+6. Validate locally and remotely.
+7. Commit/PR only when the functional block is complete enough.
 
 Manual/user handles:
 
 - Supabase SQL Editor;
 - remote SQL validation;
 - GitHub UI;
+- simple PowerShell/Git commands;
 - final PR/merge confirmation.

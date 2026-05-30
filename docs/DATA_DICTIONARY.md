@@ -1,331 +1,183 @@
 # DATA DICTIONARY — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-This document summarizes the main database concepts used by current features. It is not a substitute for `types/database.ts` or migrations.
+This dictionary summarizes current project data structures relevant to public product, freemium access, entitlements, saved matches, and future premium work.
 
-## Scope Fields
+## Current Applied Migration Level
 
-### `competitions.usage_scope`
+Remote Supabase is applied through:
 
-Known usage:
+```txt
+0014_user_saved_matches.sql
+```
 
-- `internal_lab` — internal Lab only.
-- `public_product` — allowed for public product surfaces.
+## Public Views
 
-### `matches.access_scope`
+### `public.public_match_details`
 
-Known usage:
+Purpose:
 
-- `lab_only` — internal Lab only.
-- `public` — public product.
-- future premium/admin scopes may exist or be added later.
+Public/free match detail projection for `/matches/[slug]` and saved-match metadata.
 
-### `prediction_versions.run_scope`
+Columns:
 
-Known usage:
-
-- `internal_lab` — internal Lab predictions.
-- `public_product` — public product predictions.
-
-## Public Projection Views
-
-C03 introduced explicit public projection views in `0013_public_match_detail_projection_hardening.sql`.
-
-These views are currently the public read boundary for anonymous users.
-
-### `public_match_details`
-
-Approved public/free-only match detail projection.
-
-Exposes:
-
-- `match_slug`
-- `kickoff_at`
-- `stage`
-- `status`
-- `competition_name`
-- `competition_slug`
-- `home_team_name`
-- `home_team_slug`
-- `home_team_logo_url`
-- `home_team_flag_url`
-- `away_team_name`
-- `away_team_slug`
-- `away_team_logo_url`
-- `away_team_flag_url`
-- `venue_name`
-- `venue_city`
-
-Filters internally:
-
-- `matches.access_scope = 'public'`
-- `competitions.usage_scope = 'public_product'`
-
-Used by:
-
-- `/matches/[slug]`
-
-### `public_prediction_summaries`
-
-Approved public/free-only prediction card/detail summary projection.
-
-Includes the same public match metadata as `public_match_details`, plus:
-
-- `prediction_created_at`
-- `home_win_prob`
-- `draw_prob`
-- `away_win_prob`
-- `confidence_score`
-- `risk_level`
-
-Filters internally:
-
-- `matches.access_scope = 'public'`
-- `competitions.usage_scope = 'public_product'`
-- `prediction_versions.run_scope = 'public_product'`
-
-Used by:
-
-- `/predictions`
-- `/matches/[slug]` when a public prediction exists
-
-Important:
-
-These views intentionally do not expose expected goals, scorelines, markets, narratives, results, odds, or premium analysis.
-
-## C05 Gate 2A Presentation Boundary
-
-Gate 2A uses existing public fields only.
-
-It does not introduce new columns, new queries, new views, RLS, RPC, SQL, migrations, or premium payload.
-
-Current presentation split:
-
-| Field / Concept | Anonymous | Registered Free |
+| Column | Purpose | Sensitivity |
 |---|---|---|
-| Match metadata | Rendered | Rendered |
-| 1X2 probabilities | Rendered completely | Rendered completely |
-| `confidence_score` | Presented as basic signal/teaser | Presented fully with more context |
-| `risk_level` | Presented as basic signal/teaser | Presented fully with more context |
-| Preview signals | Placeholder/teaser | Placeholder/active messaging |
-| Premium fields | Not present | Not present |
+| `match_slug` | Public route identifier | Public |
+| `kickoff_at` | Match kickoff | Public |
+| `stage` | Stage/round text | Public |
+| `status` | Match status | Public |
+| `competition_name` | Competition display name | Public |
+| `competition_slug` | Competition route/key | Public |
+| `home_team_name` | Home team display | Public |
+| `home_team_slug` | Home team key | Public |
+| `home_team_logo_url` | Home logo | Public |
+| `home_team_flag_url` | Home flag | Public |
+| `away_team_name` | Away team display | Public |
+| `away_team_slug` | Away team key | Public |
+| `away_team_logo_url` | Away logo | Public |
+| `away_team_flag_url` | Away flag | Public |
+| `venue_name` | Venue | Public |
+| `venue_city` | Venue city | Public |
+| `match_id` | UUID used server-side for saved matches | Public-safe, limited purpose |
 
-Gate 2A is not a real data-security boundary. If future fields are sensitive, they must be separated before they reach the browser.
+Important note:
 
-## Core Product Tables
+`match_id` is exposed here to allow server-side saved-match resolution for public matches without service role and without reading `public.matches` directly from normal UI paths.
 
-### `competitions`
+### `public.public_prediction_summaries`
 
-Represents competitions.
+Purpose:
 
-Used by:
+Public prediction list and summary projection for `/predictions`.
 
-- Lab fixtures;
-- public predictions;
-- public match detail;
-- future premium match detail.
+Columns include:
 
-Public/free views require `usage_scope = 'public_product'`.
+- match/competition/team metadata;
+- `prediction_created_at`;
+- `home_win_prob`;
+- `draw_prob`;
+- `away_win_prob`;
+- `confidence_score`;
+- `risk_level`.
 
-`anon` should not read this base table directly after C03.
+Important note:
 
-### `matches`
+`public_prediction_summaries` does not expose `match_id`.
 
-Represents fixtures/matches.
+After C05 Gate 2B, Anonymous does not receive `confidenceScore` / `riskLevel` in shaped UI DTO even though the public view contains source columns.
 
-Used by:
+## Registered Free Capture
 
-- Lab Admin;
-- public predictions;
-- public match detail;
-- future premium match detail.
+### `public.user_saved_matches`
 
-Public/free views require:
+Introduced in:
 
-- `access_scope = 'public'`;
-- associated competition is `public_product`.
+```txt
+0014_user_saved_matches.sql
+```
 
-`anon` should not read this base table directly after C03.
+Purpose:
 
-### `teams`
+Stores public matches saved by authenticated/Registered Free users.
 
-Represents teams.
+Columns:
 
-Public team fields are exposed only through approved public views for public product matches.
+| Column | Type | Required | Default | Notes |
+|---|---|---:|---|---|
+| `id` | `uuid` | Yes | `gen_random_uuid()` | Primary key |
+| `user_id` | `uuid` | Yes | none | FK to `auth.users(id)` on delete cascade |
+| `match_id` | `uuid` | Yes | none | FK to `public.matches(id)` on delete cascade |
+| `saved_at` | `timestamptz` | Yes | `now()` | Timestamp for dashboard ordering |
 
-### `venues`
+Constraints:
 
-Represents venues.
+- primary key on `id`;
+- foreign key `user_id -> auth.users(id)`;
+- foreign key `match_id -> public.matches(id)`;
+- unique `(user_id, match_id)`.
 
-Public venue fields are exposed only through approved public views for public product matches.
+Indexes:
 
-### `prediction_versions`
+- `user_saved_matches_user_id_idx` on `(user_id)`;
+- `user_saved_matches_match_id_idx` on `(match_id)`;
+- unique index for `(user_id, match_id)`.
 
-Represents generated prediction versions.
+RLS / grants:
 
-Public/free predictions are exposed only through `public_prediction_summaries`.
+- RLS enabled.
+- `authenticated`: `SELECT`, `INSERT`, `DELETE`.
+- `anon`: no access.
+- No `UPDATE` policy.
+- Users can only read/insert/delete rows where `user_id = auth.uid()`.
 
-Public/free view filters require:
+Usage:
 
-- `run_scope = 'public_product'`;
-- associated match is public;
-- associated competition is public product.
+- `/matches/[slug]` uses server actions to save/remove public matches.
+- `/dashboard` lists saved matches using `user_saved_matches` plus `public_match_details`.
 
-Do not expose extra columns casually. Expected goals and scoreline fields are currently treated as outside the public/basic projection.
+## Entitlements / Access Tables
 
-## Lab / Evaluation Tables
+Existing backend from C02/C04 includes:
 
-### `prediction_markets`
+- `plans`
+- `plan_features`
+- `subscriptions`
+- `user_entitlements`
+- `user_match_unlocks`
 
-Represents markets and market-level predictions.
+Access rules:
 
-Currently internal/premium-sensitive.
+- visible plans/packages are commercial surface;
+- granular internal entitlements/unlocks drive access;
+- `premium_user` is not enough by itself;
+- active subscription is not enough by itself;
+- match packs must materialize explicit unlocks.
 
-Not publicly open.
+## Premium/Internal Prediction Tables
 
-### `prediction_results`
+Remain closed to public product UI:
 
-Represents persisted evaluation results for predictions.
+- `prediction_markets`
+- `prediction_narratives`
+- `prediction_results`
 
-Used by Lab Admin.
+Do not expose these until C07 or an explicitly approved premium projection gate.
 
-Not publicly open.
-
-### `prediction_narratives`
-
-Represents generated or stored narratives/explanations.
-
-Currently internal/premium-sensitive.
-
-Not publicly open.
-
-### `match_results`
-
-Represents final match results entered/reviewed by admin flows.
-
-Used for evaluation.
-
-Not part of public product yet.
-
-## Plans And Entitlements Tables
-
-Implemented by C02 foundation.
-
-### `plans`
-
-Represents visible commercial/catalog plans.
-
-Public reads are allowed only for active/current visible plans.
-
-Current/future visible examples:
-
-- Free Account;
-- 10 Match Pack;
-- World Cup Full Pass;
-- Country/Team Pass;
-- Group Pass;
-- Semifinals / Final Pass;
-- Premium Monthly after World Cup.
-
-### `plan_features`
-
-Represents public catalog/marketing features for plans.
-
-Important:
-
-Do not store secrets, internal authorization rules, or sensitive operational config in `plan_features`.
-
-### `subscriptions`
-
-Represents a user's subscription or plan state.
-
-Authenticated users may read only their own rows.
-
-A subscription alone does not unlock protected content.
-
-Monthly subscriptions are expected after the World Cup for recurring league coverage.
-
-### `user_entitlements`
-
-Represents effective rights for a user.
-
-Authenticated users may read only their own current rows.
-
-Possible resource types:
-
-- `global`
-- `competition`
-- `stage`
-- `team`
-- `match`
-- `match_pack`
-
-Production mapping to World Cup package access remains future work.
-
-### `user_match_unlocks`
-
-Represents explicit match-level unlocks.
-
-Authenticated users may read only their own current rows.
-
-Likely useful for:
-
-- individual match purchases;
-- 10 match pack selected matches;
-- manually granted beta access.
-
-## Access Concepts
-
-Implemented/evolved in `lib/permissions/entitlements.ts`.
-
-Access sources:
-
-- `public_basic_access`
-- `beta_free_access`
-- `entitlement_access`
-- `admin_access`
-- `none`
-
-Rules:
-
-- Public resources are accessible without premium rights.
-- Protected resources require entitlement/unlock/admin/beta access.
-- Active subscription marks subscribed state but does not alone grant protected content.
-- `premium_user` role alone does not unlock all premium content.
-- `quantity/match_pack` does not directly grant access; explicit unlocks should materialize selected matches.
-- `trustedBetaFreeMatchIds` must come from trusted server-side context, not the client.
-- `stageAccessKey` must be canonical and server-derived.
+## Key Canonical Access Concepts
 
 ### `stageAccessKey`
 
-Canonical key used for stage-level access decisions.
+Canonical server-derived key for stage entitlements.
 
-Expected shape example:
+Expected shape:
 
 ```txt
 competitionId:stage
 ```
 
-Do not authorize by raw `stage` string alone.
+Do not derive from client input or raw display text.
 
 ### `trustedBetaFreeMatchIds`
 
-Server-trusted list of match IDs that may receive beta free access.
+Trusted server-side set of beta/free matches.
 
-Must never be accepted from client input, query params, or browser state.
+Must never come from client/query params.
 
-## Future Data Dictionary Work
+## Future Data Areas
 
-Before premium match detail, define:
+Potential future tables/fields:
 
-- free vs registered-free vs premium fields;
-- C05 Gate 2B real data boundary if approved;
-- entitlement-to-match production resolution;
-- stage/team/group/competition identifiers;
-- pack consumption behavior;
-- whether premium projections use views, RPC, or server-only queries;
-- whether to further reduce broad `authenticated` base-table grants without breaking Lab/Admin.
+- package catalog / World Cup passes;
+- package-to-entitlement mapping;
+- match pack consumption ledger;
+- favorites/preferences;
+- interest events;
+- premium match projection DTOs;
+- transparency/trust metrics.
+
+Add only when approved by scope.

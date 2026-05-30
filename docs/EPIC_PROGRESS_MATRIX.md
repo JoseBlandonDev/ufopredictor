@@ -1,122 +1,59 @@
 # EPIC PROGRESS MATRIX — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-## Completed Milestones
+## Current Epic Position
 
-| Code | Epic / Task | Status | Notes |
-|---|---|---|---|
-| B06a | Lab Fixture Review Actions | Done | Admin review fields/actions for Lab fixtures. |
-| B06b | Lab Match Result Actions | Done | Admin can create/edit match results. |
-| B06-pre | Seed Internal Lab Prediction Markets | Done | Internal Lab prediction markets seeded/readable. |
-| B06c | Lab Evaluation Persistence | Done | Persist/update prediction_results using model evaluation. |
-| C01 | Public Predictions From DB | Done | `/predictions` reads public_product data from Supabase. |
-| C02 | Plans & Entitlements Backend | Done | `/pricing` and `/dashboard` read real plan/access data. |
-| C03 | Match Detail Public From DB | Done | `/matches/[slug]` reads real public/free-only match detail from Supabase; public projection hardening added in `0013`. |
-| C04 | Premium Access Enforcement Skeleton | Done | Server-side/pure access skeleton, no premium payload opened. |
-| C05-G0 | Anonymous vs Registered Free Product Audit | Done | Product decision/audit; no code. |
-| C05-G1 | Registered Free Value Wall | Done | Spanish UI/copy value wall; no data boundary change. |
-| C05-G2A | Presentation Boundary sin SQL | Done / pending PR if active branch | Presentation-only split between Anonymous and Registered Free using existing public fields. |
+The project is at the end of C05 and ready to start C06.
 
-## Recent PR Mapping
+## Progress Matrix
 
-| PR | Scope | Status |
-|---:|---|---|
-| #18 | Persist Lab evaluations | Done |
-| #19 | Update project context after Lab Admin Flow | Done |
-| #20 | Read public predictions from DB | Done |
-| #21 | Add plans entitlements backend | Done |
-| #22 | Update project context after C02 | Done |
-| #23 | Read public match detail from DB | Done |
-| #24 | Update project context after C03 | Done |
-| #25 | Add premium match access enforcement skeleton | Done |
-| #26 | Add registered free value wall | Done |
-| #27 | Update project context after C05 Gate 1 | Done |
+| Epic / Gate | Status | Notes |
+|---|---:|---|
+| Lab Admin Flow | ✅ Done | Internal Lab workflow operational |
+| C01 — Public Predictions From DB | ✅ Done | `/predictions` reads public data from Supabase |
+| C02 — Plans & Entitlements Backend | ✅ Done | Plans, subscriptions, entitlements, dashboard access summary |
+| C03 — Match Detail Public From DB | ✅ Done | `/matches/[slug]` reads public views |
+| C04 — Premium Access Enforcement Skeleton | ✅ Done | Pure server-side access resolver, no premium payload |
+| C05 Gate 0 — Anonymous vs Registered Free Audit | ✅ Done | Product decision/audit |
+| C05 Gate 1 — Registered Free Value Wall | ✅ Done | UI/copy value wall in Spanish |
+| C05 Gate 2A — Presentation Boundary sin SQL | ✅ Done | UI/render boundary only |
+| C05 Gate 2B — Server-side Anonymous Payload Shaping | ✅ Done | Anonymous DTO excludes confidence/risk |
+| C05 Gate 3 — Saved Matches / Watchlist Foundation | ✅ Done | Save/remove public matches + dashboard list |
+| C06 — World Cup Premium Package Foundation | ⏭ Next | Package/pass/unlock foundation; no premium payload yet |
+| C07 — Entitled Premium Match Projection | Future | Protected premium content serving |
+| C08 — Trust / Transparency Real v0.1 | Future | Replace simulated transparency |
+| D — Data Intake / Sports API | Future | Provider selection and integration |
+| D/E — Workers Runtime | Future | Real workers and scheduled processing |
+| E — Payments / Packages / Subscriptions | Future | Stripe/payments when package scope is explicit |
+| F — Odds / LLM Explanations | Future | Deferred until product/legal/technical readiness |
+| G — Google Auth / i18n / Staging / Observability | Future | Platform maturity tracks |
 
-## Current Foundation
+## C05 Completion Details
 
-| Area | Status |
-|---|---|
-| Supabase schema | Present through migration `0013` remotely applied manually |
-| Lab Admin Flow | Operational |
-| Public predictions listing | Real DB-backed via `public_prediction_summaries` |
-| Public match detail | Real DB-backed via `public_match_details` + `public_prediction_summaries` |
-| Pricing catalog | Real DB-backed, no checkout |
-| Dashboard access summary | Real DB-backed |
-| Entitlement pure logic | Implemented and tested |
-| Premium access skeleton | Implemented server-side/pure, no payload opened |
-| Public projection hardening | Implemented for `anon` via explicit public views |
-| Registered Free value wall | Implemented UI/copy |
-| Anonymous vs Registered Free presentation boundary | Implemented without SQL/query changes |
-| Real data boundary anon vs registered free | Not implemented; Gate 2B decision pending |
-| Premium content projection | Not implemented |
-| Payments | Not implemented |
-| Workers | Mock/not real |
-| Sports API | Not implemented |
-| Odds | Not implemented |
-| LLM | Not implemented |
-| i18n | Not implemented |
+C05 delivered the full Anonymous -> Registered Free foundation:
 
-## Active / Next Epic
+- registered free value wall;
+- presentation boundary;
+- server-side DTO shaping;
+- saved matches/watchlist;
+- saved matches dashboard surface.
 
-| Code | Epic | Recommended Branch | Status |
-|---|---|---|---|
-| C05-G2B | Real Data Boundary / Projection Decision | `feature/registered-free-data-boundary` or planning only | Next decision |
-| C05-G3 | Registered Free Capture Foundation | TBD | Future |
-| C06 | World Cup Premium Package Foundation | TBD | Future |
-| C07 | Entitled Premium Match Projection | TBD | Future |
+## Supabase Milestone
 
-## C05 Gate 2A Scope Summary
+Remote Supabase is applied through:
 
-Done/pending merge:
+```txt
+0014_user_saved_matches.sql
+```
 
-- Anonymous retains metadata + full public 1X2.
-- Anonymous sees confidence/risk as basic signal/teaser.
-- Registered Free sees confidence/risk complete and more context.
-- Preview signals remain placeholder/teaser.
-- Dashboard reinforces value of free account.
+## Next Gate / Epic
 
-Not done:
+```txt
+C06 — World Cup Premium Package Foundation
+```
 
-- no SQL;
-- no RLS;
-- no migrations;
-- no new views;
-- no query changes;
-- no premium tables;
-- no premium payload;
-- no real data boundary.
-
-## Future Epics Candidate Queue
-
-| Candidate | Description | Dependency |
-|---|---|---|
-| C05 Gate 2B | Real anon vs registered-free data boundary decision | Gate 2A complete |
-| C05 Gate 3 | Favorites/watchlist/interest capture | Product decision + likely SQL/RLS |
-| C06 | World Cup package foundation | Product/package mapping |
-| C07 | Premium match projection | Premium package + access resolver |
-| C08 | Trust/Transparency real v0.1 | Evaluation data and eligibility rules |
-| Data Intake / Sports API | Real fixtures/results provider | Cost/provider decision |
-| Workers Runtime | Real scheduled jobs | Data provider + infra |
-| Odds Integration | Model vs market comparisons | Odds provider decision |
-| LLM Explanations | Narrative explanation layer | Model outputs + premium rules |
-| Payments / Stripe | World Cup package checkout and later subscriptions | Product/pricing decision |
-| Google Auth | Social login | Auth decision |
-| i18n EN/ES | Public bilingual site | Translation/router decision |
-| Staging | Deployment/staging hardening | Infra readiness |
-
-## Important Project Rules
-
-- The model calculates.
-- The AI explains.
-- Supabase migrations are applied manually in SQL Editor.
-- Codex creates SQL files but does not apply remote migrations.
-- ChatGPT-to-Codex instructions must separate `EJECUCIÓN RECOMENDADA` and `PROMPT LIMPIO PARA CODEX`.
-- No premium data should travel to the frontend without backend entitlement filtering.
-- Visual locks/blur/teasers are not authorization.
-- `premium_user` role does not unlock everything.
-- Active subscription alone does not unlock protected content.
-- `match_pack` quantity does not grant access without explicit unlocks.
+C06 should define package foundations and access mapping without serving protected premium prediction payload yet.

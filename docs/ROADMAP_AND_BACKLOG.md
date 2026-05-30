@@ -1,179 +1,57 @@
 # ROADMAP AND BACKLOG — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-## Current Phase
+## Roadmap Overview
 
-UFO Predictor has moved from Lab foundation into public beta product foundation and freemium boundary design.
+Completed foundation:
 
-Completed foundations:
+1. Lab/Admin foundations.
+2. Public predictions from DB.
+3. Plans/entitlements backend.
+4. Public match detail from DB.
+5. Premium access enforcement skeleton.
+6. Anonymous vs Registered Free freemium boundary.
+7. Registered Free saved matches/watchlist foundation.
 
-- internal Lab Admin Flow;
-- public predictions listing from DB;
-- plans and entitlements backend foundation;
-- public/free match detail from DB;
-- explicit public projection hardening for anonymous users;
-- premium access enforcement skeleton;
-- registered-free value wall;
-- C05 Gate 2A presentation boundary without SQL.
-
-Next product need:
+Next major block:
 
 ```txt
-C05 Gate 2B — Real Data Boundary / Projection Decision
+C06 — World Cup Premium Package Foundation
 ```
 
-## Product Strategy
+## Completed C05
 
-The product should enter a controlled beta/freemium phase before the World Cup.
-
-Strategy:
-
-- show useful free value;
-- keep premium data protected;
-- do not run mass promotion until results, UX, costs, and infrastructure are validated;
-- use finals, friendlies, and pre-World Cup fixtures for organic learning;
-- capture Registered Free users;
-- prepare World Cup package monetization;
-- keep monthly subscriptions for post-World Cup recurring league coverage.
-
-Funnel:
-
-```txt
-Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions
-```
-
-## Roadmap Sequence
-
-### C03 — Match Detail Public From DB
-
-Status: Done.
+C05 is complete.
 
 Delivered:
 
-- real public `/matches/[slug]`;
-- `public_match_details`;
-- `public_prediction_summaries`;
-- public projection hardening with `0013`.
+- Registered Free value wall;
+- presentation boundary;
+- server-side anonymous payload shaping;
+- saved matches/watchlist foundation;
+- dashboard saved matches list.
 
-### C04 — Premium Access Enforcement Skeleton
+Not included:
 
-Status: Done.
+- saved button in `/predictions` cards;
+- notifications;
+- preferences;
+- analytics events;
+- premium payload.
 
-Delivered:
+These remain optional future enhancements, not blockers for C06.
 
-- server-side/pure premium access decision skeleton;
-- entitlement/match unlock/admin/beta access logic;
-- canonical `stageAccessKey` rule;
-- tests;
-- no premium payload opened;
-- no SQL.
-
-### C05 Gate 0 — Anonymous vs Registered Free Product Audit
-
-Status: Done.
-
-Delivered:
-
-- product audit;
-- decision that Registered Free is permanent;
-- no separate beta/free expanded plan;
-- identified that Anonymous and Registered Free were too similar before Gate 1.
-
-### C05 Gate 1 — Registered Free Value Wall
-
-Status: Done.
-
-Delivered:
-
-- Spanish public UI/copy improvements;
-- value wall messaging in `/`, `/predictions`, `/matches/[slug]`, `/dashboard`, `/pricing`;
-- no data boundary change;
-- no premium payload.
-
-### C05 Gate 2A — Presentation Boundary sin SQL
-
-Status: Done in current working branch / pending commit or PR.
+## C06 — World Cup Premium Package Foundation
 
 Goal:
 
-Differentiate Anonymous vs Registered Free in presentation using only already-public fields.
+Prepare World Cup commercial package foundation without serving premium payload yet.
 
-Delivered/expected behavior:
-
-- Anonymous keeps metadata + 1X2 complete.
-- Anonymous sees confidence/risk as signal básica/teaser.
-- Registered Free sees confidence/risk completo and more context.
-- Preview signals remain placeholder/teaser.
-- Dashboard reinforces free account value.
-
-Non-scope:
-
-- no SQL;
-- no RLS;
-- no migrations;
-- no new views;
-- no query changes;
-- no premium tables;
-- no premium payload;
-- not a real data boundary.
-
-### C05 Gate 2B — Real Data Boundary / Projection Decision
-
-Status: Next / optional decision gate.
-
-Goal:
-
-Decide whether Anonymous vs Registered Free needs a true data/query boundary.
-
-Options:
-
-- keep presentation-only boundary temporarily;
-- create separate `anon` and `registered_free` projection views;
-- introduce RPC/server-only query shaping;
-- use RLS if appropriate.
-
-Decision inputs:
-
-- SEO/discovery value;
-- conversion to free registration;
-- risk of giving away too much;
-- technical complexity;
-- whether new fields are sensitive.
-
-### C05 Gate 3 — Registered Free Capture Foundation
-
-Status: Future.
-
-Goal:
-
-Start capturing useful signals from Registered Free users.
-
-Candidates:
-
-- favorites;
-- watchlist;
-- preferred teams;
-- preferred competitions;
-- saved matches;
-- interaction events;
-- preview interest signals;
-- onboarding preferences.
-
-May require SQL/RLS.
-
-### C06 — World Cup Premium Package Foundation
-
-Status: Future.
-
-Goal:
-
-Prepare products/packages for World Cup monetization.
-
-Candidate packages:
+Candidate package products:
 
 - World Cup Full Pass;
 - 10 Match Pack;
@@ -183,152 +61,124 @@ Candidate packages:
 - Stage Pass;
 - Semifinals / Final Pass.
 
-This is product/package foundation, not premium payload serving.
+Possible work:
 
-### C07 — Entitled Premium Match Projection
+- package catalog decisions;
+- product copy/positioning;
+- mapping package types to entitlements/unlocks;
+- resource ID conventions;
+- admin/seeding approach;
+- pure tests for package mapping;
+- pricing UI roadmap refinement.
 
-Status: Future.
+Non-scope unless explicitly approved:
 
-Goal:
+- checkout;
+- Stripe;
+- payment flows;
+- serving premium match payload;
+- opening premium prediction tables.
 
-Expose premium match sections only to authorized users through backend-filtered projections/server-only logic.
-
-Possible premium sections later:
-
-- markets;
-- narratives;
-- scorelines;
-- expected goals;
-- model vs market;
-- Golden Hour Delta;
-- post-result evaluation;
-- deeper confidence/risk explanations.
-
-### C08 — Trust / Transparency Real v0.1
-
-Status: Future.
+## C07 — Entitled Premium Match Projection
 
 Goal:
 
-Replace simulated transparency metrics with real, honest model performance surfaces.
+Serve protected premium match content only to authorized users.
+
+Potential scope:
+
+- server-side premium projection;
+- entitlement/access checks;
+- RLS/RPC/views if needed;
+- `prediction_markets` / `prediction_narratives` / `prediction_results` only through authorized projection;
+- tests.
+
+## C08 — Trust / Transparency Real v0.1
+
+Goal:
+
+Replace simulated transparency with real, scoped trust signals.
 
 Must distinguish:
 
-- Lab/internal experiments;
+- internal Lab results;
 - beta calibration;
-- trust-eligible public predictions.
+- public trust-eligible predictions.
 
-Do not present early calibration data as finalized trust metrics; keep calibration and production trust metrics clearly separated.
-
-### D — Data Intake / Sports API
+## Track D — Data Intake / Sports API
 
 Goal:
 
-Choose and integrate a real sports data provider.
+Select and integrate a sports data provider.
 
-Must consider:
+Criteria:
 
-- cost;
-- quota;
-- reliability;
 - World Cup coverage;
-- finals/friendlies coverage;
-- fixtures;
-- lineups if needed;
-- results speed.
+- fixture quality;
+- results speed;
+- pricing;
+- quotas;
+- reliability.
 
-### D/E — Workers Runtime
-
-Goal:
-
-Replace mock worker runs with real scheduled jobs.
-
-Likely jobs:
-
-- sync fixtures;
-- sync results;
-- generate predictions;
-- generate narratives;
-- evaluate predictions.
-
-### E — Payments / Packages / Subscriptions
+## Track D/E — Workers Runtime
 
 Goal:
 
-Enable commercial flows when product/package readiness justifies it.
+Replace mock worker runs with real scheduled/background processing.
 
-Sequence:
+Potential scope:
 
-1. World Cup packages/passes/unlocks.
-2. Post-World Cup monthly subscriptions.
+- prediction generation workers;
+- result ingestion workers;
+- evaluation workers;
+- monitoring and retries.
 
-Do not implement checkout until package boundaries and premium projection are explicit.
+## Track E — Payments / Packages / Subscriptions
 
-### F — Odds / LLM Explanation Layer
+Goal:
 
-Odds goal:
+Implement payments when product/package scope is explicit.
 
-Support model vs market comparisons after provider/product/legal decision.
+Expected direction:
 
-LLM goal:
+- World Cup packages first;
+- post-World-Cup monthly subscriptions later.
 
-Generate explanations after deterministic model outputs exist.
+## Track F — Odds / LLM Explanations
 
-Rule:
+Deferred.
 
-The AI explains; it does not calculate.
+Odds require product/legal/commercial readiness.
 
-### G — Auth / i18n / Infra
+LLM explanations must follow model outputs, not invent probabilities.
 
-Candidates:
+## Track G — Platform Maturity
+
+Potential scope:
 
 - Google Auth;
-- EN/ES i18n;
+- i18n EN/ES;
 - staging;
-- observability/logging;
-- cost monitoring;
-- deployment hardening.
+- observability;
+- release process;
+- performance/cost control.
 
-## Backlog: Product
+## Backlog: Optional C05 Enhancements
 
-- Premium section design.
-- Anonymous vs Registered Free real boundary decision.
-- Registered Free value refinement.
-- Free vs premium field boundary.
-- Entitlement-to-match resolver production mapping.
-- 10 match pack consumption flow.
-- Team pass access rules.
-- Stage pass access rules.
-- Group pass access rules.
-- Competition/World Cup pass access rules.
-- Single match unlock UX.
-- Admin plan/access management later.
-- Beta invite / soft launch messaging.
-- Cost monitoring plan.
-- Pre-World Cup beta match selection process.
+Optional later enhancements:
 
-## Backlog: Technical
+- save/remove from `/predictions` cards;
+- richer dashboard saved match actions;
+- favorite teams;
+- favorite competitions;
+- watchlist reminders;
+- interest events.
 
-- Premium-safe projection functions.
-- Entitlement-based match access resolver integration with premium payload.
-- Anonymous vs Registered Free DB projections if Gate 2B approves.
-- Audit existing broad authenticated grants without breaking Lab.
-- Real worker runtime.
-- Sports API provider adapter.
-- Odds provider adapter.
-- LLM narrative adapter.
-- Staging environment.
-- Observability/logging.
-- Data encoding cleanup for seeded team names such as `JapÃ³n` / `MÃ©xico`.
-- EN/ES i18n routing/translation plan.
+Do not block C06 on these.
 
-## Backlog: Documentation
+## Process Backlog / Rules
 
-- Update active docs when switching major conversations.
-- Keep Supabase manual migration rule visible.
-- Keep current PR/migration baseline in `START_HERE` and `CURRENT_PROJECT_STATUS`.
-- Keep Codex prompt split visible:
-  - `EJECUCIÓN RECOMENDADA`
-  - `PROMPT LIMPIO PARA CODEX`
-- Treat secondary docs as historical when they conflict with active docs.
-- Avoid destructive summaries that erase project memory; preserve historical and operational context across refreshes.
+- Use longer feature branches when the work is one coherent functional block.
+- Avoid micro-PRs for recognition/planning.
+- Refresh docs at stage close/handoff.
+- Keep Codex focused on implementation/inspection, not terminal chores.
