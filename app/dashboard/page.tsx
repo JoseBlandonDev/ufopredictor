@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireUser } from "@/lib/auth/session";
 import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
+import { getSavedMatchesForDashboard } from "@/lib/supabase/saved-matches-queries";
 
 export const dynamic = "force-dynamic";
 
@@ -25,10 +26,18 @@ function dateLabel(value: string | null) {
   return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" }).format(new Date(value));
 }
 
+function dateTimeLabel(value: string) {
+  return new Intl.DateTimeFormat("es-CO", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const user = await requireUser("/dashboard");
   const params = await searchParams;
   const summary = await getViewerEntitlementSummary();
+  const savedMatches = await getSavedMatchesForDashboard();
 
   return (
     <div className="space-y-6">
@@ -127,6 +136,49 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       Vigencia: {dateLabel(unlock.expires_at)}
                     </p>
                   </div>
+                ))
+              )}
+            </div>
+          </section>
+
+          <section className="panel rounded-lg p-5">
+            <h2 className="text-lg font-semibold">Partidos guardados</h2>
+            <div className="mt-4 space-y-3">
+              {savedMatches.status === "unavailable" ? (
+                <p className="text-sm text-[var(--muted)]">{savedMatches.message}</p>
+              ) : savedMatches.matches.length === 0 ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-[var(--muted)]">Aún no guardaste partidos.</p>
+                  <Link
+                    href="/predictions"
+                    className="inline-block rounded-md border border-white/15 px-3 py-2 text-sm text-white transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                  >
+                    Explorar predicciones públicas
+                  </Link>
+                </div>
+              ) : (
+                savedMatches.matches.map((savedMatch) => (
+                  <article
+                    key={savedMatch.matchId}
+                    className="rounded-lg border border-white/10 bg-white/[0.03] p-4"
+                  >
+                    <p className="text-sm text-[var(--muted)]">{savedMatch.competitionName}</p>
+                    <h3 className="mt-1 font-medium">
+                      {savedMatch.homeTeamName} vs {savedMatch.awayTeamName}
+                    </h3>
+                    <p className="mt-1 text-sm text-[var(--muted)]">
+                      Kickoff: {dateTimeLabel(savedMatch.kickoffAt)}
+                    </p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">
+                      Guardado: {dateTimeLabel(savedMatch.savedAt)}
+                    </p>
+                    <Link
+                      href={`/matches/${savedMatch.matchSlug}`}
+                      className="mt-3 inline-block text-sm font-medium text-[var(--accent)] hover:text-white"
+                    >
+                      Ver detalle del partido
+                    </Link>
+                  </article>
                 ))
               )}
             </div>

@@ -82,6 +82,13 @@ export type UserMatchUnlockRow = {
   expires_at: Timestamp | null;
 };
 
+export type UserSavedMatchRow = {
+  id: string;
+  user_id: string;
+  match_id: string;
+  saved_at: Timestamp;
+};
+
 export type CompetitionRow = {
   id: string;
   external_id: string | null;
@@ -313,6 +320,7 @@ export type DatabaseTables = {
   subscriptions: SubscriptionRow;
   user_entitlements: UserEntitlementRow;
   user_match_unlocks: UserMatchUnlockRow;
+  user_saved_matches: UserSavedMatchRow;
   competitions: CompetitionRow;
   seasons: SeasonRow;
   teams: TeamRow;
@@ -339,6 +347,7 @@ type DatabaseInserts = {
   subscriptions: Insert<SubscriptionRow, "user_id" | "plan_id">;
   user_entitlements: Insert<UserEntitlementRow, "user_id" | "entitlement_type" | "resource_type" | "resource_id">;
   user_match_unlocks: Insert<UserMatchUnlockRow, "user_id" | "match_id">;
+  user_saved_matches: Insert<UserSavedMatchRow, "user_id" | "match_id">;
   competitions: Insert<CompetitionRow, "name" | "slug" | "type">;
   seasons: Insert<SeasonRow, "competition_id" | "name" | "year" | "starts_at" | "ends_at">;
   teams: Insert<TeamRow, "name" | "slug">;
