@@ -1,121 +1,138 @@
 # ARCHITECTURE SUMMARY — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
-
-This is a secondary architecture reference. Active project state is defined by `START_HERE_FOR_NEW_CONVERSATIONS.md`, `CURRENT_PROJECT_STATUS.md`, and `CODEX_HANDOFF_CURRENT.md`.
 
 ## High-Level Architecture
 
-UFO Predictor is a Next.js application backed by Supabase.
+UFO Predictor is a Next.js app backed by Supabase.
 
-Major layers:
+Main layers:
 
-- App Router pages;
-- Supabase server/client factories;
-- database migrations and RLS/grants policies;
-- explicit public projection views;
-- deterministic prediction engine;
-- Lab evaluation utilities;
-- entitlement/permission logic;
-- future premium projection layer;
-- future AI explanation layer.
+- public product routes;
+- authenticated account/dashboard routes;
+- internal Lab/Admin routes;
+- Supabase public views and protected tables;
+- pure permission/access helpers;
+- future premium package/projection layer.
 
-## Current Implemented Surfaces
+## Current Route Architecture
 
-- `/admin/beta-lab` — internal Lab Admin Flow.
-- `/predictions` — public predictions from DB via `public_prediction_summaries`.
-- `/matches/[slug]` — public/free match detail from DB via `public_match_details` + `public_prediction_summaries`.
-- `/pricing` — active/beta plan catalog from DB.
-- `/dashboard` — authenticated viewer access summary from DB.
-- `/` — public landing/value surface, still may include static/mock featured matches.
-- `/transparency` — simulated transparency surface.
+| Route | Data Source | Notes |
+|---|---|---|
+| `/` | mostly static/current marketing surface | May still include mock/static featured cards |
+| `/predictions` | `public_prediction_summaries` | Public predictions; viewer-shaped DTO |
+| `/matches/[slug]` | `public_match_details`, `public_prediction_summaries`, `user_saved_matches` | Public match detail + saved match toggle |
+| `/pricing` | plan catalog tables | No checkout |
+| `/dashboard` | entitlements/subscriptions + saved matches | Authenticated surface |
+| `/admin/beta-lab` | internal Lab tables | Operational internal workflow |
+| `/transparency` | simulated/mock | Future C08 real transparency |
 
-## Public Projection Architecture
+## Supabase Boundary
 
-C03 introduced `0013_public_match_detail_projection_hardening.sql`.
-
-It created:
+Public views:
 
 - `public_match_details`
 - `public_prediction_summaries`
 
-These views are the approved public/free anonymous read interface for prediction listing and match detail.
+C05 added:
 
-Security posture:
+- `public.user_saved_matches`
 
-- `anon` reads the public views only;
-- `anon` does not read base public product tables directly;
-- premium-sensitive tables remain closed;
-- `authenticated` grants needed by Lab/Admin are intentionally preserved for now.
+Premium/internal tables remain closed:
 
-## C05 Gate 2A Presentation Architecture
+- `prediction_markets`
+- `prediction_narratives`
+- `prediction_results`
 
-C05 Gate 2A added presentation-level differentiation using existing public fields.
+## Public Views
 
-It did not add:
+### `public_match_details`
 
-- SQL;
-- RLS;
-- migrations;
-- new views;
-- query changes;
-- premium tables;
-- premium payload.
+Exposes public match metadata and `match_id`.
 
-Therefore Gate 2A is not a true backend/data boundary.
+`match_id` exists to resolve saved matches server-side for public matches without service role.
 
-If future fields are sensitive, they must be filtered before reaching the browser.
+### `public_prediction_summaries`
 
-## Premium Access Architecture
+Exposes public prediction summaries.
 
-C04 created a premium access enforcement skeleton.
+Does not expose `match_id`.
+
+## Viewer-Specific DTO Shaping
+
+C05 Gate 2B introduced server-side shaping:
+
+- Anonymous receives public metadata + 1X2, without `confidenceScore` / `riskLevel` DTO keys.
+- Registered Free receives metadata + 1X2 + confidence/risk.
+
+This is not a premium projection. It is a free/registered-free payload boundary.
+
+## Saved Matches Architecture
+
+C05 Gate 3 introduced:
+
+```txt
+public.user_saved_matches
+```
+
+Use cases:
+
+- Registered Free saves/removes public matches from `/matches/[slug]`.
+- Dashboard lists saved matches.
+
+Data flow:
+
+1. `/matches/[slug]` resolves `match_slug` to `match_id` through `public_match_details`.
+2. Server action inserts/deletes `user_saved_matches` row.
+3. Dashboard reads user-owned saved rows.
+4. Dashboard fetches public metadata via `public_match_details`.
+
+RLS:
+
+- own-row for authenticated;
+- no anon access;
+- no update policy.
+
+## Entitlement Architecture
+
+Existing C02/C04 architecture includes:
+
+- `plans`
+- `plan_features`
+- `subscriptions`
+- `user_entitlements`
+- `user_match_unlocks`
+- pure permission/access logic
 
 Rules:
 
-- roles are not enough for premium content;
-- subscriptions alone are not enough;
-- protected content requires entitlement or unlock;
-- beta access must be server-controlled;
-- `stageAccessKey` must be canonical;
-- `match_pack` quantity must materialize unlocks;
-- premium data must be filtered before reaching the browser.
+- `premium_user` alone is not authorization.
+- Active subscription alone is not authorization.
+- Explicit entitlements/unlocks drive access.
+- Match packs should materialize explicit match unlocks.
 
-C07 should later consume this access layer for actual premium projections.
+## Future Premium Architecture
 
-## Still Mock Or Not Implemented
+C06 should define package/pass/unlock foundation.
 
-- Worker runs remain mock.
-- Transparency metrics remain simulated.
-- Landing featured predictions may still be simulated.
-- Payments/Stripe not implemented.
-- Odds not implemented.
-- LLM not implemented.
-- Sports API not implemented.
-- C05 Gate 2B real data boundary not implemented.
-- Premium match detail not implemented.
-- i18n EN/ES not implemented.
+C07 should define protected premium match projection.
 
-## Database / Supabase
+Premium payload must not be sent to unauthorized clients.
 
-Remote Supabase has manual migrations applied through:
+Potential C07 approaches:
 
-```txt
-0013_public_match_detail_projection_hardening.sql
-```
+- server-only projection;
+- secure view/RPC;
+- RLS policies;
+- explicit access checks.
 
-Supabase CLI local is not configured as the normal workflow.
+## Operational Architecture Rules
 
-All remote migrations are applied manually in Supabase SQL Editor.
-
-## Prediction Architecture
-
-The model calculates probabilities.
-
-AI explanations can later explain model outputs but must not replace deterministic model calculations.
-
-## Recommended Next Architecture Step
-
-Decide C05 Gate 2B: whether Anonymous vs Registered Free separation needs real backend projection/RLS/RPC/server-only shaping before C06/C07.
+- Supabase migrations are applied manually by the user.
+- Codex creates migration files but does not apply remote SQL.
+- Simple terminal/Git work is manual.
+- Codex is used for implementation and non-trivial inspection.
+- Docs refresh at stage close/handoff, not every micro-step.

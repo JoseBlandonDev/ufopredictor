@@ -1,11 +1,11 @@
 # IMPLEMENTATION PLAN — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-This is a secondary planning document. Active next-step planning lives in `NEXT_EPICS_PLAN.md` and `ROADMAP_AND_BACKLOG.md`, but this file preserves the implementation sequence and constraints.
+This is a secondary planning document. Active next-step planning lives in `NEXT_EPICS_PLAN.md` and `ROADMAP_AND_BACKLOG.md`, but this file preserves implementation sequence and constraints.
 
 ## Completed Implementation Blocks
 
@@ -26,7 +26,7 @@ Completed:
 - public prediction card;
 - `/predictions` from DB.
 
-Current C01 data path is hardened through C03's `public_prediction_summaries` view.
+Current C01 data path is hardened through `public_prediction_summaries`.
 
 ### C02 — Plans & Entitlements Backend
 
@@ -80,7 +80,7 @@ Important C04 rules:
 Completed:
 
 - audited current anonymous vs registered-free experience;
-- decided the funnel is Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions;
+- decided funnel is Anonymous -> Registered Free -> World Cup premium packages -> post-World-Cup monthly subscriptions;
 - rejected separate `beta/free expanded` plan concept;
 - confirmed Registered Free is permanent.
 
@@ -101,7 +101,7 @@ Completed:
 
 ### C05 Gate 2A — Presentation Boundary sin SQL
 
-Completed in current working branch / pending commit or PR.
+Completed.
 
 Implementation intent:
 
@@ -109,77 +109,68 @@ Implementation intent:
 - use already-public fields from existing queries/views;
 - avoid SQL/RLS/migrations/new views/query changes.
 
-Expected behavior:
+Behavior:
 
 - Anonymous keeps metadata + complete 1X2 probabilities.
 - Anonymous sees confidence/risk as basic signal/teaser.
 - Registered Free sees confidence/risk complete with more context.
 - Preview signals remain placeholder/teaser.
-- Dashboard reinforces free account value.
 
-Non-scope:
+### C05 Gate 2B — Server-side Anonymous Payload Shaping sin SQL
 
-- no real data boundary;
-- no premium tables;
-- no premium payload;
-- no payments;
-- no i18n;
-- no sports API;
-- no LLM;
-- no workers.
+Completed in PR #28.
 
-## Next Implementation Decision
+Behavior:
 
-### C05 Gate 2B — Real Data Boundary / Projection Decision
+- Anonymous keeps metadata + complete 1X2 probabilities.
+- Anonymous no longer receives `confidenceScore` / `riskLevel` in shaped UI DTO.
+- Registered Free receives confidence/risk.
+- No SQL/RLS/migrations/views/RPC.
+
+### C05 Gate 3 — Saved Matches / Watchlist Foundation
+
+Completed in PR #29.
+
+Implementation:
+
+- `0014_user_saved_matches.sql`;
+- `public.user_saved_matches` table;
+- own-row RLS;
+- `authenticated`: SELECT, INSERT, DELETE;
+- `anon`: no access;
+- save/remove actions from `/matches/[slug]`;
+- dashboard saved matches list;
+- no `/predictions` button yet;
+- no premium payload.
+
+## Next Implementation Block
+
+### C06 — World Cup Premium Package Foundation
 
 Recommended next step.
 
 Goal:
 
-Decide whether C05 Gate 2A should be hardened into a real DB/query boundary.
+Prepare the World Cup package/pass/unlock foundation without serving premium match payload yet.
 
-Options:
+Potential scope:
 
-1. Keep Gate 2A as presentation boundary for now.
-2. Add separate anon vs registered-free projection views.
-3. Add server-only query shaping or RPC.
-4. Add RLS if appropriate.
+- package candidates;
+- product catalog representation;
+- package-to-entitlement mapping;
+- stage/team/group/match resource modeling;
+- admin/seeding approach if approved;
+- no checkout unless explicitly scoped.
 
-Decision constraints:
+Non-scope:
 
-- If the field is sensitive, it must not be sent to the browser for unauthorized users.
-- Visual locks, blur, and teasers are not authorization.
-- No premium base tables should open publicly.
-- Do not use service role for normal UI.
+- no premium payload projection;
+- no `prediction_markets` public/entitled serving;
+- no `prediction_narratives` public/entitled serving;
+- no `prediction_results` public/entitled serving;
+- no payments/Stripe unless explicitly approved.
 
 ## Future Implementation Blocks
-
-### C05 Gate 3 — Registered Free Capture Foundation
-
-Potential scope:
-
-- favorites;
-- watchlist;
-- preferred teams;
-- preferred competitions;
-- saved matches;
-- interaction events;
-- preview interest signals.
-
-Likely requires SQL/RLS if implemented.
-
-### C06 — World Cup Premium Package Foundation
-
-Potential scope:
-
-- define visible package catalog;
-- map packages to entitlements/unlocks;
-- prepare World Cup Full Pass;
-- prepare 10 Match Pack;
-- prepare Single Match Unlock;
-- prepare Country/Team/Group/Stage/Semifinals/Final passes.
-
-Do not serve premium payload yet unless C07 is explicitly reached.
 
 ### C07 — Entitled Premium Match Projection
 

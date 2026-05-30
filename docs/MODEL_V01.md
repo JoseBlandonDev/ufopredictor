@@ -1,61 +1,93 @@
 # MODEL V01 — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-This is a secondary model reference.
+## Product Principle
 
-## Principle
-
+```txt
 The statistical model calculates.
-
 The AI explains.
+```
 
-Prediction probabilities should come from deterministic model code and persisted prediction versions, not from LLM narratives.
+The model, not an LLM narrative layer, must be the source of prediction probabilities.
 
-## Current Model State
+## Current Prediction Surface
 
-The project has a deterministic prediction engine prototype and model evaluation utilities.
+The current public product exposes:
 
-Lab Admin can persist evaluation results using `lib/model-evaluation`.
+- match metadata;
+- public 1X2 probabilities;
+- confidence/risk for Registered Free;
+- confidence/risk teaser for Anonymous.
 
-Public predictions and public match detail read persisted public `prediction_versions` from Supabase through approved public projections.
+After C05 Gate 2B, Anonymous users do not receive confidence/risk fields in the shaped UI DTO.
 
-## Public Product Current Use
+## Current Public Prediction Data Path
 
-`/predictions` shows public 1X2 probabilities from DB-backed public prediction versions.
+Public predictions are read from:
 
-`/matches/[slug]` can show the same public/basic prediction summary when a public prediction exists.
+```txt
+public_prediction_summaries
+```
 
-After C05 Gate 2A:
+This view contains public prediction summary columns. UI shaping determines what each viewer receives.
 
-- Anonymous still sees full public 1X2.
-- Anonymous sees confidence/risk as a basic presentation signal/teaser.
-- Registered Free sees confidence/risk fully rendered with more account context.
+## Current Match Detail Data Path
 
-This is not a model change.
+Public match details are read from:
 
-## What Is Not Yet Modeled In Production
+```txt
+public_match_details
+```
 
-- real sports data ingestion;
-- real odds integration;
-- production-grade calibration;
-- automated workers;
-- LLM narratives;
-- premium market projections;
-- real Trust/Transparency public metrics.
+This view now includes `match_id` only to support saved matches server-side resolution for public matches.
 
-## Trust / Transparency Guidance
+## Model Outputs Currently Public
 
-Before larger beta promotion:
+Public/free product may show:
 
-- validate predictions against real results;
-- separate pre-alignment and post-alignment metrics;
-- distinguish Lab/internal, beta calibration, and trust-eligible public predictions;
-- document model confidence and risk language;
-- avoid overpromising accuracy;
-- keep disclaimers visible.
+- home win probability;
+- draw probability;
+- away win probability.
 
-Early beta matches are for calibration and learning. Do not pretend the first noisy sample is a glorious statistical cathedral. It is not.
+Registered Free may also see:
+
+- confidence score;
+- risk level.
+
+## Premium Candidate Outputs
+
+Potential future premium outputs include:
+
+- scorelines;
+- expected goals;
+- BTTS;
+- over/under;
+- Model vs Market;
+- Golden Hour Delta;
+- deeper narratives;
+- post-result evaluation details;
+- historical/trust explanations beyond public summary.
+
+These must not be exposed until a protected premium projection is implemented.
+
+## LLM Narrative Rule
+
+LLMs may eventually help explain model output, but must not invent prediction probabilities.
+
+Narratives should be constrained by persisted model output and product-safe fields.
+
+## Trust / Transparency
+
+Current `/transparency` remains simulated/mock.
+
+Future trust work must distinguish:
+
+- internal Lab evaluation;
+- beta calibration;
+- public trust-eligible performance.
+
+Do not use early or internal calibration data as finished public trust evidence.

@@ -1,17 +1,15 @@
 # CODEX HANDOFF CURRENT — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
 ## Role For Codex
 
 You are the implementation assistant for the UFO Predictor repository.
 
-You must follow project scope strictly.
-
-Do not create broad features, do not infer missing business logic, and do not assume Supabase remote migrations are applied automatically.
+Follow project scope strictly. Do not create broad features, infer missing business logic, or assume Supabase remote migrations are applied automatically.
 
 ## Required Prompt Format
 
@@ -26,6 +24,7 @@ EJECUCIÓN RECOMENDADA
 - Riesgo:
 - Motivo:
 - Manual/PowerShell vs Codex:
+- ¿Esto debe terminar en PR ahora?:
 
 PROMPT LIMPIO PARA CODEX
 ...
@@ -35,10 +34,10 @@ The execution recommendation is for the user. The clean prompt is the part copie
 
 ## Current Git Baseline
 
-Current main includes:
+Current `main` includes:
 
 ```txt
-PR #27 — docs: update project context after c05 gate 1
+PR #29 — Feature/registered free saved matches
 ```
 
 Recent PRs:
@@ -53,16 +52,10 @@ Recent PRs:
 | #25 | `feat: add premium match access enforcement skeleton` | Done |
 | #26 | `feat: add registered free value wall` | Done |
 | #27 | `docs: update project context after c05 gate 1` | Done |
+| #28 | `feat: shape anonymous prediction payload server-side` | Done |
+| #29 | `Feature/registered free saved matches` | Done |
 
-Active working branch may include:
-
-```txt
-C05 Gate 2A — Presentation Boundary sin SQL
-```
-
-If so, treat it as pending commit/PR until the user confirms merge.
-
-Before new work, run:
+Before new work, the user should run simple Git commands manually:
 
 ```bash
 git checkout main
@@ -72,14 +65,14 @@ git branch
 git log --oneline -5
 ```
 
-If continuing active work, first confirm branch and `git status --short`.
+Codex should not be used just to run trivial Git status/diff/log commands unless it is already executing a repo task.
 
 ## Current Supabase Remote State
 
 Remote Supabase has been manually migrated through:
 
 ```txt
-0013_public_match_detail_projection_hardening.sql
+0014_user_saved_matches.sql
 ```
 
 Important applied migrations:
@@ -87,8 +80,9 @@ Important applied migrations:
 - `0011_public_prediction_reads.sql`
 - `0012_plans_entitlements_backend.sql`
 - `0013_public_match_detail_projection_hardening.sql`
+- `0014_user_saved_matches.sql`
 
-No migration beyond 0013 is assumed to be remotely applied.
+No migration beyond 0014 is assumed to be remotely applied.
 
 ## Critical Supabase Rule
 
@@ -104,7 +98,7 @@ For every migration task, Codex must:
 2. Show the complete SQL in the final response.
 3. Provide validation queries.
 4. State clearly that the migration has not been applied remotely unless the user confirms it.
-5. Not claim remote validation until the user applies the SQL manually and shares results.
+5. Not claim remote validation until the user applies SQL manually and shares results.
 
 ## Current Functional State
 
@@ -123,10 +117,6 @@ Can:
 
 Do not touch unless explicitly requested.
 
-Still mock:
-
-- worker runs.
-
 ### `/predictions`
 
 Reads real public prediction data from Supabase through:
@@ -135,13 +125,11 @@ Reads real public prediction data from Supabase through:
 public_prediction_summaries
 ```
 
-Gate 2A presentation behavior:
+After C05:
 
 - Anonymous sees public metadata + complete 1X2 probabilities.
-- Anonymous sees confidence/risk as basic teaser/presentation signal.
+- Anonymous does not receive `confidenceScore` / `riskLevel` in shaped UI DTO.
 - Registered Free sees confidence/risk fully rendered with more context.
-
-Must remain public/basic only until a real data boundary is approved.
 
 Do not expose:
 
@@ -164,26 +152,15 @@ public_match_details
 public_prediction_summaries
 ```
 
-Gate 2A presentation behavior:
+After C05:
 
 - Anonymous sees match metadata + complete public 1X2.
-- Anonymous sees confidence/risk as basic teaser/presentation signal.
+- Anonymous sees confidence/risk teaser and does not receive confidence/risk DTO fields.
 - Registered Free sees confidence/risk fully rendered and account-active context.
-- Preview signals are still placeholder/teaser.
+- Registered Free can save/remove the public match.
+- Anonymous sees login/register CTA for saved matches.
 
-Must remain public/free-only until a protected projection is approved.
-
-Allowed public fields:
-
-- match metadata;
-- competition metadata;
-- home/away teams;
-- venue;
-- kickoff;
-- stage/status;
-- public 1X2.
-
-Do not expose premium fields.
+`public_match_details` exposes `match_id` to support saved matches server-side. `public_prediction_summaries` does not expose `match_id`.
 
 ### `/pricing`
 
@@ -203,81 +180,27 @@ Shows:
 - active subscriptions;
 - current entitlements;
 - current match unlocks;
-- free account value messaging.
+- free account value messaging;
+- saved matches list.
 
 Does not serve premium prediction content.
 
-## C01 Summary — Public Predictions From DB
+## C01–C05 Summary
 
-Status: Done.
+C01: public predictions from DB.
 
-Current public predictions use `public_prediction_summaries` from C03.
+C02: plans and entitlements backend.
 
-## C02 Summary — Plans & Entitlements Backend
+C03: public match detail from DB and public projection hardening.
 
-Status: Done.
+C04: premium access enforcement skeleton with canonical `stageAccessKey` and trusted server-side beta access.
 
-Files:
+C05: Anonymous vs Registered Free freemium boundary and capture:
 
-- `app/pricing/page.tsx`
-- `app/dashboard/page.tsx`
-- `components/plan-card.tsx`
-- `lib/supabase/entitlement-queries.ts`
-- `lib/permissions/entitlements.ts`
-- `lib/permissions/entitlements.test.ts`
-- `supabase/migrations/0012_plans_entitlements_backend.sql`
-
-Key rules:
-
-- `premium_user` does not unlock all content.
-- Active subscription does not unlock protected content by itself.
-- Entitlements/unlocks are the effective access source.
-- Beta free access must be server-controlled.
-- Admin bypass is explicit, not automatic everywhere.
-
-## C03 Summary — Match Detail Public From DB
-
-Status: Done.
-
-Files:
-
-- `app/matches/[slug]/page.tsx`
-- `app/predictions/page.tsx`
-- `components/public-prediction-card.tsx`
-- `lib/supabase/public-match-detail-queries.ts`
-- `lib/supabase/public-prediction-queries.ts`
-- `supabase/migrations/0013_public_match_detail_projection_hardening.sql`
-
-Scope:
-
-- public match detail from DB;
-- public prediction summaries through explicit views;
-- anon hardened to public views only;
-- no premium data opened.
-
-## C04 Summary — Premium Access Enforcement Skeleton
-
-Status: Done.
-
-Scope:
-
-- server-side/pure access decision skeleton;
-- `PremiumMatchResource`;
-- canonical `stageAccessKey`;
-- entitlement/unlock/admin/beta decision logic;
-- tests;
-- no SQL;
-- no premium data served.
-
-## C05 Gate 0 / Gate 1 / Gate 2A Summary
-
-Status:
-
-- Gate 0: Done, product audit/decision.
-- Gate 1: Done, registered free value wall in Spanish UI.
-- Gate 2A: Implemented in active branch/pending PR, presentation boundary without SQL.
-
-Gate 2A did not change data boundary. It renders different presentation for Anonymous vs Registered Free using already-public fields.
+- value wall;
+- presentation boundary;
+- server-side anonymous payload shaping;
+- saved matches/watchlist foundation.
 
 ## Product Principle
 
@@ -294,9 +217,8 @@ UFO Predictor supports a controlled beta/freemium phase before the World Cup.
 The strategy:
 
 - expose useful free value;
-- do not give away all premium data;
+- do not give away premium data;
 - avoid mass advertising until results, UX, infrastructure, and costs are validated;
-- start organically with finals, friendlies, and pre-World Cup fixtures;
 - capture Registered Free users before World Cup package monetization.
 
 ## Commercial Direction
@@ -304,7 +226,7 @@ The strategy:
 Funnel:
 
 ```txt
-Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions
+Anonymous -> Registered Free -> World Cup premium packages -> post-World-Cup monthly subscriptions
 ```
 
 World Cup premium should be package/pass/unlock based:
@@ -318,22 +240,24 @@ World Cup premium should be package/pass/unlock based:
 
 Monthly subscriptions are expected after the World Cup for recurring league coverage.
 
-## Recommended Next Decision
+## Recommended Next Block
 
 ```txt
-C05 Gate 2B — Real Data Boundary / Projection Decision
+C06 — World Cup Premium Package Foundation
 ```
 
 Goal:
 
-Decide whether the presentation-only split from Gate 2A should become a real backend/data boundary.
+Prepare package/pass/unlock product foundation for the World Cup without serving premium match payload yet.
 
-Possible implementations:
+Possible scope:
 
-- new `anon` vs `registered_free` projection views;
-- RPC;
-- server-only query shaping;
-- RLS if appropriate.
+- visible package catalog decisions;
+- product/entitlement mapping;
+- seeds/admin structure if approved;
+- package access rules.
+
+Do not serve premium payload until C07.
 
 ## Out Of Scope Until Explicitly Approved
 

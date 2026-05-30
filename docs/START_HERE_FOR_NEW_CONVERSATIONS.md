@@ -1,11 +1,11 @@
 # START HERE FOR NEW CONVERSATIONS — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-This is the first document to read when starting a new ChatGPT, Codex, or handoff conversation for UFO Predictor. It preserves broad project context and operational continuity.
+This is the first document to read when starting a new ChatGPT, Codex, or handoff conversation for UFO Predictor. It preserves broad project context, operational continuity, and current constraints.
 
 ## Current Baseline
 
@@ -23,8 +23,10 @@ Main includes work through:
 | #25 | `feat: add premium match access enforcement skeleton` | Done |
 | #26 | `feat: add registered free value wall` | Done |
 | #27 | `docs: update project context after c05 gate 1` | Done |
+| #28 | `feat: shape anonymous prediction payload server-side` | Done |
+| #29 | `Feature/registered free saved matches` | Done |
 
-Current active implementation state:
+Current completed state:
 
 ```txt
 C01 — Public Predictions From DB ✅
@@ -33,7 +35,9 @@ C03 — Match Detail Public From DB ✅
 C04 — Premium Access Enforcement Skeleton ✅
 C05 Gate 0 — Anonymous vs Registered Free Product Audit ✅
 C05 Gate 1 — Registered Free Value Wall ✅
-C05 Gate 2A — Presentation Boundary sin SQL ✅ / current working branch, pending commit/PR
+C05 Gate 2A — Presentation Boundary sin SQL ✅
+C05 Gate 2B — Server-side Anonymous Payload Shaping sin SQL ✅
+C05 Gate 3 — Saved Matches / Watchlist Foundation ✅
 ```
 
 ## Supabase Remote State
@@ -41,7 +45,7 @@ C05 Gate 2A — Presentation Boundary sin SQL ✅ / current working branch, pend
 Supabase remote has been manually updated through:
 
 ```txt
-0013_public_match_detail_projection_hardening.sql
+0014_user_saved_matches.sql
 ```
 
 Important applied migrations:
@@ -49,6 +53,7 @@ Important applied migrations:
 - `0011_public_prediction_reads.sql`
 - `0012_plans_entitlements_backend.sql`
 - `0013_public_match_detail_projection_hardening.sql`
+- `0014_user_saved_matches.sql`
 
 No later migration is assumed to exist remotely unless the user explicitly applies it in Supabase SQL Editor and shares validation results.
 
@@ -58,7 +63,7 @@ Supabase CLI local is not configured as the normal workflow.
 
 Codex may create migration files, but Codex does not apply migrations to the remote Supabase project.
 
-All remote migrations must be applied manually by the user in Supabase SQL Editor. Never assume a local migration file is already applied to the remote database. After every migration:
+All remote migrations must be applied manually by the user in Supabase SQL Editor. After every migration:
 
 1. Review SQL.
 2. Apply manually in Supabase SQL Editor.
@@ -88,13 +93,13 @@ The active funnel is:
 Anonymous
 → Registered Free
 → World Cup premium packages
-→ post-World Cup monthly subscriptions
+→ post-World-Cup monthly subscriptions
 ```
 
 Important decisions:
 
 - There is no separate `beta/free expanded` plan.
-- Registered Free is a permanent user state, not a temporary beta plan.
+- Registered Free is permanent, not a temporary beta plan.
 - Before the World Cup, Registered Free may receive selected previews to validate product/model interest.
 - During the World Cup, Registered Free still has more value than Anonymous, while World Cup premium packages protect deeper analysis.
 - After the World Cup, monthly subscriptions are expected for American/European league coverage.
@@ -128,12 +133,58 @@ EJECUCIÓN RECOMENDADA
 - Riesgo:
 - Motivo:
 - Manual/PowerShell vs Codex:
+- ¿Esto debe terminar en PR ahora?:
 
 PROMPT LIMPIO PARA CODEX
 ...
 ```
 
-The first block is for the user. The second block is the only block meant to be copied into Codex. Keep these blocks separate to maintain clarity and reuse.
+The first block is for the user. The second block is the only block meant to be copied into Codex.
+
+## Tool Discipline
+
+Use manual PowerShell/Git for simple commands:
+
+- `git status`
+- `git diff`
+- `git log`
+- `git add` / `git commit` / `git push`
+- simple validation commands
+- copying results back to ChatGPT
+
+Use Codex for:
+
+- repository inspection that requires reasoning across files;
+- code edits;
+- refactors;
+- implementation;
+- SQL/migrations;
+- technical reports tied to files it is modifying.
+
+Do not spend Codex tokens on trivial terminal work unless it is already executing an implementation task.
+
+## Git / Merge Discipline
+
+Do not merge every micro-step to `main`.
+
+Use longer feature branches with multiple commits when the block has one coherent functional goal. Merge to `main` only when there is functional value, a closed security boundary, or a real stage transition.
+
+C05 Gate 2A was integrated directly to `main` by workflow mistake. It should not be reverted. After that, the project returned to the correct flow:
+
+```txt
+feature branch -> push branch -> PR -> merge
+```
+
+## Documentation Refresh Rule
+
+Do not refresh docs for every micro-progress.
+
+Refresh docs when:
+
+- closing an epic/stage;
+- switching conversations;
+- changing architectural/product decisions;
+- preparing a handoff.
 
 ## Current Functional State
 
@@ -154,7 +205,7 @@ Still mock:
 
 - `workerRuns`.
 
-Do not touch Lab Admin unless the task explicitly asks for it.
+Do not touch Lab Admin unless explicitly requested.
 
 ### `/`
 
@@ -177,13 +228,12 @@ It reads public predictions from Supabase through:
 public_prediction_summaries
 ```
 
-After C05 Gate 2A:
+After C05:
 
 - Anonymous keeps metadata + complete 1X2 probabilities.
-- Anonymous sees confidence/risk as a basic teaser/presentation signal.
-- Registered Free sees the complete confidence/risk presentation and more free-account context.
-- No query changed.
-- No new SQL/view/RLS was added.
+- Anonymous does not receive `confidenceScore` / `riskLevel` in the shaped DTO sent to UI.
+- Registered Free receives complete confidence/risk presentation and more free-account context.
+- `public_prediction_summaries` does not expose `match_id`.
 
 It must not expose:
 
@@ -205,27 +255,15 @@ public_match_details
 public_prediction_summaries
 ```
 
-After C05 Gate 2A:
+After C05:
 
 - Anonymous keeps match metadata + complete public 1X2 probabilities.
-- Anonymous sees confidence/risk as a basic teaser/presentation signal.
+- Anonymous sees confidence/risk teaser presentation and does not receive confidence/risk DTO fields.
 - Registered Free sees full confidence/risk display and more context.
-- Preview signals remain placeholder/teaser only.
+- Registered Free can save/remove public matches.
+- Anonymous sees CTA to create account/login to save matches.
 
-This is a presentation boundary, not a real DB/data boundary.
-
-It does not expose:
-
-- `prediction_markets`;
-- `prediction_narratives`;
-- `prediction_results`;
-- premium analysis;
-- expected goals;
-- scorelines;
-- BTTS;
-- over/under;
-- Golden Hour Delta;
-- Model vs Market.
+`public_match_details` now exposes `match_id` to support server-side saved-match resolution for public matches without service role and without reading `public.matches` directly in normal UI.
 
 ### `/pricing`
 
@@ -253,7 +291,7 @@ It reads the signed-in user's real access state:
 - current entitlements;
 - current match unlocks.
 
-After C05 Gate 1/2A it also reinforces free account value. It still does not serve premium prediction content.
+After C05, it also shows a minimal saved matches section backed by `user_saved_matches` and `public_match_details`.
 
 ### `/transparency`
 
@@ -269,14 +307,12 @@ Do not inflate trust claims using early calibration matches.
 
 ## Public Projection Hardening
 
-C03 introduced `0013_public_match_detail_projection_hardening.sql`.
-
-This migration created explicit public views:
+C03 introduced explicit public views:
 
 - `public_match_details`
 - `public_prediction_summaries`
 
-Security posture after manual validation:
+Security posture:
 
 - `anon` reads approved public views only.
 - `anon` no longer reads base public product tables directly.
@@ -284,7 +320,8 @@ Security posture after manual validation:
 - `anon` cannot read `prediction_narratives`.
 - `anon` cannot read `prediction_results`.
 - Public views expose only approved columns.
-- `authenticated` grants needed by Lab/Admin remain intentionally preserved for now.
+
+C05 added `match_id` to `public_match_details` only, for saved matches server-side resolution. `public_prediction_summaries` does not expose `match_id`.
 
 ## C04 Premium Access Skeleton
 
@@ -299,20 +336,22 @@ Key rules:
 - `stageAccessKey` must be canonical and server-derived.
 - `trustedBetaFreeMatchIds` must come from trusted server-side context, never from client/query params.
 
-## C05 Gate 2A Boundary Note
+## C05 Boundary Note
 
-C05 Gate 2A is not a data-security boundary.
+C05 is complete.
 
-It is a presentation boundary using already-public fields.
+- Gate 1 improved Registered Free value wall.
+- Gate 2A created presentation boundary.
+- Gate 2B added server-side DTO shaping so Anonymous does not receive confidence/risk DTO fields.
+- Gate 3 added saved matches/watchlist foundation.
 
-If future work introduces any sensitive field, the boundary must move to backend projection/query layer before rendering.
+C05 does not serve premium payload.
 
 ## What Is Not Implemented Yet
 
 Still not implemented:
 
-- C05 Gate 2B real DB/data boundary;
-- favorites/watchlist/user interest capture;
+- C06 World Cup Premium Package Foundation;
 - final premium match detail projection;
 - public or entitled `prediction_markets`;
 - public or entitled `prediction_narratives`;
@@ -334,21 +373,14 @@ Still not implemented:
 Recommended next step:
 
 ```txt
-C05 Gate 2B — Real Data Boundary / Projection Decision
+C06 — World Cup Premium Package Foundation
 ```
 
 Goal:
 
-Decide whether to formalize Anonymous vs Registered Free separation at DB/query level.
+Design and prepare World Cup package/pass/unlock foundations without serving premium match payload yet.
 
-Possible approaches:
-
-- continue with current presentation boundary temporarily;
-- create separate anonymous and registered-free views;
-- use RPC/server-only query shapes;
-- use RLS if appropriate.
-
-Do not jump directly into C06/C07 premium payload until Gate 2B decision is explicit.
+Do not jump directly into C07 premium payload.
 
 ## Active Source Priority
 

@@ -1,355 +1,255 @@
 # CURRENT PROJECT STATUS — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
 ## Executive Summary
 
-UFO Predictor has completed the internal Lab Admin Flow, public predictions from DB, plans/entitlements backend, public/free match detail from DB, a premium access enforcement skeleton, a registered-free value wall, and a first presentation-level separation between Anonymous and Registered Free.
+UFO Predictor now has a working public/freemium foundation:
 
-Current baseline:
+- public predictions from Supabase;
+- public match detail from Supabase;
+- plans and entitlements backend;
+- premium access enforcement skeleton;
+- Registered Free value wall;
+- Anonymous vs Registered Free presentation and DTO boundary;
+- saved matches/watchlist foundation for Registered Free.
 
-```txt
-main includes PR #27: docs update project context after C05 Gate 1
-current working branch includes C05 Gate 2A presentation boundary changes pending commit/PR
-```
+The next major block is C06 — World Cup Premium Package Foundation.
 
-The project now has:
+## Latest PRs
 
-- internal Lab workflow using Supabase;
-- public predictions listing from Supabase;
-- public/free match detail from Supabase;
-- public beta plans catalog from Supabase;
-- authenticated dashboard access summary from Supabase;
-- pure entitlement logic with tests;
-- server-only premium access decision skeleton;
-- public projection hardening for anonymous users;
-- UI/copy value wall for Registered Free;
-- presentation-level Gate 2A differentiation between Anonymous and Registered Free;
-- manual Supabase migrations applied through `0013`.
-
-The next recommended decision is:
-
-```txt
-C05 Gate 2B — Real Data Boundary / Projection Decision
-```
-
-## Recent PRs / Milestones
-
-| PR / Gate | Title | Status |
+| PR | Title | Status |
 |---:|---|---|
-| #18 | `feat: persist lab evaluations` | Done |
-| #19 | `docs: update project context after lab admin flow` | Done |
-| #20 | `feat: read public predictions from db` | Done |
-| #21 | `feat: add plans entitlements backend` | Done |
-| #22 | `docs: update project context after c02` | Done |
-| #23 | `feat: read public match detail from db` | Done |
-| #24 | `docs: update project context after c03` | Done |
 | #25 | `feat: add premium match access enforcement skeleton` | Done |
 | #26 | `feat: add registered free value wall` | Done |
 | #27 | `docs: update project context after c05 gate 1` | Done |
-| C05 Gate 2A | Presentation Boundary sin SQL | Implemented in current working branch, pending commit/PR |
+| #28 | `feat: shape anonymous prediction payload server-side` | Done |
+| #29 | `Feature/registered free saved matches` | Done |
 
-## Supabase Remote State
+## Current Supabase State
 
-Remote Supabase has been updated manually through:
+Remote Supabase is manually applied through:
 
 ```txt
-0013_public_match_detail_projection_hardening.sql
+0014_user_saved_matches.sql
 ```
 
-Important applied migrations:
+Applied migrations:
 
-| Migration | Purpose | Remote Applied |
-|---|---|---|
-| `0011_public_prediction_reads.sql` | Public read policies for public predictions | Yes, manually |
-| `0012_plans_entitlements_backend.sql` | Plans and own-row entitlement reads | Yes, manually |
-| `0013_public_match_detail_projection_hardening.sql` | Public projection views and anon hardening | Yes, manually |
+- `0011_public_prediction_reads.sql`
+- `0012_plans_entitlements_backend.sql`
+- `0013_public_match_detail_projection_hardening.sql`
+- `0014_user_saved_matches.sql`
 
-No C04/C05 Gate 1/Gate 2A SQL migrations were added.
+Supabase CLI local is not the normal workflow. The user applies migrations manually in Supabase SQL Editor.
 
-## Supabase Migration Rule
+## Current Product States
 
-Supabase CLI local is not configured as the normal workflow.
+### Anonymous
 
-Codex does not apply migrations to remote Supabase.
+Anonymous users can:
 
-Codex may create SQL migration files, but the user must apply them manually in Supabase SQL Editor.
+- view public match metadata;
+- view complete public 1X2 probabilities;
+- see confidence/risk teaser messaging;
+- see registration CTAs;
+- see CTA to save matches but cannot save them.
 
-Do not treat a migration as active until manual application and validation are confirmed.
+Anonymous users should not receive:
 
-Required validation after migration:
+- `confidenceScore` / `riskLevel` in shaped UI DTO;
+- premium payload;
+- premium markets/narratives/results.
 
-1. Inspect SQL.
-2. Apply in Supabase SQL Editor.
-3. Validate policies in `pg_policies`.
-4. Validate grants.
-5. Validate `anon` and `authenticated` behavior.
-6. Validate UI.
-7. Run `npm run test`, `npm run lint`, and `npm run build`.
-8. Restore `next-env.d.ts` if modified by build.
+### Registered Free
 
-## Tool Usage Rule
+Registered Free users can:
 
-ChatGPT-generated Codex work must be separated into:
+- view public metadata and complete 1X2 probabilities;
+- receive confidence/risk in shaped DTO and UI;
+- see richer context and preview messaging;
+- save/remove public matches from match detail;
+- view saved matches in dashboard.
 
-1. `EJECUCIÓN RECOMENDADA` for the user: tool, model, intelligence, risk, scope, and rationale.
-2. `PROMPT LIMPIO PARA CODEX` for direct copy/paste into Codex.
+Registered Free does not unlock premium payload.
 
-Codex is used for controlled repo execution. ChatGPT plans, reviews, scopes, documents, and generates prompts. Antigravity and OpenCode are auxiliary tools only. Manual user steps remain required for Supabase SQL Editor, GitHub UI, and remote validations.
+### World Cup Premium User / Package Holder
 
-## Current Route Status
+Not implemented yet.
+
+World Cup premium access is expected to be package/pass/unlock based and prepared in C06, with premium payload projection deferred to C07.
+
+### Post-World-Cup Subscription User
+
+Not implemented yet.
+
+Monthly subscriptions are expected after the World Cup for recurring league coverage.
+
+## Current Data Boundary
+
+C05 introduced two layers:
+
+1. Presentation boundary: anonymous sees teaser copy; registered free sees richer confidence/risk presentation.
+2. Server-side DTO boundary: anonymous does not receive confidence/risk DTO fields; registered free does.
+
+Current public views:
+
+- `public_match_details` includes `match_id` for saved matches server-side resolution.
+- `public_prediction_summaries` does not include `match_id`.
+
+Premium/internal tables remain closed:
+
+- `prediction_markets`
+- `prediction_narratives`
+- `prediction_results`
+
+## Current Capture Foundation
+
+C05 added:
+
+```txt
+public.user_saved_matches
+```
+
+Purpose:
+
+- allow Registered Free users to save public matches;
+- allow dashboard listing of saved matches;
+- support future product interest signals and conversion without exposing premium payload.
+
+Security posture:
+
+- RLS enabled;
+- own-row select/insert/delete;
+- no update policy;
+- `authenticated`: SELECT, INSERT, DELETE;
+- `anon`: no access.
+
+## Current Routes
 
 | Route | Status |
 |---|---|
-| `/` | Public landing page; still may contain simulated/static featured predictions |
-| `/predictions` | Real public predictions from Supabase via `public_prediction_summaries`; Gate 2A presentation split by session |
-| `/matches/[slug]` | Real public/free-only match detail from Supabase via public views; Gate 2A presentation split by session |
-| `/pricing` | Real active/beta catalog from Supabase; no checkout/payment |
-| `/dashboard` | Authenticated viewer access summary from Supabase + free value messaging |
-| `/admin` | Admin shell, partially mock |
-| `/admin/beta-lab` | Internal Lab workflow operational |
-| `/transparency` | Still simulated transparency metrics |
-| `/login`, `/register`, `/auth/callback` | Auth foundation present |
+| `/` | Public landing/value surface; may still include static featured cards |
+| `/predictions` | Public predictions from DB; Anonymous DTO excludes confidence/risk |
+| `/matches/[slug]` | Public match detail; saved match CTA/toggle |
+| `/pricing` | DB-backed active plan catalog; no checkout |
+| `/dashboard` | Access summary + saved matches list |
+| `/admin/beta-lab` | Operational internal Lab/Admin flow |
+| `/transparency` | Still simulated/mock |
 
-## `/admin/beta-lab`
+## Completed Blocks
 
-Current real capabilities:
+### C01 — Public Predictions From DB
 
-- reads Lab fixtures from Supabase;
-- supports fixture review;
-- supports match result creation/editing;
-- reads internal `prediction_markets`;
-- persists/updates `prediction_results`;
-- displays readiness and persisted evaluation metrics.
+Done.
 
-Still mock:
+### C02 — Plans & Entitlements Backend
 
-- worker runs.
+Done.
 
-This area should not be touched while working on public freemium surfaces unless explicitly requested.
+### C03 — Match Detail Public From DB
 
-## `/predictions`
+Done.
 
-Implemented by C01, hardened by C03, updated by C05 Gate 1 and Gate 2A.
+### C04 — Premium Access Enforcement Skeleton
 
-Reads public predictions from Supabase using:
+Done.
 
-```txt
-public_prediction_summaries
-```
+Key rules:
 
-Safety constraints:
+- `premium_user` alone does not unlock content.
+- Active subscription alone does not unlock content.
+- Pack quantity does not authorize content directly.
+- Explicit entitlements/unlocks are the effective source of access.
 
-- only public product competitions;
-- only public matches;
-- only public product prediction versions;
-- no Lab data;
-- no premium markets;
-- no premium narratives;
-- no prediction results;
-- no premium analysis.
+### C05 — Anonymous vs Registered Free Freemium Boundary
 
-Gate 2A behavior:
+Done.
 
-- Anonymous keeps match metadata + complete 1X2 probabilities.
-- Anonymous sees confidence/risk as a basic teaser/presentation signal.
-- Registered Free sees confidence/risk fully rendered with more account context.
-- This is not a DB boundary because the same public view is still used.
+Includes:
 
-Relevant files:
+- Registered Free value wall;
+- presentation boundary;
+- server-side DTO shaping;
+- saved matches/watchlist foundation.
 
-- `app/predictions/page.tsx`
-- `components/public-prediction-card.tsx`
-- `lib/supabase/public-prediction-queries.ts`
-- `supabase/migrations/0013_public_match_detail_projection_hardening.sql`
-
-## `/matches/[slug]`
-
-Implemented by C03, updated by C05 Gate 1 and Gate 2A.
-
-Reads real public/free-only match detail from Supabase using:
+## Next Block
 
 ```txt
-public_match_details
-public_prediction_summaries
-```
-
-Shows:
-
-- competition;
-- match;
-- teams;
-- venue;
-- kickoff;
-- status/stage;
-- public 1X2 prediction basics if available.
-
-Behavior:
-
-- public match with prediction: shows metadata + public 1X2;
-- public match without prediction: shows empty state;
-- nonexistent or non-public slug: 404.
-
-Gate 2A behavior:
-
-- Anonymous keeps metadata + complete public 1X2 probabilities.
-- Anonymous sees confidence/risk as basic teaser/presentation signal.
-- Registered Free sees confidence/risk fully and account-active messaging.
-- Preview signals remain placeholder/teaser.
-
-Relevant files:
-
-- `app/matches/[slug]/page.tsx`
-- `lib/supabase/public-match-detail-queries.ts`
-- `supabase/migrations/0013_public_match_detail_projection_hardening.sql`
-
-## `/pricing`
-
-Implemented by C02 and updated by C05 Gate 1.
-
-Reads active visible plans and public plan features from Supabase.
-
-Current constraints:
-
-- no checkout;
-- no payments;
-- no Stripe;
-- no purchase flow;
-- plan features are treated as public catalog/marketing values.
-
-Pricing should frame current Free Account access and future World Cup premium packages, not active checkout.
-
-## `/dashboard`
-
-Implemented by C02 as a real access summary and updated by C05 Gate 1/Gate 2A as a value surface for Registered Free.
-
-Reads:
-
-- current profile role;
-- active subscriptions;
-- current entitlements;
-- current match unlocks.
-
-It does not serve premium prediction content.
-
-## Entitlements Foundation / C04
-
-C02 added pure access logic. C04 strengthened the server-side premium access skeleton.
-
-Access sources:
-
-- `public_basic_access`
-- `beta_free_access`
-- `entitlement_access`
-- `admin_access`
-- `none`
-
-Important rules:
-
-- `premium_user` role does not unlock all content by itself.
-- Active subscription does not unlock protected content by itself.
-- Protected access requires entitlement or match unlock unless an explicit admin/beta rule applies.
-- `quantity/match_pack` does not directly grant access; selected matches should become explicit unlocks.
-- Beta free access must be assembled server-side, never from client input.
-- `stageAccessKey` must be canonical/server-derived.
-- `trustedBetaFreeMatchIds` must come from trusted server-side context.
-
-Tests:
-
-- `lib/permissions/entitlements.test.ts`
-
-## Product Strategy
-
-UFO Predictor is preparing for a beta/freemium organic phase before the World Cup.
-
-The beta should:
-
-- show useful free value;
-- avoid giving away all premium data;
-- avoid mass advertising until the model, UX, infrastructure, and costs are validated;
-- allow organic testing with finals, friendlies, and pre-World Cup fixtures;
-- capture Registered Free users before World Cup premium package sales.
-
-Infrastructure may begin on free tiers, but costs are expected later for:
-
-- Supabase;
-- Railway;
-- sports data APIs;
-- odds APIs;
-- LLM usage if added;
-- workers and cron.
-
-## Plans Strategy
-
-The product should avoid too many public-facing plans.
-
-Visible commercial options should be understandable. Internal access can stay granular.
-
-World Cup package candidates:
-
-- Free Account;
-- 10 Match Pack;
-- World Cup Full Pass;
-- Country/Team Pass;
-- Group Pass;
-- Stage Pass;
-- Semifinals / Final Pass;
-- Single Match Unlock.
-
-Post-World Cup candidates:
-
-- Premium Monthly;
-- competition/league subscriptions;
-- recurring coverage for American/European leagues.
-
-Internal access should be granular:
-
-- competition entitlement;
-- stage entitlement via canonical `stageAccessKey`;
-- team entitlement;
-- match unlock;
-- quantity / pack consumption materialized into unlocks.
-
-## Not Implemented Yet
-
-Still missing:
-
-- C05 Gate 2B real data boundary;
-- Registered Free capture foundation: favorites/watchlist/preferences/events;
-- final premium enforcement against real payload;
-- entitled/premium match detail sections;
-- public/premium-safe `prediction_markets`;
-- public/premium-safe `prediction_narratives`;
-- public/premium-safe `prediction_results`;
-- payments;
-- Stripe;
-- checkout;
-- odds;
-- LLM;
-- real workers;
-- sports API;
-- Google Auth;
-- Supabase CLI local workflow;
-- staging final;
-- i18n EN/ES.
-
-## Recommended Next Work
-
-```txt
-C05 Gate 2B — Real Data Boundary / Projection Decision
+C06 — World Cup Premium Package Foundation
 ```
 
 Goal:
 
-Decide whether C05 should formalize the Anonymous vs Registered Free split with:
+Prepare World Cup commercial packages/passes/unlocks without serving premium match payload yet.
 
-- separate views/projections;
-- RLS;
-- RPC;
-- server-only query shaping;
-- or deferred until premium projection.
+Do not jump to C07 before C06 decisions are explicit.
 
-Do not treat Gate 2A as a security boundary. Gate 2A is presentation-only and does not replace backend authorization controls.
+
+## Context Preservation — Milestone History
+
+This section intentionally preserves broader historical context so future ChatGPT/Codex handoffs do not lose why the current baseline exists.
+
+| Phase / PR | What changed | Why it matters now |
+|---|---|---|
+| C01 / PR #20 | Public predictions read from Supabase | `/predictions` became DB-backed instead of mock-only. |
+| C02 / PR #21 | Plans and entitlements backend | Created the commercial/access foundation used by pricing/dashboard and future C06 package work. |
+| C03 / PR #23 | Public match detail from DB | `/matches/[slug]` became DB-backed through public-safe projections. |
+| C03 hardening / `0013` | Explicit public views and anon hardening | `anon` reads approved views only, not base product tables directly. |
+| C04 / PR #25 | Premium access enforcement skeleton | Introduced server-side resource/access logic without opening premium data. |
+| C05 Gate 1 / PR #26 | Registered Free value wall | Differentiated Anonymous and Registered Free at UI/copy level. |
+| C05 Gate 2A | Presentation boundary | Kept 1X2 public while changing confidence/risk presentation. |
+| C05 Gate 2B / PR #28 | Server-side DTO shaping | Anonymous no longer receives `confidenceScore` / `riskLevel` in shaped UI payload. |
+| C05 Gate 3 / PR #29 | Saved matches foundation | Registered Free users can save/remove public matches and see them in dashboard. |
+
+## Active Public Surfaces
+
+### `/predictions`
+
+Current status:
+
+- DB-backed from `public_prediction_summaries`.
+- Anonymous receives metadata + complete 1X2 probabilities.
+- Anonymous does not receive `confidenceScore` / `riskLevel` in the shaped DTO.
+- Registered Free receives full confidence/risk presentation.
+- No saved-match button in cards yet.
+- No premium payload.
+
+### `/matches/[slug]`
+
+Current status:
+
+- DB-backed from `public_match_details` and `public_prediction_summaries` as needed.
+- Uses server-side viewer shaping for prediction confidence/risk.
+- Shows saved-match CTA for Anonymous.
+- Lets Registered Free save/remove public matches.
+- Does not expose premium markets/narratives/results.
+
+### `/dashboard`
+
+Current status:
+
+- Authenticated-only surface.
+- Shows viewer access summary.
+- Shows saved matches list from `user_saved_matches` + public match metadata.
+- Does not serve premium prediction content.
+
+### `/pricing`
+
+Current status:
+
+- Shows active catalog/plans from Supabase.
+- No checkout/payments yet.
+- World Cup premium packages remain future C06 work.
+
+## Current Constraints Still In Force
+
+- Do not use service role for normal UI paths.
+- Do not serve premium payload until C07 or an explicitly approved premium projection gate.
+- Do not treat visual locks, blurs, teasers, or CSS as authorization.
+- Keep public UI copy Spanish for now.
+- Prefer canonical English for internal keys/types/slugs/entitlement identifiers.
+- Keep Supabase remote migration workflow manual unless explicitly changed.

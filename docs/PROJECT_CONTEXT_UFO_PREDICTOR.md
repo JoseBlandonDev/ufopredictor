@@ -1,101 +1,106 @@
 # PROJECT CONTEXT — UFO Predictor
 
-_Last updated: post C05 Gate 2A / Presentation Boundary sin SQL_
+_Last updated: post C05 / pre C06_
 
-Current baseline: main is post PR #27 (`docs: update project context after c05 gate 1`) and the active working tree includes C05 Gate 2A changes pending commit/PR. Do not assume a future PR number until it is created and merged.
+Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
 
 
-UFO Predictor is a football prediction app being built toward a controlled public beta before the World Cup.
+## What UFO Predictor Is
 
-The app currently combines:
+UFO Predictor is a football prediction product focused on probabilistic match analysis.
 
-- internal Lab workflows;
-- public prediction listing;
-- public/free match detail;
-- beta plan catalog;
-- entitlement/access foundations;
-- registered-free value messaging;
-- presentation-level Anonymous vs Registered Free differentiation;
-- future premium access and World Cup packages.
+It is not a sportsbook and does not accept bets.
 
-## Current Baseline
+The product should communicate probabilities, uncertainty, and context responsibly.
 
-Main includes PR #27.
-
-Completed:
-
-- Lab Admin Flow through persisted evaluations;
-- C01 public predictions from DB;
-- C02 plans and entitlements backend;
-- C03 public match detail from DB;
-- C04 premium access enforcement skeleton;
-- C05 Gate 0 product audit;
-- C05 Gate 1 registered free value wall;
-- C05 Gate 2A presentation boundary without SQL, pending commit/PR if active branch.
-
-## Current Supabase State
-
-Remote Supabase migrations are manually applied through `0013_public_match_detail_projection_hardening.sql`.
-
-Supabase CLI local is not configured as the normal workflow.
-
-## Current Product State
-
-- `/predictions` is real/public DB-backed through `public_prediction_summaries`.
-- `/matches/[slug]` is real/public/free-only through `public_match_details` and `public_prediction_summaries`.
-- `/pricing` is real/catalog DB-backed, no checkout.
-- `/dashboard` is real/user-access DB-backed.
-- `/admin/beta-lab` is operational.
-- C05 Gate 2A differentiates UI/presentation between Anonymous and Registered Free using existing public data.
-
-## Product Strategy
-
-Funnel:
+## Product Principle
 
 ```txt
-Anonymous -> Registered Free -> World Cup premium packages -> post-World Cup monthly subscriptions
+The statistical model calculates.
+The AI explains.
 ```
 
-Beta/freemium organic before the World Cup.
+## Current Product Strategy
 
-Show controlled free value, protect premium, validate before mass promotion.
-
-Before the World Cup, use finals, friendlies, and attractive fixtures to validate the model and product.
-
-## Commercial Strategy
-
-World Cup monetization should use packages/passes/unlocks:
-
-- World Cup Full Pass;
-- 10 Match Pack;
-- Single Match Unlock;
-- Country/Team Pass;
-- Group Pass;
-- Stage/Semifinals/Final Pass.
-
-Monthly subscriptions are expected after the World Cup for recurring American/European league coverage.
-
-## Tooling Strategy
-
-ChatGPT plans and reviews.
-
-Codex executes controlled repository work.
-
-Antigravity and OpenCode are auxiliary tools.
-
-Manual user steps apply Supabase migrations and validate remote state.
-
-ChatGPT-generated Codex work must separate:
-
-- `EJECUCIÓN RECOMENDADA`
-- `PROMPT LIMPIO PARA CODEX`
-
-## Next Task
-
-Recommended next decision:
+The funnel is:
 
 ```txt
-C05 Gate 2B — Real Data Boundary / Projection Decision
+Anonymous -> Registered Free -> World Cup premium packages -> post-World-Cup monthly subscriptions
 ```
 
-Decide whether Gate 2A should stay presentation-only or become a real backend/data boundary.
+Registered Free is permanent.
+
+World Cup premium should be package/pass/unlock based.
+
+Monthly subscriptions are expected after the World Cup for recurring league coverage.
+
+## Current User Experience
+
+### Anonymous
+
+Can see:
+
+- public predictions;
+- full 1X2 probabilities;
+- match detail;
+- confidence/risk teaser;
+- CTAs to register.
+
+Cannot:
+
+- receive confidence/risk DTO fields;
+- save matches;
+- access premium payload.
+
+### Registered Free
+
+Can:
+
+- see full public prediction context;
+- receive confidence/risk;
+- save/remove public matches;
+- view saved matches in dashboard.
+
+Still cannot:
+
+- access premium match payload;
+- purchase packages;
+- unlock premium markets/narratives/results.
+
+### Premium / World Cup Package User
+
+Not implemented yet.
+
+C06 will prepare package foundations; C07 will handle entitled premium projection.
+
+## Current Technical State
+
+- Public predictions are backed by Supabase views.
+- Public match detail is backed by Supabase views.
+- Plans/entitlements backend exists.
+- Premium access skeleton exists but does not serve premium payload.
+- Saved matches table exists with RLS.
+
+## Current Data Safety Rules
+
+- Do not expose premium tables publicly.
+- Do not use service role for normal UI.
+- Do not treat visual locks as authorization.
+- Do not send sensitive payload to unauthorized clients.
+- Anonymous vs Registered Free payload differences should happen server-side, not only in CSS or copy.
+
+## Current Operational Rules
+
+- PowerShell/Git for simple commands.
+- Codex for implementation/inspection.
+- Feature branches may contain multiple commits.
+- Merge to main only when a functional block is complete.
+- Documentation refresh happens at stage/handoff, not every micro-step.
+
+## Current Next Step
+
+C06 — World Cup Premium Package Foundation.
+
+Goal:
+
+Prepare World Cup commercial packages and their access mapping without serving premium prediction payload yet.
