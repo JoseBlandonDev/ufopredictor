@@ -3,6 +3,44 @@ import { getPublicPlansCatalogData } from "@/lib/supabase/entitlement-queries";
 
 export const dynamic = "force-dynamic";
 
+const worldCupPackagePreview = [
+  {
+    slug: "world-cup-full-pass",
+    name: "World Cup Full Pass",
+    description: "Cobertura premium planificada para todo el Mundial 2026.",
+  },
+  {
+    slug: "match-pack-10",
+    name: "10 Match Pack",
+    description: "Bolsa de 10 desbloqueos planificados para partidos seleccionados.",
+  },
+  {
+    slug: "single-match-unlock",
+    name: "Single Match Unlock",
+    description: "Desbloqueo planificado para un partido premium puntual.",
+  },
+  {
+    slug: "team-pass",
+    name: "Country/Team Pass",
+    description: "Acceso planificado por selecciÃ³n o equipo especÃ­fico.",
+  },
+  {
+    slug: "group-pass",
+    name: "Group Pass",
+    description: "Acceso planificado por grupo del Mundial (vista previa).",
+  },
+  {
+    slug: "stage-pass",
+    name: "Stage Pass",
+    description: "Acceso planificado por fase del torneo (octavos, cuartos, etc.).",
+  },
+  {
+    slug: "semifinals-final-pass",
+    name: "Semifinals / Final Pass",
+    description: "Acceso planificado para semifinales y final.",
+  },
+] as const;
+
 export default async function PricingPage() {
   const catalog = await getPublicPlansCatalogData();
 
@@ -38,6 +76,30 @@ export default async function PricingPage() {
             El análisis más profundo y capas premium adicionales se introducirán en una fase posterior.
           </p>
         </article>
+      </section>
+
+      <section className="panel rounded-lg border border-white/15 p-5">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+          Paquetes Mundial 2026
+        </p>
+        <h2 className="mt-2 text-2xl font-semibold">Vista previa del catÃ¡logo premium</h2>
+        <p className="mt-2 max-w-3xl text-sm text-[var(--muted)]">
+          Estos paquetes estÃ¡n planeados para el Mundial. TodavÃ­a no hay checkout activo ni
+          pagos habilitados en esta fase. El acceso premium se habilitarÃ¡ Ãºnicamente con
+          autorizaciÃ³n server-side.
+        </p>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {worldCupPackagePreview.map((pkg) => (
+            <article key={pkg.slug} className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+                PrÃ³ximamente
+              </p>
+              <h3 className="mt-2 text-base font-semibold">{pkg.name}</h3>
+              <p className="mt-2 text-sm text-[var(--muted)]">{pkg.description}</p>
+              <p className="mt-3 text-xs text-[var(--muted)]">Sin checkout activo todavÃ­a.</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       {catalog.status === "unavailable" ? (
