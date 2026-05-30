@@ -1,4 +1,9 @@
-export const WORLD_CUP_2026_COMPETITION_KEY = "world_cup_2026";
+import {
+  buildWorldCupGroupAccessKey,
+  buildWorldCupSemifinalsFinalStageKeys,
+  buildWorldCupStageAccessKey,
+  WORLD_CUP_2026_COMPETITION_KEY,
+} from "./world-cup-access-keys";
 
 export type WorldCupStage =
   | "group"
@@ -57,28 +62,12 @@ export type WorldCupPackageMappingInput =
   | { packageKind: "single_match_unlock"; matchId: string }
   | { packageKind: "team_pass"; teamKey: string }
   | { packageKind: "group_pass"; groupCode: string; competitionKey?: string }
-  | { packageKind: "stage_pass"; stage: Exclude<WorldCupStage, "group">; competitionKey?: string }
+  | {
+      packageKind: "stage_pass";
+      stage: Exclude<WorldCupStage, "group">;
+      competitionKey?: string;
+    }
   | { packageKind: "semifinals_final_pass"; competitionKey?: string };
-
-export function canonicalWorldCupStageAccessKey(
-  stage: Exclude<WorldCupStage, "group">,
-  competitionKey = WORLD_CUP_2026_COMPETITION_KEY,
-) {
-  return `${competitionKey}:stage:${stage}`;
-}
-
-export function canonicalWorldCupGroupAccessKey(
-  groupCode: string,
-  competitionKey = WORLD_CUP_2026_COMPETITION_KEY,
-) {
-  const normalizedGroup = groupCode.trim().toUpperCase();
-
-  if (!/^[A-Z]$/.test(normalizedGroup)) {
-    throw new Error("groupCode must be a single letter A-Z");
-  }
-
-  return `${competitionKey}:group:${normalizedGroup}`;
-}
 
 export function toWorldCupAccessIntent(
   input: WorldCupPackageMappingInput,
@@ -131,7 +120,7 @@ export function toWorldCupAccessIntent(
         packageKind: input.packageKind,
         entitlementType: "stage_access",
         resourceType: "stage",
-        resourceId: canonicalWorldCupGroupAccessKey(input.groupCode, competitionKey),
+        resourceId: buildWorldCupGroupAccessKey(input.groupCode, competitionKey),
         requiresUnlockMaterialization: false,
       };
     }
@@ -142,14 +131,14 @@ export function toWorldCupAccessIntent(
         packageKind: input.packageKind,
         entitlementType: "stage_access",
         resourceType: "stage",
-        resourceId: canonicalWorldCupStageAccessKey(input.stage, competitionKey),
+        resourceId: buildWorldCupStageAccessKey(input.stage, competitionKey),
         requiresUnlockMaterialization: false,
       };
     }
     case "semifinals_final_pass": {
       const competitionKey = input.competitionKey ?? WORLD_CUP_2026_COMPETITION_KEY;
-      const semifinalKey = canonicalWorldCupStageAccessKey("semifinal", competitionKey);
-      const finalKey = canonicalWorldCupStageAccessKey("final", competitionKey);
+      const [semifinalKey, finalKey] =
+        buildWorldCupSemifinalsFinalStageKeys(competitionKey);
 
       return {
         intentType: "entitlement",

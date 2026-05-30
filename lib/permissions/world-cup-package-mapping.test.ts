@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildWorldCupGroupAccessKey,
+  buildWorldCupStageAccessKey,
   WORLD_CUP_2026_COMPETITION_KEY,
-  canonicalWorldCupGroupAccessKey,
-  canonicalWorldCupStageAccessKey,
+} from "./world-cup-access-keys";
+import {
   toWorldCupAccessIntent,
 } from "./world-cup-package-mapping";
 
@@ -64,7 +66,7 @@ describe("world cup package mapping", () => {
   });
 
   it("builds a canonical Group Pass key", () => {
-    expect(canonicalWorldCupGroupAccessKey("a")).toBe("world_cup_2026:group:A");
+    expect(buildWorldCupGroupAccessKey("a")).toBe("world_cup_2026:group:A");
     expect(
       toWorldCupAccessIntent({ packageKind: "group_pass", groupCode: "b" }),
     ).toMatchObject({
@@ -87,7 +89,7 @@ describe("world cup package mapping", () => {
       packageKind: "stage_pass",
       entitlementType: "stage_access",
       resourceType: "stage",
-      resourceId: canonicalWorldCupStageAccessKey("final"),
+      resourceId: buildWorldCupStageAccessKey("final"),
     });
   });
 
@@ -107,8 +109,8 @@ describe("world cup package mapping", () => {
   });
 
   it("rejects invalid group keys", () => {
-    expect(() => canonicalWorldCupGroupAccessKey("12")).toThrow(
-      "groupCode must be a single letter A-Z",
+    expect(() => buildWorldCupGroupAccessKey("12")).toThrow(
+      "groupLetter must be one of A, B, C, D, E, F, G, H",
     );
   });
 });

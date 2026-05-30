@@ -1,4 +1,10 @@
 import { describe, expect, it } from "vitest";
+import {
+  buildWorldCupGroupAccessKey,
+  buildWorldCupSemifinalsFinalStageKeys,
+  buildWorldCupStageAccessKey,
+  WORLD_CUP_2026_COMPETITION_KEY,
+} from "./world-cup-access-keys";
 import { toWorldCupAccessIntent } from "./world-cup-package-mapping";
 import { simulateWorldCupPackageMaterialization } from "./world-cup-package-materialization";
 
@@ -12,7 +18,7 @@ describe("world cup package materialization", () => {
       {
         kind: "entitlement_grant",
         resourceType: "competition",
-        resourceId: "world_cup_2026",
+        resourceId: WORLD_CUP_2026_COMPETITION_KEY,
         sourcePackageKey: "world_cup_full_pass",
       },
     ]);
@@ -43,7 +49,7 @@ describe("world cup package materialization", () => {
       {
         kind: "entitlement_grant",
         resourceType: "stage",
-        resourceId: "world_cup_2026:group:C",
+        resourceId: buildWorldCupGroupAccessKey("C"),
         sourcePackageKey: "group_pass",
       },
     ]);
@@ -58,7 +64,7 @@ describe("world cup package materialization", () => {
       {
         kind: "entitlement_grant",
         resourceType: "stage",
-        resourceId: "world_cup_2026:stage:quarterfinal",
+        resourceId: buildWorldCupStageAccessKey("quarterfinal"),
         sourcePackageKey: "stage_pass",
       },
     ]);
@@ -69,17 +75,18 @@ describe("world cup package materialization", () => {
       intent: toWorldCupAccessIntent({ packageKind: "semifinals_final_pass" }),
     });
 
+    const [semifinalKey, finalKey] = buildWorldCupSemifinalsFinalStageKeys();
     expect(operations).toEqual([
       {
         kind: "entitlement_grant",
         resourceType: "stage",
-        resourceId: "world_cup_2026:stage:semifinal",
+        resourceId: semifinalKey,
         sourcePackageKey: "semifinals_final_pass",
       },
       {
         kind: "entitlement_grant",
         resourceType: "stage",
-        resourceId: "world_cup_2026:stage:final",
+        resourceId: finalKey,
         sourcePackageKey: "semifinals_final_pass",
       },
     ]);
