@@ -182,3 +182,83 @@ Do not block C06 on these.
 - Avoid micro-PRs for recognition/planning.
 - Refresh docs at stage close/handoff.
 - Keep Codex focused on implementation/inspection, not terminal chores.
+
+
+## Expanded Backlog Context
+
+The roadmap below preserves upcoming work without implying all items must be implemented immediately.
+
+### Optional C05 follow-ups, not blockers for C06
+
+- Add saved-match toggle to `/predictions` cards.
+- Add remove action directly from dashboard saved-match list.
+- Add lightweight saved-match count/badge in navigation or dashboard header.
+- Add user preference capture for favorite teams/competitions.
+- Add analytics/event tracking for registration and saved-match interactions.
+
+These are useful, but C05 is already functionally complete enough to move to C06.
+
+### C06 — World Cup Premium Package Foundation
+
+Purpose:
+
+- Define the World Cup package catalog and access mapping.
+- Prepare purchase/unlock data model decisions.
+- Keep premium prediction payload closed.
+
+Expected product candidates:
+
+- World Cup Full Pass.
+- 10 Match Pack.
+- Single Match Unlock.
+- Country/Team Pass.
+- Group Pass.
+- Stage Pass.
+- Semifinals / Final Pass.
+
+Key decisions for C06:
+
+- How package resources map to canonical resource IDs.
+- How a 10 Match Pack materializes explicit `user_match_unlocks`.
+- Whether package purchase UI is catalog preview only or checkout-ready.
+- Whether payments are still deferred or begin in C06.
+- Which admin/manual tooling is needed to grant/test packages.
+
+Non-goals for C06:
+
+- Do not expose `prediction_markets` to public/product UI.
+- Do not expose `prediction_narratives` to public/product UI.
+- Do not expose `prediction_results` to public/product UI.
+- Do not serve xG, scorelines, model-vs-market, Golden Hour Delta, or premium analysis.
+
+### C07 — Entitled Premium Match Projection
+
+Purpose:
+
+- Serve protected premium match content only after authorization is enforced server-side.
+- Consume the C04 access resolver and C06 package/unlock model.
+- Introduce premium projection/query layer with explicit tests and validation.
+
+Potential implementation approaches:
+
+- Server-only query shaping.
+- Entitled views/RPC.
+- RLS where appropriate.
+- Separate public/free and premium DTOs.
+
+### C08 and later tracks
+
+Potential later work:
+
+- Payments/Stripe checkout.
+- Sports API integration and workers.
+- Odds provider integration, if legally/product-approved.
+- LLM narrative layer following the rule: model calculates, AI explains.
+- Trust/transparency surface backed by eligible public prediction history.
+- i18n EN/ES.
+- Google Auth and broader auth polish.
+- Staging/production hardening and observability.
+
+## Merge Strategy Going Forward
+
+Use one feature branch per coherent functional block. Multiple internal commits are fine. Merge to `main` only when the block delivers coherent value or closes a stage/handoff. Avoid PRs for every recognition step, minor copy update, or intermediate implementation fragment.

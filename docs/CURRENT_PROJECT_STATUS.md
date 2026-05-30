@@ -187,3 +187,69 @@ Goal:
 Prepare World Cup commercial packages/passes/unlocks without serving premium match payload yet.
 
 Do not jump to C07 before C06 decisions are explicit.
+
+
+## Context Preservation — Milestone History
+
+This section intentionally preserves broader historical context so future ChatGPT/Codex handoffs do not lose why the current baseline exists.
+
+| Phase / PR | What changed | Why it matters now |
+|---|---|---|
+| C01 / PR #20 | Public predictions read from Supabase | `/predictions` became DB-backed instead of mock-only. |
+| C02 / PR #21 | Plans and entitlements backend | Created the commercial/access foundation used by pricing/dashboard and future C06 package work. |
+| C03 / PR #23 | Public match detail from DB | `/matches/[slug]` became DB-backed through public-safe projections. |
+| C03 hardening / `0013` | Explicit public views and anon hardening | `anon` reads approved views only, not base product tables directly. |
+| C04 / PR #25 | Premium access enforcement skeleton | Introduced server-side resource/access logic without opening premium data. |
+| C05 Gate 1 / PR #26 | Registered Free value wall | Differentiated Anonymous and Registered Free at UI/copy level. |
+| C05 Gate 2A | Presentation boundary | Kept 1X2 public while changing confidence/risk presentation. |
+| C05 Gate 2B / PR #28 | Server-side DTO shaping | Anonymous no longer receives `confidenceScore` / `riskLevel` in shaped UI payload. |
+| C05 Gate 3 / PR #29 | Saved matches foundation | Registered Free users can save/remove public matches and see them in dashboard. |
+
+## Active Public Surfaces
+
+### `/predictions`
+
+Current status:
+
+- DB-backed from `public_prediction_summaries`.
+- Anonymous receives metadata + complete 1X2 probabilities.
+- Anonymous does not receive `confidenceScore` / `riskLevel` in the shaped DTO.
+- Registered Free receives full confidence/risk presentation.
+- No saved-match button in cards yet.
+- No premium payload.
+
+### `/matches/[slug]`
+
+Current status:
+
+- DB-backed from `public_match_details` and `public_prediction_summaries` as needed.
+- Uses server-side viewer shaping for prediction confidence/risk.
+- Shows saved-match CTA for Anonymous.
+- Lets Registered Free save/remove public matches.
+- Does not expose premium markets/narratives/results.
+
+### `/dashboard`
+
+Current status:
+
+- Authenticated-only surface.
+- Shows viewer access summary.
+- Shows saved matches list from `user_saved_matches` + public match metadata.
+- Does not serve premium prediction content.
+
+### `/pricing`
+
+Current status:
+
+- Shows active catalog/plans from Supabase.
+- No checkout/payments yet.
+- World Cup premium packages remain future C06 work.
+
+## Current Constraints Still In Force
+
+- Do not use service role for normal UI paths.
+- Do not serve premium payload until C07 or an explicitly approved premium projection gate.
+- Do not treat visual locks, blurs, teasers, or CSS as authorization.
+- Keep public UI copy Spanish for now.
+- Prefer canonical English for internal keys/types/slugs/entitlement identifiers.
+- Keep Supabase remote migration workflow manual unless explicitly changed.

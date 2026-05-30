@@ -181,3 +181,84 @@ Potential future tables/fields:
 - transparency/trust metrics.
 
 Add only when approved by scope.
+
+
+## Additional Table Context and Access Notes
+
+### `public.user_saved_matches`
+
+Purpose:
+
+Stores Registered Free saved public matches / watchlist entries.
+
+Columns:
+
+| Column | Type | Purpose |
+|---|---|---|
+| `id` | uuid | Primary key, default `gen_random_uuid()` |
+| `user_id` | uuid | FK to `auth.users(id)`, cascade delete |
+| `match_id` | uuid | FK to `public.matches(id)`, cascade delete |
+| `saved_at` | timestamptz | Timestamp of save action, default `now()` |
+
+Constraints and indexes:
+
+- Primary key on `id`.
+- Unique `(user_id, match_id)` to prevent duplicate saved rows.
+- Index on `user_id`.
+- Index on `match_id`.
+- FK to `auth.users(id)`.
+- FK to `public.matches(id)`.
+
+RLS and grants:
+
+- RLS enabled.
+- `authenticated`: `SELECT`, `INSERT`, `DELETE` only.
+- `anon`: no access.
+- No `UPDATE` policy.
+- Own-row policies use `user_id = auth.uid()`.
+
+Operational note:
+
+Remote grants were explicitly corrected after validation so `authenticated` does not retain broad `UPDATE`, `TRUNCATE`, `TRIGGER`, or `REFERENCES` privileges.
+
+### `public.public_match_details`
+
+Current purpose:
+
+- Public/free match detail projection for `/matches/[slug]`.
+- Metadata source for dashboard saved-match list.
+- Server-side `slug -> match_id` resolution for saved-match actions.
+
+Current notable column:
+
+- `match_id` is exposed as public-safe UUID for public matches only. It exists to allow saved-match FK usage without service role and without reading `public.matches` directly from normal UI code.
+
+### `public.public_prediction_summaries`
+
+Current purpose:
+
+- Public predictions list and summary source for `/predictions`.
+
+Important boundary:
+
+- Does not expose `match_id`.
+- Carries public 1X2 probabilities from approved public prediction versions.
+- `confidence_score` / `risk_level` may exist in the view, but Anonymous payload is shaped server-side so those fields are not sent to Anonymous UI DTOs.
+
+### Premium/internal prediction tables
+
+The following remain closed to normal public UI and must not be opened in C06:
+
+- `prediction_markets`
+- `prediction_narratives`
+- `prediction_results`
+
+C06 may model package access, but premium prediction payload serving belongs to C07 or a later explicitly approved gate.
+
+### Entitlement-related concepts to preserve
+
+- `premium_user` role alone does not unlock protected content.
+- Active subscription alone does not unlock protected content.
+- `quantity/match_pack` does not directly authorize content; it should materialize explicit match unlocks.
+- Canonical `stageAccessKey` should be server-derived.
+- Trusted beta/free match grants must come from server-side trusted context, never from client/query params.

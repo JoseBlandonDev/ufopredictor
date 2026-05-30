@@ -157,3 +157,15 @@ The user then:
 - Use longer branches for functional blocks.
 - C05 saved matches correctly used multiple commits in one branch before PR #29.
 - Keep terminal chores manual unless Codex is already executing a relevant repo task.
+
+
+## Documentation Refresh Timing
+
+Do not refresh project documentation after every small implementation step. Refresh docs when one of these is true:
+
+- a stage/epic closes;
+- a new conversation or major handoff is about to start;
+- an important product/architecture/security decision changed;
+- a migration or access boundary change must become the new baseline.
+
+For long-running feature work, keep intermediate decisions in the active conversation. Commit code in the feature branch as needed, but defer broad documentation refresh until the block is ready for handoff.
