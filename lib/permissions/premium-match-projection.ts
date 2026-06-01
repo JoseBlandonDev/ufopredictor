@@ -1,12 +1,14 @@
-export type PremiumMarketKey =
-  | "btts"
-  | "over_2_5"
-  | "exact_score"
-  | "model_vs_market"
-  | "golden_hour_delta";
+export const ALLOWED_PREMIUM_MARKETS_V1 = [
+  "btts",
+  "over_2_5",
+  "exact_score",
+  "match_winner",
+] as const;
+
+export type AllowedPremiumMarket = (typeof ALLOWED_PREMIUM_MARKETS_V1)[number];
 
 export type PremiumMarketProjection = {
-  marketKey: PremiumMarketKey;
+  marketKey: AllowedPremiumMarket;
   label: string;
   selection: string;
   probability: number;
@@ -15,8 +17,8 @@ export type PremiumMarketProjection = {
 
 export type PremiumNarrativeProjection = {
   locale: "es" | "en";
-  summary: string;
-  deeperContext?: string | null;
+  premiumAnalysis: string;
+  whyItChanged?: string | null;
   riskNotes?: string | null;
 };
 
@@ -29,6 +31,76 @@ export type PremiumMatchAuthorizedPayload = {
     explanation?: string | null;
   } | null;
 };
+
+export type RawPremiumMarketCandidate = {
+  marketKey: string;
+  label: string;
+  selection: string;
+  probability: number;
+  confidence?: number | null;
+};
+
+type AllowedPremiumMarketCandidate = Omit<RawPremiumMarketCandidate, "marketKey"> & {
+  marketKey: AllowedPremiumMarket;
+};
+
+export type RawPremiumNarrativeCandidate = {
+  locale: "es" | "en";
+  premium_analysis?: string | null;
+  why_it_changed?: string | null;
+  risk_notes?: string | null;
+};
+
+function isAllowedPremiumMarket(marketKey: string): marketKey is AllowedPremiumMarket {
+  return ALLOWED_PREMIUM_MARKETS_V1.includes(marketKey as AllowedPremiumMarket);
+}
+
+function isAllowedPremiumMarketCandidate(
+  candidate: RawPremiumMarketCandidate,
+): candidate is AllowedPremiumMarketCandidate {
+  return isAllowedPremiumMarket(candidate.marketKey);
+}
+
+export function selectAllowedPremiumMarkets(
+  candidates: RawPremiumMarketCandidate[],
+): PremiumMarketProjection[] {
+  return candidates
+    .filter(isAllowedPremiumMarketCandidate)
+    .map((candidate) => ({
+      marketKey: candidate.marketKey,
+      label: candidate.label,
+      selection: candidate.selection,
+      probability: candidate.probability,
+      confidence: candidate.confidence ?? null,
+    }));
+}
+
+export function selectAllowedPremiumNarrative(
+  candidate: RawPremiumNarrativeCandidate | null,
+): PremiumNarrativeProjection | null {
+  if (!candidate || !candidate.premium_analysis) {
+    return null;
+  }
+
+  return {
+    locale: candidate.locale,
+    premiumAnalysis: candidate.premium_analysis,
+    whyItChanged: candidate.why_it_changed ?? null,
+    riskNotes: candidate.risk_notes ?? null,
+  };
+}
+
+export function buildAuthorizedPremiumPayload(input: {
+  markets: RawPremiumMarketCandidate[];
+  narrative: RawPremiumNarrativeCandidate | null;
+  confidenceContext?: PremiumMatchAuthorizedPayload["confidenceContext"];
+}): PremiumMatchAuthorizedPayload {
+  return {
+    markets: selectAllowedPremiumMarkets(input.markets),
+    narrative: selectAllowedPremiumNarrative(input.narrative),
+    confidenceContext: input.confidenceContext ?? null,
+  };
+}
 
 export type LockedPremiumMatchProjection = {
   status: "locked";
