@@ -2,9 +2,12 @@ import "server-only";
 
 import { buildPremiumMatchResource } from "@/lib/permissions/premium-match-resource";
 import {
-  shapePremiumMatchProjection,
   type PremiumMatchProjection,
 } from "@/lib/permissions/premium-match-projection";
+import {
+  resolvePremiumProjectionForMatch,
+  type PremiumProjectionRpcRow,
+} from "@/lib/permissions/premium-match-projection-resolver";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PublicPredictionViewer } from "@/lib/supabase/public-prediction-queries";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
@@ -231,12 +234,19 @@ export async function getPublicMatchDetailData(
       premiumAccess = toLockedPremiumAccess();
     }
   }
-  const premiumProjection = shapePremiumMatchProjection(
-    premiumAccess.status === "authorized"
-      ? { status: "authorized" }
-      : premiumAccess,
-    null,
-  );
+  const premiumProjection = await resolvePremiumProjectionForMatch({
+    premiumAccess,
+    matchId: match.match_id,
+    fetchProjection: async (matchId) => {
+      const { data, error } = await supabase.rpc("get_premium_match_projection", {
+        p_match_id: matchId,
+      });
+      return {
+        data: data as PremiumProjectionRpcRow | null,
+        error,
+      };
+    },
+  });
 
   return {
     status: "ready",
