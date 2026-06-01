@@ -1,24 +1,38 @@
 import "server-only";
 
+import { buildPremiumMatchResource } from "@/lib/permissions/premium-match-resource";
+import {
+  type PremiumMatchProjection,
+} from "@/lib/permissions/premium-match-projection";
+import {
+  resolvePremiumProjectionForMatch,
+  type PremiumProjectionRpcRow,
+} from "@/lib/permissions/premium-match-projection-resolver";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PublicPredictionViewer } from "@/lib/supabase/public-prediction-queries";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
+import { getPremiumMatchAccessDecision } from "./viewer-access-queries";
 
 type PublicMatchDetailRow = {
   match_slug: string;
+  match_id: string;
   kickoff_at: string;
   stage: string | null;
   status: MatchRow["status"];
   competition_name: string;
   competition_slug: string;
+  competition_access_key: string;
+  competition_id: string;
   home_team_name: string;
   home_team_slug: string;
   home_team_logo_url: string | null;
   home_team_flag_url: string | null;
+  home_team_id: string;
   away_team_name: string;
   away_team_slug: string;
   away_team_logo_url: string | null;
   away_team_flag_url: string | null;
+  away_team_id: string;
   venue_name: string | null;
   venue_city: string | null;
 };
@@ -51,7 +65,30 @@ export type PublicMatchDetailView = {
   venueName: string | null;
   venueCity: string | null;
   prediction: PublicMatchPredictionView | null;
+  premiumAccess: PublicMatchPremiumAccess;
+  premiumProjection: PremiumMatchProjection;
 };
+
+export type PublicMatchPremiumAccess =
+  | {
+      status: "authorized";
+    }
+  | {
+      status: "locked";
+      reason: "no_entitlement";
+    }
+  | {
+      status: "unavailable";
+      reason:
+        | "missing_match_context"
+        | "invalid_match_context"
+        | "access_decision_unavailable";
+    };
+
+type PublicMatchPremiumUnavailableReason = Extract<
+  PublicMatchPremiumAccess,
+  { status: "unavailable" }
+>["reason"];
 
 type PublicMatchPredictionBaseView = {
   viewer: PublicPredictionViewer;
@@ -95,6 +132,16 @@ function unavailable(): PublicMatchDetailData {
   };
 }
 
+export function toLockedPremiumAccess(): PublicMatchPremiumAccess {
+  return { status: "locked", reason: "no_entitlement" };
+}
+
+export function toUnavailablePremiumAccess(
+  reason: PublicMatchPremiumUnavailableReason,
+): PublicMatchPremiumAccess {
+  return { status: "unavailable", reason };
+}
+
 export function toMatchPredictionView(
   prediction: PublicMatchPredictionRow,
   viewer: PublicPredictionViewer,
@@ -135,7 +182,7 @@ export async function getPublicMatchDetailData(
   const { data: matchData, error: matchError } = await supabase
     .from("public_match_details")
     .select(
-      "match_slug, kickoff_at, stage, status, competition_name, competition_slug, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, venue_name, venue_city",
+      "match_slug, match_id, kickoff_at, stage, status, competition_name, competition_slug, competition_access_key, competition_id, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, home_team_id, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, away_team_id, venue_name, venue_city",
     )
     .eq("match_slug", slug)
     .maybeSingle();
@@ -162,6 +209,44 @@ export async function getPublicMatchDetailData(
 
   const match = matchData as PublicMatchDetailRow;
   const prediction = predictionData as PublicMatchPredictionRow | null;
+  const matchResourceBuild = buildPremiumMatchResource({
+    matchId: match.match_id ?? null,
+    competitionAccessKey: match.competition_access_key ?? null,
+    homeTeamId: match.home_team_id ?? null,
+    awayTeamId: match.away_team_id ?? null,
+    stageLabel: match.stage,
+  });
+
+  let premiumAccess: PublicMatchPremiumAccess;
+
+  if (matchResourceBuild.status === "invalid") {
+    premiumAccess =
+      matchResourceBuild.reason === "unrecognized_world_cup_stage"
+        ? toUnavailablePremiumAccess("invalid_match_context")
+        : toUnavailablePremiumAccess("missing_match_context");
+  } else {
+    const accessDecision = await getPremiumMatchAccessDecision(matchResourceBuild.resource);
+    if (accessDecision.status === "unavailable") {
+      premiumAccess = toUnavailablePremiumAccess("access_decision_unavailable");
+    } else if (accessDecision.access.canAccess) {
+      premiumAccess = { status: "authorized" };
+    } else {
+      premiumAccess = toLockedPremiumAccess();
+    }
+  }
+  const premiumProjection = await resolvePremiumProjectionForMatch({
+    premiumAccess,
+    matchId: match.match_id,
+    fetchProjection: async (matchId) => {
+      const { data, error } = await supabase.rpc("get_premium_match_projection", {
+        p_match_id: matchId,
+      });
+      return {
+        data: data as PremiumProjectionRpcRow | null,
+        error,
+      };
+    },
+  });
 
   return {
     status: "ready",
@@ -184,6 +269,8 @@ export async function getPublicMatchDetailData(
       venueName: match.venue_name,
       venueCity: match.venue_city,
       prediction: prediction ? toMatchPredictionView(prediction, viewer) : null,
+      premiumAccess,
+      premiumProjection,
     },
   };
 }

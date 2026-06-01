@@ -138,6 +138,63 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         </section>
       )}
 
+      <section className="panel rounded-lg border border-white/15 p-5">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+          Proyección premium
+        </p>
+        {match.premiumProjection.status === "locked" ? (
+          <>
+            <h2 className="mt-2 text-lg font-semibold">Acceso premium bloqueado</h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              Esta cuenta todavía no tiene derechos premium para este partido.
+            </p>
+          </>
+        ) : match.premiumProjection.status === "unavailable" ? (
+          <>
+            <h2 className="mt-2 text-lg font-semibold">Proyección premium no disponible</h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              No fue posible preparar el contexto premium de este partido en este momento.
+            </p>
+          </>
+        ) : match.premiumProjection.status === "authorized_unavailable" ? (
+          <>
+            <h2 className="mt-2 text-lg font-semibold">Contenido premium temporalmente no disponible</h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              Tu acceso está activo, pero la proyección premium todavía no está lista para mostrarse.
+            </p>
+          </>
+        ) : (
+          <div className="mt-3 space-y-4">
+            <h2 className="text-lg font-semibold">Mercados premium autorizados</h2>
+            {match.premiumProjection.payload.markets.length === 0 ? (
+              <p className="text-sm text-[var(--muted)]">No hay mercados premium publicados para este partido.</p>
+            ) : (
+              <div className="space-y-2">
+                {match.premiumProjection.payload.markets.map((market) => (
+                  <article
+                    key={`${market.marketKey}:${market.selection}`}
+                    className="rounded-lg border border-white/10 bg-white/[0.03] p-3"
+                  >
+                    <p className="text-sm font-medium">{market.label}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">
+                      {market.selection} - {market.probability}%
+                    </p>
+                  </article>
+                ))}
+              </div>
+            )}
+            {match.premiumProjection.payload.narrative ? (
+              <article className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+                <p className="text-sm font-medium">Narrativa premium</p>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  {match.premiumProjection.payload.narrative.premiumAnalysis}
+                </p>
+              </article>
+            ) : null}
+          </div>
+        )}
+      </section>
+
       <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           Partidos guardados
