@@ -1,6 +1,10 @@
 import "server-only";
 
 import { buildPremiumMatchResource } from "@/lib/permissions/premium-match-resource";
+import {
+  shapePremiumMatchProjection,
+  type PremiumMatchProjection,
+} from "@/lib/permissions/premium-match-projection";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PublicPredictionViewer } from "@/lib/supabase/public-prediction-queries";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
@@ -59,6 +63,7 @@ export type PublicMatchDetailView = {
   venueCity: string | null;
   prediction: PublicMatchPredictionView | null;
   premiumAccess: PublicMatchPremiumAccess;
+  premiumProjection: PremiumMatchProjection;
 };
 
 export type PublicMatchPremiumAccess =
@@ -226,6 +231,12 @@ export async function getPublicMatchDetailData(
       premiumAccess = toLockedPremiumAccess();
     }
   }
+  const premiumProjection = shapePremiumMatchProjection(
+    premiumAccess.status === "authorized"
+      ? { status: "authorized" }
+      : premiumAccess,
+    null,
+  );
 
   return {
     status: "ready",
@@ -249,6 +260,7 @@ export async function getPublicMatchDetailData(
       venueCity: match.venue_city,
       prediction: prediction ? toMatchPredictionView(prediction, viewer) : null,
       premiumAccess,
+      premiumProjection,
     },
   };
 }
