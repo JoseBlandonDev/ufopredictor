@@ -1,15 +1,15 @@
 # EPIC PROGRESS MATRIX — UFO Predictor
 
-_Last updated: post C05 / pre C06_
+_Last updated: post C07 / pre C08_
 
-Current baseline: `main` is post PR #29 (`Feature/registered free saved matches`). C05 is functionally closed. Next major block: C06 — World Cup Premium Package Foundation.
+Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
 
 
 ## Current Epic Position
 
-The project is at the end of C05 and ready to start C06.
+The project is post C07 and ready to start C08.
 
-## Progress Matrix
+## Progress Matrix — Post C07
 
 | Epic / Gate | Status | Notes |
 |---|---:|---|
@@ -17,22 +17,18 @@ The project is at the end of C05 and ready to start C06.
 | C01 — Public Predictions From DB | ✅ Done | `/predictions` reads public data from Supabase |
 | C02 — Plans & Entitlements Backend | ✅ Done | Plans, subscriptions, entitlements, dashboard access summary |
 | C03 — Match Detail Public From DB | ✅ Done | `/matches/[slug]` reads public views |
-| C04 — Premium Access Enforcement Skeleton | ✅ Done | Pure server-side access resolver, no premium payload |
-| C05 Gate 0 — Anonymous vs Registered Free Audit | ✅ Done | Product decision/audit |
-| C05 Gate 1 — Registered Free Value Wall | ✅ Done | UI/copy value wall in Spanish |
-| C05 Gate 2A — Presentation Boundary sin SQL | ✅ Done | UI/render boundary only |
-| C05 Gate 2B — Server-side Anonymous Payload Shaping | ✅ Done | Anonymous DTO excludes confidence/risk |
-| C05 Gate 3 — Saved Matches / Watchlist Foundation | ✅ Done | Save/remove public matches + dashboard list |
-| C06 — World Cup Premium Package Foundation | ⏭ Next | Package/pass/unlock foundation; no premium payload yet |
-| C07 — Entitled Premium Match Projection | Future | Protected premium content serving |
-| C08 — Trust / Transparency Real v0.1 | Future | Replace simulated transparency |
+| C04 — Premium Access Enforcement Skeleton | ✅ Done | Pure server-side access resolver |
+| C05 — Anonymous vs Registered Free Foundation | ✅ Done | Value wall, DTO boundary, saved matches/watchlist |
+| C06 — World Cup Premium Package Foundation | ✅ Done | Package mapping, pricing preview, materialization simulation, canonical keys; DB package catalog deferred |
+| C07 — Entitled Premium Match Projection | ✅ Done | Protected premium projection behind access gate/RPC; `prediction_results` excluded |
+| C08 — Trust / Transparency Real v0.1 | ⏭ Next | Replace simulated transparency safely |
 | D — Data Intake / Sports API | Future | Provider selection and integration |
 | D/E — Workers Runtime | Future | Real workers and scheduled processing |
-| E — Payments / Packages / Subscriptions | Future | Stripe/payments when package scope is explicit |
+| E — Payments / Packages / Subscriptions | Future | PayPal/other Colombia-compatible providers to evaluate; do not assume Stripe |
 | F — Odds / LLM Explanations | Future | Deferred until product/legal/technical readiness |
-| G — Google Auth / i18n / Staging / Observability | Future | Platform maturity tracks |
+| G — Platform Maturity | Future | Google Auth / i18n / staging / observability |
 
-## C05 Completion Details
+## C05–C07 Completion Details
 
 C05 delivered the full Anonymous -> Registered Free foundation:
 
@@ -42,18 +38,150 @@ C05 delivered the full Anonymous -> Registered Free foundation:
 - saved matches/watchlist;
 - saved matches dashboard surface.
 
+C06 delivered World Cup package foundation without checkout or DB package catalog persistence.
+
+C07 delivered entitled premium match projection with protected access gate/RPC and minimal authorized rendering.
+
 ## Supabase Milestone
 
 Remote Supabase is applied through:
 
 ```txt
-0014_user_saved_matches.sql
+0016_premium_match_projection.sql
 ```
 
 ## Next Gate / Epic
 
 ```txt
-C06 — World Cup Premium Package Foundation
+C08 — Trust / Transparency Real v0.1
 ```
 
-C06 should define package foundations and access mapping without serving protected premium prediction payload yet.
+
+
+| Epic / Gate | Status | Notes |
+|---|---:|---|
+| Lab Admin Flow | ✅ Done | Internal Lab workflow operational |
+| C01 — Public Predictions From DB | ✅ Done | `/predictions` reads public data from Supabase |
+| C02 — Plans & Entitlements Backend | ✅ Done | Plans, subscriptions, entitlements, dashboard access summary |
+| C03 — Match Detail Public From DB | ✅ Done | `/matches/[slug]` reads public views |
+| C04 — Premium Access Enforcement Skeleton | ✅ Done | Pure server-side access resolver |
+| C05 — Anonymous vs Registered Free Foundation | ✅ Done | Value wall, DTO boundary, saved matches/watchlist |
+| C06 — World Cup Premium Package Foundation | ✅ Done | Package mapping, pricing preview, materialization simulation, canonical keys; DB package catalog deferred |
+| C07 — Entitled Premium Match Projection | ✅ Done | Protected premium projection behind access gate/RPC; `prediction_results` excluded |
+| C08 — Trust / Transparency Real v0.1 | ⏭ Next | Replace simulated transparency safely |
+| D — Data Intake / Sports API | Future | Provider selection and integration |
+| D/E — Workers Runtime | Future | Real workers and scheduled processing |
+| E — Payments / Packages / Subscriptions | Future | PayPal/other Colombia-compatible providers to evaluate; do not assume Stripe |
+| F — Odds / LLM Explanations | Future | Deferred until product/legal/technical readiness |
+| G — Platform Maturity | Future | Google Auth / i18n / staging / observability |
+
+
+---
+
+## Post C07 Baseline Update
+
+Current merged baseline:
+
+```txt
+main includes PR #31 — Feature/c06 world cup package foundation
+main includes PR #32 — Feature/c07 premium match projection
+Completed: C01–C07
+Next: C08 — Trust / Transparency Real v0.1
+Supabase remote manually applied through: 0016_premium_match_projection.sql
+```
+
+### C06 Closure Summary
+
+C06 — World Cup Premium Package Foundation is complete.
+
+Implemented:
+
+- C06B: World Cup package mapping helpers.
+- C06D: World Cup 2026 pricing preview without checkout.
+- C06E: pure package intent materialization simulation without DB writes.
+- C06G: canonical World Cup access keys.
+- C06C: explicitly resolved as a defer decision, not forgotten.
+
+C06C decision:
+
+- No DB package catalog yet.
+- No `plans` / `plan_features` seeds for World Cup packages yet.
+- No `package_catalog` table yet.
+- No 10 Match Pack ledger yet.
+
+Reason: World Cup packages are still flexible commercial templates, not final persisted products. The project needs room for team-only passes, group passes, stage passes from octavos/cuartos/semis/final, semifinals/final bundles, single-match unlocks, flexible match packs, and other demand-based combinations.
+
+### C07 Closure Summary
+
+C07 — Entitled Premium Match Projection is complete.
+
+Implemented:
+
+- C07A: `PremiumMatchResource` contract and canonicalization.
+- C07B.1: public-safe match access context SQL.
+- C07B.2: server-side premium access gate context.
+- C07C: premium projection contract and shaping helper.
+- C07D: `premiumProjection` wired into match detail DTO.
+- C07E.1: allowed premium payload selectors.
+- C07E.2: protected premium match projection RPC.
+- C07E.3: protected premium query integration and minimal authorized rendering.
+
+C07 security boundary:
+
+- Premium payload is queried only when `premiumAccess.status === "authorized"`.
+- `locked` and `unavailable` never call the premium RPC and never contain payload.
+- Authorized null/error responses become `authorized_unavailable`.
+- Premium payload is filtered through selectors/whitelists before DTO output.
+- `prediction_results` remains excluded from product premium projection.
+- No service role is used for normal UI.
+- No checkout, PayPal, Stripe, or payments were implemented.
+- No entitlement/unlock inserts were implemented.
+
+### C07 SQL Applied Manually
+
+Remote Supabase was manually updated through:
+
+```txt
+0016_premium_match_projection.sql
+```
+
+New C07 migrations applied manually and validated:
+
+- `0015_public_match_access_context.sql`
+  - extends `public_match_details` with public-safe access context:
+    `competition_id`, `competition_access_key`, `home_team_id`, `away_team_id`.
+- `0016_premium_match_projection.sql`
+  - creates `public.get_premium_match_projection(p_match_id uuid)`.
+  - `SECURITY DEFINER` with safe `search_path`.
+  - `anon` cannot execute.
+  - `authenticated` can execute.
+  - `auth.uid()` is required.
+  - returns only allowed premium markets/narratives after DB-side authorization.
+  - does not expose `prediction_results`.
+
+### Payments / Provider Decision
+
+Do not assume Stripe.
+
+Because the project/user is Colombia-based, Stripe should not be assumed available directly without a supported-country structure such as an LLC/company in a supported country.
+
+PayPal is currently a likely candidate. Other Colombia-compatible payment gateways must be evaluated before checkout/fulfillment.
+
+No checkout, PayPal integration, Stripe integration, or payments were implemented in C06/C07.
+
+### Workflow Decisions To Preserve
+
+SQL/migrations:
+
+- Codex may create SQL files/migrations.
+- The user applies SQL manually in Supabase SQL Editor.
+- Never assume a migration is applied remotely until the user confirms validation results.
+- SQL validation queries must be provided with migrations.
+- Current remote is manually applied through `0016_premium_match_projection.sql`.
+
+Git:
+
+- The user handles simple Git manually.
+- During an epic/feature branch, use small local commits per logical subtask.
+- Do not push for every subtask.
+- Push/PR when the full functional block is ready for review/merge, unless backup/review requires earlier push.
