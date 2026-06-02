@@ -1,8 +1,11 @@
 import type {
+  ProviderApiRequestDiagnostics,
+  FetchFixtureRoundsParams,
   FetchLeaguesParams,
   FetchFixturesByLeagueParams,
   ProviderFixture,
   ProviderFixtureStatus,
+  ProviderFixtureRoundsResult,
   ProviderLeague,
 } from "./api-football-types";
 
@@ -44,6 +47,12 @@ type ApiFootballFixtureEnvelope = {
 };
 
 type ApiFootballResponse = {
+  results?: number;
+  errors?: string[] | Record<string, string>;
+  paging?: {
+    current?: number;
+    total?: number;
+  };
   response?: ApiFootballFixtureEnvelope[];
 };
 
@@ -63,7 +72,32 @@ type ApiFootballLeagueEnvelope = {
 };
 
 type ApiFootballLeaguesResponse = {
+  results?: number;
+  errors?: string[] | Record<string, string>;
+  paging?: {
+    current?: number;
+    total?: number;
+  };
   response?: ApiFootballLeagueEnvelope[];
+};
+
+type ApiFootballRoundsResponse = {
+  results?: number;
+  errors?: string[] | Record<string, string>;
+  paging?: {
+    current?: number;
+    total?: number;
+  };
+  response?: string[];
+};
+
+type ApiFootballBaseResponse = {
+  results?: number;
+  errors?: string[] | Record<string, string>;
+  paging?: {
+    current?: number;
+    total?: number;
+  };
 };
 
 function getApiFootballConfig() {
@@ -74,6 +108,49 @@ function getApiFootballConfig() {
 
   const baseUrl = process.env.API_FOOTBALL_BASE_URL ?? DEFAULT_BASE_URL;
   return { apiKey, baseUrl };
+}
+
+function normalizeErrors(errors: ApiFootballBaseResponse["errors"]): string[] {
+  if (Array.isArray(errors)) {
+    return errors.filter((value): value is string => typeof value === "string");
+  }
+
+  if (errors && typeof errors === "object") {
+    return Object.values(errors).filter((value): value is string => typeof value === "string");
+  }
+
+  return [];
+}
+
+function buildDiagnostics(
+  endpoint: string,
+  query: Record<string, string>,
+  payload: ApiFootballBaseResponse,
+): ProviderApiRequestDiagnostics {
+  return {
+    endpoint,
+    query,
+    results: typeof payload.results === "number" ? payload.results : null,
+    errors: normalizeErrors(payload.errors),
+    paging: payload.paging
+      ? {
+          current: typeof payload.paging.current === "number" ? payload.paging.current : null,
+          total: typeof payload.paging.total === "number" ? payload.paging.total : null,
+        }
+      : null,
+  };
+}
+
+function buildUrl(pathname: string, baseUrl: string, query: Record<string, string>): URL {
+  const url = new URL(pathname, baseUrl);
+
+  for (const [key, value] of Object.entries(query)) {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  }
+
+  return url;
 }
 
 function toProviderStatus(shortCode: string | undefined): ProviderFixtureStatus {
@@ -170,13 +247,7 @@ function normalizeFixture(input: ApiFootballFixtureEnvelope): ProviderFixture | 
 
 async function fetchApiFootball(pathname: string, query: Record<string, string>): Promise<ProviderFixture[]> {
   const { apiKey, baseUrl } = getApiFootballConfig();
-  const url = new URL(pathname, baseUrl);
-
-  for (const [key, value] of Object.entries(query)) {
-    if (value) {
-      url.searchParams.set(key, value);
-    }
-  }
+  const url = buildUrl(pathname, baseUrl, query);
 
   const response = await fetch(url, {
     method: "GET",
@@ -196,6 +267,32 @@ async function fetchApiFootball(pathname: string, query: Record<string, string>)
   return fixtures
     .map(normalizeFixture)
     .filter((fixture): fixture is ProviderFixture => fixture !== null);
+}
+
+async function fetchApiFootballStringList(
+  pathname: string,
+  query: Record<string, string>,
+): Promise<ProviderFixtureRoundsResult> {
+  const { apiKey, baseUrl } = getApiFootballConfig();
+  const url = buildUrl(pathname, baseUrl, query);
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "x-apisports-key": apiKey,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`API-Football request failed (${response.status}) for ${pathname}.`);
+  }
+
+  const payload = (await response.json()) as ApiFootballRoundsResponse;
+  return {
+    rounds: (payload.response ?? []).filter((round): round is string => typeof round === "string"),
+    diagnostics: buildDiagnostics(pathname, query, payload),
+  };
 }
 
 function normalizeLeague(input: ApiFootballLeagueEnvelope): ProviderLeague | null {
@@ -224,13 +321,7 @@ async function fetchApiFootballLeaguesRequest(
   query: Record<string, string>,
 ): Promise<ProviderLeague[]> {
   const { apiKey, baseUrl } = getApiFootballConfig();
-  const url = new URL("/leagues", baseUrl);
-
-  for (const [key, value] of Object.entries(query)) {
-    if (value) {
-      url.searchParams.set(key, value);
-    }
-  }
+  const url = buildUrl("/leagues", baseUrl, query);
 
   const response = await fetch(url, {
     method: "GET",
@@ -281,5 +372,17 @@ export async function fetchApiFootballLeagues(
     search: params.search ?? "",
     season: params.season ? String(params.season) : "",
     id: params.id ? String(params.id) : "",
+  });
+}
+
+export async function fetchApiFootballFixtureRounds(
+  params: FetchFixtureRoundsParams,
+): Promise<ProviderFixtureRoundsResult> {
+  return fetchApiFootballStringList("/fixtures/rounds", {
+    league: String(params.leagueId),
+    season: String(params.season),
+    current: typeof params.current === "boolean" ? String(params.current) : "",
+    dates: typeof params.dates === "boolean" ? String(params.dates) : "",
+    timezone: params.timezone ?? "",
   });
 }

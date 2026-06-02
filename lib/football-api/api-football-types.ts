@@ -64,3 +64,29 @@ export type FetchLeaguesParams = {
   season?: number;
   id?: number;
 };
+
+export type FetchFixtureRoundsParams = {
+  leagueId: number;
+  season: number;
+  current?: boolean;
+  dates?: boolean;
+  timezone?: string;
+};
+
+export type ProviderApiPaging = {
+  current: number | null;
+  total: number | null;
+};
+
+export type ProviderApiRequestDiagnostics = {
+  endpoint: string;
+  query: Record<string, string>;
+  results: number | null;
+  errors: string[];
+  paging: ProviderApiPaging | null;
+};
+
+export type ProviderFixtureRoundsResult = {
+  rounds: string[];
+  diagnostics: ProviderApiRequestDiagnostics;
+};

@@ -1,7 +1,11 @@
 import { loadEnvConfig } from "@next/env";
-import type { ProviderFixture, ProviderLeague } from "@/lib/football-api/api-football-types";
+import type {
+  ProviderApiRequestDiagnostics,
+  ProviderFixture,
+  ProviderLeague,
+} from "@/lib/football-api/api-football-types";
 
-type SpikeMode = "date" | "league" | "fixture" | "leagues";
+type SpikeMode = "date" | "league" | "fixture" | "leagues" | "rounds";
 
 function getArg(flag: string): string | null {
   const index = process.argv.indexOf(flag);
@@ -17,6 +21,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode league --leagueId 71 --season 2026 [--from YYYY-MM-DD --to YYYY-MM-DD]");
   console.log("  npm run spike:api-football -- --mode fixture --fixtureId 123456");
   console.log("  npm run spike:api-football -- --mode leagues [--country Colombia] [--search \"World Cup\"] [--season 2026] [--id 1]");
+  console.log("  npm run spike:api-football -- --mode rounds --leagueId 1 --season 2026 [--current true] [--dates true] [--timezone America/Bogota]");
 }
 
 function summarizeFixture(fixture: ProviderFixture): string {
@@ -48,9 +53,29 @@ function summarizeLeague(league: ProviderLeague): string {
   ].join(" | ");
 }
 
+function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): string {
+  const query = Object.entries(diagnostics.query)
+    .filter(([, value]) => value !== "")
+    .map(([key, value]) => `${key}=${value}`)
+    .join(" ");
+
+  const errors = diagnostics.errors.length > 0 ? diagnostics.errors.join(" | ") : "-";
+  const paging = diagnostics.paging
+    ? `current=${diagnostics.paging.current ?? "-"} total=${diagnostics.paging.total ?? "-"}`
+    : "-";
+
+  return [
+    `endpoint=${diagnostics.endpoint}`,
+    `params=${query || "-"}`,
+    `results=${diagnostics.results ?? "-"}`,
+    `errors=${errors}`,
+    `paging=${paging}`,
+  ].join(" | ");
+}
+
 function parseMode(): SpikeMode | null {
   const mode = getArg("--mode");
-  if (mode === "date" || mode === "league" || mode === "fixture" || mode === "leagues") {
+  if (mode === "date" || mode === "league" || mode === "fixture" || mode === "leagues" || mode === "rounds") {
     return mode;
   }
   return null;
@@ -71,6 +96,7 @@ async function run() {
       fetchApiFootballFixtureById,
       fetchApiFootballFixturesByDate,
       fetchApiFootballFixturesByLeague,
+      fetchApiFootballFixtureRounds,
       fetchApiFootballLeagues,
     } = await import("@/lib/football-api/api-football-client");
 
@@ -115,6 +141,27 @@ async function run() {
         `leagues=${leagues.length} mode=leagues country=${getArg("--country") ?? "-"} search=${getArg("--search") ?? "-"} season=${getArg("--season") ?? "-"}`,
       );
       leagues.slice(0, 30).forEach((league) => console.log(summarizeLeague(league)));
+      return;
+    }
+
+    if (mode === "rounds") {
+      const leagueIdRaw = getArg("--leagueId");
+      const seasonRaw = getArg("--season");
+      if (!leagueIdRaw || !seasonRaw) {
+        throw new Error("Missing --leagueId or --season for mode=rounds.");
+      }
+
+      const roundsResult = await fetchApiFootballFixtureRounds({
+        leagueId: Number(leagueIdRaw),
+        season: Number(seasonRaw),
+        current: getArg("--current") === null ? undefined : getArg("--current") === "true",
+        dates: getArg("--dates") === null ? undefined : getArg("--dates") === "true",
+        timezone: getArg("--timezone") ?? undefined,
+      });
+
+      console.log(`rounds=${roundsResult.rounds.length} mode=rounds leagueId=${leagueIdRaw} season=${seasonRaw}`);
+      console.log(summarizeDiagnostics(roundsResult.diagnostics));
+      roundsResult.rounds.forEach((round) => console.log(round));
       return;
     }
 
