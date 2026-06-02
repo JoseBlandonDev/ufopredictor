@@ -48,3 +48,19 @@ export type FetchFixturesByLeagueParams = {
   to?: string;
   status?: string;
 };
+
+export type ProviderLeague = {
+  providerLeagueId: number;
+  name: string;
+  type: string | null;
+  country: string | null;
+  countryCode: string | null;
+  seasonYears: number[];
+};
+
+export type FetchLeaguesParams = {
+  country?: string;
+  search?: string;
+  season?: number;
+  id?: number;
+};

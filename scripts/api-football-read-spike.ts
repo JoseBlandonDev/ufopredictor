@@ -1,7 +1,7 @@
 import { loadEnvConfig } from "@next/env";
-import type { ProviderFixture } from "@/lib/football-api/api-football-types";
+import type { ProviderFixture, ProviderLeague } from "@/lib/football-api/api-football-types";
 
-type SpikeMode = "date" | "league" | "fixture";
+type SpikeMode = "date" | "league" | "fixture" | "leagues";
 
 function getArg(flag: string): string | null {
   const index = process.argv.indexOf(flag);
@@ -16,6 +16,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode date --date YYYY-MM-DD");
   console.log("  npm run spike:api-football -- --mode league --leagueId 71 --season 2026 [--from YYYY-MM-DD --to YYYY-MM-DD]");
   console.log("  npm run spike:api-football -- --mode fixture --fixtureId 123456");
+  console.log("  npm run spike:api-football -- --mode leagues [--country Colombia] [--search \"World Cup\"] [--season 2026] [--id 1]");
 }
 
 function summarizeFixture(fixture: ProviderFixture): string {
@@ -34,9 +35,22 @@ function summarizeFixture(fixture: ProviderFixture): string {
   ].join(" | ");
 }
 
+function summarizeLeague(league: ProviderLeague): string {
+  const seasons = league.seasonYears.length > 0 ? league.seasonYears.join(",") : "-";
+
+  return [
+    `leagueId=${league.providerLeagueId}`,
+    `name=${league.name}`,
+    `type=${league.type ?? "-"}`,
+    `country=${league.country ?? "-"}`,
+    `countryCode=${league.countryCode ?? "-"}`,
+    `seasons=${seasons}`,
+  ].join(" | ");
+}
+
 function parseMode(): SpikeMode | null {
   const mode = getArg("--mode");
-  if (mode === "date" || mode === "league" || mode === "fixture") {
+  if (mode === "date" || mode === "league" || mode === "fixture" || mode === "leagues") {
     return mode;
   }
   return null;
@@ -57,6 +71,7 @@ async function run() {
       fetchApiFootballFixtureById,
       fetchApiFootballFixturesByDate,
       fetchApiFootballFixturesByLeague,
+      fetchApiFootballLeagues,
     } = await import("@/lib/football-api/api-football-client");
 
     if (mode === "date") {
@@ -86,6 +101,20 @@ async function run() {
       });
       console.log(`fixtures=${fixtures.length} mode=league leagueId=${leagueIdRaw} season=${seasonRaw}`);
       fixtures.slice(0, 20).forEach((fixture) => console.log(summarizeFixture(fixture)));
+      return;
+    }
+
+    if (mode === "leagues") {
+      const leagues = await fetchApiFootballLeagues({
+        country: getArg("--country") ?? undefined,
+        search: getArg("--search") ?? undefined,
+        season: getArg("--season") ? Number(getArg("--season")) : undefined,
+        id: getArg("--id") ? Number(getArg("--id")) : undefined,
+      });
+      console.log(
+        `leagues=${leagues.length} mode=leagues country=${getArg("--country") ?? "-"} search=${getArg("--search") ?? "-"} season=${getArg("--season") ?? "-"}`,
+      );
+      leagues.slice(0, 30).forEach((league) => console.log(summarizeLeague(league)));
       return;
     }
 

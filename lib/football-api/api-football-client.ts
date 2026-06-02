@@ -1,7 +1,9 @@
 import type {
+  FetchLeaguesParams,
   FetchFixturesByLeagueParams,
   ProviderFixture,
   ProviderFixtureStatus,
+  ProviderLeague,
 } from "./api-football-types";
 
 const DEFAULT_BASE_URL = "https://v3.football.api-sports.io";
@@ -43,6 +45,25 @@ type ApiFootballFixtureEnvelope = {
 
 type ApiFootballResponse = {
   response?: ApiFootballFixtureEnvelope[];
+};
+
+type ApiFootballLeagueEnvelope = {
+  league?: {
+    id?: number;
+    name?: string;
+    type?: string | null;
+  };
+  country?: {
+    name?: string | null;
+    code?: string | null;
+  };
+  seasons?: Array<{
+    year?: number;
+  }>;
+};
+
+type ApiFootballLeaguesResponse = {
+  response?: ApiFootballLeagueEnvelope[];
 };
 
 function getApiFootballConfig() {
@@ -177,6 +198,60 @@ async function fetchApiFootball(pathname: string, query: Record<string, string>)
     .filter((fixture): fixture is ProviderFixture => fixture !== null);
 }
 
+function normalizeLeague(input: ApiFootballLeagueEnvelope): ProviderLeague | null {
+  const leagueId = input.league?.id;
+  const leagueName = input.league?.name;
+
+  if (typeof leagueId !== "number" || typeof leagueName !== "string") {
+    return null;
+  }
+
+  const seasonYears = (input.seasons ?? [])
+    .map((season) => season.year)
+    .filter((year): year is number => typeof year === "number");
+
+  return {
+    providerLeagueId: leagueId,
+    name: leagueName,
+    type: input.league?.type ?? null,
+    country: input.country?.name ?? null,
+    countryCode: input.country?.code ?? null,
+    seasonYears,
+  };
+}
+
+async function fetchApiFootballLeaguesRequest(
+  query: Record<string, string>,
+): Promise<ProviderLeague[]> {
+  const { apiKey, baseUrl } = getApiFootballConfig();
+  const url = new URL("/leagues", baseUrl);
+
+  for (const [key, value] of Object.entries(query)) {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  }
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "x-apisports-key": apiKey,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`API-Football request failed (${response.status}) for /leagues.`);
+  }
+
+  const payload = (await response.json()) as ApiFootballLeaguesResponse;
+  const leagues = payload.response ?? [];
+
+  return leagues
+    .map(normalizeLeague)
+    .filter((league): league is ProviderLeague => league !== null);
+}
+
 export async function fetchApiFootballFixturesByDate(date: string): Promise<ProviderFixture[]> {
   return fetchApiFootball("/fixtures", { date });
 }
@@ -196,4 +271,15 @@ export async function fetchApiFootballFixturesByLeague(
 export async function fetchApiFootballFixtureById(fixtureId: number): Promise<ProviderFixture | null> {
   const fixtures = await fetchApiFootball("/fixtures", { id: String(fixtureId) });
   return fixtures[0] ?? null;
+}
+
+export async function fetchApiFootballLeagues(
+  params: FetchLeaguesParams,
+): Promise<ProviderLeague[]> {
+  return fetchApiFootballLeaguesRequest({
+    country: params.country ?? "",
+    search: params.search ?? "",
+    season: params.season ? String(params.season) : "",
+    id: params.id ? String(params.id) : "",
+  });
 }
