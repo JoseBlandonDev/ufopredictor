@@ -1,11 +1,51 @@
 # START HERE FOR NEW CONVERSATIONS — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
+
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
 
 
 This is the first document to read when starting a new ChatGPT, Codex, or handoff conversation for UFO Predictor. It preserves broad project context, operational continuity, and current constraints.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Start Here Update — Post C08 / Track D D04C
+
+Current practical baseline:
+
+- C01-C08 remain closed.
+- C08 is functionally closed as a product-safe transparency update.
+- Track D is active on branch `feature/d02-api-football-read-spike` and has completed D02-D04C locally.
+- API-Football Pro is validated for 2026 fixture access.
+
+What changed most recently:
+
+- `/transparency` no longer relies on mock performance metrics as production trust proof.
+- API-Football provider integration now reads real fixtures.
+- Target competition selection, prioritization, and shortlist report mode exist for beta planning.
+
+Do not restart provider selection unless API-Football fails. Sportmonks is fallback only.
+
+Lab v0.1 defaults:
+
+1. Colombia Primera A / Liga BetPlay (`leagueId=239`).
+2. Friendlies (`leagueId=10`), excluding youth by default.
+3. World Cup 2026 (`leagueId=1`) once tournament begins.
+
+Copa Colombia (`leagueId=241`) is validated but excluded from Lab v0.1 defaults.
+
+Next recommended conversation path:
+
+- Quick no-DB continuation: D04D exportable shortlist/report.
+- Product/database path: D05A fixture persistence design.
+
+Start a new Codex prompt from D04D or D05A. Do not ask Codex to repeat D02-D04C.
 
 ## Current Baseline
 
@@ -410,9 +450,9 @@ Treat older prompt files as historical if they contradict active sources.
 Read this first in any new ChatGPT or Codex conversation.
 
 ```txt
-Current branch baseline: main post PR #32
-Completed epics/gates: C01–C07
-Next recommended work: C08 — Trust / Transparency Real v0.1
+Current branch baseline: main post PR #34 with C08 closed
+Completed epics/gates: C01-C08
+Next recommended work: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first
 Remote Supabase: manually applied through 0016_premium_match_projection.sql
 ```
 

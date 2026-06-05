@@ -1,9 +1,70 @@
 # OPEN DECISIONS — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
 
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Decision Update
+
+### Decisions Closed
+
+#### Football data provider for initial beta/Mundial path
+
+Decision: API-Football Pro is selected and validated as the initial provider.
+
+Evidence:
+
+- Free plan validated adapter mechanics but blocked 2026 access with season-limit errors.
+- Pro plan unlocked 2026 data.
+- World Cup 2026, Friendlies 2026, Colombia Primera A 2026, and Copa Colombia 2026 returned fixtures.
+
+Current state: closed unless API-Football quality/cost/coverage becomes a blocker.
+
+#### Copa Colombia in initial Lab
+
+Decision: Do not include Copa Colombia in Lab v0.1 defaults.
+
+Copa Colombia remains validated and mapped (`leagueId=241`) but should not be part of the initial Lab/beta competition set.
+
+### Decisions Still Open
+
+#### D04D before D05?
+
+Decision needed: generate an exportable local shortlist/report artifact before designing persistence, or move directly to D05 fixture persistence design.
+
+Recommended if the user wants one more no-DB step: D04D.
+
+Recommended if the user wants product progress: D05A schema/RLS/upsert planning.
+
+#### Fixture persistence timing
+
+Decision needed: when to move from read-only provider spike to Supabase persistence.
+
+Constraints:
+
+- no SQL until schema is reviewed;
+- no remote migration assumptions;
+- user applies SQL manually in Supabase SQL Editor;
+- no cron/worker until manual ingest path is proven.
+
+#### API request budget policy
+
+Decision needed: define daily request budget during beta and World Cup.
+
+Initial guidance:
+
+- Use league/season reads carefully.
+- Prefer targeted date/range reads once ingest exists.
+- Avoid odds/provider predictions until explicitly needed.
+- Do not query every endpoint just because the provider exposes it.
 
 ## O01 — Anonymous vs Registered Free Real Data Boundary
 

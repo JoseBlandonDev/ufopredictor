@@ -1,8 +1,14 @@
 # CHATGPT PROJECT SOURCE — UFO Predictor Current
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
 
 
 This is the compact-but-complete source document for ChatGPT conversations inside the UFO Predictor project. Use it together with `START_HERE_FOR_NEW_CONVERSATIONS.md`, `CURRENT_PROJECT_STATUS.md`, `CODEX_HANDOFF_CURRENT.md`, and roadmap docs.
@@ -192,7 +198,7 @@ Manual/user handles:
 
 ## ChatGPT Current Source Addendum — Post C07
 
-When starting a new conversation, treat the project as post C07 and pre C08.
+When starting a new conversation, treat the project as post C08 on `main` and post D04C on `feature/d02-api-football-read-spike`.
 
 Important current facts:
 

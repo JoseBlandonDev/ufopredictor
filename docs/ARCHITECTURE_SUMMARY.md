@@ -1,9 +1,45 @@
 # ARCHITECTURE SUMMARY — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
 
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Architecture Update — Football Provider Read Layer
+
+A read-only football provider layer now exists for API-Football:
+
+| File | Purpose |
+|---|---|
+| `lib/football-api/api-football-client.ts` | Read-only API-Football HTTP adapter. |
+| `lib/football-api/api-football-types.ts` | Provider-facing normalized types. |
+| `lib/football-api/target-competitions.ts` | Target competition config, beta candidate selector, prioritization, and shortlist report helpers. |
+| `scripts/api-football-read-spike.ts` | CLI spike for controlled local reads and diagnostics. |
+
+Architectural boundaries:
+
+- Provider layer is read-only so far.
+- No Supabase write path exists for provider fixtures yet.
+- No cron/worker exists.
+- Provider predictions are not used.
+- Odds are out of scope.
+- Normal UI/premium projection boundaries from C05-C07 are unchanged.
+- `prediction_results` remains an internal/evaluation concept, not exposed through Track D.
+
+Lab v0.1 competition defaults:
+
+- `world-cup` → API-Football `leagueId=1`, season 2026.
+- `friendlies` → API-Football `leagueId=10`, season 2026, adult fixtures by default.
+- `colombia-primera-a` → API-Football `leagueId=239`, season 2026.
+
+`copa-colombia` (`leagueId=241`) is available in config/history but should not be selected by default for Lab v0.1 unless explicitly revisited.
 
 ## High-Level Architecture
 

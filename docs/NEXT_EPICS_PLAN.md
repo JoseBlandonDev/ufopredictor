@@ -1,9 +1,52 @@
 # NEXT EPICS PLAN — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
 
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Next Epics Update
+
+Immediate state:
+
+- C08 closed as product-safe transparency v0.1.
+- Track D read-only provider and beta selection completed through D04C.
+- API-Football Pro validated 2026 data access.
+
+Recommended next options:
+
+### Option 1 — D04D Exportable Shortlist Report
+
+Use this if the project wants one more no-DB step.
+
+Scope:
+
+- export `beta-candidates --report true` output to local JSON/Markdown/CSV;
+- keep it manual/read-only;
+- no Supabase;
+- no DB writes.
+
+### Option 2 — D05 Fixture Persistence Design
+
+Use this if the project is ready to design persistence.
+
+Scope:
+
+- design fixture tables/mapping/upsert strategy;
+- define RLS and public/internal boundaries;
+- decide what is provider-owned vs UFO-owned;
+- only then create migrations.
+
+Recommendation:
+
+Move to D05A in a clean conversation if the goal is product progress. Choose D04D only if the team wants a manual export artifact before touching database design.
 
 ## Current Position
 

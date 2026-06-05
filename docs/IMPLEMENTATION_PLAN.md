@@ -1,11 +1,71 @@
 # IMPLEMENTATION PLAN — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
+
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
 
 
 This is a secondary planning document. Active next-step planning lives in `NEXT_EPICS_PLAN.md` and `ROADMAP_AND_BACKLOG.md`, but this file preserves implementation sequence and constraints.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Implementation Update
+
+### Completed Read-Only Provider Foundation
+
+Track D has implemented a read-only API-Football provider path through D04C:
+
+1. D02 — read-only API-Football client and CLI spike.
+2. D03A — league/competition discovery.
+3. D03B — fixture rounds diagnostics and safe provider response diagnostics.
+4. D04A — target competition config and beta fixture selector.
+5. D04B — prioritization with score/reasons.
+6. D04C — shortlist report mode with upcoming/finished/active separation and summary counts.
+
+### Current Files Added/Extended
+
+- `lib/football-api/api-football-client.ts`
+- `lib/football-api/api-football-types.ts`
+- `lib/football-api/target-competitions.ts`
+- `scripts/api-football-read-spike.ts`
+
+### Lab v0.1 Target Competitions
+
+Included:
+
+- World Cup 2026 (`leagueId=1`) when tournament begins.
+- Friendlies (`leagueId=10`), adults by default.
+- Colombia Primera A (`leagueId=239`).
+
+Excluded for initial Lab defaults:
+
+- Copa Colombia (`leagueId=241`), despite successful validation.
+
+### Next Implementation Choice
+
+D04D, optional:
+
+- export shortlist/report to a local file for manual operations;
+- still no DB writes.
+
+D05A, next major product step:
+
+- design fixture persistence schema, RLS posture, upsert strategy, and validation queries;
+- do not create SQL until design is approved.
+
+### Hard Rules For D05
+
+- No migration is remotely applied until the user manually runs it in Supabase SQL Editor.
+- No service role for normal UI paths.
+- Do not expose `prediction_results`.
+- Do not use provider predictions as UFO predictions.
+- Do not include odds unless explicitly scoped.
 
 ## Completed Implementation Blocks
 

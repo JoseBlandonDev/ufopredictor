@@ -1,11 +1,43 @@
 # DATA DICTIONARY — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
+
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
 
 
 This dictionary summarizes current project data structures relevant to public product, freemium access, entitlements, saved matches, and future premium work.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Application-Layer Data Concepts
+
+These are application-layer/pre-persistence concepts added during the API-Football read-only spike. They are not database schema yet.
+
+| Concept | Layer | Meaning |
+|---|---|---|
+| `ProviderLeague` | API provider normalization | Normalized competition/league returned from API-Football. |
+| `ProviderFixture` | API provider normalization | Normalized fixture returned from API-Football, including fixture ID, teams, kickoff, status, and score. |
+| `ProviderFixtureStatus` | API provider normalization | Normalized status family such as scheduled, finished, cancelled, live/halftime. |
+| `TargetCompetition` | Application config | UFO-selected provider competition with key, leagueId, season, and use case. |
+| `TargetCompetitionKey` | Application config | Stable internal key such as `world-cup`, `friendlies`, `colombia-primera-a`, `copa-colombia`. |
+| `TargetCompetitionUseCase` | Application config | Intended use such as `core_world_cup`, `beta_pre_world_cup`, `beta_local`, `beta_local_alt`. |
+| `BetaFixtureCandidate` | Application selector | Fixture selected as potentially useful for beta/lab operations. |
+| `PrioritizedBetaFixtureCandidate` | Application selector | Candidate with score, priority, and readable reasons. |
+| `BetaShortlistReport` | Application report | Grouped report separating upcoming, finished, active, summaries, and recommendations. |
+
+Lab v0.1 should treat `copa-colombia` as mapped/available but excluded from default selection. If a future database schema is introduced, these concepts should be reviewed before being converted into tables/columns.
+
+Persistence warning:
+
+- Do not create fixture tables directly from these types without D05 design.
+- Do not expose provider IDs as product IDs without a mapping strategy.
+- Do not connect these concepts to `prediction_results` without explicit evaluation-boundary review.
 
 ## Current Applied Migration Level
 
