@@ -11,6 +11,7 @@ import type {
   TargetCompetition,
   TargetCompetitionKey,
 } from "@/lib/football-api/target-competitions";
+import type { IngestDryRunReport } from "@/lib/football-api/ingest/planner";
 
 type SpikeMode =
   | "date"
@@ -18,7 +19,8 @@ type SpikeMode =
   | "fixture"
   | "leagues"
   | "rounds"
-  | "beta-candidates";
+  | "beta-candidates"
+  | "ingest-dry-run";
 
 function getArg(flag: string): string | null {
   const index = process.argv.indexOf(flag);
@@ -38,6 +40,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 [--includeYouth true]");
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true [--maxPerCompetition 10]");
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true --maxPerCompetition 10 --report true");
+  console.log("  npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 [--includeYouth true] [--report true]");
 }
 
 function summarizeFixture(fixture: ProviderFixture): string {
@@ -97,6 +100,104 @@ function summarizeReportEntry(candidate: BetaShortlistReportEntry): string {
   return `${summarizePrioritizedBetaCandidate(candidate)} | recommendation=${candidate.recommendation}`;
 }
 
+function summarizePlannedEntity(
+  entity: IngestDryRunReport["wouldCreateOrUpdateCompetitions"][number],
+): string {
+  return [
+    `externalId=${entity.externalId}`,
+    entity.slug ? `slug=${entity.slug}` : null,
+    entity.name ? `name=${entity.name}` : null,
+    `action=${entity.action}`,
+  ]
+    .filter((value): value is string => value !== null)
+    .join(" | ");
+}
+
+function summarizePlannedMatch(
+  match: IngestDryRunReport["wouldCreateOrUpdateMatches"][number],
+): string {
+  return [
+    `fixtureId=${match.fixtureId}`,
+    `externalId=${match.externalId}`,
+    `slug=${match.slug}`,
+    `kickoff=${match.kickoffAt}`,
+    `teams=${match.homeTeamName} vs ${match.awayTeamName}`,
+    `status=${match.mappedStatus}`,
+    `intake_source=${match.intakeSource}`,
+    `access_scope=${match.accessScope}`,
+    "venue_id=null",
+  ].join(" | ");
+}
+
+function summarizePlannedMatchResult(
+  result: IngestDryRunReport["wouldPrepareMatchResultsPendingReview"][number],
+): string {
+  const score =
+    result.homeGoals === null || result.awayGoals === null
+      ? "-"
+      : `${result.homeGoals}-${result.awayGoals}`;
+
+  return [
+    `fixtureId=${result.fixtureId}`,
+    `matchExternalId=${result.matchExternalId}`,
+    `score=${score}`,
+    `verification_status=${result.verificationStatus}`,
+    `intake_source=${result.intakeSource}`,
+  ].join(" | ");
+}
+
+function printIngestDryRunReport(report: IngestDryRunReport): void {
+  console.log("EXPECTED_DEFAULTS");
+  console.log(
+    `intake_source=${report.expectedDefaults.intakeSource} | match_access_scope=${report.expectedDefaults.matchAccessScope} | match_result_verification_status=${report.expectedDefaults.matchResultVerificationStatus} | venue_policy=${report.expectedDefaults.venuePolicy}`,
+  );
+
+  if (report.wouldCreateOrUpdateCompetitions.length > 0) {
+    console.log("COMPETITIONS");
+    report.wouldCreateOrUpdateCompetitions.forEach((entity) =>
+      console.log(summarizePlannedEntity(entity)),
+    );
+  }
+
+  if (report.wouldCreateOrUpdateSeasons.length > 0) {
+    console.log("SEASONS");
+    report.wouldCreateOrUpdateSeasons.forEach((entity) =>
+      console.log(summarizePlannedEntity(entity)),
+    );
+  }
+
+  if (report.wouldCreateOrUpdateTeams.length > 0) {
+    console.log("TEAMS");
+    report.wouldCreateOrUpdateTeams.forEach((entity) =>
+      console.log(summarizePlannedEntity(entity)),
+    );
+  }
+
+  if (report.wouldCreateOrUpdateMatches.length > 0) {
+    console.log("MATCHES");
+    report.wouldCreateOrUpdateMatches.forEach((match) =>
+      console.log(summarizePlannedMatch(match)),
+    );
+  }
+
+  if (report.wouldPrepareMatchResultsPendingReview.length > 0) {
+    console.log("MATCH_RESULTS_PENDING_REVIEW");
+    report.wouldPrepareMatchResultsPendingReview.forEach((result) =>
+      console.log(summarizePlannedMatchResult(result)),
+    );
+  }
+
+  if (report.notes.length > 0) {
+    console.log("NOTES");
+    report.notes.forEach((note) => console.log(note));
+  }
+
+  if (report.warnings.length > 0) {
+    console.log("WARNINGS");
+    report.warnings.forEach((warning) => console.log(warning));
+  }
+}
+
 function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): string {
   const query = Object.entries(diagnostics.query)
     .filter(([, value]) => value !== "")
@@ -137,7 +238,8 @@ function parseMode(): SpikeMode | null {
     mode === "fixture" ||
     mode === "leagues" ||
     mode === "rounds" ||
-    mode === "beta-candidates"
+    mode === "beta-candidates" ||
+    mode === "ingest-dry-run"
   ) {
     return mode;
   }
@@ -193,6 +295,10 @@ async function run() {
       selectBetaFixtureCandidates,
       summarizeBetaShortlistReport,
     } = await import("@/lib/football-api/target-competitions");
+    const {
+      planControlledFixtureIngestDryRun,
+      summarizeControlledFixtureIngestDryRun,
+    } = await import("@/lib/football-api/ingest/planner");
 
     if (mode === "date") {
       const date = getArg("--date");
@@ -350,6 +456,63 @@ async function run() {
         prioritized.forEach((candidate) =>
           console.log(summarizePrioritizedBetaCandidate(candidate)),
         );
+      }
+
+      return;
+    }
+
+    if (mode === "ingest-dry-run") {
+      const competitionArg = parseCompetitionArg(getArg("--competition"));
+      if (
+        !competitionArg ||
+        competitionArg === "copa-colombia"
+      ) {
+        throw new Error(
+          "Missing or invalid --competition for mode=ingest-dry-run. Use world-cup, friendlies, colombia-primera-a, or all.",
+        );
+      }
+
+      const targets: TargetCompetition[] =
+        competitionArg === "all"
+          ? getTargetCompetitions().filter(
+              (competition) => competition.key !== "copa-colombia",
+            )
+          : (() => {
+              const competition = getTargetCompetitionByKey(competitionArg);
+              if (!competition || competition.key === "copa-colombia") {
+                throw new Error(`Unknown or unsupported target competition: ${competitionArg}`);
+              }
+
+              return [competition];
+            })();
+
+      const from = getArg("--from") ?? undefined;
+      const to = getArg("--to") ?? undefined;
+      const limitArg = getArg("--limit");
+      const includeYouth = parseBooleanArg("--includeYouth");
+      const report = parseBooleanArg("--report") === true;
+      const limit = limitArg ? Number(limitArg) : undefined;
+
+      for (const target of targets) {
+        const fixtures = await fetchApiFootballFixturesByLeague({
+          leagueId: target.leagueId,
+          season: target.season,
+          from,
+          to,
+        });
+
+        const dryRunReport = planControlledFixtureIngestDryRun(fixtures, target, {
+          includeYouth,
+          limit,
+        });
+
+        summarizeControlledFixtureIngestDryRun(dryRunReport).forEach((line) =>
+          console.log(line),
+        );
+
+        if (report) {
+          printIngestDryRunReport(dryRunReport);
+        }
       }
 
       return;

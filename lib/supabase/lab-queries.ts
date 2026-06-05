@@ -28,7 +28,9 @@ type LabMatch = Pick<
   | "source_note"
   | "reviewed_at"
   | "reviewed_by"
->;
+> & {
+  intake_source: Exclude<MatchRow["intake_source"], "api_football">;
+};
 type LabResult = Pick<
   MatchResultRow,
   | "match_id"
@@ -39,7 +41,9 @@ type LabResult = Pick<
   | "source_note"
   | "reviewed_at"
   | "reviewed_by"
->;
+> & {
+  intake_source: Exclude<MatchResultRow["intake_source"], "api_football">;
+};
 type LabPrediction = Pick<
   PredictionVersionRow,
   | "id"
@@ -72,7 +76,7 @@ export type LabFixtureView = {
   stage: string | null;
   kickoffAt: string;
   labStatus: MatchRow["lab_status"];
-  intakeSource: MatchRow["intake_source"];
+  intakeSource: Exclude<MatchRow["intake_source"], "api_football">;
   dataQuality: MatchRow["data_quality"];
   sourceNote: string | null;
   reviewedAt: string | null;
