@@ -4,8 +4,19 @@ import type {
   ProviderFixture,
   ProviderLeague,
 } from "@/lib/football-api/api-football-types";
+import type {
+  BetaFixtureCandidate,
+  TargetCompetition,
+  TargetCompetitionKey,
+} from "@/lib/football-api/target-competitions";
 
-type SpikeMode = "date" | "league" | "fixture" | "leagues" | "rounds";
+type SpikeMode =
+  | "date"
+  | "league"
+  | "fixture"
+  | "leagues"
+  | "rounds"
+  | "beta-candidates";
 
 function getArg(flag: string): string | null {
   const index = process.argv.indexOf(flag);
@@ -22,6 +33,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode fixture --fixtureId 123456");
   console.log("  npm run spike:api-football -- --mode leagues [--country Colombia] [--search \"World Cup\"] [--season 2026] [--id 1]");
   console.log("  npm run spike:api-football -- --mode rounds --leagueId 1 --season 2026 [--current true] [--dates true] [--timezone America/Bogota]");
+  console.log("  npm run spike:api-football -- --mode beta-candidates --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 [--includeYouth true]");
 }
 
 function summarizeFixture(fixture: ProviderFixture): string {
@@ -53,6 +65,24 @@ function summarizeLeague(league: ProviderLeague): string {
   ].join(" | ");
 }
 
+function summarizeBetaCandidate(candidate: BetaFixtureCandidate): string {
+  const score =
+    candidate.score.home === null || candidate.score.away === null
+      ? "-"
+      : `${candidate.score.home}-${candidate.score.away}`;
+
+  return [
+    `fixtureId=${candidate.fixtureId}`,
+    `competition=${candidate.competitionKey}`,
+    `kickoff=${candidate.kickoffAt}`,
+    `teams=${candidate.homeTeamName} vs ${candidate.awayTeamName}`,
+    `status=${candidate.status}`,
+    `score=${score}`,
+    `useCase=${candidate.useCase}`,
+    `reason=${candidate.reason}`,
+  ].join(" | ");
+}
+
 function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): string {
   const query = Object.entries(diagnostics.query)
     .filter(([, value]) => value !== "")
@@ -75,9 +105,39 @@ function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): strin
 
 function parseMode(): SpikeMode | null {
   const mode = getArg("--mode");
-  if (mode === "date" || mode === "league" || mode === "fixture" || mode === "leagues" || mode === "rounds") {
+  if (
+    mode === "date" ||
+    mode === "league" ||
+    mode === "fixture" ||
+    mode === "leagues" ||
+    mode === "rounds" ||
+    mode === "beta-candidates"
+  ) {
     return mode;
   }
+  return null;
+}
+
+function parseBooleanArg(flag: string): boolean | undefined {
+  const value = getArg(flag);
+  if (value === null) {
+    return undefined;
+  }
+
+  return value === "true";
+}
+
+function parseCompetitionArg(value: string | null): TargetCompetitionKey | "all" | null {
+  if (
+    value === "world-cup" ||
+    value === "friendlies" ||
+    value === "colombia-primera-a" ||
+    value === "copa-colombia" ||
+    value === "all"
+  ) {
+    return value;
+  }
+
   return null;
 }
 
@@ -99,6 +159,11 @@ async function run() {
       fetchApiFootballFixtureRounds,
       fetchApiFootballLeagues,
     } = await import("@/lib/football-api/api-football-client");
+    const {
+      getTargetCompetitionByKey,
+      getTargetCompetitions,
+      selectBetaFixtureCandidates,
+    } = await import("@/lib/football-api/target-competitions");
 
     if (mode === "date") {
       const date = getArg("--date");
@@ -162,6 +227,60 @@ async function run() {
       console.log(`rounds=${roundsResult.rounds.length} mode=rounds leagueId=${leagueIdRaw} season=${seasonRaw}`);
       console.log(summarizeDiagnostics(roundsResult.diagnostics));
       roundsResult.rounds.forEach((round) => console.log(round));
+      return;
+    }
+
+    if (mode === "beta-candidates") {
+      const competitionArg = parseCompetitionArg(getArg("--competition"));
+      if (!competitionArg) {
+        throw new Error(
+          "Missing or invalid --competition for mode=beta-candidates.",
+        );
+      }
+
+      const targets: TargetCompetition[] =
+        competitionArg === "all"
+          ? getTargetCompetitions()
+          : (() => {
+              const competition = getTargetCompetitionByKey(competitionArg);
+              if (!competition) {
+                throw new Error(`Unknown target competition: ${competitionArg}`);
+              }
+
+              return [competition];
+            })();
+
+      const from = getArg("--from") ?? undefined;
+      const to = getArg("--to") ?? undefined;
+      const limitArg = getArg("--limit");
+      const includeYouth = parseBooleanArg("--includeYouth");
+      const limit = limitArg ? Number(limitArg) : undefined;
+
+      for (const target of targets) {
+        const fixtures = await fetchApiFootballFixturesByLeague({
+          leagueId: target.leagueId,
+          season: target.season,
+          from,
+          to,
+        });
+
+        const candidates = selectBetaFixtureCandidates(fixtures, {
+          competitionKey: target.key,
+          useCase: target.useCase,
+          from,
+          to,
+          limit,
+          includeYouth,
+        });
+
+        console.log(
+          `candidates=${candidates.length} mode=beta-candidates competition=${target.key} leagueId=${target.leagueId} season=${target.season}`,
+        );
+        candidates.forEach((candidate) =>
+          console.log(summarizeBetaCandidate(candidate)),
+        );
+      }
+
       return;
     }
 
