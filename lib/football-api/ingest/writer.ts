@@ -1,6 +1,4 @@
-import "server-only";
-
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseScriptAdminClient } from "@/lib/supabase/script-admin";
 import type { TargetCompetition } from "@/lib/football-api/target-competitions";
 import type { ProviderFixture } from "@/lib/football-api/api-football-types";
 import { planControlledFixtureWrite, resolveApplyConfig } from "./apply";
@@ -68,7 +66,7 @@ async function loadExistingState(
   target: TargetCompetition,
   fixtures: ProviderFixture[],
 ) {
-  const supabase = createSupabaseAdminClient();
+  const supabase = createSupabaseScriptAdminClient();
 
   const competitionExternalId = buildApiFootballLeagueExternalId(target.leagueId);
   const teamExternalIds = Array.from(
@@ -197,7 +195,7 @@ export async function executeControlledFixtureWrite(input: {
 
   const existing = await loadExistingState(input.target, input.fixtures);
   const plan = planControlledFixtureWrite(input.fixtures, input.target, applyConfig, existing);
-  const supabase = createSupabaseAdminClient();
+  const supabase = createSupabaseScriptAdminClient();
 
   let competitionsCreated = 0;
   let competitionsUpdated = 0;
