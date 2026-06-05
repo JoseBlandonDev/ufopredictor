@@ -1,9 +1,56 @@
 # ROADMAP AND BACKLOG — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
 
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Roadmap Update
+
+### Completed or Functionally Closed
+
+- C08 — Trust / Transparency Real v0.1: product-safe transparency copy, beta/calibration limitations, no mock performance claims, no `prediction_results` exposure.
+- D02-D04C — API-Football read-only provider path and beta fixture selection/reporting.
+
+### Active Provider Decision
+
+API-Football Pro is the active initial provider for football fixtures. It was validated against 2026 data after Free-plan season limits blocked current/future season access.
+
+Validated fixture counts:
+
+- World Cup 2026 (`leagueId=1`): 72 fixtures.
+- Friendlies 2026 (`leagueId=10`): 488 fixtures.
+- Colombia Primera A 2026 (`leagueId=239`): 204 fixtures.
+- Copa Colombia 2026 (`leagueId=241`): 56 fixtures, validated but outside Lab v0.1 defaults.
+
+### Lab v0.1 Scope
+
+Use:
+
+- Colombia Primera A / Liga BetPlay.
+- Adult Friendlies.
+- World Cup 2026 once active.
+
+Do not include Copa Colombia in Lab v0.1 defaults unless explicitly revisited.
+
+### Next Backlog Items
+
+| ID | Item | Notes |
+|---|---|---|
+| D04D | Exportable beta shortlist/report | Optional no-DB bridge for manual beta operations. |
+| D05A | Fixture persistence design | Schema/RLS/upsert design first. No SQL until approved. |
+| D05B | Local migration draft | Only after D05A approval. User applies SQL manually. |
+| D05C | Controlled fixture ingest | Manual/scripted first; no cron/worker initially. |
+| D05D | Internal beta fixture visibility | Product/admin surface after safe persistence exists. |
+
+Sportmonks remains fallback only. Do not restart provider comparison unless API-Football Pro fails coverage/quality or cost becomes unacceptable.
 
 ## Roadmap Overview
 

@@ -1,9 +1,97 @@
 # CODEX HANDOFF CURRENT — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
 
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Update — API-Football Pro + Beta Fixture Selection
+
+Status after the latest working session:
+
+- C08 — Trust / Transparency Real v0.1 is functionally closed as a product-safe transparency page update. `/transparency` no longer presents mock performance metrics as validated production results. It states beta/calibration limits, uncertainty, no sportsbook/no betting-advice posture, and explicitly does not expose `prediction_results`.
+- Track D read-only football provider integration has started and progressed through D04C on branch `feature/d02-api-football-read-spike`.
+- API-Football Pro was selected and validated as the initial football data provider for the beta/Mundial path.
+- API-Football Free was useful for technical validation on historical seasons but blocked 2026 season access. API-Football Pro unlocked the required 2026 fixtures.
+- Sportmonks remains a fallback candidate, not the active provider path.
+
+Validated API-Football competitions:
+
+| Competition | Provider leagueId | Season | Validation result | Current Lab decision |
+|---|---:|---:|---|---|
+| World Cup | `1` | 2026 | 72 fixtures returned; group-stage rounds returned | Included when tournament begins |
+| Friendlies | `10` | 2026 | 488 fixtures returned | Included for pre-World-Cup beta, adults only by default |
+| Colombia Primera A / Liga BetPlay | `239` | 2026 | 204 fixtures returned | Included for Lab v0.1 / local beta |
+| Copa Colombia | `241` | 2026 | 56 fixtures returned | Mapped and validated, but excluded from Lab v0.1 for now |
+
+Implemented Track D local commits on `feature/d02-api-football-read-spike`:
+
+```txt
+04a2646 feat: add api-football read spike
+9ac3510 feat: add api-football league discovery mode
+02a1461 feat: add api-football rounds diagnostics
+ed2799f feat: add beta fixture target selector
+5649b91 feat: prioritize beta fixture candidates
+5c3f757 feat: add beta shortlist report mode
+```
+
+Available read-only CLI modes in `scripts/api-football-read-spike.ts`:
+
+- `date`
+- `league`
+- `fixture`
+- `leagues`
+- `rounds`
+- `beta-candidates`
+
+`beta-candidates` supports:
+
+- `--competition world-cup|friendlies|colombia-primera-a|copa-colombia|all`
+- `--from YYYY-MM-DD`
+- `--to YYYY-MM-DD`
+- `--limit N`
+- `--includeYouth true|false`
+- `--prioritize true|false`
+- `--maxPerCompetition N`
+- `--report true|false`
+
+Important boundaries remain unchanged:
+
+- no SQL was created for Track D so far;
+- no migrations were created for Track D so far;
+- no Supabase writes exist in Track D so far;
+- no workers or cron were added;
+- provider predictions are not used as UFO predictions;
+- odds are not in scope yet;
+- `prediction_results` remains excluded from product/premium/public surfaces;
+- premium projection and C07 access boundaries were not touched.
+
+Recommended next step:
+
+- If staying no-DB for one more slice: D04D — exportable shortlist/report file for manual beta operations.
+- If moving productward: D05 — fixture ingestion/persistence design, starting with schema/RLS/upsert planning before any migration.
+
+### Codex Execution Warning — Do Not Repeat Completed Track D Work
+
+Do not repeat D02, D03A, D03B, D04A, D04B, or D04C. They are already implemented locally on `feature/d02-api-football-read-spike`.
+
+Do not re-debug `rounds=0` unless the user explicitly asks. The root cause was the Free-plan season limit; API-Football Pro validated 2026 access.
+
+Do not add Copa Colombia to Lab v0.1 defaults. It is validated but excluded from the initial Lab/beta set.
+
+Allowed next prompts should start from one of these:
+
+- D04D — exportable beta shortlist/report file, still no DB writes.
+- D05A — fixture ingestion/persistence design, docs/spec first.
+
+For D05A, Codex must not create SQL until the schema/RLS/upsert plan is reviewed and approved.
 
 ## Role For Codex
 
@@ -311,7 +399,7 @@ For migrations:
 
 ## Current Recommended Codex Starting Point — C08
 
-Codex should treat `main` as post PR #32 and C01–C07 as complete.
+Codex should treat `main` as post PR #34 with C01-C08 complete, and treat `feature/d02-api-football-read-spike` as containing Track D through D04C.
 
 Recommended first task in a new Codex conversation:
 

@@ -1,8 +1,14 @@
 # PROJECT STATUS FOR MEETING — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
 
 
 ## One-Line Status

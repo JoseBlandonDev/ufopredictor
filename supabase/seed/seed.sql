@@ -62,7 +62,8 @@ insert into public.matches (
   venue_id,
   kickoff_at,
   stage,
-  status
+  status,
+  access_scope
 )
 values
   (
@@ -76,7 +77,8 @@ values
     (select id from public.venues where external_id = 'mock-metlife'),
     '2026-06-18T20:00:00Z',
     'Fase de grupos',
-    'scheduled'
+    'scheduled',
+    'public'
   ),
   (
     '00000000-0000-4000-8000-000000000302',
@@ -89,13 +91,15 @@ values
     (select id from public.venues where external_id = 'mock-att'),
     '2026-06-19T01:00:00Z',
     'Fase de grupos',
-    'scheduled'
+    'scheduled',
+    'public'
   )
 on conflict (slug) do update set
   kickoff_at = excluded.kickoff_at,
   venue_id = excluded.venue_id,
   stage = excluded.stage,
-  status = excluded.status;
+  status = excluded.status,
+  access_scope = excluded.access_scope;
 
 insert into public.plans (id, name, slug, description, price, currency, billing_type, is_active)
 values

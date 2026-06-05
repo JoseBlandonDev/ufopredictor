@@ -1,9 +1,42 @@
 # EPIC PROGRESS MATRIX — UFO Predictor
 
-_Last updated: post C07 / pre C08_
+_Last updated: post C08 / Track D D04C (2026-06-05)_
 
-Current baseline: `main` is post PR #32 (`Feature/c07 premium match projection`). C01–C07 are functionally closed. Next major block: C08 — Trust / Transparency Real v0.1.
+Current baseline:
 
+- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
+- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
+- C01-C08 are functionally closed.
+- D02-D04C are implemented locally on the Track D feature branch.
+- API-Football Pro is validated as the initial football data provider.
+- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+
+<!-- POST_C08_D04C_UPDATE -->
+## Post C08 / Track D Progress Update
+
+| Block | Status | Notes |
+|---|---|---|
+| C08 — Trust / Transparency Real v0.1 | Closed / minimal functional | `/transparency` replaced mock metrics with product-safe beta methodology, limitations, and no-guarantee copy. No `prediction_results` exposed. |
+| D02 — API-Football read spike | Completed locally | Read-only API-Football client + CLI spike. No DB writes. |
+| D03A — League discovery | Completed locally | `leagues` mode validates provider competition IDs. |
+| D03B — Rounds diagnostics | Completed locally | `rounds` mode plus safe diagnostics for `errors/results/paging`. Free-plan 2026 limit diagnosed. |
+| D04A — Target competition selector | Completed locally | Target competition config and beta candidate selector. |
+| D04B — Prioritization | Completed locally | Priority/score/reasons added for beta candidates. |
+| D04C — Shortlist report mode | Completed locally | Report builder separates upcoming/finished/active and summarizes competition/useCase/status. |
+
+Validated provider competitions:
+
+| Competition | leagueId | Season | Lab v0.1 decision |
+|---|---:|---:|---|
+| World Cup | `1` | 2026 | Include when tournament begins |
+| Friendlies | `10` | 2026 | Include, adult fixtures by default |
+| Colombia Primera A | `239` | 2026 | Include |
+| Copa Colombia | `241` | 2026 | Validated, excluded from Lab v0.1 |
+
+Next candidates:
+
+- D04D — exportable shortlist/report file, optional if manual beta operations need a local artifact.
+- D05 — fixture ingestion/persistence design, next major block before Supabase writes.
 
 ## Current Epic Position
 
