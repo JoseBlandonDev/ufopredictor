@@ -6,6 +6,7 @@ import type {
 } from "@/lib/football-api/api-football-types";
 import type {
   BetaFixtureCandidate,
+  BetaShortlistReportEntry,
   PrioritizedBetaFixtureCandidate,
   TargetCompetition,
   TargetCompetitionKey,
@@ -36,6 +37,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode rounds --leagueId 1 --season 2026 [--current true] [--dates true] [--timezone America/Bogota]");
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 [--includeYouth true]");
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true [--maxPerCompetition 10]");
+  console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true --maxPerCompetition 10 --report true");
 }
 
 function summarizeFixture(fixture: ProviderFixture): string {
@@ -91,6 +93,10 @@ function summarizePrioritizedBetaCandidate(
   return `${summarizeBetaCandidate(candidate)} | priority=${candidate.priority} | score=${candidate.priorityScore} | reasons=${candidate.reasons.join(",")}`;
 }
 
+function summarizeReportEntry(candidate: BetaShortlistReportEntry): string {
+  return `${summarizePrioritizedBetaCandidate(candidate)} | recommendation=${candidate.recommendation}`;
+}
+
 function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): string {
   const query = Object.entries(diagnostics.query)
     .filter(([, value]) => value !== "")
@@ -109,6 +115,18 @@ function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): strin
     `errors=${errors}`,
     `paging=${paging}`,
   ].join(" | ");
+}
+
+function printReportBlock(
+  label: string,
+  entries: BetaShortlistReportEntry[],
+): void {
+  if (entries.length === 0) {
+    return;
+  }
+
+  console.log(label);
+  entries.forEach((entry) => console.log(summarizeReportEntry(entry)));
 }
 
 function parseMode(): SpikeMode | null {
@@ -170,8 +188,10 @@ async function run() {
     const {
       getTargetCompetitionByKey,
       getTargetCompetitions,
+      buildBetaShortlistReport,
       prioritizeBetaFixtureCandidates,
       selectBetaFixtureCandidates,
+      summarizeBetaShortlistReport,
     } = await import("@/lib/football-api/target-competitions");
 
     if (mode === "date") {
@@ -264,6 +284,7 @@ async function run() {
       const limitArg = getArg("--limit");
       const includeYouth = parseBooleanArg("--includeYouth");
       const prioritize = parseBooleanArg("--prioritize") === true;
+      const report = parseBooleanArg("--report") === true;
       const maxPerCompetitionArg = getArg("--maxPerCompetition");
       const limit = limitArg ? Number(limitArg) : undefined;
       const maxPerCompetition = maxPerCompetitionArg
@@ -287,7 +308,7 @@ async function run() {
           includeYouth,
         });
 
-        if (prioritize) {
+        if (prioritize || report) {
           allCandidates.push(...candidates);
           continue;
         }
@@ -305,11 +326,23 @@ async function run() {
         );
       }
 
-      if (prioritize) {
+      if (prioritize || report) {
         const prioritized = prioritizeBetaFixtureCandidates(allCandidates, {
           limit,
           maxPerCompetition,
         });
+
+        if (report) {
+          const shortlistReport = buildBetaShortlistReport(prioritized);
+          summarizeBetaShortlistReport(shortlistReport).forEach((line) =>
+            console.log(line),
+          );
+          printReportBlock("TOP_OVERALL", shortlistReport.topOverall);
+          printReportBlock("UPCOMING", shortlistReport.upcoming);
+          printReportBlock("FINISHED", shortlistReport.finished);
+          printReportBlock("ACTIVE", shortlistReport.active);
+          return;
+        }
 
         console.log(
           `candidates=${prioritized.length} mode=beta-candidates competition=${competitionArg} prioritized=true`,

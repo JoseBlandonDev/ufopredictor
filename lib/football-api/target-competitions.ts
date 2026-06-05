@@ -64,6 +64,39 @@ export type BetaFixturePrioritizationOptions = {
   maxPerCompetition?: number;
 };
 
+export type BetaShortlistStatusBucket = "upcoming" | "finished" | "active";
+
+export type BetaShortlistRecommendation =
+  | "product_validation"
+  | "upcoming_beta"
+  | "historical_evaluation"
+  | "local_model_check"
+  | "upcoming_local_beta"
+  | "active_tracking";
+
+export type BetaShortlistReportEntry = PrioritizedBetaFixtureCandidate & {
+  statusBucket: BetaShortlistStatusBucket;
+  recommendation: BetaShortlistRecommendation;
+};
+
+export type BetaShortlistReport = {
+  totalCandidates: number;
+  totalByCompetition: Record<TargetCompetitionKey, number>;
+  totalByUseCase: Record<TargetCompetitionUseCase, number>;
+  totalByStatusBucket: Record<BetaShortlistStatusBucket, number>;
+  topOverall: BetaShortlistReportEntry[];
+  productValidation: BetaShortlistReportEntry[];
+  historicalEvaluation: BetaShortlistReportEntry[];
+  activeTracking: BetaShortlistReportEntry[];
+  upcoming: BetaShortlistReportEntry[];
+  finished: BetaShortlistReportEntry[];
+  active: BetaShortlistReportEntry[];
+};
+
+export type BetaShortlistReportOptions = {
+  topOverallLimit?: number;
+};
+
 const TARGET_COMPETITIONS: TargetCompetition[] = [
   {
     key: "world-cup",
@@ -281,4 +314,135 @@ export function prioritizeBetaFixtureCandidates(
   }
 
   return limitedByCompetition;
+}
+
+function toStatusBucket(
+  candidate: PrioritizedBetaFixtureCandidate,
+): BetaShortlistStatusBucket {
+  if (candidate.status === "finished") {
+    return "finished";
+  }
+
+  if (candidate.status === "live" || candidate.status === "halftime") {
+    return "active";
+  }
+
+  return "upcoming";
+}
+
+function toRecommendation(
+  candidate: PrioritizedBetaFixtureCandidate,
+): BetaShortlistRecommendation {
+  if (candidate.status === "live" || candidate.status === "halftime") {
+    return "active_tracking";
+  }
+
+  if (candidate.useCase === "core_world_cup" && candidate.status === "scheduled") {
+    return "product_validation";
+  }
+
+  if (candidate.useCase === "beta_pre_world_cup" && candidate.status === "scheduled") {
+    return "upcoming_beta";
+  }
+
+  if (candidate.useCase === "beta_pre_world_cup" && candidate.status === "finished") {
+    return "historical_evaluation";
+  }
+
+  if (candidate.useCase === "beta_local" && candidate.status === "scheduled") {
+    return "upcoming_local_beta";
+  }
+
+  if (candidate.useCase === "beta_local_alt" && candidate.status === "scheduled") {
+    return "upcoming_local_beta";
+  }
+
+  if (candidate.useCase === "beta_local" && candidate.status === "finished") {
+    return "local_model_check";
+  }
+
+  if (candidate.useCase === "beta_local_alt" && candidate.status === "finished") {
+    return "local_model_check";
+  }
+
+  return "historical_evaluation";
+}
+
+function incrementRecord<Key extends string>(
+  record: Record<Key, number>,
+  key: Key,
+): void {
+  record[key] += 1;
+}
+
+export function buildBetaShortlistReport(
+  candidates: PrioritizedBetaFixtureCandidate[],
+  options: BetaShortlistReportOptions = {},
+): BetaShortlistReport {
+  const entries: BetaShortlistReportEntry[] = candidates.map((candidate) => ({
+    ...candidate,
+    statusBucket: toStatusBucket(candidate),
+    recommendation: toRecommendation(candidate),
+  }));
+
+  const totalByCompetition: Record<TargetCompetitionKey, number> = {
+    "world-cup": 0,
+    friendlies: 0,
+    "colombia-primera-a": 0,
+    "copa-colombia": 0,
+  };
+  const totalByUseCase: Record<TargetCompetitionUseCase, number> = {
+    core_world_cup: 0,
+    beta_pre_world_cup: 0,
+    beta_local: 0,
+    beta_local_alt: 0,
+  };
+  const totalByStatusBucket: Record<BetaShortlistStatusBucket, number> = {
+    upcoming: 0,
+    finished: 0,
+    active: 0,
+  };
+
+  for (const entry of entries) {
+    incrementRecord(totalByCompetition, entry.competitionKey);
+    incrementRecord(totalByUseCase, entry.useCase);
+    incrementRecord(totalByStatusBucket, entry.statusBucket);
+  }
+
+  const topOverallLimit = options.topOverallLimit ?? 5;
+
+  return {
+    totalCandidates: entries.length,
+    totalByCompetition,
+    totalByUseCase,
+    totalByStatusBucket,
+    topOverall: entries.slice(0, topOverallLimit),
+    productValidation: entries.filter(
+      (entry) => entry.recommendation === "product_validation",
+    ),
+    historicalEvaluation: entries.filter(
+      (entry) =>
+        entry.recommendation === "historical_evaluation" ||
+        entry.recommendation === "local_model_check",
+    ),
+    activeTracking: entries.filter(
+      (entry) => entry.recommendation === "active_tracking",
+    ),
+    upcoming: entries.filter((entry) => entry.statusBucket === "upcoming"),
+    finished: entries.filter((entry) => entry.statusBucket === "finished"),
+    active: entries.filter((entry) => entry.statusBucket === "active"),
+  };
+}
+
+export function summarizeBetaShortlistReport(
+  report: BetaShortlistReport,
+): string[] {
+  return [
+    `total_candidates=${report.totalCandidates}`,
+    `by_competition world-cup=${report.totalByCompetition["world-cup"]} friendlies=${report.totalByCompetition.friendlies} colombia-primera-a=${report.totalByCompetition["colombia-primera-a"]} copa-colombia=${report.totalByCompetition["copa-colombia"]}`,
+    `by_use_case core_world_cup=${report.totalByUseCase.core_world_cup} beta_pre_world_cup=${report.totalByUseCase.beta_pre_world_cup} beta_local=${report.totalByUseCase.beta_local} beta_local_alt=${report.totalByUseCase.beta_local_alt}`,
+    `by_status upcoming=${report.totalByStatusBucket.upcoming} finished=${report.totalByStatusBucket.finished} active=${report.totalByStatusBucket.active}`,
+    `recommended product_validation=${report.productValidation.length} historical_evaluation=${report.historicalEvaluation.length} active_tracking=${report.activeTracking.length}`,
+    `top_overall=${report.topOverall.length}`,
+  ];
 }
