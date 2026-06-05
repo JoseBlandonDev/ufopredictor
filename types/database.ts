@@ -162,7 +162,7 @@ export type MatchRow = {
   status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
   access_scope: "public" | "premium" | "admin_only" | "lab_only";
   lab_status: "candidate" | "ready" | "review" | "needs_data" | "archived" | null;
-  intake_source: "mock" | "manual" | "csv_import";
+  intake_source: "mock" | "manual" | "csv_import" | "api_football";
   data_quality: "unreviewed" | "reviewed" | "verified" | "rejected";
   source_note: string | null;
   reviewed_at: Timestamp | null;
@@ -281,7 +281,7 @@ export type MatchResultRow = {
   home_goals: number;
   away_goals: number;
   verification_status: "pending_review" | "verified" | "rejected";
-  intake_source: "mock" | "manual" | "csv_import";
+  intake_source: "mock" | "manual" | "csv_import" | "api_football";
   source_note: string | null;
   reviewed_at: Timestamp | null;
   reviewed_by: string | null;
