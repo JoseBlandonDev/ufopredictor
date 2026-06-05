@@ -44,6 +44,26 @@ export type BetaFixtureSelectionOptions = {
   includeYouth?: boolean;
 };
 
+export type BetaFixturePriority = "high" | "medium_high" | "medium" | "low";
+
+export type BetaFixturePriorityReason =
+  | "core_world_cup_fixture"
+  | "adult_friendly_pre_world_cup"
+  | "local_colombia_beta"
+  | "finished_evaluation_sample"
+  | "upcoming_beta_sample";
+
+export type PrioritizedBetaFixtureCandidate = BetaFixtureCandidate & {
+  priority: BetaFixturePriority;
+  priorityScore: number;
+  reasons: BetaFixturePriorityReason[];
+};
+
+export type BetaFixturePrioritizationOptions = {
+  limit?: number;
+  maxPerCompetition?: number;
+};
+
 const TARGET_COMPETITIONS: TargetCompetition[] = [
   {
     key: "world-cup",
@@ -166,4 +186,99 @@ export function selectBetaFixtureCandidates(
   }
 
   return selected;
+}
+
+function toPriority(score: number): BetaFixturePriority {
+  if (score >= 110) {
+    return "high";
+  }
+
+  if (score >= 90) {
+    return "medium_high";
+  }
+
+  if (score >= 70) {
+    return "medium";
+  }
+
+  return "low";
+}
+
+export function scoreBetaFixtureCandidate(
+  candidate: BetaFixtureCandidate,
+): PrioritizedBetaFixtureCandidate {
+  let score = 0;
+  const reasons: BetaFixturePriorityReason[] = [];
+
+  switch (candidate.useCase) {
+    case "core_world_cup":
+      score += 100;
+      reasons.push("core_world_cup_fixture");
+      break;
+    case "beta_pre_world_cup":
+      score += 90;
+      reasons.push("adult_friendly_pre_world_cup");
+      break;
+    case "beta_local":
+      score += 78;
+      reasons.push("local_colombia_beta");
+      break;
+    case "beta_local_alt":
+      score += 74;
+      reasons.push("local_colombia_beta");
+      break;
+  }
+
+  if (candidate.status === "scheduled") {
+    score += 18;
+    reasons.push("upcoming_beta_sample");
+  } else if (candidate.status === "live" || candidate.status === "halftime") {
+    score += 16;
+    reasons.push("upcoming_beta_sample");
+  } else if (candidate.status === "finished") {
+    score += 10;
+    reasons.push("finished_evaluation_sample");
+  }
+
+  return {
+    ...candidate,
+    priority: toPriority(score),
+    priorityScore: score,
+    reasons,
+  };
+}
+
+export function prioritizeBetaFixtureCandidates(
+  candidates: BetaFixtureCandidate[],
+  options: BetaFixturePrioritizationOptions = {},
+): PrioritizedBetaFixtureCandidate[] {
+  const scored = candidates
+    .map(scoreBetaFixtureCandidate)
+    .sort((left, right) => {
+      if (right.priorityScore !== left.priorityScore) {
+        return right.priorityScore - left.priorityScore;
+      }
+
+      return left.kickoffAt.localeCompare(right.kickoffAt);
+    });
+
+  const perCompetitionCounts = new Map<TargetCompetitionKey, number>();
+  const limitedByCompetition =
+    typeof options.maxPerCompetition === "number" && options.maxPerCompetition >= 0
+      ? scored.filter((candidate) => {
+          const count = perCompetitionCounts.get(candidate.competitionKey) ?? 0;
+          if (count >= options.maxPerCompetition!) {
+            return false;
+          }
+
+          perCompetitionCounts.set(candidate.competitionKey, count + 1);
+          return true;
+        })
+      : scored;
+
+  if (typeof options.limit === "number" && options.limit >= 0) {
+    return limitedByCompetition.slice(0, options.limit);
+  }
+
+  return limitedByCompetition;
 }

@@ -6,6 +6,7 @@ import type {
 } from "@/lib/football-api/api-football-types";
 import type {
   BetaFixtureCandidate,
+  PrioritizedBetaFixtureCandidate,
   TargetCompetition,
   TargetCompetitionKey,
 } from "@/lib/football-api/target-competitions";
@@ -34,6 +35,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode leagues [--country Colombia] [--search \"World Cup\"] [--season 2026] [--id 1]");
   console.log("  npm run spike:api-football -- --mode rounds --leagueId 1 --season 2026 [--current true] [--dates true] [--timezone America/Bogota]");
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 [--includeYouth true]");
+  console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true [--maxPerCompetition 10]");
 }
 
 function summarizeFixture(fixture: ProviderFixture): string {
@@ -81,6 +83,12 @@ function summarizeBetaCandidate(candidate: BetaFixtureCandidate): string {
     `useCase=${candidate.useCase}`,
     `reason=${candidate.reason}`,
   ].join(" | ");
+}
+
+function summarizePrioritizedBetaCandidate(
+  candidate: PrioritizedBetaFixtureCandidate,
+): string {
+  return `${summarizeBetaCandidate(candidate)} | priority=${candidate.priority} | score=${candidate.priorityScore} | reasons=${candidate.reasons.join(",")}`;
 }
 
 function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): string {
@@ -162,6 +170,7 @@ async function run() {
     const {
       getTargetCompetitionByKey,
       getTargetCompetitions,
+      prioritizeBetaFixtureCandidates,
       selectBetaFixtureCandidates,
     } = await import("@/lib/football-api/target-competitions");
 
@@ -254,7 +263,13 @@ async function run() {
       const to = getArg("--to") ?? undefined;
       const limitArg = getArg("--limit");
       const includeYouth = parseBooleanArg("--includeYouth");
+      const prioritize = parseBooleanArg("--prioritize") === true;
+      const maxPerCompetitionArg = getArg("--maxPerCompetition");
       const limit = limitArg ? Number(limitArg) : undefined;
+      const maxPerCompetition = maxPerCompetitionArg
+        ? Number(maxPerCompetitionArg)
+        : undefined;
+      const allCandidates: BetaFixtureCandidate[] = [];
 
       for (const target of targets) {
         const fixtures = await fetchApiFootballFixturesByLeague({
@@ -269,15 +284,38 @@ async function run() {
           useCase: target.useCase,
           from,
           to,
-          limit,
           includeYouth,
         });
 
+        if (prioritize) {
+          allCandidates.push(...candidates);
+          continue;
+        }
+
+        const visibleCandidates =
+          typeof limit === "number" && limit >= 0
+            ? candidates.slice(0, limit)
+            : candidates;
+
         console.log(
-          `candidates=${candidates.length} mode=beta-candidates competition=${target.key} leagueId=${target.leagueId} season=${target.season}`,
+          `candidates=${visibleCandidates.length} mode=beta-candidates competition=${target.key} leagueId=${target.leagueId} season=${target.season}`,
         );
-        candidates.forEach((candidate) =>
+        visibleCandidates.forEach((candidate) =>
           console.log(summarizeBetaCandidate(candidate)),
+        );
+      }
+
+      if (prioritize) {
+        const prioritized = prioritizeBetaFixtureCandidates(allCandidates, {
+          limit,
+          maxPerCompetition,
+        });
+
+        console.log(
+          `candidates=${prioritized.length} mode=beta-candidates competition=${competitionArg} prioritized=true`,
+        );
+        prioritized.forEach((candidate) =>
+          console.log(summarizePrioritizedBetaCandidate(candidate)),
         );
       }
 
