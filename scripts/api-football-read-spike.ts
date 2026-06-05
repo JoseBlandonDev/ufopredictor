@@ -13,6 +13,36 @@ import type {
 } from "@/lib/football-api/target-competitions";
 import type { IngestDryRunReport } from "@/lib/football-api/ingest/planner";
 
+type ControlledWriteExecutionReportLike = {
+  runTag: string;
+  sourceNote: string;
+  fetchedFixtures: number;
+  plannedFixtures: number;
+  skippedUnknown: number;
+  skippedCancelled: number;
+  skippedPostponed: number;
+  skippedAbandoned: number;
+  touchedExternalIds: string[];
+  warnings: string[];
+  counts: {
+    competitionsCreated: number;
+    competitionsUpdated: number;
+    competitionsSkipped: number;
+    seasonsCreated: number;
+    seasonsUpdated: number;
+    seasonsSkipped: number;
+    teamsCreated: number;
+    teamsUpdated: number;
+    teamsSkipped: number;
+    matchesCreated: number;
+    matchesUpdated: number;
+    matchesSkipped: number;
+    matchResultsCreated: number;
+    matchResultsUpdated: number;
+    matchResultsSkipped: number;
+  };
+};
+
 type SpikeMode =
   | "date"
   | "league"
@@ -41,6 +71,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true [--maxPerCompetition 10]");
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true --maxPerCompetition 10 --report true");
   console.log("  npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 [--includeYouth true] [--report true]");
+  console.log("  npm run spike:api-football -- --mode ingest-dry-run --competition colombia-primera-a --from 2026-05-25 --to 2026-06-10 --limit 5 --apply true --report true");
 }
 
 function summarizeFixture(fixture: ProviderFixture): string {
@@ -198,6 +229,47 @@ function printIngestDryRunReport(report: IngestDryRunReport): void {
   }
 }
 
+function printControlledWriteExecutionReport(
+  report: ControlledWriteExecutionReportLike,
+): void {
+  console.log("APPLY_RESULT");
+  console.log(`run_tag=${report.runTag}`);
+  console.log(`source_note=${report.sourceNote}`);
+  console.log(
+    `fetched_fixtures=${report.fetchedFixtures} planned_fixtures=${report.plannedFixtures}`,
+  );
+  console.log(
+    `skipped cancelled=${report.skippedCancelled} postponed=${report.skippedPostponed} abandoned=${report.skippedAbandoned} unknown=${report.skippedUnknown}`,
+  );
+  console.log(
+    `counts competitions created=${report.counts.competitionsCreated} updated=${report.counts.competitionsUpdated} skipped=${report.counts.competitionsSkipped}`,
+  );
+  console.log(
+    `counts seasons created=${report.counts.seasonsCreated} updated=${report.counts.seasonsUpdated} skipped=${report.counts.seasonsSkipped}`,
+  );
+  console.log(
+    `counts teams created=${report.counts.teamsCreated} updated=${report.counts.teamsUpdated} skipped=${report.counts.teamsSkipped}`,
+  );
+  console.log(
+    `counts matches created=${report.counts.matchesCreated} updated=${report.counts.matchesUpdated} skipped=${report.counts.matchesSkipped}`,
+  );
+  console.log(
+    `counts match_results created=${report.counts.matchResultsCreated} updated=${report.counts.matchResultsUpdated} skipped=${report.counts.matchResultsSkipped}`,
+  );
+
+  if (report.touchedExternalIds.length > 0) {
+    console.log("EXTERNAL_IDS_TOUCHED");
+    report.touchedExternalIds.forEach((externalId) => console.log(externalId));
+  }
+
+  console.log("WARNINGS");
+  console.log("rows remain admin_only by default and are not public");
+  console.log(
+    "source_note helps locate rows, but updated rows require manual review because there is no ingest_runs table or snapshot",
+  );
+  report.warnings.forEach((warning) => console.log(warning));
+}
+
 function summarizeDiagnostics(diagnostics: ProviderApiRequestDiagnostics): string {
   const query = Object.entries(diagnostics.query)
     .filter(([, value]) => value !== "")
@@ -299,6 +371,7 @@ async function run() {
       planControlledFixtureIngestDryRun,
       summarizeControlledFixtureIngestDryRun,
     } = await import("@/lib/football-api/ingest/planner");
+    const { resolveApplyConfig } = await import("@/lib/football-api/ingest/apply");
 
     if (mode === "date") {
       const date = getArg("--date");
@@ -463,12 +536,30 @@ async function run() {
 
     if (mode === "ingest-dry-run") {
       const competitionArg = parseCompetitionArg(getArg("--competition"));
-      if (
-        !competitionArg ||
-        competitionArg === "copa-colombia"
-      ) {
+      if (!competitionArg) {
         throw new Error(
-          "Missing or invalid --competition for mode=ingest-dry-run. Use world-cup, friendlies, colombia-primera-a, or all.",
+          "Missing or invalid --competition for mode=ingest-dry-run. Use world-cup, friendlies, colombia-primera-a, copa-colombia, or all.",
+        );
+      }
+
+      const from = getArg("--from") ?? undefined;
+      const to = getArg("--to") ?? undefined;
+      const limitArg = getArg("--limit");
+      const includeYouth = parseBooleanArg("--includeYouth");
+      const report = parseBooleanArg("--report") === true;
+      const apply = parseBooleanArg("--apply") === true;
+      const limit = limitArg ? Number(limitArg) : undefined;
+      const applyConfig = resolveApplyConfig({
+        apply,
+        competition: competitionArg,
+        from,
+        to,
+        limit,
+      });
+
+      if (!apply && competitionArg === "copa-colombia") {
+        throw new Error(
+          "Unsupported target competition for mode=ingest-dry-run. Use world-cup, friendlies, colombia-primera-a, or all.",
         );
       }
 
@@ -479,19 +570,20 @@ async function run() {
             )
           : (() => {
               const competition = getTargetCompetitionByKey(competitionArg);
-              if (!competition || competition.key === "copa-colombia") {
-                throw new Error(`Unknown or unsupported target competition: ${competitionArg}`);
+              if (!competition) {
+                throw new Error(`Unknown target competition: ${competitionArg}`);
+              }
+
+              if (!apply && competition.key === "copa-colombia") {
+                throw new Error(`Unsupported target competition: ${competitionArg}`);
               }
 
               return [competition];
             })();
 
-      const from = getArg("--from") ?? undefined;
-      const to = getArg("--to") ?? undefined;
-      const limitArg = getArg("--limit");
-      const includeYouth = parseBooleanArg("--includeYouth");
-      const report = parseBooleanArg("--report") === true;
-      const limit = limitArg ? Number(limitArg) : undefined;
+      if (apply && targets.length !== 1) {
+        throw new Error("Apply mode in D05C.2A supports exactly one target competition.");
+      }
 
       for (const target of targets) {
         const fixtures = await fetchApiFootballFixturesByLeague({
@@ -512,6 +604,26 @@ async function run() {
 
         if (report) {
           printIngestDryRunReport(dryRunReport);
+        }
+
+        if (apply) {
+          if (!applyConfig) {
+            throw new Error("Apply mode requires explicit --apply true.");
+          }
+
+          const { executeControlledFixtureWrite } = await import(
+            "@/lib/football-api/ingest/writer"
+          );
+          const applyReport = await executeControlledFixtureWrite({
+            target,
+            fixtures,
+            apply: true,
+            from: applyConfig.from,
+            to: applyConfig.to,
+            limit: applyConfig.limit,
+          });
+
+          printControlledWriteExecutionReport(applyReport);
         }
       }
 

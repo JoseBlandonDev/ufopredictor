@@ -1,7 +1,6 @@
 import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 function requireServerEnvironmentVariable(name: string) {
@@ -41,15 +40,3 @@ export async function createSupabaseServerClient() {
   });
 }
 
-export function createSupabaseAdminClient() {
-  const { url } = getPublicSupabaseConfig();
-  const serviceRoleKey = requireServerEnvironmentVariable("SUPABASE_SERVICE_ROLE_KEY");
-
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-      persistSession: false,
-    },
-  });
-}
