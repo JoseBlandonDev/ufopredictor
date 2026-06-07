@@ -14,6 +14,7 @@ import type {
 import type { IngestDryRunReport } from "@/lib/football-api/ingest/planner";
 
 type ControlledWriteExecutionReportLike = {
+  ingestRunId?: string;
   runTag: string;
   sourceNote: string;
   fetchedFixtures: number;
@@ -233,6 +234,9 @@ function printControlledWriteExecutionReport(
   report: ControlledWriteExecutionReportLike,
 ): void {
   console.log("APPLY_RESULT");
+  if (report.ingestRunId) {
+    console.log(`ingest_run_id=${report.ingestRunId}`);
+  }
   console.log(`run_tag=${report.runTag}`);
   console.log(`source_note=${report.sourceNote}`);
   console.log(
