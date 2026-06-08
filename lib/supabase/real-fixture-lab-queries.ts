@@ -55,6 +55,7 @@ export type RealFixtureLabData =
       status: "ready";
       selectedExternalId: string | null;
       fixtures: RealFixtureLabFixtureView[];
+      warnings: string[];
     }
   | {
       status: "unavailable";
@@ -66,11 +67,11 @@ export type GetAdminRealFixtureLabDataOptions = {
   externalId?: string | null;
 };
 
-function unavailable(selectedExternalId: string | null): RealFixtureLabData {
+function unavailable(selectedExternalId: string | null, message?: string): RealFixtureLabData {
   return {
     status: "unavailable",
     selectedExternalId,
-    message: "No fue posible consultar los fixtures reales internos en este momento.",
+    message: message ?? "No fue posible consultar los fixtures reales internos en este momento.",
   };
 }
 
@@ -108,73 +109,85 @@ export async function getAdminRealFixtureLabData(
 ): Promise<RealFixtureLabData> {
   const selectedExternalId = options.externalId?.trim() || null;
   const supabase = await createSupabaseServerClient();
-  let matchQuery = supabase
+  const matchSelect =
+    "id, external_id, slug, competition_id, home_team_id, away_team_id, kickoff_at, stage, status, access_scope, intake_source, source_note";
+  const matchQuery = supabase
     .from("matches")
-    .select(
-      "id, external_id, slug, competition_id, home_team_id, away_team_id, kickoff_at, stage, status, access_scope, intake_source, source_note",
-    )
+    .select(matchSelect)
     .eq("access_scope", "admin_only")
     .eq("intake_source", "api_football");
 
-  if (selectedExternalId) {
-    matchQuery = matchQuery.eq("external_id", selectedExternalId);
-  }
-
-  const { data: matchData, error: matchError } = await matchQuery.order("kickoff_at");
+  const { data: matchData, error: matchError } = selectedExternalId
+    ? await matchQuery.eq("external_id", selectedExternalId).maybeSingle()
+    : await matchQuery.order("kickoff_at");
 
   if (matchError) {
-    return unavailable(selectedExternalId);
+    return unavailable(selectedExternalId, `No fue posible consultar el fixture real seleccionado: ${matchError.message}`);
   }
 
-  const matches = (matchData ?? []) as RealFixtureLabMatch[];
+  const matches = selectedExternalId
+    ? matchData
+      ? [matchData as RealFixtureLabMatch]
+      : []
+    : ((matchData ?? []) as RealFixtureLabMatch[]);
 
   if (matches.length === 0) {
     return {
       status: "ready",
       selectedExternalId,
       fixtures: [],
+      warnings: [],
     };
   }
+  const warnings: string[] = [];
+  const fixtures = await Promise.all(
+    matches.map(async (match) => {
+      const [
+        { data: competitionData, error: competitionError },
+        { data: homeTeamData, error: homeTeamError },
+        { data: awayTeamData, error: awayTeamError },
+        { data: resultData, error: resultError },
+      ] = await Promise.all([
+        supabase.from("competitions").select("id, name").eq("id", match.competition_id).maybeSingle(),
+        supabase.from("teams").select("id, name").eq("id", match.home_team_id).maybeSingle(),
+        supabase.from("teams").select("id, name").eq("id", match.away_team_id).maybeSingle(),
+        supabase
+          .from("match_results")
+          .select("home_goals, away_goals, verification_status, intake_source, source_note")
+          .eq("match_id", match.id)
+          .maybeSingle(),
+      ]);
 
-  const competitionIds = Array.from(new Set(matches.map((match) => match.competition_id)));
-  const teamIds = Array.from(new Set(matches.flatMap((match) => [match.home_team_id, match.away_team_id])));
-  const matchIds = matches.map((match) => match.id);
+      if (competitionError) {
+        warnings.push(`No fue posible leer la competencia del fixture ${match.external_id}: ${competitionError.message}`);
+      }
 
-  const [
-    { data: competitionData, error: competitionError },
-    { data: teamData, error: teamError },
-    { data: resultData, error: resultError },
-  ] = await Promise.all([
-    supabase.from("competitions").select("id, name").in("id", competitionIds),
-    supabase.from("teams").select("id, name").in("id", teamIds),
-    supabase
-      .from("match_results")
-      .select("match_id, home_goals, away_goals, verification_status, intake_source, source_note")
-      .in("match_id", matchIds),
-  ]);
+      if (homeTeamError) {
+        warnings.push(`No fue posible leer el equipo local del fixture ${match.external_id}: ${homeTeamError.message}`);
+      }
 
-  if (competitionError || teamError || resultError) {
-    return unavailable(selectedExternalId);
-  }
+      if (awayTeamError) {
+        warnings.push(`No fue posible leer el equipo visitante del fixture ${match.external_id}: ${awayTeamError.message}`);
+      }
 
-  const competitions = (competitionData ?? []) as RealFixtureLabCompetition[];
-  const teams = (teamData ?? []) as RealFixtureLabTeam[];
-  const results = ((resultData ?? []) as (RealFixtureLabResult & { match_id: string })[]);
-  const competitionById = new Map(competitions.map((competition) => [competition.id, competition]));
-  const teamById = new Map(teams.map((team) => [team.id, team]));
-  const resultByMatchId = new Map(results.map((result) => [result.match_id, result]));
+      if (resultError) {
+        warnings.push(`No fue posible leer el match_result del fixture ${match.external_id}: ${resultError.message}`);
+      }
+
+      return mapRealFixtureLabFixtureView({
+        match,
+        competition: (competitionData as RealFixtureLabCompetition | null) ?? null,
+        homeTeam: (homeTeamData as RealFixtureLabTeam | null) ?? null,
+        awayTeam: (awayTeamData as RealFixtureLabTeam | null) ?? null,
+        result: (resultData as RealFixtureLabResult | null) ?? null,
+      });
+    }),
+  );
 
   return {
     status: "ready",
     selectedExternalId,
-    fixtures: matches.map((match) =>
-      mapRealFixtureLabFixtureView({
-        match,
-        competition: competitionById.get(match.competition_id) ?? null,
-        homeTeam: teamById.get(match.home_team_id) ?? null,
-        awayTeam: teamById.get(match.away_team_id) ?? null,
-        result: resultByMatchId.get(match.id) ?? null,
-      }),
-    ),
+    fixtures,
+    warnings,
   };
 }

@@ -85,6 +85,12 @@ describe("real fixture lab queries", () => {
         eqCalls.push([column, value]);
         return matchesBuilder;
       },
+      maybeSingle() {
+        return Promise.resolve({
+          data: null,
+          error: null,
+        });
+      },
       order() {
         return Promise.resolve({
           data: [],
@@ -123,12 +129,139 @@ describe("real fixture lab queries", () => {
       status: "ready",
       selectedExternalId: "api-football:fixture:1546413",
       fixtures: [],
+      warnings: [],
     });
     expect(fromCalls).toEqual(["matches"]);
     expect(eqCalls).toEqual([
       ["access_scope", "admin_only"],
       ["intake_source", "api_football"],
       ["external_id", "api-football:fixture:1546413"],
+    ]);
+  });
+
+  it("returns the base match even when related reads fail", async () => {
+    const fakeClient = {
+      from(table: string) {
+        if (table === "matches") {
+          const matchBuilder = {
+            eq() {
+              return matchBuilder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: {
+                  id: "match-1",
+                  external_id: "api-football:fixture:1546413",
+                  slug: "colombia-final",
+                  competition_id: "competition-1",
+                  home_team_id: "team-1",
+                  away_team_id: "team-2",
+                  kickoff_at: "2026-06-08T22:00:00Z",
+                  stage: "Final",
+                  status: "scheduled",
+                  access_scope: "admin_only",
+                  intake_source: "api_football",
+                  source_note: "tracked by ingest",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return matchBuilder;
+            },
+          };
+        }
+
+        if (table === "competitions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: null,
+                error: { message: "competition read blocked" },
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "teams") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: null,
+                error: { message: "team read blocked" },
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "match_results") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: null,
+                error: { message: "result read blocked" },
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        throw new Error(`unexpected table ${table}`);
+      },
+    };
+
+    createSupabaseServerClientMock.mockResolvedValue(fakeClient);
+
+    const result = await getAdminRealFixtureLabData({
+      externalId: "api-football:fixture:1546413",
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") {
+      throw new Error("expected ready result");
+    }
+    expect(result.fixtures).toHaveLength(1);
+    expect(result.fixtures[0]).toMatchObject({
+      externalId: "api-football:fixture:1546413",
+      competitionName: "Competicion no disponible",
+      homeTeamName: "Equipo local no disponible",
+      awayTeamName: "Equipo visitante no disponible",
+      result: null,
+    });
+    expect(result.warnings).toEqual([
+      expect.stringContaining("competition read blocked"),
+      expect.stringContaining("team read blocked"),
+      expect.stringContaining("team read blocked"),
+      expect.stringContaining("result read blocked"),
     ]);
   });
 });

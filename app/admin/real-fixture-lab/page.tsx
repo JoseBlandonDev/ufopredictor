@@ -92,6 +92,16 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
               lectura admin
             </span>
           </div>
+          {realFixtureLabData.warnings.length > 0 ? (
+            <div className="mt-4 rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4">
+              <h3 className="text-sm font-semibold text-[var(--warning)]">Lectura parcial</h3>
+              <ul className="mt-2 space-y-2 text-sm text-[var(--muted)]">
+                {realFixtureLabData.warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <div className="mt-4 space-y-4">
             {realFixtureLabData.fixtures.map((fixture) => {
               const predictionInput = buildRealFixturePredictionInput(fixture);
