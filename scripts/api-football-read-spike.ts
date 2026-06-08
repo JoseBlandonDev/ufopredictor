@@ -269,7 +269,7 @@ function printControlledWriteExecutionReport(
   console.log("WARNINGS");
   console.log("rows remain admin_only by default and are not public");
   console.log(
-    "source_note helps locate rows, but updated rows require manual review because there is no ingest_runs table or snapshot",
+    "source_note helps locate rows, and updated rows include ingest_run_items before_snapshot metadata; rollback remains manual/script-reviewed",
   );
   report.warnings.forEach((warning) => console.log(warning));
 }

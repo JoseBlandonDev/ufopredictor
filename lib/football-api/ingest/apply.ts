@@ -513,7 +513,7 @@ export function planControlledFixtureWrite(
     touchedExternalIds,
     warnings: [
       ...warnings,
-      "source_note helps locate created or updated rows, but updated rows still require manual rollback review because no ingest_runs snapshot exists.",
+      "source_note helps locate created or updated rows, and updated rows include ingest_run_items before_snapshot metadata; rollback remains manual/script-reviewed.",
     ],
   };
 }
