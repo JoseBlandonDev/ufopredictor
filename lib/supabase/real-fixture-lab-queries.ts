@@ -35,6 +35,7 @@ export type RealFixtureLabFixtureView = {
   id: string;
   externalId: string;
   slug: string;
+  competitionId: string;
   kickoffAt: string;
   stage: string | null;
   status: MatchRow["status"];
@@ -42,7 +43,9 @@ export type RealFixtureLabFixtureView = {
   intakeSource: "api_football";
   sourceNote: string | null;
   competitionName: string;
+  homeTeamId: string;
   homeTeamName: string;
+  awayTeamId: string;
   awayTeamName: string;
   result: RealFixtureLabResult | null;
 };
@@ -84,6 +87,7 @@ export function mapRealFixtureLabFixtureView(args: {
     id: match.id,
     externalId: match.external_id,
     slug: match.slug,
+    competitionId: match.competition_id,
     kickoffAt: match.kickoff_at,
     stage: match.stage,
     status: match.status,
@@ -91,7 +95,9 @@ export function mapRealFixtureLabFixtureView(args: {
     intakeSource: match.intake_source,
     sourceNote: match.source_note,
     competitionName: competition?.name ?? "Competicion no disponible",
+    homeTeamId: match.home_team_id,
     homeTeamName: homeTeam?.name ?? "Equipo local no disponible",
+    awayTeamId: match.away_team_id,
     awayTeamName: awayTeam?.name ?? "Equipo visitante no disponible",
     result,
   };
