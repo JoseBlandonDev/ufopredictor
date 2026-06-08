@@ -55,6 +55,14 @@ describe("real fixture lab queries", () => {
         intake_source: "api_football",
         source_note: "provider score",
       },
+      savedPrediction: {
+        id: "prediction-1",
+        modelVersionId: "model-1",
+        modelVersionVersion: "v0.1",
+        createdAt: "2026-06-08T12:00:00Z",
+        predictionType: "pre_match_24h",
+        runScope: "internal_lab",
+      },
     });
 
     expect(view).toMatchObject({
@@ -72,6 +80,11 @@ describe("real fixture lab queries", () => {
       result: {
         verification_status: "pending_review",
         intake_source: "api_football",
+      },
+      savedPrediction: {
+        predictionType: "pre_match_24h",
+        runScope: "internal_lab",
+        modelVersionVersion: "v0.1",
       },
     });
   });
@@ -100,11 +113,11 @@ describe("real fixture lab queries", () => {
     };
 
     const fakeClient = {
-      from(table: string) {
-        fromCalls.push(table);
-        return {
-          select() {
-            return matchesBuilder;
+        from(table: string) {
+          fromCalls.push(table);
+          return {
+            select() {
+              return matchesBuilder;
           },
           insert() {
             throw new Error("writes are not allowed in real fixture lab query helper");
@@ -235,6 +248,32 @@ describe("real fixture lab queries", () => {
           };
         }
 
+        if (table === "prediction_versions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            order() {
+              return builder;
+            },
+            limit() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: null,
+                error: { message: "prediction read blocked" },
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
         throw new Error(`unexpected table ${table}`);
       },
     };
@@ -256,12 +295,14 @@ describe("real fixture lab queries", () => {
       homeTeamName: "Equipo local no disponible",
       awayTeamName: "Equipo visitante no disponible",
       result: null,
+      savedPrediction: null,
     });
     expect(result.warnings).toEqual([
       expect.stringContaining("competition read blocked"),
       expect.stringContaining("team read blocked"),
       expect.stringContaining("team read blocked"),
       expect.stringContaining("result read blocked"),
+      expect.stringContaining("prediction read blocked"),
     ]);
   });
 });

@@ -1,5 +1,9 @@
 import "server-only";
 
+import {
+  REAL_FIXTURE_LAB_PREDICTION_TYPE,
+  REAL_FIXTURE_LAB_RUN_SCOPE,
+} from "../prediction-engine/real-fixture-persistence";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { CompetitionRow, MatchResultRow, MatchRow, TeamRow } from "@/types/database";
 
@@ -31,6 +35,15 @@ type RealFixtureLabResult = Pick<
   "home_goals" | "away_goals" | "verification_status" | "intake_source" | "source_note"
 >;
 
+type RealFixtureLabSavedPrediction = {
+  id: string;
+  modelVersionId: string;
+  modelVersionVersion: string | null;
+  createdAt: string;
+  predictionType: "pre_match_24h";
+  runScope: "internal_lab";
+};
+
 export type RealFixtureLabFixtureView = {
   id: string;
   externalId: string;
@@ -48,6 +61,7 @@ export type RealFixtureLabFixtureView = {
   awayTeamId: string;
   awayTeamName: string;
   result: RealFixtureLabResult | null;
+  savedPrediction: RealFixtureLabSavedPrediction | null;
 };
 
 export type RealFixtureLabData =
@@ -81,8 +95,9 @@ export function mapRealFixtureLabFixtureView(args: {
   homeTeam: RealFixtureLabTeam | null;
   awayTeam: RealFixtureLabTeam | null;
   result: RealFixtureLabResult | null;
+  savedPrediction: RealFixtureLabSavedPrediction | null;
 }): RealFixtureLabFixtureView {
-  const { match, competition, homeTeam, awayTeam, result } = args;
+  const { match, competition, homeTeam, awayTeam, result, savedPrediction } = args;
 
   return {
     id: match.id,
@@ -101,6 +116,7 @@ export function mapRealFixtureLabFixtureView(args: {
     awayTeamId: match.away_team_id,
     awayTeamName: awayTeam?.name ?? "Equipo visitante no disponible",
     result,
+    savedPrediction,
   };
 }
 
@@ -147,6 +163,7 @@ export async function getAdminRealFixtureLabData(
         { data: homeTeamData, error: homeTeamError },
         { data: awayTeamData, error: awayTeamError },
         { data: resultData, error: resultError },
+        { data: savedPredictionData, error: savedPredictionError },
       ] = await Promise.all([
         supabase.from("competitions").select("id, name").eq("id", match.competition_id).maybeSingle(),
         supabase.from("teams").select("id, name").eq("id", match.home_team_id).maybeSingle(),
@@ -155,6 +172,15 @@ export async function getAdminRealFixtureLabData(
           .from("match_results")
           .select("home_goals, away_goals, verification_status, intake_source, source_note")
           .eq("match_id", match.id)
+          .maybeSingle(),
+        supabase
+          .from("prediction_versions")
+          .select("id, model_version_id, created_at, prediction_type, run_scope")
+          .eq("match_id", match.id)
+          .eq("prediction_type", REAL_FIXTURE_LAB_PREDICTION_TYPE)
+          .eq("run_scope", REAL_FIXTURE_LAB_RUN_SCOPE)
+          .order("created_at", { ascending: false })
+          .limit(1)
           .maybeSingle(),
       ]);
 
@@ -174,12 +200,44 @@ export async function getAdminRealFixtureLabData(
         warnings.push(`No fue posible leer el match_result del fixture ${match.external_id}: ${resultError.message}`);
       }
 
+      if (savedPredictionError) {
+        warnings.push(
+          `No fue posible leer la prediccion interna guardada del fixture ${match.external_id}: ${savedPredictionError.message}`,
+        );
+      }
+
+      let savedPrediction: RealFixtureLabSavedPrediction | null = null;
+
+      if (savedPredictionData) {
+        const { data: modelVersionData, error: modelVersionError } = await supabase
+          .from("model_versions")
+          .select("id, version")
+          .eq("id", savedPredictionData.model_version_id)
+          .maybeSingle();
+
+        if (modelVersionError) {
+          warnings.push(
+            `No fue posible leer la version del modelo para el fixture ${match.external_id}: ${modelVersionError.message}`,
+          );
+        }
+
+        savedPrediction = {
+          id: savedPredictionData.id,
+          modelVersionId: savedPredictionData.model_version_id,
+          modelVersionVersion: modelVersionData?.version ?? null,
+          createdAt: savedPredictionData.created_at,
+          predictionType: savedPredictionData.prediction_type,
+          runScope: savedPredictionData.run_scope,
+        };
+      }
+
       return mapRealFixtureLabFixtureView({
         match,
         competition: (competitionData as RealFixtureLabCompetition | null) ?? null,
         homeTeam: (homeTeamData as RealFixtureLabTeam | null) ?? null,
         awayTeam: (awayTeamData as RealFixtureLabTeam | null) ?? null,
         result: (resultData as RealFixtureLabResult | null) ?? null,
+        savedPrediction,
       });
     }),
   );

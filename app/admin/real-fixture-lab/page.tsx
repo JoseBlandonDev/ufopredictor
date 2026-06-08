@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth/session";
 import { generatePrediction } from "@/lib/prediction-engine/generate-prediction";
 import { buildRealFixturePredictionInput } from "@/lib/prediction-engine/real-fixture-adapter";
+import { saveRealFixturePredictionAction } from "./actions";
 import { getAdminRealFixtureLabData } from "@/lib/supabase/real-fixture-lab-queries";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 const DEFAULT_EXTERNAL_ID = "api-football:fixture:1546413";
 
 type RealFixtureLabPageProps = {
-  searchParams: Promise<{ externalId?: string }>;
+  searchParams: Promise<{ externalId?: string; save?: string }>;
 };
 
 function formatKickoff(value: string) {
@@ -23,11 +24,63 @@ function formatPercentage(value: number) {
   return `${value.toFixed(1)}%`;
 }
 
+function formatTimestamp(value: string) {
+  return new Date(value).toLocaleString("es-CO", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "America/Bogota",
+  });
+}
+
+function getSaveStatusMessage(status: string | undefined) {
+  switch (status) {
+    case "saved":
+      return {
+        title: "Prediccion interna guardada",
+        body: "La prediccion interna se guardo para este fixture real y permanece en alcance interno.",
+        tone: "success" as const,
+      };
+    case "duplicate":
+      return {
+        title: "Prediccion interna ya guardada",
+        body: "Ya existe una prediccion interna compatible para este fixture y no se creo un duplicado.",
+        tone: "info" as const,
+      };
+    case "no_model":
+      return {
+        title: "Modelo activo no disponible",
+        body: "No existe una version activa del modelo para guardar esta prediccion interna.",
+        tone: "warning" as const,
+      };
+    case "not_found":
+      return {
+        title: "Fixture no disponible",
+        body: "El fixture solicitado ya no esta disponible dentro del alcance admin_only de API-Football.",
+        tone: "warning" as const,
+      };
+    case "invalid":
+      return {
+        title: "Solicitud invalida",
+        body: "No fue posible procesar la solicitud de guardado para esta prediccion interna.",
+        tone: "warning" as const,
+      };
+    case "error":
+      return {
+        title: "No se pudo guardar la prediccion interna",
+        body: "La operacion fallo antes de persistir el flujo completo. Revisa la configuracion interna y vuelve a intentarlo.",
+        tone: "warning" as const,
+      };
+    default:
+      return null;
+  }
+}
+
 export default async function RealFixtureLabPage({ searchParams }: RealFixtureLabPageProps) {
   await requireAdmin("/admin/real-fixture-lab");
 
-  const { externalId } = await searchParams;
+  const { externalId, save } = await searchParams;
   const selectedExternalId = externalId?.trim() || DEFAULT_EXTERNAL_ID;
+  const saveStatusMessage = getSaveStatusMessage(save);
   const realFixtureLabData = await getAdminRealFixtureLabData({
     externalId: selectedExternalId,
   });
@@ -46,6 +99,31 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         </p>
       </section>
 
+      {saveStatusMessage ? (
+        <section
+          className={`panel rounded-lg border p-5 ${
+            saveStatusMessage.tone === "success"
+              ? "border-emerald-400/35 bg-emerald-500/10"
+              : saveStatusMessage.tone === "info"
+                ? "border-[var(--accent)]/35 bg-[var(--accent)]/10"
+                : "border-[var(--warning)]/35 bg-[var(--warning)]/10"
+          }`}
+        >
+          <h2
+            className={`text-lg font-semibold ${
+              saveStatusMessage.tone === "success"
+                ? "text-emerald-300"
+                : saveStatusMessage.tone === "info"
+                  ? "text-[var(--accent)]"
+                  : "text-[var(--warning)]"
+            }`}
+          >
+            {saveStatusMessage.title}
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">{saveStatusMessage.body}</p>
+        </section>
+      ) : null}
+
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="panel rounded-lg p-5">
           <h2 className="text-lg font-semibold">Fixture objetivo</h2>
@@ -63,10 +141,11 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         </div>
 
         <div className="panel rounded-lg border border-[var(--warning)]/35 p-5">
-          <h2 className="text-lg font-semibold text-[var(--warning)]">Phase 2 limit</h2>
+          <h2 className="text-lg font-semibold text-[var(--warning)]">Phase 3A guardrail</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Prediction preview is in-memory only. Nothing is persisted, nothing is public, and this view
-            does not consume provider predictions or odds.
+            This route can store an internal pre-match prediction for a selected real fixture, but it does
+            not publish anything, does not persist evaluation results, and does not consume provider
+            predictions or odds.
           </p>
         </div>
       </section>
@@ -258,14 +337,41 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                       </div>
 
                       <aside className="rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4">
-                        <h4 className="font-semibold text-[var(--warning)]">Preview caution</h4>
+                        <h4 className="font-semibold text-[var(--warning)]">Internal persistence</h4>
+                        {fixture.savedPrediction ? (
+                          <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-[var(--muted)]">
+                            <p className="font-medium text-emerald-300">Prediccion interna ya guardada</p>
+                            <p className="mt-2">run_scope: {fixture.savedPrediction.runScope}</p>
+                            <p>prediction_type: {fixture.savedPrediction.predictionType}</p>
+                            <p>
+                              model_version: {fixture.savedPrediction.modelVersionVersion ?? fixture.savedPrediction.modelVersionId}
+                            </p>
+                            <p>guardada: {formatTimestamp(fixture.savedPrediction.createdAt)}</p>
+                          </div>
+                        ) : (
+                          <form action={saveRealFixturePredictionAction} className="mt-3 space-y-3">
+                            <input type="hidden" name="externalId" value={fixture.externalId} />
+                            <button
+                              type="submit"
+                              className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                            >
+                              Guardar prediccion interna
+                            </button>
+                          </form>
+                        )}
                         <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
                           <li>Uses internal preview defaults when fixture signals are missing.</li>
+                          <li>Stored predictions remain internal and are not public.</li>
                           <li>Does not read provider predictions.</li>
                           <li>Does not read betting odds.</li>
-                          <li>Does not create prediction_versions, prediction_markets, or prediction_results.</li>
+                          <li>Does not persist prediction_results or evaluation in this phase.</li>
                           <li>Intended only for internal model-trial preparation.</li>
                         </ul>
+                        {!fixture.savedPrediction ? (
+                          <p className="mt-3 text-xs text-[var(--muted)]">
+                            Guardado interno solamente. No publica la prediccion, no usa provider predictions y no usa odds.
+                          </p>
+                        ) : null}
                       </aside>
                     </div>
                   </section>
