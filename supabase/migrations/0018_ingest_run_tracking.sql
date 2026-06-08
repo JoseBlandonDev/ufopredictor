@@ -28,6 +28,8 @@ create table public.ingest_runs (
   created_by text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  check (fetched_fixtures_count >= 0),
+  check (planned_fixtures_count >= 0),
   check (to_date >= from_date),
   check (finished_at is null or finished_at >= started_at)
 );
