@@ -14,9 +14,10 @@ export default async function AdminPage() {
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Administración</p>
-          <h1 className="mt-3 text-4xl font-semibold">Operación interna simulada</h1>
+          <h1 className="mt-3 text-4xl font-semibold">Operación interna</h1>
           <p className="mt-3 max-w-2xl text-[var(--muted)]">
-            Acceso restringido a perfiles administradores. Workers, predicciones y logs continúan como datos mock.
+            Acceso restringido a perfiles administradores. El flujo activo D06/D07 vive en Real Fixture Lab;
+            Beta Lab legado conserva datos y workers mock internos.
           </p>
         </div>
         <LogoutButton />
@@ -36,9 +37,20 @@ export default async function AdminPage() {
         </div>
       </div>
       <AdminWorkerStatus runs={workerRuns} />
-      <Link href="/admin/beta-lab" className="inline-block rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)] shadow-[0_0_20px_rgba(0,215,255,0.2)]">
-        Abrir laboratorio beta
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href="/admin/real-fixture-lab"
+          className="inline-block rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)] shadow-[0_0_20px_rgba(0,215,255,0.2)]"
+        >
+          Abrir Real Fixture Lab
+        </Link>
+        <Link
+          href="/admin/beta-lab"
+          className="inline-block rounded-md border border-white/10 px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:border-white/20 hover:text-white"
+        >
+          Abrir Beta Lab legado
+        </Link>
+      </div>
     </div>
   );
 }

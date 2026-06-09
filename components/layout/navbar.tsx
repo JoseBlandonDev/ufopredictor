@@ -50,10 +50,10 @@ export function Navbar() {
             Ingresar
           </Link>
           <Link
-            href="/admin/beta-lab"
+            href="/admin/real-fixture-lab"
             className="hidden rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 sm:block"
           >
-            Laboratorio beta
+            Real Fixture Lab
           </Link>
         </div>
       </nav>
