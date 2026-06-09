@@ -1,13 +1,13 @@
 import { requireAdmin } from "@/lib/auth/session";
 import { generatePrediction } from "@/lib/prediction-engine/generate-prediction";
 import { buildRealFixturePredictionInput } from "@/lib/prediction-engine/real-fixture-adapter";
-import { saveRealFixturePredictionAction } from "./actions";
+import { persistRealFixtureEvaluationAction, saveRealFixturePredictionAction } from "./actions";
 import { getAdminRealFixtureLabData } from "@/lib/supabase/real-fixture-lab-queries";
 
 export const dynamic = "force-dynamic";
 
 type RealFixtureLabPageProps = {
-  searchParams: Promise<{ externalId?: string; save?: string }>;
+  searchParams: Promise<{ externalId?: string; save?: string; evaluation?: string }>;
 };
 
 function formatKickoff(value: string) {
@@ -28,6 +28,14 @@ function formatTimestamp(value: string) {
     timeStyle: "short",
     timeZone: "America/Bogota",
   });
+}
+
+function formatMetric(value: boolean | null) {
+  if (value === null) {
+    return "ambiguous";
+  }
+
+  return value ? "correct" : "incorrect";
 }
 
 function getSaveStatusMessage(status: string | undefined) {
@@ -73,12 +81,74 @@ function getSaveStatusMessage(status: string | undefined) {
   }
 }
 
+function getEvaluationStatusMessage(status: string | undefined) {
+  switch (status) {
+    case "saved":
+      return {
+        title: "Evaluacion interna guardada",
+        body: "La evaluacion interna se persistio a partir del resultado verificado de este fixture real.",
+        tone: "success" as const,
+      };
+    case "refreshed":
+      return {
+        title: "Evaluacion interna refrescada",
+        body: "La evaluacion interna se actualizo usando el resultado verificado mas reciente para este fixture.",
+        tone: "info" as const,
+      };
+    case "no_result":
+      return {
+        title: "Resultado no disponible",
+        body: "Todavia no existe un match_result guardado para evaluar esta prediccion interna.",
+        tone: "warning" as const,
+      };
+    case "unverified":
+      return {
+        title: "Resultado sin verificar",
+        body: "La evaluacion interna solo puede persistirse cuando el match_result esta marcado como verified.",
+        tone: "warning" as const,
+      };
+    case "incomplete":
+      return {
+        title: "Prediccion incompleta para evaluar",
+        body: "Faltan mercados requeridos o el detalle de scorelines no es valido para construir la evaluacion interna.",
+        tone: "warning" as const,
+      };
+    case "not_evaluable":
+      return {
+        title: "Prediccion no evaluable",
+        body: "El helper interno de evaluacion rechazo esta combinacion de prediccion y resultado verificado.",
+        tone: "warning" as const,
+      };
+    case "not_found":
+      return {
+        title: "Prediccion no disponible",
+        body: "La prediccion interna solicitada ya no esta disponible dentro del alcance admin_only de API-Football.",
+        tone: "warning" as const,
+      };
+    case "invalid":
+      return {
+        title: "Solicitud invalida",
+        body: "No fue posible procesar la solicitud de evaluacion interna.",
+        tone: "warning" as const,
+      };
+    case "error":
+      return {
+        title: "No se pudo persistir la evaluacion interna",
+        body: "La operacion fallo antes de completar la lectura o persistencia de prediction_results.",
+        tone: "warning" as const,
+      };
+    default:
+      return null;
+  }
+}
+
 export default async function RealFixtureLabPage({ searchParams }: RealFixtureLabPageProps) {
   await requireAdmin("/admin/real-fixture-lab");
 
-  const { externalId, save } = await searchParams;
+  const { externalId, save, evaluation } = await searchParams;
   const selectedExternalId = externalId?.trim() || null;
   const saveStatusMessage = getSaveStatusMessage(save);
+  const evaluationStatusMessage = getEvaluationStatusMessage(evaluation);
   const realFixtureLabData = selectedExternalId
     ? await getAdminRealFixtureLabData({
         externalId: selectedExternalId,
@@ -99,28 +169,28 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         </p>
       </section>
 
-      {saveStatusMessage ? (
+      {saveStatusMessage || evaluationStatusMessage ? (
         <section
           className={`panel rounded-lg border p-5 ${
-            saveStatusMessage.tone === "success"
+            (saveStatusMessage ?? evaluationStatusMessage)?.tone === "success"
               ? "border-emerald-400/35 bg-emerald-500/10"
-              : saveStatusMessage.tone === "info"
+              : (saveStatusMessage ?? evaluationStatusMessage)?.tone === "info"
                 ? "border-[var(--accent)]/35 bg-[var(--accent)]/10"
                 : "border-[var(--warning)]/35 bg-[var(--warning)]/10"
           }`}
         >
           <h2
             className={`text-lg font-semibold ${
-              saveStatusMessage.tone === "success"
+              (saveStatusMessage ?? evaluationStatusMessage)?.tone === "success"
                 ? "text-emerald-300"
-                : saveStatusMessage.tone === "info"
+                : (saveStatusMessage ?? evaluationStatusMessage)?.tone === "info"
                   ? "text-[var(--accent)]"
                   : "text-[var(--warning)]"
             }`}
           >
-            {saveStatusMessage.title}
+            {(saveStatusMessage ?? evaluationStatusMessage)?.title}
           </h2>
-          <p className="mt-2 text-sm text-[var(--muted)]">{saveStatusMessage.body}</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">{(saveStatusMessage ?? evaluationStatusMessage)?.body}</p>
         </section>
       ) : null}
 
@@ -166,9 +236,9 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         <div className="panel rounded-lg border border-[var(--warning)]/35 p-5">
           <h2 className="text-lg font-semibold text-[var(--warning)]">Phase 3A guardrail</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            This route can store an internal pre-match prediction for a selected real fixture, but it does
-            not publish anything, does not persist evaluation results, and does not consume provider
-            predictions or odds.
+            This route can store and internally evaluate one saved pre-match prediction for a selected
+            real fixture, but it does not publish anything, does not consume provider predictions or odds,
+            and only evaluates after a verified result exists.
           </p>
         </div>
       </section>
@@ -284,7 +354,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                           no odds
                         </span>
                         <span className="rounded-md border border-[var(--warning)]/30 bg-[var(--warning)]/10 px-2 py-1 text-[var(--warning)]">
-                          no persistence
+                          Preview in-memory
                         </span>
                       </div>
                     </div>
@@ -391,12 +461,60 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                             </button>
                           </form>
                         )}
+                        {fixture.savedPrediction ? (
+                          fixture.result?.verification_status === "verified" ? (
+                            fixture.savedEvaluation ? (
+                              <div className="mt-3 space-y-3">
+                                <div className="rounded-lg border border-[var(--accent)]/30 bg-[var(--accent)]/10 p-3 text-sm text-[var(--muted)]">
+                                  <p className="font-medium text-[var(--accent)]">Evaluacion interna guardada</p>
+                                  <p className="mt-2">winner: {formatMetric(fixture.savedEvaluation.winnerCorrect)}</p>
+                                  <p>btts: {formatMetric(fixture.savedEvaluation.bttsCorrect)}</p>
+                                  <p>over_2_5: {formatMetric(fixture.savedEvaluation.over25Correct)}</p>
+                                  <p>exact_score: {formatMetric(fixture.savedEvaluation.exactScoreCorrect)}</p>
+                                  <p>goal_error: {fixture.savedEvaluation.goalError ?? "n/a"}</p>
+                                  <p>validada: {formatTimestamp(fixture.savedEvaluation.validatedAt)}</p>
+                                  <p className="mt-2">{fixture.savedEvaluation.errorSummary ?? "Sin resumen adicional."}</p>
+                                </div>
+                                <form action={persistRealFixtureEvaluationAction} className="space-y-3">
+                                  <input type="hidden" name="predictionVersionId" value={fixture.savedPrediction.id} />
+                                  <input type="hidden" name="externalId" value={fixture.externalId} />
+                                  <button
+                                    type="submit"
+                                    className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                                  >
+                                    Refrescar evaluacion desde resultado verificado
+                                  </button>
+                                </form>
+                              </div>
+                            ) : (
+                              <form action={persistRealFixtureEvaluationAction} className="mt-3 space-y-3">
+                                <input type="hidden" name="predictionVersionId" value={fixture.savedPrediction.id} />
+                                <input type="hidden" name="externalId" value={fixture.externalId} />
+                                <button
+                                  type="submit"
+                                  className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                                >
+                                  Persistir evaluacion interna
+                                </button>
+                              </form>
+                            )
+                          ) : fixture.result ? (
+                            <p className="mt-3 text-xs text-[var(--muted)]">
+                              La evaluacion interna sigue bloqueada hasta que el `match_result` quede marcado como
+                              `verified`.
+                            </p>
+                          ) : (
+                            <p className="mt-3 text-xs text-[var(--muted)]">
+                              La evaluacion interna sigue bloqueada hasta que exista un `match_result` verificado.
+                            </p>
+                          )
+                        ) : null}
                         <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
                           <li>Uses internal preview defaults when fixture signals are missing.</li>
                           <li>Stored predictions remain internal and are not public.</li>
                           <li>Does not read provider predictions.</li>
                           <li>Does not read betting odds.</li>
-                          <li>Does not persist prediction_results or evaluation in this phase.</li>
+                          <li>Evaluation remains internal-only and depends on a verified match result.</li>
                           <li>Intended only for internal model-trial preparation.</li>
                         </ul>
                         {!fixture.savedPrediction ? (
