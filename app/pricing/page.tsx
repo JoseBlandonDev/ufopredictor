@@ -22,7 +22,7 @@ const worldCupPackagePreview = [
   {
     slug: "team-pass",
     name: "Country/Team Pass",
-    description: "Acceso planificado por selecciÃ³n o equipo especÃ­fico.",
+    description: "Acceso planificado por selección o equipo específico.",
   },
   {
     slug: "group-pass",
@@ -82,21 +82,21 @@ export default async function PricingPage() {
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           Paquetes Mundial 2026
         </p>
-        <h2 className="mt-2 text-2xl font-semibold">Vista previa del catÃ¡logo premium</h2>
+        <h2 className="mt-2 text-2xl font-semibold">Vista previa del catálogo premium</h2>
         <p className="mt-2 max-w-3xl text-sm text-[var(--muted)]">
-          Estos paquetes estÃ¡n planeados para el Mundial. TodavÃ­a no hay checkout activo ni
-          pagos habilitados en esta fase. El acceso premium se habilitarÃ¡ Ãºnicamente con
-          autorizaciÃ³n server-side.
+          Estos paquetes están planeados para el Mundial. Todavía no hay checkout activo ni
+          pagos habilitados en esta fase. El acceso premium se habilitará únicamente con
+          autorización server-side.
         </p>
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {worldCupPackagePreview.map((pkg) => (
             <article key={pkg.slug} className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
-                PrÃ³ximamente
+                Próximamente
               </p>
               <h3 className="mt-2 text-base font-semibold">{pkg.name}</h3>
               <p className="mt-2 text-sm text-[var(--muted)]">{pkg.description}</p>
-              <p className="mt-3 text-xs text-[var(--muted)]">Sin checkout activo todavÃ­a.</p>
+              <p className="mt-3 text-xs text-[var(--muted)]">Sin checkout activo todavía.</p>
             </article>
           ))}
         </div>
@@ -122,11 +122,11 @@ export default async function PricingPage() {
             Las tarjetas de planes premium son previews del catálogo beta. Todavía no hay checkout
             ni pagos disponibles.
           </p>
-        <div className="grid gap-4 lg:grid-cols-3">
-          {catalog.plans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} />
-          ))}
-        </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {catalog.plans.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} />
+            ))}
+          </div>
         </>
       )}
     </div>
