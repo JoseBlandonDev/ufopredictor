@@ -51,6 +51,11 @@ type RealFixtureLabSavedPrediction = {
   runScope: "internal_lab";
 };
 
+type RealFixtureLabActiveModelVersion = {
+  id: string;
+  version: string;
+};
+
 type RealFixtureLabSavedEvaluation = {
   winnerCorrect: boolean | null;
   bttsCorrect: boolean | null;
@@ -77,6 +82,10 @@ export type RealFixtureLabFixtureView = {
   homeTeamName: string;
   awayTeamId: string;
   awayTeamName: string;
+  activeModelVersionId: string | null;
+  activeModelVersion: string | null;
+  activeModelSavedPredictionId: string | null;
+  hasSavedPredictionForActiveModel: boolean;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
   savedEvaluation: RealFixtureLabSavedEvaluation | null;
@@ -112,11 +121,23 @@ export function mapRealFixtureLabFixtureView(args: {
   competition: RealFixtureLabCompetition | null;
   homeTeam: RealFixtureLabTeam | null;
   awayTeam: RealFixtureLabTeam | null;
+  activeModelVersion: RealFixtureLabActiveModelVersion | null;
+  activeModelSavedPredictionId: string | null;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
   savedEvaluation: RealFixtureLabSavedEvaluation | null;
 }): RealFixtureLabFixtureView {
-  const { match, competition, homeTeam, awayTeam, result, savedPrediction, savedEvaluation } = args;
+  const {
+    match,
+    competition,
+    homeTeam,
+    awayTeam,
+    activeModelVersion,
+    activeModelSavedPredictionId,
+    result,
+    savedPrediction,
+    savedEvaluation,
+  } = args;
 
   return {
     id: match.id,
@@ -134,6 +155,10 @@ export function mapRealFixtureLabFixtureView(args: {
     homeTeamName: homeTeam?.name ?? "Equipo local no disponible",
     awayTeamId: match.away_team_id,
     awayTeamName: awayTeam?.name ?? "Equipo visitante no disponible",
+    activeModelVersionId: activeModelVersion?.id ?? null,
+    activeModelVersion: activeModelVersion?.version ?? null,
+    activeModelSavedPredictionId,
+    hasSavedPredictionForActiveModel: activeModelSavedPredictionId !== null,
     result,
     savedPrediction,
     savedEvaluation,
@@ -176,6 +201,27 @@ export async function getAdminRealFixtureLabData(
     };
   }
   const warnings: string[] = [];
+  const { data: activeModelVersionData, error: activeModelVersionError } = await supabase
+    .from("model_versions")
+    .select("id, version, created_at")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (activeModelVersionError) {
+    warnings.push(`No fue posible leer la version activa del modelo: ${activeModelVersionError.message}`);
+  } else if (!activeModelVersionData) {
+    warnings.push("No active model version is configured. Internal save stays blocked until one is activated.");
+  }
+
+  const activeModelVersion = activeModelVersionData
+    ? ({
+        id: activeModelVersionData.id,
+        version: activeModelVersionData.version,
+      } satisfies RealFixtureLabActiveModelVersion)
+    : null;
+
   const fixtures = await Promise.all(
     matches.map(async (match) => {
       const [
@@ -184,6 +230,7 @@ export async function getAdminRealFixtureLabData(
         { data: awayTeamData, error: awayTeamError },
         { data: resultData, error: resultError },
         { data: savedPredictionData, error: savedPredictionError },
+        { data: activeModelSavedPredictionData, error: activeModelSavedPredictionError },
       ] = await Promise.all([
         supabase.from("competitions").select("id, name").eq("id", match.competition_id).maybeSingle(),
         supabase.from("teams").select("id, name").eq("id", match.home_team_id).maybeSingle(),
@@ -202,6 +249,18 @@ export async function getAdminRealFixtureLabData(
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
+        activeModelVersion
+          ? supabase
+              .from("prediction_versions")
+              .select("id")
+              .eq("match_id", match.id)
+              .eq("model_version_id", activeModelVersion.id)
+              .eq("prediction_type", REAL_FIXTURE_LAB_PREDICTION_TYPE)
+              .eq("run_scope", REAL_FIXTURE_LAB_RUN_SCOPE)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle()
+          : Promise.resolve({ data: null, error: null }),
       ]);
 
       if (competitionError) {
@@ -223,6 +282,12 @@ export async function getAdminRealFixtureLabData(
       if (savedPredictionError) {
         warnings.push(
           `No fue posible leer la prediccion interna guardada del fixture ${match.external_id}: ${savedPredictionError.message}`,
+        );
+      }
+
+      if (activeModelSavedPredictionError) {
+        warnings.push(
+          `No fue posible leer la prediccion guardada para el modelo activo del fixture ${match.external_id}: ${activeModelSavedPredictionError.message}`,
         );
       }
 
@@ -283,6 +348,8 @@ export async function getAdminRealFixtureLabData(
         competition: (competitionData as RealFixtureLabCompetition | null) ?? null,
         homeTeam: (homeTeamData as RealFixtureLabTeam | null) ?? null,
         awayTeam: (awayTeamData as RealFixtureLabTeam | null) ?? null,
+        activeModelVersion,
+        activeModelSavedPredictionId: activeModelSavedPredictionData?.id ?? null,
         result: (resultData as RealFixtureLabResult | null) ?? null,
         savedPrediction,
         savedEvaluation,

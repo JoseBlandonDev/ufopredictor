@@ -711,7 +711,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                         <h4 className="font-semibold text-[var(--warning)]">Internal persistence</h4>
                         {fixture.savedPrediction ? (
                           <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-[var(--muted)]">
-                            <p className="font-medium text-emerald-300">Prediccion interna ya guardada</p>
+                            <p className="font-medium text-emerald-300">Latest saved internal prediction</p>
                             <p className="mt-2">run_scope: {fixture.savedPrediction.runScope}</p>
                             <p>prediction_type: {fixture.savedPrediction.predictionType}</p>
                             <p className="font-mono text-xs">prediction_version_id: {fixture.savedPrediction.id}</p>
@@ -721,16 +721,46 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                             <p>guardada: {formatTimestamp(fixture.savedPrediction.createdAt)}</p>
                           </div>
                         ) : (
-                          <form action={saveRealFixturePredictionAction} className="mt-3 space-y-3">
-                            <input type="hidden" name="externalId" value={fixture.externalId} />
-                            <button
-                              type="submit"
-                              className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
-                            >
-                              Guardar prediccion interna
-                            </button>
-                          </form>
+                          <p className="mt-3 text-sm text-[var(--muted)]">No saved internal prediction yet.</p>
                         )}
+                        <div className="mt-3 rounded-lg border border-white/10 bg-black/10 p-3 text-sm text-[var(--muted)]">
+                          <p className="font-medium text-white">Active model context</p>
+                          {fixture.activeModelVersionId ? (
+                            <>
+                              <p className="mt-2">active_model_version: {fixture.activeModelVersion ?? fixture.activeModelVersionId}</p>
+                              <p className="font-mono text-xs">active_model_version_id: {fixture.activeModelVersionId}</p>
+                              <p>
+                                active_model_saved: {fixture.hasSavedPredictionForActiveModel ? "yes" : "no"}
+                              </p>
+                              {fixture.activeModelSavedPredictionId ? (
+                                <p className="font-mono text-xs">
+                                  active_model_prediction_version_id: {fixture.activeModelSavedPredictionId}
+                                </p>
+                              ) : null}
+                            </>
+                          ) : (
+                            <p className="mt-2 text-[var(--warning)]">
+                              No active model version is configured. Internal save stays blocked until one is activated.
+                            </p>
+                          )}
+                        </div>
+                        {fixture.activeModelVersionId ? (
+                          fixture.hasSavedPredictionForActiveModel ? (
+                            <p className="mt-3 text-xs text-[var(--muted)]">
+                              This fixture already has an internal prediction for the active model version.
+                            </p>
+                          ) : (
+                            <form action={saveRealFixturePredictionAction} className="mt-3 space-y-3">
+                              <input type="hidden" name="externalId" value={fixture.externalId} />
+                              <button
+                                type="submit"
+                                className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                              >
+                                Guardar prediccion interna para modelo activo
+                              </button>
+                            </form>
+                          )
+                        ) : null}
                         {fixture.savedPrediction ? (
                           fixture.result?.verification_status === "verified" ? (
                             fixture.savedEvaluation ? (
@@ -787,7 +817,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                           <li>Evaluation remains internal-only and depends on a verified match result.</li>
                           <li>Intended only for internal model-trial preparation.</li>
                         </ul>
-                        {!fixture.savedPrediction ? (
+                        {!fixture.hasSavedPredictionForActiveModel && fixture.activeModelVersionId ? (
                           <p className="mt-3 text-xs text-[var(--muted)]">
                             Guardado interno solamente. No publica la prediccion, no usa provider predictions y no usa odds.
                           </p>
