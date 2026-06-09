@@ -25,6 +25,11 @@ const persistRealFixtureEvaluationSchema = z.object({
   externalId: z.string().trim().min(1),
 });
 
+const verifyRealFixtureResultSchema = z.object({
+  externalId: z.string().trim().min(1),
+  matchResultId: z.string().uuid(),
+});
+
 const topScorelinesSchema = z.array(
   z.object({
     score: z.string().regex(/^\d+-\d+$/),
@@ -43,6 +48,14 @@ type EvaluationStatus =
   | "incomplete"
   | "not_evaluable"
   | "error";
+type ResultVerificationStatus =
+  | "verified"
+  | "invalid"
+  | "no_result"
+  | "already_verified"
+  | "rejected"
+  | "not_found"
+  | "error";
 
 type StoredEvaluationMarket = {
   market: "btts" | "over_2_5";
@@ -56,6 +69,10 @@ function redirectWithSaveStatus(status: SaveStatus, externalId: string): never {
 
 function redirectWithEvaluationStatus(status: EvaluationStatus, externalId: string): never {
   redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&evaluation=${status}`);
+}
+
+function redirectWithResultStatus(status: ResultVerificationStatus, externalId: string): never {
+  redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=${status}`);
 }
 
 function logRealFixtureLabSupabaseError(args: {
@@ -429,4 +446,107 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
 
   revalidatePath("/admin/real-fixture-lab");
   redirectWithEvaluationStatus(existingEvaluation ? "refreshed" : "saved", externalId);
+}
+
+export async function verifyRealFixtureResultAction(formData: FormData) {
+  const input = verifyRealFixtureResultSchema.safeParse({
+    externalId: formData.get("externalId"),
+    matchResultId: formData.get("matchResultId"),
+  });
+
+  if (!input.success) {
+    redirect(`/admin/real-fixture-lab?result=invalid`);
+  }
+
+  const { externalId, matchResultId } = input.data;
+  const { user } = await requireAdmin("/admin/real-fixture-lab");
+  const supabase = await createSupabaseServerClient();
+
+  const { data: result, error: resultError } = await supabase
+    .from("match_results")
+    .select("id, match_id, verification_status")
+    .eq("id", matchResultId)
+    .maybeSingle();
+
+  if (resultError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_match_result_for_verification",
+      table: "match_results",
+      error: resultError,
+    });
+    redirectWithResultStatus("error", externalId);
+  }
+
+  if (!result) {
+    redirectWithResultStatus("no_result", externalId);
+  }
+
+  if (result.verification_status === "verified") {
+    redirectWithResultStatus("already_verified", externalId);
+  }
+
+  if (result.verification_status === "rejected") {
+    redirectWithResultStatus("rejected", externalId);
+  }
+
+  if (result.verification_status !== "pending_review") {
+    redirectWithResultStatus("error", externalId);
+  }
+
+  const { data: match, error: matchError } = await supabase
+    .from("matches")
+    .select("id")
+    .eq("id", result.match_id)
+    .eq("external_id", externalId)
+    .eq("access_scope", "admin_only")
+    .eq("intake_source", "api_football")
+    .maybeSingle();
+
+  if (matchError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_match_for_result_verification",
+      table: "matches",
+      error: matchError,
+    });
+    redirectWithResultStatus("error", externalId);
+  }
+
+  if (!match) {
+    redirectWithResultStatus("not_found", externalId);
+  }
+
+  const verificationUpdate = {
+    verification_status: "verified" as const,
+    reviewed_at: new Date().toISOString(),
+    reviewed_by: user.id,
+  };
+
+  const { data: updatedResult, error: updateError } = await supabase
+    .from("match_results")
+    .update(verificationUpdate)
+    .eq("id", result.id)
+    .eq("match_id", result.match_id)
+    .eq("verification_status", "pending_review")
+    .select("id")
+    .maybeSingle();
+
+  if (updateError || !updatedResult) {
+    if (updateError) {
+      logRealFixtureLabSupabaseError({
+        operation: "update_match_result_verification",
+        table: "match_results",
+        error: updateError,
+      });
+    } else {
+      console.error("real_fixture_lab_result_verification_error", {
+        operation: "update_match_result_verification",
+        table: "match_results",
+        message: "Update returned no match_result row.",
+      });
+    }
+    redirectWithResultStatus("error", externalId);
+  }
+
+  revalidatePath("/admin/real-fixture-lab");
+  redirectWithResultStatus("verified", externalId);
 }

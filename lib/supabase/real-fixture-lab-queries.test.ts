@@ -48,11 +48,14 @@ describe("real fixture lab queries", () => {
         name: "Spain",
       },
       result: {
+        id: "result-1",
         home_goals: 2,
         away_goals: 0,
         verification_status: "verified",
         intake_source: "api_football",
         source_note: "verified result",
+        reviewed_at: "2026-06-10T12:30:00Z",
+        reviewed_by: "admin-1",
       },
       savedPrediction: {
         id: "prediction-1",
@@ -79,8 +82,10 @@ describe("real fixture lab queries", () => {
       homeTeamName: "Peru",
       awayTeamName: "Spain",
       result: {
+        id: "result-1",
         verification_status: "verified",
         intake_source: "api_football",
+        reviewed_by: "admin-1",
       },
       savedPrediction: {
         predictionType: "pre_match_24h",
@@ -371,11 +376,14 @@ describe("real fixture lab queries", () => {
             maybeSingle() {
               return Promise.resolve({
                 data: {
+                  id: "result-1",
                   home_goals: 2,
                   away_goals: 0,
                   verification_status: "verified",
                   intake_source: "api_football",
                   source_note: "verified result",
+                  reviewed_at: "2026-06-10T12:30:00Z",
+                  reviewed_by: "admin-1",
                 },
                 error: null,
               });
@@ -491,6 +499,91 @@ describe("real fixture lab queries", () => {
       goalError: 1,
       errorSummary: "Predicted score 1-0; actual score 2-0.",
       validatedAt: "2026-06-10T12:00:00Z",
+    });
+    expect(result.fixtures[0].result).toMatchObject({
+      id: "result-1",
+      verification_status: "verified",
+      reviewed_at: "2026-06-10T12:30:00Z",
+      reviewed_by: "admin-1",
+    });
+  });
+
+  it("reads back pending_review and rejected result states for internal UI", async () => {
+    const pendingView = mapRealFixtureLabFixtureView({
+      match: {
+        id: "match-1",
+        external_id: externalId,
+        slug: "peru-spain",
+        competition_id: "competition-1",
+        home_team_id: "team-1",
+        away_team_id: "team-2",
+        kickoff_at: "2026-06-09T02:00:00Z",
+        stage: "Friendly",
+        status: "finished",
+        access_scope: "admin_only",
+        intake_source: "api_football",
+        source_note: "tracked by ingest",
+      },
+      competition: null,
+      homeTeam: null,
+      awayTeam: null,
+      result: {
+        id: "result-pending",
+        home_goals: 2,
+        away_goals: 1,
+        verification_status: "pending_review",
+        intake_source: "api_football",
+        source_note: "api-football final score",
+        reviewed_at: null,
+        reviewed_by: null,
+      },
+      savedPrediction: null,
+      savedEvaluation: null,
+    });
+
+    const rejectedView = mapRealFixtureLabFixtureView({
+      match: {
+        id: "match-2",
+        external_id: "api-football:fixture:1540999",
+        slug: "peru-spain-rematch",
+        competition_id: "competition-1",
+        home_team_id: "team-1",
+        away_team_id: "team-2",
+        kickoff_at: "2026-06-10T02:00:00Z",
+        stage: "Friendly",
+        status: "finished",
+        access_scope: "admin_only",
+        intake_source: "api_football",
+        source_note: "tracked by ingest",
+      },
+      competition: null,
+      homeTeam: null,
+      awayTeam: null,
+      result: {
+        id: "result-rejected",
+        home_goals: 0,
+        away_goals: 0,
+        verification_status: "rejected",
+        intake_source: "api_football",
+        source_note: "manual rejection",
+        reviewed_at: "2026-06-10T18:00:00Z",
+        reviewed_by: "admin-2",
+      },
+      savedPrediction: null,
+      savedEvaluation: null,
+    });
+
+    expect(pendingView.result).toMatchObject({
+      id: "result-pending",
+      verification_status: "pending_review",
+      reviewed_at: null,
+      reviewed_by: null,
+    });
+    expect(rejectedView.result).toMatchObject({
+      id: "result-rejected",
+      verification_status: "rejected",
+      reviewed_at: "2026-06-10T18:00:00Z",
+      reviewed_by: "admin-2",
     });
   });
 });

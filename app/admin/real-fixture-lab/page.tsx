@@ -1,13 +1,17 @@
 import { requireAdmin } from "@/lib/auth/session";
 import { generatePrediction } from "@/lib/prediction-engine/generate-prediction";
 import { buildRealFixturePredictionInput } from "@/lib/prediction-engine/real-fixture-adapter";
-import { persistRealFixtureEvaluationAction, saveRealFixturePredictionAction } from "./actions";
+import {
+  persistRealFixtureEvaluationAction,
+  saveRealFixturePredictionAction,
+  verifyRealFixtureResultAction,
+} from "./actions";
 import { getAdminRealFixtureLabData } from "@/lib/supabase/real-fixture-lab-queries";
 
 export const dynamic = "force-dynamic";
 
 type RealFixtureLabPageProps = {
-  searchParams: Promise<{ externalId?: string; save?: string; evaluation?: string }>;
+  searchParams: Promise<{ externalId?: string; save?: string; evaluation?: string; result?: string }>;
 };
 
 function formatKickoff(value: string) {
@@ -142,13 +146,64 @@ function getEvaluationStatusMessage(status: string | undefined) {
   }
 }
 
+function getResultStatusMessage(status: string | undefined) {
+  switch (status) {
+    case "verified":
+      return {
+        title: "Resultado marcado como verificado",
+        body: "El match_result real quedo marcado como verified para este fixture admin_only de API-Football.",
+        tone: "success" as const,
+      };
+    case "already_verified":
+      return {
+        title: "Resultado ya verificado",
+        body: "Este match_result ya estaba marcado como verified y no requirio una nueva actualizacion.",
+        tone: "info" as const,
+      };
+    case "rejected":
+      return {
+        title: "Resultado rechazado",
+        body: "Este match_result esta marcado como rejected y no puede verificarse desde este slice.",
+        tone: "warning" as const,
+      };
+    case "no_result":
+      return {
+        title: "Resultado no disponible",
+        body: "No existe un match_result guardado para verificar este fixture real.",
+        tone: "warning" as const,
+      };
+    case "not_found":
+      return {
+        title: "Resultado fuera de alcance",
+        body: "El match_result solicitado ya no coincide con un fixture admin_only de API-Football dentro de esta ruta.",
+        tone: "warning" as const,
+      };
+    case "invalid":
+      return {
+        title: "Solicitud invalida",
+        body: "No fue posible procesar la solicitud de verificacion del resultado.",
+        tone: "warning" as const,
+      };
+    case "error":
+      return {
+        title: "No se pudo verificar el resultado",
+        body: "La operacion fallo antes de completar la verificacion interna del match_result.",
+        tone: "warning" as const,
+      };
+    default:
+      return null;
+  }
+}
+
 export default async function RealFixtureLabPage({ searchParams }: RealFixtureLabPageProps) {
   await requireAdmin("/admin/real-fixture-lab");
 
-  const { externalId, save, evaluation } = await searchParams;
+  const { externalId, save, evaluation, result } = await searchParams;
   const selectedExternalId = externalId?.trim() || null;
   const saveStatusMessage = getSaveStatusMessage(save);
   const evaluationStatusMessage = getEvaluationStatusMessage(evaluation);
+  const resultStatusMessage = getResultStatusMessage(result);
+  const statusMessage = saveStatusMessage ?? evaluationStatusMessage ?? resultStatusMessage;
   const realFixtureLabData = selectedExternalId
     ? await getAdminRealFixtureLabData({
         externalId: selectedExternalId,
@@ -169,28 +224,28 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         </p>
       </section>
 
-      {saveStatusMessage || evaluationStatusMessage ? (
+      {statusMessage ? (
         <section
           className={`panel rounded-lg border p-5 ${
-            (saveStatusMessage ?? evaluationStatusMessage)?.tone === "success"
+            statusMessage.tone === "success"
               ? "border-emerald-400/35 bg-emerald-500/10"
-              : (saveStatusMessage ?? evaluationStatusMessage)?.tone === "info"
+              : statusMessage.tone === "info"
                 ? "border-[var(--accent)]/35 bg-[var(--accent)]/10"
                 : "border-[var(--warning)]/35 bg-[var(--warning)]/10"
           }`}
         >
           <h2
             className={`text-lg font-semibold ${
-              (saveStatusMessage ?? evaluationStatusMessage)?.tone === "success"
+              statusMessage.tone === "success"
                 ? "text-emerald-300"
-                : (saveStatusMessage ?? evaluationStatusMessage)?.tone === "info"
+                : statusMessage.tone === "info"
                   ? "text-[var(--accent)]"
                   : "text-[var(--warning)]"
             }`}
           >
-            {(saveStatusMessage ?? evaluationStatusMessage)?.title}
+            {statusMessage.title}
           </h2>
-          <p className="mt-2 text-sm text-[var(--muted)]">{(saveStatusMessage ?? evaluationStatusMessage)?.body}</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">{statusMessage.body}</p>
         </section>
       ) : null}
 
@@ -330,10 +385,42 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                           </p>
                           <p>verification_status: {fixture.result.verification_status}</p>
                           <p>intake_source: {fixture.result.intake_source}</p>
+                          {fixture.result.reviewed_at ? (
+                            <p>reviewed_at: {formatTimestamp(fixture.result.reviewed_at)}</p>
+                          ) : null}
+                          {fixture.result.reviewed_by ? <p className="font-mono text-xs">reviewed_by: {fixture.result.reviewed_by}</p> : null}
                           <p>{fixture.result.source_note ?? "Sin nota de resultado."}</p>
+                          {fixture.result.verification_status === "pending_review" ? (
+                            <div className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/10 px-3 py-2 text-xs text-[var(--warning)]">
+                              Pending review interno. D05H permanece bloqueado hasta marcar este resultado como verified.
+                            </div>
+                          ) : fixture.result.verification_status === "verified" ? (
+                            <div className="rounded-md border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
+                              Resultado verificado. La evaluacion interna ya puede persistirse si existe prediccion guardada.
+                            </div>
+                          ) : (
+                            <div className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/10 px-3 py-2 text-xs text-[var(--warning)]">
+                              Resultado rechazado. Este slice no permite cambiarlo ni re-verificarlo.
+                            </div>
+                          )}
+                          {fixture.result.verification_status === "pending_review" ? (
+                            <form action={verifyRealFixtureResultAction} className="pt-1">
+                              <input type="hidden" name="externalId" value={fixture.externalId} />
+                              <input type="hidden" name="matchResultId" value={fixture.result.id} />
+                              <button
+                                type="submit"
+                                className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/15 px-3 py-2 text-sm font-medium text-[var(--warning)] transition hover:bg-[var(--warning)]/20"
+                              >
+                                Marcar resultado como verificado
+                              </button>
+                            </form>
+                          ) : null}
                         </div>
                       ) : (
-                        <p className="mt-3 text-[var(--muted)]">Aun no existe `match_result` registrado para este fixture.</p>
+                        <div className="mt-3 space-y-2 text-[var(--muted)]">
+                          <p>Aun no existe `match_result` registrado para este fixture.</p>
+                          <p className="text-xs">Sin match_result no hay accion de verificacion ni evaluacion interna disponible.</p>
+                        </div>
                       )}
                     </div>
                   </div>
