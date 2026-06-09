@@ -6,8 +6,6 @@ import { getAdminRealFixtureLabData } from "@/lib/supabase/real-fixture-lab-quer
 
 export const dynamic = "force-dynamic";
 
-const DEFAULT_EXTERNAL_ID = "api-football:fixture:1546413";
-
 type RealFixtureLabPageProps = {
   searchParams: Promise<{ externalId?: string; save?: string }>;
 };
@@ -79,11 +77,13 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
   await requireAdmin("/admin/real-fixture-lab");
 
   const { externalId, save } = await searchParams;
-  const selectedExternalId = externalId?.trim() || DEFAULT_EXTERNAL_ID;
+  const selectedExternalId = externalId?.trim() || null;
   const saveStatusMessage = getSaveStatusMessage(save);
-  const realFixtureLabData = await getAdminRealFixtureLabData({
-    externalId: selectedExternalId,
-  });
+  const realFixtureLabData = selectedExternalId
+    ? await getAdminRealFixtureLabData({
+        externalId: selectedExternalId,
+      })
+    : null;
 
   return (
     <div className="space-y-6">
@@ -127,7 +127,9 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="panel rounded-lg p-5">
           <h2 className="text-lg font-semibold">Fixture objetivo</h2>
-          <p className="mt-2 font-mono text-xs text-[var(--muted)]">{selectedExternalId}</p>
+          <p className="mt-2 font-mono text-xs text-[var(--muted)]">
+            {selectedExternalId ?? "Sin externalId seleccionado"}
+          </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             <span className="rounded-md border border-[var(--warning)]/30 bg-[var(--warning)]/10 px-2 py-1 text-[var(--warning)]">
               Internal only
@@ -138,6 +140,27 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">admin_only</span>
             <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">not public</span>
           </div>
+          <form action="/admin/real-fixture-lab" method="get" className="mt-4 space-y-3">
+            <label className="block text-sm text-[var(--muted)]" htmlFor="externalId">
+              External ID de fixture real
+            </label>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <input
+                id="externalId"
+                name="externalId"
+                type="text"
+                defaultValue={selectedExternalId ?? ""}
+                placeholder="api-football:fixture:123456"
+                className="min-w-0 flex-1 rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent)]/40"
+              />
+              <button
+                type="submit"
+                className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+              >
+                Cargar fixture
+              </button>
+            </div>
+          </form>
         </div>
 
         <div className="panel rounded-lg border border-[var(--warning)]/35 p-5">
@@ -150,12 +173,21 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         </div>
       </section>
 
-      {realFixtureLabData.status === "unavailable" ? (
+      {!selectedExternalId ? (
+        <section className="panel rounded-lg p-5">
+          <h2 className="text-lg font-semibold">Ningun fixture seleccionado</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Abre esta ruta con <code>?externalId=api-football:fixture:&lt;id&gt;</code> o carga un
+            external id desde el formulario para revisar un fixture real <code>admin_only</code> de
+            API-Football.
+          </p>
+        </section>
+      ) : realFixtureLabData?.status === "unavailable" ? (
         <section className="panel rounded-lg border border-[var(--warning)]/35 p-5">
           <h2 className="text-lg font-semibold">Datos no disponibles</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">{realFixtureLabData.message}</p>
         </section>
-      ) : realFixtureLabData.fixtures.length === 0 ? (
+      ) : realFixtureLabData && realFixtureLabData.fixtures.length === 0 ? (
         <section className="panel rounded-lg p-5">
           <h2 className="text-lg font-semibold">Fixture no encontrado</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
@@ -171,7 +203,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
               lectura admin
             </span>
           </div>
-          {realFixtureLabData.warnings.length > 0 ? (
+          {realFixtureLabData?.warnings.length ? (
             <div className="mt-4 rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4">
               <h3 className="text-sm font-semibold text-[var(--warning)]">Lectura parcial</h3>
               <ul className="mt-2 space-y-2 text-sm text-[var(--muted)]">
@@ -182,7 +214,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             </div>
           ) : null}
           <div className="mt-4 space-y-4">
-            {realFixtureLabData.fixtures.map((fixture) => {
+            {realFixtureLabData?.fixtures.map((fixture) => {
               const predictionInput = buildRealFixturePredictionInput(fixture);
               const preview = generatePrediction(predictionInput);
 
