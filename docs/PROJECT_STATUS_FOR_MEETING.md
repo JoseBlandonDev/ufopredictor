@@ -1,81 +1,62 @@
-# Project Status for Meeting — UFO Predictor
+# UFO Predictor — Project Status for Meeting
 
-_Last updated after D05G / Real Fixture Lab validation._
+Last refreshed: after PR #40.
 
-## Executive summary
+## Summary
 
-UFO Predictor now has a validated internal path for testing predictions on real API-Football fixtures without exposing anything publicly.
+UFO Predictor has completed the Real Fixture Lab single-fixture foundation and is ready for a pre-World-Cup pilot with 3-5 exact friendly fixtures.
 
-The team can now:
+The project is not ready as a full public/paid product yet, but it has the internal pieces needed to test predictions, verify results, and persist evaluations.
 
-1. Discover a real fixture from API-Football.
-2. Ingest exactly one selected friendly under strict guardrails.
-3. Store it as `admin_only`.
-4. Open it in Real Fixture Lab.
-5. Generate an internal prediction preview.
-6. Save an internal prediction and markets.
+## Completed recently
 
-The first validated real-friendly trial was:
+- Real Fixture Lab evaluation persistence.
+- Result verification lane.
+- Exact friendly post-match result ingest guard.
+- Runtime partial trial on Peru vs Spain fixture.
 
-- Peru vs Spain.
-- `api-football:fixture:1540356`.
-- Stored as `admin_only`.
-- Prediction saved internally with model `v0.1`.
-- Markets saved internally.
-- No result/evaluation persisted yet.
-- No public exposure.
+## Current state
 
-## What was completed
+D05 is functionally complete.
 
-### Ingest tracking
+Epic D remains active with D06 next.
 
-- Added durable apply tracking.
-- Every real apply creates `ingest_runs` and `ingest_run_items`.
-- Supports audit and future rollback design.
+D06 will operate a small friendly pilot to validate:
 
-### Real Fixture Lab
+- ingest;
+- prediction save;
+- result ingest;
+- result verification;
+- evaluation persistence;
+- model error capture.
 
-- New admin-only surface for real fixtures.
-- Supports prediction preview.
-- Supports internal prediction save.
-- Does not publish predictions.
+## Biggest risks
 
-### Controlled friendly ingest
+- Too little time before World Cup.
+- Roadmap drift if documentation is not rebaselined.
+- Model v0.1 may need fast calibration.
+- Payment provider/paywall still undecided.
+- Public World Cup launch scope not yet designed.
 
-- Added exact `fixtureId` ingest path.
-- Avoids broad friendly ingestion.
-- Validated on one selected friendly.
+## Payment note
 
-## Current risk controls
+Stripe is not assumed.
 
-Still blocked:
+MVP 1 monetization should use PayPal or a selected available gateway and likely start with one-time packages/tournament pass rather than recurring subscriptions.
 
-- Broad friendlies apply.
-- World Cup apply.
-- Odds.
-- Provider predictions.
-- Public exposure.
-- `prediction_results` until result is verified/reviewed.
+## Parallel contributor plan
 
-## Current limitations
+If a second person joins:
 
-- Model input signals may still be default/neutral in some areas.
-- The saved Peru vs Spain prediction validates the pipeline, not full model performance.
-- Result/evaluation workflow is not implemented yet.
-- Rollback is manual/script-reviewed, not automatic.
+- Jonathan continues Epic D / D06 / model / API-Football.
+- Second contributor should start Epic G discovery/design: auth, paywall, payment gateway.
 
-## Recommended next milestone
+Alternative second contributor lane: public UX/trust copy.
 
-Post-match evaluation:
+## Next actions
 
-- Wait for result.
-- Verify/review result.
-- Evaluate saved prediction internally.
-- Persist `prediction_results` internally.
-- Keep everything admin-only.
-
-## Meeting talking point
-
-The project moved from “can we ingest real fixtures safely?” to “can we evaluate internal predictions against real outcomes?”
-
-That is the next milestone.
+1. Finish docs roadmap rebaseline.
+2. Start D06 candidate discovery.
+3. Select 3-5 friendlies.
+4. Run internal pilot.
+5. Use pilot evidence to decide MVP 1 launch scope.

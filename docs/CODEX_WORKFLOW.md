@@ -1,133 +1,124 @@
-# Codex Workflow — UFO Predictor
+# Codex Workflow â€” UFO Predictor
 
-_Last updated after D05G / Real Fixture Lab validation._
+Last refreshed: after PR #40.
 
-## Codex role
+## Role split
 
-Codex is used as:
+ChatGPT plans, reviews, and coordinates.
+Codex inspects and implements locally when explicitly instructed.
+The user executes manual SQL, commits, pushes, PRs, and merges unless explicitly stated otherwise.
+Docs refresh workflow: ChatGPT drafts/generates approved docs refreshes, the user manually copies them into docs/, and Codex reviews docs-only unless explicitly asked to edit.
 
-- repo inspector;
-- narrow implementer;
-- validator;
-- terminal/repo auditor.
+## Language rule
 
-Codex is not the owner of broad documentation refresh unless explicitly instructed.
+Prompts to Codex must be in English.
+User-facing guidance may be in Spanish.
 
-## Prompt language rule
+## Default recognition prompt constraints
 
-All prompts intended for Codex must be written in English.
+Unless an implementation prompt explicitly says otherwise, Codex must:
 
-This applies even if the user and ChatGPT are discussing the project in Spanish.
+- not modify files;
+- not commit;
+- not push;
+- not open PRs;
+- not run SQL;
+- not apply migrations;
+- not perform DB writes;
+- not run `--apply true`.
 
-Reason:
+## Branch discipline
 
-- English prompts reduce ambiguity in commands, file paths, branch names, migration names, and validation instructions.
-- Codex reports and code execution are easier to keep consistent in English.
+Never work directly on `main`.
 
-Required pattern:
+### Start new task
 
-1. ChatGPT explains strategy to the user in the user's language.
-2. ChatGPT provides the final Codex prompt in English.
-3. The Codex prompt must include:
-   - exact scope;
-   - no-go boundaries;
-   - files to inspect/change;
-   - validation commands;
-   - expected report format;
-   - explicit “do not push / do not PR” unless approved.
-
-## Standard no-go lines for Codex prompts
-
-Use as needed:
-
-```text
-Do not run SQL.
-Do not apply migrations.
-Do not run DB writes.
-Do not run `--apply true`.
-Do not push.
-Do not open a PR.
-Do not touch public views.
-Do not touch provider predictions or odds.
-Do not persist prediction_results unless explicitly approved.
+```bash
+git checkout main
+git pull origin main
+git status --short
+git checkout -b feature/<real-task-name>
+git status --short
+git branch --show-current
 ```
 
-## Migration workflow
+Use real branch names. Do not copy placeholders literally.
 
-For DB/RLS changes:
+### After PR merge
 
-1. Recognition/design first.
-2. Draft migration only.
-3. Review SQL.
-4. Manual apply in Supabase SQL Editor.
-5. SQL validation.
-6. App validation.
-7. Commit local migration file.
+```bash
+git checkout main
+git pull origin main
+git status --short
+git log --oneline -5
+git branch -d <merged-branch>
+git push origin --delete <merged-branch>
+git status --short
+```
 
-Do not let Codex apply migrations automatically unless explicitly instructed.
+If remote branch deletion says `remote ref does not exist`, it usually means GitHub already deleted it. Not a blocker.
 
-## Apply workflow
+Then create the next real task branch from updated `main`.
 
-For API-Football ingest applies:
+## PR policy
 
-1. Read-only inspection.
-2. Dry-run.
-3. Review output.
-4. Explicit approval for apply.
-5. Apply command with strict flags.
-6. SQL validation.
-7. Public exposure validation.
+No PR for every micro-step.
+Yes PR for a complete functional slice.
 
-Never skip dry-run.
+A functional slice usually includes:
 
-## Documentation workflow
+- code + tests;
+- migration + app path;
+- docs-only roadmap refresh;
+- or a self-contained operational guard.
 
-Preferred process:
+## Migration policy
 
-1. Codex recognizes repo state.
-2. ChatGPT generates documentation refresh.
-3. User applies/replaces docs.
-4. Codex validates docs against repo state.
-5. Commit docs.
+Only one migration-producing branch should be active unless migration numbers are reserved.
 
-Do not ask Codex to rewrite broad docs unless needed.
+Before creating a migration:
 
-## Validation commands
+1. inspect latest migration number;
+2. reserve the next number in chat/project coordination;
+3. do not duplicate migration numbers across branches;
+4. user manually applies reviewed migrations.
 
-For code changes:
+## Parallel contributor rules
+
+If more than one person works on UFO Predictor:
+
+- Jonathan owns Epic D/D06/D07, API-Football, Real Fixture Lab, model/evaluation.
+- Second contributor should preferably own Epic G auth/paywall/payment gateway, or Epic F public UX/trust layer.
+- Avoid touching the same files in parallel.
+- Avoid mixing epics in one PR.
+- Coordinate migrations.
+
+## Payment provider rule
+
+Do not assume Stripe.
+
+Current MVP 1 assumption:
+
+- PayPal or selected available/local gateway;
+- one-time tournament pass or package for World Cup;
+- recurring subscriptions can be considered post-World-Cup.
+
+## Validation
+
+For implementation:
 
 ```bash
 git diff --check
 npm run test
 npm run lint
 npm run build
-git status --short
 ```
 
-If build modifies `next-env.d.ts`:
+Run targeted tests first where helpful. Restore `next-env.d.ts` if build modifies it unexpectedly.
+
+For docs-only:
 
 ```bash
-git restore next-env.d.ts
+git diff --check
 git status --short
 ```
-
-## Current project-specific caution
-
-RLS recursion has occurred multiple times in this branch. For future RLS changes:
-
-- Avoid inline policy subqueries that can re-enter the same table.
-- Use narrow `security definer` boolean helpers where needed.
-- Helpers must return boolean only.
-- Helpers must use `search_path=public`.
-- Helpers must not expose row data.
-
-## Current ingest caution
-
-D05G enables only exact single-friendly ingest.
-
-It does not authorize:
-
-- broad friendlies apply;
-- World Cup apply;
-- batch friendlies;
-- public exposure.

@@ -1,107 +1,127 @@
-# Next Epics Plan — UFO Predictor
+# UFO Predictor — Next Epics Plan
 
-_Last updated after Real Fixture Lab Phase 3A and D05G validation._
+Last refreshed: after PR #40.
 
-## Immediate next epic: Real Fixture Lab Post-Match Evaluation
+This document defines the next executable blocks. It is intentionally shorter than `ROADMAP_AND_BACKLOG.md`.
 
-### Objective
+## Current next block
 
-Close the internal trial loop by evaluating a saved internal prediction after the real match result is available and trusted.
+### D06 — Friendly Pilot / Calibration Batch
 
-Current validated input:
+Status: next active block.
 
-- Fixture: `api-football:fixture:1540356`.
-- Match: Peru vs Spain.
-- Saved internal prediction exists.
-- Prediction markets exist.
-- `prediction_results` remains empty.
+Goal: select and operate 3-5 exact adult national-team friendly fixtures before the World Cup to validate the full internal loop and model v0.1.
 
-### Scope
+D06 starts read-only and no-code unless evidence shows a gap.
 
-In scope:
+## D06 sequence
 
-- Read actual result for the ingested match.
-- Decide result trust/verification policy.
-- Evaluate prediction internally.
-- Persist `prediction_results` internally.
-- Keep all outputs admin-only.
+### D06A — Candidate discovery
 
-Out of scope:
+Read-only discovery of pre-World-Cup friendlies.
 
-- Public prediction exposure.
-- Premium exposure.
-- Odds.
-- Provider predictions.
-- Batch friendlies.
-- World Cup apply.
+Command pattern:
 
-### Proposed phases
+```bash
+npm run spike:api-football -- --mode beta-candidates --competition friendlies --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 20 --prioritize true --report true
+```
 
-#### E01 — result recognition
+### D06B — Pilot matrix selection
 
-- Inspect whether result exists.
-- Inspect `match_results.verification_status`.
-- Inspect current evaluation helpers and Beta Lab patterns.
-- No writes.
+Select 3-5 exact fixtures.
 
-#### E02 — result trust design
+Criteria:
 
-Decide whether evaluation requires:
+- adult national-team friendlies;
+- before World Cup official matches;
+- enough time before kickoff to save prediction;
+- API-Football coverage looks normal;
+- exact fixture ID available;
+- not already finished for pre-match prediction;
+- varied teams/styles if possible.
 
-- `verification_status='verified'`.
-- manual admin review.
-- provider result with pending review.
+### D06C — Pre-match operation
 
-Recommended default:
+For each fixture:
 
-- block evaluation unless result is trusted/verified.
+```bash
+npm run spike:api-football -- --mode fixture --fixtureId <providerFixtureId>
+npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --report true
+```
 
-#### E03 — internal evaluation persistence
+Only after review/approval:
 
-Implement minimal admin-only action:
+```bash
+npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --apply true --report true
+```
 
-- load saved `prediction_version`.
-- load markets if needed.
-- load trusted result.
-- run evaluation.
-- persist `prediction_results`.
+Then save internal prediction in `/admin/real-fixture-lab`.
 
-#### E04 — validation
+### D06D — Post-match operation
 
-Validate:
+After final score exists:
 
-- one result row.
-- one evaluation row.
-- no public exposure.
-- duplicate evaluation blocked.
+- exact post-match dry-run;
+- exact guarded apply;
+- verify result;
+- persist/refresh evaluation;
+- capture readback.
 
-## Later epic: controlled World Cup ingest design
+### D06E/F — Evidence and model review
 
-Do not start until Real Fixture Lab evaluation is validated.
+Capture:
 
-Likely work:
+- winner correctness;
+- BTTS correctness;
+- over/under correctness;
+- exact score correctness;
+- goal error;
+- confidence/risk notes;
+- failure patterns.
 
-- World Cup target recognition.
-- Controlled dry-run only.
-- Exact-fixture or narrow round-based guardrails.
-- No public exposure until product decision.
+## After D06
 
-## Later epic: model signal quality
+### D07 — Emergency Model Calibration
 
-Current v0.1 pipeline may rely on neutral/default inputs.
+Use D06 evidence to decide minimum viable model changes before World Cup launch.
 
-Future work:
+No large model rewrite before pilot evidence.
 
-- Add stronger team strength inputs.
-- Add recent form.
-- Add context signals.
-- Keep odds/provider predictions out of scope.
+### D08 — Minimum Launch Polish
 
-## Blocked epics
+Fix only the admin/public UI pieces that block useful MVP 1 launch.
 
-- Broad friendlies apply.
-- Public prediction product launch from Lab outputs.
-- Premium/payments surface changes.
-- Cron/worker automation.
-- Provider predictions.
-- Odds.
+### Epic E/F/G — MVP 1 launch preparation
+
+After MVP 0 evidence:
+
+- Epic E — World Cup Data & Prediction Launch.
+- Epic F — Public Experience & Trust Layer.
+- Epic G — Auth, Paywall, and One-Time Payment Gateway Slice.
+
+Payment note:
+
+- Do not assume Stripe.
+- Use PayPal or selected payment gateway.
+- For the World Cup, prefer one-time package / tournament pass over recurring subscription complexity.
+
+## Parallel work recommendation
+
+If another contributor joins:
+
+- Jonathan continues D06/D07.
+- Second contributor starts G01/G02/G04 recognition/design or F01/F03 public UX/trust layer.
+
+Recognition/design first. No payment implementation without plan review.
+
+## Current no-go list
+
+- no broad friendlies apply;
+- no World Cup apply yet;
+- no provider predictions;
+- no odds;
+- no public exposure of Lab outputs;
+- no workers before manual pilot evidence;
+- no service-role app routes;
+- no manual result creation UI;
+- no score-editing UI.

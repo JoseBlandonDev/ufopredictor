@@ -1,293 +1,179 @@
-# Track D API-Football Handoff
+# Track D — API-Football / Real Fixture Lab Handoff
 
-_Last updated after D05F ingest tracking and D05G controlled single-friendly ingest validation._
+Last refreshed: after PR #40.
 
-## Scope of Track D
+## Purpose
 
-Track D covers API-Football integration for UFO Predictor:
+Track D validates real football data ingestion, internal prediction workflows, result verification, and evaluation before broad World Cup launch.
 
-- Provider read spikes.
-- Fixture planning.
-- Controlled ingest.
-- Apply guardrails.
-- Internal fixture validation.
-- Auditability and rollback posture.
+Track D is currently MVP 0: Pre-World-Cup Calibration Lab.
 
-Track D does not currently include:
+## Completed D05 loop
 
-- Provider predictions.
-- Odds.
-- Public prediction exposure.
-- World Cup apply.
-- Broad friendlies apply.
-- Automated cron/workers.
+D05 is the controlled single-fixture Real Fixture Lab loop.
 
-## Current Track D status
+### D05F — Ingest run tracking
 
-Completed:
+Delivered:
 
-- API-Football read spike foundation.
-- D05A ingestion/persistence blueprint.
-- D05B migration enablement.
-- D05C controlled Colombia apply.
-- D05F ingest run tracking.
-- D05G controlled single-friendly ingest.
+- `ingest_runs`;
+- `ingest_run_items`;
+- before/after snapshots;
+- apply evidence.
 
-Validated:
+### D05G — Exact friendly pre-match ingest
 
-- Colombia controlled apply with idempotency.
-- Single-friendly exact apply for Peru vs Spain.
-- Real Fixture Lab internal prediction persistence on an ingested friendly.
+Delivered:
 
-## D05F — ingest run tracking
+- exact `--fixtureId` friendlies ingest;
+- `limit=1`;
+- scheduled fixture path;
+- `admin_only + api_football` defaults;
+- broad friendlies blocked.
 
-### Migration
+### D05H — Evaluation persistence
 
-`supabase/migrations/0018_ingest_run_tracking.sql`
+Delivered:
 
-Adds:
+- migration `0023_real_fixture_lab_evaluation_persistence_policies.sql`;
+- admin-only `prediction_results` persistence;
+- saved evaluation readback;
+- no public exposure.
 
-- `public.ingest_runs`.
-- `public.ingest_run_items`.
+### D05I — Result verification
 
-### `ingest_runs`
+Delivered:
 
-Durable run header for real apply executions.
+- migration `0024_real_fixture_lab_match_result_review_policies.sql`;
+- admin-only verification action;
+- `pending_review -> verified` for existing API-Football results;
+- no score editing;
+- no result creation.
 
-Important fields:
+### D05J — Runtime partial trial
 
-- `provider`.
-- `competition_key`.
-- `provider_league_id`.
-- `from_date`.
-- `to_date`.
-- `limit_value`.
-- `apply_mode`.
-- `run_tag`.
-- `source_note`.
-- `status`.
-- `started_at` / `finished_at`.
-- `fetched_fixtures_count`.
-- `planned_fixtures_count`.
-- `counts_summary`.
-- `warnings_summary`.
-- `errors_summary`.
-- `cli_args`.
+Fixture:
 
-### `ingest_run_items`
+- `api-football:fixture:1540356`;
+- Peru vs Spain.
 
-Row-level audit/snapshot table.
+Observed:
 
-Important fields:
+- fixture loaded;
+- scope `admin_only + api_football`;
+- saved prediction visible;
+- no `match_results` row;
+- verification unavailable;
+- evaluation blocked.
 
-- `run_id`.
-- `entity_table`.
-- `entity_id`.
-- `entity_external_id`.
-- `entity_natural_key`.
-- `action`.
-- `before_snapshot`.
-- `after_snapshot`.
-- `skip_reason`.
-- `error_message`.
+Result: partial pass. Missing runtime result data, not system failure.
 
-Actions:
+### D05K — Exact friendly post-match result ingest guard
 
-- `created`.
-- `updated`.
-- `skipped`.
-- `error`.
+Delivered:
 
-Policy:
+- exact scheduled friendly still allowed with zero planned results;
+- exact finished friendly now allowed only with exactly one planned `pending_review` result write;
+- still blocks broad friendlies;
+- still blocks World Cup apply;
+- no provider predictions;
+- no odds;
+- no public exposure.
 
-- `updated` items require `before_snapshot`.
-- `created` items do not need `before_snapshot`.
-- `after_snapshot` is used where available.
+## D06 — Friendly Pilot / Calibration Batch
 
-### Current rollback posture
+Status: next active Track D block.
 
-Rollback remains manual/script-reviewed.
+Goal: operate 3-5 exact adult national-team friendlies.
 
-D05F provides:
+### D06A — Candidate discovery
 
-- Which run touched which rows.
-- Which rows were created.
-- Before-state for updated rows.
-- Enough metadata to design rollback tooling later.
+Read-only candidate command:
 
-D05F does not yet provide:
+```bash
+npm run spike:api-football -- --mode beta-candidates --competition friendlies --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 20 --prioritize true --report true
+```
 
-- One-click rollback.
-- UI rollback.
-- Automated transaction-level reversal.
-- Full plan-level skipped fixture item coverage.
+### D06B — Exact fixture inspection
 
-## D05G — controlled single-friendly ingest
+```bash
+npm run spike:api-football -- --mode fixture --fixtureId <providerFixtureId>
+```
 
-D05G adds a narrow lane for ingesting exactly one selected friendly fixture.
-
-### Why D05G was needed
-
-Real Fixture Lab needs real future fixtures persisted as `admin_only` before internal predictions can be saved.
-
-A league/date `limit=1` dry-run was not enough because it depended on provider ordering. D05G added exact `fixtureId` support so a chosen fixture can be fetched and planned directly.
-
-### Supported command shape
-
-Dry-run:
+### D06C — Exact pre-match dry-run
 
 ```bash
 npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --report true
 ```
 
-Apply, only after manual approval:
+Only after review/approval:
 
 ```bash
 npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --apply true --report true
 ```
 
-### D05G guardrails
+### D06D — Post-match exact result ingest
 
-Friendlies apply is allowed only when all are true:
+Use the same exact command shape after final score exists.
 
-- `competition=friendlies`.
-- `fixtureId` is explicitly provided.
-- `limit=1`.
-- `from` is provided.
-- `to` is provided.
-- Exact fixture fetch returns one fixture.
-- Fixture belongs to the API-Football Friendlies target.
-- Fixture kickoff is inside the requested date window.
-- Planned match count is exactly one.
-- Planned fixture id matches the requested `fixtureId`.
-- Planned match status is `scheduled`.
-- `matchResultPlans.length=0`.
-- Planned match `accessScope=admin_only`.
-- Planned match `intakeSource=api_football`.
+Expected post-match plan:
+
+- one planned match;
+- one planned `match_results` row;
+- `verification_status='pending_review'`;
+- `intake_source='api_football'`.
+
+Then:
+
+- verify result in Real Fixture Lab;
+- persist/refresh evaluation;
+- capture `prediction_results` readback.
+
+## D06 pilot matrix columns
+
+Recommended columns:
+
+- pilot_slot;
+- provider_fixture_id;
+- external_id;
+- teams;
+- kickoff_utc;
+- kickoff_local;
+- league;
+- pre_match_ingest_dry_run_ok;
+- pre_match_apply_done;
+- match_id_visible;
+- saved_prediction;
+- prediction_version_id;
+- model_version;
+- post_match_result_dry_run_ok;
+- post_match_apply_done;
+- match_result_id;
+- match_result_status_before_review;
+- result_verified;
+- reviewed_at;
+- reviewed_by;
+- evaluation_persisted;
+- evaluation_refreshed;
+- winner_correct;
+- btts_correct;
+- over_2_5_correct;
+- exact_score_correct;
+- goal_error;
+- error_summary;
+- internal_notes;
+- public_exposure_check.
+
+## Guardrails
 
 Still blocked:
 
-- Friendlies without `fixtureId`.
-- Friendlies with `limit > 1`.
-- Broad friendlies date-window apply.
-- `competition=all` apply.
-- World Cup apply.
-- Copa Colombia apply/defaults.
-- Provider predictions.
-- Odds.
-- Public views.
-
-## Validated friendly: Peru vs Spain
-
-### Candidate selection
-
-Read-only shortlist command:
-
-```bash
-npm run spike:api-football -- --mode beta-candidates --competition friendlies --from 2026-06-08 --to 2026-06-18 --limit 20 --prioritize true --report true
-```
-
-Selected candidate:
-
-- Provider fixture id: `1540356`.
-- External id: `api-football:fixture:1540356`.
-- Teams: Peru vs Spain.
-- League: Friendlies (`10`).
-- Kickoff: `2026-06-09T02:00:00+00:00`.
-- Status before ingest: scheduled.
-
-Exact fixture read:
-
-```bash
-npm run spike:api-football -- --mode fixture --fixtureId 1540356
-```
-
-### D05G exact dry-run
-
-```bash
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --report true
-```
-
-Validated expected output:
-
-- `fixtures_scanned=1`.
-- `fixtures_planned=1`.
-- `competitions=1`.
-- `seasons=1`.
-- `teams=2`.
-- `matches=1`.
-- `match_results=0`.
-- Match status: `scheduled`.
-- Access scope: `admin_only`.
-- Intake source: `api_football`.
-- Venue id: `null`.
-- No DB reads/writes in dry-run.
-
-### D05G apply
-
-Manually approved apply:
-
-```bash
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --apply true --report true
-```
-
-Observed apply result:
-
-- `ingest_run_id` emitted.
-- `competition_key=friendlies`.
-- `fetched_fixtures=1`.
-- `planned_fixtures=1`.
-- `competitions created=1`.
-- `seasons created=1`.
-- `teams created=2`.
-- `matches created=1`.
-- `match_results created=0`.
-
-Validated SQL outcomes:
-
-- `ingest_runs.status='completed'`.
-- `errors_summary is null`.
-- `ingest_run_items` contained:
-  - `competitions created=1`.
-  - `seasons created=1`.
-  - `teams created=2`.
-  - `matches created=1`.
-- `matches.external_id='api-football:fixture:1540356'` exists.
-- `matches.access_scope='admin_only'`.
-- `matches.intake_source='api_football'`.
-- `public_match_details` returns `0 rows` for the friendly.
-- No `match_results` row exists for the scheduled fixture.
-
-## Interaction with Real Fixture Lab
-
-After ingest, the fixture is available at:
-
-```txt
-/admin/real-fixture-lab?externalId=api-football:fixture:1540356
-```
-
-The Lab can:
-
-- Read the fixture.
-- Show fixture metadata.
-- Show current result state as empty/unavailable.
-- Generate an in-memory prediction preview.
-- Save one internal prediction.
-
-The Lab cannot yet:
-
-- Evaluate the prediction after the result.
-- Persist `prediction_results`.
-- Publish the prediction.
-- Use provider predictions or odds.
-
-## Next Track D work
-
-Recommended next Track D adjacent phase:
-
-1. Wait for a result for the validated friendly.
-2. Decide how result review/verification should work.
-3. Design internal evaluation persistence into `prediction_results`.
-4. Keep evaluation admin-only/internal.
-
-Do not proceed directly to broad friendlies or World Cup apply.
+- broad friendlies apply;
+- World Cup apply;
+- provider predictions;
+- odds;
+- public exposure;
+- service-role in app routes;
+- score-editing UI;
+- manual result creation UI;
+- workers before manual pilot evidence.

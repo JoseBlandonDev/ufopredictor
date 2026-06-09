@@ -1,164 +1,113 @@
-# Current Project Status — UFO Predictor
+# UFO Predictor — Current Project Status
 
-_Last updated: after D05F ingest tracking, D05G controlled single-friendly ingest, and Real Fixture Lab Phase 3A validation._
+Last refreshed: after PR #40.
 
-## Current branch baseline
+## Executive status
 
-- Active working branch: `feature/d05f-ingest-run-tracking-clean`.
-- Working tree was confirmed clean before the documentation refresh.
-- The branch is ahead of `origin/main` with the D05F, Real Fixture Lab, RLS, and D05G commits.
-- This branch should not be pushed or opened as a PR until the documentation refresh is reviewed and committed.
+UFO Predictor has completed the core Real Fixture Lab single-fixture loop and is ready to move into a controlled friendly pilot before the World Cup.
 
-## Current validated state
+The project is not complete. It is now in a focused MVP-stage plan:
 
-UFO Predictor now has a full internal real-fixture trial path:
+- MVP 0: pre-World-Cup calibration lab.
+- MVP 1: World Cup launch MVP.
+- MVP 1.5: live World Cup iteration.
+- MVP 2: post-World-Cup recurring product.
 
-```txt
-API-Football exact fixture read
--> controlled single-fixture ingest
--> admin_only match persistence
--> Real Fixture Lab read surface
--> in-memory prediction preview
--> internal prediction_versions + prediction_markets persistence
-```
+## Completed foundation epics
 
-This path was validated using the friendly fixture:
+### Epic A — Project foundation
 
-- Provider fixture id: `1540356`.
-- UFO external id: `api-football:fixture:1540356`.
-- Fixture: Peru vs Spain.
-- Competition: API-Football Friendlies, league id `10`.
-- Kickoff: `2026-06-09T02:00:00+00:00`.
-- Match state at ingest: `scheduled`.
-- Persisted match scope: `admin_only`.
-- Persisted intake source: `api_football`.
-- `public_match_details` exposure: `0 rows`.
-- `match_results` created at ingest: `0 rows`.
-- Internal prediction saved: yes.
-- `prediction_versions`: one internal row for `run_scope='internal_lab'` and `prediction_type='pre_match_24h'`.
-- `prediction_markets`: internal market rows persisted with `is_premium=false`.
-- `prediction_results`: still empty for this fixture.
+Status: complete.
 
-## Completed in this block
+Covered repository setup, app foundation, Supabase base, early architecture, and documentation structure.
 
-### D05F — ingest run tracking
+### Epic B — Public prediction foundation
 
-D05F is functionally complete for the current controlled apply flow.
+Status: complete.
 
-Implemented:
+Covered public match/prediction structures, presentation boundaries, and anonymous-safe read patterns.
 
-- Migration `0018_ingest_run_tracking.sql`.
-- `ingest_runs` durable run header table.
-- `ingest_run_items` row-level audit/snapshot table.
-- Writer integration for real apply runs.
-- Per-entity item tracking for created/updated/skipped/error outcomes.
-- `before_snapshot` for updated rows.
-- `after_snapshot` where available.
-- Run status transitions: `started`, `completed`, `failed`.
-- CLI output includes `ingest_run_id`.
+### Epic C — Registered and premium foundation
 
-Validated:
+Status: complete.
 
-- First tiny Colombia apply and idempotency rerun.
-- Single-friendly apply for Peru vs Spain.
-- `ingest_runs` rows created and completed.
-- `ingest_run_items` rows created as expected.
+Covered registered saved matches, premium skeleton, projection UI, free/premium access foundations, and transparency/product copy.
 
-Known limitation:
+## Epic D — Real Data & Calibration Lab
 
-- Rollback remains manual/script-reviewed, not automatic.
-- Plan-level skipped fixtures are not yet persisted as first-class `ingest_run_items` rows.
+Status: in progress.
 
-### Real Fixture Lab Phase 1/2/3A
+Purpose: validate the real-data prediction loop before broad World Cup ingestion or public launch.
 
-Implemented:
+### D05 — Real Fixture Lab controlled single-fixture loop
 
-- New admin route: `/admin/real-fixture-lab`.
-- Reads real API-Football fixtures from the app using session-scoped Supabase client and RLS.
-- Requires admin app auth.
-- Only reads fixtures where:
-  - `matches.access_scope = 'admin_only'`.
-  - `matches.intake_source = 'api_football'`.
-- No service-role usage inside app routes.
-- Selection by URL query param:
-  - `/admin/real-fixture-lab?externalId=api-football:fixture:<id>`.
-- Removed stale hardcoded fallback to the old Colombia final fixture.
-- Real-fixture adapter to `MatchPredictionInput`.
-- In-memory preview using the existing prediction engine.
-- Server action to persist one internal prediction.
-- Duplicate-create blocking.
-- Active model version selection.
-- Persistence into:
-  - `prediction_versions`.
-  - `prediction_markets`.
-- No `prediction_results` persistence in Phase 3A.
+Status: functionally complete.
 
-RLS migrations:
+Delivered:
 
-- `0019_real_fixture_lab_admin_read_policies.sql`.
-- `0020_fix_real_fixture_lab_rls_recursion.sql`.
-- `0021_real_fixture_lab_prediction_persistence_policies.sql`.
-- `0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql`.
+- ingest run tracking and snapshots;
+- exact `--fixtureId` friendly ingest before match;
+- Real Fixture Lab admin route;
+- internal prediction persistence;
+- post-match result verification lane;
+- internal evaluation persistence into `prediction_results`;
+- saved evaluation readback;
+- exact friendly post-match result ingest guard.
 
-### D05G — controlled single-friendly ingest
+Recent merged PRs:
 
-Implemented:
+- PR #38 — `feat: persist real fixture lab evaluations`.
+- PR #39 — `feat: add real fixture result verification`.
+- PR #40 — `feat: allow exact friendly post-match result ingest`.
 
-- `--mode ingest-dry-run` now accepts `--fixtureId`.
-- If `--fixtureId` is provided, the script fetches the exact fixture directly.
-- It no longer depends on API-Football league/date ordering plus `limit=1`.
-- Narrow apply lane for `friendlies` only when all required guardrails are satisfied.
+D05J runtime trial:
 
-Validated dry-run:
+- fixture: `api-football:fixture:1540356`;
+- teams: Peru vs Spain;
+- fixture loaded in `/admin/real-fixture-lab`;
+- scope remained `admin_only + api_football`;
+- saved internal prediction was visible;
+- no `match_results` row existed;
+- verification correctly unavailable;
+- evaluation correctly blocked.
 
-```bash
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --report true
-```
+Result: partial pass, blocked by missing runtime result data, not by system failure.
 
-Validated apply:
+### D06 — Friendly Pilot / Calibration Batch
 
-```bash
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --apply true --report true
-```
+Status: next active block.
 
-Expected and observed apply behavior:
+Goal: operate 3-5 exact pre-World-Cup friendlies through the internal loop.
 
-- `fixtures_scanned=1`.
-- `fixtures_planned=1`.
-- `competitions created=1`.
-- `seasons created=1`.
-- `teams created=2`.
-- `matches created=1`.
-- `match_results created=0`.
-- `ingest_run_id` emitted.
-- `public_match_details` remains closed.
+D06 begins no-code/read-only:
 
-## Still blocked / no-go
+- discover candidate friendlies;
+- select 3-5 exact fixtures;
+- build a pilot matrix;
+- then operate pre-match and post-match flows fixture by fixture.
 
-These remain explicitly out of scope:
+## Payment/monetization status
 
-- No broad friendlies apply.
-- No World Cup apply.
-- No Copa Colombia apply/defaults.
-- No `all` apply.
-- No provider predictions.
-- No odds.
-- No public exposure of Real Fixture Lab predictions.
-- No `prediction_results` until result review/evaluation is explicitly designed.
-- No service-role client in app routes.
-- No cron/workers.
-- No payments/premium expansion from this Lab path.
+Payments are not implemented yet.
 
-## Next recommended phase
+Important planning decision:
 
-Next: Real Fixture Lab post-match evaluation phase.
+- do not assume Stripe;
+- MVP 1 should use PayPal or another selected/available payment gateway;
+- during the World Cup, monetization should start with one-time packages or a tournament pass;
+- recurring payments/subscriptions can be evaluated after the World Cup.
 
-Objective:
+## Parallel work status
 
-1. Wait until the Peru vs Spain result is available and trustworthy.
-2. Design a result-review rule.
-3. Only after result review, evaluate the persisted prediction.
-4. Persist `prediction_results` internally.
-5. Keep all outputs admin/internal.
+A second contributor may join.
 
-Do not start World Cup apply or broad friendlies expansion before the post-match evaluation path is designed.
+Recommended split:
+
+- Jonathan: Epic D, D06/D07, API-Football, Real Fixture Lab, model/evaluation.
+- Second contributor: Epic G payment/auth/paywall discovery, or Epic F public UX/trust layer.
+
+No shared-file chaos. One branch per task. Migration numbers must be coordinated.
+
+## Immediate next step
+
+Re-enter D06 on a clean branch from updated `main` and run candidate discovery recognition/read-only commands.

@@ -1,233 +1,164 @@
 # ChatGPT Project Source — UFO Predictor Current
 
-This is the compact current source of truth for ChatGPT conversations about UFO Predictor.
+Last refreshed: after PR #40.
 
-## Project summary
+This is the high-signal project source for ChatGPT conversations. It should prevent new conversations from improvising the roadmap like jazz with production access.
 
-UFO Predictor is a football prediction platform with an internal Lab and controlled API-Football ingest pipeline.
+## Product summary
 
-The current product strategy is conservative:
+UFO Predictor is a football prediction product built around probabilistic match forecasts, transparent methodology, free/premium boundaries, and a controlled real-data pipeline.
 
-- Ingest real fixtures carefully.
-- Keep experimental fixtures/predictions internal.
-- Validate model outputs in admin-only surfaces first.
-- Do not expose predictions publicly until a separate product decision.
-- Do not use odds or provider predictions in the current model/Lab pipeline.
+Current product focus: validate the prediction loop before and during the World Cup, using controlled friendlies first, then selected World Cup fixtures.
 
-## Working language rule
+## Current MVP-stage roadmap
 
-- The user often works in Spanish.
-- ChatGPT may discuss strategy in Spanish.
-- All prompts intended for Codex must be written in English.
+### MVP 0 — Pre-World-Cup Calibration Lab
 
-Reason:
+Purpose: validate real-data flow and model v0.1 using controlled friendly fixtures.
 
-- Codex works better with English technical instructions.
-- It reduces ambiguity around commands, file paths, migrations, and no-go boundaries.
+Active epic:
 
-## Current branch and state
+- Epic D — Real Data & Calibration Lab.
 
-Current active branch used for recent work:
+### MVP 1 — World Cup Launch MVP
 
-```txt
-feature/d05f-ingest-run-tracking-clean
-```
+Purpose: ship a safe public World Cup-focused MVP while tournament demand is active.
 
-Recent branch contains:
+Likely epics:
 
-- D05F ingest tracking.
-- Real Fixture Lab read/preview/internal persistence.
-- RLS migrations `0019` through `0022`.
-- D05G controlled single-friendly ingest.
+- Epic E — World Cup Data & Prediction Launch.
+- Epic F — Public Experience & Trust Layer.
+- Epic G — Auth, Paywall, and One-Time Payment Gateway Slice.
 
-Before new work, verify:
+Payment note: do not assume Stripe. Use PayPal or another selected/available payment gateway. During the World Cup, prefer one-time packages or a tournament pass. Recurring subscriptions can be evaluated after the tournament.
 
-```bash
-git branch --show-current
-git status --short
-git log --oneline origin/main..HEAD
-```
+### MVP 1.5 — Live World Cup Iteration
 
-## Database and migrations
+Purpose: improve model, UX, operations, and monetization during the tournament.
 
-Recent migrations:
+Likely epics:
 
-### `0018_ingest_run_tracking.sql`
+- Epic H — Live Evaluation & Model Iteration.
+- Epic I — Workers Lite & Operational Automation.
+- Epic J — Monetization/Product Iteration During Tournament.
 
-Adds:
+### MVP 2 — Post-World-Cup Sustainable Product
 
-- `ingest_runs`.
-- `ingest_run_items`.
+Purpose: expand into recurring competitions, premium depth, recurring payments, monitoring, model maturity, and long-term transparency.
 
-Purpose:
+Likely epics:
 
-- durable apply run tracking.
-- row-level audit metadata.
-- snapshot support for updates.
+- Epic K — Recurring Competitions.
+- Epic L — Recurring Payments & Premium Depth.
+- Epic M — Model & Transparency Maturity.
+- Epic N — Production Operations & Scale.
 
-### `0019_real_fixture_lab_admin_read_policies.sql`
+## Completed foundations
 
-Adds admin SELECT policies for Real Fixture Lab reads:
+- Epic A: complete.
+- Epic B: complete.
+- Epic C: complete.
 
-- `matches`.
-- `competitions`.
-- `teams`.
-- `match_results`.
+## Epic D current state
 
-Scope:
+Epic D is in progress. D05 is functionally complete, but Epic D continues with D06/D07/D08.
 
-- authenticated admin.
-- `admin_only + api_football` fixtures.
+### D05 — Real Fixture Lab controlled single-fixture loop
 
-### `0020_fix_real_fixture_lab_rls_recursion.sql`
+Status: functionally complete.
 
-Fixes RLS recursion introduced by related-table policies using `security definer` boolean helpers.
+Completed sequence:
 
-### `0021_real_fixture_lab_prediction_persistence_policies.sql`
+- D05F — ingest run tracking.
+- D05G — exact friendly pre-match ingest.
+- D05H — Real Fixture Lab evaluation persistence.
+- D05I — Real Fixture Lab result verification.
+- D05J — first runtime partial E2E trial.
+- D05K — exact friendly post-match result ingest guard.
 
-Adds narrow admin read/insert path for:
+D05J detail:
 
-- active `model_versions`.
-- internal `prediction_versions`.
-- internal `prediction_markets`.
+- fixture `api-football:fixture:1540356` loaded;
+- scope: `admin_only + api_football`;
+- saved internal prediction visible;
+- no `match_results` row existed;
+- verification correctly unavailable;
+- evaluation correctly blocked;
+- result: partial pass due to missing runtime data, not a system failure.
 
-Scope:
+D05K detail:
 
-- `run_scope='internal_lab'`.
-- `prediction_type='pre_match_24h'`.
-- fixture is `admin_only + api_football`.
-- `prediction_markets.is_premium=false`.
+- scheduled exact friendly apply remains allowed;
+- finished exact friendly apply is allowed only when exactly one planned `pending_review` `match_results` write exists;
+- broad friendlies remain blocked;
+- World Cup apply remains blocked.
 
-### `0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql`
+### D06 — Friendly Pilot / Calibration Batch
 
-Fixes RLS recursion between `model_versions` and `prediction_versions`.
+Status: next active block.
 
-## D05F — ingest run tracking
+Goal: select and operate 3-5 exact pre-World-Cup friendlies.
 
-Implemented.
+D06 does not mean broad friendlies apply. It is an operator-controlled pilot using exact fixture IDs.
 
-Writer now:
+Subtasks:
 
-- creates `ingest_runs` header for apply runs.
-- records `ingest_run_items` for entity outcomes.
-- captures `before_snapshot` for updates.
-- captures `after_snapshot` where possible.
-- marks run status.
-- reports `ingest_run_id` in CLI.
+- D06A candidate discovery;
+- D06B pilot matrix;
+- D06C pre-match exact ingest + prediction save;
+- D06D post-match exact ingest + verify + evaluate;
+- D06E evidence capture;
+- D06F model error summary;
+- D06G decide admin/front fixes from evidence.
 
-Rollback remains manual/script-reviewed.
+## Current hard no-go list
 
-## D05G — controlled single-friendly ingest
+- broad friendlies apply;
+- broad World Cup apply;
+- provider predictions;
+- betting odds;
+- public exposure of Lab outputs;
+- service-role in app routes;
+- score-editing UI;
+- manual result creation UI;
+- automatic public prediction publication;
+- full workers before manual flow evidence;
+- large model rewrite before pilot evidence.
 
-Implemented.
+## Parallel contributor plan
 
-`ingest-dry-run` supports exact `--fixtureId`.
+If a second contributor joins:
 
-D05G friendlies apply is only allowed when:
+- Jonathan owns Epic D/D06/D07 and Real Fixture Lab/API-Football/model-evaluation work.
+- Second contributor should preferably start Epic G recognition/design: auth, paywall, PayPal/selected gateway, tournament pass/access entitlement.
+- Alternative second contributor lane: Epic F public UX/trust copy.
 
-- `competition=friendlies`.
-- `fixtureId` is explicit.
-- `limit=1`.
-- `from` and `to` are explicit.
-- exactly one fixture is selected/planned.
-- fixture status is `scheduled`.
-- no `match_results` are planned.
-- match remains `admin_only`.
-- intake source remains `api_football`.
+Rules:
 
-Broad friendlies apply is still blocked.
+- one branch per task from updated `main`;
+- no direct work on `main`;
+- do not touch the same files across contributors unless coordinated;
+- coordinate migration numbers before adding migrations;
+- PRs must stay scoped.
 
-Validated fixture:
+## Codex rules
 
-- `api-football:fixture:1540356`.
-- Peru vs Spain.
-- Scheduled friendly.
-- Ingested as `admin_only`.
-- No result row at ingest time.
+Prompts to Codex must be in English.
 
-## Real Fixture Lab
+Default Codex mode is recognition/design first unless implementation is explicitly approved.
 
-Implemented admin route:
+Codex must not:
 
-```txt
-/admin/real-fixture-lab
-```
+- commit;
+- push;
+- open PR;
+- run SQL;
+- apply migrations;
+- run `--apply true`;
+- use service-role in app routes;
+- broaden ingest;
+- expose internal Lab data publicly.
 
-Usage:
+## Immediate next action
 
-```txt
-/admin/real-fixture-lab?externalId=api-football:fixture:<id>
-```
-
-Behavior:
-
-- requires admin auth.
-- uses session Supabase client; respects RLS.
-- no service-role app route.
-- reads only `admin_only + api_football` matches.
-- shows fixture metadata.
-- shows current result state.
-- generates in-memory prediction preview.
-- can save one internal prediction.
-
-Internal persistence:
-
-- `prediction_versions`.
-- `prediction_markets`.
-
-Not persisted yet:
-
-- `prediction_results`.
-
-Validated with:
-
-- `api-football:fixture:1540356`.
-- internal prediction saved with model `v0.1`.
-- markets saved.
-- `prediction_results` remains empty.
-- public view remains closed.
-
-## Model status
-
-Current model version used in Real Fixture Lab validation:
-
-- `v0.1`.
-
-Important caveat:
-
-- Current predictions may rely on default/neutral signals.
-- The Peru vs Spain prediction validates the pipeline, not model performance.
-
-## No-go boundaries
-
-Current hard no-go:
-
-- No broad friendlies apply.
-- No World Cup apply.
-- No Copa Colombia apply/defaults.
-- No `all` apply.
-- No provider predictions.
-- No odds.
-- No public exposure of Real Fixture Lab predictions.
-- No `prediction_results` before result review/evaluation design.
-- No service-role client in app routes.
-- No cron/workers.
-- No push/PR without approval.
-
-## Next recommended work
-
-Next phase:
-
-```txt
-Real Fixture Lab post-match evaluation
-```
-
-Steps:
-
-1. Read/verify result for the friendly.
-2. Decide result trust policy.
-3. Design evaluation persistence.
-4. Persist `prediction_results` internally.
-5. Keep everything admin-only.
-
-Do not jump to World Cup apply.
+Start D06 candidate discovery from a clean branch.

@@ -1,212 +1,133 @@
-# Data Dictionary — UFO Predictor
+# UFO Predictor — Data Dictionary
 
-_Last updated after D05F, D05G, and Real Fixture Lab Phase 3A._
+Last refreshed: after PR #40.
+
+This dictionary focuses on the currently relevant product and Real Fixture Lab data model.
 
 ## `matches`
 
-Stores match fixtures.
+Represents a football fixture/match.
 
-Important current fields:
+Important fields:
 
-- `external_id`: provider-stable id, e.g. `api-football:fixture:1540356`.
-- `access_scope`: visibility scope.
-- `intake_source`: source of fixture data.
-- `status`: normalized match status.
-- `kickoff_at`: kickoff timestamp.
-- `source_note`: provider/run trace metadata.
+- `id` — internal UUID.
+- `external_id` — provider-scoped external ID, e.g. `api-football:fixture:1540356`.
+- `access_scope` — controls public/internal lane. Real Fixture Lab fixtures use `admin_only`.
+- `intake_source` — source of fixture, e.g. `api_football`.
+- status/kickoff/team/competition fields as defined by migrations.
 
-Current API-Football behavior:
+Current Real Fixture Lab guard:
 
-- New provider fixtures are persisted with:
-  - `access_scope='admin_only'`.
-  - `intake_source='api_football'`.
-- Real Fixture Lab only reads matches with this pair.
-- Public views should not expose `admin_only` matches.
+- target fixtures must be `admin_only + api_football`.
 
 ## `match_results`
 
-Stores actual match results.
+Represents final or reviewed score for one match.
 
-Important current behavior:
+Important fields:
 
-- Scheduled fixtures should not create `match_results`.
-- Finished provider fixtures may create pending-review result rows.
-- Real Fixture Lab Phase 3A does not evaluate predictions and does not write `prediction_results`.
+- `match_id` — unique; one result row per match.
+- `home_goals`.
+- `away_goals`.
+- `verification_status`:
+  - `pending_review`;
+  - `verified`;
+  - `rejected`.
+- `intake_source` — includes `api_football` after migration expansion.
+- `source_note`.
+- `reviewed_at`.
+- `reviewed_by`.
+- `recorded_at`.
 
-## `ingest_runs`
+Current rules:
 
-Added in `0018_ingest_run_tracking.sql`.
+- API-Football result ingest creates/updates `pending_review` rows.
+- Ingest skips rows already `verified` or `rejected`.
+- Real Fixture Lab can verify existing `pending_review` rows.
+- No score-editing UI.
+- No result-creation UI.
 
-Purpose:
+## `prediction_versions`
 
-- Durable header for real API-Football apply runs.
+Represents a saved prediction run/version.
 
 Important fields:
 
 - `id`.
-- `provider`.
-- `competition_key`.
-- `provider_league_id`.
-- `from_date`.
-- `to_date`.
-- `limit_value`.
-- `apply_mode`.
-- `run_tag`.
-- `source_note`.
-- `status`.
-- `started_at`.
-- `finished_at`.
-- `fetched_fixtures_count`.
-- `planned_fixtures_count`.
-- `counts_summary`.
-- `warnings_summary`.
-- `errors_summary`.
-- `cli_args`.
-
-Current statuses:
-
-- `started`.
-- `completed`.
-- `failed`.
-- `rolled_back_partial`.
-- `rolled_back_full`.
-
-Current use:
-
-- created only for real apply runs.
-- dry-runs remain DB-write-free.
-
-## `ingest_run_items`
-
-Added in `0018_ingest_run_tracking.sql`.
-
-Purpose:
-
-- Per-run entity-level audit and snapshot metadata.
-
-Important fields:
-
-- `run_id`.
-- `entity_table`.
-- `entity_id`.
-- `entity_external_id`.
-- `entity_natural_key`.
-- `action`.
-- `before_snapshot`.
-- `after_snapshot`.
-- `skip_reason`.
-- `error_message`.
-
-Actions:
-
-- `created`.
-- `updated`.
-- `skipped`.
-- `error`.
-
-Snapshot rules:
-
-- `updated` requires `before_snapshot`.
-- `created` does not need `before_snapshot`.
-- `after_snapshot` is useful for audit/debugging.
-
-## `model_versions`
-
-Stores model version metadata.
-
-Current Real Fixture Lab use:
-
-- Save action selects an active model version.
-- Preferred rule:
-  - `is_active=true`.
-  - newest deterministic row by `created_at desc`.
-- Validation used model version `v0.1`.
-
-RLS note:
-
-- `0021` and `0022` allow required admin read behavior for Real Fixture Lab persistence.
-
-## `prediction_versions`
-
-Stores prediction header rows.
-
-Current Real Fixture Lab Phase 3A use:
-
-- One internal prediction per match/model/prediction type/run scope.
-- App-level duplicate blocking for:
-  - `match_id`.
-  - `model_version_id`.
-  - `prediction_type='pre_match_24h'`.
-  - `run_scope='internal_lab'`.
-
-Fields used by Real Fixture Lab:
-
-- `match_id`.
-- `model_version_id`.
-- `prediction_type`.
-- `home_win_prob`.
-- `draw_prob`.
-- `away_win_prob`.
-- `expected_home_goals`.
-- `expected_away_goals`.
-- `most_likely_score`.
-- `top_scores_json`.
-- `confidence_score`.
-- `risk_level`.
-- `run_scope`.
-
-Current scope:
-
-- internal only.
-- `run_scope='internal_lab'`.
-- `prediction_type='pre_match_24h'`.
+- match reference.
+- `run_scope` — internal Lab uses `internal_lab`.
+- `prediction_type` — Real Fixture Lab uses `pre_match_24h`.
+- `model_version`, currently `v0.1`.
+- prediction payload / model output fields per existing schema.
 
 ## `prediction_markets`
 
-Stores market-level prediction rows linked to `prediction_versions`.
+Stores market outputs for saved predictions.
 
-Current Real Fixture Lab fields:
+Relevant markets:
 
-- `prediction_version_id`.
-- `market`.
-- `selection`.
-- `probability`.
-- `confidence`.
-- `is_premium`.
-
-Current markets produced:
-
-- `match_winner`.
-- `btts`.
-- `over_2_5`.
-- `exact_score`.
-
-Real Fixture Lab uses:
-
-- `is_premium=false`.
+- 1X2;
+- BTTS;
+- over/under 2.5;
+- top scorelines/projection fields as represented by current implementation.
 
 ## `prediction_results`
 
-Stores post-match evaluation results.
+Stores internal evaluation results after a verified match result exists.
 
-Current status:
+Important fields:
 
-- Not written by Real Fixture Lab Phase 3A.
-- Must remain empty until a result review/evaluation phase is designed.
+- `prediction_version_id` — unique for one evaluation row per saved prediction version.
+- `actual_home_goals`.
+- `actual_away_goals`.
+- `winner_correct`.
+- `btts_correct`.
+- `over_2_5_correct`.
+- `exact_score_correct`.
+- `goal_error`.
+- `error_summary`.
+- `validated_at`.
 
-Future use:
+Current rules:
 
-- evaluate persisted prediction after trusted/verified result.
-- store internal evaluation outcome.
+- internal-only;
+- requires verified `match_results`;
+- no public exposure yet;
+- may be refreshed explicitly from verified result.
 
-## Access scope values used in current flow
+## `ingest_runs`
 
-- `admin_only`: real ingested fixture internal/admin visibility.
-- `lab_only`: old/synthetic Beta Lab calibration fixtures.
-- `public` / `premium`: product-facing scopes, not used by Real Fixture Lab current flow.
+Tracks controlled API-Football ingest runs.
 
-## Intake source values used in current flow
+Use:
 
-- `api_football`: provider-ingested fixture/result data.
+- operator evidence;
+- dry-run/apply tracking;
+- run-level metadata.
 
-Real Fixture Lab filters strictly on `api_football`.
+## `ingest_run_items`
+
+Tracks item-level ingest effects.
+
+Use:
+
+- before/after snapshots;
+- created/updated/skipped evidence;
+- match/result write tracking.
+
+## Payment/entitlement data
+
+Not finalized.
+
+Do not invent tables in docs as if implemented.
+
+Future MVP 1 likely needs:
+
+- payment provider record;
+- one-time tournament pass entitlement;
+- premium access state;
+- account/payment status view.
+
+Payment provider is open: PayPal or selected/available gateway. Stripe is not assumed.
+
+Recurring subscription data belongs to post-World-Cup Epic L unless pulled forward explicitly.
