@@ -1,8 +1,8 @@
 # ChatGPT Project Source — UFO Predictor Current
 
-Last refreshed: after PR #40.
+Last refreshed: after D08A admin lab navigation cleanup.
 
-This is the high-signal project source for ChatGPT conversations. It should prevent new conversations from improvising the roadmap like jazz with production access.
+This is the high-signal project source for ChatGPT conversations. It should prevent new conversations from improvising the roadmap.
 
 ## Product summary
 
@@ -14,7 +14,7 @@ Current product focus: validate the prediction loop before and during the World 
 
 ### MVP 0 — Pre-World-Cup Calibration Lab
 
-Purpose: validate real-data flow and model v0.1 using controlled friendly fixtures.
+Purpose: validate real-data flow and model v0.1/v0.2 using controlled friendly fixtures.
 
 Active epic:
 
@@ -61,7 +61,7 @@ Likely epics:
 
 ## Epic D current state
 
-Epic D is in progress. D05 is functionally complete, but Epic D continues with D06/D07/D08.
+Epic D is in progress. D05 is functionally complete, and Epic D is now in the middle of D06/D07/D08 follow-through.
 
 ### D05 — Real Fixture Lab controlled single-fixture loop
 
@@ -76,16 +76,6 @@ Completed sequence:
 - D05J — first runtime partial E2E trial.
 - D05K — exact friendly post-match result ingest guard.
 
-D05J detail:
-
-- fixture `api-football:fixture:1540356` loaded;
-- scope: `admin_only + api_football`;
-- saved internal prediction visible;
-- no `match_results` row existed;
-- verification correctly unavailable;
-- evaluation correctly blocked;
-- result: partial pass due to missing runtime data, not a system failure.
-
 D05K detail:
 
 - scheduled exact friendly apply remains allowed;
@@ -95,7 +85,7 @@ D05K detail:
 
 ### D06 — Friendly Pilot / Calibration Batch
 
-Status: next active block.
+Status: in progress.
 
 Goal: select and operate 3-5 exact pre-World-Cup friendlies.
 
@@ -111,6 +101,57 @@ Subtasks:
 - D06F model error summary;
 - D06G decide admin/front fixes from evidence.
 
+Current D06 execution state:
+
+- D06A candidate discovery: complete.
+- D06B pilot matrix: complete.
+- D06C pre-match exact ingest + prediction save: complete for 5 fixtures.
+- D06D/E result/evaluation: partial.
+- D06G-1 admin pilot summary: implemented.
+
+Pilot fixture status:
+
+- Congo DR vs Chile — evaluated.
+- Hungary vs Kazakhstan — evaluated.
+- Saudi Arabia vs Senegal — pending result.
+- Argentina vs Iceland — pending result.
+- Iraq vs Venezuela — pending result.
+
+Current evaluation progress: `2/5` complete, `3/5` pending result availability.
+
+### D07 — Model sanity fallback
+
+Status: implemented, then frozen pending full pilot evidence.
+
+Current state:
+
+- D07B national-team fallback signals were implemented.
+- `v0.2-prelaunch` was manually activated in DB as the active model version.
+- v0.2 internal predictions were saved for all 5 pilot fixtures.
+- v0.1 rows remain preserved for baseline comparison.
+
+Freeze rule:
+
+- do not change the model again until all 5 pilot fixtures are evaluated.
+
+Early v0.2 evidence:
+
+- winner `2/2`;
+- BTTS `2/2`;
+- over 2.5 `2/2`;
+- exact score `0/2`.
+
+### D08A — Admin lab navigation cleanup
+
+Status: complete.
+
+Current state:
+
+- Real Fixture Lab is reachable from admin home/header.
+- Beta Lab is legacy/mock/internal calibration.
+- active real-data admin flow lives in Real Fixture Lab.
+- visible legacy odds wording was softened to mock/market wording.
+
 ## Current hard no-go list
 
 - broad friendlies apply;
@@ -124,6 +165,10 @@ Subtasks:
 - automatic public prediction publication;
 - full workers before manual flow evidence;
 - large model rewrite before pilot evidence.
+
+Additional boundary note:
+
+- odds may only be considered later as a separate benchmark/market-comparison layer, never as hidden model input in the active model.
 
 ## Parallel contributor plan
 
@@ -143,7 +188,7 @@ Rules:
 
 ## Codex rules
 
-Prompts to Codex must be in English.
+Prompts to Codex should be in English.
 
 Default Codex mode is recognition/design first unless implementation is explicitly approved.
 
@@ -161,4 +206,18 @@ Codex must not:
 
 ## Immediate next action
 
-Start D06 candidate discovery from a clean branch.
+Split the next work by conversation:
+
+- new conversation: F01 MVP 1 UI Polish / Product Readiness recognition + implementation planning;
+- this conversation: resume later for remaining D06 result ingest, verification, and evaluation.
+
+F01 guardrails:
+
+- no DB changes;
+- no model changes;
+- no auth changes;
+- no payment implementation;
+- no prediction-logic changes;
+- no migrations;
+- no provider predictions;
+- no betting odds as model input.

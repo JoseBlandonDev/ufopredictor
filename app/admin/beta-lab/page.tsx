@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AdminWorkerStatus } from "@/components/admin-worker-status";
 import {
   persistLabEvaluationAction,
@@ -117,11 +118,22 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
   return (
     <div className="space-y-6">
       <section>
-        <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Admin / Laboratorio beta</p>
-        <h1 className="mt-3 text-4xl font-semibold">Laboratorio interno</h1>
+        <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Admin / Beta Lab legado</p>
+        <h1 className="mt-3 text-4xl font-semibold">Laboratorio interno mock</h1>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          Fixtures de calibracion pre-Mundial visibles solo para administracion. Estas competiciones no forman parte del producto publico de ligas.
+          Superficie legacy de calibración interna con fixtures y workers mock. Estas competiciones no forman
+          parte del producto público de ligas.
         </p>
+        <div className="mt-4 rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/10 p-4 text-sm text-[var(--muted)]">
+          <p className="font-medium text-[var(--accent)]">Flujo activo D06/D07</p>
+          <p className="mt-2">
+            El flujo activo de fixtures reales API-Football vive en{" "}
+            <Link href="/admin/real-fixture-lab" className="text-[var(--accent)] underline underline-offset-4">
+              /admin/real-fixture-lab
+            </Link>
+            . El modelo activo de Real Fixture Lab no consume betting odds.
+          </p>
+        </div>
       </section>
 
       {reviewMessage ? (
@@ -153,7 +165,7 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
             <div className="panel rounded-lg p-5">
               <p className="text-sm text-[var(--muted)]">Fixtures Lab</p>
               <p className="mt-2 font-mono text-3xl text-[var(--accent)]">{labData.fixtures.length}</p>
-              <p className="mt-2 text-xs text-[var(--muted)]">Partidos `lab_only` leidos desde Supabase.</p>
+              <p className="mt-2 text-xs text-[var(--muted)]">Partidos `lab_only` leídos desde Supabase.</p>
             </div>
             <div className="panel rounded-lg p-5">
               <p className="text-sm text-[var(--muted)]">Predicciones Lab</p>
@@ -169,16 +181,16 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
 
           <section className="grid gap-4 sm:grid-cols-2">
             <div className="panel rounded-lg p-5">
-              <p className="text-sm text-[var(--muted)]">Datos pendientes de revision</p>
+              <p className="text-sm text-[var(--muted)]">Datos pendientes de revisión</p>
               <p className="mt-2 font-mono text-3xl text-[var(--warning)]">
                 {labData.fixtures.filter((match) => match.dataQuality !== "verified").length}
               </p>
-              <p className="mt-2 text-xs text-[var(--muted)]">Fixtures internos que aun no estan verificados.</p>
+              <p className="mt-2 text-xs text-[var(--muted)]">Fixtures internos que aún no están verificados.</p>
             </div>
             <div className="panel rounded-lg p-5">
               <p className="text-sm text-[var(--muted)]">Resultados registrados</p>
               <p className="mt-2 font-mono text-3xl text-[var(--accent)]">{labData.registeredResultCount}</p>
-              <p className="mt-2 text-xs text-[var(--muted)]">Resultados reales registrados para revision admin.</p>
+              <p className="mt-2 text-xs text-[var(--muted)]">Resultados reales registrados para revisión admin.</p>
             </div>
           </section>
 
@@ -203,7 +215,7 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
                     <div>
                       <div className="flex flex-wrap gap-2">
                         <span className="rounded-md border border-[var(--line)] px-2 py-1 font-mono text-xs text-[var(--accent)]">
-                          Competicion lab
+                          Competición lab
                         </span>
                         <span className="rounded-md border border-white/10 px-2 py-1 text-xs text-[var(--muted)]">
                           {match.competitionName}
@@ -246,182 +258,151 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
                       <p className="font-mono text-[var(--muted)]">
                         {match.prediction
                           ? `${match.prediction.modelVersion} / ${match.prediction.runScope}`
-                          : "sin prediccion"}
+                          : "sin predicción"}
                       </p>
                       <p className="text-[var(--muted)]">
                         {match.prediction
-                          ? `Prediccion almacenada: ${match.prediction.mostLikelyScore} - ${match.prediction.confidenceScore}% confianza`
-                          : "No existe prediccion almacenada para este fixture."}
+                          ? `Predicción almacenada: ${match.prediction.mostLikelyScore} - ${match.prediction.confidenceScore}% confianza`
+                          : "No existe predicción almacenada para este fixture."}
                       </p>
                       {match.prediction?.evaluation ? (
                         <div className="rounded-md border border-white/10 px-2 py-2 text-[var(--muted)]">
-                          <p className="font-medium text-white">Evaluacion persistida</p>
+                          <p className="font-medium text-white">Evaluación persistida</p>
                           <p className="mt-1">
                             Exacto: {formatMetric(match.prediction.evaluation.exact_score_correct)} / Error goles:{" "}
-                            {match.prediction.evaluation.goal_error ?? "n/d"}
+                            {match.prediction.evaluation.goal_error ?? "n/a"}
                           </p>
-                          <p className="mt-1">
-                            1X2: {formatMetric(match.prediction.evaluation.winner_correct)} / BTTS:{" "}
-                            {formatMetric(match.prediction.evaluation.btts_correct)} / OU 2.5:{" "}
-                            {formatMetric(match.prediction.evaluation.over_2_5_correct)}
-                          </p>
+                          <p>1X2: {formatMetric(match.prediction.evaluation.winner_correct)}</p>
+                          <p>BTTS: {formatMetric(match.prediction.evaluation.btts_correct)}</p>
+                          <p>OU 2.5: {formatMetric(match.prediction.evaluation.over_2_5_correct)}</p>
                         </div>
-                      ) : null}
-                      {match.prediction ? (
-                        <>
-                          {match.prediction.hasPersistedEvaluation ? (
-                            <p className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-2 py-2 text-[var(--accent)]">
-                              Evaluación ya persistida; puede actualizarse con el resultado verificado actual.
-                            </p>
-                          ) : null}
-                          {!match.prediction.hasVerifiedResult ? (
-                            <p className="rounded-md border border-[var(--warning)]/25 bg-[var(--warning)]/10 px-2 py-2 text-[var(--warning)]">
-                              Falta un resultado verificado para evaluar.
-                            </p>
-                          ) : !match.prediction.hasCompleteMarkets ? (
-                            <p className="rounded-md border border-[var(--warning)]/25 bg-[var(--warning)]/10 px-2 py-2 text-[var(--warning)]">
-                              Faltan mercados BTTS u Over/Under 2.5 completos.
-                            </p>
-                          ) : (
-                            <form action={persistLabEvaluationAction}>
-                              <input
-                                type="hidden"
-                                name="predictionVersionId"
-                                value={match.prediction.id}
-                              />
-                              <button
-                                type="submit"
-                                className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
-                              >
-                                {match.prediction.hasPersistedEvaluation
-                                  ? "Actualizar evaluación"
-                                  : "Persistir evaluación"}
-                              </button>
-                            </form>
-                          )}
-                        </>
-                      ) : null}
+                      ) : (
+                        <p className="text-[var(--muted)]">Sin evaluación persistida.</p>
+                      )}
                     </div>
-                    <form action={reviewLabFixtureAction} className="space-y-3">
-                      <input type="hidden" name="matchId" value={match.id} />
-                      <label className="block text-xs text-[var(--muted)]">
-                        Estado Lab
-                        <select
-                          name="lab_status"
-                          defaultValue={match.labStatus ?? "candidate"}
-                          required
-                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                    <div className="space-y-4">
+                      <form action={reviewLabFixtureAction} className="space-y-3 rounded-lg border border-white/10 p-3">
+                        <input type="hidden" name="match_id" value={match.id} />
+                        <label className="block text-xs text-[var(--muted)]">
+                          Estado Lab
+                          <select
+                            name="lab_status"
+                            defaultValue={match.labStatus ?? "candidate"}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          >
+                            <option value="candidate">Candidato</option>
+                            <option value="ready">Listo</option>
+                            <option value="review">En revisión</option>
+                            <option value="needs_data">Requiere datos</option>
+                            <option value="archived">Archivado</option>
+                          </select>
+                        </label>
+                        <label className="block text-xs text-[var(--muted)]">
+                          Calidad de datos
+                          <select
+                            name="data_quality"
+                            defaultValue={match.dataQuality}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          >
+                            <option value="unreviewed">Sin revisar</option>
+                            <option value="reviewed">Revisado</option>
+                            <option value="verified">Verificado</option>
+                            <option value="rejected">Rechazado</option>
+                          </select>
+                        </label>
+                        <label className="block text-xs text-[var(--muted)]">
+                          Nota administrativa
+                          <textarea
+                            name="source_note"
+                            defaultValue={match.sourceNote ?? ""}
+                            maxLength={500}
+                            rows={3}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          />
+                        </label>
+                        <button
+                          type="submit"
+                          className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
                         >
-                          <option value="candidate">Candidato</option>
-                          <option value="ready">Listo</option>
-                          <option value="review">En revisión</option>
-                          <option value="needs_data">Requiere datos</option>
-                          <option value="archived">Archivado</option>
-                        </select>
-                      </label>
-                      <label className="block text-xs text-[var(--muted)]">
-                        Calidad de datos
-                        <select
-                          name="data_quality"
-                          defaultValue={match.dataQuality}
-                          required
-                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          Guardar revisión
+                        </button>
+                      </form>
+
+                      <form action={persistLabEvaluationAction} className="space-y-3 rounded-lg border border-white/10 p-3">
+                        <input type="hidden" name="match_id" value={match.id} />
+                        <button
+                          type="submit"
+                          disabled={!match.prediction}
+                          className="w-full rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition enabled:hover:border-[var(--accent)]/60 enabled:hover:bg-[var(--accent)]/20 disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                          <option value="unreviewed">Sin revisar</option>
-                          <option value="reviewed">Revisado</option>
-                          <option value="verified">Verificado</option>
-                          <option value="rejected">Rechazado</option>
-                        </select>
-                      </label>
-                      <label className="block text-xs text-[var(--muted)]">
-                        Nota de fuente
-                        <textarea
-                          name="source_note"
-                          defaultValue={match.sourceNote ?? ""}
-                          maxLength={500}
-                          rows={3}
-                          className="mt-1 w-full resize-y rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
-                        />
-                      </label>
-                      <button
-                        type="submit"
-                        className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
-                      >
-                        Guardar revisión
-                      </button>
-                    </form>
-                    <form
-                      action={saveLabMatchResultAction}
-                      className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-4 lg:col-span-3 lg:grid-cols-[110px_110px_180px_160px_minmax(220px,1fr)_180px] lg:items-end"
-                    >
-                      <input type="hidden" name="matchId" value={match.id} />
-                      <label className="block text-xs text-[var(--muted)]">
-                        Goles local
-                        <input
-                          type="number"
-                          name="home_goals"
-                          min={0}
-                          step={1}
-                          defaultValue={match.result?.home_goals ?? 0}
-                          required
-                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
-                        />
-                      </label>
-                      <label className="block text-xs text-[var(--muted)]">
-                        Goles visita
-                        <input
-                          type="number"
-                          name="away_goals"
-                          min={0}
-                          step={1}
-                          defaultValue={match.result?.away_goals ?? 0}
-                          required
-                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
-                        />
-                      </label>
-                      <label className="block text-xs text-[var(--muted)]">
-                        Verificación
-                        <select
-                          name="verification_status"
-                          defaultValue={match.result?.verification_status ?? "pending_review"}
-                          required
-                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          Persistir evaluación interna
+                        </button>
+                      </form>
+
+                      <form action={saveLabMatchResultAction} className="space-y-3 rounded-lg border border-white/10 p-3">
+                        <input type="hidden" name="match_id" value={match.id} />
+                        <label className="block text-xs text-[var(--muted)]">
+                          Goles local
+                          <input
+                            type="number"
+                            min={0}
+                            name="home_goals"
+                            defaultValue={match.result?.home_goals ?? 0}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          />
+                        </label>
+                        <label className="block text-xs text-[var(--muted)]">
+                          Goles visitante
+                          <input
+                            type="number"
+                            min={0}
+                            name="away_goals"
+                            defaultValue={match.result?.away_goals ?? 0}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          />
+                        </label>
+                        <label className="block text-xs text-[var(--muted)]">
+                          Estado del resultado
+                          <select
+                            name="verification_status"
+                            defaultValue={match.result?.verification_status ?? "pending_review"}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          >
+                            <option value="pending_review">Pendiente de revisión</option>
+                            <option value="verified">Verificado</option>
+                            <option value="rejected">Rechazado</option>
+                          </select>
+                        </label>
+                        <label className="block text-xs text-[var(--muted)]">
+                          Fuente del resultado
+                          <select
+                            name="intake_source"
+                            defaultValue={match.result?.intake_source ?? "manual"}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          >
+                            <option value="manual">Manual</option>
+                            <option value="mock">Mock</option>
+                            <option value="csv_import">CSV</option>
+                          </select>
+                        </label>
+                        <label className="block text-xs text-[var(--muted)]">
+                          Nota del resultado
+                          <input
+                            type="text"
+                            name="source_note"
+                            defaultValue={match.result?.source_note ?? ""}
+                            maxLength={500}
+                            className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
+                          />
+                        </label>
+                        <button
+                          type="submit"
+                          className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
                         >
-                          <option value="pending_review">Pendiente</option>
-                          <option value="verified">Verificado</option>
-                          <option value="rejected">Rechazado</option>
-                        </select>
-                      </label>
-                      <label className="block text-xs text-[var(--muted)]">
-                        Fuente
-                        <select
-                          name="intake_source"
-                          defaultValue={match.result?.intake_source ?? "manual"}
-                          required
-                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
-                        >
-                          <option value="manual">Manual</option>
-                          <option value="mock">Mock</option>
-                          <option value="csv_import">CSV</option>
-                        </select>
-                      </label>
-                      <label className="block text-xs text-[var(--muted)]">
-                        Nota del resultado
-                        <input
-                          type="text"
-                          name="source_note"
-                          defaultValue={match.result?.source_note ?? ""}
-                          maxLength={500}
-                          className="mt-1 w-full rounded-md border border-white/10 bg-[var(--panel)] px-3 py-2 text-sm text-white"
-                        />
-                      </label>
-                      <button
-                        type="submit"
-                        className="w-full cursor-pointer rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-sm text-[var(--accent)] transition hover:border-[var(--accent)]/60 hover:bg-[var(--accent)]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50"
-                      >
-                        Guardar resultado
-                      </button>
-                    </form>
+                          Guardar resultado
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -432,7 +413,7 @@ export default async function BetaLabPage({ searchParams }: BetaLabPageProps) {
 
       <div className="space-y-3">
         <p className="text-xs text-[var(--muted)]">
-          Estado de workers: datos mock. La ejecucion y sincronizacion real permanecen fuera del alcance de esta epica.
+          Estado de workers: datos mock legacy. La ejecución y sincronización real permanecen fuera del alcance de esta épica.
         </p>
         <AdminWorkerStatus runs={workerRuns} />
       </div>

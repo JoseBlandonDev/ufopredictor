@@ -6,12 +6,30 @@ import {
   saveRealFixturePredictionAction,
   verifyRealFixtureResultAction,
 } from "./actions";
-import { getAdminRealFixtureLabData } from "@/lib/supabase/real-fixture-lab-queries";
+import {
+  getAdminRealFixtureLabData,
+  type RealFixtureLabFixtureView,
+} from "@/lib/supabase/real-fixture-lab-queries";
 
 export const dynamic = "force-dynamic";
 
 type RealFixtureLabPageProps = {
   searchParams: Promise<{ externalId?: string; save?: string; evaluation?: string; result?: string }>;
+};
+
+type FixtureSummaryStatus =
+  | "saved"
+  | "ready_to_persist"
+  | "waiting_verification"
+  | "waiting_result"
+  | "no_saved_prediction";
+
+type FixtureEntry = {
+  fixture: RealFixtureLabFixtureView;
+  predictionInput: ReturnType<typeof buildRealFixturePredictionInput>;
+  preview: ReturnType<typeof generatePrediction>;
+  derivedSignalWarning: string | null;
+  evaluationStatus: FixtureSummaryStatus;
 };
 
 function formatKickoff(value: string) {
@@ -40,6 +58,53 @@ function formatMetric(value: boolean | null) {
   }
 
   return value ? "correct" : "incorrect";
+}
+
+function getFixtureEvaluationStatus(entry: FixtureEntry): FixtureSummaryStatus {
+  if (!entry.fixture.savedPrediction) {
+    return "no_saved_prediction";
+  }
+
+  if (entry.fixture.savedEvaluation) {
+    return "saved";
+  }
+
+  if (entry.fixture.result?.verification_status === "verified") {
+    return "ready_to_persist";
+  }
+
+  if (entry.fixture.result) {
+    return "waiting_verification";
+  }
+
+  return "waiting_result";
+}
+
+function formatFixtureEvaluationStatus(status: FixtureSummaryStatus) {
+  switch (status) {
+    case "saved":
+      return "saved";
+    case "ready_to_persist":
+      return "verified / pending evaluation";
+    case "waiting_verification":
+      return "pending result verification";
+    case "waiting_result":
+      return "waiting match_result";
+    case "no_saved_prediction":
+      return "no saved prediction";
+  }
+}
+
+function getDerivedSignalWarning(preview: ReturnType<typeof generatePrediction>) {
+  if (
+    preview.normalizedInput.dataCompleteness === 0 &&
+    preview.normalizedInput.homeTeam.providedSignals.length === 0 &&
+    preview.normalizedInput.awayTeam.providedSignals.length === 0
+  ) {
+    return "baseline/default signals";
+  }
+
+  return null;
 }
 
 function getSaveStatusMessage(status: string | undefined) {
@@ -204,10 +269,29 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
   const evaluationStatusMessage = getEvaluationStatusMessage(evaluation);
   const resultStatusMessage = getResultStatusMessage(result);
   const statusMessage = saveStatusMessage ?? evaluationStatusMessage ?? resultStatusMessage;
-  const realFixtureLabData = selectedExternalId
-    ? await getAdminRealFixtureLabData({
-        externalId: selectedExternalId,
-      })
+  const realFixtureLabData = await getAdminRealFixtureLabData();
+  const fixtureEntries: FixtureEntry[] =
+    realFixtureLabData.status === "ready"
+      ? realFixtureLabData.fixtures.map((fixture) => {
+          const predictionInput = buildRealFixturePredictionInput(fixture);
+          const preview = generatePrediction(predictionInput);
+
+          return {
+            fixture,
+            predictionInput,
+            preview,
+            derivedSignalWarning: getDerivedSignalWarning(preview),
+            evaluationStatus: "waiting_result",
+          };
+        })
+      : [];
+
+  for (const entry of fixtureEntries) {
+    entry.evaluationStatus = getFixtureEvaluationStatus(entry);
+  }
+
+  const selectedFixtureEntry = selectedExternalId
+    ? fixtureEntries.find((entry) => entry.fixture.externalId === selectedExternalId) ?? null
     : null;
 
   return (
@@ -298,6 +382,120 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         </div>
       </section>
 
+      {realFixtureLabData.status === "unavailable" ? (
+        <section className="panel rounded-lg border border-[var(--warning)]/35 p-5">
+          <h2 className="text-lg font-semibold">Datos no disponibles</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">{realFixtureLabData.message}</p>
+        </section>
+      ) : realFixtureLabData.fixtures.length === 0 ? (
+        <section className="panel rounded-lg p-5">
+          <h2 className="text-lg font-semibold">Sin fixtures internos disponibles</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Aun no hay fixtures reales API-Football con alcance <code>admin_only</code> disponibles para el
+            resumen piloto.
+          </p>
+        </section>
+      ) : (
+        <section className="panel rounded-lg p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">Pilot summary</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                Resumen admin-only de fixtures reales API-Football ya disponibles dentro del piloto D06.
+              </p>
+            </div>
+            <span className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-3 py-1 text-xs text-[var(--accent)]">
+              internal evidence only
+            </span>
+          </div>
+
+          {realFixtureLabData.warnings.length ? (
+            <div className="mt-4 rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4">
+              <h3 className="text-sm font-semibold text-[var(--warning)]">Lectura parcial</h3>
+              <ul className="mt-2 space-y-2 text-sm text-[var(--muted)]">
+                {realFixtureLabData.warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <div className="mt-4 overflow-x-auto">
+            <table className="min-w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
+                  <th className="px-3 py-3 font-medium">Fixture</th>
+                  <th className="px-3 py-3 font-medium">Kickoff</th>
+                  <th className="px-3 py-3 font-medium">Status</th>
+                  <th className="px-3 py-3 font-medium">Prediction</th>
+                  <th className="px-3 py-3 font-medium">Result</th>
+                  <th className="px-3 py-3 font-medium">Evaluation</th>
+                  <th className="px-3 py-3 font-medium">Signals</th>
+                  <th className="px-3 py-3 font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fixtureEntries.map((entry) => (
+                  <tr key={entry.fixture.id} className="border-b border-white/10 align-top">
+                    <td className="px-3 py-3">
+                      <p className="font-medium text-white">
+                        {entry.fixture.homeTeamName} vs {entry.fixture.awayTeamName}
+                      </p>
+                      <p className="mt-1 font-mono text-xs text-[var(--muted)]">{entry.fixture.externalId}</p>
+                    </td>
+                    <td className="px-3 py-3 text-[var(--muted)]">{formatKickoff(entry.fixture.kickoffAt)}</td>
+                    <td className="px-3 py-3">
+                      <span className="rounded-md border border-white/10 px-2 py-1 text-xs text-[var(--muted)]">
+                        {entry.fixture.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-[var(--muted)]">
+                      {entry.fixture.savedPrediction ? (
+                        <div className="space-y-1">
+                          <p className="text-emerald-300">saved</p>
+                          <p className="font-mono text-xs">prediction_version_id: {entry.fixture.savedPrediction.id}</p>
+                          <p>model_version: {entry.fixture.savedPrediction.modelVersionVersion ?? entry.fixture.savedPrediction.modelVersionId}</p>
+                          <p>prediction_type: {entry.fixture.savedPrediction.predictionType}</p>
+                          <p>run_scope: {entry.fixture.savedPrediction.runScope}</p>
+                        </div>
+                      ) : (
+                        <span className="text-[var(--warning)]">not saved</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-[var(--muted)]">
+                      {entry.fixture.result ? entry.fixture.result.verification_status : "no result"}
+                    </td>
+                    <td className="px-3 py-3 text-[var(--muted)]">
+                      {formatFixtureEvaluationStatus(entry.evaluationStatus)}
+                    </td>
+                    <td className="px-3 py-3 text-[var(--muted)]">
+                      {entry.derivedSignalWarning ? (
+                        <div className="space-y-1">
+                          <p className="text-[var(--warning)]">{entry.derivedSignalWarning}</p>
+                          <p>data_completeness: {formatPercentage(entry.preview.normalizedInput.dataCompleteness * 100)}</p>
+                          <p>provided_home: {entry.preview.normalizedInput.homeTeam.providedSignals.length}</p>
+                          <p>provided_away: {entry.preview.normalizedInput.awayTeam.providedSignals.length}</p>
+                        </div>
+                      ) : (
+                        <span>ok</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      <a
+                        href={`/admin/real-fixture-lab?externalId=${encodeURIComponent(entry.fixture.externalId)}`}
+                        className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                      >
+                        Open detail
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       {!selectedExternalId ? (
         <section className="panel rounded-lg p-5">
           <h2 className="text-lg font-semibold">Ningun fixture seleccionado</h2>
@@ -307,12 +505,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             API-Football.
           </p>
         </section>
-      ) : realFixtureLabData?.status === "unavailable" ? (
-        <section className="panel rounded-lg border border-[var(--warning)]/35 p-5">
-          <h2 className="text-lg font-semibold">Datos no disponibles</h2>
-          <p className="mt-2 text-sm text-[var(--muted)]">{realFixtureLabData.message}</p>
-        </section>
-      ) : realFixtureLabData && realFixtureLabData.fixtures.length === 0 ? (
+      ) : realFixtureLabData.status !== "ready" ? null : !selectedFixtureEntry ? (
         <section className="panel rounded-lg p-5">
           <h2 className="text-lg font-semibold">Fixture no encontrado</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
@@ -328,20 +521,9 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
               lectura admin
             </span>
           </div>
-          {realFixtureLabData?.warnings.length ? (
-            <div className="mt-4 rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4">
-              <h3 className="text-sm font-semibold text-[var(--warning)]">Lectura parcial</h3>
-              <ul className="mt-2 space-y-2 text-sm text-[var(--muted)]">
-                {realFixtureLabData.warnings.map((warning) => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
           <div className="mt-4 space-y-4">
-            {realFixtureLabData?.fixtures.map((fixture) => {
-              const predictionInput = buildRealFixturePredictionInput(fixture);
-              const preview = generatePrediction(predictionInput);
+            {[selectedFixtureEntry].map((entry) => {
+              const { fixture, predictionInput, preview } = entry;
 
               return (
                 <article
@@ -529,25 +711,56 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                         <h4 className="font-semibold text-[var(--warning)]">Internal persistence</h4>
                         {fixture.savedPrediction ? (
                           <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-[var(--muted)]">
-                            <p className="font-medium text-emerald-300">Prediccion interna ya guardada</p>
+                            <p className="font-medium text-emerald-300">Latest saved internal prediction</p>
                             <p className="mt-2">run_scope: {fixture.savedPrediction.runScope}</p>
                             <p>prediction_type: {fixture.savedPrediction.predictionType}</p>
+                            <p className="font-mono text-xs">prediction_version_id: {fixture.savedPrediction.id}</p>
                             <p>
                               model_version: {fixture.savedPrediction.modelVersionVersion ?? fixture.savedPrediction.modelVersionId}
                             </p>
                             <p>guardada: {formatTimestamp(fixture.savedPrediction.createdAt)}</p>
                           </div>
                         ) : (
-                          <form action={saveRealFixturePredictionAction} className="mt-3 space-y-3">
-                            <input type="hidden" name="externalId" value={fixture.externalId} />
-                            <button
-                              type="submit"
-                              className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
-                            >
-                              Guardar prediccion interna
-                            </button>
-                          </form>
+                          <p className="mt-3 text-sm text-[var(--muted)]">No saved internal prediction yet.</p>
                         )}
+                        <div className="mt-3 rounded-lg border border-white/10 bg-black/10 p-3 text-sm text-[var(--muted)]">
+                          <p className="font-medium text-white">Active model context</p>
+                          {fixture.activeModelVersionId ? (
+                            <>
+                              <p className="mt-2">active_model_version: {fixture.activeModelVersion ?? fixture.activeModelVersionId}</p>
+                              <p className="font-mono text-xs">active_model_version_id: {fixture.activeModelVersionId}</p>
+                              <p>
+                                active_model_saved: {fixture.hasSavedPredictionForActiveModel ? "yes" : "no"}
+                              </p>
+                              {fixture.activeModelSavedPredictionId ? (
+                                <p className="font-mono text-xs">
+                                  active_model_prediction_version_id: {fixture.activeModelSavedPredictionId}
+                                </p>
+                              ) : null}
+                            </>
+                          ) : (
+                            <p className="mt-2 text-[var(--warning)]">
+                              No active model version is configured. Internal save stays blocked until one is activated.
+                            </p>
+                          )}
+                        </div>
+                        {fixture.activeModelVersionId ? (
+                          fixture.hasSavedPredictionForActiveModel ? (
+                            <p className="mt-3 text-xs text-[var(--muted)]">
+                              This fixture already has an internal prediction for the active model version.
+                            </p>
+                          ) : (
+                            <form action={saveRealFixturePredictionAction} className="mt-3 space-y-3">
+                              <input type="hidden" name="externalId" value={fixture.externalId} />
+                              <button
+                                type="submit"
+                                className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                              >
+                                Guardar prediccion interna para modelo activo
+                              </button>
+                            </form>
+                          )
+                        ) : null}
                         {fixture.savedPrediction ? (
                           fixture.result?.verification_status === "verified" ? (
                             fixture.savedEvaluation ? (
@@ -604,7 +817,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                           <li>Evaluation remains internal-only and depends on a verified match result.</li>
                           <li>Intended only for internal model-trial preparation.</li>
                         </ul>
-                        {!fixture.savedPrediction ? (
+                        {!fixture.hasSavedPredictionForActiveModel && fixture.activeModelVersionId ? (
                           <p className="mt-3 text-xs text-[var(--muted)]">
                             Guardado interno solamente. No publica la prediccion, no usa provider predictions y no usa odds.
                           </p>

@@ -473,12 +473,12 @@ export const workerRuns: WorkerRun[] = [
   },
   {
     id: "run-sync-odds",
-    workerName: "sync-odds",
+    workerName: "sync-market-mock",
     status: "failed",
     startedAt: "2026-06-18T11:00:00Z",
     finishedAt: "2026-06-18T11:00:04Z",
     recordsProcessed: 0,
-    errorMessage: "Timeout simulado del proveedor de cuotas",
+    errorMessage: "Timeout simulado de snapshot mock de mercado",
     metadata: { provider: "mock", retryable: true },
   },
   {

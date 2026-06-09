@@ -1,18 +1,19 @@
 # Codex Handoff — UFO Predictor Current
 
-Last refreshed: after PR #40.
+Last refreshed: after D08A admin lab navigation cleanup.
 
 This file gives Codex the current state and guardrails. Codex should not invent roadmap structure. Follow the MVP-stage plan.
 
 ## Current roadmap state
 
-The project is entering D06 after D05K.
+Epic D remains in progress.
 
-D05 is functionally complete as the Real Fixture Lab controlled single-fixture loop. Epic D remains in progress.
+Current operational split:
 
-Current next active block:
-
-- D06 — Friendly Pilot / Calibration Batch.
+- D06 remains active for remaining post-match result/evaluation work.
+- D07 fallback signals are implemented and frozen pending full pilot evidence.
+- D08A admin lab navigation cleanup is complete.
+- F01 is the next frontend/product workstream and should start in a separate conversation.
 
 ## Recent completed work
 
@@ -38,22 +39,68 @@ Current next active block:
 - Finished exact fixture allowed only with one planned `pending_review` result write.
 - Broad friendlies and World Cup apply still blocked.
 
+### Post-PR #40 operational progress
+
+- D06C exact pre-match ingest/apply: completed for 5 pilot fixtures.
+- D06G-1 admin pilot summary: implemented.
+- D07B national-team fallback signals: implemented.
+- active model save bridge for Real Fixture Lab: implemented.
+- `v0.2-prelaunch` manually activated in DB and saved for all 5 pilot fixtures.
+- D08A admin lab navigation cleanup: implemented.
+
+Current evaluated fixtures:
+
+- `api-football:fixture:1544367` — Congo DR vs Chile — result ingested, verified, evaluation persisted.
+- `api-football:fixture:1525493` — Hungary vs Kazakhstan — result ingested, verified, evaluation persisted.
+
+Current pending-result fixtures:
+
+- `api-football:fixture:1544368` — Saudi Arabia vs Senegal.
+- `api-football:fixture:1540357` — Argentina vs Iceland.
+- `api-football:fixture:1546509` — Iraq vs Venezuela.
+
 ## D06 expected direction
 
-D06 is an operational pilot over 3-5 exact friendly fixtures.
+D06 is already in flight as an operational pilot over 5 exact friendly fixtures.
 
-D06 begins with read-only candidate discovery. It is not broad friendlies apply.
+Current D06 state:
 
-Expected D06 sequence:
+1. Candidate discovery: complete.
+2. Pilot matrix selection: complete.
+3. Exact pre-match dry-run/apply per fixture: complete.
+4. Save internal prediction: complete for v0.1 and v0.2-prelaunch.
+5. Exact post-match dry-run/apply after final score: partial.
+6. Verify result: partial.
+7. Persist evaluation: partial.
+8. Capture model errors: partial, wait for full pilot completion.
 
-1. Read-only candidate discovery.
-2. Pilot matrix selection.
-3. Exact pre-match dry-run/apply per fixture.
-4. Save internal prediction.
-5. Exact post-match dry-run/apply after final score.
-6. Verify result.
-7. Persist evaluation.
-8. Capture model errors.
+Important current rule:
+
+- do not change the model again until all 5 pilot fixtures are evaluated.
+
+Early v0.2 evidence from the first 2 evaluated fixtures:
+
+- winner `2/2`;
+- BTTS `2/2`;
+- over 2.5 `2/2`;
+- exact score `0/2`.
+
+## D08A / F01 handoff note
+
+- Beta Lab is now legacy/mock/internal calibration.
+- Real Fixture Lab is the active real-data admin lab.
+- no provider predictions or betting odds are consumed by the active Real Fixture Lab model.
+- odds may only be reconsidered later as a separate benchmark/market-comparison layer, not as hidden model input.
+
+New conversation recommendation:
+
+- start a new conversation for F01 MVP 1 UI Polish / Product Readiness;
+- keep F01 limited to public/shared UI polish, encoding cleanup, and interaction states;
+- do not touch DB/model/auth/payment/prediction logic in F01.
+
+Resume-this-conversation recommendation:
+
+- use this conversation later for remaining D06 result ingest, verification, and evaluation once the last 3 fixtures publish final scores.
 
 ## Payment/monetization planning
 

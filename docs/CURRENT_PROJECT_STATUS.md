@@ -1,10 +1,10 @@
 # UFO Predictor — Current Project Status
 
-Last refreshed: after PR #40.
+Last refreshed: after D08A admin lab navigation cleanup.
 
 ## Executive status
 
-UFO Predictor has completed the core Real Fixture Lab single-fixture loop and is ready to move into a controlled friendly pilot before the World Cup.
+UFO Predictor has completed the core Real Fixture Lab single-fixture loop and is now partway through a controlled friendly pilot before the World Cup.
 
 The project is not complete. It is now in a focused MVP-stage plan:
 
@@ -60,31 +60,92 @@ Recent merged PRs:
 - PR #39 — `feat: add real fixture result verification`.
 - PR #40 — `feat: allow exact friendly post-match result ingest`.
 
-D05J runtime trial:
-
-- fixture: `api-football:fixture:1540356`;
-- teams: Peru vs Spain;
-- fixture loaded in `/admin/real-fixture-lab`;
-- scope remained `admin_only + api_football`;
-- saved internal prediction was visible;
-- no `match_results` row existed;
-- verification correctly unavailable;
-- evaluation correctly blocked.
-
-Result: partial pass, blocked by missing runtime result data, not by system failure.
-
 ### D06 — Friendly Pilot / Calibration Batch
 
-Status: next active block.
+Status: in progress.
 
 Goal: operate 3-5 exact pre-World-Cup friendlies through the internal loop.
 
-D06 begins no-code/read-only:
+Current D06 state:
 
-- discover candidate friendlies;
-- select 3-5 exact fixtures;
-- build a pilot matrix;
-- then operate pre-match and post-match flows fixture by fixture.
+- D06A candidate discovery: complete.
+- D06B pilot fixture selection: complete.
+- D06C exact pre-match ingest/apply: complete for 5 exact friendlies.
+- D06C internal v0.1 predictions: saved for all 5 fixtures.
+- D06G-1 admin pilot summary: implemented and committed.
+- D06D/E post-match result/evaluation: partially complete.
+
+Pilot fixture result/evaluation status:
+
+- `api-football:fixture:1544367` — Congo DR vs Chile: finished `1-2`, result ingested, verified, evaluation persisted.
+- `api-football:fixture:1525493` — Hungary vs Kazakhstan: finished `3-1`, result ingested, verified, evaluation persisted.
+- `api-football:fixture:1544368` — Saudi Arabia vs Senegal: still pending final result.
+- `api-football:fixture:1540357` — Argentina vs Iceland: still pending final result.
+- `api-football:fixture:1546509` — Iraq vs Venezuela: still pending final result.
+
+Result: 2 of 5 pilot fixtures have verified evaluation records; 3 of 5 remain pending result availability.
+
+### D07 — Model Sanity / Emergency Calibration
+
+Status: implemented, then frozen pending full pilot results.
+
+Delivered:
+
+- D07A recognition found Real Fixture Lab national-team fixtures were using default signals only.
+- D07B implemented local/static national-team fallback signals.
+- `v0.2-prelaunch` was manually activated in the database as the active model version.
+- v0.2 internal predictions were saved for all 5 D06 pilot fixtures.
+- v0.1 predictions remain preserved as baseline historical rows.
+
+Early v0.2 evaluation from the first 2 completed fixtures:
+
+- winner: `2/2`;
+- BTTS: `2/2`;
+- over 2.5: `2/2`;
+- exact score: `0/2`.
+
+Important freeze:
+
+- do not change the model again until all 5 D06 pilot fixtures are evaluated.
+
+### D08A — Admin Lab Navigation Cleanup
+
+Status: complete.
+
+Delivered:
+
+- Real Fixture Lab is reachable from admin home and header.
+- Beta Lab is labeled as legacy/mock/internal calibration.
+- visible `sync-odds` wording was softened to legacy/mock market wording.
+- active Real Fixture Lab flow explicitly preserves the no-provider-predictions / no-betting-odds boundary.
+
+### F01 — MVP 1 UI Polish / Product Readiness
+
+Status: next active frontend/product workstream.
+
+Goal: improve product-facing UI polish and launch readiness while D06 waits on remaining match results.
+
+Recognition findings:
+
+- public/product-facing UI is structurally usable but visually rough;
+- encoding/mojibake issues remain;
+- `html lang` should be `es`;
+- CTA/button hover/focus/pointer states are inconsistent;
+- `/pricing` is the roughest public page;
+- `/matches/[slug]` is the most important public page to polish.
+
+Hard F01 boundaries:
+
+- no DB changes;
+- no model/prediction logic changes;
+- no auth/payment logic changes;
+- no migration work;
+- no provider predictions;
+- no betting odds as model input.
+
+Future note:
+
+- betting odds may be considered only later as a separate benchmark/market-comparison layer, never as hidden model input in the current MVP stages.
 
 ## Payment/monetization status
 
@@ -110,4 +171,7 @@ No shared-file chaos. One branch per task. Migration numbers must be coordinated
 
 ## Immediate next step
 
-Re-enter D06 on a clean branch from updated `main` and run candidate discovery recognition/read-only commands.
+Split the next work clearly:
+
+- new conversation: start F01 UI recognition/implementation planning from a clean branch and keep it frontend-only;
+- resume this conversation later for remaining D06 result ingest, verification, and evaluation once the last 3 fixtures publish final scores.
