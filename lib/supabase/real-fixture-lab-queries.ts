@@ -32,7 +32,14 @@ type RealFixtureLabTeam = Pick<TeamRow, "id" | "name">;
 
 type RealFixtureLabResult = Pick<
   MatchResultRow,
-  "home_goals" | "away_goals" | "verification_status" | "intake_source" | "source_note"
+  | "id"
+  | "home_goals"
+  | "away_goals"
+  | "verification_status"
+  | "intake_source"
+  | "source_note"
+  | "reviewed_at"
+  | "reviewed_by"
 >;
 
 type RealFixtureLabSavedPrediction = {
@@ -183,7 +190,7 @@ export async function getAdminRealFixtureLabData(
         supabase.from("teams").select("id, name").eq("id", match.away_team_id).maybeSingle(),
         supabase
           .from("match_results")
-          .select("home_goals, away_goals, verification_status, intake_source, source_note")
+          .select("id, home_goals, away_goals, verification_status, intake_source, source_note, reviewed_at, reviewed_by")
           .eq("match_id", match.id)
           .maybeSingle(),
         supabase

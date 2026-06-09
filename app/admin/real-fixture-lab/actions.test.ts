@@ -70,7 +70,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: revalidatePathMock,
 }));
 
-import { persistRealFixtureEvaluationAction, saveRealFixturePredictionAction } from "./actions";
+import {
+  persistRealFixtureEvaluationAction,
+  saveRealFixturePredictionAction,
+  verifyRealFixtureResultAction,
+} from "./actions";
 
 const externalId = "api-football:fixture:1540356";
 const predictionVersionId = "00000000-0000-4000-8000-000000000123";
@@ -108,6 +112,13 @@ function buildEvaluationFormData() {
   const formData = new FormData();
   formData.set("predictionVersionId", predictionVersionId);
   formData.set("externalId", externalId);
+  return formData;
+}
+
+function buildVerificationFormData(matchResultId = "00000000-0000-4000-8000-000000000456") {
+  const formData = new FormData();
+  formData.set("externalId", externalId);
+  formData.set("matchResultId", matchResultId);
   return formData;
 }
 
@@ -205,6 +216,44 @@ function createPredictionResultsMutationBuilder(options: {
                 },
               ),
             ),
+          })),
+        })),
+      })),
+    })),
+  };
+
+  return builder;
+}
+
+function createMatchResultsVerificationBuilder(options?: {
+  maybeSingle?: { data: unknown; error: unknown };
+  updateResult?: { data?: unknown; error: unknown };
+}) {
+  const builder = {
+    select: vi.fn(() => builder),
+    eq: vi.fn(() => builder),
+    maybeSingle: vi.fn(() =>
+      Promise.resolve(
+        options?.maybeSingle ?? {
+          data: null,
+          error: null,
+        },
+      ),
+    ),
+    update: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(() =>
+                Promise.resolve(
+                  options?.updateResult ?? {
+                    data: null,
+                    error: null,
+                  },
+                ),
+              ),
+            })),
           })),
         })),
       })),
@@ -626,5 +675,125 @@ describe("persistRealFixtureEvaluationAction", () => {
       `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&evaluation=incomplete`,
     );
     expect(evaluatePredictionMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("verifyRealFixtureResultAction", () => {
+  const pendingReviewResult = {
+    id: "00000000-0000-4000-8000-000000000456",
+    match_id: "match-1",
+    verification_status: "pending_review",
+  };
+
+  function buildVerificationClient(options?: {
+    result?: { data: unknown; error: unknown };
+    match?: { data: unknown; error: unknown };
+    updateResult?: { data?: unknown; error: unknown };
+  }) {
+    const matchResultsBuilder = createMatchResultsVerificationBuilder({
+      maybeSingle: options?.result ?? { data: pendingReviewResult, error: null },
+      updateResult: options?.updateResult ?? { data: { id: "00000000-0000-4000-8000-000000000456" }, error: null },
+    });
+    const matchBuilder = createSingleSelectBuilder(
+      options?.match ?? {
+        data: {
+          id: "match-1",
+        },
+        error: null,
+      },
+    );
+
+    const from = vi.fn((table: string) => {
+      if (table === "match_results") return matchResultsBuilder;
+      if (table === "matches") return matchBuilder;
+      throw new Error(`unexpected table ${table}`);
+    });
+
+    return {
+      from,
+      matchBuilder,
+      matchResultsBuilder,
+    };
+  }
+
+  it("verifies an existing pending_review result using only verification fields", async () => {
+    const client = buildVerificationClient();
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(verifyRealFixtureResultAction(buildVerificationFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=verified`,
+    );
+
+    expect(client.matchResultsBuilder.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        verification_status: "verified",
+        reviewed_by: "admin-1",
+      }),
+    );
+    expect(client.matchResultsBuilder.update).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        home_goals: expect.anything(),
+        away_goals: expect.anything(),
+        match_id: expect.anything(),
+        intake_source: expect.anything(),
+        source_note: expect.anything(),
+        recorded_at: expect.anything(),
+        id: expect.anything(),
+      }),
+    );
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
+  });
+
+  it("blocks when no result exists", async () => {
+    const client = buildVerificationClient({
+      result: { data: null, error: null },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(verifyRealFixtureResultAction(buildVerificationFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=no_result`,
+    );
+    expect(client.from).not.toHaveBeenCalledWith("prediction_results");
+  });
+
+  it("blocks when fixture scope or external id no longer matches", async () => {
+    const client = buildVerificationClient({
+      match: { data: null, error: null },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(verifyRealFixtureResultAction(buildVerificationFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=not_found`,
+    );
+  });
+
+  it("blocks when the result is already verified", async () => {
+    const client = buildVerificationClient({
+      result: {
+        data: { ...pendingReviewResult, verification_status: "verified" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(verifyRealFixtureResultAction(buildVerificationFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=already_verified`,
+    );
+    expect(client.matchResultsBuilder.update).not.toHaveBeenCalled();
+  });
+
+  it("blocks when the result is rejected", async () => {
+    const client = buildVerificationClient({
+      result: {
+        data: { ...pendingReviewResult, verification_status: "rejected" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(verifyRealFixtureResultAction(buildVerificationFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=rejected`,
+    );
+    expect(client.matchResultsBuilder.update).not.toHaveBeenCalled();
   });
 });
