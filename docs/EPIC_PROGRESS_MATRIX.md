@@ -1,220 +1,122 @@
-# EPIC PROGRESS MATRIX — UFO Predictor
+# Epic Progress Matrix — UFO Predictor
 
-_Last updated: post C08 / Track D D04C (2026-06-05)_
+_Last updated after D05F, D05G, and Real Fixture Lab Phase 3A validation._
 
-Current baseline:
+## Status legend
 
-- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
-- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
-- C01-C08 are functionally closed.
-- D02-D04C are implemented locally on the Track D feature branch.
-- API-Football Pro is validated as the initial football data provider.
-- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+- `Done`: implemented and validated enough for current scope.
+- `Partial`: implemented but intentionally incomplete or not fully validated.
+- `Pending`: not implemented yet.
+- `Blocked`: explicitly not allowed without a future design/approval step.
 
-<!-- POST_C08_D04C_UPDATE -->
-## Post C08 / Track D Progress Update
+## Current progress matrix
 
-| Block | Status | Notes |
-|---|---|---|
-| C08 — Trust / Transparency Real v0.1 | Closed / minimal functional | `/transparency` replaced mock metrics with product-safe beta methodology, limitations, and no-guarantee copy. No `prediction_results` exposed. |
-| D02 — API-Football read spike | Completed locally | Read-only API-Football client + CLI spike. No DB writes. |
-| D03A — League discovery | Completed locally | `leagues` mode validates provider competition IDs. |
-| D03B — Rounds diagnostics | Completed locally | `rounds` mode plus safe diagnostics for `errors/results/paging`. Free-plan 2026 limit diagnosed. |
-| D04A — Target competition selector | Completed locally | Target competition config and beta candidate selector. |
-| D04B — Prioritization | Completed locally | Priority/score/reasons added for beta candidates. |
-| D04C — Shortlist report mode | Completed locally | Report builder separates upcoming/finished/active and summarizes competition/useCase/status. |
-
-Validated provider competitions:
-
-| Competition | leagueId | Season | Lab v0.1 decision |
-|---|---:|---:|---|
-| World Cup | `1` | 2026 | Include when tournament begins |
-| Friendlies | `10` | 2026 | Include, adult fixtures by default |
-| Colombia Primera A | `239` | 2026 | Include |
-| Copa Colombia | `241` | 2026 | Validated, excluded from Lab v0.1 |
-
-Next candidates:
-
-- D04D — exportable shortlist/report file, optional if manual beta operations need a local artifact.
-- D05 — fixture ingestion/persistence design, next major block before Supabase writes.
-
-## Current Epic Position
-
-The project is post C07 and ready to start C08.
-
-## Progress Matrix — Post C07
-
-| Epic / Gate | Status | Notes |
+| Area | Status | Notes |
 |---|---:|---|
-| Lab Admin Flow | ✅ Done | Internal Lab workflow operational |
-| C01 — Public Predictions From DB | ✅ Done | `/predictions` reads public data from Supabase |
-| C02 — Plans & Entitlements Backend | ✅ Done | Plans, subscriptions, entitlements, dashboard access summary |
-| C03 — Match Detail Public From DB | ✅ Done | `/matches/[slug]` reads public views |
-| C04 — Premium Access Enforcement Skeleton | ✅ Done | Pure server-side access resolver |
-| C05 — Anonymous vs Registered Free Foundation | ✅ Done | Value wall, DTO boundary, saved matches/watchlist |
-| C06 — World Cup Premium Package Foundation | ✅ Done | Package mapping, pricing preview, materialization simulation, canonical keys; DB package catalog deferred |
-| C07 — Entitled Premium Match Projection | ✅ Done | Protected premium projection behind access gate/RPC; `prediction_results` excluded |
-| C08 — Trust / Transparency Real v0.1 | ⏭ Next | Replace simulated transparency safely |
-| D — Data Intake / Sports API | Future | Provider selection and integration |
-| D/E — Workers Runtime | Future | Real workers and scheduled processing |
-| E — Payments / Packages / Subscriptions | Future | PayPal/other Colombia-compatible providers to evaluate; do not assume Stripe |
-| F — Odds / LLM Explanations | Future | Deferred until product/legal/technical readiness |
-| G — Platform Maturity | Future | Google Auth / i18n / staging / observability |
+| C01-C08 prototype/product foundation | Done | Previously closed functional baseline. |
+| D05A fixture ingestion/persistence blueprint | Done | Blueprint closed before D05C/D05F work. |
+| D05B migration enablement | Done | Remote/manual migration path validated. |
+| D05C.1 dry-run planner | Done | Controlled API-Football dry-run planning exists. |
+| D05C.2A controlled Colombia write mode | Done | Colombia apply validated with idempotency. |
+| D05F ingest run tracking | Done | `ingest_runs` / `ingest_run_items` integrated and validated. |
+| Real Fixture Lab Phase 1 read surface | Done | Admin-only route reads `admin_only + api_football` fixtures. |
+| Real Fixture Lab Phase 2 prediction preview | Done | In-memory prediction preview works. |
+| Real Fixture Lab Phase 3A internal prediction persistence | Done | Saves `prediction_versions` + `prediction_markets`, not `prediction_results`. |
+| D05G controlled single-friendly ingest | Done | Exact `--fixtureId` support and narrow friendlies apply lane validated. |
+| Post-match result review | Pending | Needed before evaluation persistence. |
+| Prediction evaluation persistence | Pending | `prediction_results` intentionally untouched so far. |
+| Broad friendlies apply | Blocked | Only exact single-fixture lane is allowed. |
+| World Cup apply | Blocked | Must not be enabled without new design/review. |
+| Provider predictions | Blocked | Out of scope. |
+| Odds | Blocked | Out of scope. |
+| Public prediction exposure from Real Fixture Lab | Blocked | Lab remains internal/admin-only. |
+| Cron/workers | Blocked | No automation yet. |
 
-## C05–C07 Completion Details
+## Recently completed block
 
-C05 delivered the full Anonymous -> Registered Free foundation:
+### D05F
 
-- registered free value wall;
-- presentation boundary;
-- server-side DTO shaping;
-- saved matches/watchlist;
-- saved matches dashboard surface.
+Delivered durable ingest auditability:
 
-C06 delivered World Cup package foundation without checkout or DB package catalog persistence.
+- `0018_ingest_run_tracking.sql`.
+- Writer integration.
+- Run header and item tracking.
+- Snapshots for updates.
+- `ingest_run_id` in CLI output.
 
-C07 delivered entitled premium match projection with protected access gate/RPC and minimal authorized rendering.
+### Real Fixture Lab
 
-## Supabase Milestone
+Delivered internal real-fixture trial capability:
 
-Remote Supabase is applied through:
+- `/admin/real-fixture-lab`.
+- Read real API-Football fixtures as admin-only.
+- Preview model output.
+- Persist internal prediction version and markets.
+- Duplicate blocking.
+- Active model version selection.
 
-```txt
-0016_premium_match_projection.sql
-```
+### D05G
 
-## Next Gate / Epic
+Delivered exact single-friendly ingest:
 
-```txt
-C08 — Trust / Transparency Real v0.1
-```
+- `--fixtureId` for `ingest-dry-run`.
+- Direct exact fixture fetch.
+- Narrow friendlies apply lane.
+- Peru vs Spain validation.
 
+## Validated real fixture pipeline
 
+Validated fixture:
 
-| Epic / Gate | Status | Notes |
-|---|---:|---|
-| Lab Admin Flow | ✅ Done | Internal Lab workflow operational |
-| C01 — Public Predictions From DB | ✅ Done | `/predictions` reads public data from Supabase |
-| C02 — Plans & Entitlements Backend | ✅ Done | Plans, subscriptions, entitlements, dashboard access summary |
-| C03 — Match Detail Public From DB | ✅ Done | `/matches/[slug]` reads public views |
-| C04 — Premium Access Enforcement Skeleton | ✅ Done | Pure server-side access resolver |
-| C05 — Anonymous vs Registered Free Foundation | ✅ Done | Value wall, DTO boundary, saved matches/watchlist |
-| C06 — World Cup Premium Package Foundation | ✅ Done | Package mapping, pricing preview, materialization simulation, canonical keys; DB package catalog deferred |
-| C07 — Entitled Premium Match Projection | ✅ Done | Protected premium projection behind access gate/RPC; `prediction_results` excluded |
-| C08 — Trust / Transparency Real v0.1 | ⏭ Next | Replace simulated transparency safely |
-| D — Data Intake / Sports API | Future | Provider selection and integration |
-| D/E — Workers Runtime | Future | Real workers and scheduled processing |
-| E — Payments / Packages / Subscriptions | Future | PayPal/other Colombia-compatible providers to evaluate; do not assume Stripe |
-| F — Odds / LLM Explanations | Future | Deferred until product/legal/technical readiness |
-| G — Platform Maturity | Future | Google Auth / i18n / staging / observability |
+- `api-football:fixture:1540356`.
+- Peru vs Spain.
+- Friendly.
+- Scheduled at ingest time.
 
-
----
-
-## Post C07 Baseline Update
-
-Current merged baseline:
+Validated pipeline:
 
 ```txt
-main includes PR #31 — Feature/c06 world cup package foundation
-main includes PR #32 — Feature/c07 premium match projection
-Completed: C01–C07
-Next: C08 — Trust / Transparency Real v0.1
-Supabase remote manually applied through: 0016_premium_match_projection.sql
+API-Football exact read
+-> D05G exact dry-run
+-> D05G manually approved apply
+-> ingest_runs + ingest_run_items
+-> admin_only match
+-> Real Fixture Lab preview
+-> prediction_versions
+-> prediction_markets
 ```
 
-### C06 Closure Summary
-
-C06 — World Cup Premium Package Foundation is complete.
-
-Implemented:
-
-- C06B: World Cup package mapping helpers.
-- C06D: World Cup 2026 pricing preview without checkout.
-- C06E: pure package intent materialization simulation without DB writes.
-- C06G: canonical World Cup access keys.
-- C06C: explicitly resolved as a defer decision, not forgotten.
-
-C06C decision:
-
-- No DB package catalog yet.
-- No `plans` / `plan_features` seeds for World Cup packages yet.
-- No `package_catalog` table yet.
-- No 10 Match Pack ledger yet.
-
-Reason: World Cup packages are still flexible commercial templates, not final persisted products. The project needs room for team-only passes, group passes, stage passes from octavos/cuartos/semis/final, semifinals/final bundles, single-match unlocks, flexible match packs, and other demand-based combinations.
-
-### C07 Closure Summary
-
-C07 — Entitled Premium Match Projection is complete.
-
-Implemented:
-
-- C07A: `PremiumMatchResource` contract and canonicalization.
-- C07B.1: public-safe match access context SQL.
-- C07B.2: server-side premium access gate context.
-- C07C: premium projection contract and shaping helper.
-- C07D: `premiumProjection` wired into match detail DTO.
-- C07E.1: allowed premium payload selectors.
-- C07E.2: protected premium match projection RPC.
-- C07E.3: protected premium query integration and minimal authorized rendering.
-
-C07 security boundary:
-
-- Premium payload is queried only when `premiumAccess.status === "authorized"`.
-- `locked` and `unavailable` never call the premium RPC and never contain payload.
-- Authorized null/error responses become `authorized_unavailable`.
-- Premium payload is filtered through selectors/whitelists before DTO output.
-- `prediction_results` remains excluded from product premium projection.
-- No service role is used for normal UI.
-- No checkout, PayPal, Stripe, or payments were implemented.
-- No entitlement/unlock inserts were implemented.
-
-### C07 SQL Applied Manually
-
-Remote Supabase was manually updated through:
+Not validated yet:
 
 ```txt
-0016_premium_match_projection.sql
+match result review
+-> evaluation
+-> prediction_results
 ```
 
-New C07 migrations applied manually and validated:
+## Next recommended epic/task
 
-- `0015_public_match_access_context.sql`
-  - extends `public_match_details` with public-safe access context:
-    `competition_id`, `competition_access_key`, `home_team_id`, `away_team_id`.
-- `0016_premium_match_projection.sql`
-  - creates `public.get_premium_match_projection(p_match_id uuid)`.
-  - `SECURITY DEFINER` with safe `search_path`.
-  - `anon` cannot execute.
-  - `authenticated` can execute.
-  - `auth.uid()` is required.
-  - returns only allowed premium markets/narratives after DB-side authorization.
-  - does not expose `prediction_results`.
+Recommended next phase:
 
-### Payments / Provider Decision
+```txt
+Real Fixture Lab Post-Match Evaluation
+```
 
-Do not assume Stripe.
+Goal:
 
-Because the project/user is Colombia-based, Stripe should not be assumed available directly without a supported-country structure such as an LLC/company in a supported country.
+- Consume/review the result for a previously saved internal prediction.
+- Only after trusted result review, evaluate the prediction.
+- Persist evaluation internally in `prediction_results`.
+- Do not expose it publicly.
 
-PayPal is currently a likely candidate. Other Colombia-compatible payment gateways must be evaluated before checkout/fulfillment.
+## Do not start yet
 
-No checkout, PayPal integration, Stripe integration, or payments were implemented in C06/C07.
+Do not start these without an explicit design pass:
 
-### Workflow Decisions To Preserve
-
-SQL/migrations:
-
-- Codex may create SQL files/migrations.
-- The user applies SQL manually in Supabase SQL Editor.
-- Never assume a migration is applied remotely until the user confirms validation results.
-- SQL validation queries must be provided with migrations.
-- Current remote is manually applied through `0016_premium_match_projection.sql`.
-
-Git:
-
-- The user handles simple Git manually.
-- During an epic/feature branch, use small local commits per logical subtask.
-- Do not push for every subtask.
-- Push/PR when the full functional block is ready for review/merge, unless backup/review requires earlier push.
+- World Cup apply.
+- Broad friendlies apply.
+- Friendlies batch ingest.
+- Public prediction publication.
+- Provider predictions.
+- Odds.
+- Premium/payment exposure.

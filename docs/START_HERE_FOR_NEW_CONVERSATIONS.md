@@ -1,578 +1,207 @@
-# START HERE FOR NEW CONVERSATIONS — UFO Predictor
+# Start Here for New Conversations — UFO Predictor
 
-_Last updated: post C08 / Track D D04C (2026-06-05)_
+Use this file at the start of any new ChatGPT or Codex-assisted conversation about UFO Predictor.
 
-Current baseline:
+## Language / workflow rule
 
-- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
-- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
-- C01-C08 are functionally closed.
-- D02-D04C are implemented locally on the Track D feature branch.
-- API-Football Pro is validated as the initial football data provider.
-- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
+The user may discuss strategy in Spanish.
 
+All prompts intended to be pasted into Codex must be written in English.
 
-This is the first document to read when starting a new ChatGPT, Codex, or handoff conversation for UFO Predictor. It preserves broad project context, operational continuity, and current constraints.
+Codex should be treated as:
 
-<!-- POST_C08_D04C_UPDATE -->
-## Start Here Update — Post C08 / Track D D04C
+- repo inspector;
+- focused implementer;
+- validator;
+- not owner of broad project documentation.
 
-Current practical baseline:
+ChatGPT should own broad documentation updates unless there is a mechanical repo reason to ask Codex.
 
-- C01-C08 remain closed.
-- C08 is functionally closed as a product-safe transparency update.
-- Track D is active on branch `feature/d02-api-football-read-spike` and has completed D02-D04C locally.
-- API-Football Pro is validated for 2026 fixture access.
+## Current branch context
 
-What changed most recently:
-
-- `/transparency` no longer relies on mock performance metrics as production trust proof.
-- API-Football provider integration now reads real fixtures.
-- Target competition selection, prioritization, and shortlist report mode exist for beta planning.
-
-Do not restart provider selection unless API-Football fails. Sportmonks is fallback only.
-
-Lab v0.1 defaults:
-
-1. Colombia Primera A / Liga BetPlay (`leagueId=239`).
-2. Friendlies (`leagueId=10`), excluding youth by default.
-3. World Cup 2026 (`leagueId=1`) once tournament begins.
-
-Copa Colombia (`leagueId=241`) is validated but excluded from Lab v0.1 defaults.
-
-Next recommended conversation path:
-
-- Quick no-DB continuation: D04D exportable shortlist/report.
-- Product/database path: D05A fixture persistence design.
-
-Start a new Codex prompt from D04D or D05A. Do not ask Codex to repeat D02-D04C.
-
-## Current Baseline
-
-Main includes work through:
-
-| PR | Scope | Status |
-|---:|---|---|
-| #18 | `feat: persist lab evaluations` | Done |
-| #19 | `docs: update project context after lab admin flow` | Done |
-| #20 | `feat: read public predictions from db` | Done |
-| #21 | `feat: add plans entitlements backend` | Done |
-| #22 | `docs: update project context after c02` | Done |
-| #23 | `feat: read public match detail from db` | Done |
-| #24 | `docs: update project context after c03` | Done |
-| #25 | `feat: add premium match access enforcement skeleton` | Done |
-| #26 | `feat: add registered free value wall` | Done |
-| #27 | `docs: update project context after c05 gate 1` | Done |
-| #28 | `feat: shape anonymous prediction payload server-side` | Done |
-| #29 | `Feature/registered free saved matches` | Done |
-| #30 | `Docs/update context after c05` | Done |
-| #31 | `Feature/c06 world cup package foundation` | Done |
-| #32 | `Feature/c07 premium match projection` | Done |
-
-Current completed state:
+Recent work happened on:
 
 ```txt
-C01 — Public Predictions From DB ✅
-C02 — Plans & Entitlements Backend ✅
-C03 — Match Detail Public From DB ✅
-C04 — Premium Access Enforcement Skeleton ✅
-C05 Gate 0 — Anonymous vs Registered Free Product Audit ✅
-C05 Gate 1 — Registered Free Value Wall ✅
-C05 Gate 2A — Presentation Boundary sin SQL ✅
-C05 Gate 2B — Server-side Anonymous Payload Shaping sin SQL ✅
-C05 Gate 3 — Saved Matches / Watchlist Foundation ✅
-C06 — World Cup Premium Package Foundation ✅
-C07 — Entitled Premium Match Projection ✅
+feature/d05f-ingest-run-tracking-clean
 ```
 
-## Supabase Remote State
+Before any new work, ask Codex to confirm:
 
-Supabase remote has been manually updated through:
-
-```txt
-0016_premium_match_projection.sql
+```bash
+git branch --show-current
+git status --short
+git log --oneline origin/main..HEAD
 ```
 
-Important applied migrations:
+Do not assume branch cleanliness from memory.
 
-- `0011_public_prediction_reads.sql`
-- `0012_plans_entitlements_backend.sql`
-- `0013_public_match_detail_projection_hardening.sql`
-- `0016_premium_match_projection.sql`
+## Current implemented state
 
-No later migration is assumed to exist remotely unless the user explicitly applies it in Supabase SQL Editor and shares validation results.
+### D05F — ingest run tracking
 
-## Critical Supabase Rule
+Implemented and validated:
 
-Supabase CLI local is not configured as the normal workflow.
+- `0018_ingest_run_tracking.sql`.
+- `ingest_runs`.
+- `ingest_run_items`.
+- writer tracking integration.
+- `before_snapshot` / `after_snapshot` metadata.
+- `ingest_run_id` in CLI report.
 
-Codex may create migration files, but Codex does not apply migrations to the remote Supabase project.
+Rollback remains manual/script-reviewed, not automatic.
 
-All remote migrations must be applied manually by the user in Supabase SQL Editor. After every migration:
+### Real Fixture Lab
 
-1. Review SQL.
-2. Apply manually in Supabase SQL Editor.
-3. Run SQL validation queries.
-4. Validate grants/policies.
-5. Validate anon/authenticated behavior.
-6. Validate UI.
-7. Run local validation:
-   - `npm run test`
-   - `npm run lint`
-   - `npm run build`
-8. Restore `next-env.d.ts` if Next modifies it.
+Implemented and validated:
 
-## Product Principle
+- `/admin/real-fixture-lab` admin route.
+- Reads real API-Football fixtures where:
+  - `matches.access_scope='admin_only'`.
+  - `matches.intake_source='api_football'`.
+- Uses `externalId` query param.
+- No stale default fixture.
+- In-memory prediction preview.
+- Internal prediction persistence:
+  - `prediction_versions`.
+  - `prediction_markets`.
+- Duplicate blocking.
+- Active model version selection.
+- No `prediction_results` in Phase 3A.
 
-The statistical model calculates.
+### RLS migrations for Real Fixture Lab
 
-The AI explains.
+Applied/created in this branch:
 
-Do not use LLM output as the source of prediction probabilities. Prediction probabilities must come from deterministic model code and persisted prediction versions, not narrative generation.
+- `0019_real_fixture_lab_admin_read_policies.sql`.
+- `0020_fix_real_fixture_lab_rls_recursion.sql`.
+- `0021_real_fixture_lab_prediction_persistence_policies.sql`.
+- `0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql`.
 
-## Current Product Funnel
+These are important. Do not remove or casually rewrite them.
 
-The active funnel is:
+### D05G — controlled single-friendly ingest
+
+Implemented and validated:
+
+- `--fixtureId` support in `ingest-dry-run`.
+- exact fixture fetch.
+- narrow apply lane for one selected friendly.
+
+Validated fixture:
+
+- `api-football:fixture:1540356`.
+- Peru vs Spain.
+- Ingested as `admin_only`.
+- No `match_results` created at ingest.
+- No public view exposure.
+- Prediction saved internally.
+
+## Validated pipeline
 
 ```txt
-Anonymous
-→ Registered Free
-→ World Cup premium packages
-→ post-World-Cup monthly subscriptions
+API-Football exact fixture read
+-> D05G exact fixture dry-run
+-> manually approved single-friendly apply
+-> ingest_runs / ingest_run_items
+-> admin_only match
+-> Real Fixture Lab preview
+-> prediction_versions / prediction_markets
 ```
 
-Important decisions:
-
-- There is no separate `beta/free expanded` plan.
-- Registered Free is permanent, not a temporary beta plan.
-- Before the World Cup, Registered Free may receive selected previews to validate product/model interest.
-- During the World Cup, Registered Free still has more value than Anonymous, while World Cup premium packages protect deeper analysis.
-- After the World Cup, monthly subscriptions are expected for American/European league coverage.
-
-## World Cup Premium Direction
-
-Premium monetization for the World Cup should be package/pass/unlock based, not monthly subscription first.
-
-Candidate World Cup products:
-
-- World Cup Full Pass.
-- 10 Match Pack.
-- Single Match Unlock.
-- Country/Team Pass.
-- Group Pass.
-- Stage Pass.
-- Semifinals / Final Pass.
-
-Monthly subscriptions are expected after the World Cup for recurring league coverage.
-
-## Codex Prompt Rule
-
-ChatGPT must separate Codex instructions into two blocks:
+Not implemented yet:
 
 ```txt
-EJECUCIÓN RECOMENDADA
-- Herramienta:
-- Modelo:
-- Inteligencia:
-- Tamaño:
-- Riesgo:
-- Motivo:
-- Manual/PowerShell vs Codex:
-- ¿Esto debe terminar en PR ahora?:
-
-PROMPT LIMPIO PARA CODEX
-...
+result review
+-> evaluation
+-> prediction_results
 ```
 
-The first block is for the user. The second block is the only block meant to be copied into Codex.
+## Critical no-go boundaries
 
-## Tool Discipline
+Do not do these without explicit design and approval:
 
-Use manual PowerShell/Git for simple commands:
+- No broad friendlies apply.
+- No World Cup apply.
+- No Copa Colombia apply/defaults.
+- No `all` apply.
+- No provider predictions.
+- No odds.
+- No public exposure of Real Fixture Lab fixtures/predictions.
+- No `prediction_results` until result review/evaluation is designed.
+- No service-role client in app routes.
+- No cron/workers.
+- No push/PR without approval.
 
-- `git status`
-- `git diff`
-- `git log`
-- `git add` / `git commit` / `git push`
-- simple validation commands
-- copying results back to ChatGPT
+## Recommended next phase
 
-Use Codex for:
-
-- repository inspection that requires reasoning across files;
-- code edits;
-- refactors;
-- implementation;
-- SQL/migrations;
-- technical reports tied to files it is modifying.
-
-Do not spend Codex tokens on trivial terminal work unless it is already executing an implementation task.
-
-## Git / Merge Discipline
-
-Do not merge every micro-step to `main`.
-
-Use longer feature branches with multiple commits when the block has one coherent functional goal. Merge to `main` only when there is functional value, a closed security boundary, or a real stage transition.
-
-C05 Gate 2A was integrated directly to `main` by workflow mistake. It should not be reverted. After that, the project returned to the correct flow:
+Next phase should be:
 
 ```txt
-feature branch -> push branch -> PR -> merge
-```
-
-## Documentation Refresh Rule
-
-Do not refresh docs for every micro-progress.
-
-Refresh docs when:
-
-- closing an epic/stage;
-- switching conversations;
-- changing architectural/product decisions;
-- preparing a handoff.
-
-## Current Functional State
-
-### `/admin/beta-lab`
-
-Operational internal Lab Admin Flow.
-
-It can:
-
-- read real Lab fixtures from Supabase;
-- review Lab fixtures;
-- create and edit `match_results`;
-- read internal `prediction_markets`;
-- persist and update `prediction_results`;
-- show evaluation readiness and persisted metrics.
-
-Still mock:
-
-- `workerRuns`.
-
-Do not touch Lab Admin unless explicitly requested.
-
-### `/`
-
-Public landing page.
-
-Current status:
-
-- communicates public prediction value;
-- promotes free registration;
-- explains premium comes later;
-- featured cards may still use mock/static data and should be tracked as debt.
-
-### `/predictions`
-
-Operational public product surface.
-
-It reads public predictions from Supabase through:
-
-```txt
-public_prediction_summaries
-```
-
-After C05:
-
-- Anonymous keeps metadata + complete 1X2 probabilities.
-- Anonymous does not receive `confidenceScore` / `riskLevel` in the shaped DTO sent to UI.
-- Registered Free receives complete confidence/risk presentation and more free-account context.
-- `public_prediction_summaries` does not expose `match_id`.
-
-It must not expose:
-
-- internal Lab data;
-- premium markets;
-- premium narratives;
-- prediction results/evaluations;
-- private admin data;
-- expected goals, scorelines, odds, Golden Hour Delta, Model vs Market, or premium analysis.
-
-### `/matches/[slug]`
-
-Operational public/free-only match detail.
-
-It reads real public match data from Supabase through:
-
-```txt
-public_match_details
-public_prediction_summaries
-```
-
-After C05:
-
-- Anonymous keeps match metadata + complete public 1X2 probabilities.
-- Anonymous sees confidence/risk teaser presentation and does not receive confidence/risk DTO fields.
-- Registered Free sees full confidence/risk display and more context.
-- Registered Free can save/remove public matches.
-- Anonymous sees CTA to create account/login to save matches.
-
-`public_match_details` now exposes `match_id` to support server-side saved-match resolution for public matches without service role and without reading `public.matches` directly in normal UI.
-
-### `/pricing`
-
-Operational beta catalog surface.
-
-It reads real active plans from Supabase.
-
-Current constraints:
-
-- no checkout;
-- no payments;
-- no Stripe;
-- no purchases.
-
-Pricing should present free access now and premium World Cup packages as roadmap/catalog preview until payments are approved.
-
-### `/dashboard`
-
-Operational authenticated access summary.
-
-It reads the signed-in user's real access state:
-
-- profile role;
-- active subscriptions;
-- current entitlements;
-- current match unlocks.
-
-After C05, it also shows a minimal saved matches section backed by `user_saved_matches` and `public_match_details`.
-
-### `/transparency`
-
-Still simulated/mock.
-
-Future Trust/Transparency must distinguish:
-
-- Lab/internal testing;
-- beta calibration;
-- trust-eligible public predictions.
-
-Do not inflate trust claims using early calibration matches.
-
-## Public Projection Hardening
-
-C03 introduced explicit public views:
-
-- `public_match_details`
-- `public_prediction_summaries`
-
-Security posture:
-
-- `anon` reads approved public views only.
-- `anon` no longer reads base public product tables directly.
-- `anon` cannot read `prediction_markets`.
-- `anon` cannot read `prediction_narratives`.
-- `anon` cannot read `prediction_results`.
-- Public views expose only approved columns.
-
-C05 added `match_id` to `public_match_details` only, for saved matches server-side resolution. `public_prediction_summaries` does not expose `match_id`.
-
-## C04 Premium Access Skeleton
-
-C04 created server-side/pure authorization scaffolding without opening premium data.
-
-Key rules:
-
-- `premium_user` role alone does not unlock all premium content.
-- Active subscription alone does not unlock protected content.
-- Effective access comes from current entitlements, current match unlocks, explicit admin access, or trusted server-side beta grants.
-- `quantity/match_pack` does not authorize content directly; packs should materialize explicit unlocks.
-- `stageAccessKey` must be canonical and server-derived.
-- `trustedBetaFreeMatchIds` must come from trusted server-side context, never from client/query params.
-
-## C05 Boundary Note
-
-C05 is complete.
-
-- Gate 1 improved Registered Free value wall.
-- Gate 2A created presentation boundary.
-- Gate 2B added server-side DTO shaping so Anonymous does not receive confidence/risk DTO fields.
-- Gate 3 added saved matches/watchlist foundation.
-
-C05 does not serve premium payload.
-
-## What Is Not Implemented Yet
-
-Still not implemented:
-
-- C06 World Cup Premium Package Foundation;
-- final premium match detail projection;
-- public or entitled `prediction_markets`;
-- public or entitled `prediction_narratives`;
-- public or entitled `prediction_results`;
-- payments;
-- Stripe;
-- checkout;
-- odds;
-- LLM explanations;
-- real workers;
-- sports API;
-- Google Auth;
-- Supabase CLI local workflow;
-- final staging;
-- i18n EN/ES.
-
-## Recommended Next Work
-
-Recommended next step:
-
-```txt
-C08 — Trust / Transparency Real v0.1
+Real Fixture Lab post-match evaluation
 ```
 
 Goal:
 
-Design and prepare World Cup package/pass/unlock foundations without serving premium match payload yet.
+1. Check whether the friendly result exists.
+2. Decide result trust/verification rule.
+3. Design internal evaluation persistence.
+4. Persist `prediction_results` only after the result is trusted.
+5. Keep evaluation internal/admin-only.
 
-Do not jump directly into C07 premium payload.
+Do not jump to World Cup apply or broad friendlies expansion.
 
-## Active Source Priority
+## Initial Codex recognition prompt
 
-Prioritize these documents:
+Use this prompt in English:
 
-- `START_HERE_FOR_NEW_CONVERSATIONS.md`
-- `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
-- `CURRENT_PROJECT_STATUS.md`
-- `CODEX_HANDOFF_CURRENT.md`
-- `EPIC_PROGRESS_MATRIX.md`
-- `NEXT_EPICS_PLAN.md`
-- `ROADMAP_AND_BACKLOG.md`
-- `OPEN_DECISIONS.md`
-- `DATA_DICTIONARY.md`
-- `CODEX_WORKFLOW.md`
-- `DOCS_AND_SOURCES_INVENTORY.md`
+```text
+We are working on UFO Predictor.
 
-Treat older prompt files as historical if they contradict active sources.
+Do not edit files.
+Do not commit.
+Do not push.
+Do not open a PR.
+Do not run SQL.
+Do not perform DB writes.
+Do not run `--apply true`.
 
-## Start Here — Post C07 Operational Snapshot
+Please recognize the current repository state.
 
-Read this first in any new ChatGPT or Codex conversation.
+Return:
+1. Current branch and `git status --short`.
+2. Commits ahead of `origin/main`.
+3. Changed files versus `origin/main`.
+4. Whether D05F ingest run tracking is present.
+5. Whether D05G controlled single-friendly ingest is present.
+6. Whether Real Fixture Lab read/preview/internal persistence is present.
+7. Whether migrations 0018 through 0022 are present.
+8. Current tests/lint/build recommendation.
+9. Any gaps or risks before continuing.
+10. Recommended next safe task.
 
-```txt
-Current branch baseline: main post PR #34 with C08 closed
-Completed epics/gates: C01-C08
-Next recommended work: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first
-Remote Supabase: manually applied through 0016_premium_match_projection.sql
+Respect current no-go boundaries:
+- no broad friendlies apply
+- no World Cup apply
+- no provider predictions
+- no odds
+- no public exposure
+- no prediction_results until verified result/evaluation design
 ```
 
-### What C08 Must Respect
+## Validation commands before any closeout
 
-C08 starts after protected premium projection is already implemented for match detail. It must not reopen premium payload boundaries casually.
-
-C08 should focus on trust/transparency real v0.1, replacing simulated or placeholder transparency with real, safe, product-facing evidence. It should not introduce payments, checkout, provider integrations, or prediction result exposure unless explicitly scoped.
-
-### Current Premium Boundary
-
-The product can now serve premium markets/narrative to authorized users through the protected projection flow. The product must still keep `prediction_results` out of public/product premium UI unless a later explicit trust/evaluation gate opens a safe projection.
-
-
----
-
-## Post C07 Baseline Update
-
-Current merged baseline:
-
-```txt
-main includes PR #31 — Feature/c06 world cup package foundation
-main includes PR #32 — Feature/c07 premium match projection
-Completed: C01–C07
-Next: C08 — Trust / Transparency Real v0.1
-Supabase remote manually applied through: 0016_premium_match_projection.sql
+```bash
+git status --short
+git diff --check
+npm run test
+npm run lint
+npm run build
+git status --short
 ```
 
-### C06 Closure Summary
+If `next-env.d.ts` is changed only by build:
 
-C06 — World Cup Premium Package Foundation is complete.
-
-Implemented:
-
-- C06B: World Cup package mapping helpers.
-- C06D: World Cup 2026 pricing preview without checkout.
-- C06E: pure package intent materialization simulation without DB writes.
-- C06G: canonical World Cup access keys.
-- C06C: explicitly resolved as a defer decision, not forgotten.
-
-C06C decision:
-
-- No DB package catalog yet.
-- No `plans` / `plan_features` seeds for World Cup packages yet.
-- No `package_catalog` table yet.
-- No 10 Match Pack ledger yet.
-
-Reason: World Cup packages are still flexible commercial templates, not final persisted products. The project needs room for team-only passes, group passes, stage passes from octavos/cuartos/semis/final, semifinals/final bundles, single-match unlocks, flexible match packs, and other demand-based combinations.
-
-### C07 Closure Summary
-
-C07 — Entitled Premium Match Projection is complete.
-
-Implemented:
-
-- C07A: `PremiumMatchResource` contract and canonicalization.
-- C07B.1: public-safe match access context SQL.
-- C07B.2: server-side premium access gate context.
-- C07C: premium projection contract and shaping helper.
-- C07D: `premiumProjection` wired into match detail DTO.
-- C07E.1: allowed premium payload selectors.
-- C07E.2: protected premium match projection RPC.
-- C07E.3: protected premium query integration and minimal authorized rendering.
-
-C07 security boundary:
-
-- Premium payload is queried only when `premiumAccess.status === "authorized"`.
-- `locked` and `unavailable` never call the premium RPC and never contain payload.
-- Authorized null/error responses become `authorized_unavailable`.
-- Premium payload is filtered through selectors/whitelists before DTO output.
-- `prediction_results` remains excluded from product premium projection.
-- No service role is used for normal UI.
-- No checkout, PayPal, Stripe, or payments were implemented.
-- No entitlement/unlock inserts were implemented.
-
-### C07 SQL Applied Manually
-
-Remote Supabase was manually updated through:
-
-```txt
-0016_premium_match_projection.sql
+```bash
+git restore next-env.d.ts
+git status --short
 ```
-
-New C07 migrations applied manually and validated:
-
-- `0015_public_match_access_context.sql`
-  - extends `public_match_details` with public-safe access context:
-    `competition_id`, `competition_access_key`, `home_team_id`, `away_team_id`.
-- `0016_premium_match_projection.sql`
-  - creates `public.get_premium_match_projection(p_match_id uuid)`.
-  - `SECURITY DEFINER` with safe `search_path`.
-  - `anon` cannot execute.
-  - `authenticated` can execute.
-  - `auth.uid()` is required.
-  - returns only allowed premium markets/narratives after DB-side authorization.
-  - does not expose `prediction_results`.
-
-### Payments / Provider Decision
-
-Do not assume Stripe.
-
-Because the project/user is Colombia-based, Stripe should not be assumed available directly without a supported-country structure such as an LLC/company in a supported country.
-
-PayPal is currently a likely candidate. Other Colombia-compatible payment gateways must be evaluated before checkout/fulfillment.
-
-No checkout, PayPal integration, Stripe integration, or payments were implemented in C06/C07.
-
-### Workflow Decisions To Preserve
-
-SQL/migrations:
-
-- Codex may create SQL files/migrations.
-- The user applies SQL manually in Supabase SQL Editor.
-- Never assume a migration is applied remotely until the user confirms validation results.
-- SQL validation queries must be provided with migrations.
-- Current remote is manually applied through `0016_premium_match_projection.sql`.
-
-Git:
-
-- The user handles simple Git manually.
-- During an epic/feature branch, use small local commits per logical subtask.
-- Do not push for every subtask.
-- Push/PR when the full functional block is ready for review/merge, unless backup/review requires earlier push.
