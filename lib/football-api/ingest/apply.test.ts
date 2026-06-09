@@ -6,6 +6,7 @@ import {
   assertSingleFriendlyApplyPlan,
   buildApiFootballIngestSourceNote,
   decideApplyFixtureAction,
+  type MatchResultWritePlan,
   planControlledFixtureWrite,
   resolveApplyConfig,
 } from "./apply";
@@ -185,7 +186,7 @@ describe("controlled apply rules", () => {
     ).toEqual({ action: "skip", reason: "abandoned_status" });
   });
 
-  it("rejects finished and live friendlies for narrow apply planning", () => {
+  it("allows finished exact friendly with one pending_review match_result", () => {
     const finishedPlan = planControlledFixtureWrite(
       [
         buildFixture({
@@ -213,6 +214,22 @@ describe("controlled apply rules", () => {
       },
     );
 
+    expect(finishedPlan.matchPlans[0]).toMatchObject({
+      fixtureId: 1540356,
+      status: "finished",
+      accessScope: "admin_only",
+      intakeSource: "api_football",
+    });
+    expect(finishedPlan.matchResultPlans).toHaveLength(1);
+    expect(finishedPlan.matchResultPlans[0]).toEqual({
+      action: "create",
+      matchExternalId: "api-football:fixture:1540356",
+      homeGoals: 1,
+      awayGoals: 0,
+      verificationStatus: "pending_review",
+      intakeSource: "api_football",
+      sourceNote: finishedPlan.sourceNote,
+    });
     expect(() =>
       assertSingleFriendlyApplyPlan(finishedPlan, friendliesTarget, {
         competitionKey: "friendlies",
@@ -221,8 +238,10 @@ describe("controlled apply rules", () => {
         to: "2026-06-09",
         limit: 1,
       }),
-    ).toThrow(/zero planned match_results/i);
+    ).not.toThrow();
+  });
 
+  it("rejects live friendlies for narrow apply planning", () => {
     const livePlan = planControlledFixtureWrite(
       [
         buildFixture({
@@ -257,7 +276,7 @@ describe("controlled apply rules", () => {
         to: "2026-06-09",
         limit: 1,
       }),
-    ).toThrow(/scheduled upcoming fixture/i);
+    ).toThrow(/scheduled or finished exact fixture/i);
   });
 
   it("allows scheduled friendly with zero match results through narrow apply plan guard", () => {
@@ -311,6 +330,165 @@ describe("controlled apply rules", () => {
         limit: 1,
       }),
     ).not.toThrow();
+  });
+
+  it("rejects finished exact fixture when more than one result is planned", () => {
+    const finishedPlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1540356,
+          kickoffAt: "2026-06-09T02:00:00Z",
+          competition: {
+            providerCompetitionId: 10,
+            name: "Friendlies",
+            country: null,
+            season: 2026,
+            round: null,
+          },
+          homeTeam: {
+            providerTeamId: 500,
+            name: "Peru",
+            winner: true,
+          },
+          awayTeam: {
+            providerTeamId: 600,
+            name: "Spain",
+            winner: false,
+          },
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 2, away: 1 },
+        }),
+      ],
+      friendliesTarget,
+      {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      },
+    );
+
+    finishedPlan.matchResultPlans.push({
+      action: "create",
+      matchExternalId: "api-football:fixture:1540356",
+      homeGoals: 3,
+      awayGoals: 1,
+      verificationStatus: "pending_review",
+      intakeSource: "api_football",
+      sourceNote: finishedPlan.sourceNote,
+    });
+
+    expect(() =>
+      assertSingleFriendlyApplyPlan(finishedPlan, friendliesTarget, {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).toThrow(/exactly one planned match_result/i);
+  });
+
+  it("rejects finished exact fixture when result is not pending_review", () => {
+    const finishedPlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1540356,
+          kickoffAt: "2026-06-09T02:00:00Z",
+          competition: {
+            providerCompetitionId: 10,
+            name: "Friendlies",
+            country: null,
+            season: 2026,
+            round: null,
+          },
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 1, away: 0 },
+        }),
+      ],
+      friendliesTarget,
+      {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      },
+    );
+
+    const invalidResultPlan: MatchResultWritePlan = {
+      action: "create",
+      matchExternalId: "api-football:fixture:1540356",
+      homeGoals: 1,
+      awayGoals: 0,
+      verificationStatus: "verified" as never,
+      intakeSource: "api_football",
+      sourceNote: finishedPlan.sourceNote,
+    };
+    finishedPlan.matchResultPlans[0] = invalidResultPlan;
+
+    expect(() =>
+      assertSingleFriendlyApplyPlan(finishedPlan, friendliesTarget, {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).toThrow(/pending_review verification status/i);
+  });
+
+  it("rejects finished exact fixture when result is not api_football", () => {
+    const finishedPlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1540356,
+          kickoffAt: "2026-06-09T02:00:00Z",
+          competition: {
+            providerCompetitionId: 10,
+            name: "Friendlies",
+            country: null,
+            season: 2026,
+            round: null,
+          },
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 1, away: 0 },
+        }),
+      ],
+      friendliesTarget,
+      {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      },
+    );
+
+    const invalidResultPlan: MatchResultWritePlan = {
+      action: "create",
+      matchExternalId: "api-football:fixture:1540356",
+      homeGoals: 1,
+      awayGoals: 0,
+      verificationStatus: "pending_review",
+      intakeSource: "manual" as never,
+      sourceNote: finishedPlan.sourceNote,
+    };
+    finishedPlan.matchResultPlans[0] = invalidResultPlan;
+
+    expect(() =>
+      assertSingleFriendlyApplyPlan(finishedPlan, friendliesTarget, {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).toThrow(/api_football match_result intake source/i);
   });
 
   it("builds source_note with ingest run metadata", () => {
