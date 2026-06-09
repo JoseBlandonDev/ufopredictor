@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  getAdminRealFixtureLabData,
-  mapRealFixtureLabFixtureView,
-} from "./real-fixture-lab-queries";
+import { getAdminRealFixtureLabData, mapRealFixtureLabFixtureView } from "./real-fixture-lab-queries";
 
 const { createSupabaseServerClientMock } = vi.hoisted(() => ({
   createSupabaseServerClientMock: vi.fn(),
@@ -15,45 +12,47 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
 }));
 
+const externalId = "api-football:fixture:1540356";
+
 describe("real fixture lab queries", () => {
   beforeEach(() => {
     createSupabaseServerClientMock.mockReset();
   });
 
-  it("maps a real fixture view with competition, teams, and result", () => {
+  it("maps a real fixture view with competition, teams, result, saved prediction, and saved evaluation", () => {
     const view = mapRealFixtureLabFixtureView({
       match: {
         id: "match-1",
-        external_id: "api-football:fixture:1546413",
-        slug: "colombia-final",
+        external_id: externalId,
+        slug: "peru-spain",
         competition_id: "competition-1",
         home_team_id: "team-1",
         away_team_id: "team-2",
-        kickoff_at: "2026-06-08T22:00:00Z",
-        stage: "Final",
-        status: "scheduled",
+        kickoff_at: "2026-06-09T02:00:00Z",
+        stage: "Friendly",
+        status: "finished",
         access_scope: "admin_only",
         intake_source: "api_football",
         source_note: "tracked by ingest",
       },
       competition: {
         id: "competition-1",
-        name: "Primera A",
+        name: "Friendlies",
       },
       homeTeam: {
         id: "team-1",
-        name: "Atletico Nacional",
+        name: "Peru",
       },
       awayTeam: {
         id: "team-2",
-        name: "Junior",
+        name: "Spain",
       },
       result: {
         home_goals: 2,
-        away_goals: 1,
-        verification_status: "pending_review",
+        away_goals: 0,
+        verification_status: "verified",
         intake_source: "api_football",
-        source_note: "provider score",
+        source_note: "verified result",
       },
       savedPrediction: {
         id: "prediction-1",
@@ -63,28 +62,35 @@ describe("real fixture lab queries", () => {
         predictionType: "pre_match_24h",
         runScope: "internal_lab",
       },
+      savedEvaluation: {
+        winnerCorrect: true,
+        bttsCorrect: true,
+        over25Correct: false,
+        exactScoreCorrect: false,
+        goalError: 1,
+        errorSummary: "Predicted score 1-0; actual score 2-0.",
+        validatedAt: "2026-06-10T12:00:00Z",
+      },
     });
 
     expect(view).toMatchObject({
-      id: "match-1",
-      externalId: "api-football:fixture:1546413",
-      slug: "colombia-final",
-      competitionId: "competition-1",
-      competitionName: "Primera A",
-      homeTeamId: "team-1",
-      homeTeamName: "Atletico Nacional",
-      awayTeamId: "team-2",
-      awayTeamName: "Junior",
-      accessScope: "admin_only",
-      intakeSource: "api_football",
+      externalId,
+      competitionName: "Friendlies",
+      homeTeamName: "Peru",
+      awayTeamName: "Spain",
       result: {
-        verification_status: "pending_review",
+        verification_status: "verified",
         intake_source: "api_football",
       },
       savedPrediction: {
         predictionType: "pre_match_24h",
         runScope: "internal_lab",
         modelVersionVersion: "v0.1",
+      },
+      savedEvaluation: {
+        winnerCorrect: true,
+        bttsCorrect: true,
+        goalError: 1,
       },
     });
   });
@@ -113,11 +119,11 @@ describe("real fixture lab queries", () => {
     };
 
     const fakeClient = {
-        from(table: string) {
-          fromCalls.push(table);
-          return {
-            select() {
-              return matchesBuilder;
+      from(table: string) {
+        fromCalls.push(table);
+        return {
+          select() {
+            return matchesBuilder;
           },
           insert() {
             throw new Error("writes are not allowed in real fixture lab query helper");
@@ -135,12 +141,12 @@ describe("real fixture lab queries", () => {
     createSupabaseServerClientMock.mockResolvedValue(fakeClient);
 
     const result = await getAdminRealFixtureLabData({
-      externalId: "api-football:fixture:1546413",
+      externalId,
     });
 
     expect(result).toEqual({
       status: "ready",
-      selectedExternalId: "api-football:fixture:1546413",
+      selectedExternalId: externalId,
       fixtures: [],
       warnings: [],
     });
@@ -148,7 +154,7 @@ describe("real fixture lab queries", () => {
     expect(eqCalls).toEqual([
       ["access_scope", "admin_only"],
       ["intake_source", "api_football"],
-      ["external_id", "api-football:fixture:1546413"],
+      ["external_id", externalId],
     ]);
   });
 
@@ -164,13 +170,13 @@ describe("real fixture lab queries", () => {
               return Promise.resolve({
                 data: {
                   id: "match-1",
-                  external_id: "api-football:fixture:1546413",
-                  slug: "colombia-final",
+                  external_id: externalId,
+                  slug: "peru-spain",
                   competition_id: "competition-1",
                   home_team_id: "team-1",
                   away_team_id: "team-2",
-                  kickoff_at: "2026-06-08T22:00:00Z",
-                  stage: "Final",
+                  kickoff_at: "2026-06-09T02:00:00Z",
+                  stage: "Friendly",
                   status: "scheduled",
                   access_scope: "admin_only",
                   intake_source: "api_football",
@@ -188,7 +194,15 @@ describe("real fixture lab queries", () => {
           };
         }
 
-        if (table === "competitions") {
+        if (table === "competitions" || table === "teams" || table === "match_results" || table === "prediction_results") {
+          const label =
+            table === "competitions"
+              ? "competition"
+              : table === "teams"
+                ? "team"
+                : table === "match_results"
+                  ? "result"
+                  : "evaluation";
           const builder = {
             eq() {
               return builder;
@@ -196,47 +210,7 @@ describe("real fixture lab queries", () => {
             maybeSingle() {
               return Promise.resolve({
                 data: null,
-                error: { message: "competition read blocked" },
-              });
-            },
-          };
-
-          return {
-            select() {
-              return builder;
-            },
-          };
-        }
-
-        if (table === "teams") {
-          const builder = {
-            eq() {
-              return builder;
-            },
-            maybeSingle() {
-              return Promise.resolve({
-                data: null,
-                error: { message: "team read blocked" },
-              });
-            },
-          };
-
-          return {
-            select() {
-              return builder;
-            },
-          };
-        }
-
-        if (table === "match_results") {
-          const builder = {
-            eq() {
-              return builder;
-            },
-            maybeSingle() {
-              return Promise.resolve({
-                data: null,
-                error: { message: "result read blocked" },
+                error: { message: `${label} read blocked` },
               });
             },
           };
@@ -281,7 +255,7 @@ describe("real fixture lab queries", () => {
     createSupabaseServerClientMock.mockResolvedValue(fakeClient);
 
     const result = await getAdminRealFixtureLabData({
-      externalId: "api-football:fixture:1546413",
+      externalId,
     });
 
     expect(result.status).toBe("ready");
@@ -290,12 +264,13 @@ describe("real fixture lab queries", () => {
     }
     expect(result.fixtures).toHaveLength(1);
     expect(result.fixtures[0]).toMatchObject({
-      externalId: "api-football:fixture:1546413",
+      externalId,
       competitionName: "Competicion no disponible",
       homeTeamName: "Equipo local no disponible",
       awayTeamName: "Equipo visitante no disponible",
       result: null,
       savedPrediction: null,
+      savedEvaluation: null,
     });
     expect(result.warnings).toEqual([
       expect.stringContaining("competition read blocked"),
@@ -304,5 +279,218 @@ describe("real fixture lab queries", () => {
       expect.stringContaining("result read blocked"),
       expect.stringContaining("prediction read blocked"),
     ]);
+  });
+
+  it("reads back a saved evaluation for the saved prediction version", async () => {
+    let teamReads = 0;
+
+    const fakeClient = {
+      from(table: string) {
+        if (table === "matches") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: {
+                  id: "match-1",
+                  external_id: externalId,
+                  slug: "peru-spain",
+                  competition_id: "competition-1",
+                  home_team_id: "team-1",
+                  away_team_id: "team-2",
+                  kickoff_at: "2026-06-09T02:00:00Z",
+                  stage: "Friendly",
+                  status: "finished",
+                  access_scope: "admin_only",
+                  intake_source: "api_football",
+                  source_note: "tracked by ingest",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "competitions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: { id: "competition-1", name: "Friendlies" },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "teams") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              teamReads += 1;
+              return Promise.resolve({
+                data: {
+                  id: teamReads === 1 ? "team-1" : "team-2",
+                  name: teamReads === 1 ? "Peru" : "Spain",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "match_results") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: {
+                  home_goals: 2,
+                  away_goals: 0,
+                  verification_status: "verified",
+                  intake_source: "api_football",
+                  source_note: "verified result",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "prediction_versions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            order() {
+              return builder;
+            },
+            limit() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: {
+                  id: "prediction-1",
+                  model_version_id: "model-1",
+                  created_at: "2026-06-08T12:00:00Z",
+                  prediction_type: "pre_match_24h",
+                  run_scope: "internal_lab",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "model_versions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: { id: "model-1", version: "v0.1" },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "prediction_results") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: {
+                  winner_correct: true,
+                  btts_correct: true,
+                  over_2_5_correct: false,
+                  exact_score_correct: false,
+                  goal_error: 1,
+                  error_summary: "Predicted score 1-0; actual score 2-0.",
+                  validated_at: "2026-06-10T12:00:00Z",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        throw new Error(`unexpected table ${table}`);
+      },
+    };
+
+    createSupabaseServerClientMock.mockResolvedValue(fakeClient);
+
+    const result = await getAdminRealFixtureLabData({
+      externalId,
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") {
+      throw new Error("expected ready result");
+    }
+    expect(result.fixtures[0].savedEvaluation).toEqual({
+      winnerCorrect: true,
+      bttsCorrect: true,
+      over25Correct: false,
+      exactScoreCorrect: false,
+      goalError: 1,
+      errorSummary: "Predicted score 1-0; actual score 2-0.",
+      validatedAt: "2026-06-10T12:00:00Z",
+    });
   });
 });

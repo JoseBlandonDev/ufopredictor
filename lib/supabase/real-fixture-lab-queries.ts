@@ -44,6 +44,16 @@ type RealFixtureLabSavedPrediction = {
   runScope: "internal_lab";
 };
 
+type RealFixtureLabSavedEvaluation = {
+  winnerCorrect: boolean | null;
+  bttsCorrect: boolean | null;
+  over25Correct: boolean | null;
+  exactScoreCorrect: boolean | null;
+  goalError: number | null;
+  errorSummary: string | null;
+  validatedAt: string;
+};
+
 export type RealFixtureLabFixtureView = {
   id: string;
   externalId: string;
@@ -62,6 +72,7 @@ export type RealFixtureLabFixtureView = {
   awayTeamName: string;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
+  savedEvaluation: RealFixtureLabSavedEvaluation | null;
 };
 
 export type RealFixtureLabData =
@@ -96,8 +107,9 @@ export function mapRealFixtureLabFixtureView(args: {
   awayTeam: RealFixtureLabTeam | null;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
+  savedEvaluation: RealFixtureLabSavedEvaluation | null;
 }): RealFixtureLabFixtureView {
-  const { match, competition, homeTeam, awayTeam, result, savedPrediction } = args;
+  const { match, competition, homeTeam, awayTeam, result, savedPrediction, savedEvaluation } = args;
 
   return {
     id: match.id,
@@ -117,6 +129,7 @@ export function mapRealFixtureLabFixtureView(args: {
     awayTeamName: awayTeam?.name ?? "Equipo visitante no disponible",
     result,
     savedPrediction,
+    savedEvaluation,
   };
 }
 
@@ -207,6 +220,7 @@ export async function getAdminRealFixtureLabData(
       }
 
       let savedPrediction: RealFixtureLabSavedPrediction | null = null;
+      let savedEvaluation: RealFixtureLabSavedEvaluation | null = null;
 
       if (savedPredictionData) {
         const { data: modelVersionData, error: modelVersionError } = await supabase
@@ -229,6 +243,32 @@ export async function getAdminRealFixtureLabData(
           predictionType: savedPredictionData.prediction_type,
           runScope: savedPredictionData.run_scope,
         };
+
+        const { data: savedEvaluationData, error: savedEvaluationError } = await supabase
+          .from("prediction_results")
+          .select(
+            "winner_correct, btts_correct, over_2_5_correct, exact_score_correct, goal_error, error_summary, validated_at",
+          )
+          .eq("prediction_version_id", savedPredictionData.id)
+          .maybeSingle();
+
+        if (savedEvaluationError) {
+          warnings.push(
+            `No fue posible leer la evaluacion interna guardada del fixture ${match.external_id}: ${savedEvaluationError.message}`,
+          );
+        }
+
+        if (savedEvaluationData) {
+          savedEvaluation = {
+            winnerCorrect: savedEvaluationData.winner_correct,
+            bttsCorrect: savedEvaluationData.btts_correct,
+            over25Correct: savedEvaluationData.over_2_5_correct,
+            exactScoreCorrect: savedEvaluationData.exact_score_correct,
+            goalError: savedEvaluationData.goal_error,
+            errorSummary: savedEvaluationData.error_summary,
+            validatedAt: savedEvaluationData.validated_at,
+          };
+        }
       }
 
       return mapRealFixtureLabFixtureView({
@@ -238,6 +278,7 @@ export async function getAdminRealFixtureLabData(
         awayTeam: (awayTeamData as RealFixtureLabTeam | null) ?? null,
         result: (resultData as RealFixtureLabResult | null) ?? null,
         savedPrediction,
+        savedEvaluation,
       });
     }),
   );
