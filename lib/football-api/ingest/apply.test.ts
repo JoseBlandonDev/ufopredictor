@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { ProviderFixture } from "@/lib/football-api/api-football-types";
 import type { TargetCompetition } from "@/lib/football-api/target-competitions";
 import {
+  assertSingleFriendlyApplyPlan,
   buildApiFootballIngestSourceNote,
   decideApplyFixtureAction,
   planControlledFixtureWrite,
@@ -15,6 +16,14 @@ const colombiaTarget: TargetCompetition = {
   leagueId: 239,
   season: 2026,
   useCase: "beta_local",
+};
+
+const friendliesTarget: TargetCompetition = {
+  key: "friendlies",
+  provider: "api-football",
+  leagueId: 10,
+  season: 2026,
+  useCase: "beta_pre_world_cup",
 };
 
 function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture {
@@ -80,16 +89,6 @@ describe("controlled apply guards", () => {
     expect(() =>
       resolveApplyConfig({
         apply: true,
-        competition: "friendlies",
-        from: "2026-05-25",
-        to: "2026-06-10",
-        limit: 5,
-      }),
-    ).toThrow(/only for --competition colombia-primera-a/i);
-
-    expect(() =>
-      resolveApplyConfig({
-        apply: true,
         competition: "world-cup",
         from: "2026-05-25",
         to: "2026-06-10",
@@ -118,6 +117,50 @@ describe("controlled apply guards", () => {
       }),
     ).toThrow(/requires explicit --from, --to, and --limit/i);
   });
+
+  it("rejects friendlies apply without explicit fixtureId", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "friendlies",
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).toThrow(/friendlies apply requires explicit --fixtureId/i);
+  });
+
+  it("rejects friendlies apply with limit greater than one", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 2,
+      }),
+    ).toThrow(/friendlies apply requires explicit --fixtureId, --from, --to, and --limit 1/i);
+  });
+
+  it("allows only narrow single-fixture friendlies apply config", () => {
+    expect(
+      resolveApplyConfig({
+        apply: true,
+        competition: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).toEqual({
+      competitionKey: "friendlies",
+      fixtureId: 1540356,
+      from: "2026-06-09",
+      to: "2026-06-09",
+      limit: 1,
+    });
+  });
 });
 
 describe("controlled apply rules", () => {
@@ -140,6 +183,134 @@ describe("controlled apply rules", () => {
     expect(
       decideApplyFixtureAction(buildFixture({ status: "abandoned" }), colombiaTarget),
     ).toEqual({ action: "skip", reason: "abandoned_status" });
+  });
+
+  it("rejects finished and live friendlies for narrow apply planning", () => {
+    const finishedPlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1540356,
+          kickoffAt: "2026-06-09T02:00:00Z",
+          competition: {
+            providerCompetitionId: 10,
+            name: "Friendlies",
+            country: null,
+            season: 2026,
+            round: null,
+          },
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 1, away: 0 },
+        }),
+      ],
+      friendliesTarget,
+      {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      },
+    );
+
+    expect(() =>
+      assertSingleFriendlyApplyPlan(finishedPlan, friendliesTarget, {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).toThrow(/zero planned match_results/i);
+
+    const livePlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1540356,
+          kickoffAt: "2026-06-09T02:00:00Z",
+          competition: {
+            providerCompetitionId: 10,
+            name: "Friendlies",
+            country: null,
+            season: 2026,
+            round: null,
+          },
+          status: "live",
+          statusShort: "1H",
+        }),
+      ],
+      friendliesTarget,
+      {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      },
+    );
+
+    expect(() =>
+      assertSingleFriendlyApplyPlan(livePlan, friendliesTarget, {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).toThrow(/scheduled upcoming fixture/i);
+  });
+
+  it("allows scheduled friendly with zero match results through narrow apply plan guard", () => {
+    const plan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1540356,
+          kickoffAt: "2026-06-09T02:00:00Z",
+          competition: {
+            providerCompetitionId: 10,
+            name: "Friendlies",
+            country: null,
+            season: 2026,
+            round: null,
+          },
+          homeTeam: {
+            providerTeamId: 500,
+            name: "Peru",
+            winner: null,
+          },
+          awayTeam: {
+            providerTeamId: 600,
+            name: "Spain",
+            winner: null,
+          },
+        }),
+      ],
+      friendliesTarget,
+      {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      },
+    );
+
+    expect(plan.matchResultPlans).toHaveLength(0);
+    expect(plan.matchPlans[0]).toMatchObject({
+      fixtureId: 1540356,
+      accessScope: "admin_only",
+      intakeSource: "api_football",
+      status: "scheduled",
+    });
+    expect(() =>
+      assertSingleFriendlyApplyPlan(plan, friendliesTarget, {
+        competitionKey: "friendlies",
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).not.toThrow();
   });
 
   it("builds source_note with ingest run metadata", () => {

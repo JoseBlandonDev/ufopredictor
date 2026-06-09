@@ -72,6 +72,7 @@ function printUsage() {
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true [--maxPerCompetition 10]");
   console.log("  npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true --maxPerCompetition 10 --report true");
   console.log("  npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 [--includeYouth true] [--report true]");
+  console.log("  npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 [--report true]");
   console.log("  npm run spike:api-football -- --mode ingest-dry-run --competition colombia-primera-a --from 2026-05-25 --to 2026-06-10 --limit 5 --apply true --report true");
 }
 
@@ -549,16 +550,19 @@ async function run() {
       const from = getArg("--from") ?? undefined;
       const to = getArg("--to") ?? undefined;
       const limitArg = getArg("--limit");
+      const fixtureIdArg = getArg("--fixtureId");
       const includeYouth = parseBooleanArg("--includeYouth");
       const report = parseBooleanArg("--report") === true;
       const apply = parseBooleanArg("--apply") === true;
       const limit = limitArg ? Number(limitArg) : undefined;
+      const fixtureId = fixtureIdArg ? Number(fixtureIdArg) : undefined;
       const applyConfig = resolveApplyConfig({
         apply,
         competition: competitionArg,
         from,
         to,
         limit,
+        fixtureId,
       });
 
       if (!apply && competitionArg === "copa-colombia") {
@@ -589,13 +593,39 @@ async function run() {
         throw new Error("Apply mode in D05C.2A supports exactly one target competition.");
       }
 
+      if (fixtureId !== undefined && (!Number.isInteger(fixtureId) || fixtureId <= 0)) {
+        throw new Error("Invalid --fixtureId for mode=ingest-dry-run.");
+      }
+
+      if (fixtureId !== undefined && competitionArg === "all") {
+        throw new Error(
+          "Exact --fixtureId ingest-dry-run requires a single --competition target, not all.",
+        );
+      }
+
       for (const target of targets) {
-        const fixtures = await fetchApiFootballFixturesByLeague({
-          leagueId: target.leagueId,
-          season: target.season,
-          from,
-          to,
-        });
+        const fixtures =
+          fixtureId !== undefined
+            ? await (async () => {
+                const fixture = await fetchApiFootballFixtureById(fixtureId);
+                if (!fixture) {
+                  throw new Error(`No fixture found for fixtureId=${fixtureId}.`);
+                }
+
+                if (fixture.competition.providerCompetitionId !== target.leagueId) {
+                  throw new Error(
+                    `fixtureId=${fixtureId} is outside target competition ${target.key}.`,
+                  );
+                }
+
+                return [fixture];
+              })()
+            : await fetchApiFootballFixturesByLeague({
+                leagueId: target.leagueId,
+                season: target.season,
+                from,
+                to,
+              });
 
         const dryRunReport = planControlledFixtureIngestDryRun(fixtures, target, {
           includeYouth,
@@ -625,6 +655,7 @@ async function run() {
             from: applyConfig.from,
             to: applyConfig.to,
             limit: applyConfig.limit,
+            fixtureId: "fixtureId" in applyConfig ? applyConfig.fixtureId : undefined,
           });
 
           printControlledWriteExecutionReport(applyReport);

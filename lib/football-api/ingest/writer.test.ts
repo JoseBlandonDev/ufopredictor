@@ -26,6 +26,14 @@ const colombiaTarget: TargetCompetition = {
   useCase: "beta_local",
 };
 
+const friendliesTarget: TargetCompetition = {
+  key: "friendlies",
+  provider: "api-football",
+  leagueId: 10,
+  season: 2026,
+  useCase: "beta_pre_world_cup",
+};
+
 function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture {
   return {
     provider: "api-football",
@@ -202,25 +210,33 @@ describe("writer apply guards", () => {
     expect(createSupabaseScriptAdminClientMock).not.toHaveBeenCalled();
   });
 
-  it("fails unsupported apply competitions before tracking writes", async () => {
-    const friendliesTarget: TargetCompetition = {
-      key: "friendlies",
-      provider: "api-football",
-      leagueId: 10,
-      season: 2026,
-      useCase: "beta_pre_world_cup",
-    };
-
+  it("rejects broad friendlies apply without fixtureId before tracking writes", async () => {
     await expect(
       executeControlledFixtureWrite({
         target: friendliesTarget,
         fixtures: [buildFixture()],
         apply: true,
-        from: "2026-05-25",
-        to: "2026-06-10",
-        limit: 5,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
       }),
-    ).rejects.toThrow(/only for --competition colombia-primera-a/i);
+    ).rejects.toThrow(/friendlies apply requires explicit --fixtureId/i);
+
+    expect(createSupabaseScriptAdminClientMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects friendlies apply with limit greater than one before tracking writes", async () => {
+    await expect(
+      executeControlledFixtureWrite({
+        target: friendliesTarget,
+        fixtures: [buildFixture()],
+        apply: true,
+        fixtureId: 1540356,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 2,
+      }),
+    ).rejects.toThrow(/friendlies apply requires explicit --fixtureId, --from, --to, and --limit 1/i);
 
     expect(createSupabaseScriptAdminClientMock).not.toHaveBeenCalled();
   });

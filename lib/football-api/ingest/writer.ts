@@ -1,7 +1,11 @@
 import { createSupabaseScriptAdminClient } from "@/lib/supabase/script-admin";
 import type { TargetCompetition } from "@/lib/football-api/target-competitions";
 import type { ProviderFixture } from "@/lib/football-api/api-football-types";
-import { planControlledFixtureWrite, resolveApplyConfig } from "./apply";
+import {
+  assertSingleFriendlyApplyPlan,
+  planControlledFixtureWrite,
+  resolveApplyConfig,
+} from "./apply";
 import {
   buildApiFootballLeagueExternalId,
   buildApiFootballTeamExternalId,
@@ -703,6 +707,7 @@ export async function executeControlledFixtureWrite(input: {
   from?: string;
   to?: string;
   limit?: number;
+  fixtureId?: number;
 }): Promise<ControlledWriteExecutionReport> {
   const applyConfig = resolveApplyConfig({
     apply: input.apply,
@@ -710,6 +715,7 @@ export async function executeControlledFixtureWrite(input: {
     from: input.from,
     to: input.to,
     limit: input.limit,
+    fixtureId: input.fixtureId,
   });
 
   if (!applyConfig) {
@@ -719,6 +725,7 @@ export async function executeControlledFixtureWrite(input: {
   const supabase = createSupabaseClient();
   const existing = await loadExistingState(input.target, input.fixtures, supabase);
   const plan = planControlledFixtureWrite(input.fixtures, input.target, applyConfig, existing);
+  assertSingleFriendlyApplyPlan(plan, input.target, applyConfig);
   const counts = buildEmptyCounts();
   const warningSummary = buildWarningsSummary(plan);
   const errorSummary: RunItemError[] = [];

@@ -15,14 +15,23 @@ export type ApplyGuardInput = {
   from?: string;
   to?: string;
   limit?: number;
+  fixtureId?: number;
 };
 
-export type ApplyConfig = {
-  competitionKey: "colombia-primera-a";
-  from: string;
-  to: string;
-  limit: number;
-};
+export type ApplyConfig =
+  | {
+      competitionKey: "colombia-primera-a";
+      from: string;
+      to: string;
+      limit: number;
+    }
+  | {
+      competitionKey: "friendlies";
+      from: string;
+      to: string;
+      limit: 1;
+      fixtureId: number;
+    };
 
 export type ApplyDisposition = "persist" | "skip";
 export type ApplySkipReason =
@@ -168,6 +177,70 @@ export type ControlledWritePlan = {
   warnings: string[];
 };
 
+export function assertSingleFriendlyApplyPlan(
+  plan: ControlledWritePlan,
+  target: TargetCompetition,
+  config: ApplyConfig,
+): void {
+  if (config.competitionKey !== "friendlies") {
+    return;
+  }
+
+  if (target.key !== "friendlies" || target.leagueId !== 10) {
+    assertApplyError("Friendlies apply requires the API-Football Friendlies target.");
+  }
+
+  if (plan.fetchedFixtures !== 1) {
+    assertApplyError("Friendlies apply requires exactly one fetched fixture.");
+  }
+
+  if (plan.matchPlans.length !== 1 || plan.plannedFixtures !== 1) {
+    assertApplyError(
+      "Friendlies apply requires exactly one planned match for the selected fixture.",
+    );
+  }
+
+  if (plan.matchResultPlans.length !== 0) {
+    assertApplyError(
+      "Friendlies apply requires zero planned match_results for the selected fixture.",
+    );
+  }
+
+  const matchPlan = plan.matchPlans[0];
+  if (!matchPlan) {
+    assertApplyError("Friendlies apply requires an exact scheduled match plan.");
+  }
+
+  if (matchPlan.fixtureId !== config.fixtureId) {
+    assertApplyError("Friendlies apply requires the planned fixture to match --fixtureId.");
+  }
+
+  const kickoffMs = Date.parse(matchPlan.kickoffAt);
+  const fromMs = Date.parse(`${config.from}T00:00:00Z`);
+  const toMs = Date.parse(`${config.to}T23:59:59Z`);
+  if (
+    Number.isNaN(kickoffMs) ||
+    Number.isNaN(fromMs) ||
+    Number.isNaN(toMs) ||
+    kickoffMs < fromMs ||
+    kickoffMs > toMs
+  ) {
+    assertApplyError("Friendlies apply requires the selected fixture to stay inside --from/--to.");
+  }
+
+  if (matchPlan.status !== "scheduled") {
+    assertApplyError("Friendlies apply requires a scheduled upcoming fixture.");
+  }
+
+  if (matchPlan.accessScope !== "admin_only") {
+    assertApplyError("Friendlies apply requires admin_only match access scope.");
+  }
+
+  if (matchPlan.intakeSource !== "api_football") {
+    assertApplyError("Friendlies apply requires api_football intake source.");
+  }
+}
+
 type ExistingState = {
   competitionByExternalId?: Map<string, ExistingCompetitionSnapshot>;
   seasonByCompetitionYear?: Map<string, ExistingSeasonSnapshot>;
@@ -187,6 +260,28 @@ export function resolveApplyConfig(input: ApplyGuardInput): ApplyConfig | null {
 
   if (input.competition === "all") {
     assertApplyError("Apply mode is not allowed with --competition all in D05C.2A.");
+  }
+
+  if (input.competition === "friendlies") {
+    if (
+      !input.from ||
+      !input.to ||
+      input.limit !== 1 ||
+      typeof input.fixtureId !== "number" ||
+      input.fixtureId <= 0
+    ) {
+      assertApplyError(
+        "Friendlies apply requires explicit --fixtureId, --from, --to, and --limit 1.",
+      );
+    }
+
+    return {
+      competitionKey: "friendlies",
+      from: input.from,
+      to: input.to,
+      limit: 1,
+      fixtureId: input.fixtureId,
+    };
   }
 
   if (input.competition !== "colombia-primera-a") {
