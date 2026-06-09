@@ -1,0 +1,418 @@
+import { requireAdmin } from "@/lib/auth/session";
+import { generatePrediction } from "@/lib/prediction-engine/generate-prediction";
+import { buildRealFixturePredictionInput } from "@/lib/prediction-engine/real-fixture-adapter";
+import { saveRealFixturePredictionAction } from "./actions";
+import { getAdminRealFixtureLabData } from "@/lib/supabase/real-fixture-lab-queries";
+
+export const dynamic = "force-dynamic";
+
+type RealFixtureLabPageProps = {
+  searchParams: Promise<{ externalId?: string; save?: string }>;
+};
+
+function formatKickoff(value: string) {
+  return new Date(value).toLocaleString("es-CO", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "America/Bogota",
+  });
+}
+
+function formatPercentage(value: number) {
+  return `${value.toFixed(1)}%`;
+}
+
+function formatTimestamp(value: string) {
+  return new Date(value).toLocaleString("es-CO", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "America/Bogota",
+  });
+}
+
+function getSaveStatusMessage(status: string | undefined) {
+  switch (status) {
+    case "saved":
+      return {
+        title: "Prediccion interna guardada",
+        body: "La prediccion interna se guardo para este fixture real y permanece en alcance interno.",
+        tone: "success" as const,
+      };
+    case "duplicate":
+      return {
+        title: "Prediccion interna ya guardada",
+        body: "Ya existe una prediccion interna compatible para este fixture y no se creo un duplicado.",
+        tone: "info" as const,
+      };
+    case "no_model":
+      return {
+        title: "Modelo activo no disponible",
+        body: "No existe una version activa del modelo para guardar esta prediccion interna.",
+        tone: "warning" as const,
+      };
+    case "not_found":
+      return {
+        title: "Fixture no disponible",
+        body: "El fixture solicitado ya no esta disponible dentro del alcance admin_only de API-Football.",
+        tone: "warning" as const,
+      };
+    case "invalid":
+      return {
+        title: "Solicitud invalida",
+        body: "No fue posible procesar la solicitud de guardado para esta prediccion interna.",
+        tone: "warning" as const,
+      };
+    case "error":
+      return {
+        title: "No se pudo guardar la prediccion interna",
+        body: "La operacion fallo antes de persistir el flujo completo. Revisa la configuracion interna y vuelve a intentarlo.",
+        tone: "warning" as const,
+      };
+    default:
+      return null;
+  }
+}
+
+export default async function RealFixtureLabPage({ searchParams }: RealFixtureLabPageProps) {
+  await requireAdmin("/admin/real-fixture-lab");
+
+  const { externalId, save } = await searchParams;
+  const selectedExternalId = externalId?.trim() || null;
+  const saveStatusMessage = getSaveStatusMessage(save);
+  const realFixtureLabData = selectedExternalId
+    ? await getAdminRealFixtureLabData({
+        externalId: selectedExternalId,
+      })
+    : null;
+
+  return (
+    <div className="space-y-6">
+      <section>
+        <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">
+          Admin / Real Fixture Lab
+        </p>
+        <h1 className="mt-3 text-4xl font-semibold">Real Fixture Lab Trial</h1>
+        <p className="mt-3 max-w-3xl text-[var(--muted)]">
+          Superficie interna de solo lectura para fixtures reales ingeridos desde API-Football. Este flujo
+          permanece restringido a administracion, conserva el alcance <code>admin_only</code> y no expone
+          nada al producto publico.
+        </p>
+      </section>
+
+      {saveStatusMessage ? (
+        <section
+          className={`panel rounded-lg border p-5 ${
+            saveStatusMessage.tone === "success"
+              ? "border-emerald-400/35 bg-emerald-500/10"
+              : saveStatusMessage.tone === "info"
+                ? "border-[var(--accent)]/35 bg-[var(--accent)]/10"
+                : "border-[var(--warning)]/35 bg-[var(--warning)]/10"
+          }`}
+        >
+          <h2
+            className={`text-lg font-semibold ${
+              saveStatusMessage.tone === "success"
+                ? "text-emerald-300"
+                : saveStatusMessage.tone === "info"
+                  ? "text-[var(--accent)]"
+                  : "text-[var(--warning)]"
+            }`}
+          >
+            {saveStatusMessage.title}
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">{saveStatusMessage.body}</p>
+        </section>
+      ) : null}
+
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="panel rounded-lg p-5">
+          <h2 className="text-lg font-semibold">Fixture objetivo</h2>
+          <p className="mt-2 font-mono text-xs text-[var(--muted)]">
+            {selectedExternalId ?? "Sin externalId seleccionado"}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-md border border-[var(--warning)]/30 bg-[var(--warning)]/10 px-2 py-1 text-[var(--warning)]">
+              Internal only
+            </span>
+            <span className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent)]/10 px-2 py-1 text-[var(--accent)]">
+              API-Football real fixture
+            </span>
+            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">admin_only</span>
+            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">not public</span>
+          </div>
+          <form action="/admin/real-fixture-lab" method="get" className="mt-4 space-y-3">
+            <label className="block text-sm text-[var(--muted)]" htmlFor="externalId">
+              External ID de fixture real
+            </label>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <input
+                id="externalId"
+                name="externalId"
+                type="text"
+                defaultValue={selectedExternalId ?? ""}
+                placeholder="api-football:fixture:123456"
+                className="min-w-0 flex-1 rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent)]/40"
+              />
+              <button
+                type="submit"
+                className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+              >
+                Cargar fixture
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="panel rounded-lg border border-[var(--warning)]/35 p-5">
+          <h2 className="text-lg font-semibold text-[var(--warning)]">Phase 3A guardrail</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            This route can store an internal pre-match prediction for a selected real fixture, but it does
+            not publish anything, does not persist evaluation results, and does not consume provider
+            predictions or odds.
+          </p>
+        </div>
+      </section>
+
+      {!selectedExternalId ? (
+        <section className="panel rounded-lg p-5">
+          <h2 className="text-lg font-semibold">Ningun fixture seleccionado</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Abre esta ruta con <code>?externalId=api-football:fixture:&lt;id&gt;</code> o carga un
+            external id desde el formulario para revisar un fixture real <code>admin_only</code> de
+            API-Football.
+          </p>
+        </section>
+      ) : realFixtureLabData?.status === "unavailable" ? (
+        <section className="panel rounded-lg border border-[var(--warning)]/35 p-5">
+          <h2 className="text-lg font-semibold">Datos no disponibles</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">{realFixtureLabData.message}</p>
+        </section>
+      ) : realFixtureLabData && realFixtureLabData.fixtures.length === 0 ? (
+        <section className="panel rounded-lg p-5">
+          <h2 className="text-lg font-semibold">Fixture no encontrado</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            No existe un fixture real API-Football con alcance <code>admin_only</code> para el external id
+            solicitado.
+          </p>
+        </section>
+      ) : (
+        <section className="panel rounded-lg p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Fixtures reales seleccionados</h2>
+            <span className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-3 py-1 text-xs text-[var(--accent)]">
+              lectura admin
+            </span>
+          </div>
+          {realFixtureLabData?.warnings.length ? (
+            <div className="mt-4 rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4">
+              <h3 className="text-sm font-semibold text-[var(--warning)]">Lectura parcial</h3>
+              <ul className="mt-2 space-y-2 text-sm text-[var(--muted)]">
+                {realFixtureLabData.warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          <div className="mt-4 space-y-4">
+            {realFixtureLabData?.fixtures.map((fixture) => {
+              const predictionInput = buildRealFixturePredictionInput(fixture);
+              const preview = generatePrediction(predictionInput);
+
+              return (
+                <article
+                  key={fixture.id}
+                  className="space-y-4 rounded-lg border border-white/10 bg-white/[0.03] p-4"
+                >
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+                    <div>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">
+                          {fixture.competitionName}
+                        </span>
+                        <span className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent)]/10 px-2 py-1 text-[var(--accent)]">
+                          {fixture.intakeSource}
+                        </span>
+                        <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">
+                          {fixture.accessScope}
+                        </span>
+                        <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">
+                          {fixture.status}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-xl font-medium">{fixture.homeTeamName} vs {fixture.awayTeamName}</p>
+                      <p className="mt-1 text-sm text-[var(--muted)]">{fixture.stage ?? "Etapa sin registrar"}</p>
+                      <div className="mt-3 space-y-1 text-sm text-[var(--muted)]">
+                        <p>Kickoff: {formatKickoff(fixture.kickoffAt)}</p>
+                        <p className="font-mono text-xs">slug: {fixture.slug}</p>
+                        <p className="font-mono text-xs">external_id: {fixture.externalId}</p>
+                      </div>
+                      <p className="mt-3 text-sm text-[var(--muted)]">
+                        {fixture.sourceNote ?? "Sin source_note visible para este fixture."}
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4 text-sm">
+                      <h3 className="font-semibold">Resultado actual</h3>
+                      {fixture.result ? (
+                        <div className="mt-3 space-y-2 text-[var(--muted)]">
+                          <p className="font-mono text-base text-white">
+                            {fixture.result.home_goals}-{fixture.result.away_goals}
+                          </p>
+                          <p>verification_status: {fixture.result.verification_status}</p>
+                          <p>intake_source: {fixture.result.intake_source}</p>
+                          <p>{fixture.result.source_note ?? "Sin nota de resultado."}</p>
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-[var(--muted)]">Aun no existe `match_result` registrado para este fixture.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <section className="rounded-lg border border-[var(--accent)]/20 bg-[var(--accent)]/5 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-semibold">Prediction preview</h3>
+                        <p className="mt-1 text-sm text-[var(--muted)]">
+                          Internal trial preview only. In-memory, not persisted, not public.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <span className="rounded-md border border-[var(--warning)]/30 bg-[var(--warning)]/10 px-2 py-1 text-[var(--warning)]">
+                          no provider predictions
+                        </span>
+                        <span className="rounded-md border border-[var(--warning)]/30 bg-[var(--warning)]/10 px-2 py-1 text-[var(--warning)]">
+                          no odds
+                        </span>
+                        <span className="rounded-md border border-[var(--warning)]/30 bg-[var(--warning)]/10 px-2 py-1 text-[var(--warning)]">
+                          no persistence
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+                      <div className="space-y-4">
+                        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                          <h4 className="font-semibold">Model input summary</h4>
+                          <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+                            <p className="font-mono text-xs">match_id: {predictionInput.matchId}</p>
+                            <p>run_scope: {preview.normalizedInput.runScope}</p>
+                            <p>prediction_type: {preview.normalizedInput.predictionType}</p>
+                            <p>
+                              context: neutralVenue=
+                              {preview.normalizedInput.context.neutralVenue ? "true" : "false"} / homeAdvantageScore=
+                              {preview.normalizedInput.context.homeAdvantageScore}
+                            </p>
+                            <p>data_completeness: {formatPercentage(preview.normalizedInput.dataCompleteness * 100)}</p>
+                            <p>provided_signals_home: {preview.normalizedInput.homeTeam.providedSignals.length}</p>
+                            <p>provided_signals_away: {preview.normalizedInput.awayTeam.providedSignals.length}</p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                          <h4 className="font-semibold">Generated output</h4>
+                          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                            <div className="rounded-lg border border-white/10 p-3">
+                              <p className="text-xs text-[var(--muted)]">1X2</p>
+                              <p className="mt-2 text-sm text-white">
+                                Local {formatPercentage(preview.probabilities.oneXTwo.homeWin)}
+                              </p>
+                              <p className="text-sm text-white">Empate {formatPercentage(preview.probabilities.oneXTwo.draw)}</p>
+                              <p className="text-sm text-white">Visita {formatPercentage(preview.probabilities.oneXTwo.awayWin)}</p>
+                            </div>
+                            <div className="rounded-lg border border-white/10 p-3">
+                              <p className="text-xs text-[var(--muted)]">BTTS</p>
+                              <p className="mt-2 text-sm text-white">Yes {formatPercentage(preview.probabilities.btts.yes)}</p>
+                              <p className="text-sm text-white">No {formatPercentage(preview.probabilities.btts.no)}</p>
+                            </div>
+                            <div className="rounded-lg border border-white/10 p-3">
+                              <p className="text-xs text-[var(--muted)]">Over/Under 2.5</p>
+                              <p className="mt-2 text-sm text-white">
+                                Over {formatPercentage(preview.probabilities.overUnder25.over)}
+                              </p>
+                              <p className="text-sm text-white">
+                                Under {formatPercentage(preview.probabilities.overUnder25.under)}
+                              </p>
+                            </div>
+                            <div className="rounded-lg border border-white/10 p-3">
+                              <p className="text-xs text-[var(--muted)]">Projection</p>
+                              <p className="mt-2 text-sm text-white">Score {preview.mostLikelyScore}</p>
+                              <p className="text-sm text-white">Confidence {formatPercentage(preview.confidence)}</p>
+                              <p className="text-sm text-white">Risk {preview.risk}</p>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                            <div>
+                              <h5 className="text-sm font-medium">Top scorelines</h5>
+                              <ul className="mt-2 space-y-2 text-sm text-[var(--muted)]">
+                                {preview.topScorelines.map((scoreline) => (
+                                  <li key={scoreline.score} className="flex items-center justify-between rounded-md border border-white/10 px-3 py-2">
+                                    <span className="font-mono text-white">{scoreline.score}</span>
+                                    <span>{formatPercentage(scoreline.probability)}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h5 className="text-sm font-medium">Notes and factors</h5>
+                              <ul className="mt-2 space-y-2 text-sm text-[var(--muted)]">
+                                {[...preview.notes, ...preview.factors].map((entry) => (
+                                  <li key={entry} className="rounded-md border border-white/10 px-3 py-2">
+                                    {entry}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <aside className="rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4">
+                        <h4 className="font-semibold text-[var(--warning)]">Internal persistence</h4>
+                        {fixture.savedPrediction ? (
+                          <div className="mt-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-[var(--muted)]">
+                            <p className="font-medium text-emerald-300">Prediccion interna ya guardada</p>
+                            <p className="mt-2">run_scope: {fixture.savedPrediction.runScope}</p>
+                            <p>prediction_type: {fixture.savedPrediction.predictionType}</p>
+                            <p>
+                              model_version: {fixture.savedPrediction.modelVersionVersion ?? fixture.savedPrediction.modelVersionId}
+                            </p>
+                            <p>guardada: {formatTimestamp(fixture.savedPrediction.createdAt)}</p>
+                          </div>
+                        ) : (
+                          <form action={saveRealFixturePredictionAction} className="mt-3 space-y-3">
+                            <input type="hidden" name="externalId" value={fixture.externalId} />
+                            <button
+                              type="submit"
+                              className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                            >
+                              Guardar prediccion interna
+                            </button>
+                          </form>
+                        )}
+                        <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+                          <li>Uses internal preview defaults when fixture signals are missing.</li>
+                          <li>Stored predictions remain internal and are not public.</li>
+                          <li>Does not read provider predictions.</li>
+                          <li>Does not read betting odds.</li>
+                          <li>Does not persist prediction_results or evaluation in this phase.</li>
+                          <li>Intended only for internal model-trial preparation.</li>
+                        </ul>
+                        {!fixture.savedPrediction ? (
+                          <p className="mt-3 text-xs text-[var(--muted)]">
+                            Guardado interno solamente. No publica la prediccion, no usa provider predictions y no usa odds.
+                          </p>
+                        ) : null}
+                      </aside>
+                    </div>
+                  </section>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}

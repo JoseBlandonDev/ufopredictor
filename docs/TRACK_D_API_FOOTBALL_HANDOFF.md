@@ -1,161 +1,293 @@
-# TRACK D API-FOOTBALL HANDOFF — UFO Predictor
+# Track D API-Football Handoff
 
-_Last updated: post C08 / Track D D04C (2026-06-05)_
+_Last updated after D05F ingest tracking and D05G controlled single-friendly ingest validation._
 
-This file is a focused handoff for the API-Football provider and beta fixture selection work. It complements the existing source docs and does not replace them.
+## Scope of Track D
 
-## Current Branch
+Track D covers API-Football integration for UFO Predictor:
+
+- Provider read spikes.
+- Fixture planning.
+- Controlled ingest.
+- Apply guardrails.
+- Internal fixture validation.
+- Auditability and rollback posture.
+
+Track D does not currently include:
+
+- Provider predictions.
+- Odds.
+- Public prediction exposure.
+- World Cup apply.
+- Broad friendlies apply.
+- Automated cron/workers.
+
+## Current Track D status
+
+Completed:
+
+- API-Football read spike foundation.
+- D05A ingestion/persistence blueprint.
+- D05B migration enablement.
+- D05C controlled Colombia apply.
+- D05F ingest run tracking.
+- D05G controlled single-friendly ingest.
+
+Validated:
+
+- Colombia controlled apply with idempotency.
+- Single-friendly exact apply for Peru vs Spain.
+- Real Fixture Lab internal prediction persistence on an ingested friendly.
+
+## D05F — ingest run tracking
+
+### Migration
+
+`supabase/migrations/0018_ingest_run_tracking.sql`
+
+Adds:
+
+- `public.ingest_runs`.
+- `public.ingest_run_items`.
+
+### `ingest_runs`
+
+Durable run header for real apply executions.
+
+Important fields:
+
+- `provider`.
+- `competition_key`.
+- `provider_league_id`.
+- `from_date`.
+- `to_date`.
+- `limit_value`.
+- `apply_mode`.
+- `run_tag`.
+- `source_note`.
+- `status`.
+- `started_at` / `finished_at`.
+- `fetched_fixtures_count`.
+- `planned_fixtures_count`.
+- `counts_summary`.
+- `warnings_summary`.
+- `errors_summary`.
+- `cli_args`.
+
+### `ingest_run_items`
+
+Row-level audit/snapshot table.
+
+Important fields:
+
+- `run_id`.
+- `entity_table`.
+- `entity_id`.
+- `entity_external_id`.
+- `entity_natural_key`.
+- `action`.
+- `before_snapshot`.
+- `after_snapshot`.
+- `skip_reason`.
+- `error_message`.
+
+Actions:
+
+- `created`.
+- `updated`.
+- `skipped`.
+- `error`.
+
+Policy:
+
+- `updated` items require `before_snapshot`.
+- `created` items do not need `before_snapshot`.
+- `after_snapshot` is used where available.
+
+### Current rollback posture
+
+Rollback remains manual/script-reviewed.
+
+D05F provides:
+
+- Which run touched which rows.
+- Which rows were created.
+- Before-state for updated rows.
+- Enough metadata to design rollback tooling later.
+
+D05F does not yet provide:
+
+- One-click rollback.
+- UI rollback.
+- Automated transaction-level reversal.
+- Full plan-level skipped fixture item coverage.
+
+## D05G — controlled single-friendly ingest
+
+D05G adds a narrow lane for ingesting exactly one selected friendly fixture.
+
+### Why D05G was needed
+
+Real Fixture Lab needs real future fixtures persisted as `admin_only` before internal predictions can be saved.
+
+A league/date `limit=1` dry-run was not enough because it depended on provider ordering. D05G added exact `fixtureId` support so a chosen fixture can be fetched and planned directly.
+
+### Supported command shape
+
+Dry-run:
+
+```bash
+npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --report true
+```
+
+Apply, only after manual approval:
+
+```bash
+npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --apply true --report true
+```
+
+### D05G guardrails
+
+Friendlies apply is allowed only when all are true:
+
+- `competition=friendlies`.
+- `fixtureId` is explicitly provided.
+- `limit=1`.
+- `from` is provided.
+- `to` is provided.
+- Exact fixture fetch returns one fixture.
+- Fixture belongs to the API-Football Friendlies target.
+- Fixture kickoff is inside the requested date window.
+- Planned match count is exactly one.
+- Planned fixture id matches the requested `fixtureId`.
+- Planned match status is `scheduled`.
+- `matchResultPlans.length=0`.
+- Planned match `accessScope=admin_only`.
+- Planned match `intakeSource=api_football`.
+
+Still blocked:
+
+- Friendlies without `fixtureId`.
+- Friendlies with `limit > 1`.
+- Broad friendlies date-window apply.
+- `competition=all` apply.
+- World Cup apply.
+- Copa Colombia apply/defaults.
+- Provider predictions.
+- Odds.
+- Public views.
+
+## Validated friendly: Peru vs Spain
+
+### Candidate selection
+
+Read-only shortlist command:
+
+```bash
+npm run spike:api-football -- --mode beta-candidates --competition friendlies --from 2026-06-08 --to 2026-06-18 --limit 20 --prioritize true --report true
+```
+
+Selected candidate:
+
+- Provider fixture id: `1540356`.
+- External id: `api-football:fixture:1540356`.
+- Teams: Peru vs Spain.
+- League: Friendlies (`10`).
+- Kickoff: `2026-06-09T02:00:00+00:00`.
+- Status before ingest: scheduled.
+
+Exact fixture read:
+
+```bash
+npm run spike:api-football -- --mode fixture --fixtureId 1540356
+```
+
+### D05G exact dry-run
+
+```bash
+npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --report true
+```
+
+Validated expected output:
+
+- `fixtures_scanned=1`.
+- `fixtures_planned=1`.
+- `competitions=1`.
+- `seasons=1`.
+- `teams=2`.
+- `matches=1`.
+- `match_results=0`.
+- Match status: `scheduled`.
+- Access scope: `admin_only`.
+- Intake source: `api_football`.
+- Venue id: `null`.
+- No DB reads/writes in dry-run.
+
+### D05G apply
+
+Manually approved apply:
+
+```bash
+npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --apply true --report true
+```
+
+Observed apply result:
+
+- `ingest_run_id` emitted.
+- `competition_key=friendlies`.
+- `fetched_fixtures=1`.
+- `planned_fixtures=1`.
+- `competitions created=1`.
+- `seasons created=1`.
+- `teams created=2`.
+- `matches created=1`.
+- `match_results created=0`.
+
+Validated SQL outcomes:
+
+- `ingest_runs.status='completed'`.
+- `errors_summary is null`.
+- `ingest_run_items` contained:
+  - `competitions created=1`.
+  - `seasons created=1`.
+  - `teams created=2`.
+  - `matches created=1`.
+- `matches.external_id='api-football:fixture:1540356'` exists.
+- `matches.access_scope='admin_only'`.
+- `matches.intake_source='api_football'`.
+- `public_match_details` returns `0 rows` for the friendly.
+- No `match_results` row exists for the scheduled fixture.
+
+## Interaction with Real Fixture Lab
+
+After ingest, the fixture is available at:
 
 ```txt
-feature/d02-api-football-read-spike
+/admin/real-fixture-lab?externalId=api-football:fixture:1540356
 ```
 
-## Completed Local Commits
+The Lab can:
 
-```txt
-04a2646 feat: add api-football read spike
-9ac3510 feat: add api-football league discovery mode
-02a1461 feat: add api-football rounds diagnostics
-ed2799f feat: add beta fixture target selector
-5649b91 feat: prioritize beta fixture candidates
-5c3f757 feat: add beta shortlist report mode
-```
+- Read the fixture.
+- Show fixture metadata.
+- Show current result state as empty/unavailable.
+- Generate an in-memory prediction preview.
+- Save one internal prediction.
 
-## Provider Decision
+The Lab cannot yet:
 
-API-Football Pro is selected and validated as the initial football data provider.
+- Evaluate the prediction after the result.
+- Persist `prediction_results`.
+- Publish the prediction.
+- Use provider predictions or odds.
 
-Why:
+## Next Track D work
 
-- Free plan allowed technical validation but blocked 2026 season access.
-- Pro plan unlocked 2026 fixtures.
-- The adapter/CLI was already implemented and validated.
-- Sportmonks remains fallback only.
+Recommended next Track D adjacent phase:
 
-## Validated Competitions
+1. Wait for a result for the validated friendly.
+2. Decide how result review/verification should work.
+3. Design internal evaluation persistence into `prediction_results`.
+4. Keep evaluation admin-only/internal.
 
-| Competition | API-Football leagueId | Season | Fixture validation | Lab v0.1 decision |
-|---|---:|---:|---|---|
-| World Cup | `1` | 2026 | 72 fixtures | Include once tournament begins |
-| Friendlies | `10` | 2026 | 488 fixtures | Include, adults by default |
-| Colombia Primera A / Liga BetPlay | `239` | 2026 | 204 fixtures | Include |
-| Copa Colombia | `241` | 2026 | 56 fixtures | Validated, but excluded from Lab v0.1 |
-
-## Implemented Files
-
-| File | Purpose |
-|---|---|
-| `lib/football-api/api-football-client.ts` | Read-only API-Football client. |
-| `lib/football-api/api-football-types.ts` | Provider normalization types. |
-| `lib/football-api/target-competitions.ts` | Target competition config, selector, prioritization, report builder. |
-| `scripts/api-football-read-spike.ts` | CLI spike/read/diagnostic tool. |
-
-## CLI Modes
-
-The spike script supports:
-
-- `date`
-- `league`
-- `fixture`
-- `leagues`
-- `rounds`
-- `beta-candidates`
-
-## `beta-candidates` Options
-
-```txt
---competition world-cup|friendlies|colombia-primera-a|copa-colombia|all
---from YYYY-MM-DD
---to YYYY-MM-DD
---limit N
---includeYouth true|false
---prioritize true|false
---maxPerCompetition N
---report true|false
-```
-
-## Useful Commands
-
-World Cup candidates:
-
-```bash
-npm run spike:api-football -- --mode beta-candidates --competition world-cup --from 2026-06-11 --to 2026-06-20 --limit 20 --prioritize true --report true
-```
-
-Friendlies candidates, adult fixtures by default:
-
-```bash
-npm run spike:api-football -- --mode beta-candidates --competition friendlies --from 2026-05-25 --to 2026-06-10 --limit 20 --prioritize true --report true
-```
-
-All current Lab-oriented candidates:
-
-```bash
-npm run spike:api-football -- --mode beta-candidates --competition all --from 2026-05-25 --to 2026-06-20 --limit 30 --prioritize true --maxPerCompetition 10 --report true
-```
-
-Colombia Primera A candidates:
-
-```bash
-npm run spike:api-football -- --mode beta-candidates --competition colombia-primera-a --from 2026-05-25 --to 2026-06-10 --limit 20 --prioritize true --report true
-```
-
-## Current Lab v0.1 Default Scope
-
-Included:
-
-1. Colombia Primera A / Liga BetPlay.
-2. Adult Friendlies.
-3. World Cup 2026 when active.
-
-Excluded for now:
-
-- Copa Colombia, despite successful provider validation.
-
-## Security / Boundary Status
-
-Track D so far is read-only.
-
-No:
-
-- SQL;
-- migrations;
-- Supabase writes;
-- workers;
-- cron;
-- provider predictions;
-- odds;
-- API keys in output;
-- `prediction_results` exposure;
-- premium projection changes.
-
-## Recommended Next Block
-
-### D04D — optional no-DB bridge
-
-Export shortlist/report output to a local artifact for manual operations.
-
-Use if the user wants one more safe step before DB design.
-
-### D05 — fixture ingestion/persistence design
-
-Recommended if the project is ready for product progress.
-
-Must start with:
-
-- schema design;
-- provider ID mapping strategy;
-- upsert strategy;
-- RLS/public/internal boundary;
-- validation queries;
-- manual Supabase SQL Editor workflow.
-
-Do not create or apply migrations before D05A design is approved.
-
-## Open Risks
-
-- API request budget must be controlled during beta/Mundial.
-- Provider IDs should not become product identity without a mapping plan.
-- Fixture persistence must not weaken existing public/premium boundaries.
-- `prediction_results` must remain internal unless explicitly reviewed later.
-- Youth friendlies should stay excluded by default for Lab v0.1.
+Do not proceed directly to broad friendlies or World Cup apply.

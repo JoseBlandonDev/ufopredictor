@@ -1,322 +1,168 @@
-# DOCS AND SOURCES INVENTORY — UFO Predictor
+# Docs and Sources Inventory — UFO Predictor
 
-_Last updated: post C08 / Track D D04C_
+_Last updated after D05F/D05G/Real Fixture Lab documentation refresh._
 
-Current baseline:
-- `main` includes C08 Trust / Transparency Real v0.1 through PR #34.
-- `feature/d02-api-football-read-spike` contains Track D read-only API-Football work through D04C.
-- C01-C08 are functionally closed.
-- D02-D04C are implemented locally on the Track D feature branch.
-- API-Football Pro is validated as the initial football data provider.
-- Next major block: D05 fixture ingestion/persistence design, unless D04D exportable shortlist/report is chosen first.
-
-
-This inventory lists active documentation sources and how they should be used.
-
-## Source Priority
-
-Use these as active sources:
-
-1. `START_HERE_FOR_NEW_CONVERSATIONS.md`
-2. `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
-3. `CURRENT_PROJECT_STATUS.md`
-4. `CODEX_HANDOFF_CURRENT.md`
-5. `EPIC_PROGRESS_MATRIX.md`
-6. `NEXT_EPICS_PLAN.md`
-7. `ROADMAP_AND_BACKLOG.md`
-8. `OPEN_DECISIONS.md`
-9. `DATA_DICTIONARY.md`
-10. `CODEX_WORKFLOW.md`
-11. `IMPLEMENTATION_PLAN.md`
-12. `ARCHITECTURE_SUMMARY.md`
-13. `MODEL_V01.md`
-14. `PROJECT_CONTEXT_UFO_PREDICTOR.md`
-15. `PROJECT_STATUS_FOR_MEETING.md`
-
-Older prompt files should be treated as historical if they contradict active sources.
-
-## Active Documents
-
-### `START_HERE_FOR_NEW_CONVERSATIONS.md`
-
-Primary onboarding document for new ChatGPT/Codex/handoff sessions.
-
-Should contain:
-
-- current baseline;
-- Supabase remote state;
-- workflow rules;
-- current route state;
-- next recommended block.
-
-### `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
-
-Compact-but-complete project source for ChatGPT context.
-
-Should contain:
-
-- project identity;
-- current funnel;
-- key security rules;
-- active route/data state;
-- next block.
+## Core operational docs
 
 ### `CURRENT_PROJECT_STATUS.md`
 
-Status snapshot.
+Primary status snapshot.
 
-Should contain:
+Use for:
 
-- latest PRs;
-- completed blocks;
-- current Supabase state;
-- current product/user states;
-- next block.
+- current completion state;
+- validated fixture flow;
+- active no-go boundaries;
+- next recommended task.
 
 ### `CODEX_HANDOFF_CURRENT.md`
 
-Operational handoff for Codex.
+Primary handoff for Codex.
 
-Should contain:
+Use for:
 
-- current repo baseline;
-- what Codex may or may not touch;
-- Supabase workflow;
-- route/data state;
-- validation expectations.
+- branch context;
+- current commits/diff;
+- migration list;
+- validation commands;
+- current no-go boundaries.
 
-### `CODEX_WORKFLOW.md`
+### `START_HERE_FOR_NEW_CONVERSATIONS.md`
 
-Tool/process rules.
+Primary onboarding document for new ChatGPT conversations.
 
-Should contain:
+Use for:
 
-- ChatGPT vs Codex vs manual PowerShell split;
-- prompt format;
-- Git/PR discipline;
-- documentation refresh discipline;
-- Supabase migration workflow.
+- preventing repeated rediscovery;
+- current workflow rules;
+- first Codex recognition prompt.
 
-### `DATA_DICTIONARY.md`
+### `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
 
-Current data objects and views.
+Compact source of truth for ChatGPT.
 
-Should include:
+Use for:
 
-- public views;
-- `user_saved_matches`;
-- entitlement tables;
-- premium/internal tables;
-- key access concepts.
+- project state;
+- workflow rules;
+- D05F/D05G/Real Fixture Lab summary;
+- next recommended phase.
+
+## Track D / ingest docs
+
+### `TRACK_D_API_FOOTBALL_HANDOFF.md`
+
+Primary source for API-Football ingest work.
+
+Covers:
+
+- D05F.
+- D05G.
+- exact `fixtureId` friendly ingest.
+- Peru vs Spain validation.
+- ingest no-go boundaries.
+
+## Planning and roadmap docs
 
 ### `EPIC_PROGRESS_MATRIX.md`
 
-Epic/gate completion matrix.
+Use for:
 
-Should show C01–C05 done and C06 next.
-
-### `NEXT_EPICS_PLAN.md`
-
-Forward plan.
-
-Should prioritize C06 and identify C07/C08 and later tracks.
+- high-level done/pending/blocked matrix.
 
 ### `ROADMAP_AND_BACKLOG.md`
 
-Roadmap and backlog.
+Use for:
 
-Should preserve future tracks D/E/F/G and avoid destructive summarization.
+- current backlog;
+- next milestone;
+- blocked work.
 
 ### `OPEN_DECISIONS.md`
 
-Active and closed decisions.
+Use for:
 
-Should preserve decisions around freemium, packages, permissions, saved matches, providers, payments, staging, i18n.
+- closed decisions from this block;
+- remaining open decisions.
+
+### `NEXT_EPICS_PLAN.md`
+
+Use for:
+
+- next major workstream;
+- post-match evaluation plan.
 
 ### `IMPLEMENTATION_PLAN.md`
 
-Implementation sequencing.
+Use for:
 
-Should preserve completed blocks and future implementation constraints.
+- recent implementation sequence;
+- next implementation approach.
+
+## Architecture/data docs
 
 ### `ARCHITECTURE_SUMMARY.md`
 
-Architecture-level overview.
+Use for:
 
-Should describe current public product, Supabase boundaries, entitlements, saved matches, and future premium projection.
+- system architecture;
+- ingest architecture;
+- Real Fixture Lab architecture;
+- RLS pattern.
+
+### `DATA_DICTIONARY.md`
+
+Use for:
+
+- table meanings;
+- fields touched by D05F/D05G/Lab;
+- internal prediction persistence tables.
 
 ### `MODEL_V01.md`
 
-Prediction model principles.
+Use for:
 
-Should preserve that the statistical model calculates and AI explains.
+- model v0.1 status;
+- model caveats;
+- current default/neutral signal limitations.
 
-### `PROJECT_CONTEXT_UFO_PREDICTOR.md`
+## Workflow docs
 
-Human-readable project context.
+### `CODEX_WORKFLOW.md`
 
-Useful for collaborators and broad overview.
+Use for:
 
-### `PROJECT_STATUS_FOR_MEETING.md`
+- Codex prompt language rule;
+- no-go boundaries;
+- repo validation process;
+- migration workflow.
 
-Meeting-ready status brief.
+## New migrations in this branch
 
-Should stay concise and non-technical enough for stakeholder discussion.
+- `0018_ingest_run_tracking.sql`.
+- `0019_real_fixture_lab_admin_read_policies.sql`.
+- `0020_fix_real_fixture_lab_rls_recursion.sql`.
+- `0021_real_fixture_lab_prediction_persistence_policies.sql`.
+- `0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql`.
 
-## Documentation Refresh Rule
+## New/important code files in this branch
 
-Do not update docs after every small step.
+Real Fixture Lab:
 
-Refresh docs when:
+- `app/admin/real-fixture-lab/page.tsx`.
+- `app/admin/real-fixture-lab/actions.ts`.
+- `lib/supabase/real-fixture-lab-queries.ts`.
+- `lib/prediction-engine/real-fixture-adapter.ts`.
+- `lib/prediction-engine/real-fixture-persistence.ts`.
 
-- closing a stage;
-- changing conversation;
-- preparing handoff;
-- changing architecture/product decisions.
+Ingest:
 
-## Preservation Rule
+- `scripts/api-football-read-spike.ts`.
+- `lib/football-api/ingest/apply.ts`.
+- `lib/football-api/ingest/writer.ts`.
 
-Do not replace broad docs with tiny summaries.
+## Out-of-scope docs
 
-When refreshing:
+The Flow/video/character/campaign documents are not part of this D05F/D05G technical refresh.
 
-- update baseline;
-- add new decisions;
-- correct obsolete state;
-- preserve historical/operational context;
-- avoid deleting useful future backlog.
-
-## Current Refresh Context
-
-This refresh closes C05 and prepares C06.
-
-It includes:
-
-- PR #28;
-- PR #29;
-- C05 complete;
-- Supabase up to 0014;
-- saved matches foundation;
-- updated workflow rules from C05.
-
-## Current Refresh Context — Post C07
-
-These docs now reflect:
-
-- PR #31 — C06 World Cup Package Foundation.
-- PR #32 — C07 Entitled Premium Match Projection.
-- Supabase remote manually applied through `0016_premium_match_projection.sql`.
-- Next block: C08 — Trust / Transparency Real v0.1.
-
-Source priority remains unchanged: these project source docs should be treated as the shared context for ChatGPT and Codex.
-
-
----
-
-## Post C07 Baseline Update
-
-Current merged baseline:
-
-```txt
-main includes PR #31 — Feature/c06 world cup package foundation
-main includes PR #32 — Feature/c07 premium match projection
-Completed: C01–C07
-Next: C08 — Trust / Transparency Real v0.1
-Supabase remote manually applied through: 0016_premium_match_projection.sql
-```
-
-### C06 Closure Summary
-
-C06 — World Cup Premium Package Foundation is complete.
-
-Implemented:
-
-- C06B: World Cup package mapping helpers.
-- C06D: World Cup 2026 pricing preview without checkout.
-- C06E: pure package intent materialization simulation without DB writes.
-- C06G: canonical World Cup access keys.
-- C06C: explicitly resolved as a defer decision, not forgotten.
-
-C06C decision:
-
-- No DB package catalog yet.
-- No `plans` / `plan_features` seeds for World Cup packages yet.
-- No `package_catalog` table yet.
-- No 10 Match Pack ledger yet.
-
-Reason: World Cup packages are still flexible commercial templates, not final persisted products. The project needs room for team-only passes, group passes, stage passes from octavos/cuartos/semis/final, semifinals/final bundles, single-match unlocks, flexible match packs, and other demand-based combinations.
-
-### C07 Closure Summary
-
-C07 — Entitled Premium Match Projection is complete.
-
-Implemented:
-
-- C07A: `PremiumMatchResource` contract and canonicalization.
-- C07B.1: public-safe match access context SQL.
-- C07B.2: server-side premium access gate context.
-- C07C: premium projection contract and shaping helper.
-- C07D: `premiumProjection` wired into match detail DTO.
-- C07E.1: allowed premium payload selectors.
-- C07E.2: protected premium match projection RPC.
-- C07E.3: protected premium query integration and minimal authorized rendering.
-
-C07 security boundary:
-
-- Premium payload is queried only when `premiumAccess.status === "authorized"`.
-- `locked` and `unavailable` never call the premium RPC and never contain payload.
-- Authorized null/error responses become `authorized_unavailable`.
-- Premium payload is filtered through selectors/whitelists before DTO output.
-- `prediction_results` remains excluded from product premium projection.
-- No service role is used for normal UI.
-- No checkout, PayPal, Stripe, or payments were implemented.
-- No entitlement/unlock inserts were implemented.
-
-### C07 SQL Applied Manually
-
-Remote Supabase was manually updated through:
-
-```txt
-0016_premium_match_projection.sql
-```
-
-New C07 migrations applied manually and validated:
-
-- `0015_public_match_access_context.sql`
-  - extends `public_match_details` with public-safe access context:
-    `competition_id`, `competition_access_key`, `home_team_id`, `away_team_id`.
-- `0016_premium_match_projection.sql`
-  - creates `public.get_premium_match_projection(p_match_id uuid)`.
-  - `SECURITY DEFINER` with safe `search_path`.
-  - `anon` cannot execute.
-  - `authenticated` can execute.
-  - `auth.uid()` is required.
-  - returns only allowed premium markets/narratives after DB-side authorization.
-  - does not expose `prediction_results`.
-
-### Payments / Provider Decision
-
-Do not assume Stripe.
-
-Because the project/user is Colombia-based, Stripe should not be assumed available directly without a supported-country structure such as an LLC/company in a supported country.
-
-PayPal is currently a likely candidate. Other Colombia-compatible payment gateways must be evaluated before checkout/fulfillment.
-
-No checkout, PayPal integration, Stripe integration, or payments were implemented in C06/C07.
-
-### Workflow Decisions To Preserve
-
-SQL/migrations:
-
-- Codex may create SQL files/migrations.
-- The user applies SQL manually in Supabase SQL Editor.
-- Never assume a migration is applied remotely until the user confirms validation results.
-- SQL validation queries must be provided with migrations.
-- Current remote is manually applied through `0016_premium_match_projection.sql`.
-
-Git:
-
-- The user handles simple Git manually.
-- During an epic/feature branch, use small local commits per logical subtask.
-- Do not push for every subtask.
-- Push/PR when the full functional block is ready for review/merge, unless backup/review requires earlier push.
+Do not mix Real Fixture Lab backend state into creative/video production docs.
