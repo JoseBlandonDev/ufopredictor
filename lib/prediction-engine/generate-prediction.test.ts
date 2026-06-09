@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_PREDICTION_ENGINE_CONFIG } from "./config";
 import { generatePrediction } from "./generate-prediction";
 import { balancedLabFixture, incompleteLabFixture, strongHomeLabFixture } from "./lab-fixtures";
+import { buildRealFixturePredictionInput } from "./real-fixture-adapter";
 
 function collectNumbers(value: unknown): number[] {
   if (typeof value === "number") {
@@ -98,5 +99,37 @@ describe("generatePrediction", () => {
     expect(result.predictionVersionProjection.runScope).toBe("internal_lab");
     expect(result.predictionMarketsProjection.some((market) => market.market === "btts")).toBe(true);
     expect(result.predictionMarketsProjection.some((market) => market.market === "over_2_5")).toBe(true);
+  });
+
+  it("uses injected fallback signals to avoid baseline mode for known national teams", () => {
+    const result = generatePrediction(
+      buildRealFixturePredictionInput({
+        id: "match-arg-isl",
+        externalId: "api-football:fixture:1540357",
+        slug: "argentina-iceland",
+        competitionId: "competition-1",
+        kickoffAt: "2026-06-09T02:00:00Z",
+        stage: "Friendly",
+        status: "scheduled",
+        accessScope: "admin_only",
+        intakeSource: "api_football",
+        sourceNote: "tracked by ingest",
+        competitionName: "Friendlies",
+        homeTeamId: "team-arg",
+        homeTeamName: "Argentina",
+        awayTeamId: "team-isl",
+        awayTeamName: "Iceland",
+        result: null,
+        savedPrediction: null,
+        savedEvaluation: null,
+      }),
+    );
+
+    expect(result.normalizedInput.dataCompleteness).toBeGreaterThan(0);
+    expect(result.normalizedInput.homeTeam.signals.marketScore).toBe(50);
+    expect(result.normalizedInput.awayTeam.signals.lineupContextScore).toBe(50);
+    expect(result.notes.some((note) => note.includes("Market score is neutral"))).toBe(true);
+    expect(result.teamPower.home.score).toBeGreaterThan(result.teamPower.away.score);
+    expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
   });
 });
