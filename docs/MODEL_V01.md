@@ -1,76 +1,74 @@
-# Model V0.1 — UFO Predictor
+# UFO Predictor — Model v0.1
 
-_Last updated after Real Fixture Lab Phase 3A validation._
+Last refreshed: after PR #40.
 
-## Current role of model v0.1
+## Current status
 
-Model `v0.1` is the active internal model version used by the Real Fixture Lab validation flow.
+Model v0.1 is the current internal prediction model used by Real Fixture Lab.
 
-It was used to generate and persist an internal prediction for:
+It is usable for internal trial predictions, but it has not yet been calibrated from a 3-5 friendly pilot sample.
 
-- `api-football:fixture:1540356`.
-- Peru vs Spain.
-- Friendly.
-- `run_scope='internal_lab'`.
-- `prediction_type='pre_match_24h'`.
+D06 is expected to generate the first compact pilot evidence set.
 
-## What was validated
+## Known characteristics
 
-The validation confirms the pipeline:
+Current Real Fixture Lab outputs include:
 
-```txt
-real fixture
--> MatchPredictionInput
--> generatePrediction(...)
--> prediction_versions
--> prediction_markets
-```
+- 1X2 probabilities;
+- BTTS probabilities;
+- over/under 2.5 probabilities;
+- top scoreline candidates;
+- confidence/risk notes;
+- model input summaries;
+- notes/factors.
 
-It does not prove strong model performance.
+Many inputs can still be default or neutral when provider/team signal data is incomplete.
 
-## Important caveat
+The model does not use provider predictions or betting odds.
 
-Current Real Fixture Lab inputs may rely on default/neutral signals when richer signals are unavailable.
+## Friendly match caveat
 
-That means:
+Friendlies are noisy:
 
-- prediction persistence is working;
-- market projection persistence is working;
-- model evaluation is not yet complete;
-- model quality claims should remain conservative.
+- many substitutions;
+- rotation-heavy lineups;
+- teams protecting key players;
+- unclear tactical intensity;
+- late experimentation.
 
-## Current output categories
+Therefore D06 friendlies should be used for:
 
-The engine currently produces internal markets such as:
+- validating the operational flow;
+- rough calibration;
+- identifying obvious model failures;
+- checking confidence/risk behavior.
 
-- match winner;
-- BTTS;
-- over/under 2.5;
-- exact score candidates.
+They should not be treated as final proof of World Cup match accuracy.
 
-In Real Fixture Lab Phase 3A, persisted markets use:
+## D06 evidence targets
 
-- `is_premium=false`.
-- internal-only context.
+For each pilot fixture, capture:
 
-## Not used in current model flow
+- winner correctness;
+- BTTS correctness;
+- over/under 2.5 correctness;
+- exact score correctness;
+- goal error;
+- confidence/risk usefulness;
+- recurring failure patterns.
 
-Current Real Fixture Lab does not use:
+## D07 purpose
 
-- provider predictions;
-- odds;
-- public/premium prediction exposure;
-- post-match evaluation results.
+D07 is Emergency Model Calibration.
 
-## Next model-adjacent work
+It should use D06 evidence to decide minimum viable changes before World Cup launch.
 
-After result review/evaluation is implemented, model v0.1 can be evaluated against saved internal predictions.
+Possible D07 scope:
 
-Future model improvements may include:
+- confidence/risk tuning;
+- top scoreline sanity;
+- neutral/friendly uncertainty handling;
+- default signal weighting review;
+- model copy/disclaimer improvements.
 
-- better team strength signals;
-- recent form signals;
-- context inputs;
-- confidence calibration.
-
-Do not add odds/provider predictions as shortcuts.
+No large model rewrite before pilot evidence.

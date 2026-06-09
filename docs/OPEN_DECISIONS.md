@@ -1,191 +1,153 @@
-# Open Decisions — UFO Predictor
+# UFO Predictor — Open Decisions
 
-_Last updated after D05G and Real Fixture Lab Phase 3A validation._
+Last refreshed: after PR #40.
 
-## Decisions now closed
+## Immediate decisions
 
-### Real Fixture Lab separation
+### D06 pilot fixture list
 
-Decision: Real Fixture Lab remains separate from `/admin/beta-lab`.
+Status: open.
 
-- `/admin/beta-lab` is for `lab_only` calibration/internal fixtures.
-- `/admin/real-fixture-lab` is for real ingested fixtures with:
-  - `access_scope='admin_only'`.
-  - `intake_source='api_football'`.
+Need select 3-5 exact adult national-team friendlies for pre-World-Cup calibration.
 
-Reason:
+Criteria:
 
-- Avoids mixing synthetic/lab fixtures with real provider-ingested fixtures.
-- Keeps real fixture trial path isolated and easier to audit.
+- before World Cup official matches;
+- enough time before kickoff to save prediction;
+- API-Football coverage;
+- exact fixture ID;
+- adult national team friendly;
+- varied enough to test model behavior.
 
-### No service-role client in app routes
+### D06 evidence threshold
 
-Decision: app routes must not use script/service-role clients.
+Status: open.
 
-- RLS policies were added instead.
-- `0019` through `0022` provide the required admin read/write capabilities.
+Need decide what evidence is enough to proceed into World Cup launch MVP.
 
-Reason:
+Suggested minimum:
 
-- Preserves app-level least privilege.
-- Avoids bypassing RLS in production app paths.
+- at least 3 internal predictions saved;
+- at least 1-3 post-match evaluations if results are available;
+- clear model v0.1 error notes;
+- no major flow blocker.
 
-### Real Fixture Lab internal prediction persistence
+## Payment and monetization decisions
 
-Decision: Phase 3A saves internal predictions to:
+### MVP 1 payment provider
 
-- `prediction_versions`.
-- `prediction_markets`.
+Status: open.
 
-It does not save:
+Do not assume Stripe.
 
-- `prediction_results`.
+Candidates:
 
-Reason:
+- PayPal;
+- selected local/available payment gateway;
+- Stripe only if later confirmed available.
 
-- Results/evaluation must wait for actual result review.
+### MVP 1 monetization format
 
-### Friendlies apply lane
+Status: open.
 
-Decision: friendlies apply is allowed only through D05G narrow single-fixture lane.
+Recommended default: one-time World Cup package / tournament pass.
 
-Required:
+Options:
 
-- `competition=friendlies`.
-- explicit `fixtureId`.
-- `limit=1`.
-- explicit `from` and `to`.
-- exact scheduled fixture.
-- no planned `match_results`.
-- `admin_only`.
-- `api_football`.
+1. Free MVP + premium teaser.
+2. Soft paywall.
+3. Hard paywall.
+4. Tournament pass / one-time package.
 
-Broad friendlies apply remains blocked.
+Current recommendation:
 
-### Real Fixture Lab fixture selection
+- soft paywall plus one-time tournament pass if implementation time allows.
 
-Decision: Real Fixture Lab no longer has a hardcoded default fixture.
+### Recurring payments
 
-- It uses `?externalId=api-football:fixture:<id>`.
-- If no `externalId` is provided, it shows a neutral empty state.
+Status: defer.
 
-Reason:
+Recurring subscriptions are not required for MVP 1. They belong to post-World-Cup Epic L unless a gateway makes them trivial and safe.
 
-- Prevents stale/past fixtures from being accidentally used for pre-match predictions.
+## Parallel work decisions
 
-### Codex prompt language
+### Second contributor lane
 
-Decision: all prompts intended for Codex must be written in English.
+Status: open, recommended.
 
-- ChatGPT can discuss strategy with the user in Spanish.
-- The final prompt block for Codex must be English.
+Recommended assignment:
 
-Reason:
+- first choice: Epic G recognition/design for auth, paywall, PayPal/payment gateway, entitlement;
+- second choice: Epic F public UX/trust layer.
 
-- Reduces ambiguity in commands, paths, branch names, migrations, and validation instructions.
+Avoid assigning second contributor to Epic D unless tightly coordinated, because Epic D touches API-Football, Real Fixture Lab, and model/evaluation surfaces.
 
-## Still open decisions
+## World Cup launch decisions
 
-### When should `prediction_results` be persisted?
+### World Cup ingest scope
 
-Open.
+Status: blocked until D06 evidence.
 
-Likely rule:
+Need decide:
 
-- Only after actual result exists.
-- Only after result is reviewed/trusted.
-- Possibly require `match_results.verification_status='verified'`.
+- exact competition/source config;
+- selected fixtures only vs broader group;
+- dry-run requirements;
+- apply gates;
+- rollback plan.
 
-Needs design before implementation.
+No broad World Cup apply yet.
 
-### What is the Real Fixture Lab result review policy?
+### Public prediction publication rules
 
-Open.
+Status: open.
 
-Questions:
+Need decide:
 
-- Is API-Football result enough for internal evaluation?
-- Must an admin manually verify result?
-- Should `pending_review` results be blocked from evaluation?
-- Should evaluation be possible for provider results but marked lower trust?
+- what predictions can be public;
+- what remains internal;
+- whether publication is manual;
+- whether premium gates apply;
+- what confidence/risk copy is required.
 
-### Should `prediction_versions` get a DB-level unique constraint?
+## Model decisions
 
-Open.
+### Model v0.2 changes
 
-Current duplicate protection is app-level for:
+Status: blocked until D06 evidence.
 
-- `match_id`.
-- `model_version_id`.
-- `prediction_type`.
-- `run_scope`.
+Possible areas:
 
-Question:
+- confidence/risk tuning;
+- top scoreline distribution;
+- friendly uncertainty;
+- neutral venue behavior;
+- weighting defaults.
 
-- Should a future migration add a unique constraint/index to prevent race duplicates?
+Do not perform large model rewrite before pilot evidence.
 
-Recommendation:
+## Closed or settled decisions
 
-- Do not fold this into unrelated migrations.
-- Decide deliberately after Phase 3A validation.
+### Result trust policy
 
-### When can more than one friendly be ingested?
+Status: closed.
 
-Open.
+Evaluation persistence requires `match_results.verification_status = 'verified'`.
 
-Current answer:
+### Real Fixture Lab public exposure
 
-- Not yet.
-- D05G allows one exact fixture at a time.
+Status: closed for now.
 
-Future expansion could allow a small selected list, but must not become broad friendlies apply by accident.
+No public exposure of Lab outputs or `prediction_results` without future explicit publication rules.
 
-### What qualifies as a high-signal friendly?
+### Provider predictions and odds
 
-Open.
+Status: closed for current MVP stages.
 
-Initial criteria:
+Do not read provider predictions or betting odds.
 
-- Senior national teams.
-- Clear team identity.
-- Upcoming/scheduled.
-- Useful for World Cup model rehearsal.
-- Avoid youth/noisy fixtures.
+### Service-role in app routes
 
-Needs a written selection policy before scaling.
+Status: closed.
 
-### When can World Cup ingest be enabled?
-
-Open.
-
-Current answer:
-
-- Not yet.
-
-Required first:
-
-- Post-match evaluation path validated.
-- World Cup target guardrails designed.
-- No public exposure risk.
-
-### How should model input signals improve?
-
-Open.
-
-Current Real Fixture Lab preview may rely on default/neutral signals.
-
-Future decision:
-
-- Which rating/form/context sources can be safely used?
-- Which are out of scope?
-- How to avoid odds/provider predictions?
-
-## Still blocked / not decisions to reopen casually
-
-- No provider predictions.
-- No odds.
-- No service-role client in app routes.
-- No public exposure from Real Fixture Lab.
-- No `prediction_results` before result review.
-- No broad friendlies apply.
-- No World Cup apply without a new design phase.
+No service-role in app routes.

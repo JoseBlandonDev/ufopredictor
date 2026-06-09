@@ -1,131 +1,143 @@
-# Implementation Plan — UFO Predictor
+# UFO Predictor — Implementation Plan v2
 
-_Last updated after D05G and Real Fixture Lab Phase 3A validation._
+Last refreshed: after D05K / PR #40.
 
-## Completed implementation path
+## Implementation strategy
 
-### D05F — ingest run tracking
+The project now follows MVP stages:
 
-Delivered:
+1. MVP 0 — Pre-World-Cup Calibration Lab.
+2. MVP 1 — World Cup Launch MVP.
+3. MVP 1.5 — Live World Cup Iteration.
+4. MVP 2 — Post-World-Cup Sustainable Product.
 
-- Migration `0018_ingest_run_tracking.sql`.
-- `ingest_runs` and `ingest_run_items`.
-- Writer run header integration.
-- Row-level tracking.
-- Snapshots for updates.
-- CLI `ingest_run_id` output.
+The plan is flexible, but each new task must attach to a stage/epic. No wandering epics because someone, somewhere, felt inspired.
 
-Validation:
+## Phase 0 — Roadmap/documentation rebaseline
 
-- Tiny controlled apply.
-- Idempotency rerun.
-- Single-friendly apply with run tracking.
-
-### Real Fixture Lab Phase 1 — read surface
-
-Delivered:
-
-- `/admin/real-fixture-lab`.
-- Admin-only route.
-- Reads `admin_only + api_football` fixtures.
-- RLS read policies with recursion fix.
-
-Migrations:
-
-- `0019`.
-- `0020`.
-
-### Real Fixture Lab Phase 2 — preview
-
-Delivered:
-
-- Real fixture to prediction input adapter.
-- In-memory prediction preview.
-- Explicit internal-only/no odds/no provider predictions copy.
-
-### Real Fixture Lab Phase 3A — persistence
-
-Delivered:
-
-- Server action to save internal prediction.
-- Active model version selection.
-- Duplicate blocking.
-- Persistence helpers.
-- `prediction_versions` insert.
-- `prediction_markets` insert.
-- No `prediction_results`.
-
-Migrations:
-
-- `0021`.
-- `0022`.
-
-### D05G — controlled single-friendly ingest
-
-Delivered:
-
-- `--fixtureId` support in `ingest-dry-run`.
-- Direct exact fixture fetch.
-- Narrow apply lane for one selected friendly.
-- Broad friendlies apply remains blocked.
-
-Validated with:
-
-- Peru vs Spain.
-- `api-football:fixture:1540356`.
-
-## Current next implementation phase
-
-### Phase 3B / D05H candidate — post-match evaluation
+Status: current docs task.
 
 Goal:
 
-- Evaluate saved Real Fixture Lab prediction after result is available and trusted.
+- update canonical docs;
+- define D05 as functionally complete;
+- define D06 as next;
+- define MVP 1 monetization using PayPal/selected gateway, not Stripe assumption;
+- define parallel contributor lanes.
 
-Proposed steps:
+## Phase 1 — D06 Friendly Pilot
 
-1. Recognition-only pass:
-   - inspect existing `match_results` state.
-   - inspect existing evaluation helpers.
-   - inspect `/admin/beta-lab` evaluation patterns.
-2. Design result trust rule:
-   - require `verification_status='verified'`?
-   - allow provider pending-review only with warning?
-   - require manual admin review?
-3. Implement minimal internal evaluation action.
-4. Persist `prediction_results` only after guard passes.
-5. Validate no public exposure.
+Goal: run 3-5 exact friendly fixtures through the internal flow.
 
-## Must not implement next without new design
+Steps:
 
-- Broad friendlies apply.
-- World Cup apply.
-- Public prediction publication.
-- Provider predictions.
-- Odds.
-- Prediction/result automation via cron/workers.
+1. Read-only candidate discovery.
+2. Pilot matrix selection.
+3. Pre-match exact ingest.
+4. Save internal predictions.
+5. Post-match exact ingest.
+6. Verify results.
+7. Persist evaluations.
+8. Capture model errors.
 
-## Recommended Codex workflow for next implementation
+Expected output:
 
-All Codex prompts must be in English.
+- evidence matrix;
+- model v0.1 error notes;
+- known admin/front pain points.
 
-Pattern:
+## Phase 2 — D07 Emergency Model Calibration
 
-1. Recognition only.
-2. Report branch/status and current code paths.
-3. Design minimal slice.
-4. Implement only after approval.
-5. Run validation.
-6. No push/PR.
+Goal: make minimum viable model adjustments based on D06, not speculation.
 
-## Required validation for code changes
+Possible outputs:
 
-```bash
-git diff --check
-npm run test
-npm run lint
-npm run build
-git status --short
-```
+- model v0.2 proposal;
+- confidence/risk adjustment;
+- friendly uncertainty notes;
+- top scoreline sanity fixes.
 
-Restore `next-env.d.ts` if build rewrites it.
+## Phase 3 — D08 Minimum Launch Polish
+
+Goal: only fix UI/admin gaps that block useful launch or operation.
+
+Possible outputs:
+
+- better Real Fixture Lab metadata;
+- pilot/evaluation summary;
+- public card copy/polish;
+- clear blocked states.
+
+## Phase 4 — MVP 1 World Cup Launch Slice
+
+Epics:
+
+- E — World Cup Data & Prediction Launch.
+- F — Public Experience & Trust Layer.
+- G — Auth, Paywall, and One-Time Payment Gateway Slice.
+
+Payment notes:
+
+- do not assume Stripe;
+- use PayPal or selected gateway;
+- World Cup monetization should prefer tournament pass / one-time package;
+- recurring subscriptions can be revisited post-World-Cup.
+
+## Phase 5 — Live iteration and post-World-Cup
+
+During World Cup:
+
+- H — Live Evaluation & Model Iteration.
+- I — Workers Lite & Operational Automation.
+- J — Monetization/Product Iteration.
+
+After World Cup:
+
+- K — Recurring Competitions.
+- L — Recurring Payments & Premium Depth.
+- M — Model & Transparency Maturity.
+- N — Production Operations & Scale.
+
+## Parallel work plan
+
+If a second contributor joins:
+
+### Jonathan lane
+
+- Epic D: D06/D07/D08.
+- API-Football.
+- Real Fixture Lab.
+- Model/evaluation.
+
+### Contributor 2 lane
+
+Preferred:
+
+- Epic G: auth/paywall/payment provider discovery.
+
+Alternative:
+
+- Epic F: public UX/trust layer.
+
+Rules:
+
+- one branch per task;
+- no direct work on `main`;
+- no same-file work without coordination;
+- no migration creation without reserving migration number;
+- no PR with mixed epics unless explicitly approved.
+
+## Validation expectations
+
+For code tasks:
+
+- `git diff --check`;
+- targeted tests;
+- `npm run test` when relevant;
+- `npm run lint`;
+- `npm run build`.
+
+For docs tasks:
+
+- `git diff --check`;
+- no app tests unless code was accidentally changed.

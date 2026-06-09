@@ -1,168 +1,132 @@
-# Docs and Sources Inventory — UFO Predictor
+# UFO Predictor â€” Docs and Sources Inventory
 
-_Last updated after D05F/D05G/Real Fixture Lab documentation refresh._
+Last refreshed: after PR #40.
 
-## Core operational docs
+The project currently keeps 17 canonical docs. Do not delete docs in this refresh. Some are primary, some are operational, and some are reference/secondary.
 
-### `CURRENT_PROJECT_STATUS.md`
+For docs refreshes, ChatGPT generates the approved document set, the user manually copies the files into docs/, and Codex performs a docs-only review unless explicitly instructed otherwise.
 
-Primary status snapshot.
-
-Use for:
-
-- current completion state;
-- validated fixture flow;
-- active no-go boundaries;
-- next recommended task.
-
-### `CODEX_HANDOFF_CURRENT.md`
-
-Primary handoff for Codex.
-
-Use for:
-
-- branch context;
-- current commits/diff;
-- migration list;
-- validation commands;
-- current no-go boundaries.
+## Primary planning/status docs
 
 ### `START_HERE_FOR_NEW_CONVERSATIONS.md`
 
-Primary onboarding document for new ChatGPT conversations.
+Entry point for new ChatGPT/Codex conversations.
 
 Use for:
 
-- preventing repeated rediscovery;
-- current workflow rules;
-- first Codex recognition prompt.
+- current state;
+- current next task;
+- no-go boundaries;
+- branch discipline.
 
 ### `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
 
-Compact source of truth for ChatGPT.
+High-signal project source for ChatGPT.
 
 Use for:
 
-- project state;
-- workflow rules;
-- D05F/D05G/Real Fixture Lab summary;
-- next recommended phase.
+- full current context;
+- MVP-stage roadmap;
+- Codex rules;
+- collaboration lanes.
 
-## Track D / ingest docs
+### `CURRENT_PROJECT_STATUS.md`
 
-### `TRACK_D_API_FOOTBALL_HANDOFF.md`
+Concise current status.
 
-Primary source for API-Football ingest work.
+Use for:
 
-Covers:
-
-- D05F.
-- D05G.
-- exact `fixtureId` friendly ingest.
-- Peru vs Spain validation.
-- ingest no-go boundaries.
-
-## Planning and roadmap docs
+- what is complete;
+- what is active;
+- what is blocked.
 
 ### `EPIC_PROGRESS_MATRIX.md`
 
+Epic and MVP-stage status table.
+
 Use for:
 
-- high-level done/pending/blocked matrix.
+- avoiding improvised epics;
+- seeing current and future blocks at a glance.
 
 ### `ROADMAP_AND_BACKLOG.md`
 
-Use for:
-
-- current backlog;
-- next milestone;
-- blocked work.
-
-### `OPEN_DECISIONS.md`
+Full roadmap/backlog by MVP stage.
 
 Use for:
 
-- closed decisions from this block;
-- remaining open decisions.
+- MVP 0/1/1.5/2 plan;
+- epic definitions;
+- future scope.
 
 ### `NEXT_EPICS_PLAN.md`
 
-Use for:
-
-- next major workstream;
-- post-match evaluation plan.
-
-### `IMPLEMENTATION_PLAN.md`
+Near-term execution plan.
 
 Use for:
 
-- recent implementation sequence;
-- next implementation approach.
+- D06;
+- D07;
+- near MVP 1 preparation.
 
-## Architecture/data docs
+## Operational docs
 
-### `ARCHITECTURE_SUMMARY.md`
+### `CODEX_HANDOFF_CURRENT.md`
 
-Use for:
+Current handoff for Codex.
 
-- system architecture;
-- ingest architecture;
-- Real Fixture Lab architecture;
-- RLS pattern.
-
-### `DATA_DICTIONARY.md`
-
-Use for:
-
-- table meanings;
-- fields touched by D05F/D05G/Lab;
-- internal prediction persistence tables.
-
-### `MODEL_V01.md`
-
-Use for:
-
-- model v0.1 status;
-- model caveats;
-- current default/neutral signal limitations.
-
-## Workflow docs
+Use before recognition/implementation prompts.
 
 ### `CODEX_WORKFLOW.md`
 
-Use for:
+Rules for Codex, branches, PRs, migration coordination, and validation.
 
-- Codex prompt language rule;
-- no-go boundaries;
-- repo validation process;
-- migration workflow.
+### `IMPLEMENTATION_PLAN.md`
 
-## New migrations in this branch
+Tactical implementation phases and parallel work lanes.
 
-- `0018_ingest_run_tracking.sql`.
-- `0019_real_fixture_lab_admin_read_policies.sql`.
-- `0020_fix_real_fixture_lab_rls_recursion.sql`.
-- `0021_real_fixture_lab_prediction_persistence_policies.sql`.
-- `0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql`.
+### `TRACK_D_API_FOOTBALL_HANDOFF.md`
 
-## New/important code files in this branch
+Track D/API-Football/Real Fixture Lab operational context.
 
-Real Fixture Lab:
+### `OPEN_DECISIONS.md`
 
-- `app/admin/real-fixture-lab/page.tsx`.
-- `app/admin/real-fixture-lab/actions.ts`.
-- `lib/supabase/real-fixture-lab-queries.ts`.
-- `lib/prediction-engine/real-fixture-adapter.ts`.
-- `lib/prediction-engine/real-fixture-persistence.ts`.
+Open decisions and settled decisions.
 
-Ingest:
+Important current decisions:
 
-- `scripts/api-football-read-spike.ts`.
-- `lib/football-api/ingest/apply.ts`.
-- `lib/football-api/ingest/writer.ts`.
+- payment provider not selected;
+- PayPal/available gateway preferred over Stripe assumption;
+- D06 fixture list open;
+- World Cup apply blocked.
 
-## Out-of-scope docs
+## Reference docs
 
-The Flow/video/character/campaign documents are not part of this D05F/D05G technical refresh.
+### `ARCHITECTURE_SUMMARY.md`
 
-Do not mix Real Fixture Lab backend state into creative/video production docs.
+Architecture reference.
+
+### `DATA_DICTIONARY.md`
+
+Data model reference.
+
+### `MODEL_V01.md`
+
+Current model v0.1 reference.
+
+### `PROJECT_CONTEXT_UFO_PREDICTOR.md`
+
+Stable product/project context.
+
+### `PROJECT_STATUS_FOR_MEETING.md`
+
+Meeting-ready summary.
+
+## Current docs policy
+
+- Keep all 17 docs in this refresh.
+- Do not create new docs unless a future refresh needs separation.
+- Do not delete historical context destructively.
+- Keep `ROADMAP_AND_BACKLOG` as full map.
+- Keep `NEXT_EPICS_PLAN` as near-term plan.
+- Keep Flow/campaign/video docs separate from backend/product roadmap unless explicitly working on creative assets.

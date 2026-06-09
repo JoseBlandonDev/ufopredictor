@@ -1,71 +1,47 @@
-# Project Context — UFO Predictor
+# UFO Predictor — Project Context
 
-UFO Predictor is a football prediction platform being built with a conservative internal-validation-first approach.
+Last refreshed: after PR #40.
 
-## Current product philosophy
+UFO Predictor is a football prediction product focused on probabilistic match forecasts, transparent methodology, and safe free/premium presentation.
 
-- Validate internally before publishing.
-- Keep real provider-ingested fixtures private by default.
-- Use admin-only Lab flows for early testing.
-- Avoid provider predictions and odds.
-- Avoid broad automated ingest until guardrails are proven.
+The product is currently moving from internal real-data validation toward a pre-World-Cup friendly pilot and then a World Cup launch MVP.
 
-## Current technical maturity
+## Current strategic direction
 
-The project now supports:
+The project now follows MVP stages:
 
-- controlled API-Football ingest;
-- durable ingest run tracking;
-- exact single-friendly ingest;
-- admin-only Real Fixture Lab;
-- internal prediction preview;
-- internal prediction persistence.
+- MVP 0 — Pre-World-Cup Calibration Lab.
+- MVP 1 — World Cup Launch MVP.
+- MVP 1.5 — Live World Cup Iteration.
+- MVP 2 — Post-World-Cup Sustainable Product.
 
-## Important distinction: Beta Lab vs Real Fixture Lab
+## Current focus
 
-### Beta Lab
+Epic D is active.
 
-`/admin/beta-lab` is for synthetic/internal `lab_only` flows.
+D05 has completed the controlled single-fixture Real Fixture Lab foundation.
 
-### Real Fixture Lab
+Next: D06 Friendly Pilot / Calibration Batch with 3-5 exact friendly fixtures.
 
-`/admin/real-fixture-lab` is for real API-Football fixtures ingested as:
+## Product principles
 
-- `access_scope='admin_only'`.
-- `intake_source='api_football'`.
+- Do not use provider predictions.
+- Do not use betting odds.
+- Do not expose internal Lab outputs publicly without explicit publication rules.
+- Be honest about uncertainty.
+- Validate internal flow before automating it.
+- Build monetization for the World Cup, but avoid full premium complexity before proof.
 
-The two flows should remain conceptually separate unless a future design intentionally merges them.
+## Monetization context
 
-## Current validated real fixture
+The World Cup is a short demand window.
 
-Peru vs Spain:
+MVP 1 should include a minimal monetization path if feasible:
 
-- External id: `api-football:fixture:1540356`.
-- Competition: Friendlies.
-- Ingested via D05G exact fixture path.
-- Persisted as admin-only.
-- Internal prediction saved.
-- Markets saved.
-- Evaluation not yet persisted.
+- one-time package / tournament pass;
+- PayPal or selected/available payment gateway;
+- simple paywall/entitlement.
 
-## Current next problem
+Do not assume Stripe.
 
-The next project question is not “can we ingest and predict?”
-
-That is now proven for one internal real-friendly trial.
-
-The next question is:
-
-```txt
-Can we review a real result and evaluate the saved prediction safely, internally, and without public leakage?
-```
-
-## Hard boundaries
-
-- No broad friendlies apply.
-- No World Cup apply.
-- No provider predictions.
-- No odds.
-- No public exposure from Lab.
-- No `prediction_results` before result verification/evaluation design.
-- No service-role client in app routes.
+Recurring subscriptions and premium depth are post-World-Cup unless explicitly pulled forward.

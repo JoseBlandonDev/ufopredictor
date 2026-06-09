@@ -1,181 +1,122 @@
-# Architecture Summary — UFO Predictor
+# UFO Predictor — Architecture Summary
 
-_Last updated after D05F, D05G, and Real Fixture Lab Phase 3A._
+Last refreshed: after PR #40.
 
-## High-level architecture
+## Current architecture posture
 
-UFO Predictor has three separated layers relevant to the current work:
+UFO Predictor is a Next.js/Supabase football prediction app with:
 
-1. Public product surfaces.
-2. Admin/internal Lab surfaces.
-3. API-Football ingest and data pipeline.
+- public prediction/match surfaces;
+- registered/premium foundations;
+- internal Real Fixture Lab;
+- API-Football controlled ingest tooling;
+- internal prediction/evaluation persistence;
+- strict public/internal boundaries.
 
-The current real-fixture pipeline is internal only:
+## Core layers
 
-```txt
-API-Football
--> controlled ingest
--> admin_only matches
--> Real Fixture Lab
--> internal prediction preview/persistence
-```
-
-No current Real Fixture Lab output is public.
-
-## API-Football ingest architecture
-
-### Read/planning
-
-Entry point:
-
-- `scripts/api-football-read-spike.ts`
-
-Important modes:
-
-- `fixture` for exact fixture inspection.
-- `beta-candidates` for read-only shortlist discovery.
-- `ingest-dry-run` for planning and controlled apply path.
-
-Planning:
-
-- `lib/football-api/ingest/planner.ts`
-
-Apply guard / plan building:
-
-- `lib/football-api/ingest/apply.ts`
-
-Writer:
-
-- `lib/football-api/ingest/writer.ts`
-
-### Controlled write order
-
-The writer persists in dependency order:
-
-1. competitions.
-2. seasons.
-3. teams.
-4. matches.
-5. match_results.
-
-New API-Football matches are created as:
-
-- `access_scope='admin_only'`.
-- `intake_source='api_football'`.
-
-Finished fixtures may create `match_results` as pending review. Scheduled fixtures must not create `match_results`.
-
-## D05F ingest tracking architecture
-
-Migration:
-
-- `0018_ingest_run_tracking.sql`.
-
-Tables:
-
-- `ingest_runs`.
-- `ingest_run_items`.
+### Public app layer
 
 Purpose:
 
-- audit every apply run.
-- trace touched rows.
-- keep before snapshots for updates.
-- support future manual/script-reviewed rollback.
+- public match pages;
+- prediction cards;
+- transparency/product copy;
+- free/premium presentation boundaries.
 
-D05F does not provide automatic rollback.
+Public surfaces must not expose Real Fixture Lab internals, provider predictions, betting odds, or unpublished internal evaluation data.
 
-## D05G controlled single-friendly architecture
+### Admin/Internal lab layer
 
-D05G adds exact-fixture friendly ingest.
+Key route:
 
-Key behavior:
+- `/admin/real-fixture-lab`
 
-- `ingest-dry-run` accepts `--fixtureId`.
-- With `fixtureId`, the script fetches the exact fixture directly.
-- Friendlies apply is allowed only for one exact scheduled fixture.
+Current Real Fixture Lab capabilities:
 
-Guardrails:
+- load exact real fixtures scoped to `admin_only + api_football`;
+- generate internal model preview;
+- save internal predictions;
+- read existing API-Football `match_results`;
+- verify result rows from `pending_review` to `verified`;
+- persist/refresh evaluation after verified result;
+- read back saved evaluation.
 
-- `competition=friendlies`.
-- explicit `fixtureId`.
-- `limit=1`.
-- explicit `from/to`.
-- one planned match.
-- zero planned match results.
-- match remains `admin_only` and `api_football`.
+### API-Football ingest layer
 
-Broad friendlies apply remains blocked.
+Key scripts/modules:
 
-## Admin Lab surfaces
+- `scripts/api-football-read-spike.ts`;
+- `lib/football-api/ingest/planner.ts`;
+- `lib/football-api/ingest/apply.ts`;
+- `lib/football-api/ingest/writer.ts`.
 
-### `/admin/beta-lab`
+Current allowed ingest lanes:
 
-Existing internal lab surface for `lab_only` fixtures and calibration flow.
-
-It should not be casually merged with real provider-ingested fixtures.
-
-### `/admin/real-fixture-lab`
-
-New admin route for real API-Football ingested fixtures.
-
-Reads only:
-
-- `matches.access_scope='admin_only'`.
-- `matches.intake_source='api_football'`.
-
-Key modules:
-
-- `app/admin/real-fixture-lab/page.tsx`.
-- `app/admin/real-fixture-lab/actions.ts`.
-- `lib/supabase/real-fixture-lab-queries.ts`.
-- `lib/prediction-engine/real-fixture-adapter.ts`.
-- `lib/prediction-engine/real-fixture-persistence.ts`.
-
-Features:
-
-- Admin-only fixture read.
-- URL `externalId` selection.
-- In-memory prediction preview.
-- Internal save action.
-- Duplicate blocking.
-
-Persists:
-
-- `prediction_versions`.
-- `prediction_markets`.
-
-Does not persist:
-
-- `prediction_results`.
-
-## RLS architecture
-
-The app uses session-scoped Supabase clients and must respect RLS.
-
-Recent RLS migrations:
-
-- `0019`: admin read policies for real fixture lab.
-- `0020`: fixes RLS recursion for related table reads.
-- `0021`: narrow admin persistence policies for internal prediction versions/markets.
-- `0022`: fixes RLS recursion involving model versions/prediction versions.
-
-Important pattern:
-
-- use narrow `security definer` boolean helpers when direct inline policy subqueries would recurse.
-- helper functions return only boolean and do not expose rows.
-- helper functions use `search_path=public`.
-
-## Public exposure boundary
-
-Real Fixture Lab fixtures and predictions must not be exposed through public views.
-
-Validated:
-
-- Ingested friendly `api-football:fixture:1540356` remains absent from `public_match_details`.
+- exact friendly scheduled fixture pre-match;
+- exact friendly finished fixture post-match when exactly one `pending_review` result write is planned.
 
 Still blocked:
 
-- public prediction publication.
-- premium/public expansion.
-- odds/provider predictions.
+- broad friendlies apply;
+- broad World Cup apply;
+- provider predictions;
+- odds.
+
+### Persistence layer
+
+Important tables:
+
+- `matches`;
+- `match_results`;
+- `prediction_versions`;
+- `prediction_markets`;
+- `prediction_results`;
+- `ingest_runs`;
+- `ingest_run_items`.
+
+### RLS/security posture
+
+Important rules:
+
+- no service-role in app routes;
+- internal Lab writes are admin-only;
+- Real Fixture Lab fixtures are `admin_only + api_football`;
+- evaluation requires verified results;
+- public views remain separate.
+
+## Payment/auth status
+
+Payments are not implemented yet.
+
+Current planning:
+
+- do not assume Stripe;
+- MVP 1 should use PayPal or selected/available gateway;
+- World Cup monetization should prefer one-time packages/tournament pass;
+- recurring payments are post-World-Cup unless pulled forward by explicit decision.
+
+## Workers status
+
+Workers are not implemented yet.
+
+Workers should wait until the manual D06 pilot proves which operations are painful enough to automate.
+
+Potential future worker areas:
+
+- fixture refresh;
+- result polling;
+- evaluation jobs;
+- retry/error logging;
+- admin alerts.
+
+## Current immediate architecture risk
+
+The biggest near-term risk is not architecture absence. It is scope drift under World Cup time pressure.
+
+Protect the system by:
+
+- exact fixture operations first;
+- read-only discovery before apply;
+- manual pilot before workers;
+- no broad World Cup apply without explicit design.

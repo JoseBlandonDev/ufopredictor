@@ -1,207 +1,159 @@
-# Start Here for New Conversations — UFO Predictor
+# START HERE — UFO Predictor
 
-Use this file at the start of any new ChatGPT or Codex-assisted conversation about UFO Predictor.
+Last refreshed: after PR #40 (`feat: allow exact friendly post-match result ingest`).
 
-## Language / workflow rule
+This file is the entry point for new ChatGPT/Codex conversations. Use it to avoid inventing a new roadmap every time a conversation starts, because apparently humans and bots both enjoy wandering into traffic when documentation is stale.
 
-The user may discuss strategy in Spanish.
+## Current position
 
-All prompts intended to be pasted into Codex must be written in English.
+UFO Predictor is moving from the completed single-fixture Real Fixture Lab foundation into a pre-World Cup friendly pilot.
 
-Codex should be treated as:
+Completed foundations:
 
-- repo inspector;
-- focused implementer;
-- validator;
-- not owner of broad project documentation.
+- Epic A — project/app foundation: complete.
+- Epic B — public prediction foundation: complete.
+- Epic C — registered/premium foundation: complete.
+- Epic D is in progress and currently represents real-data validation and pre-World Cup calibration.
 
-ChatGPT should own broad documentation updates unless there is a mechanical repo reason to ask Codex.
+The D05 controlled single-fixture Real Fixture Lab loop is functionally complete after D05K.
 
-## Current branch context
+## Current branch discipline
 
-Recent work happened on:
+Never work directly on `main`.
 
-```txt
-feature/d05f-ingest-run-tracking-clean
-```
-
-Before any new work, ask Codex to confirm:
+After every PR merge:
 
 ```bash
+git checkout main
+git pull origin main
+git status --short
+git log --oneline -5
+git branch -d <merged-branch>
+git push origin --delete <merged-branch>
+```
+
+If the remote branch is already gone and Git says `remote ref does not exist`, that is not a blocker. Git is just complaining about a ghost.
+
+Then create the next real branch from updated `main`:
+
+```bash
+git checkout -b feature/<real-task-name>
+git status --short
 git branch --show-current
-git status --short
-git log --oneline origin/main..HEAD
 ```
 
-Do not assume branch cleanliness from memory.
+Do not copy placeholder names like `<real-task-name>` literally. Windows already made its opinion clear.
 
-## Current implemented state
+## Codex usage rules
 
-### D05F — ingest run tracking
+Prompts to Codex must be in English.
 
-Implemented and validated:
+Codex is an executor/inspector. ChatGPT is used for planning, review, and coordination.
 
-- `0018_ingest_run_tracking.sql`.
-- `ingest_runs`.
-- `ingest_run_items`.
-- writer tracking integration.
-- `before_snapshot` / `after_snapshot` metadata.
-- `ingest_run_id` in CLI report.
+Default constraints unless explicitly overridden:
 
-Rollback remains manual/script-reviewed, not automatic.
+- Do not modify files during recognition prompts.
+- Do not commit, push, open PRs, or merge without explicit approval.
+- Do not run SQL or apply migrations without explicit review and manual approval.
+- Do not run `--apply true` unless explicitly approved.
+- Do not use service-role in app routes.
+- Do not expose Lab/internal outputs publicly.
 
-### Real Fixture Lab
+## Current MVP-stage roadmap
 
-Implemented and validated:
+### MVP 0 — Pre-World Cup Calibration Lab
 
-- `/admin/real-fixture-lab` admin route.
-- Reads real API-Football fixtures where:
-  - `matches.access_scope='admin_only'`.
-  - `matches.intake_source='api_football'`.
-- Uses `externalId` query param.
-- No stale default fixture.
-- In-memory prediction preview.
-- Internal prediction persistence:
-  - `prediction_versions`.
-  - `prediction_markets`.
-- Duplicate blocking.
-- Active model version selection.
-- No `prediction_results` in Phase 3A.
+Goal: validate the prediction loop and model v0.1 with controlled friendly fixtures before official World Cup matches.
 
-### RLS migrations for Real Fixture Lab
+Active epic:
 
-Applied/created in this branch:
+- Epic D — Real Data & Calibration Lab.
 
-- `0019_real_fixture_lab_admin_read_policies.sql`.
-- `0020_fix_real_fixture_lab_rls_recursion.sql`.
-- `0021_real_fixture_lab_prediction_persistence_policies.sql`.
-- `0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql`.
+Immediate next block:
 
-These are important. Do not remove or casually rewrite them.
+- D06 — Friendly Pilot / Calibration Batch.
 
-### D05G — controlled single-friendly ingest
+### MVP 1 — World Cup Launch MVP
 
-Implemented and validated:
+Goal: ship a safe World Cup-focused MVP while tournament demand is active.
 
-- `--fixtureId` support in `ingest-dry-run`.
-- exact fixture fetch.
-- narrow apply lane for one selected friendly.
+Likely epics:
 
-Validated fixture:
+- Epic E — World Cup Data & Prediction Launch.
+- Epic F — Public Experience & Trust Layer.
+- Epic G — Auth, Paywall, and One-Time Payment Gateway Slice.
 
-- `api-football:fixture:1540356`.
-- Peru vs Spain.
-- Ingested as `admin_only`.
-- No `match_results` created at ingest.
-- No public view exposure.
-- Prediction saved internally.
+MVP 1 monetization should use one-time packages or a tournament pass, not a complex recurring subscription system. Do not assume Stripe. Default payment candidates are PayPal or another selected/available payment gateway.
 
-## Validated pipeline
+### MVP 1.5 — Live World Cup Iteration
 
-```txt
-API-Football exact fixture read
--> D05G exact fixture dry-run
--> manually approved single-friendly apply
--> ingest_runs / ingest_run_items
--> admin_only match
--> Real Fixture Lab preview
--> prediction_versions / prediction_markets
-```
+Goal: improve during the tournament using real results, user feedback, and operational pain.
 
-Not implemented yet:
+Likely epics:
 
-```txt
-result review
--> evaluation
--> prediction_results
-```
+- Epic H — Live Evaluation & Model Iteration.
+- Epic I — Workers Lite & Operational Automation.
+- Epic J — Monetization/Product Iteration During Tournament.
 
-## Critical no-go boundaries
+### MVP 2 — Post-World-Cup Sustainable Product
 
-Do not do these without explicit design and approval:
+Goal: turn UFO Predictor into a recurring football prediction product.
 
-- No broad friendlies apply.
-- No World Cup apply.
-- No Copa Colombia apply/defaults.
-- No `all` apply.
-- No provider predictions.
-- No odds.
-- No public exposure of Real Fixture Lab fixtures/predictions.
-- No `prediction_results` until result review/evaluation is designed.
-- No service-role client in app routes.
-- No cron/workers.
-- No push/PR without approval.
+Likely epics:
 
-## Recommended next phase
+- Epic K — Recurring Competitions.
+- Epic L — Recurring Payments & Premium Depth.
+- Epic M — Model & Transparency Maturity.
+- Epic N — Production Operations & Scale.
 
-Next phase should be:
+## D05 status
 
-```txt
-Real Fixture Lab post-match evaluation
-```
+D05 is the Real Fixture Lab controlled single-fixture loop. It is functionally complete after PR #40.
 
-Goal:
+Completed D05 blocks:
 
-1. Check whether the friendly result exists.
-2. Decide result trust/verification rule.
-3. Design internal evaluation persistence.
-4. Persist `prediction_results` only after the result is trusted.
-5. Keep evaluation internal/admin-only.
+- D05F — ingest run tracking.
+- D05G — exact friendly pre-match ingest.
+- D05H — Real Fixture Lab evaluation persistence.
+- D05I — Real Fixture Lab result verification.
+- D05J — first runtime E2E trial, partial pass.
+- D05K — exact friendly post-match result ingest guard.
 
-Do not jump to World Cup apply or broad friendlies expansion.
+D05J partial pass was not a system failure. It was blocked because `api-football:fixture:1540356` had no `match_results` row at runtime.
 
-## Initial Codex recognition prompt
+Do not keep extending D05 into D05L/D05M/D05Z. Future work belongs in D06+.
 
-Use this prompt in English:
+## Immediate next work
 
-```text
-We are working on UFO Predictor.
+Start D06.
 
-Do not edit files.
-Do not commit.
-Do not push.
-Do not open a PR.
-Do not run SQL.
-Do not perform DB writes.
-Do not run `--apply true`.
-
-Please recognize the current repository state.
-
-Return:
-1. Current branch and `git status --short`.
-2. Commits ahead of `origin/main`.
-3. Changed files versus `origin/main`.
-4. Whether D05F ingest run tracking is present.
-5. Whether D05G controlled single-friendly ingest is present.
-6. Whether Real Fixture Lab read/preview/internal persistence is present.
-7. Whether migrations 0018 through 0022 are present.
-8. Current tests/lint/build recommendation.
-9. Any gaps or risks before continuing.
-10. Recommended next safe task.
-
-Respect current no-go boundaries:
-- no broad friendlies apply
-- no World Cup apply
-- no provider predictions
-- no odds
-- no public exposure
-- no prediction_results until verified result/evaluation design
-```
-
-## Validation commands before any closeout
+Recommended branch:
 
 ```bash
+git checkout main
+git pull origin main
 git status --short
-git diff --check
-npm run test
-npm run lint
-npm run build
+git checkout -b feature/d06-friendly-pilot-calibration
 git status --short
+git branch --show-current
 ```
 
-If `next-env.d.ts` is changed only by build:
+D06 starts with read-only candidate discovery for 3-5 adult national-team friendlies.
 
-```bash
-git restore next-env.d.ts
-git status --short
-```
+No writes at first. No broad apply. No World Cup apply.
+
+## Hard no-go list
+
+Until explicitly approved:
+
+- broad friendlies apply;
+- broad World Cup apply;
+- provider predictions;
+- betting odds;
+- public exposure of Lab outputs;
+- service-role in app routes;
+- score-editing UI;
+- manual result creation UI;
+- automatic public prediction publication;
+- full workers before manual flow evidence;
+- large model rewrite before pilot evidence.

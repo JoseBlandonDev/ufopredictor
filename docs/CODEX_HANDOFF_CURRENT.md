@@ -1,290 +1,140 @@
-# Codex Handoff — UFO Predictor Current Branch
+# Codex Handoff — UFO Predictor Current
 
-_Last updated after D05F, Real Fixture Lab Phase 3A, and D05G controlled single-friendly validation._
+Last refreshed: after PR #40.
 
-## Operating rules for Codex
+This file gives Codex the current state and guardrails. Codex should not invent roadmap structure. Follow the MVP-stage plan.
 
-All Codex prompts for this project must be written in English, even when the user and ChatGPT discuss strategy in Spanish.
+## Current roadmap state
 
-Default Codex posture:
+The project is entering D06 after D05K.
 
-- Inspect first.
-- Make the smallest safe change.
-- Do not push.
-- Do not open PRs.
-- Do not run SQL unless explicitly instructed.
-- Do not perform DB writes unless explicitly instructed.
-- Do not run `--apply true` unless explicitly instructed.
-- Do not write broad documentation unless asked; ChatGPT owns broad documentation refresh.
+D05 is functionally complete as the Real Fixture Lab controlled single-fixture loop. Epic D remains in progress.
 
-## Current branch and repo state
+Current next active block:
 
-- Branch: `feature/d05f-ingest-run-tracking-clean`.
-- Working tree was confirmed clean before documentation refresh.
-- Branch is ahead of `origin/main` with commits covering:
-  - D05F ingest tracking.
-  - Real Fixture Lab read/preview/persistence.
-  - RLS policies and recursion fixes.
-  - D05G controlled single-friendly ingest.
+- D06 — Friendly Pilot / Calibration Batch.
 
-## Current commits ahead of `origin/main`
+## Recent completed work
 
-```txt
-315bbb6 feat: add controlled single-friendly ingest
-a3f9546 fix: reduce real fixture lab persistence logging
-82ca236 fix: remove stale real fixture lab default
-00d9566 fix: resolve real fixture lab prediction rls recursion
-422350c feat: persist real fixture lab internal predictions
-5973503 feat: allow real fixture lab internal prediction persistence
-d71e2bc fix: resolve real fixture lab read access
-5c4b30b feat: add real fixture lab admin read policies
-c8157de feat: add real fixture lab prediction preview
-9f1652e feat: add real fixture lab read surface
-8eb8dc7 fix: update ingest rollback warning copy
-39935ac fix: align ingest run count checks
-151828a feat: track api football ingest runs in writer
-8fc0863 feat: add ingest run tracking migration draft
-```
+### PR #38 — Real Fixture Lab evaluation persistence
 
-## Changed files versus `origin/main`
+- Added migration `0023_real_fixture_lab_evaluation_persistence_policies.sql`.
+- Added admin-only evaluation persistence.
+- Added saved evaluation readback.
+- Kept no public exposure.
 
-```txt
-app/admin/real-fixture-lab/actions.test.ts
-app/admin/real-fixture-lab/actions.ts
-app/admin/real-fixture-lab/page.tsx
-lib/football-api/ingest/apply.test.ts
-lib/football-api/ingest/apply.ts
-lib/football-api/ingest/writer.test.ts
-lib/football-api/ingest/writer.ts
-lib/prediction-engine/real-fixture-adapter.test.ts
-lib/prediction-engine/real-fixture-adapter.ts
-lib/prediction-engine/real-fixture-persistence.test.ts
-lib/prediction-engine/real-fixture-persistence.ts
-lib/supabase/real-fixture-lab-queries.test.ts
-lib/supabase/real-fixture-lab-queries.ts
-scripts/api-football-read-spike.ts
-supabase/migrations/0018_ingest_run_tracking.sql
-supabase/migrations/0019_real_fixture_lab_admin_read_policies.sql
-supabase/migrations/0020_fix_real_fixture_lab_rls_recursion.sql
-supabase/migrations/0021_real_fixture_lab_prediction_persistence_policies.sql
-supabase/migrations/0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql
-```
+### PR #39 — Real Fixture Lab result verification
 
-## New migrations
+- Added migration `0024_real_fixture_lab_match_result_review_policies.sql`.
+- Added admin-only action to verify existing API-Football `match_results`.
+- No score editing.
+- No result creation.
+- No rejection UI.
 
-### `0018_ingest_run_tracking.sql`
+### PR #40 — Exact friendly post-match result ingest guard
 
-Adds:
+- Extended exact friendlies apply guard.
+- Scheduled exact fixture still allowed with zero result rows.
+- Finished exact fixture allowed only with one planned `pending_review` result write.
+- Broad friendlies and World Cup apply still blocked.
 
-- `public.ingest_runs`.
-- `public.ingest_run_items`.
-- Indexes.
-- RLS enabled.
-- Updated-at trigger for `ingest_runs`.
+## D06 expected direction
 
-Purpose:
+D06 is an operational pilot over 3-5 exact friendly fixtures.
 
-- Durable tracking for real apply runs.
-- Row-level audit/snapshot trail.
-- Supports manual/script-reviewed rollback posture.
+D06 begins with read-only candidate discovery. It is not broad friendlies apply.
 
-### `0019_real_fixture_lab_admin_read_policies.sql`
+Expected D06 sequence:
 
-Adds admin SELECT policies for Real Fixture Lab reads:
+1. Read-only candidate discovery.
+2. Pilot matrix selection.
+3. Exact pre-match dry-run/apply per fixture.
+4. Save internal prediction.
+5. Exact post-match dry-run/apply after final score.
+6. Verify result.
+7. Persist evaluation.
+8. Capture model errors.
 
-- `matches`.
-- `competitions`.
-- `teams`.
-- `match_results`.
+## Payment/monetization planning
 
-Scope:
+Do not assume Stripe.
 
-- Authenticated admins only.
-- Fixtures where `access_scope='admin_only'` and `intake_source='api_football'`.
+MVP 1 should use PayPal or another selected/available payment gateway. World Cup launch monetization should prefer one-time packages or tournament pass over recurring subscription complexity.
 
-### `0020_fix_real_fixture_lab_rls_recursion.sql`
+If a second contributor starts, they should likely work on Epic G recognition/design:
 
-Fixes RLS recursion from `0019` related-table policies using narrow `security definer` boolean helpers.
+- current auth state;
+- Google auth hardening;
+- paywall boundary;
+- payment gateway options;
+- tournament pass entitlement;
+- simple account/payment status.
 
-### `0021_real_fixture_lab_prediction_persistence_policies.sql`
+## Branch and PR rules
 
-Adds narrow admin read/insert permissions for internal prediction persistence:
+Never work on `main` directly.
 
-- active `model_versions` read.
-- `prediction_versions` SELECT/INSERT.
-- `prediction_markets` SELECT/INSERT.
-
-Scope:
-
-- `run_scope='internal_lab'`.
-- `prediction_type='pre_match_24h'`.
-- real fixture must be `admin_only + api_football`.
-- `prediction_markets.is_premium=false`.
-
-### `0022_fix_real_fixture_lab_prediction_persistence_rls_recursion.sql`
-
-Fixes RLS recursion between `model_versions` and `prediction_versions` by replacing an older inline policy pattern with a `security definer` helper:
-
-- `public.can_admin_read_internal_lab_model_version(target_model_version_id uuid)`.
-
-## D05F status
-
-D05F is complete for the current controlled apply flow.
-
-Implemented in:
-
-- `lib/football-api/ingest/writer.ts`.
-- `supabase/migrations/0018_ingest_run_tracking.sql`.
-
-Behavior:
-
-- Creates `ingest_runs` header rows for real apply runs.
-- Records `ingest_run_items` for created/updated/skipped/error writer outcomes.
-- Captures `before_snapshot` for updates.
-- Captures `after_snapshot` when available.
-- Marks runs `completed` or `failed`.
-- CLI reports `ingest_run_id`.
-
-Known gaps:
-
-- Rollback is not automatic.
-- Plan-level skipped fixtures are not fully persisted as item rows.
-
-## D05G status
-
-D05G is implemented and validated.
-
-Implemented in:
-
-- `scripts/api-football-read-spike.ts`.
-- `lib/football-api/ingest/apply.ts`.
-- `lib/football-api/ingest/writer.ts`.
-
-Behavior:
-
-- `ingest-dry-run` accepts `--fixtureId`.
-- Exact fixture fetch is used when `fixtureId` is present.
-- Friendlies apply remains blocked except for one narrow lane:
-  - `competition=friendlies`.
-  - explicit `fixtureId`.
-  - `limit=1`.
-  - explicit `from` and `to`.
-  - exactly one selected/planned fixture.
-  - fixture must be `scheduled`.
-  - `matchResultPlans.length=0`.
-  - planned match remains `admin_only` and `api_football`.
-
-Validated fixture:
-
-- `api-football:fixture:1540356`.
-- Peru vs Spain.
-- Friendly.
-- Scheduled.
-- Ingested as `admin_only`.
-- No `match_results` created.
-
-## Real Fixture Lab status
-
-Implemented files:
-
-- `app/admin/real-fixture-lab/page.tsx`.
-- `app/admin/real-fixture-lab/actions.ts`.
-- `lib/supabase/real-fixture-lab-queries.ts`.
-- `lib/prediction-engine/real-fixture-adapter.ts`.
-- `lib/prediction-engine/real-fixture-persistence.ts`.
-
-Behavior:
-
-- Admin-only route.
-- Reads only real fixtures where:
-  - `access_scope='admin_only'`.
-  - `intake_source='api_football'`.
-- Fixture selected by `externalId` query param.
-- No hardcoded default fixture.
-- In-memory prediction preview.
-- Save action persists exactly one internal prediction per:
-  - match.
-  - model version.
-  - `prediction_type='pre_match_24h'`.
-  - `run_scope='internal_lab'`.
-- Duplicate create is blocked.
-- Uses active `model_versions` row.
-- Persists:
-  - `prediction_versions`.
-  - `prediction_markets`.
-- Does not persist:
-  - `prediction_results`.
-
-Validated with:
-
-- `api-football:fixture:1540356`.
-- Internal prediction saved.
-- Markets saved.
-- `prediction_results` remains empty.
-- `public_match_details` remains closed.
-
-## Canonical commands used in validation
-
-### Exact friendly read
+For new work:
 
 ```bash
-npm run spike:api-football -- --mode fixture --fixtureId 1540356
+git checkout main
+git pull origin main
+git status --short
+git checkout -b feature/<real-task-name>
+git status --short
+git branch --show-current
 ```
 
-### Exact friendly dry-run
+After PR merge:
 
 ```bash
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --report true
+git checkout main
+git pull origin main
+git status --short
+git log --oneline -5
+git branch -d <merged-branch>
+git push origin --delete <merged-branch>
 ```
 
-### Manually approved exact friendly apply
+Then create the next branch from updated `main`.
 
-```bash
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId 1540356 --from 2026-06-09 --to 2026-06-09 --limit 1 --apply true --report true
-```
+Do not use placeholder names literally.
 
-## Current no-go boundaries
+## SQL/migration rules
 
-Do not do any of the following without a new explicit design/approval step:
+- No SQL/apply without explicit review.
+- User applies migrations manually in Supabase SQL Editor when approved.
+- Only one migration-producing branch should be active unless migration numbers are reserved.
+- Before adding a migration, inspect latest migration number and coordinate.
+
+## Ingest/apply rules
 
 - No broad friendlies apply.
-- No World Cup apply.
-- No Copa Colombia apply/defaults.
-- No `all` apply.
+- No broad World Cup apply.
+- Exact fixture apply only when guardrails allow.
 - No provider predictions.
 - No odds.
-- No public exposure of Lab fixtures or predictions.
-- No `prediction_results` persistence until result verification/evaluation is designed.
-- No service-role client in app routes.
-- No cron/workers.
-- No push/PR without approval.
+- No `--apply true` without explicit user approval.
 
-## Next recommended technical phase
+## App route rules
 
-Real Fixture Lab post-match evaluation phase:
+- No service-role in app routes.
+- Keep internal Lab routes internal/admin-only.
+- Do not expose `prediction_results` or Lab outputs publicly unless a later Epic explicitly approves publication rules.
 
-1. Wait for the persisted friendly to have a result.
-2. Review/verify the result source.
-3. Design evaluation persistence into `prediction_results`.
-4. Keep everything internal/admin-only.
-5. Do not expose public predictions.
+## Validation expectations
 
-## Validation before committing docs
+For code changes:
 
-Run:
+- `git diff --check`;
+- targeted tests;
+- `npm run test` when relevant;
+- `npm run lint`;
+- `npm run build`;
+- restore `next-env.d.ts` if build modifies it unexpectedly.
 
-```bash
-git status --short
-git diff --check
-npm run test
-npm run lint
-npm run build
-git status --short
-```
+For docs-only changes:
 
-If `next-env.d.ts` is modified only by build:
-
-```bash
-git restore next-env.d.ts
-git status --short
-```
+- `git diff --check`;
+- `git status --short`;
+- no app tests unless code changed by mistake.
