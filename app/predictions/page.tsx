@@ -27,7 +27,7 @@ export default async function PredictionsPage() {
         </p>
       </section>
 
-      <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
+      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5">
         <h2 className="text-lg font-semibold">
           {isAuthenticated ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
         </h2>
@@ -38,24 +38,15 @@ export default async function PredictionsPage() {
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           {isAuthenticated ? (
-            <Link
-              href="/dashboard"
-              className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
-            >
+            <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
               Abrir tu panel
             </Link>
           ) : (
             <>
-              <Link
-                href="/register?next=/predictions"
-                className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
-              >
+              <Link href="/register?next=/predictions" className="ufo-btn-primary ufo-focus-ring">
                 Crear cuenta gratis
               </Link>
-              <Link
-                href="/login?next=/predictions"
-                className="rounded-md border border-white/15 px-4 py-2 text-sm font-semibold text-white"
-              >
+              <Link href="/login?next=/predictions" className="ufo-btn-secondary ufo-focus-ring">
                 Iniciar sesión
               </Link>
             </>
@@ -64,12 +55,12 @@ export default async function PredictionsPage() {
       </section>
 
       {data.status === "unavailable" ? (
-        <section className="panel rounded-lg border border-[var(--warning)]/25 p-6">
+        <section className="ufo-card rounded-lg border border-[var(--warning)]/25 p-6">
           <h2 className="text-lg font-semibold">Predicciones temporalmente no disponibles</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">{data.message}</p>
         </section>
       ) : data.predictions.length === 0 ? (
-        <section className="panel rounded-lg p-6">
+        <section className="ufo-card rounded-lg p-6">
           <h2 className="text-lg font-semibold">Aún no hay predicciones públicas</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Las predicciones publicadas para producto público aparecerán aquí.
