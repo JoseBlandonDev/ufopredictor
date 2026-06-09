@@ -177,15 +177,15 @@ export type ControlledWritePlan = {
   warnings: string[];
 };
 
-export function assertSingleFriendlyApplyPlan(
+function isAllowedExactFriendlyMatchStatus(status: MatchRow["status"]): boolean {
+  return status === "scheduled" || status === "finished";
+}
+
+function assertExactFriendlySharedGuards(
   plan: ControlledWritePlan,
   target: TargetCompetition,
-  config: ApplyConfig,
-): void {
-  if (config.competitionKey !== "friendlies") {
-    return;
-  }
-
+  config: Extract<ApplyConfig, { competitionKey: "friendlies" }>,
+) {
   if (target.key !== "friendlies" || target.leagueId !== 10) {
     assertApplyError("Friendlies apply requires the API-Football Friendlies target.");
   }
@@ -200,15 +200,9 @@ export function assertSingleFriendlyApplyPlan(
     );
   }
 
-  if (plan.matchResultPlans.length !== 0) {
-    assertApplyError(
-      "Friendlies apply requires zero planned match_results for the selected fixture.",
-    );
-  }
-
   const matchPlan = plan.matchPlans[0];
   if (!matchPlan) {
-    assertApplyError("Friendlies apply requires an exact scheduled match plan.");
+    assertApplyError("Friendlies apply requires an exact single-fixture match plan.");
   }
 
   if (matchPlan.fixtureId !== config.fixtureId) {
@@ -228,8 +222,8 @@ export function assertSingleFriendlyApplyPlan(
     assertApplyError("Friendlies apply requires the selected fixture to stay inside --from/--to.");
   }
 
-  if (matchPlan.status !== "scheduled") {
-    assertApplyError("Friendlies apply requires a scheduled upcoming fixture.");
+  if (!isAllowedExactFriendlyMatchStatus(matchPlan.status)) {
+    assertApplyError("Friendlies apply requires either a scheduled or finished exact fixture.");
   }
 
   if (matchPlan.accessScope !== "admin_only") {
@@ -238,6 +232,67 @@ export function assertSingleFriendlyApplyPlan(
 
   if (matchPlan.intakeSource !== "api_football") {
     assertApplyError("Friendlies apply requires api_football intake source.");
+  }
+
+  return matchPlan;
+}
+
+export function assertSingleFriendlyApplyPlan(
+  plan: ControlledWritePlan,
+  target: TargetCompetition,
+  config: ApplyConfig,
+): void {
+  if (config.competitionKey !== "friendlies") {
+    return;
+  }
+
+  const matchPlan = assertExactFriendlySharedGuards(plan, target, config);
+
+  if (matchPlan.status === "scheduled") {
+    if (plan.matchResultPlans.length !== 0) {
+      assertApplyError(
+        "Scheduled friendlies apply requires zero planned match_results for the selected fixture.",
+      );
+    }
+
+    return;
+  }
+
+  if (plan.matchResultPlans.length !== 1) {
+    assertApplyError(
+      "Finished friendlies apply requires exactly one planned match_result for the selected fixture.",
+    );
+  }
+
+  const resultPlan = plan.matchResultPlans[0];
+  if (!resultPlan || resultPlan.action === "skip") {
+    assertApplyError(
+      "Finished friendlies apply requires one pending_review match_result write plan.",
+    );
+  }
+
+  if (resultPlan.matchExternalId !== matchPlan.externalId) {
+    assertApplyError(
+      "Finished friendlies apply requires the planned match_result to match the exact fixture.",
+    );
+  }
+
+  if (resultPlan.verificationStatus !== "pending_review") {
+    assertApplyError(
+      "Finished friendlies apply requires pending_review verification status.",
+    );
+  }
+
+  if (resultPlan.intakeSource !== "api_football") {
+    assertApplyError(
+      "Finished friendlies apply requires api_football match_result intake source.",
+    );
+  }
+
+  if (resultPlan.homeGoals === null || resultPlan.awayGoals === null) {
+    assertApplyError(
+      "Finished friendlies apply requires non-null final goals for the selected fixture.",
+    );
   }
 }
 
