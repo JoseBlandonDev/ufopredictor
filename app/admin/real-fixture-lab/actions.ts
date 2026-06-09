@@ -25,6 +25,26 @@ function redirectWithSaveStatus(status: SaveStatus, externalId: string): never {
   redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&save=${status}`);
 }
 
+function logRealFixtureLabSupabaseError(args: {
+  operation: string;
+  table: string;
+  error: {
+    code?: string;
+    message?: string;
+    details?: string;
+    hint?: string;
+  } | null;
+}) {
+  console.error("real_fixture_lab_save_error", {
+    operation: args.operation,
+    table: args.table,
+    code: args.error?.code ?? null,
+    message: args.error?.message ?? null,
+    details: args.error?.details ?? null,
+    hint: args.error?.hint ?? null,
+  });
+}
+
 export async function saveRealFixturePredictionAction(formData: FormData) {
   const input = saveRealFixturePredictionSchema.safeParse({
     externalId: formData.get("externalId"),
@@ -66,6 +86,13 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
     .maybeSingle();
 
   if (activeModelVersionError || !activeModelVersion) {
+    if (activeModelVersionError) {
+      logRealFixtureLabSupabaseError({
+        operation: "select_active_model_version",
+        table: "model_versions",
+        error: activeModelVersionError,
+      });
+    }
     redirectWithSaveStatus("no_model", externalId);
   }
 
@@ -81,6 +108,11 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
     .maybeSingle();
 
   if (existingPredictionError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_existing_prediction_version",
+      table: "prediction_versions",
+      error: existingPredictionError,
+    });
     redirectWithSaveStatus("error", externalId);
   }
 
@@ -101,6 +133,19 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
     .maybeSingle();
 
   if (insertedPredictionVersionError || !insertedPredictionVersion) {
+    if (insertedPredictionVersionError) {
+      logRealFixtureLabSupabaseError({
+        operation: "insert_prediction_version",
+        table: "prediction_versions",
+        error: insertedPredictionVersionError,
+      });
+    } else {
+      console.error("real_fixture_lab_save_error", {
+        operation: "insert_prediction_version",
+        table: "prediction_versions",
+        message: "Insert returned no prediction_version row.",
+      });
+    }
     redirectWithSaveStatus("error", externalId);
   }
 
@@ -114,6 +159,11 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
     .insert(predictionMarketInserts);
 
   if (insertedPredictionMarketsError) {
+    logRealFixtureLabSupabaseError({
+      operation: "insert_prediction_markets",
+      table: "prediction_markets",
+      error: insertedPredictionMarketsError,
+    });
     redirectWithSaveStatus("error", externalId);
   }
 
