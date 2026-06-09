@@ -1,36 +1,39 @@
 # UFO Predictor — Open Decisions
 
-Last refreshed: after PR #40.
+Last refreshed: after D08A admin lab navigation cleanup.
 
 ## Immediate decisions
 
-### D06 pilot fixture list
+### Remaining D06 pilot completion
 
 Status: open.
 
-Need select 3-5 exact adult national-team friendlies for pre-World-Cup calibration.
+Need finish the remaining 3 pilot fixtures once final results are published:
 
-Criteria:
+- Saudi Arabia vs Senegal;
+- Argentina vs Iceland;
+- Iraq vs Venezuela.
 
-- before World Cup official matches;
-- enough time before kickoff to save prediction;
-- API-Football coverage;
-- exact fixture ID;
-- adult national team friendly;
-- varied enough to test model behavior.
+Operational rule:
+
+- continue exact post-match ingest, verification, and evaluation only as final results become available.
 
 ### D06 evidence threshold
 
-Status: open.
+Status: still open, but partially satisfied.
 
-Need decide what evidence is enough to proceed into World Cup launch MVP.
+Current evidence already available:
 
-Suggested minimum:
+- 5 internal predictions saved pre-match;
+- 2 post-match evaluations persisted;
+- early v0.2 sanity evidence from real fixtures;
+- no major loop blocker in the Real Fixture Lab flow.
 
-- at least 3 internal predictions saved;
-- at least 1-3 post-match evaluations if results are available;
-- clear model v0.1 error notes;
-- no major flow blocker.
+Still needed before closing D06 evidence:
+
+- all 5 pilot fixtures evaluated if possible;
+- final model error summary from the full pilot batch;
+- final decision on whether any further D07/D08 follow-up is needed before MVP 1.
 
 ## Payment and monetization decisions
 
@@ -77,8 +80,8 @@ Status: open, recommended.
 
 Recommended assignment:
 
-- first choice: Epic G recognition/design for auth, paywall, PayPal/payment gateway, entitlement;
-- second choice: Epic F public UX/trust layer.
+- first choice: Epic F / F01 UI polish and product readiness;
+- second choice: Epic G recognition/design for auth, paywall, PayPal/payment gateway, entitlement.
 
 Avoid assigning second contributor to Epic D unless tightly coordinated, because Epic D touches API-Football, Real Fixture Lab, and model/evaluation surfaces.
 
@@ -112,11 +115,21 @@ Need decide:
 
 ## Model decisions
 
-### Model v0.2 changes
+### Further model changes after v0.2-prelaunch
 
-Status: blocked until D06 evidence.
+Status: blocked until full D06 evidence.
 
-Possible areas:
+Current state:
+
+- D07B fallback signals are already implemented.
+- `v0.2-prelaunch` is active and saved for all 5 pilot fixtures.
+- v0.1 remains preserved as baseline.
+
+Rule:
+
+- do not change the model again until all 5 pilot fixtures are evaluated.
+
+Possible later areas, only if pilot evidence justifies them:
 
 - confidence/risk tuning;
 - top scoreline distribution;
@@ -124,7 +137,27 @@ Possible areas:
 - neutral venue behavior;
 - weighting defaults.
 
-Do not perform large model rewrite before pilot evidence.
+## Frontend/product decisions
+
+### F01 MVP 1 UI Polish / Product Readiness
+
+Status: open, recommended next workstream.
+
+Scope should include:
+
+- public/shared UI polish;
+- encoding cleanup;
+- CTA/button hover/focus/pointer state cleanup;
+- `/pricing` and `/matches/[slug]` polish first.
+
+Hard no-go inside F01:
+
+- DB changes;
+- model changes;
+- auth logic changes;
+- payment implementation;
+- prediction-logic changes;
+- migrations.
 
 ## Closed or settled decisions
 
@@ -146,8 +179,19 @@ Status: closed for current MVP stages.
 
 Do not read provider predictions or betting odds.
 
+Clarification:
+
+- odds may only be considered later as a separate benchmark/market-comparison layer, not as hidden model input.
+
 ### Service-role in app routes
 
 Status: closed.
 
 No service-role in app routes.
+
+### Active admin lab surface
+
+Status: closed for current stage.
+
+- Real Fixture Lab is the active real-data admin lab.
+- Beta Lab remains legacy/mock/internal calibration only.
