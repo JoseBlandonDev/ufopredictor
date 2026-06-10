@@ -26,6 +26,13 @@ export type ApplyConfig =
       limit: number;
     }
   | {
+      competitionKey: "world-cup";
+      from: string;
+      to: string;
+      limit: 1;
+      fixtureId: number;
+    }
+  | {
       competitionKey: "friendlies";
       from: string;
       to: string;
@@ -181,32 +188,47 @@ function isAllowedExactFriendlyMatchStatus(status: MatchRow["status"]): boolean 
   return status === "scheduled" || status === "finished";
 }
 
-function assertExactFriendlySharedGuards(
+function isAllowedExactWorldCupMatchStatus(status: MatchRow["status"]): boolean {
+  return status === "scheduled";
+}
+
+function assertExactSingleFixtureSharedGuards(
   plan: ControlledWritePlan,
   target: TargetCompetition,
-  config: Extract<ApplyConfig, { competitionKey: "friendlies" }>,
+  config: Extract<ApplyConfig, { fixtureId: number }>,
+  options: {
+    targetKey: "friendlies" | "world-cup";
+    targetLeagueId: number;
+    targetLabel: string;
+  },
 ) {
-  if (target.key !== "friendlies" || target.leagueId !== 10) {
-    assertApplyError("Friendlies apply requires the API-Football Friendlies target.");
+  if (target.key !== options.targetKey || target.leagueId !== options.targetLeagueId) {
+    assertApplyError(
+      `${options.targetLabel} apply requires the API-Football ${options.targetLabel} target.`,
+    );
   }
 
   if (plan.fetchedFixtures !== 1) {
-    assertApplyError("Friendlies apply requires exactly one fetched fixture.");
+    assertApplyError(`${options.targetLabel} apply requires exactly one fetched fixture.`);
   }
 
   if (plan.matchPlans.length !== 1 || plan.plannedFixtures !== 1) {
     assertApplyError(
-      "Friendlies apply requires exactly one planned match for the selected fixture.",
+      `${options.targetLabel} apply requires exactly one planned match for the selected fixture.`,
     );
   }
 
   const matchPlan = plan.matchPlans[0];
   if (!matchPlan) {
-    assertApplyError("Friendlies apply requires an exact single-fixture match plan.");
+    assertApplyError(
+      `${options.targetLabel} apply requires an exact single-fixture match plan.`,
+    );
   }
 
   if (matchPlan.fixtureId !== config.fixtureId) {
-    assertApplyError("Friendlies apply requires the planned fixture to match --fixtureId.");
+    assertApplyError(
+      `${options.targetLabel} apply requires the planned fixture to match --fixtureId.`,
+    );
   }
 
   const kickoffMs = Date.parse(matchPlan.kickoffAt);
@@ -219,22 +241,66 @@ function assertExactFriendlySharedGuards(
     kickoffMs < fromMs ||
     kickoffMs > toMs
   ) {
-    assertApplyError("Friendlies apply requires the selected fixture to stay inside --from/--to.");
+    assertApplyError(
+      `${options.targetLabel} apply requires the selected fixture to stay inside --from/--to.`,
+    );
   }
+
+  if (matchPlan.accessScope !== "admin_only") {
+    assertApplyError(`${options.targetLabel} apply requires admin_only match access scope.`);
+  }
+
+  if (matchPlan.intakeSource !== "api_football") {
+    assertApplyError(
+      `${options.targetLabel} apply requires api_football intake source.`,
+    );
+  }
+
+  return matchPlan;
+}
+
+function assertExactFriendlySharedGuards(
+  plan: ControlledWritePlan,
+  target: TargetCompetition,
+  config: Extract<ApplyConfig, { competitionKey: "friendlies" }>,
+) {
+  const matchPlan = assertExactSingleFixtureSharedGuards(plan, target, config, {
+    targetKey: "friendlies",
+    targetLeagueId: 10,
+    targetLabel: "Friendlies",
+  });
 
   if (!isAllowedExactFriendlyMatchStatus(matchPlan.status)) {
     assertApplyError("Friendlies apply requires either a scheduled or finished exact fixture.");
   }
 
-  if (matchPlan.accessScope !== "admin_only") {
-    assertApplyError("Friendlies apply requires admin_only match access scope.");
-  }
-
-  if (matchPlan.intakeSource !== "api_football") {
-    assertApplyError("Friendlies apply requires api_football intake source.");
-  }
-
   return matchPlan;
+}
+
+export function assertSingleWorldCupApplyPlan(
+  plan: ControlledWritePlan,
+  target: TargetCompetition,
+  config: ApplyConfig,
+): void {
+  if (config.competitionKey !== "world-cup") {
+    return;
+  }
+
+  const matchPlan = assertExactSingleFixtureSharedGuards(plan, target, config, {
+    targetKey: "world-cup",
+    targetLeagueId: 1,
+    targetLabel: "World Cup",
+  });
+
+  if (!isAllowedExactWorldCupMatchStatus(matchPlan.status)) {
+    assertApplyError("World Cup apply requires a scheduled exact fixture.");
+  }
+
+  if (plan.matchResultPlans.length !== 0) {
+    assertApplyError(
+      "World Cup apply requires zero planned match_results for the selected fixture.",
+    );
+  }
 }
 
 export function assertSingleFriendlyApplyPlan(
@@ -315,6 +381,28 @@ export function resolveApplyConfig(input: ApplyGuardInput): ApplyConfig | null {
 
   if (input.competition === "all") {
     assertApplyError("Apply mode is not allowed with --competition all in D05C.2A.");
+  }
+
+  if (input.competition === "world-cup") {
+    if (
+      !input.from ||
+      !input.to ||
+      input.limit !== 1 ||
+      typeof input.fixtureId !== "number" ||
+      input.fixtureId <= 0
+    ) {
+      assertApplyError(
+        "World Cup apply requires explicit --fixtureId, --from, --to, and --limit 1.",
+      );
+    }
+
+    return {
+      competitionKey: "world-cup",
+      from: input.from,
+      to: input.to,
+      limit: 1,
+      fixtureId: input.fixtureId,
+    };
   }
 
   if (input.competition === "friendlies") {

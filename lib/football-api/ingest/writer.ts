@@ -3,6 +3,7 @@ import type { TargetCompetition } from "@/lib/football-api/target-competitions";
 import type { ProviderFixture } from "@/lib/football-api/api-football-types";
 import {
   assertSingleFriendlyApplyPlan,
+  assertSingleWorldCupApplyPlan,
   planControlledFixtureWrite,
   resolveApplyConfig,
 } from "./apply";
@@ -726,6 +727,7 @@ export async function executeControlledFixtureWrite(input: {
   const existing = await loadExistingState(input.target, input.fixtures, supabase);
   const plan = planControlledFixtureWrite(input.fixtures, input.target, applyConfig, existing);
   assertSingleFriendlyApplyPlan(plan, input.target, applyConfig);
+  assertSingleWorldCupApplyPlan(plan, input.target, applyConfig);
   const counts = buildEmptyCounts();
   const warningSummary = buildWarningsSummary(plan);
   const errorSummary: RunItemError[] = [];

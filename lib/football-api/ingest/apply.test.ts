@@ -4,6 +4,7 @@ import type { ProviderFixture } from "@/lib/football-api/api-football-types";
 import type { TargetCompetition } from "@/lib/football-api/target-competitions";
 import {
   assertSingleFriendlyApplyPlan,
+  assertSingleWorldCupApplyPlan,
   buildApiFootballIngestSourceNote,
   decideApplyFixtureAction,
   type MatchResultWritePlan,
@@ -25,6 +26,14 @@ const friendliesTarget: TargetCompetition = {
   leagueId: 10,
   season: 2026,
   useCase: "beta_pre_world_cup",
+};
+
+const worldCupTarget: TargetCompetition = {
+  key: "world-cup",
+  provider: "api-football",
+  leagueId: 1,
+  season: 2026,
+  useCase: "core_world_cup",
 };
 
 function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture {
@@ -90,16 +99,6 @@ describe("controlled apply guards", () => {
     expect(() =>
       resolveApplyConfig({
         apply: true,
-        competition: "world-cup",
-        from: "2026-05-25",
-        to: "2026-06-10",
-        limit: 5,
-      }),
-    ).toThrow(/only for --competition colombia-primera-a/i);
-
-    expect(() =>
-      resolveApplyConfig({
-        apply: true,
         competition: "copa-colombia",
         from: "2026-05-25",
         to: "2026-06-10",
@@ -129,6 +128,73 @@ describe("controlled apply guards", () => {
         limit: 1,
       }),
     ).toThrow(/friendlies apply requires explicit --fixtureId/i);
+  });
+
+  it("rejects world cup apply without explicit fixtureId", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "world-cup",
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toThrow(/world cup apply requires explicit --fixtureId/i);
+  });
+
+  it("rejects world cup apply without limit 1", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+      }),
+    ).toThrow(/world cup apply requires explicit --fixtureId, --from, --to, and --limit 1/i);
+  });
+
+  it("rejects world cup apply with limit greater than one", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 2,
+      }),
+    ).toThrow(/world cup apply requires explicit --fixtureId, --from, --to, and --limit 1/i);
+  });
+
+  it("rejects world cup apply without explicit from/to", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "world-cup",
+        fixtureId: 1489369,
+        limit: 1,
+      }),
+    ).toThrow(/world cup apply requires explicit --fixtureId, --from, --to, and --limit 1/i);
+  });
+
+  it("allows only narrow single-fixture world cup apply config", () => {
+    expect(
+      resolveApplyConfig({
+        apply: true,
+        competition: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toEqual({
+      competitionKey: "world-cup",
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
   });
 
   it("rejects friendlies apply with limit greater than one", () => {
@@ -165,6 +231,281 @@ describe("controlled apply guards", () => {
 });
 
 describe("controlled apply rules", () => {
+  it("allows scheduled world cup fixture with zero match results through narrow apply plan guard", () => {
+    const plan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+          homeTeam: {
+            providerTeamId: 16,
+            name: "Mexico",
+            winner: null,
+          },
+          awayTeam: {
+            providerTeamId: 1531,
+            name: "South Africa",
+            winner: null,
+          },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      },
+    );
+
+    expect(plan.matchPlans[0]).toMatchObject({
+      fixtureId: 1489369,
+      status: "scheduled",
+      accessScope: "admin_only",
+      intakeSource: "api_football",
+    });
+    expect(plan.matchResultPlans).toHaveLength(0);
+    expect(() =>
+      assertSingleWorldCupApplyPlan(plan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects finished world cup fixture for narrow apply planning", () => {
+    const finishedPlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 1, away: 0 },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      },
+    );
+
+    expect(() =>
+      assertSingleWorldCupApplyPlan(finishedPlan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toThrow(/scheduled exact fixture/i);
+  });
+
+  it("rejects world cup apply when more than one match is planned", () => {
+    const plan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      },
+    );
+
+    plan.matchPlans.push({
+      ...plan.matchPlans[0]!,
+      fixtureId: 1489370,
+      externalId: "api-football:fixture:1489370",
+    });
+    plan.plannedFixtures = 2;
+
+    expect(() =>
+      assertSingleWorldCupApplyPlan(plan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toThrow(/exactly one planned match/i);
+  });
+
+  it("rejects world cup apply when any match_result write is planned", () => {
+    const plan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      },
+    );
+
+    plan.matchResultPlans.push({
+      action: "create",
+      matchExternalId: "api-football:fixture:1489369",
+      homeGoals: 1,
+      awayGoals: 0,
+      verificationStatus: "pending_review",
+      intakeSource: "api_football",
+      sourceNote: plan.sourceNote,
+    });
+
+    expect(() =>
+      assertSingleWorldCupApplyPlan(plan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toThrow(/zero planned match_results/i);
+  });
+
+  it("rejects world cup apply if access_scope is not admin_only", () => {
+    const plan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      },
+    );
+
+    plan.matchPlans[0] = {
+      ...plan.matchPlans[0]!,
+      accessScope: "public",
+    };
+
+    expect(() =>
+      assertSingleWorldCupApplyPlan(plan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toThrow(/admin_only match access scope/i);
+  });
+
+  it("rejects world cup apply if intake_source is not api_football", () => {
+    const plan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      },
+    );
+
+    plan.matchPlans[0] = {
+      ...plan.matchPlans[0]!,
+      intakeSource: "manual" as never,
+    };
+
+    expect(() =>
+      assertSingleWorldCupApplyPlan(plan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toThrow(/api_football intake source/i);
+  });
+
+  it("keeps broad world cup apply blocked at config level", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "world-cup",
+        from: "2026-06-11",
+        to: "2026-06-15",
+        limit: 5,
+      }),
+    ).toThrow(/world cup apply requires explicit --fixtureId, --from, --to, and --limit 1/i);
+  });
+
   it("skips unknown status for apply", () => {
     expect(
       decideApplyFixtureAction(
