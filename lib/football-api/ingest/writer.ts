@@ -12,7 +12,7 @@ import {
   buildApiFootballTeamExternalId,
   buildApiFootballFixtureExternalId,
 } from "./external-ids";
-import { buildCompetitionSlug } from "./slug";
+import { buildCompetitionSlug, toSlugPart } from "./slug";
 
 type CompetitionRow = {
   id: string;
@@ -422,14 +422,23 @@ async function loadExistingState(
     season: target.season,
     round: null,
   });
-  const teamExternalIds = Array.from(
-    new Set(
-      fixtures.flatMap((fixture) => [
-        buildApiFootballTeamExternalId(fixture.homeTeam.providerTeamId),
-        buildApiFootballTeamExternalId(fixture.awayTeam.providerTeamId),
-      ]),
-    ),
+  const expectedTeams = Array.from(
+    new Map(
+      fixtures
+        .flatMap((fixture) => [
+          {
+            externalId: buildApiFootballTeamExternalId(fixture.homeTeam.providerTeamId),
+            slug: toSlugPart(fixture.homeTeam.name),
+          },
+          {
+            externalId: buildApiFootballTeamExternalId(fixture.awayTeam.providerTeamId),
+            slug: toSlugPart(fixture.awayTeam.name),
+          },
+        ])
+        .map((team) => [team.externalId, team]),
+    ).values(),
   );
+  const teamExternalIds = expectedTeams.map((team) => team.externalId);
   const matchExternalIds = fixtures.map((fixture) =>
     buildApiFootballFixtureExternalId(fixture.providerFixtureId),
   );
@@ -481,9 +490,46 @@ async function loadExistingState(
   }
 
   const teamByExternalId = new Map<string, TeamRow>();
+  const teamBySlug = new Map<string, TeamRow>();
   for (const team of (teamData ?? []) as TeamRow[]) {
     if (team.external_id) {
       teamByExternalId.set(team.external_id, team);
+    }
+    teamBySlug.set(team.slug, team);
+  }
+
+  const missingTeamSlugs = expectedTeams
+    .filter((team) => !teamByExternalId.has(team.externalId))
+    .map((team) => team.slug)
+    .filter((slug, index, values) => values.indexOf(slug) === index)
+    .filter((slug) => !teamBySlug.has(slug));
+
+  if (missingTeamSlugs.length > 0) {
+    const { data: teamSlugData, error: teamSlugError } = await supabase
+      .from("teams")
+      .select("id, external_id, name, slug, country")
+      .in("slug", missingTeamSlugs);
+
+    if (teamSlugError) {
+      throw new Error(`Failed to read existing team rows by slug: ${teamSlugError.message}`);
+    }
+
+    for (const team of (teamSlugData ?? []) as TeamRow[]) {
+      if (team.external_id) {
+        teamByExternalId.set(team.external_id, team);
+      }
+      teamBySlug.set(team.slug, team);
+    }
+  }
+
+  for (const expectedTeam of expectedTeams) {
+    if (teamByExternalId.has(expectedTeam.externalId)) {
+      continue;
+    }
+
+    const existingTeam = teamBySlug.get(expectedTeam.slug);
+    if (existingTeam) {
+      teamByExternalId.set(expectedTeam.externalId, existingTeam);
     }
   }
 
@@ -544,6 +590,7 @@ async function loadExistingState(
     competitionByExternalId,
     seasonByCompetitionYear,
     teamByExternalId,
+    teamBySlug,
     matchByExternalId,
     matchResultByMatchId,
   };
@@ -1060,7 +1107,9 @@ export async function executeControlledFixtureWrite(input: {
     const existingAfterSeason = await loadExistingState(input.target, input.fixtures, supabase);
 
     for (const team of plan.teamPlans) {
-      const existingTeam = existingAfterSeason.teamByExternalId.get(team.externalId);
+      const existingTeam =
+        existingAfterSeason.teamByExternalId.get(team.externalId) ??
+        existingAfterSeason.teamBySlug.get(team.slug);
 
       if (!existingTeam) {
         const payload = {
@@ -1127,9 +1176,11 @@ export async function executeControlledFixtureWrite(input: {
       }
 
       const beforeSnapshot = snapshotTeam(existingTeam);
+      const updatedExternalId = existingTeam.external_id ?? team.externalId;
       const { error } = await supabase
         .from("teams")
         .update({
+          external_id: existingTeam.external_id ?? team.externalId,
           name: team.name,
           country: team.country,
         })
@@ -1172,7 +1223,7 @@ export async function executeControlledFixtureWrite(input: {
           beforeSnapshot,
           afterSnapshot: buildCreatedTeamAfterSnapshot({
             id: existingTeam.id,
-            externalId: team.externalId,
+            externalId: updatedExternalId,
             name: team.name,
             slug: existingTeam.slug,
             country: team.country,
