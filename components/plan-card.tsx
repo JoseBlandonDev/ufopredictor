@@ -4,7 +4,7 @@ import type { Plan } from "@/types/plans";
 export function PlanCard({ plan }: { plan: Plan }) {
   return (
     <article
-      className={`panel rounded-lg p-5 transition hover:border-[var(--accent)]/55 ${
+      className={`ufo-card rounded-lg p-5 ${
         plan.highlighted ? "border-[var(--accent)]/70 shadow-[0_0_34px_rgba(0,215,255,0.12)]" : ""
       }`}
     >
@@ -14,23 +14,28 @@ export function PlanCard({ plan }: { plan: Plan }) {
             {plan.isActive ? "Catálogo beta" : "Acceso futuro"}
           </p>
           <h3 className="mt-2 text-xl font-semibold">{plan.name}</h3>
-          {plan.billingType !== "free" ? (
-            <p className="mt-2 inline-block rounded-md border border-white/15 px-2 py-1 text-xs text-[var(--muted)]">
-              Solo preview - llegará más adelante
-            </p>
-          ) : null}
         </div>
         {plan.highlighted ? (
-          <span className="rounded-md bg-[var(--accent)] px-2 py-1 text-xs font-semibold text-[var(--accent-contrast)]">
-            Destacado
+          <span className="ufo-pill">Destacado</span>
+        ) : (
+          <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
+            Próximamente
           </span>
-        ) : null}
+        )}
       </div>
-      <p className="mt-3 text-sm text-[var(--muted)]">{plan.description}</p>
+
+      {plan.billingType !== "free" ? (
+        <p className="mt-3 inline-flex rounded-md border border-white/15 px-2 py-1 text-xs text-[var(--muted)]">
+          Solo preview — llegará más adelante
+        </p>
+      ) : null}
+
+      <p className="mt-4 text-sm text-[var(--muted)]">{plan.description}</p>
       <p className="mt-5 font-mono text-3xl">
         ${plan.price}
         <span className="text-sm text-[var(--muted)]"> {plan.currency}</span>
       </p>
+
       <ul className="mt-5 space-y-3 text-sm">
         {plan.features.map((feature) => (
           <li key={feature.key} className="flex items-center gap-2">

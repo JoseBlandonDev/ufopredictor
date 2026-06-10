@@ -37,7 +37,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
 
   if (data.status === "unavailable") {
     return (
-      <section className="panel rounded-lg border border-[var(--warning)]/25 p-6">
+      <section className="ufo-card rounded-lg border border-[var(--warning)]/25 p-6">
         <h1 className="text-xl font-semibold">Detalle temporalmente no disponible</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">{data.message}</p>
       </section>
@@ -56,16 +56,18 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <div className="space-y-6">
-      <section className="panel rounded-lg p-5">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          {match.competitionName} {match.stage ? `- ${match.stage}` : ""}
-        </p>
-        <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-          <h1 className="text-3xl font-semibold">
-            {match.homeTeamName} <span className="text-[var(--muted)]">vs</span>{" "}
-            {match.awayTeamName}
-          </h1>
-          <span className="rounded-md border border-white/10 px-3 py-1 font-mono text-xs uppercase text-[var(--muted)]">
+      <section className="ufo-card rounded-lg p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+              {match.competitionName} {match.stage ? `- ${match.stage}` : ""}
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
+              {match.homeTeamName} <span className="text-[var(--muted)]">vs</span>{" "}
+              {match.awayTeamName}
+            </h1>
+          </div>
+          <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
             {statusLabels[match.status]}
           </span>
         </div>
@@ -82,7 +84,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
       </section>
 
       {match.prediction ? (
-        <section className="panel rounded-lg p-5">
+        <section className="ufo-card rounded-lg p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -96,7 +98,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 <RiskBadge level={match.prediction.riskLevel} />
               </div>
             ) : (
-              <div className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
+              <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
                   Señal básica
                 </p>
@@ -113,23 +115,25 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               }}
             />
           </div>
-          <p className="mt-5 text-xs text-[var(--muted)]">
-            {isAuthenticated
-              ? "Vista registrada gratis: contexto completo de confianza/riesgo y lectura pública del partido."
-              : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
-          </p>
-          <p className="mt-2 text-xs text-[var(--muted)]">
-            Publicada el{" "}
-            {new Intl.DateTimeFormat("es-CO", {
-              dateStyle: "medium",
-              timeStyle: "short",
-              timeZone: "America/Bogota",
-            }).format(new Date(match.prediction.createdAt))}{" "}
-            COT.
-          </p>
+          <div className="mt-5 space-y-2">
+            <p className="text-xs text-[var(--muted)]">
+              {isAuthenticated
+                ? "Vista registrada gratis: contexto completo de confianza/riesgo y lectura pública del partido."
+                : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
+            </p>
+            <p className="text-xs text-[var(--muted)]">
+              Publicada el{" "}
+              {new Intl.DateTimeFormat("es-CO", {
+                dateStyle: "medium",
+                timeStyle: "short",
+                timeZone: "America/Bogota",
+              }).format(new Date(match.prediction.createdAt))}{" "}
+              COT.
+            </p>
+          </div>
         </section>
       ) : (
-        <section className="panel rounded-lg p-6">
+        <section className="ufo-card rounded-lg p-6">
           <h2 className="text-lg font-semibold">Predicción aún no publicada</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
             El partido está disponible públicamente, pero todavía no existe una predicción básica
@@ -138,7 +142,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         </section>
       )}
 
-      <section className="panel rounded-lg border border-white/15 p-5">
+      <section className="ufo-card rounded-lg border border-white/15 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           Proyección premium
         </p>
@@ -195,7 +199,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         )}
       </section>
 
-      <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
+      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           Partidos guardados
         </p>
@@ -210,10 +214,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 : "Guarda este partido para seguirlo más tarde desde tu cuenta."}
             </p>
             <form action={savedState.isSaved ? removeAction : saveAction} className="mt-4">
-              <button
-                type="submit"
-                className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
-              >
+              <button type="submit" className="ufo-btn-primary ufo-focus-ring">
                 {savedState.isSaved ? "Quitar de guardados" : "Guardar partido"}
               </button>
             </form>
@@ -225,16 +226,10 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               Crea una cuenta o inicia sesión para guardar este partido en tu watchlist.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Link
-                href={`/register?next=/matches/${match.matchSlug}`}
-                className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
-              >
+              <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
                 Crear cuenta gratis
               </Link>
-              <Link
-                href={`/login?next=/matches/${match.matchSlug}`}
-                className="rounded-md border border-white/15 px-4 py-2 text-sm font-semibold text-white"
-              >
+              <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
                 Iniciar sesión
               </Link>
             </div>
@@ -242,7 +237,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         )}
       </section>
 
-      <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
+      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           {isAuthenticated ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
         </p>
@@ -254,24 +249,15 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         <p className="mt-2 text-sm text-[var(--muted)]">El análisis premium llegará más adelante.</p>
         <div className="mt-4 flex flex-wrap gap-3">
           {isAuthenticated ? (
-            <Link
-              href="/dashboard"
-              className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
-            >
+            <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
               Abrir panel
             </Link>
           ) : (
             <>
-              <Link
-                href={`/register?next=/matches/${match.matchSlug}`}
-                className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)]"
-              >
+              <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
                 Crear cuenta gratis
               </Link>
-              <Link
-                href={`/login?next=/matches/${match.matchSlug}`}
-                className="rounded-md border border-white/15 px-4 py-2 text-sm font-semibold text-white"
-              >
+              <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
                 Iniciar sesión
               </Link>
             </>
@@ -279,7 +265,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
-      <section className="panel rounded-lg p-5">
+      <section className="ufo-card rounded-lg p-5">
         <p className="text-sm text-[var(--muted)]">
           Esta página solo expone metadata pública básica del partido y probabilidades del modelo
           cuando están disponibles.

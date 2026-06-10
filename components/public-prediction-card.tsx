@@ -20,7 +20,7 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
   const venueLabel = prediction.venueCity ?? prediction.venueName ?? "Sede por confirmar";
 
   return (
-    <article className="panel rounded-lg p-5">
+    <article className="ufo-card rounded-lg p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -47,7 +47,7 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
             <RiskBadge level={prediction.riskLevel} />
           </div>
         ) : (
-          <div className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
+          <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
               Señal básica
             </p>
@@ -69,10 +69,7 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
           ? "Vista registrada gratis: confianza y riesgo completos en el panel público."
           : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
       </p>
-      <Link
-        href={`/matches/${prediction.matchSlug}`}
-        className="mt-4 inline-flex items-center gap-2 text-sm text-[var(--accent)]"
-      >
+      <Link href={`/matches/${prediction.matchSlug}`} className="ufo-link-action ufo-focus-ring mt-4">
         Ver detalle público
         <ArrowRight className="h-4 w-4" />
       </Link>

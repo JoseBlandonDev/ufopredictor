@@ -7,7 +7,7 @@ import type { Match } from "@/types/football";
 import type { Prediction } from "@/types/prediction";
 
 export function MatchCard({ match, prediction }: { match: Match; prediction: Prediction }) {
-  const date = new Intl.DateTimeFormat("en", {
+  const date = new Intl.DateTimeFormat("es-CO", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -16,7 +16,7 @@ export function MatchCard({ match, prediction }: { match: Match; prediction: Pre
   }).format(new Date(match.kickoffAt));
 
   return (
-    <Link href={`/matches/${match.slug}`} className="panel block rounded-lg p-5 transition hover:border-[var(--accent)]/45 hover:bg-white/[0.04]">
+    <Link href={`/matches/${match.slug}`} className="ufo-card ufo-card-interactive ufo-focus-ring block rounded-lg p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">{match.stage}</p>
