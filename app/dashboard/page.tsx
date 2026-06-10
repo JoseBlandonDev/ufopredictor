@@ -53,9 +53,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <LogoutButton />
       </section>
 
-      <section className="panel rounded-lg border border-[var(--accent)]/30 p-5">
-        <h2 className="text-lg font-semibold">Tu acceso gratis</h2>
-        <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+              Acceso actual
+            </p>
+            <h2 className="mt-2 text-lg font-semibold">Tu cuenta gratis</h2>
+          </div>
+          <span className="ufo-pill">Activo</span>
+        </div>
+        <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
           <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
           <li>Tu cuenta gratis activa el contexto completo de confianza/riesgo en vistas públicas.</li>
           <li>Los previews seleccionados previos al Mundial se habilitarán para cuentas gratis.</li>
@@ -71,27 +79,39 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       ) : null}
 
       {summary.status === "unavailable" ? (
-        <p className="panel rounded-lg p-5 text-sm text-[var(--muted)]">{summary.message}</p>
+        <section className="ufo-card rounded-lg p-5 text-sm text-[var(--muted)]">
+          <p>{summary.message}</p>
+        </section>
       ) : (
         <>
           <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-            <section className="panel rounded-lg p-5">
-              <h2 className="text-lg font-semibold">Estado de acceso</h2>
-              <p className="mt-3 font-mono text-2xl">{roleLabels[summary.role]}</p>
+            <section className="ufo-card rounded-lg p-5 sm:p-6">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+                    Resumen de acceso
+                  </p>
+                  <h2 className="mt-2 text-lg font-semibold">Estado de acceso</h2>
+                </div>
+                <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
+                  {roleLabels[summary.role]}
+                </span>
+              </div>
+              <p className="mt-4 font-mono text-2xl">{roleLabels[summary.role]}</p>
               <p className="mt-2 text-sm text-[var(--muted)]">
                 Suscripciones activas: {summary.activeSubscriptions.length}. El rol de perfil por sí
                 solo no desbloquea contenido protegido.
               </p>
-              <Link
-                href="/pricing"
-                className="mt-5 inline-block rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-contrast)] shadow-[0_0_20px_rgba(0,215,255,0.2)]"
-              >
+              <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring mt-5">
                 Ver ruta de planes
               </Link>
             </section>
 
-            <section className="panel rounded-lg p-5">
-              <h2 className="text-lg font-semibold">Derechos actuales</h2>
+            <section className="ufo-card rounded-lg p-5 sm:p-6">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+                Derechos disponibles
+              </p>
+              <h2 className="mt-2 text-lg font-semibold">Derechos actuales</h2>
               <div className="mt-4 space-y-3">
                 {summary.entitlements.length === 0 ? (
                   <p className="text-sm text-[var(--muted)]">
@@ -117,8 +137,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </section>
           </div>
 
-          <section className="panel rounded-lg p-5">
-            <h2 className="text-lg font-semibold">Partidos desbloqueados</h2>
+          <section className="ufo-card rounded-lg p-5 sm:p-6">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+              Premium futuro
+            </p>
+            <h2 className="mt-2 text-lg font-semibold">Partidos desbloqueados</h2>
             <div className="mt-4 space-y-3">
               {summary.matchUnlocks.length === 0 ? (
                 <p className="text-sm text-[var(--muted)]">
@@ -141,18 +164,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </div>
           </section>
 
-          <section className="panel rounded-lg p-5">
-            <h2 className="text-lg font-semibold">Partidos guardados</h2>
+          <section className="ufo-card rounded-lg p-5 sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+                  Seguimiento
+                </p>
+                <h2 className="mt-2 text-lg font-semibold">Partidos guardados</h2>
+              </div>
+              <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
+                Watchlist
+              </span>
+            </div>
             <div className="mt-4 space-y-3">
               {savedMatches.status === "unavailable" ? (
                 <p className="text-sm text-[var(--muted)]">{savedMatches.message}</p>
               ) : savedMatches.matches.length === 0 ? (
                 <div className="space-y-3">
                   <p className="text-sm text-[var(--muted)]">Aún no guardaste partidos.</p>
-                  <Link
-                    href="/predictions"
-                    className="inline-block rounded-md border border-white/15 px-3 py-2 text-sm text-white transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
-                  >
+                  <Link href="/predictions" className="ufo-btn-secondary ufo-focus-ring">
                     Explorar predicciones públicas
                   </Link>
                 </div>
@@ -172,10 +202,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     <p className="mt-1 text-sm text-[var(--muted)]">
                       Guardado: {dateTimeLabel(savedMatch.savedAt)}
                     </p>
-                    <Link
-                      href={`/matches/${savedMatch.matchSlug}`}
-                      className="mt-3 inline-block text-sm font-medium text-[var(--accent)] hover:text-white"
-                    >
+                    <Link href={`/matches/${savedMatch.matchSlug}`} className="ufo-link-action ufo-focus-ring mt-3">
                       Ver detalle del partido
                     </Link>
                   </article>
@@ -186,9 +213,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </>
       )}
 
-      <section className="panel rounded-lg p-5">
-        <h2 className="text-lg font-semibold">Beta freemium</h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">
+      <section className="ufo-card rounded-lg p-5 sm:p-6">
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+          Beta freemium
+        </p>
+        <h2 className="mt-2 text-lg font-semibold">Estado de la etapa actual</h2>
+        <p className="mt-3 text-sm text-[var(--muted)]">
           El backend ya distingue acceso público, acceso beta controlado server-side, derechos
           actuales y bypass administrativo explícito. Los pagos y payloads premium permanecen fuera
           de alcance.
