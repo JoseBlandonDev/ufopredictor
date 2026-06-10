@@ -12,6 +12,7 @@ import {
   buildApiFootballTeamExternalId,
   buildApiFootballFixtureExternalId,
 } from "./external-ids";
+import { buildCompetitionSlug } from "./slug";
 
 type CompetitionRow = {
   id: string;
@@ -414,6 +415,13 @@ async function loadExistingState(
   supabase = createSupabaseClient(),
 ) {
   const competitionExternalId = buildApiFootballLeagueExternalId(target.leagueId);
+  const competitionSlug = buildCompetitionSlug({
+    providerCompetitionId: target.leagueId,
+    name: fixtures[0]?.competition.name ?? target.key,
+    country: fixtures[0]?.competition.country ?? null,
+    season: target.season,
+    round: null,
+  });
   const teamExternalIds = Array.from(
     new Set(
       fixtures.flatMap((fixture) => [
@@ -437,9 +445,30 @@ async function loadExistingState(
   }
 
   const competitionByExternalId = new Map<string, CompetitionRow>();
-  const existingCompetition = (competitionData?.[0] as CompetitionRow | undefined) ?? undefined;
-  if (existingCompetition?.external_id) {
-    competitionByExternalId.set(existingCompetition.external_id, existingCompetition);
+  let existingCompetition = (competitionData?.[0] as CompetitionRow | undefined) ?? undefined;
+
+  if (!existingCompetition) {
+    const { data: competitionSlugData, error: competitionSlugError } = await supabase
+      .from("competitions")
+      .select("id, external_id, name, slug, country, type, usage_scope")
+      .eq("slug", competitionSlug)
+      .limit(1);
+
+    if (competitionSlugError) {
+      throw new Error(
+        `Failed to read existing competition rows by slug: ${competitionSlugError.message}`,
+      );
+    }
+
+    existingCompetition =
+      (competitionSlugData?.[0] as CompetitionRow | undefined) ?? undefined;
+  }
+
+  if (existingCompetition) {
+    competitionByExternalId.set(competitionExternalId, existingCompetition);
+    if (existingCompetition.external_id) {
+      competitionByExternalId.set(existingCompetition.external_id, existingCompetition);
+    }
   }
 
   const { data: teamData, error: teamError } = await supabase
@@ -598,7 +627,7 @@ function buildCreatedCompetitionAfterSnapshot(input: {
   slug: string;
   country: string | null;
   type: "international" | "league" | "cup";
-  usageScope: "public_product";
+  usageScope: "public_product" | "internal_lab";
 }): Record<string, unknown> {
   return {
     id: input.id ?? null,
@@ -817,14 +846,19 @@ export async function executeControlledFixtureWrite(input: {
       }
 
       const beforeSnapshot = snapshotCompetition(existingCompetition);
+      const nextCompetitionExternalId =
+        existingCompetition.external_id ?? competition.externalId;
+      const competitionUpdatePayload = {
+        ...(existingCompetition.external_id === null
+          ? { external_id: competition.externalId }
+          : {}),
+        name: competition.name,
+        country: competition.country,
+        type: competition.type,
+      };
       const { error } = await supabase
         .from("competitions")
-        .update({
-          name: competition.name,
-          country: competition.country,
-          type: competition.type,
-          usage_scope: "public_product",
-        })
+        .update(competitionUpdatePayload)
         .eq("id", existingCompetition.id);
 
       if (error) {
@@ -864,12 +898,12 @@ export async function executeControlledFixtureWrite(input: {
           beforeSnapshot,
           afterSnapshot: buildCreatedCompetitionAfterSnapshot({
             id: existingCompetition.id,
-            externalId: competition.externalId,
+            externalId: nextCompetitionExternalId,
             name: competition.name,
             slug: existingCompetition.slug,
             country: competition.country,
             type: competition.type,
-            usageScope: "public_product",
+            usageScope: existingCompetition.usage_scope,
           }),
         }),
       );

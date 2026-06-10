@@ -34,6 +34,14 @@ const friendliesTarget: TargetCompetition = {
   useCase: "beta_pre_world_cup",
 };
 
+const worldCupTarget: TargetCompetition = {
+  key: "world-cup",
+  provider: "api-football",
+  leagueId: 1,
+  season: 2026,
+  useCase: "core_world_cup",
+};
+
 function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture {
   return {
     provider: "api-football",
@@ -66,6 +74,251 @@ function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture
     },
     ...overrides,
   };
+}
+
+function createStatefulWriterClient(state: {
+  competitions?: Array<{
+    id: string;
+    external_id: string | null;
+    name: string;
+    slug: string;
+    country: string | null;
+    type: "international" | "league" | "cup";
+    usage_scope: "public_product" | "internal_lab";
+  }>;
+}) {
+  const db = {
+    competitions: [...(state.competitions ?? [])],
+    seasons: [] as Array<{
+      id: string;
+      competition_id: string;
+      name: string;
+      year: number;
+      starts_at: string;
+      ends_at: string;
+    }>,
+    teams: [] as Array<{
+      id: string;
+      external_id: string | null;
+      name: string;
+      slug: string;
+      country: string | null;
+    }>,
+    matches: [] as Array<{
+      id: string;
+      external_id: string | null;
+      slug: string;
+      competition_id: string;
+      season_id: string;
+      home_team_id: string;
+      away_team_id: string;
+      venue_id: string | null;
+      kickoff_at: string;
+      stage: string | null;
+      status: string;
+      access_scope: string;
+      intake_source: string;
+      source_note: string | null;
+    }>,
+    match_results: [] as Array<{
+      id: string;
+      match_id: string;
+      home_goals: number;
+      away_goals: number;
+      verification_status: string;
+      intake_source: string;
+      source_note: string | null;
+    }>,
+    ingest_runs: [] as Array<Record<string, unknown>>,
+    ingest_run_items: [] as Array<Record<string, unknown>>,
+  };
+
+  const calls = {
+    competitionInserts: [] as Array<Record<string, unknown>>,
+    competitionUpdates: [] as Array<Record<string, unknown>>,
+    matchInserts: [] as Array<Record<string, unknown>>,
+    touchedTables: [] as string[],
+  };
+
+  let idCounter = 1;
+  const nextId = (prefix: string) => `${prefix}-${idCounter++}`;
+
+  const client = {
+    from(table: string) {
+      calls.touchedTables.push(table);
+      const filters: Array<{ op: "eq" | "in"; column: string; value: unknown }> = [];
+      let mode: "select" | "insert" | "update" | null = null;
+      let insertPayload: unknown = null;
+      let updatePayload: Record<string, unknown> | null = null;
+
+      const getRows = () => {
+        const tableRows = db[table as keyof typeof db] as Array<Record<string, unknown>>;
+        return tableRows.filter((row) =>
+          filters.every((filter) => {
+            if (filter.op === "eq") {
+              return row[filter.column] === filter.value;
+            }
+
+            const values = filter.value as unknown[];
+            return values.includes(row[filter.column]);
+          }),
+        );
+      };
+
+      const builder = {
+        select() {
+          mode = mode ?? "select";
+          return builder;
+        },
+        eq(column: string, value: unknown) {
+          filters.push({ op: "eq", column, value });
+          return builder;
+        },
+        in(column: string, value: unknown[]) {
+          filters.push({ op: "in", column, value });
+          return Promise.resolve({
+            data: getRows(),
+            error: null,
+          });
+        },
+        limit() {
+          return Promise.resolve({
+            data: getRows().slice(0, 1),
+            error: null,
+          });
+        },
+        insert(payload: unknown) {
+          mode = "insert";
+          insertPayload = payload;
+          return builder;
+        },
+        update(payload: Record<string, unknown>) {
+          mode = "update";
+          updatePayload = payload;
+          return builder;
+        },
+        single() {
+          if (table === "ingest_runs" && mode === "insert") {
+            const row = { id: nextId("run"), ...(insertPayload as Record<string, unknown>) };
+            db.ingest_runs.push(row);
+            return Promise.resolve({ data: { id: row.id }, error: null });
+          }
+
+          if (table === "competitions" && mode === "insert") {
+            const payload = insertPayload as Record<string, unknown>;
+            calls.competitionInserts.push(payload);
+            const row = {
+              id: nextId("competition"),
+              ...payload,
+            };
+            db.competitions.push(row as (typeof db.competitions)[number]);
+            return Promise.resolve({ data: { id: row.id }, error: null });
+          }
+
+          if (table === "seasons" && mode === "insert") {
+            const payload = insertPayload as Record<string, unknown>;
+            const row = { id: nextId("season"), ...payload };
+            db.seasons.push(row as (typeof db.seasons)[number]);
+            return Promise.resolve({ data: { id: row.id }, error: null });
+          }
+
+          if (table === "teams" && mode === "insert") {
+            const payload = insertPayload as Record<string, unknown>;
+            const row = { id: nextId("team"), ...payload };
+            db.teams.push(row as (typeof db.teams)[number]);
+            return Promise.resolve({ data: { id: row.id }, error: null });
+          }
+
+          if (table === "matches" && mode === "insert") {
+            const payload = insertPayload as Record<string, unknown>;
+            calls.matchInserts.push(payload);
+            const row = { id: nextId("match"), ...payload };
+            db.matches.push(row as (typeof db.matches)[number]);
+            return Promise.resolve({ data: { id: row.id }, error: null });
+          }
+
+          if (table === "match_results" && mode === "insert") {
+            const payload = insertPayload as Record<string, unknown>;
+            const row = { id: nextId("result"), ...payload };
+            db.match_results.push(row as (typeof db.match_results)[number]);
+            return Promise.resolve({ data: { id: row.id }, error: null });
+          }
+
+          return Promise.resolve({ data: null, error: null });
+        },
+        maybeSingle() {
+          const rows = getRows();
+          return Promise.resolve({
+            data: rows[0] ?? null,
+            error: null,
+          });
+        },
+        order() {
+          return builder;
+        },
+        then<TResult1 = { data: Record<string, unknown>[]; error: null }, TResult2 = never>(
+          onfulfilled?:
+            | ((value: { data: Record<string, unknown>[]; error: null }) => TResult1 | PromiseLike<TResult1>)
+            | null,
+          onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+        ) {
+          if (mode === "update") {
+            return executeUpdate().then(onfulfilled as never, onrejected as never);
+          }
+
+          if (table === "ingest_run_items" && mode === "insert") {
+            db.ingest_run_items.push(insertPayload as Record<string, unknown>);
+            return Promise.resolve({ error: null }).then(
+              onfulfilled as never,
+              onrejected as never,
+            );
+          }
+
+          return Promise.resolve({
+            data: getRows(),
+            error: null,
+          }).then(onfulfilled, onrejected);
+        },
+      };
+
+      const executeUpdate = () => {
+        const rows = getRows();
+        if (table === "ingest_runs") {
+          rows.forEach((row) => Object.assign(row, updatePayload ?? {}));
+          return Promise.resolve({ error: null });
+        }
+
+        if (table === "competitions") {
+          calls.competitionUpdates.push(updatePayload ?? {});
+        }
+
+        rows.forEach((row) => {
+          for (const [key, value] of Object.entries(updatePayload ?? {})) {
+            if (value !== undefined) {
+              row[key] = value;
+            }
+          }
+        });
+
+        return Promise.resolve({ error: null });
+      };
+
+      return new Proxy(builder, {
+        get(target, prop, receiver) {
+          if (prop === "eq" && mode === "update") {
+            return (...args: [string, unknown]) => {
+              target.eq(...args);
+              return executeUpdate();
+            };
+          }
+
+          return Reflect.get(target, prop, receiver);
+        },
+      });
+    },
+  };
+
+  return { client, db, calls };
 }
 
 describe("writer tracking payload helpers", () => {
@@ -340,5 +593,133 @@ describe("writer failure-path preservation", () => {
         limit: 1,
       }),
     ).rejects.toThrow(/original competition insert failure/i);
+  });
+});
+
+describe("writer competition slug reuse", () => {
+  beforeEach(() => {
+    createSupabaseScriptAdminClientMock.mockReset();
+  });
+
+  it("reuses an existing competition row when the slug already exists and external_id is missing", async () => {
+    const fake = createStatefulWriterClient({
+      competitions: [
+        {
+          id: "competition-existing",
+          external_id: null,
+          name: "World Cup",
+          slug: "world-cup-2026",
+          country: "World",
+          type: "international",
+          usage_scope: "public_product",
+        },
+      ],
+    });
+
+    createSupabaseScriptAdminClientMock.mockReturnValue(fake.client);
+
+    const report = await executeControlledFixtureWrite({
+      target: worldCupTarget,
+      fixtures: [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+          homeTeam: {
+            providerTeamId: 16,
+            name: "Mexico",
+            winner: null,
+          },
+          awayTeam: {
+            providerTeamId: 1531,
+            name: "South Africa",
+            winner: null,
+          },
+        }),
+      ],
+      apply: true,
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
+
+    expect(fake.calls.competitionInserts).toHaveLength(0);
+    expect(fake.calls.competitionUpdates).toHaveLength(1);
+    expect(fake.calls.competitionUpdates[0]).toMatchObject({
+      external_id: "api-football:league:1",
+      name: "World Cup",
+      country: "World",
+      type: "international",
+    });
+    expect(report.counts.competitionsUpdated).toBe(1);
+    expect(fake.db.matches).toHaveLength(1);
+    expect(fake.db.matches[0]).toMatchObject({
+      external_id: "api-football:fixture:1489369",
+      access_scope: "admin_only",
+      intake_source: "api_football",
+    });
+  });
+
+  it("reuses an existing competition row when the slug already exists with a different external_id", async () => {
+    const fake = createStatefulWriterClient({
+      competitions: [
+        {
+          id: "competition-existing",
+          external_id: "legacy-world-cup",
+          name: "World Cup",
+          slug: "world-cup-2026",
+          country: "World",
+          type: "international",
+          usage_scope: "public_product",
+        },
+      ],
+    });
+
+    createSupabaseScriptAdminClientMock.mockReturnValue(fake.client);
+
+    const report = await executeControlledFixtureWrite({
+      target: worldCupTarget,
+      fixtures: [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+          homeTeam: {
+            providerTeamId: 16,
+            name: "Mexico",
+            winner: null,
+          },
+          awayTeam: {
+            providerTeamId: 1531,
+            name: "South Africa",
+            winner: null,
+          },
+        }),
+      ],
+      apply: true,
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
+
+    expect(fake.calls.competitionInserts).toHaveLength(0);
+    expect(fake.calls.competitionUpdates).toHaveLength(1);
+    expect(fake.calls.competitionUpdates[0]).not.toHaveProperty("external_id");
+    expect(fake.db.competitions[0]?.external_id).toBe("legacy-world-cup");
+    expect(report.counts.competitionsUpdated).toBe(1);
   });
 });
