@@ -72,6 +72,7 @@ vi.mock("next/cache", () => ({
 
 import {
   persistRealFixtureEvaluationAction,
+  publishRealFixturePredictionAction,
   saveRealFixturePredictionAction,
   verifyRealFixtureResultAction,
 } from "./actions";
@@ -123,6 +124,21 @@ function buildVerificationFormData(matchResultId = "00000000-0000-4000-8000-0000
   const formData = new FormData();
   formData.set("externalId", externalId);
   formData.set("matchResultId", matchResultId);
+  return formData;
+}
+
+function buildPublishFormData(overrides?: {
+  matchId?: string;
+  matchSlug?: string;
+  internalPredictionVersionId?: string;
+}) {
+  const formData = new FormData();
+  formData.set("matchId", overrides?.matchId ?? fixture.id);
+  formData.set("matchSlug", overrides?.matchSlug ?? fixture.slug);
+  formData.set(
+    "internalPredictionVersionId",
+    overrides?.internalPredictionVersionId ?? predictionVersionId,
+  );
   return formData;
 }
 
@@ -230,6 +246,44 @@ function createPredictionResultsMutationBuilder(options: {
 }
 
 function createMatchResultsVerificationBuilder(options?: {
+  maybeSingle?: { data: unknown; error: unknown };
+  updateResult?: { data?: unknown; error: unknown };
+}) {
+  const builder = {
+    select: vi.fn(() => builder),
+    eq: vi.fn(() => builder),
+    maybeSingle: vi.fn(() =>
+      Promise.resolve(
+        options?.maybeSingle ?? {
+          data: null,
+          error: null,
+        },
+      ),
+    ),
+    update: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            select: vi.fn(() => ({
+              maybeSingle: vi.fn(() =>
+                Promise.resolve(
+                  options?.updateResult ?? {
+                    data: null,
+                    error: null,
+                  },
+                ),
+              ),
+            })),
+          })),
+        })),
+      })),
+    })),
+  };
+
+  return builder;
+}
+
+function createPublicationMatchBuilder(options?: {
   maybeSingle?: { data: unknown; error: unknown };
   updateResult?: { data?: unknown; error: unknown };
 }) {
@@ -799,5 +853,276 @@ describe("verifyRealFixtureResultAction", () => {
       `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=rejected`,
     );
     expect(client.matchResultsBuilder.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("publishRealFixturePredictionAction", () => {
+  const internalPrediction = {
+    id: predictionVersionId,
+    match_id: fixture.id,
+    model_version_id: "model-1",
+    prediction_type: "pre_match_24h",
+    home_win_prob: 37.8395,
+    draw_prob: 25.8141,
+    away_win_prob: 36.3464,
+    expected_home_goals: 1.1,
+    expected_away_goals: 1.05,
+    most_likely_score: "1-1",
+    top_scores_json: [
+      { score: "1-1", probability: 12.2464 },
+      { score: "1-0", probability: 9.1816 },
+    ],
+    confidence_score: 41.05,
+    risk_level: "high",
+    run_scope: "internal_lab",
+  };
+
+  function buildPublicationClient(options?: {
+    match?: { data: unknown; error: unknown };
+    competition?: { data: unknown; error: unknown };
+    internalPrediction?: { data: unknown; error: unknown };
+    existingPublicPrediction?: { data: unknown; error: unknown };
+    insertPublicPrediction?: { data?: unknown; error: unknown };
+    updateMatch?: { data?: unknown; error: unknown };
+  }) {
+    const matchBuilder = createPublicationMatchBuilder({
+      maybeSingle:
+        options?.match ?? {
+          data: {
+            id: fixture.id,
+            slug: fixture.slug,
+            competition_id: fixture.competitionId,
+            status: "scheduled",
+            access_scope: "admin_only",
+            intake_source: "api_football",
+          },
+          error: null,
+        },
+      updateResult: options?.updateMatch ?? { data: { id: fixture.id }, error: null },
+    });
+    const competitionBuilder = createSingleSelectBuilder(
+      options?.competition ?? {
+        data: { id: fixture.competitionId, usage_scope: "public_product" },
+        error: null,
+      },
+    );
+    const internalPredictionBuilder = createPredictionVersionInsertBuilder({
+      maybeSingle: options?.internalPrediction ?? { data: internalPrediction, error: null },
+    });
+    const existingPublicPredictionBuilder = createPredictionVersionInsertBuilder({
+      maybeSingle: options?.existingPublicPrediction ?? { data: null, error: null },
+      insertResult: options?.insertPublicPrediction ?? { data: { id: "public-prediction-1" }, error: null },
+    });
+    const predictionResultsBuilder = {
+      select: vi.fn(() => {
+        throw new Error("should not read prediction_results");
+      }),
+      insert: vi.fn(() => {
+        throw new Error("should not write prediction_results");
+      }),
+      update: vi.fn(() => {
+        throw new Error("should not update prediction_results");
+      }),
+    };
+    const predictionMarketsBuilder = {
+      select: vi.fn(() => {
+        throw new Error("should not read prediction_markets");
+      }),
+      insert: vi.fn(() => {
+        throw new Error("should not write prediction_markets");
+      }),
+    };
+
+    const from = vi.fn((table: string) => {
+      if (table === "matches") return matchBuilder;
+      if (table === "competitions") return competitionBuilder;
+      if (table === "prediction_versions") {
+        if (internalPredictionBuilder.maybeSingle.mock.calls.length === 0) {
+          return internalPredictionBuilder;
+        }
+
+        return existingPublicPredictionBuilder;
+      }
+      if (table === "prediction_results") return predictionResultsBuilder;
+      if (table === "prediction_markets") return predictionMarketsBuilder;
+      throw new Error(`unexpected table ${table}`);
+    });
+
+    return {
+      from,
+      matchBuilder,
+      competitionBuilder,
+      internalPredictionBuilder,
+      existingPublicPredictionBuilder,
+    };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    requireAdminMock.mockResolvedValue({ user: { id: "admin-1" } });
+  });
+
+  it("publishes an exact admin_only api_football scheduled match with a matching internal prediction", async () => {
+    const client = buildPublicationClient();
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=published",
+    );
+
+    expect(client.existingPublicPredictionBuilder.insert).toHaveBeenCalledWith({
+      match_id: fixture.id,
+      model_version_id: "model-1",
+      prediction_type: "pre_match_24h",
+      home_win_prob: 37.8395,
+      draw_prob: 25.8141,
+      away_win_prob: 36.3464,
+      expected_home_goals: 1.1,
+      expected_away_goals: 1.05,
+      most_likely_score: "1-1",
+      top_scores_json: internalPrediction.top_scores_json,
+      confidence_score: 41.05,
+      risk_level: "high",
+      run_scope: "public_product",
+    });
+    expect(client.matchBuilder.update).toHaveBeenCalledWith({ access_scope: "public" });
+    expect(client.from).not.toHaveBeenCalledWith("prediction_markets");
+    expect(client.from).not.toHaveBeenCalledWith("prediction_results");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/predictions");
+    expect(revalidatePathMock).toHaveBeenCalledWith(`/matches/${fixture.slug}`);
+  });
+
+  it("leaves the internal prediction row untouched while creating a new public_product row", async () => {
+    const client = buildPublicationClient();
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=published",
+    );
+
+    expect(client.internalPredictionBuilder.insert).not.toHaveBeenCalled();
+    expect(client.internalPredictionBuilder.maybeSingle).toHaveBeenCalledTimes(1);
+    expect(client.existingPublicPredictionBuilder.insert).toHaveBeenCalledTimes(1);
+  });
+
+  it("is idempotent when a public_product prediction already exists for the same match and type", async () => {
+    const client = buildPublicationClient({
+      existingPublicPrediction: { data: { id: "public-prediction-1" }, error: null },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=already_published",
+    );
+
+    expect(client.existingPublicPredictionBuilder.insert).not.toHaveBeenCalled();
+    expect(client.matchBuilder.update).toHaveBeenCalledWith({ access_scope: "public" });
+  });
+
+  it("rejects when the match is not admin_only", async () => {
+    const client = buildPublicationClient({
+      match: {
+        data: {
+          id: fixture.id,
+          slug: fixture.slug,
+          competition_id: fixture.competitionId,
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+        },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=blocked",
+    );
+    expect(client.from).not.toHaveBeenCalledWith("prediction_results");
+  });
+
+  it("rejects when the match intake source is not api_football", async () => {
+    const client = buildPublicationClient({
+      match: {
+        data: {
+          id: fixture.id,
+          slug: fixture.slug,
+          competition_id: fixture.competitionId,
+          status: "scheduled",
+          access_scope: "admin_only",
+          intake_source: "manual",
+        },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=blocked",
+    );
+  });
+
+  it("rejects when the fixture is not scheduled", async () => {
+    const client = buildPublicationClient({
+      match: {
+        data: {
+          id: fixture.id,
+          slug: fixture.slug,
+          competition_id: fixture.competitionId,
+          status: "finished",
+          access_scope: "admin_only",
+          intake_source: "api_football",
+        },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=blocked",
+    );
+  });
+
+  it("rejects when the source prediction is not internal_lab", async () => {
+    const client = buildPublicationClient({
+      internalPrediction: {
+        data: { ...internalPrediction, run_scope: "public_product" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=blocked",
+    );
+  });
+
+  it("rejects when the source prediction does not belong to the match", async () => {
+    const client = buildPublicationClient({
+      internalPrediction: {
+        data: { ...internalPrediction, match_id: "other-match" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=blocked",
+    );
+  });
+
+  it("rejects when the competition is not public_product", async () => {
+    const client = buildPublicationClient({
+      competition: {
+        data: { id: fixture.competitionId, usage_scope: "internal_lab" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
+      "REDIRECT:/admin/real-fixture-lab?publish=blocked",
+    );
   });
 });
