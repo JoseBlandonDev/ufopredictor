@@ -76,6 +76,31 @@ function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture
   };
 }
 
+function buildWorldCupFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture {
+  return buildFixture({
+    providerFixtureId: 1489369,
+    kickoffAt: "2026-06-11T19:00:00Z",
+    competition: {
+      providerCompetitionId: 1,
+      name: "World Cup",
+      country: "World",
+      season: 2026,
+      round: "Group Stage - 1",
+    },
+    homeTeam: {
+      providerTeamId: 16,
+      name: "Mexico",
+      winner: null,
+    },
+    awayTeam: {
+      providerTeamId: 1531,
+      name: "South Africa",
+      winner: null,
+    },
+    ...overrides,
+  });
+}
+
 function createStatefulWriterClient(state: {
   competitions?: Array<{
     id: string;
@@ -85,6 +110,13 @@ function createStatefulWriterClient(state: {
     country: string | null;
     type: "international" | "league" | "cup";
     usage_scope: "public_product" | "internal_lab";
+  }>;
+  teams?: Array<{
+    id: string;
+    external_id: string | null;
+    name: string;
+    slug: string;
+    country: string | null;
   }>;
 }) {
   const db = {
@@ -97,13 +129,7 @@ function createStatefulWriterClient(state: {
       starts_at: string;
       ends_at: string;
     }>,
-    teams: [] as Array<{
-      id: string;
-      external_id: string | null;
-      name: string;
-      slug: string;
-      country: string | null;
-    }>,
+    teams: [...(state.teams ?? [])],
     matches: [] as Array<{
       id: string;
       external_id: string | null;
@@ -136,6 +162,8 @@ function createStatefulWriterClient(state: {
   const calls = {
     competitionInserts: [] as Array<Record<string, unknown>>,
     competitionUpdates: [] as Array<Record<string, unknown>>,
+    teamInserts: [] as Array<Record<string, unknown>>,
+    teamUpdates: [] as Array<Record<string, unknown>>,
     matchInserts: [] as Array<Record<string, unknown>>,
     touchedTables: [] as string[],
   };
@@ -224,6 +252,7 @@ function createStatefulWriterClient(state: {
 
           if (table === "teams" && mode === "insert") {
             const payload = insertPayload as Record<string, unknown>;
+            calls.teamInserts.push(payload);
             const row = { id: nextId("team"), ...payload };
             db.teams.push(row as (typeof db.teams)[number]);
             return Promise.resolve({ data: { id: row.id }, error: null });
@@ -290,6 +319,10 @@ function createStatefulWriterClient(state: {
 
         if (table === "competitions") {
           calls.competitionUpdates.push(updatePayload ?? {});
+        }
+
+        if (table === "teams") {
+          calls.teamUpdates.push(updatePayload ?? {});
         }
 
         rows.forEach((row) => {
@@ -721,5 +754,218 @@ describe("writer competition slug reuse", () => {
     expect(fake.calls.competitionUpdates[0]).not.toHaveProperty("external_id");
     expect(fake.db.competitions[0]?.external_id).toBe("legacy-world-cup");
     expect(report.counts.competitionsUpdated).toBe(1);
+  });
+});
+
+describe("writer team slug reuse", () => {
+  beforeEach(() => {
+    createSupabaseScriptAdminClientMock.mockReset();
+  });
+
+  it("reuses an existing team row when the slug already exists and external_id is missing", async () => {
+    const fake = createStatefulWriterClient({
+      competitions: [
+        {
+          id: "competition-existing",
+          external_id: "api-football:league:1",
+          name: "World Cup",
+          slug: "world-cup-2026",
+          country: "World",
+          type: "international",
+          usage_scope: "public_product",
+        },
+      ],
+      teams: [
+        {
+          id: "team-mexico",
+          external_id: null,
+          name: "Mexico",
+          slug: "mexico",
+          country: "Mexico",
+        },
+      ],
+    });
+
+    createSupabaseScriptAdminClientMock.mockReturnValue(fake.client);
+
+    const report = await executeControlledFixtureWrite({
+      target: worldCupTarget,
+      fixtures: [buildWorldCupFixture()],
+      apply: true,
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
+
+    expect(fake.calls.teamInserts).toHaveLength(1);
+    expect(fake.calls.teamInserts[0]).toMatchObject({
+      external_id: "api-football:team:1531",
+      slug: "south-africa",
+    });
+    expect(fake.calls.teamUpdates).toHaveLength(1);
+    expect(fake.calls.teamUpdates[0]).toMatchObject({
+      external_id: "api-football:team:16",
+      name: "Mexico",
+      country: null,
+    });
+    expect(fake.db.teams.find((team) => team.id === "team-mexico")).toMatchObject({
+      external_id: "api-football:team:16",
+      slug: "mexico",
+    });
+    expect(report.counts.teamsUpdated).toBe(1);
+    expect(report.counts.teamsCreated).toBe(1);
+  });
+
+  it("reuses an existing team row when the slug already exists with a different external_id", async () => {
+    const fake = createStatefulWriterClient({
+      competitions: [
+        {
+          id: "competition-existing",
+          external_id: "api-football:league:1",
+          name: "World Cup",
+          slug: "world-cup-2026",
+          country: "World",
+          type: "international",
+          usage_scope: "public_product",
+        },
+      ],
+      teams: [
+        {
+          id: "team-mexico",
+          external_id: "mock-mexico",
+          name: "Mexico",
+          slug: "mexico",
+          country: "Mexico",
+        },
+      ],
+    });
+
+    createSupabaseScriptAdminClientMock.mockReturnValue(fake.client);
+
+    const report = await executeControlledFixtureWrite({
+      target: worldCupTarget,
+      fixtures: [buildWorldCupFixture()],
+      apply: true,
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
+
+    expect(fake.calls.teamInserts).toHaveLength(1);
+    expect(fake.calls.teamUpdates).toHaveLength(1);
+    expect(fake.calls.teamUpdates[0]).toMatchObject({
+      external_id: "mock-mexico",
+      name: "Mexico",
+      country: null,
+    });
+    expect(fake.db.teams.find((team) => team.id === "team-mexico")).toMatchObject({
+      external_id: "mock-mexico",
+      slug: "mexico",
+    });
+    expect(report.counts.teamsUpdated).toBe(1);
+    expect(report.counts.teamsCreated).toBe(1);
+  });
+
+  it("aliases a reused slug match under the planned API-Football external_id so match writes can reference it", async () => {
+    const fake = createStatefulWriterClient({
+      competitions: [
+        {
+          id: "competition-existing",
+          external_id: "mock-world-cup-2026",
+          name: "World Cup",
+          slug: "world-cup-2026",
+          country: "World",
+          type: "international",
+          usage_scope: "public_product",
+        },
+      ],
+      teams: [
+        {
+          id: "team-mexico",
+          external_id: "mock-mexico",
+          name: "MÃƒÂ©xico",
+          slug: "mexico",
+          country: "Mexico",
+        },
+      ],
+    });
+
+    createSupabaseScriptAdminClientMock.mockReturnValue(fake.client);
+
+    const report = await executeControlledFixtureWrite({
+      target: worldCupTarget,
+      fixtures: [buildWorldCupFixture()],
+      apply: true,
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
+
+    expect(report.counts.matchesCreated).toBe(1);
+    expect(fake.db.matches).toHaveLength(1);
+    expect(fake.db.matches[0]).toMatchObject({
+      external_id: "api-football:fixture:1489369",
+      home_team_id: "team-mexico",
+      access_scope: "admin_only",
+      intake_source: "api_football",
+    });
+  });
+
+  it("keeps existing friendlies behavior unchanged", async () => {
+    await expect(
+      executeControlledFixtureWrite({
+        target: friendliesTarget,
+        fixtures: [buildFixture()],
+        apply: true,
+        from: "2026-06-09",
+        to: "2026-06-09",
+        limit: 1,
+      }),
+    ).rejects.toThrow(/friendlies apply requires explicit --fixtureId/i);
+
+    expect(createSupabaseScriptAdminClientMock).not.toHaveBeenCalled();
+  });
+
+  it("does not introduce any public publication writes while reusing existing team slugs", async () => {
+    const fake = createStatefulWriterClient({
+      competitions: [
+        {
+          id: "competition-existing",
+          external_id: "mock-world-cup-2026",
+          name: "World Cup",
+          slug: "world-cup-2026",
+          country: "World",
+          type: "international",
+          usage_scope: "public_product",
+        },
+      ],
+      teams: [
+        {
+          id: "team-mexico",
+          external_id: "mock-mexico",
+          name: "Mexico",
+          slug: "mexico",
+          country: "Mexico",
+        },
+      ],
+    });
+
+    createSupabaseScriptAdminClientMock.mockReturnValue(fake.client);
+
+    await executeControlledFixtureWrite({
+      target: worldCupTarget,
+      fixtures: [buildWorldCupFixture()],
+      apply: true,
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
+
+    expect(fake.calls.touchedTables).not.toContain("prediction_versions");
+    expect(fake.calls.touchedTables).not.toContain("prediction_results");
   });
 });
