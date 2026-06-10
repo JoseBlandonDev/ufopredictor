@@ -431,7 +431,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                   <th className="px-3 py-3 font-medium">Result</th>
                   <th className="px-3 py-3 font-medium">Evaluation</th>
                   <th className="px-3 py-3 font-medium">Signals</th>
-                  <th className="px-3 py-3 font-medium">Action</th>
+                  <th className="w-32 px-3 py-3 font-medium whitespace-nowrap">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -480,10 +480,10 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                         <span>ok</span>
                       )}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3 whitespace-nowrap">
                       <a
                         href={`/admin/real-fixture-lab?externalId=${encodeURIComponent(entry.fixture.externalId)}`}
-                        className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                        className="inline-flex min-w-28 items-center justify-center whitespace-nowrap rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-center text-xs font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
                       >
                         Open detail
                       </a>
