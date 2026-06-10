@@ -3,6 +3,7 @@ import { generatePrediction } from "@/lib/prediction-engine/generate-prediction"
 import { buildRealFixturePredictionInput } from "@/lib/prediction-engine/real-fixture-adapter";
 import {
   persistRealFixtureEvaluationAction,
+  publishRealFixturePredictionAction,
   saveRealFixturePredictionAction,
   verifyRealFixtureResultAction,
 } from "./actions";
@@ -14,7 +15,7 @@ import {
 export const dynamic = "force-dynamic";
 
 type RealFixtureLabPageProps = {
-  searchParams: Promise<{ externalId?: string; save?: string; evaluation?: string; result?: string }>;
+  searchParams: Promise<{ externalId?: string; save?: string; evaluation?: string; result?: string; publish?: string }>;
 };
 
 type FixtureSummaryStatus =
@@ -260,15 +261,60 @@ function getResultStatusMessage(status: string | undefined) {
   }
 }
 
+function getPublishStatusMessage(status: string | undefined) {
+  switch (status) {
+    case "published":
+      return {
+        title: "Prediccion publica basica publicada",
+        body: "Se creo una nueva prediccion public_product para un unico fixture y el partido paso a alcance publico.",
+        tone: "success" as const,
+      };
+    case "already_published":
+      return {
+        title: "Publicacion ya existente",
+        body: "Ya existia una prediccion public_product compatible para ese fixture y solo se confirmo el alcance publico del partido.",
+        tone: "info" as const,
+      };
+    case "blocked":
+      return {
+        title: "Publicacion bloqueada por guardrails",
+        body: "Este fixture o esta prediccion interna no cumplen el contrato minimo de publicacion manual para producto publico.",
+        tone: "warning" as const,
+      };
+    case "not_found":
+      return {
+        title: "Fixture o prediccion no disponibles",
+        body: "No fue posible encontrar el match o la prediccion interna solicitada para publicacion manual.",
+        tone: "warning" as const,
+      };
+    case "invalid":
+      return {
+        title: "Solicitud de publicacion invalida",
+        body: "No fue posible procesar la solicitud de publicacion manual para este fixture.",
+        tone: "warning" as const,
+      };
+    case "error":
+      return {
+        title: "No se pudo publicar la prediccion basica",
+        body: "La operacion fallo antes de completar la copia public_product o el cambio de alcance del partido.",
+        tone: "warning" as const,
+      };
+    default:
+      return null;
+  }
+}
+
 export default async function RealFixtureLabPage({ searchParams }: RealFixtureLabPageProps) {
   await requireAdmin("/admin/real-fixture-lab");
 
-  const { externalId, save, evaluation, result } = await searchParams;
+  const { externalId, save, evaluation, result, publish } = await searchParams;
   const selectedExternalId = externalId?.trim() || null;
   const saveStatusMessage = getSaveStatusMessage(save);
   const evaluationStatusMessage = getEvaluationStatusMessage(evaluation);
   const resultStatusMessage = getResultStatusMessage(result);
-  const statusMessage = saveStatusMessage ?? evaluationStatusMessage ?? resultStatusMessage;
+  const publishStatusMessage = getPublishStatusMessage(publish);
+  const statusMessage =
+    saveStatusMessage ?? evaluationStatusMessage ?? resultStatusMessage ?? publishStatusMessage;
   const realFixtureLabData = await getAdminRealFixtureLabData();
   const fixtureEntries: FixtureEntry[] =
     realFixtureLabData.status === "ready"
@@ -817,6 +863,28 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                           <li>Evaluation remains internal-only and depends on a verified match result.</li>
                           <li>Intended only for internal model-trial preparation.</li>
                         </ul>
+                        {fixture.savedPrediction ? (
+                          <form action={publishRealFixturePredictionAction} className="mt-4 space-y-3">
+                            <input type="hidden" name="matchId" value={fixture.id} />
+                            <input type="hidden" name="matchSlug" value={fixture.slug} />
+                            <input
+                              type="hidden"
+                              name="internalPredictionVersionId"
+                              value={fixture.savedPrediction.id}
+                            />
+                            <button
+                              type="submit"
+                              className="rounded-md border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/15"
+                            >
+                              Publicar prediccion basica para este fixture
+                            </button>
+                            <p className="text-xs text-[var(--muted)]">
+                              Crea una nueva prediccion <code>public_product</code> para este partido y cambia
+                              solo este match a alcance <code>public</code>. No modifica la fila interna ni toca
+                              <code> prediction_results</code>.
+                            </p>
+                          </form>
+                        ) : null}
                         {!fixture.hasSavedPredictionForActiveModel && fixture.activeModelVersionId ? (
                           <p className="mt-3 text-xs text-[var(--muted)]">
                             Guardado interno solamente. No publica la prediccion, no usa provider predictions y no usa odds.

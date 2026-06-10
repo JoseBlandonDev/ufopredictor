@@ -30,6 +30,12 @@ const verifyRealFixtureResultSchema = z.object({
   matchResultId: z.string().uuid(),
 });
 
+const publishPublicPredictionSchema = z.object({
+  matchId: z.string().trim().min(1),
+  matchSlug: z.string().trim().min(1),
+  internalPredictionVersionId: z.string().uuid(),
+});
+
 const topScorelinesSchema = z.array(
   z.object({
     score: z.string().regex(/^\d+-\d+$/),
@@ -56,6 +62,13 @@ type ResultVerificationStatus =
   | "rejected"
   | "not_found"
   | "error";
+type PublishStatus =
+  | "published"
+  | "already_published"
+  | "invalid"
+  | "not_found"
+  | "blocked"
+  | "error";
 
 type StoredEvaluationMarket = {
   market: "btts" | "over_2_5";
@@ -73,6 +86,10 @@ function redirectWithEvaluationStatus(status: EvaluationStatus, externalId: stri
 
 function redirectWithResultStatus(status: ResultVerificationStatus, externalId: string): never {
   redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=${status}`);
+}
+
+function redirectWithPublishStatus(status: PublishStatus): never {
+  redirect(`/admin/real-fixture-lab?publish=${status}`);
 }
 
 function logRealFixtureLabSupabaseError(args: {
@@ -549,4 +566,181 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
 
   revalidatePath("/admin/real-fixture-lab");
   redirectWithResultStatus("verified", externalId);
+}
+
+export async function publishRealFixturePredictionAction(formData: FormData) {
+  const input = publishPublicPredictionSchema.safeParse({
+    matchId: formData.get("matchId"),
+    matchSlug: formData.get("matchSlug"),
+    internalPredictionVersionId: formData.get("internalPredictionVersionId"),
+  });
+
+  if (!input.success) {
+    redirectWithPublishStatus("invalid");
+  }
+
+  const { matchId, matchSlug, internalPredictionVersionId } = input.data;
+  await requireAdmin("/admin/real-fixture-lab");
+  const supabase = await createSupabaseServerClient();
+
+  const { data: match, error: matchError } = await supabase
+    .from("matches")
+    .select("id, slug, competition_id, status, access_scope, intake_source")
+    .eq("id", matchId)
+    .maybeSingle();
+
+  if (matchError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_match_for_publication",
+      table: "matches",
+      error: matchError,
+    });
+    redirectWithPublishStatus("error");
+  }
+
+  if (!match || match.slug !== matchSlug) {
+    redirectWithPublishStatus("not_found");
+  }
+
+  if (
+    match.access_scope !== "admin_only" ||
+    match.intake_source !== "api_football" ||
+    match.status !== "scheduled"
+  ) {
+    redirectWithPublishStatus("blocked");
+  }
+
+  const { data: competition, error: competitionError } = await supabase
+    .from("competitions")
+    .select("id, usage_scope")
+    .eq("id", match.competition_id)
+    .maybeSingle();
+
+  if (competitionError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_competition_for_publication",
+      table: "competitions",
+      error: competitionError,
+    });
+    redirectWithPublishStatus("error");
+  }
+
+  if (!competition || competition.usage_scope !== "public_product") {
+    redirectWithPublishStatus("blocked");
+  }
+
+  const { data: internalPrediction, error: internalPredictionError } = await supabase
+    .from("prediction_versions")
+    .select(
+      "id, match_id, model_version_id, prediction_type, home_win_prob, draw_prob, away_win_prob, expected_home_goals, expected_away_goals, most_likely_score, top_scores_json, confidence_score, risk_level, run_scope",
+    )
+    .eq("id", internalPredictionVersionId)
+    .maybeSingle();
+
+  if (internalPredictionError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_internal_prediction_for_publication",
+      table: "prediction_versions",
+      error: internalPredictionError,
+    });
+    redirectWithPublishStatus("error");
+  }
+
+  if (
+    !internalPrediction ||
+    internalPrediction.match_id !== match.id ||
+    internalPrediction.run_scope !== REAL_FIXTURE_LAB_RUN_SCOPE ||
+    internalPrediction.prediction_type !== REAL_FIXTURE_LAB_PREDICTION_TYPE
+  ) {
+    redirectWithPublishStatus("blocked");
+  }
+
+  const { data: existingPublicPrediction, error: existingPublicPredictionError } = await supabase
+    .from("prediction_versions")
+    .select("id")
+    .eq("match_id", match.id)
+    .eq("prediction_type", internalPrediction.prediction_type)
+    .eq("run_scope", "public_product")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingPublicPredictionError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_existing_public_prediction_for_publication",
+      table: "prediction_versions",
+      error: existingPublicPredictionError,
+    });
+    redirectWithPublishStatus("error");
+  }
+
+  if (!existingPublicPrediction) {
+    const { data: insertedPublicPrediction, error: insertedPublicPredictionError } = await supabase
+      .from("prediction_versions")
+      .insert({
+        match_id: internalPrediction.match_id,
+        model_version_id: internalPrediction.model_version_id,
+        prediction_type: internalPrediction.prediction_type,
+        home_win_prob: internalPrediction.home_win_prob,
+        draw_prob: internalPrediction.draw_prob,
+        away_win_prob: internalPrediction.away_win_prob,
+        expected_home_goals: internalPrediction.expected_home_goals,
+        expected_away_goals: internalPrediction.expected_away_goals,
+        most_likely_score: internalPrediction.most_likely_score,
+        top_scores_json: internalPrediction.top_scores_json,
+        confidence_score: internalPrediction.confidence_score,
+        risk_level: internalPrediction.risk_level,
+        run_scope: "public_product",
+      })
+      .select("id")
+      .maybeSingle();
+
+    if (insertedPublicPredictionError || !insertedPublicPrediction) {
+      if (insertedPublicPredictionError) {
+        logRealFixtureLabSupabaseError({
+          operation: "insert_public_prediction_version",
+          table: "prediction_versions",
+          error: insertedPublicPredictionError,
+        });
+      } else {
+        console.error("real_fixture_lab_publication_error", {
+          operation: "insert_public_prediction_version",
+          table: "prediction_versions",
+          message: "Insert returned no public prediction_version row.",
+        });
+      }
+      redirectWithPublishStatus("error");
+    }
+  }
+
+  const { data: updatedMatch, error: updatedMatchError } = await supabase
+    .from("matches")
+    .update({ access_scope: "public" })
+    .eq("id", match.id)
+    .eq("slug", match.slug)
+    .eq("access_scope", "admin_only")
+    .select("id")
+    .maybeSingle();
+
+  if (updatedMatchError || !updatedMatch) {
+    if (updatedMatchError) {
+      logRealFixtureLabSupabaseError({
+        operation: "update_match_access_scope_for_publication",
+        table: "matches",
+        error: updatedMatchError,
+      });
+    } else {
+      console.error("real_fixture_lab_publication_error", {
+        operation: "update_match_access_scope_for_publication",
+        table: "matches",
+        message: "Update returned no match row.",
+      });
+    }
+    redirectWithPublishStatus("error");
+  }
+
+  revalidatePath("/admin/real-fixture-lab");
+  revalidatePath("/predictions");
+  revalidatePath(`/matches/${matchSlug}`);
+  redirectWithPublishStatus(existingPublicPrediction ? "already_published" : "published");
 }
