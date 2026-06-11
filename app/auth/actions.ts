@@ -16,10 +16,25 @@ const registerSchema = loginSchema.extend({
   password: z.string().min(8),
 });
 
+const oauthSchema = z.object({
+  next: z.string().optional(),
+});
+
 function buildRedirect(path: string, params: Record<string, string>) {
   const searchParams = new URLSearchParams(params);
 
   return `${path}?${searchParams.toString()}`;
+}
+
+function getAppUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+}
+
+function buildAuthCallbackUrl(nextPath: string) {
+  const callbackUrl = new URL("/auth/callback", getAppUrl());
+  callbackUrl.searchParams.set("next", nextPath);
+
+  return callbackUrl.toString();
 }
 
 export async function loginAction(formData: FormData) {
@@ -69,9 +84,6 @@ export async function registerAction(formData: FormData) {
   }
 
   const nextPath = getSafeRedirectPath(input.data.next);
-  const callbackUrl = new URL("/auth/callback", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000");
-  callbackUrl.searchParams.set("next", nextPath);
-
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signUp({
     email: input.data.email,
@@ -80,7 +92,7 @@ export async function registerAction(formData: FormData) {
       data: {
         full_name: input.data.fullName,
       },
-      emailRedirectTo: callbackUrl.toString(),
+      emailRedirectTo: buildAuthCallbackUrl(nextPath),
     },
   });
 
@@ -103,6 +115,36 @@ export async function registerAction(formData: FormData) {
       next: nextPath,
     }),
   );
+}
+
+export async function signInWithGoogleAction(formData: FormData) {
+  const input = oauthSchema.safeParse({
+    next: formData.get("next") ?? undefined,
+  });
+  const nextPath = getSafeRedirectPath(input.success ? input.data.next : undefined);
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: buildAuthCallbackUrl(nextPath),
+      queryParams: {
+        access_type: "offline",
+        prompt: "select_account",
+      },
+    },
+  });
+
+  if (error || !data.url) {
+    redirect(
+      buildRedirect("/login", {
+        error: "No pudimos conectar con Google. Intenta de nuevo o usa correo y contraseña.",
+        next: nextPath,
+      }),
+    );
+  }
+
+  redirect(data.url);
 }
 
 export async function logoutAction() {

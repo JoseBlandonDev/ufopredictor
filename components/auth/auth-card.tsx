@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LockKeyhole, Radar } from "lucide-react";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 type AuthCardProps = {
   mode: "login" | "register";
@@ -42,7 +43,17 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
         </p>
       ) : null}
 
-      <form action={action} className="mt-6 space-y-4">
+      <div className="mt-6">
+        <GoogleAuthButton nextPath={nextPath} />
+      </div>
+
+      <div className="my-6 flex items-center gap-3 text-xs uppercase text-[var(--muted)]">
+        <span className="h-px flex-1 bg-white/10" />
+        <span>o usa correo</span>
+        <span className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <form action={action} className="space-y-4">
         {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
         {!isLogin ? (
           <label className="block space-y-2 text-sm">
