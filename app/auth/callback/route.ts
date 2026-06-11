@@ -5,7 +5,17 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
+  const oauthError = url.searchParams.get("error");
   const nextPath = getSafeRedirectPath(url.searchParams.get("next"));
+
+  if (oauthError) {
+    const params = new URLSearchParams({
+      error: "No pudimos completar el acceso con Google.",
+      next: nextPath,
+    });
+
+    return NextResponse.redirect(new URL(`/login?${params.toString()}`, url.origin));
+  }
 
   if (!code) {
     return NextResponse.redirect(

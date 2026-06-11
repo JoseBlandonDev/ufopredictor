@@ -84,6 +84,7 @@ This iteration implements:
 
 - `/login` for email/password sign-in.
 - `/register` for email/password registration.
+- Google OAuth sign-in from the same auth card.
 - `/auth/callback` for exchanging the PKCE confirmation code into a session.
 - Server-side protection for `/dashboard`, `/admin`, and `/admin/beta-lab`.
 
@@ -289,14 +290,20 @@ environment and valid values are set in `.env.local`:
 
 1. Enable email/password authentication in Supabase and add
    `http://localhost:3000/auth/callback` to the allowed redirect URLs.
-2. Register at `/register` and, when email confirmation is enabled, follow the
+2. Enable Google in Supabase Auth after creating a Google OAuth Web client.
+   Google Cloud must allow `https://<project-ref>.supabase.co/auth/v1/callback`
+   as an authorized redirect URI, while Supabase must allow the app callback
+   URLs such as `http://localhost:3000/auth/callback` and the Railway callback.
+3. Register at `/register` and, when email confirmation is enabled, follow the
    confirmation link.
-3. Confirm that `/dashboard` becomes accessible and that `public.profiles`
+4. Confirm that `/dashboard` becomes accessible and that `public.profiles`
    contains a new row with `role = 'free_user'`.
-4. Confirm that the same account is redirected away from `/admin`.
-5. Assign `role = 'admin'` through an approved trusted SQL/admin workflow,
+5. Sign out and sign in with Google from `/login`; confirm the same callback
+   reaches `/dashboard` and stores Google name/avatar metadata when available.
+6. Confirm that the same account is redirected away from `/admin`.
+7. Assign `role = 'admin'` through an approved trusted SQL/admin workflow,
    then confirm access to `/admin` and `/admin/beta-lab`.
-6. Use **Cerrar sesión** and confirm `/dashboard` redirects to `/login`.
+8. Use **Cerrar sesión** and confirm `/dashboard` redirects to `/login`.
 
 ## Not Implemented
 
@@ -304,6 +311,6 @@ environment and valid values are set in `.env.local`:
   beyond Lab fixture review, match-result entry, or controlled evaluation
   persistence.
 - Public browsing or commercial access to Beta Lab competitions.
-- Social login, magic links, password reset, or profile editing.
+- Magic links, password reset, or profile editing.
 - Premium projection and final paywall enforcement.
 - Payments, real providers, Resend, LLM calls, or live workers.
