@@ -16,10 +16,6 @@ const registerSchema = loginSchema.extend({
   password: z.string().min(8),
 });
 
-const oauthSchema = z.object({
-  next: z.string().optional(),
-});
-
 function buildRedirect(path: string, params: Record<string, string>) {
   const searchParams = new URLSearchParams(params);
 
@@ -115,36 +111,6 @@ export async function registerAction(formData: FormData) {
       next: nextPath,
     }),
   );
-}
-
-export async function signInWithGoogleAction(formData: FormData) {
-  const input = oauthSchema.safeParse({
-    next: formData.get("next") ?? undefined,
-  });
-  const nextPath = getSafeRedirectPath(input.success ? input.data.next : undefined);
-
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: buildAuthCallbackUrl(nextPath),
-      queryParams: {
-        access_type: "offline",
-        prompt: "select_account",
-      },
-    },
-  });
-
-  if (error || !data.url) {
-    redirect(
-      buildRedirect("/login", {
-        error: "No pudimos conectar con Google. Intenta de nuevo o usa correo y contraseña.",
-        next: nextPath,
-      }),
-    );
-  }
-
-  redirect(data.url);
 }
 
 export async function logoutAction() {
