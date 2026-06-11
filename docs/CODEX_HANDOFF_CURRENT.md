@@ -1,25 +1,23 @@
 # Codex Handoff — UFO Predictor Current
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
 This file gives Codex the current state and guardrails. Codex should not invent roadmap structure or “simplify” the publication path into another elegant RLS trap. The system has already paid that tuition.
 
 ## Current project status
 
-UFO Predictor has published its first real World Cup fixture to the public product.
+UFO Predictor has four real World Cup fixtures publicly visible in the product.
 
-Runtime-proven fixture:
+Public fixtures:
 
-- `api-football:fixture:1489369`
-- Mexico vs South Africa
-- match id: `00ce2fbc-4ac1-4a47-a97e-c345745e31ef`
-- match slug: `world-cup-2026-mexico-vs-south-africa-2026-06-11`
-- match state: `status='scheduled'`, `intake_source='api_football'`, `access_scope='public'`
-- internal prediction version id: `301a6ac4-b20c-4098-967e-9f124144f25f`
-- public prediction version id: `5787306d-ee3a-4167-88ab-ce669f1ed644`
-- active model: `v0.2-prelaunch`
+| Match | API-Football fixture | State |
+|---|---|---|
+| Mexico vs South Africa | `api-football:fixture:1489369` | public; refreshed after fallback signals |
+| South Korea vs Czech Republic | `api-football:fixture:1538999` | public; refreshed after fallback signals |
+| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | public; published with fallback active |
+| USA vs Paraguay | `api-football:fixture:1489370` | public; published with fallback active |
 
-The current milestone is not broad automation. It is a manual, exact-fixture, admin-controlled publication bridge.
+The current milestone is not broad automation. It is a manual, exact-fixture, admin-controlled publication bridge plus an exact admin refresh path for already-public fixtures.
 
 ## Recently completed work
 
@@ -55,10 +53,28 @@ Completed/runtime-proven:
 - action copies selected `internal_lab` prediction into `public_product`;
 - internal row remains untouched;
 - no `prediction_results` access/exposure;
-- no `prediction_markets` copy;
 - match access is published through RPC.
 
-## Manual publication architecture
+### E06/F02 public launch cleanup
+
+Completed for MVP 1 baseline:
+
+- public launch surface is real-fixture safe;
+- mock/preview mixing was removed from the primary public prediction path;
+- homepage and public copy now read as product, not release notes from a bunker;
+- navbar/session-aware CTAs were corrected.
+
+### E07 fixture expansion and refresh
+
+Completed in PR #61:
+
+- static fallback signals added for immediate World Cup teams;
+- Mexico/South Korea public predictions refreshed after fallback improvement;
+- Canada and USA fixtures published with fallback active;
+- exact admin public refresh path implemented;
+- migration `0030_real_fixture_lab_public_refresh_rls.sql` added and applied manually.
+
+## Manual first-publication architecture
 
 The stable runtime path for the `matches.access_scope` flip is:
 
@@ -76,21 +92,44 @@ RPC behavior:
 - updates only `matches.access_scope = 'public'`
 - returns updated match id or `null`
 
-Do not replace this with a direct `matches.update(...)` path unless a new explicit task says so. Direct RLS update attempts failed in runtime despite passing unit tests and looking reasonable on paper, because apparently paper is where policies go to lie.
+Do not replace this with a direct `matches.update(...)` path unless a new explicit task says so.
 
-## Applied/known manual-publication migrations
+## Exact public refresh architecture
 
-These exist in the current history and should not be edited:
+PR #61 added exact refresh support for already-public API-Football fixtures.
+
+Behavior:
+
+- Real Fixture Lab can load one exact `public + api_football + scheduled` fixture for admin refresh;
+- refresh generates a fresh preview with current model/fallback logic;
+- refresh saves a new `internal_lab` evidence row;
+- refresh appends a new replacement `public_product` row;
+- older public rows remain as audit/history;
+- public views read the latest public row;
+- no `prediction_results` exposure;
+- no provider predictions;
+- no betting odds.
+
+Migration:
+
+- `0030_real_fixture_lab_public_refresh_rls.sql`
+
+This was necessary because the Lab could not directly read public API-Football base-table rows under the previous RLS posture. The public product itself remains view-based.
+
+## Applied/known publication migrations
+
+These exist in current history and should not be edited:
 
 - `0025_manual_publication_rls.sql`
 - `0026_fix_manual_publication_match_update_policy.sql`
 - `0027_inline_manual_publication_match_update_check.sql`
 - `0028_manual_publication_match_new_row_helper.sql`
 - `0029_manual_publication_match_access_scope_rpc.sql`
+- `0030_real_fixture_lab_public_refresh_rls.sql`
 
-If another DB correction is needed, add a new migration. Do not rewrite applied history.
+If another DB correction is needed, add a new migration. Do not rewrite applied history. Really. It was not fun the first time either.
 
-## Data model notes discovered during E05
+## Data model notes
 
 ### `prediction_versions`
 
@@ -115,6 +154,8 @@ Join model version through:
 
 - `prediction_versions.model_version_id = model_versions.id`
 - `model_versions.version`
+
+Exact refresh appends a new `public_product` prediction row rather than updating an old public row in place.
 
 ### `model_versions`
 
@@ -141,11 +182,15 @@ Do not assume:
 - `market_key`
 - `outcome_key`
 
+Market visibility/publication remains a future access-tier/premium decision.
+
 ### `matches`
 
-Manual public publication changes only:
+Manual public first-publication changes only:
 
 - `access_scope: admin_only -> public`
+
+Exact refresh for already-public fixtures does not change `matches.access_scope`.
 
 Do not expose or modify result/evaluation internals in this path.
 
@@ -192,17 +237,18 @@ Codex must not:
 
 ## Current recommended next work
 
-### E06 / F02 — Public Launch QA and Mock Cleanup
+### E09 — Access tiers for prediction detail + scoreline visibility
 
 Start with read-only recognition.
 
 Goal:
 
-- inspect public pages now that Mexico vs South Africa is public;
-- identify where mock/preview cards still appear;
-- decide whether mocks should be hidden, separated, or clearly labeled;
-- verify public detail page is safe and clear;
-- confirm no public exposure of `internal_lab`, `prediction_results`, raw Lab outputs, provider predictions, or odds.
+- inspect what public routes can already read;
+- decide anonymous/free-auth/premium boundaries;
+- decide whether probable score belongs in anonymous, registered-free, or premium;
+- decide whether top scorelines / BTTS / Over-Under should be premium-only;
+- avoid exposing `prediction_results`;
+- avoid implementing payments in this slice.
 
 Likely files to inspect:
 
@@ -211,9 +257,29 @@ Likely files to inspect:
 - `app/matches/[slug]/page.tsx`
 - `lib/supabase/public-prediction-queries.ts`
 - `lib/supabase/public-match-detail-queries.ts`
-- any mock/static fallback sources used by public pages
+- `components/plan-card.tsx`
+- dashboard/access helpers if role/session logic is involved
 
 Do not change files in the recognition step.
+
+## Later recommended work
+
+### E10 — Scoreline calibration and real signal enrichment plan
+
+Reasons:
+
+- current model differentiates fixtures better after fallback expansion;
+- scoreline generation still tends too often toward `1-1`;
+- static fallback should evolve toward real data snapshots with provenance.
+
+Possible future inputs:
+
+- FIFA rankings;
+- Elo-style ratings;
+- recent form;
+- attack/defense signals;
+- source dates;
+- DB-backed team strength snapshots.
 
 ## Hard boundaries
 
@@ -225,8 +291,8 @@ Do not change files in the recognition step.
 - no public `prediction_results`;
 - no provider predictions;
 - no betting odds as hidden model input;
-- no model changes;
-- no payment implementation unless a dedicated Epic G slice is opened.
+- no payment implementation unless a dedicated Epic G slice is opened;
+- no large model rewrite without planned calibration scope.
 
 ## Validation defaults
 
@@ -247,4 +313,5 @@ For docs-only:
 ```bash
 git diff --check
 git status --short
+git diff --name-only
 ```

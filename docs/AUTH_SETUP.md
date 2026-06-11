@@ -1,105 +1,118 @@
-# Configuracion de autenticacion
+# UFO Predictor — Auth Setup
 
-Esta rama deja listo el flujo de autenticacion con Supabase para:
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
-- registro con nombre, correo y contrasena;
-- inicio de sesion con correo y contrasena;
-- inicio de sesion con Google;
-- perfil automatico en `public.profiles` con `role = 'free_user'`.
+## Current auth posture
 
-## Variables de entorno
+UFO Predictor uses Supabase Auth with server-side session checks for protected routes and admin boundaries.
 
-En local crea `.env.local` con:
+Recent auth work before and around the MVP 1 launch included:
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=TU_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY=TU_SERVICE_ROLE_KEY
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
+- Google Auth setup;
+- Google sign-in moved to a client button;
+- PKCE/current-origin fixes for Google callback behavior;
+- navbar session awareness;
+- admin-only `Real Fixture Lab` visibility.
 
-En Railway configura los mismos valores, pero `NEXT_PUBLIC_APP_URL` debe ser
-la URL publica de Railway, por ejemplo:
+The current public/product flow assumes:
 
-```bash
-NEXT_PUBLIC_APP_URL=https://tu-app.up.railway.app
-```
+- anonymous users can view public predictions;
+- authenticated users can access the dashboard/panel;
+- admin users can access Real Fixture Lab;
+- app routes do not use service-role.
 
-## Supabase
+## Public vs authenticated vs admin
 
-1. Entra a Supabase y abre tu proyecto.
-2. Ve a `Authentication > Providers`.
-3. Activa `Email` para permitir correo y contrasena.
-4. Activa `Google`, pero deja esa pantalla abierta porque necesitaras el
-   `Client ID` y el `Client Secret` de Google Cloud.
-5. Ve a `Authentication > URL Configuration`.
-6. En `Site URL` usa tu dominio principal:
+### Anonymous users
 
-```text
-http://localhost:3000
-```
+Can see:
 
-Para produccion usa la URL de Railway.
+- public home;
+- public predictions;
+- public match detail;
+- pricing/transparency pages.
 
-7. En `Redirect URLs` agrega todas las URLs que vayas a usar:
+Cannot access:
 
-```text
-http://localhost:3000/auth/callback
-https://tu-app.up.railway.app/auth/callback
-```
+- dashboard;
+- Real Fixture Lab;
+- admin-only internals.
 
-## Google Cloud
+### Authenticated free users
 
-1. Abre Google Cloud Console y crea o selecciona un proyecto.
-2. Ve a `APIs & Services > OAuth consent screen`.
-3. Configura el nombre de la app, correo de soporte y datos requeridos.
-4. En modo pruebas, agrega tus correos en `Test users`.
-5. Ve a `APIs & Services > Credentials`.
-6. Crea un `OAuth client ID`.
-7. Elige `Web application`.
-8. En `Authorized JavaScript origins` agrega:
+Can access:
 
-```text
-http://localhost:3000
-https://tu-app.up.railway.app
-```
+- dashboard/panel;
+- free account state;
+- public predictions and public match detail;
+- future registered-free benefits once E09 defines them.
 
-9. En `Authorized redirect URIs` agrega el callback de Supabase, no el de Next:
+Current future candidate value:
 
-```text
-https://TU-PROYECTO.supabase.co/auth/v1/callback
-```
+- probable score visibility;
+- watchlist/following;
+- short interpretation.
 
-10. Copia el `Client ID` y `Client Secret`.
-11. Vuelve a Supabase, pega esos valores en el proveedor Google y guarda.
+### Admin users
 
-## Base de datos
+Can access:
 
-Aplica las migraciones en orden. La migracion nueva es:
+- Real Fixture Lab;
+- exact fixture loading;
+- internal prediction save;
+- manual publication;
+- exact public refresh.
 
-```text
-supabase/migrations/0027_google_oauth_profile_sync.sql
-```
+Admin checks must remain server-side. Do not trust client-only gating. The browser is not a security boundary; it is a suggestion box with JavaScript.
 
-Esta actualiza el trigger que crea perfiles para que tambien guarde nombre y
-avatar cuando el usuario entra con Google. Si no usas Supabase CLI, copia el
-contenido de esa migracion y ejecutalo en `SQL Editor` dentro de Supabase.
+## Google Auth notes
 
-Para dar permisos de administrador a un usuario ya registrado:
+Google auth uses browser/client initiation and server-side callback handling.
 
-```sql
-update public.profiles
-set role = 'admin'
-where email = 'tu-correo@example.com';
-```
+Expected behavior:
 
-## Verificacion manual
+- Google button starts OAuth from the browser;
+- callback exchanges code for session server-side;
+- `next` redirect is sanitized;
+- session is then read normally by server components/helpers.
 
-1. Corre la app localmente.
-2. Abre `/register`, crea una cuenta con nombre, correo y contrasena.
-3. Confirma que se crea una fila en `public.profiles`.
-4. Cierra sesion.
-5. Abre `/login` y entra con Google.
-6. Confirma que vuelves a `/dashboard`.
-7. Revisa que `public.profiles.full_name` y `avatar_url` se completen para el
-   usuario de Google.
+Known local-dev caveat:
+
+- Browser extensions can cause hydration warnings by injecting body attributes such as `bis_register` or `__processed_*`.
+- This has appeared during local testing and should not be treated as an app auth failure unless reproduced in a clean browser/profile.
+
+## Admin Lab auth relationship
+
+Real Fixture Lab uses normal authenticated server client + admin role checks.
+
+It must not:
+
+- use service-role in app routes;
+- bypass RLS with privileged keys;
+- expose admin-only data to non-admin sessions.
+
+PR #61 added RLS support for exact public refresh, but still requires authenticated admin helper logic.
+
+Relevant migration:
+
+- `0030_real_fixture_lab_public_refresh_rls.sql`
+
+## Current next auth-related product work
+
+E09 access tiers may need to use session state to distinguish:
+
+- anonymous;
+- authenticated free;
+- future premium;
+- admin.
+
+Do not implement payments or premium entitlements in E09 unless explicitly scoped. E09 should define/show gated UI carefully and preserve the future premium path.
+
+## Hard boundaries
+
+- no service-role in app routes;
+- no client-only admin authorization;
+- no public `prediction_results`;
+- no hidden provider predictions;
+- no betting odds as hidden model input;
+- no payment implementation without a dedicated Epic G slice.

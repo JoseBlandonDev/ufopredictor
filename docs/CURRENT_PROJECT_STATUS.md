@@ -1,226 +1,254 @@
 # UFO Predictor — Current Project Status
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
-## Executive status
+## Executive summary
 
-UFO Predictor has crossed the first MVP 1 launch milestone: one real World Cup fixture has moved through the full controlled path from API-Football ingest to public product visibility.
+UFO Predictor is now in a stronger MVP 1 World Cup Launch state.
 
-Current real public fixture:
+The product no longer has only one proof-of-path fixture. It now has four real World Cup fixtures published publicly, with MVP 1 fallback signals active and a working exact refresh path for already-public predictions.
 
-- fixture: `api-football:fixture:1489369`
-- match: Mexico vs South Africa
-- competition: World Cup 2026
-- match slug: `world-cup-2026-mexico-vs-south-africa-2026-06-11`
-- match state: `status='scheduled'`, `intake_source='api_football'`, `access_scope='public'`
-- prediction state: one preserved `internal_lab` prediction and one copied `public_product` prediction version using active model `v0.2-prelaunch`
+Public fixtures now visible:
 
-This is not broad launch automation. It is a narrow, manual, admin-controlled bridge that proves the public product can show a real World Cup prediction without exposing Lab internals.
+| Match | API-Football fixture | Public state | Notes |
+|---|---|---|---|
+| Mexico vs South Africa | `api-football:fixture:1489369` | public | Refreshed after fallback signals. |
+| South Korea vs Czech Republic | `api-football:fixture:1538999` | public | Refreshed after fallback signals. |
+| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | public | Published with fallback active. |
+| USA vs Paraguay | `api-football:fixture:1489370` | public | Published with fallback active. |
 
-## MVP stage status
+This is still not broad publication, batch publication, or automatic publication. The flow remains intentionally controlled, exact-fixture, and admin-operated. Humanity continues to be supervised, which seems wise.
 
-- MVP 0 — Pre-World-Cup Calibration Lab: complete / operational PASS.
-- MVP 1 — World Cup Launch MVP: in progress; first real fixture publicly visible.
-- MVP 1.5 — Live World Cup Iteration: future.
-- MVP 2 — Post-World-Cup Sustainable Product: future.
+## Recently merged PRs
 
-## Completed foundation epics
+### PR #58 — Public launch surface real-fixture safe
 
-### Epic A — Project foundation
+Result:
 
-Status: complete.
+- public surface cleaned for MVP 1 launch;
+- homepage moved away from internal release-note tone;
+- `/predictions` focused on real World Cup public fixtures;
+- legacy/mock public leakage reduced through launch-safe filtering;
+- navbar/session-aware CTA cleanup completed;
+- Google auth follow-up PRs were already merged into `main` and incorporated before later work.
 
-Covered repository setup, app foundation, Supabase base, early architecture, and documentation structure.
+### PR #61 — E07 next World Cup fixture publication
 
-### Epic B — Public prediction foundation
+Result:
 
-Status: complete.
+- MVP 1 fallback signals added for immediate World Cup fixtures;
+- exact admin refresh for already-public API-Football fixtures implemented;
+- migration `0030_real_fixture_lab_public_refresh_rls.sql` added and applied manually;
+- Mexico and South Korea public predictions refreshed;
+- Canada and USA fixtures published with fallback signals active;
+- public views verified to show latest public predictions.
 
-Covered public match/prediction structures, presentation boundaries, anonymous-safe read patterns, and public route foundations.
+## Current public prediction surface
 
-### Epic C — Registered and premium foundation
+`/predictions` now shows four real World Cup fixtures:
 
-Status: complete.
+- Mexico vs South Africa;
+- South Korea vs Czech Republic;
+- Canada vs Bosnia & Herzegovina;
+- USA vs Paraguay.
 
-Covered registered saved matches, premium skeleton, projection UI, free/premium access foundations, and transparency/product copy.
+Each public card currently shows:
 
-## Epic D — Real Data & Calibration Lab
+- 1X2 probabilities;
+- confidence;
+- risk;
+- match date/time;
+- basic safe explanatory copy.
 
-Status: MVP 0 operational PASS.
+Current public product does **not** expose:
 
-Purpose: validate the real-data prediction loop before World Cup public launch.
+- `prediction_results`;
+- raw internal Lab payloads;
+- provider predictions;
+- betting odds;
+- admin-only fixtures;
+- service-role-only data.
 
-### D05 — Real Fixture Lab controlled single-fixture loop
+## Current Real Fixture Lab state
 
-Status: functionally complete.
+Real Fixture Lab supports:
 
-Delivered:
+- loading exact API-Football fixtures;
+- saving internal `internal_lab` predictions;
+- publishing one exact `admin_only` fixture manually;
+- loading an already-public exact fixture for admin refresh;
+- appending a replacement `public_product` prediction row for already-public fixtures.
 
-- ingest run tracking and snapshots;
-- exact `--fixtureId` friendly ingest before match;
-- Real Fixture Lab admin route;
-- internal prediction persistence;
-- post-match result verification lane;
-- internal evaluation persistence into `prediction_results`;
-- saved evaluation readback;
-- exact friendly post-match result ingest guard.
+The public refresh path is exact and admin-only. It does not batch anything, does not consume odds, and does not mutate `prediction_results`.
 
-### D06 — Friendly Pilot / Calibration Batch
+## Current migration state
 
-Status: complete.
+Important runtime publication migrations:
 
-Final pilot state:
+- `0029_manual_publication_match_access_scope_rpc.sql`
+- `0030_real_fixture_lab_public_refresh_rls.sql`
 
-- 5 exact adult national-team friendlies were operated through the internal loop.
-- All 5 have result ingest, verification, and evaluation persisted.
-- The D06 loop is operationally validated, but the sample is too small for statistical claims.
-
-Pilot fixtures:
-
-- `api-football:fixture:1544367` — Congo DR vs Chile: finished 1-2, verified, evaluation persisted.
-- `api-football:fixture:1525493` — Hungary vs Kazakhstan: finished 3-1, verified, evaluation persisted.
-- `api-football:fixture:1544368` — Saudi Arabia vs Senegal: finished 0-0, verified, evaluation persisted.
-- `api-football:fixture:1540357` — Argentina vs Iceland: finished 3-0, verified, evaluation persisted.
-- `api-football:fixture:1546509` — Iraq vs Venezuela: finished 0-2, verified, evaluation persisted.
-
-### D07 — Model Sanity / Emergency Calibration
-
-Status: complete and frozen.
-
-Delivered:
-
-- D07A recognition found Real Fixture Lab national-team fixtures were using default signals only.
-- D07B implemented local/static national-team fallback signals.
-- `v0.2-prelaunch` was manually activated in the database as the active model version.
-- v0.2 internal predictions were saved for the 5 D06 pilot fixtures.
-- v0.1 rows remain preserved as baseline historical rows.
-
-Final v0.2-prelaunch pilot metrics:
-
-- winner: 4/5;
-- BTTS: 2/5;
-- over 2.5: 3/5;
-- exact score: 0/5;
-- total goal error: 8;
-- average goal error: 1.6.
-
-Interpretation:
-
-- v0.2-prelaunch is acceptable for MVP 1 launch sanity.
-- Do not change the model again unless a future planned calibration epic is opened.
-- Exact score must remain low-emphasis in public copy.
-
-### D08A — Admin Lab Navigation Cleanup
-
-Status: complete.
-
-Delivered:
-
-- Real Fixture Lab is reachable from admin home and header.
-- Beta Lab is labeled as legacy/mock/internal calibration.
-- visible sync-odds wording was softened to legacy/mock market wording.
-- active Real Fixture Lab flow preserves the no-provider-predictions / no-betting-odds boundary.
-
-## Epic E — World Cup Data & Prediction Launch
-
-Status: in progress; first real World Cup fixture published.
-
-### Completed E slices
-
-- E01 — World Cup launch readiness recognition/docs: complete.
-- E03B — exact scheduled World Cup fixture apply guard: complete.
-- E03D — competition slug reuse during ingest apply: complete.
-- E03E — team slug reuse during ingest apply: complete.
-- E04 — first exact World Cup fixture ingest: complete.
-- E05 — manual public prediction publication bridge: runtime pass after RPC stabilization.
-
-### First public World Cup fixture evidence
-
-The first real World Cup fixture has successfully moved through:
+`0029` remains the stable match access publication path:
 
 ```text
-API-Football exact fixture read
--> exact World Cup ingest dry-run
--> exact guarded apply
--> Real Fixture Lab internal prediction
--> public_product prediction clone
--> RPC-controlled match access_scope publication
--> /predictions public visibility
+admin_only scheduled API-Football match
+-> RPC flips matches.access_scope to public
 ```
 
-Runtime-proven objects:
+`0030` enables exact admin refresh of already-public scheduled API-Football public-product fixtures:
 
-- match id: `00ce2fbc-4ac1-4a47-a97e-c345745e31ef`
-- public prediction version id: `5787306d-ee3a-4167-88ab-ce669f1ed644`
-- internal prediction version id: `301a6ac4-b20c-4098-967e-9f124144f25f`
-- active model: `v0.2-prelaunch`
+```text
+public scheduled API-Football match
+-> admin Real Fixture Lab can load exact row
+-> refresh creates new internal evidence + new public_product row
+```
 
-### Publication path stabilization
+Supabase migrations are still applied manually in SQL Editor. `0030` was applied manually and validated by loading/refeshing public fixtures. No applied migrations were edited.
 
-Manual publication originally hit live RLS failures on direct `matches.access_scope` updates. The stable runtime solution is a narrow `SECURITY DEFINER` RPC:
+## Current model state
 
-- migration: `0029_manual_publication_match_access_scope_rpc.sql`
-- function: `publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)`
-- updates only `matches.access_scope = 'public'`
-- requires exact match id + slug, admin user, `admin_only`, `scheduled`, `api_football`, and `public_product` competition
+Active model:
 
-Earlier policy migrations remain historical and applied, but the RPC path is the runtime-proven publication method.
+- `v0.2-prelaunch`
 
-## Epic F — Public Experience & Trust Layer
+MVP 1 fallback signals now cover:
 
-### F01 — MVP 1 UI Polish / Product Readiness
+- Mexico;
+- South Africa;
+- South Korea / Korea Republic;
+- Czech Republic / Czechia;
+- Canada;
+- Bosnia & Herzegovina / Bosnia and Herzegovina;
+- USA / United States;
+- Paraguay.
 
-Status: complete and merged.
+Purpose:
 
-Delivered:
+- prevent default-signal collapse;
+- make immediate World Cup predictions differentiated;
+- keep launch operations deterministic and reviewable.
 
-- encoding/mojibake cleanup and Spanish metadata baseline;
-- `html lang="es"`;
-- shared interaction utilities;
-- public predictions, match detail, pricing, dashboard, and transparency polish;
-- admin/navigation cleanup alignment.
+Important limitation:
 
-### F02 — Public surface QA / mock cleanup
+- Scoreline generation still tends too conservatively toward `1-1`.
+- The fallback file is still a pragmatic MVP 1 bridge, not a fully live real-data model.
+- Future enrichment should use real sources with provenance, not vibes wearing a jersey.
 
-Status: next recommended slice.
+## Current MVP status
 
-Need:
+### MVP 0
 
-- audit `/`, `/predictions`, `/matches/[slug]`, `/dashboard`, and `/transparency` after first real fixture publication;
-- decide whether public mock/previews remain, are separated, or are hidden;
-- verify Mexico vs South Africa public detail page;
-- make uncertainty/risk copy clearer.
+Complete.
 
-## Payment/monetization status
+- D05/D06/D07/D08A complete.
+- Real-data internal loop proved.
+- 5-fixture friendly pilot completed.
 
-Payments are not implemented yet.
+### MVP 1
 
-Planning decision:
+Active / public launch baseline established.
 
-- do not assume Stripe;
-- MVP 1 should use PayPal or another selected/available payment gateway;
-- during the World Cup, monetization should start with one-time packages or a tournament pass;
-- recurring payments/subscriptions can be evaluated after the World Cup.
+Completed:
 
-## Current operational rules
+- public surface cleanup;
+- exact World Cup ingest;
+- manual publication;
+- exact public refresh;
+- four real public fixtures.
 
-- Never work directly on `main`.
-- After every merged PR: checkout `main`, pull, confirm clean status, delete merged branch, then create a new branch.
-- All Supabase migrations are generated in repo but applied manually in Supabase SQL Editor unless a separate deployment mechanism is explicitly introduced.
-- Do not edit already-applied migrations. Add a new migration for every DB change.
-- Do not run broad `--apply true` jobs.
-- World Cup apply remains exact-fixture only.
-- No provider predictions.
-- No betting odds as hidden model input.
-- No public exposure of `prediction_results`.
-- No service-role in app routes.
+Immediate next:
 
-## Immediate next step
+- access tiers for prediction detail;
+- probable score visibility decision;
+- scoreline calibration plan;
+- real signal enrichment plan;
+- result verification after first fixtures finish.
 
-Proceed with E06 / F02 Public Launch QA:
+## Current risks and debts
 
-1. verify public detail page for Mexico vs South Africa;
-2. decide and implement mock/preview cleanup on `/predictions`;
-3. improve uncertainty/risk copy for high-uncertainty public predictions;
-4. choose the next exact World Cup fixture candidate;
-5. repeat the guarded exact-ingest + internal prediction + manual publication flow only after review.
+### Access-tier clarity
+
+The product needs a clearer value ladder:
+
+- anonymous users;
+- registered-free users;
+- future premium users.
+
+Current public 1X2 is useful, but if every valuable detail becomes public, registration and premium lose meaning. Astounding revelation: people rarely pay for what they already get free.
+
+### Scoreline visibility
+
+Probable score exists in Lab payloads and public prediction payloads, but public UI currently emphasizes 1X2. Need a decision:
+
+- show probable score publicly;
+- show it only to registered users;
+- reserve it for premium;
+- expose top scorelines only in premium.
+
+### Scoreline calibration
+
+The model still leans too often toward `1-1`. Future work should inspect:
+
+- expected goals;
+- scoreline probability distribution;
+- how team edge influences low-score outcomes;
+- calibration against real results.
+
+### Real signal enrichment
+
+Static fallback is acceptable for MVP 1 launch, but next model maturity should consider:
+
+- FIFA ranking snapshots;
+- Elo-style ratings;
+- recent form;
+- attack/defense features;
+- source/provenance dates;
+- DB-backed team strength snapshots.
+
+### Result verification
+
+Once matches finish:
+
+- ingest/verify actual result;
+- keep `prediction_results` internal;
+- decide which real-result facts are shown publicly;
+- avoid public performance claims until there is enough sample size.
+
+## Current no-go list
+
+Do not do these without explicit approval:
+
+- broad World Cup apply;
+- broad friendlies apply;
+- automatic publication;
+- batch publication;
+- service-role in app routes;
+- public `prediction_results`;
+- provider predictions;
+- betting odds as hidden model input;
+- payment implementation outside a defined Epic G slice;
+- large model rewrite without planned calibration scope;
+- editing already-applied migrations.
+
+## Recommended next branch
+
+```bash
+git checkout main
+git pull origin main
+git status --short
+git checkout -b feature/e09-access-tiers-prediction-detail
+git status --short
+git branch --show-current
+```
+
+## Recommended next recognition prompt theme
+
+Next work should not start with implementation.
+
+Recognition should answer:
+
+1. What public prediction payload is already available to `/predictions` and `/matches/[slug]`?
+2. Can probable score be displayed without exposing `prediction_results`?
+3. What should anonymous vs free-auth vs premium see?
+4. Are new views/migrations needed, or only UI/query changes?
+5. How can the MVP 1 value ladder be improved without implementing payments?

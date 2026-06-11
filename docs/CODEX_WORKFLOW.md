@@ -1,48 +1,52 @@
-# Codex Workflow — UFO Predictor
+# UFO Predictor — Codex Workflow
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+
+## Purpose
+
+Codex is used as an implementation and inspection assistant. ChatGPT owns planning, sequencing, and context synthesis. This division exists because otherwise every conversation tries to become a startup in miniature, and we already have enough chaos.
+
+## Current operating state
+
+Current `main` includes:
+
+- PR #58 — public launch surface real-fixture safe;
+- PR #61 — E07 next World Cup fixture publication;
+- migration `0030_real_fixture_lab_public_refresh_rls.sql`;
+- MVP 1 fallback signals for immediate World Cup fixtures;
+- exact public refresh path for already-public fixtures;
+- four real public World Cup fixtures.
 
 ## Role split
 
-ChatGPT plans, reviews, and coordinates.
-Codex inspects and implements locally when explicitly instructed.
-The user executes manual SQL, commits, pushes, PRs, and merges unless explicitly stated otherwise.
+### ChatGPT
 
-Docs refresh workflow: ChatGPT drafts/generates approved docs refreshes, the user manually copies them into `docs/`, and Codex reviews docs-only unless explicitly asked to edit.
+Responsible for:
 
-## Language rule
+- maintaining project context;
+- planning next slices;
+- generating docs refreshes;
+- reviewing Codex output;
+- creating focused prompts;
+- deciding what should and should not be done.
 
-Prompts to Codex must be in English.
-User-facing guidance may be in Spanish.
+### Codex
 
-## Command clarity rule
+Responsible for:
 
-When giving shell commands, state clearly whether they are:
+- read-only repo recognition;
+- code implementation when explicitly instructed;
+- targeted tests;
+- diffs/stat summaries;
+- PR-ready implementation reports.
 
-- for the user to run in PowerShell;
-- for Codex to run;
-- or just explanatory examples.
-
-Do not mix operational commands and explanation in a way that leaves the user guessing. Guessing is how we got half of civilization, and look how that turned out.
-
-## Default recognition prompt constraints
-
-Unless an implementation prompt explicitly says otherwise, Codex must:
-
-- not modify files;
-- not commit;
-- not push;
-- not open PRs;
-- not run SQL;
-- not apply migrations;
-- not perform DB writes;
-- not run `--apply true`.
+Codex should not be used to burn scarce tokens rewriting docs when ChatGPT has the project narrative. A tragic revelation, apparently.
 
 ## Branch discipline
 
-Never work directly on `main`.
+Never implement on `main`.
 
-### Start new task
+Start a task branch:
 
 ```bash
 git checkout main
@@ -53,9 +57,18 @@ git status --short
 git branch --show-current
 ```
 
-Use real branch names. Do not copy placeholders literally.
+Docs-only branch:
 
-### After PR merge
+```bash
+git checkout main
+git pull origin main
+git status --short
+git checkout -b docs/<real-doc-task-name>
+git status --short
+git branch --show-current
+```
+
+After PR merge:
 
 ```bash
 git checkout main
@@ -67,91 +80,91 @@ git push origin --delete <merged-branch>
 git status --short
 ```
 
-If remote branch deletion says `remote ref does not exist`, it usually means GitHub already deleted it. Not a blocker.
+## Prompt language
 
-Then create the next real task branch from updated `main`.
+Codex prompts should be in English.
 
-## PR policy
+ChatGPT responses to the user should follow the user’s language.
 
-Do not push/PR every tiny speculative change during live debugging unless the branch must be merged to test or preserve a completed slice.
+## Recognition prompts
 
-Prefer:
+Recognition means:
 
-- read-only diagnosis first;
-- one branch for a coherent functional slice;
-- commit after validation;
-- push/PR after the slice has a clear purpose and review evidence.
+- no file edits;
+- no commits;
+- no pushes;
+- no PRs;
+- no SQL writes;
+- no remote SQL;
+- no `--apply true`;
+- no migrations applied.
 
-A functional slice may include:
+A good recognition prompt asks:
 
-- code + tests;
-- migration + app path;
-- docs-only roadmap refresh;
-- a self-contained operational guard;
-- a runtime fix that must be merged before manual SQL/app verification.
+- what files are relevant;
+- what current behavior exists;
+- what minimal slice is recommended;
+- what should not change;
+- what validations would be needed.
 
-## Migration policy
+## Implementation prompts
 
-Supabase migrations are created in repo but applied manually in Supabase SQL Editor unless a future deployment pipeline is explicitly introduced.
+Implementation prompts must explicitly state:
 
-Known caution:
+- branch;
+- files likely allowed;
+- hard boundaries;
+- tests/validation commands;
+- expected report format;
+- whether migrations may be created;
+- whether SQL may be run.
 
-- this repo already contains a `0027` numbering collision:
-  - `0027_google_oauth_profile_sync.sql`
-  - `0027_inline_manual_publication_match_update_check.sql`
-- do not rename already-merged/applied migrations retroactively;
-- do not edit already-applied migrations.
+Default implementation constraints:
 
-Before creating a migration:
+- no service-role in app routes;
+- no broad applies;
+- no batch publication;
+- no public `prediction_results`;
+- no provider predictions;
+- no betting odds as hidden model input;
+- no payment implementation unless explicitly scoped.
 
-1. inspect latest migration number;
-2. inspect existing filenames and reserve/use the next unused number;
-3. do not duplicate migration numbers across branches;
-4. do not edit already-applied migrations;
-5. make the new migration narrowly scoped and idempotent where practical.
+## Migration workflow
 
-After migration PR merge:
+Supabase migrations are manual.
 
-1. user applies SQL manually;
-2. verify live function/policy/table state;
-3. run runtime UI/action test;
-4. document outcome;
-5. track manual Supabase SQL application in task notes and/or PR body.
+Process:
 
-## Manual publication warning
+1. create migration file in repo;
+2. review the migration;
+3. commit/PR/merge;
+4. user applies SQL manually in Supabase SQL Editor;
+5. user verifies live DB behavior;
+6. runtime UI/action is tested;
+7. docs are updated.
 
-The stable publication path is not a direct `matches.update(...)` from the app.
+Codex must not:
 
-Use:
+- run remote SQL;
+- apply Supabase migrations;
+- use service-role;
+- edit applied migrations;
+- rename applied migrations.
+
+Known migration caution:
+
+- there are two historical `0027` filenames;
+- do not rename already-merged/applied migrations;
+- add new migrations with the next safe number after inspecting the repo.
+
+Recent important migrations:
 
 - `0029_manual_publication_match_access_scope_rpc.sql`
-- `publish_real_fixture_match_access_scope(target_match_id, target_match_slug)`
+- `0030_real_fixture_lab_public_refresh_rls.sql`
 
-Direct update policies looked correct but failed in live runtime. Do not regress this unless there is a planned replacement.
+## Validation defaults
 
-## Parallel contributor rules
-
-If more than one person works on UFO Predictor:
-
-- Jonathan owns World Cup ingest/publication, API-Football, Real Fixture Lab, model/evaluation unless delegated.
-- A second contributor should preferably own Epic G auth/paywall/payment gateway or Epic F public UX/trust layer.
-- Avoid touching the same files in parallel.
-- Avoid mixing epics in one PR.
-- Coordinate migrations.
-
-## Payment provider rule
-
-Do not assume Stripe.
-
-Current MVP 1 assumption:
-
-- PayPal or selected available/local gateway;
-- one-time tournament pass or package for World Cup;
-- recurring subscriptions can be considered post-World-Cup.
-
-## Validation
-
-For implementation:
+For code:
 
 ```bash
 git diff --check
@@ -161,24 +174,36 @@ npm run build
 git status --short
 ```
 
-Run targeted tests first where helpful. Restore `next-env.d.ts` if build modifies it unexpectedly.
-
 For docs-only:
 
 ```bash
 git diff --check
+git diff --stat
+git diff --name-only
 git status --short
 ```
 
-## Current hard boundaries
+If build changes `next-env.d.ts` unintentionally:
 
-- no broad World Cup apply;
-- no broad friendlies apply;
-- no automatic publication;
-- no batch publication;
-- no service-role in app routes;
-- no public `prediction_results`;
-- no provider predictions;
-- no betting odds as hidden model input;
-- no model rewrite without a planned epic;
-- no editing applied migrations.
+```bash
+git restore next-env.d.ts
+git status --short
+```
+
+## Current next Codex task type
+
+After this docs refresh, the next useful Codex task is likely **read-only recognition** for:
+
+```text
+E09 — Access tiers for prediction detail + scoreline visibility
+```
+
+Questions for that recognition:
+
+1. What prediction fields are already available in public query helpers?
+2. Can probable score be shown without exposing `prediction_results`?
+3. What is already gated by authentication/admin role?
+4. What should anonymous/free/premium see?
+5. Are migrations needed, or only UI/query changes?
+
+Do not start by implementing. The road to broken software is paved with “quick UI changes.”

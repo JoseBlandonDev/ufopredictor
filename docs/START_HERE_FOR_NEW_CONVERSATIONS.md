@@ -1,24 +1,23 @@
 # START HERE — UFO Predictor
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
 This file is the entry point for new ChatGPT/Codex conversations. Use it to avoid inventing a new roadmap every time a conversation starts. The project has already suffered enough from humans, branches, and RLS policies trying to be clever.
 
 ## Current position
 
-UFO Predictor is in MVP 1 World Cup Launch.
+UFO Predictor is in **MVP 1 World Cup Launch**.
 
-The first real World Cup fixture is public:
+The public product now has four real World Cup 2026 fixtures visible through the controlled MVP 1 path:
 
-- `api-football:fixture:1489369`
-- Mexico vs South Africa
-- match id: `00ce2fbc-4ac1-4a47-a97e-c345745e31ef`
-- match slug: `world-cup-2026-mexico-vs-south-africa-2026-06-11`
-- public prediction version id: `5787306d-ee3a-4167-88ab-ce669f1ed644`
-- source internal prediction version id: `301a6ac4-b20c-4098-967e-9f124144f25f`
-- active model: `v0.2-prelaunch`
+| Match | API-Football fixture | Public state | Notes |
+|---|---|---|---|
+| Mexico vs South Africa | `api-football:fixture:1489369` | `public` | Published first, later refreshed after MVP 1 fallback signals. |
+| South Korea vs Czech Republic | `api-football:fixture:1538999` | `public` | Published second, later refreshed after MVP 1 fallback signals. |
+| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | `public` | Published with MVP 1 fallback signals active. |
+| USA vs Paraguay | `api-football:fixture:1489370` | `public` | Published with MVP 1 fallback signals active. |
 
-The proven path is:
+The proven path is still manual and exact-fixture based:
 
 ```text
 exact API-Football World Cup fixture
@@ -28,6 +27,16 @@ exact API-Football World Cup fixture
 -> public match/prediction visibility
 ```
 
+A second operational path is now also proven:
+
+```text
+already-public API-Football fixture
+-> exact admin Real Fixture Lab load
+-> regenerated internal_lab evidence
+-> appended replacement public_product prediction
+-> public views pick latest public_product row
+```
+
 ## Completed foundations
 
 - Epic A — project/app foundation: complete.
@@ -35,33 +44,84 @@ exact API-Football World Cup fixture
 - Epic C — registered/premium foundation: complete.
 - Epic D — Real Data & Calibration Lab: complete for MVP 0.
 - D06 — 5-fixture friendly pilot: complete.
-- D07 — `v0.2-prelaunch` model sanity: complete/frozen.
+- D07 — `v0.2-prelaunch` model sanity: complete/frozen for launch.
 - F01 — MVP 1 UI polish: complete.
-- E03/E04 — first exact World Cup fixture ingest: complete.
+- E03/E04 — exact World Cup ingest foundations: complete.
 - E05 — manual public prediction publication: runtime pass.
+- E06/F02 — public launch QA / mock cleanup: complete for MVP 1 baseline.
+- E07 — next World Cup fixture expansion and public refresh: complete / PR #61 merged.
+
+## Recent important PRs
+
+- PR #58 — public launch surface real-fixture safe.
+- PR #61 — E07 next World Cup fixture publication and public refresh path.
+
+PR #61 included:
+
+- MVP 1 static fallback signals for immediate World Cup teams;
+- exact admin refresh support for already-public API-Football fixtures;
+- migration `0030_real_fixture_lab_public_refresh_rls.sql`;
+- public refresh of Mexico and South Korea predictions;
+- publication of Canada and USA fixtures with fallback signals active.
+
+## Active model state
+
+Active model:
+
+- `v0.2-prelaunch`
+
+MVP 1 fallback signals now cover the first launch-window teams:
+
+- Mexico;
+- South Africa;
+- South Korea / Korea Republic;
+- Czech Republic / Czechia;
+- Canada;
+- Bosnia & Herzegovina / Bosnia and Herzegovina;
+- USA / United States;
+- Paraguay.
+
+The model now avoids full default-signal collapse for the first public fixtures. It is still not a full real-time model. Scoreline generation remains conservative and tends too often toward `1-1`; that is future calibration work, not something to quietly hack into the current launch path because apparently one bug is never enough.
 
 ## Immediate next work
 
-Start E06/F02.
+Recommended next epic:
+
+```text
+E09 — Access Tiers for Prediction Detail + Scoreline Visibility
+```
 
 Goal:
 
-- audit public pages after first real fixture publication;
-- clean or separate mock/preview content;
-- verify Mexico vs South Africa public detail;
-- improve high-uncertainty copy;
-- keep Lab internals protected.
+- define what anonymous users see;
+- define what free authenticated users see;
+- define what future premium users see;
+- decide whether probable score is public, registered-free, or premium;
+- keep `prediction_results` internal;
+- do not implement payments yet.
 
-Recommended branch:
+Suggested next branch:
 
 ```bash
 git checkout main
 git pull origin main
 git status --short
-git checkout -b feature/e06-public-launch-qa-mock-cleanup
+git checkout -b feature/e09-access-tiers-prediction-detail
 git status --short
 git branch --show-current
 ```
+
+Likely following epic:
+
+```text
+E10 — Scoreline Calibration + Real Signal Enrichment Plan
+```
+
+Goal:
+
+- inspect expected-goals / scoreline generation;
+- reduce over-conservative `1-1` behavior;
+- plan real data enrichment using FIFA/Elo-style snapshots, recent form, attack/defense, and provenance.
 
 ## Branch discipline
 
@@ -79,9 +139,7 @@ git push origin --delete <merged-branch>
 git status --short
 ```
 
-If remote branch deletion says the remote ref does not exist, it usually means GitHub already deleted it. Not a blocker.
-
-Then create the next task branch from updated `main`.
+If remote branch deletion says the remote ref does not exist, it usually means GitHub already deleted it. Not a blocker. Humanity survives.
 
 ## Codex usage rules
 
@@ -109,7 +167,7 @@ When ChatGPT gives commands, it must say whether they are:
 - **For you to run in PowerShell**, or
 - **For Codex as instruction/context only**.
 
-No more mysterious command blocks floating around like cursed fortune cookies.
+No mysterious command blocks floating around like cursed fortune cookies.
 
 ## Migration rules
 
@@ -122,7 +180,8 @@ Process:
 3. PR is merged;
 4. user applies SQL manually in Supabase SQL Editor;
 5. live objects are verified;
-6. runtime action is tested.
+6. runtime action is tested;
+7. docs are updated.
 
 Rules:
 
@@ -131,14 +190,19 @@ Rules:
 - coordinate migration numbers;
 - do not assume migrations auto-deploy.
 
-## Current key runtime note
+## Current key runtime notes
 
-Manual publication originally failed through direct RLS updates. The stable path is:
+Manual first publication uses:
 
 - `0029_manual_publication_match_access_scope_rpc.sql`
 - `publish_real_fixture_match_access_scope(target_match_id, target_match_slug)`
 
-Do not replace this with direct `matches.update(...)` unless a future task explicitly requires it.
+Exact public refresh uses:
+
+- `0030_real_fixture_lab_public_refresh_rls.sql`
+- admin-only RLS helper/policy expansion for already-public scheduled API-Football public-product fixtures.
+
+Do not replace the stable RPC/manual publication flow with direct `matches.update(...)` unless a future task explicitly requires it.
 
 ## Current MVP-stage roadmap
 
@@ -148,13 +212,14 @@ Status: complete.
 
 ### MVP 1 — World Cup Launch MVP
 
-Status: active.
+Status: active / public launch baseline established.
 
-Active/next epics:
+Current focus:
 
-- E06/F02 — Public Launch QA and Mock Cleanup.
-- E07 — Second exact World Cup fixture publication.
-- G01 — Payment/tournament-pass discovery, optional parallel.
+- E09 — access tiers and scoreline visibility;
+- E10 — scoreline calibration and real signal enrichment planning;
+- result verification after public fixtures finish;
+- controlled exact-fixture expansion only.
 
 ### MVP 1.5 — Live World Cup Iteration
 
