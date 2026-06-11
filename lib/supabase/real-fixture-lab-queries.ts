@@ -23,7 +23,7 @@ type RealFixtureLabMatch = Pick<
   | "source_note"
 > & {
   external_id: string;
-  access_scope: "admin_only";
+  access_scope: "admin_only" | "public";
   intake_source: "api_football";
 };
 
@@ -74,7 +74,7 @@ export type RealFixtureLabFixtureView = {
   kickoffAt: string;
   stage: string | null;
   status: MatchRow["status"];
-  accessScope: "admin_only";
+  accessScope: "admin_only" | "public";
   intakeSource: "api_football";
   sourceNote: string | null;
   competitionName: string;
@@ -106,6 +106,7 @@ export type RealFixtureLabData =
 
 export type GetAdminRealFixtureLabDataOptions = {
   externalId?: string | null;
+  includePublicExactMatch?: boolean;
 };
 
 function unavailable(selectedExternalId: string | null, message?: string): RealFixtureLabData {
@@ -169,18 +170,28 @@ export async function getAdminRealFixtureLabData(
   options: GetAdminRealFixtureLabDataOptions = {},
 ): Promise<RealFixtureLabData> {
   const selectedExternalId = options.externalId?.trim() || null;
+  const includePublicExactMatch = options.includePublicExactMatch === true && selectedExternalId !== null;
   const supabase = await createSupabaseServerClient();
   const matchSelect =
     "id, external_id, slug, competition_id, home_team_id, away_team_id, kickoff_at, stage, status, access_scope, intake_source, source_note";
-  const matchQuery = supabase
-    .from("matches")
-    .select(matchSelect)
-    .eq("access_scope", "admin_only")
-    .eq("intake_source", "api_football");
-
   const { data: matchData, error: matchError } = selectedExternalId
-    ? await matchQuery.eq("external_id", selectedExternalId).maybeSingle()
-    : await matchQuery.order("kickoff_at");
+    ? await (() => {
+        const exactMatchQuery = supabase
+          .from("matches")
+          .select(matchSelect)
+          .eq("external_id", selectedExternalId)
+          .eq("intake_source", "api_football");
+
+        return includePublicExactMatch
+          ? exactMatchQuery.in("access_scope", ["admin_only", "public"]).maybeSingle()
+          : exactMatchQuery.eq("access_scope", "admin_only").maybeSingle();
+      })()
+    : await supabase
+        .from("matches")
+        .select(matchSelect)
+        .eq("access_scope", "admin_only")
+        .eq("intake_source", "api_football")
+        .order("kickoff_at");
 
   if (matchError) {
     return unavailable(selectedExternalId, `No fue posible consultar el fixture real seleccionado: ${matchError.message}`);

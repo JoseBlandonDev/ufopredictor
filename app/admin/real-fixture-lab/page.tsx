@@ -4,6 +4,7 @@ import { buildRealFixturePredictionInput } from "@/lib/prediction-engine/real-fi
 import {
   persistRealFixtureEvaluationAction,
   publishRealFixturePredictionAction,
+  refreshPublishedRealFixturePredictionAction,
   saveRealFixturePredictionAction,
   verifyRealFixtureResultAction,
 } from "./actions";
@@ -15,7 +16,14 @@ import {
 export const dynamic = "force-dynamic";
 
 type RealFixtureLabPageProps = {
-  searchParams: Promise<{ externalId?: string; save?: string; evaluation?: string; result?: string; publish?: string }>;
+  searchParams: Promise<{
+    externalId?: string;
+    save?: string;
+    evaluation?: string;
+    result?: string;
+    publish?: string;
+    refresh?: string;
+  }>;
 };
 
 type FixtureSummaryStatus =
@@ -304,18 +312,72 @@ function getPublishStatusMessage(status: string | undefined) {
   }
 }
 
+function getRefreshStatusMessage(status: string | undefined) {
+  switch (status) {
+    case "refreshed":
+      return {
+        title: "Prediccion publica basica refrescada",
+        body: "Se guardo una nueva evidencia internal_lab y se creo una nueva fila public_product para este fixture ya publico.",
+        tone: "success" as const,
+      };
+    case "no_model":
+      return {
+        title: "Modelo activo no disponible",
+        body: "No existe una version activa del modelo para refrescar esta prediccion publica.",
+        tone: "warning" as const,
+      };
+    case "blocked":
+      return {
+        title: "Refresh bloqueado por guardrails",
+        body: "Este fixture no cumple el contrato minimo del refresh exacto: debe seguir siendo un fixture API-Football programado y ya publico.",
+        tone: "warning" as const,
+      };
+    case "not_found":
+      return {
+        title: "Fixture publico no disponible",
+        body: "No fue posible encontrar el fixture publico exacto o su prediccion public_product base para este refresh.",
+        tone: "warning" as const,
+      };
+    case "invalid":
+      return {
+        title: "Solicitud de refresh invalida",
+        body: "No fue posible procesar la solicitud de refresh exacto para este fixture ya publico.",
+        tone: "warning" as const,
+      };
+    case "error":
+      return {
+        title: "No se pudo refrescar la prediccion publica",
+        body: "La operacion fallo antes de guardar la nueva evidencia interna o crear la fila public_product de reemplazo.",
+        tone: "warning" as const,
+      };
+    default:
+      return null;
+  }
+}
+
 export default async function RealFixtureLabPage({ searchParams }: RealFixtureLabPageProps) {
   await requireAdmin("/admin/real-fixture-lab");
 
-  const { externalId, save, evaluation, result, publish } = await searchParams;
+  const { externalId, save, evaluation, result, publish, refresh } = await searchParams;
   const selectedExternalId = externalId?.trim() || null;
   const saveStatusMessage = getSaveStatusMessage(save);
   const evaluationStatusMessage = getEvaluationStatusMessage(evaluation);
   const resultStatusMessage = getResultStatusMessage(result);
   const publishStatusMessage = getPublishStatusMessage(publish);
+  const refreshStatusMessage = getRefreshStatusMessage(refresh);
   const statusMessage =
-    saveStatusMessage ?? evaluationStatusMessage ?? resultStatusMessage ?? publishStatusMessage;
+    saveStatusMessage ??
+    evaluationStatusMessage ??
+    resultStatusMessage ??
+    publishStatusMessage ??
+    refreshStatusMessage;
   const realFixtureLabData = await getAdminRealFixtureLabData();
+  const selectedFixtureLabData = selectedExternalId
+    ? await getAdminRealFixtureLabData({
+        externalId: selectedExternalId,
+        includePublicExactMatch: true,
+      })
+    : realFixtureLabData;
   const fixtureEntries: FixtureEntry[] =
     realFixtureLabData.status === "ready"
       ? realFixtureLabData.fixtures.map((fixture) => {
@@ -337,7 +399,28 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
   }
 
   const selectedFixtureEntry = selectedExternalId
-    ? fixtureEntries.find((entry) => entry.fixture.externalId === selectedExternalId) ?? null
+    ? selectedFixtureLabData.status === "ready"
+      ? selectedFixtureLabData.fixtures
+          .map((fixture) => {
+            const predictionInput = buildRealFixturePredictionInput(fixture);
+            const preview = generatePrediction(predictionInput);
+
+            return {
+              fixture,
+              predictionInput,
+              preview,
+              derivedSignalWarning: getDerivedSignalWarning(preview),
+              evaluationStatus: getFixtureEvaluationStatus({
+                fixture,
+                predictionInput,
+                preview,
+                derivedSignalWarning: getDerivedSignalWarning(preview),
+                evaluationStatus: "waiting_result",
+              }),
+            };
+          })
+          .find((entry) => entry.fixture.externalId === selectedExternalId) ?? null
+      : null
     : null;
 
   return (
@@ -349,8 +432,9 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         <h1 className="mt-3 text-4xl font-semibold">Real Fixture Lab Trial</h1>
         <p className="mt-3 max-w-3xl text-[var(--muted)]">
           Superficie interna de solo lectura para fixtures reales ingeridos desde API-Football. Este flujo
-          permanece restringido a administracion, conserva el alcance <code>admin_only</code> y no expone
-          nada al producto publico.
+          permanece restringido a administracion, conserva el resumen piloto en <code>admin_only</code> y
+          solo habilita un refresh exacto para fixtures ya publicos cuando hace falta regenerar la
+          prediccion basica.
         </p>
       </section>
 
@@ -392,8 +476,8 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             <span className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent)]/10 px-2 py-1 text-[var(--accent)]">
               API-Football real fixture
             </span>
-            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">admin_only</span>
-            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">not public</span>
+            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">admin_only summary</span>
+            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">exact public refresh</span>
           </div>
           <form action="/admin/real-fixture-lab" method="get" className="mt-4 space-y-3">
             <label className="block text-sm text-[var(--muted)]" htmlFor="externalId">
@@ -422,8 +506,9 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
           <h2 className="text-lg font-semibold text-[var(--warning)]">Phase 3A guardrail</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
             This route can store and internally evaluate one saved pre-match prediction for a selected
-            real fixture, but it does not publish anything, does not consume provider predictions or odds,
-            and only evaluates after a verified result exists.
+            real fixture, can publish one exact admin_only match, and can refresh one exact already-public
+            match after model updates. It does not batch anything, does not consume provider predictions
+            or odds, and only evaluates after a verified result exists.
           </p>
         </div>
       </section>
@@ -438,7 +523,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
           <h2 className="text-lg font-semibold">Sin fixtures internos disponibles</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Aun no hay fixtures reales API-Football con alcance <code>admin_only</code> disponibles para el
-            resumen piloto.
+            resumen piloto. El refresh exacto de fixtures publicos sigue disponible por external id.
           </p>
         </section>
       ) : (
@@ -547,16 +632,21 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
           <h2 className="text-lg font-semibold">Ningun fixture seleccionado</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Abre esta ruta con <code>?externalId=api-football:fixture:&lt;id&gt;</code> o carga un
-            external id desde el formulario para revisar un fixture real <code>admin_only</code> de
-            API-Football.
+            external id desde el formulario para revisar un fixture real <code>admin_only</code> o un
+            fixture publico exacto de API-Football para refresh controlado.
           </p>
         </section>
-      ) : realFixtureLabData.status !== "ready" ? null : !selectedFixtureEntry ? (
+      ) : selectedFixtureLabData.status !== "ready" ? (
+        <section className="panel rounded-lg p-5">
+          <h2 className="text-lg font-semibold">Fixture no disponible</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">{selectedFixtureLabData.message}</p>
+        </section>
+      ) : !selectedFixtureEntry ? (
         <section className="panel rounded-lg p-5">
           <h2 className="text-lg font-semibold">Fixture no encontrado</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            No existe un fixture real API-Football con alcance <code>admin_only</code> para el external id
-            solicitado.
+            No existe un fixture real API-Football compatible para el external id solicitado dentro del
+            resumen <code>admin_only</code> ni del refresh exacto publico.
           </p>
         </section>
       ) : (
@@ -606,7 +696,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
 
                     <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4 text-sm">
                       <h3 className="font-semibold">Resultado actual</h3>
-                      {fixture.result ? (
+                        {fixture.result ? (
                         <div className="mt-3 space-y-2 text-[var(--muted)]">
                           <p className="font-mono text-base text-white">
                             {fixture.result.home_goals}-{fixture.result.away_goals}
@@ -631,7 +721,8 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                               Resultado rechazado. Este slice no permite cambiarlo ni re-verificarlo.
                             </div>
                           )}
-                          {fixture.result.verification_status === "pending_review" ? (
+                          {fixture.accessScope === "admin_only" &&
+                          fixture.result.verification_status === "pending_review" ? (
                             <form action={verifyRealFixtureResultAction} className="pt-1">
                               <input type="hidden" name="externalId" value={fixture.externalId} />
                               <input type="hidden" name="matchResultId" value={fixture.result.id} />
@@ -790,7 +881,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                             </p>
                           )}
                         </div>
-                        {fixture.activeModelVersionId ? (
+                        {fixture.accessScope === "admin_only" && fixture.activeModelVersionId ? (
                           fixture.hasSavedPredictionForActiveModel ? (
                             <p className="mt-3 text-xs text-[var(--muted)]">
                               This fixture already has an internal prediction for the active model version.
@@ -807,7 +898,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                             </form>
                           )
                         ) : null}
-                        {fixture.savedPrediction ? (
+                        {fixture.accessScope === "admin_only" && fixture.savedPrediction ? (
                           fixture.result?.verification_status === "verified" ? (
                             fixture.savedEvaluation ? (
                               <div className="mt-3 space-y-3">
@@ -861,9 +952,9 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                           <li>Does not read provider predictions.</li>
                           <li>Does not read betting odds.</li>
                           <li>Evaluation remains internal-only and depends on a verified match result.</li>
-                          <li>Intended only for internal model-trial preparation.</li>
+                          <li>Exact public refresh keeps the match public and only rotates prediction rows.</li>
                         </ul>
-                        {fixture.savedPrediction ? (
+                        {fixture.accessScope === "admin_only" && fixture.savedPrediction ? (
                           <form action={publishRealFixturePredictionAction} className="mt-4 space-y-3">
                             <input type="hidden" name="matchId" value={fixture.id} />
                             <input type="hidden" name="matchSlug" value={fixture.slug} />
@@ -882,6 +973,23 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                               Crea una nueva prediccion <code>public_product</code> para este partido y cambia
                               solo este match a alcance <code>public</code>. No modifica la fila interna ni toca
                               <code> prediction_results</code>.
+                            </p>
+                          </form>
+                        ) : null}
+                        {fixture.accessScope === "public" ? (
+                          <form action={refreshPublishedRealFixturePredictionAction} className="mt-4 space-y-3">
+                            <input type="hidden" name="externalId" value={fixture.externalId} />
+                            <button
+                              type="submit"
+                              className="rounded-md border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/15"
+                            >
+                              Refrescar prediccion publica para este fixture
+                            </button>
+                            <p className="text-xs text-[var(--muted)]">
+                              Guarda una nueva evidencia <code>internal_lab</code> con el modelo activo y crea una
+                              nueva fila <code>public_product</code> para que el producto publico lea la version
+                              mas reciente por <code>created_at</code>. No cambia <code>matches.access_scope</code>,
+                              no toca <code>prediction_results</code> y no copia mercados.
                             </p>
                           </form>
                         ) : null}

@@ -157,10 +157,279 @@ describe("real fixture lab queries", () => {
     });
     expect(fromCalls).toEqual(["matches"]);
     expect(eqCalls).toEqual([
-      ["access_scope", "admin_only"],
-      ["intake_source", "api_football"],
       ["external_id", externalId],
+      ["intake_source", "api_football"],
+      ["access_scope", "admin_only"],
     ]);
+  });
+
+  it("keeps exact admin_only lookup restricted when public refresh mode is disabled", async () => {
+    const eqCalls: Array<[string, unknown]> = [];
+    const inCalls: Array<[string, unknown[]]> = [];
+
+    const matchBuilder = {
+      eq(column: string, value: unknown) {
+        eqCalls.push([column, value]);
+        return matchBuilder;
+      },
+      in(column: string, values: unknown[]) {
+        inCalls.push([column, values]);
+        return matchBuilder;
+      },
+      maybeSingle() {
+        return Promise.resolve({
+          data: {
+            id: "match-1",
+            external_id: externalId,
+            slug: "peru-spain",
+            competition_id: "competition-1",
+            home_team_id: "team-1",
+            away_team_id: "team-2",
+            kickoff_at: "2026-06-09T02:00:00Z",
+            stage: "Friendly",
+            status: "scheduled",
+            access_scope: "admin_only",
+            intake_source: "api_football",
+            source_note: "tracked by ingest",
+          },
+          error: null,
+        });
+      },
+      order() {
+        return Promise.resolve({
+          data: [],
+          error: null,
+        });
+      },
+    };
+
+    const fakeClient = {
+      from(table: string) {
+        if (table === "matches") {
+          return {
+            select() {
+              return matchBuilder;
+            },
+          };
+        }
+
+        const builder = {
+          eq() {
+            return builder;
+          },
+          maybeSingle() {
+            if (table === "competitions") {
+              return Promise.resolve({ data: { id: "competition-1", name: "Friendlies" }, error: null });
+            }
+
+            if (table === "teams") {
+              return Promise.resolve({ data: { id: "team-1", name: "Peru" }, error: null });
+            }
+
+            return Promise.resolve({ data: null, error: null });
+          },
+          order() {
+            return builder;
+          },
+          limit() {
+            return builder;
+          },
+        };
+
+        return {
+          select() {
+            return builder;
+          },
+        };
+      },
+    };
+
+    createSupabaseServerClientMock.mockResolvedValue(fakeClient);
+
+    const result = await getAdminRealFixtureLabData({
+      externalId,
+      includePublicExactMatch: false,
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") {
+      throw new Error("expected ready result");
+    }
+    expect(result.fixtures).toHaveLength(1);
+    expect(result.fixtures[0].accessScope).toBe("admin_only");
+    expect(eqCalls).toEqual([
+      ["external_id", externalId],
+      ["intake_source", "api_football"],
+      ["access_scope", "admin_only"],
+    ]);
+    expect(inCalls).toEqual([]);
+  });
+
+  it("can load one exact public api_football fixture only when public refresh mode is enabled", async () => {
+    const eqCalls: Array<[string, unknown]> = [];
+    const inCalls: Array<[string, unknown[]]> = [];
+
+    const matchBuilder = {
+      eq(column: string, value: unknown) {
+        eqCalls.push([column, value]);
+        return matchBuilder;
+      },
+      in(column: string, values: unknown[]) {
+        inCalls.push([column, values]);
+        return matchBuilder;
+      },
+      maybeSingle() {
+        return Promise.resolve({
+          data: {
+            id: "match-public-1",
+            external_id: externalId,
+            slug: "mexico-south-africa",
+            competition_id: "competition-1",
+            home_team_id: "team-1",
+            away_team_id: "team-2",
+            kickoff_at: "2026-06-11T02:00:00Z",
+            stage: "Group stage",
+            status: "scheduled",
+            access_scope: "public",
+            intake_source: "api_football",
+            source_note: "public refresh target",
+          },
+          error: null,
+        });
+      },
+      order() {
+        return Promise.resolve({
+          data: [],
+          error: null,
+        });
+      },
+    };
+
+    const fakeClient = {
+      from(table: string) {
+        if (table === "matches") {
+          return {
+            select() {
+              return matchBuilder;
+            },
+          };
+        }
+
+        const builder = {
+          eq() {
+            return builder;
+          },
+          maybeSingle() {
+            if (table === "competitions") {
+              return Promise.resolve({ data: { id: "competition-1", name: "World Cup" }, error: null });
+            }
+
+            if (table === "teams") {
+              return Promise.resolve({ data: { id: "team-1", name: "Mexico" }, error: null });
+            }
+
+            return Promise.resolve({ data: null, error: null });
+          },
+          order() {
+            return builder;
+          },
+          limit() {
+            return builder;
+          },
+        };
+
+        return {
+          select() {
+            return builder;
+          },
+        };
+      },
+    };
+
+    createSupabaseServerClientMock.mockResolvedValue(fakeClient);
+
+    const result = await getAdminRealFixtureLabData({
+      externalId,
+      includePublicExactMatch: true,
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") {
+      throw new Error("expected ready result");
+    }
+    expect(result.fixtures).toHaveLength(1);
+    expect(result.fixtures[0]).toMatchObject({
+      externalId,
+      accessScope: "public",
+      intakeSource: "api_football",
+    });
+    expect(eqCalls).toEqual([
+      ["external_id", externalId],
+      ["intake_source", "api_football"],
+    ]);
+    expect(inCalls).toEqual([["access_scope", ["admin_only", "public"]]]);
+  });
+
+  it("does not allow exact public lookup when public refresh mode is disabled", async () => {
+    const eqCalls: Array<[string, unknown]> = [];
+    const inCalls: Array<[string, unknown[]]> = [];
+
+    const matchBuilder = {
+      eq(column: string, value: unknown) {
+        eqCalls.push([column, value]);
+        return matchBuilder;
+      },
+      in(column: string, values: unknown[]) {
+        inCalls.push([column, values]);
+        return matchBuilder;
+      },
+      maybeSingle() {
+        return Promise.resolve({
+          data: null,
+          error: null,
+        });
+      },
+      order() {
+        return Promise.resolve({
+          data: [],
+          error: null,
+        });
+      },
+    };
+
+    const fakeClient = {
+      from(table: string) {
+        if (table === "matches") {
+          return {
+            select() {
+              return matchBuilder;
+            },
+          };
+        }
+
+        throw new Error(`unexpected table ${table}`);
+      },
+    };
+
+    createSupabaseServerClientMock.mockResolvedValue(fakeClient);
+
+    const result = await getAdminRealFixtureLabData({
+      externalId,
+      includePublicExactMatch: false,
+    });
+
+    expect(result).toEqual({
+      status: "ready",
+      selectedExternalId: externalId,
+      fixtures: [],
+      warnings: [],
+    });
+    expect(eqCalls).toEqual([
+      ["external_id", externalId],
+      ["intake_source", "api_football"],
+      ["access_scope", "admin_only"],
+    ]);
+    expect(inCalls).toEqual([]);
   });
 
   it("returns the base match even when related reads fail", async () => {
@@ -199,7 +468,13 @@ describe("real fixture lab queries", () => {
           };
         }
 
-        if (table === "competitions" || table === "teams" || table === "match_results" || table === "prediction_results") {
+        if (
+          table === "competitions" ||
+          table === "teams" ||
+          table === "match_results" ||
+          table === "prediction_results" ||
+          table === "model_versions"
+        ) {
           const label =
             table === "competitions"
               ? "competition"
@@ -207,9 +482,17 @@ describe("real fixture lab queries", () => {
                 ? "team"
                 : table === "match_results"
                   ? "result"
-                  : "evaluation";
+                  : table === "prediction_results"
+                    ? "evaluation"
+                    : "model";
           const builder = {
             eq() {
+              return builder;
+            },
+            order() {
+              return builder;
+            },
+            limit() {
               return builder;
             },
             maybeSingle() {
@@ -278,6 +561,7 @@ describe("real fixture lab queries", () => {
       savedEvaluation: null,
     });
     expect(result.warnings).toEqual([
+      expect.stringContaining("model read blocked"),
       expect.stringContaining("competition read blocked"),
       expect.stringContaining("team read blocked"),
       expect.stringContaining("team read blocked"),
@@ -432,6 +716,12 @@ describe("real fixture lab queries", () => {
         if (table === "model_versions") {
           const builder = {
             eq() {
+              return builder;
+            },
+            order() {
+              return builder;
+            },
+            limit() {
               return builder;
             },
             maybeSingle() {
