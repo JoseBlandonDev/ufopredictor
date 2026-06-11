@@ -128,8 +128,39 @@ describe("generatePrediction", () => {
     expect(result.normalizedInput.dataCompleteness).toBeGreaterThan(0);
     expect(result.normalizedInput.homeTeam.signals.marketScore).toBe(50);
     expect(result.normalizedInput.awayTeam.signals.lineupContextScore).toBe(50);
-    expect(result.notes.some((note) => note.includes("Market score is neutral"))).toBe(true);
+    expect(result.notes.some((note) => note.includes("Market score is neutral"))).toBe(false);
     expect(result.teamPower.home.score).toBeGreaterThan(result.teamPower.away.score);
     expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
+  });
+
+  it("uses static fallback signals for immediate world cup teams instead of baseline defaults", () => {
+    const result = generatePrediction(
+      buildRealFixturePredictionInput({
+        id: "match-kor-cze",
+        externalId: "api-football:fixture:1538999",
+        slug: "world-cup-2026-south-korea-vs-czech-republic-2026-06-12",
+        competitionId: "competition-world-cup",
+        kickoffAt: "2026-06-12T02:00:00Z",
+        stage: "Group Stage - Round 1",
+        status: "scheduled",
+        accessScope: "admin_only",
+        intakeSource: "api_football",
+        sourceNote: "tracked by ingest",
+        competitionName: "World Cup",
+        homeTeamId: "team-kor",
+        homeTeamName: "South Korea",
+        awayTeamId: "team-cze",
+        awayTeamName: "Czech Republic",
+        result: null,
+        savedPrediction: null,
+        savedEvaluation: null,
+      }),
+    );
+
+    expect(result.normalizedInput.dataCompleteness).toBeGreaterThan(0);
+    expect(result.normalizedInput.homeTeam.providedSignals.length).toBeGreaterThan(0);
+    expect(result.normalizedInput.awayTeam.providedSignals.length).toBeGreaterThan(0);
+    expect(result.normalizedInput.homeTeam.defaultedSignals).toEqual([]);
+    expect(result.normalizedInput.awayTeam.defaultedSignals).toEqual([]);
   });
 });

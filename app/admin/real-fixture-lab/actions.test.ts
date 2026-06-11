@@ -73,6 +73,7 @@ vi.mock("next/cache", () => ({
 import {
   persistRealFixtureEvaluationAction,
   publishRealFixturePredictionAction,
+  refreshPublishedRealFixturePredictionAction,
   saveRealFixturePredictionAction,
   verifyRealFixtureResultAction,
 } from "./actions";
@@ -139,6 +140,12 @@ function buildPublishFormData(overrides?: {
     "internalPredictionVersionId",
     overrides?.internalPredictionVersionId ?? predictionVersionId,
   );
+  return formData;
+}
+
+function buildRefreshFormData(targetExternalId = externalId) {
+  const formData = new FormData();
+  formData.set("externalId", targetExternalId);
   return formData;
 }
 
@@ -1123,5 +1130,198 @@ describe("publishRealFixturePredictionAction", () => {
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=blocked",
     );
+  });
+});
+
+describe("refreshPublishedRealFixturePredictionAction", () => {
+  const publicFixture = {
+    ...fixture,
+    accessScope: "public" as const,
+    savedPrediction: {
+      id: "old-internal-prediction-1",
+      modelVersionId: "model-0",
+      modelVersionVersion: "v0.1",
+      createdAt: "2026-06-08T12:00:00Z",
+      predictionType: "pre_match_24h" as const,
+      runScope: "internal_lab" as const,
+    },
+    hasSavedPredictionForActiveModel: true,
+    activeModelSavedPredictionId: "old-internal-prediction-1",
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    requireAdminMock.mockResolvedValue({ user: { id: "admin-1" } });
+    getAdminRealFixtureLabDataMock.mockResolvedValue({
+      status: "ready",
+      selectedExternalId: publicFixture.externalId,
+      fixtures: [publicFixture],
+      warnings: [],
+    });
+    buildRealFixturePredictionInputMock.mockReturnValue(predictionInput);
+    generatePredictionMock.mockReturnValue(predictionOutput);
+    buildRealFixturePredictionVersionInsertMock.mockReturnValue({
+      match_id: "match-1",
+      model_version_id: "model-1",
+      prediction_type: "pre_match_24h",
+      home_win_prob: 51,
+      draw_prob: 24,
+      away_win_prob: 25,
+      expected_home_goals: 1.4,
+      expected_away_goals: 0.9,
+      most_likely_score: "1-0",
+      top_scores_json: [{ score: "1-0", probability: 14 }],
+      confidence_score: 58,
+      risk_level: "medium",
+      run_scope: "internal_lab",
+    });
+    buildRealFixturePredictionMarketInsertsMock.mockReturnValue([
+      {
+        prediction_version_id: "new-internal-prediction-1",
+        market: "match_winner",
+        selection: "home",
+        probability: 51,
+        confidence: 58,
+        is_premium: false,
+      },
+    ]);
+  });
+
+  function buildRefreshClient(options?: {
+    competition?: { data: unknown; error: unknown };
+    existingPublicPrediction?: { data: unknown; error: unknown };
+    insertInternalPrediction?: { data?: unknown; error: unknown };
+    insertReplacementPublicPrediction?: { data?: unknown; error: unknown };
+  }) {
+    const modelVersionsBuilder = createPredictionVersionInsertBuilder({
+      maybeSingle: { data: { id: "model-1", version: "v0.2", created_at: "2026-06-11T08:00:00Z" }, error: null },
+    });
+    const competitionBuilder = createSingleSelectBuilder(
+      options?.competition ?? {
+        data: { id: fixture.competitionId, usage_scope: "public_product" },
+        error: null,
+      },
+    );
+    const internalPredictionInsertBuilder = createPredictionVersionInsertBuilder({
+      insertResult: options?.insertInternalPrediction ?? {
+        data: { id: "new-internal-prediction-1" },
+        error: null,
+      },
+    });
+    const existingPublicPredictionBuilder = createPredictionVersionInsertBuilder({
+      maybeSingle: options?.existingPublicPrediction ?? {
+        data: { id: "old-public-prediction-1" },
+        error: null,
+      },
+      insertResult: options?.insertReplacementPublicPrediction ?? {
+        data: { id: "new-public-prediction-1" },
+        error: null,
+      },
+    });
+    const predictionMarketsBuilder = {
+      insert: vi.fn(() => Promise.resolve({ error: null })),
+    };
+
+    const predictionVersionBuilders = [
+      existingPublicPredictionBuilder,
+      internalPredictionInsertBuilder,
+      existingPublicPredictionBuilder,
+    ];
+    let predictionVersionIndex = 0;
+
+    const from = vi.fn((table: string) => {
+      if (table === "model_versions") return modelVersionsBuilder;
+      if (table === "competitions") return competitionBuilder;
+      if (table === "prediction_versions") {
+        const builder =
+          predictionVersionBuilders[predictionVersionIndex] ?? existingPublicPredictionBuilder;
+        predictionVersionIndex += 1;
+        return builder;
+      }
+      if (table === "prediction_markets") return predictionMarketsBuilder;
+      throw new Error(`unexpected table ${table}`);
+    });
+
+    return {
+      from,
+      modelVersionsBuilder,
+      competitionBuilder,
+      internalPredictionInsertBuilder,
+      existingPublicPredictionBuilder,
+      predictionMarketsBuilder,
+    };
+  }
+
+  it("saves a new internal evidence row and appends a replacement public_product row for an exact public fixture", async () => {
+    const client = buildRefreshClient();
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(refreshPublishedRealFixturePredictionAction(buildRefreshFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&refresh=refreshed`,
+    );
+
+    expect(getAdminRealFixtureLabDataMock).toHaveBeenCalledWith({
+      externalId,
+      includePublicExactMatch: true,
+    });
+    expect(client.internalPredictionInsertBuilder.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        match_id: fixture.id,
+        model_version_id: "model-1",
+        run_scope: "internal_lab",
+      }),
+    );
+    expect(client.predictionMarketsBuilder.insert).toHaveBeenCalledWith([
+      expect.objectContaining({
+        prediction_version_id: "new-internal-prediction-1",
+        is_premium: false,
+      }),
+    ]);
+    expect(client.existingPublicPredictionBuilder.insert).toHaveBeenCalledWith({
+      match_id: fixture.id,
+      model_version_id: "model-1",
+      prediction_type: "pre_match_24h",
+      home_win_prob: 51,
+      draw_prob: 24,
+      away_win_prob: 25,
+      expected_home_goals: 1.4,
+      expected_away_goals: 0.9,
+      most_likely_score: "1-0",
+      top_scores_json: [{ score: "1-0", probability: 14 }],
+      confidence_score: 58,
+      risk_level: "medium",
+      run_scope: "public_product",
+    });
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/predictions");
+    expect(revalidatePathMock).toHaveBeenCalledWith(`/matches/${fixture.slug}`);
+  });
+
+  it("blocks refresh when the selected fixture is not already public", async () => {
+    getAdminRealFixtureLabDataMock.mockResolvedValue({
+      status: "ready",
+      selectedExternalId: fixture.externalId,
+      fixtures: [fixture],
+      warnings: [],
+    });
+
+    await expect(refreshPublishedRealFixturePredictionAction(buildRefreshFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&refresh=blocked`,
+    );
+    expect(createSupabaseServerClientMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks refresh when no public_product baseline exists yet", async () => {
+    const client = buildRefreshClient({
+      existingPublicPrediction: { data: null, error: null },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(refreshPublishedRealFixturePredictionAction(buildRefreshFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&refresh=not_found`,
+    );
+
+    expect(client.internalPredictionInsertBuilder.insert).not.toHaveBeenCalled();
+    expect(client.predictionMarketsBuilder.insert).not.toHaveBeenCalled();
   });
 });

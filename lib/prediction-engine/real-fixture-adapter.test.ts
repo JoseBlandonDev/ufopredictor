@@ -60,6 +60,44 @@ const congoVsChileFixtureView = {
   result: null,
 } as const;
 
+const southKoreaVsCzechRepublicFixtureView = {
+  id: "match-kor-cze",
+  externalId: "api-football:fixture:1538999",
+  slug: "world-cup-2026-south-korea-vs-czech-republic-2026-06-12",
+  competitionId: "competition-world-cup",
+  kickoffAt: "2026-06-12T02:00:00Z",
+  stage: "Group Stage - Round 1",
+  status: "scheduled",
+  accessScope: "admin_only",
+  intakeSource: "api_football",
+  sourceNote: "tracked by ingest",
+  competitionName: "World Cup",
+  homeTeamId: "team-kor",
+  homeTeamName: "South Korea",
+  awayTeamId: "team-cze",
+  awayTeamName: "Czech Republic",
+  result: null,
+} as const;
+
+const mexicoVsSouthAfricaFixtureView = {
+  id: "match-mex-rsa",
+  externalId: "api-football:fixture:1489369",
+  slug: "world-cup-2026-mexico-vs-south-africa-2026-06-11",
+  competitionId: "competition-world-cup",
+  kickoffAt: "2026-06-11T19:00:00Z",
+  stage: "Group Stage - Round 1",
+  status: "scheduled",
+  accessScope: "admin_only",
+  intakeSource: "api_football",
+  sourceNote: "tracked by ingest",
+  competitionName: "World Cup",
+  homeTeamId: "team-mex",
+  homeTeamName: "Mexico",
+  awayTeamId: "team-rsa",
+  awayTeamName: "South Africa",
+  result: null,
+} as const;
+
 describe("real fixture prediction adapter", () => {
   it("keeps unknown teams safe/default when no fallback is available", () => {
     const input = buildRealFixturePredictionInput(clubFixtureView);
@@ -84,7 +122,7 @@ describe("real fixture prediction adapter", () => {
     });
   });
 
-  it("injects national-team fallback signals without using market or lineup inputs", () => {
+  it("injects national-team fallback signals with neutral market and lineup placeholders", () => {
     const input = buildRealFixturePredictionInput(argentinaVsIcelandFixtureView);
 
     expect(input.homeTeam.signals).toEqual({
@@ -92,15 +130,17 @@ describe("real fixture prediction adapter", () => {
       recentFormScore: 88,
       attackScore: 92,
       defenseScore: 89,
+      marketScore: 50,
+      lineupContextScore: 50,
     });
     expect(input.awayTeam.signals).toEqual({
       ratingScore: 52,
       recentFormScore: 49,
       attackScore: 50,
       defenseScore: 53,
+      marketScore: 50,
+      lineupContextScore: 50,
     });
-    expect(input.homeTeam.signals).not.toHaveProperty("marketScore");
-    expect(input.homeTeam.signals).not.toHaveProperty("lineupContextScore");
   });
 
   it("can generate an in-memory preview without provider predictions or odds", () => {
@@ -122,15 +162,69 @@ describe("real fixture prediction adapter", () => {
       "recentFormScore",
       "attackScore",
       "defenseScore",
+      "marketScore",
+      "lineupContextScore",
     ]);
     expect(output.normalizedInput.awayTeam.providedSignals).toEqual([
       "ratingScore",
       "recentFormScore",
       "attackScore",
       "defenseScore",
+      "marketScore",
+      "lineupContextScore",
     ]);
     expect(output.normalizedInput.homeTeam.signals.marketScore).toBe(50);
     expect(output.normalizedInput.homeTeam.signals.lineupContextScore).toBe(50);
+  });
+
+  it("resolves immediate world cup team aliases to the same fallback signals", () => {
+    const southKorea = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      homeTeamName: "South Korea",
+    });
+    const koreaRepublic = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      homeTeamName: "Korea Republic",
+    });
+    const czechRepublic = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      awayTeamName: "Czech Republic",
+    });
+    const czechia = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      awayTeamName: "Czechia",
+    });
+    const bosniaAmpersand = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      awayTeamName: "Bosnia & Herzegovina",
+    });
+    const bosniaAnd = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      awayTeamName: "Bosnia and Herzegovina",
+    });
+    const usa = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      homeTeamName: "USA",
+    });
+    const unitedStates = buildRealFixturePredictionInput({
+      ...southKoreaVsCzechRepublicFixtureView,
+      homeTeamName: "United States",
+    });
+
+    expect(southKorea.homeTeam.signals).toEqual(koreaRepublic.homeTeam.signals);
+    expect(czechRepublic.awayTeam.signals).toEqual(czechia.awayTeam.signals);
+    expect(bosniaAmpersand.awayTeam.signals).toEqual(bosniaAnd.awayTeam.signals);
+    expect(usa.homeTeam.signals).toEqual(unitedStates.homeTeam.signals);
+  });
+
+  it("injects fallback signals for immediate world cup teams so completeness is no longer zero", () => {
+    const output = generatePrediction(buildRealFixturePredictionInput(southKoreaVsCzechRepublicFixtureView));
+
+    expect(output.normalizedInput.dataCompleteness).toBeGreaterThan(0);
+    expect(output.normalizedInput.homeTeam.providedSignals.length).toBeGreaterThan(0);
+    expect(output.normalizedInput.awayTeam.providedSignals.length).toBeGreaterThan(0);
+    expect(output.normalizedInput.homeTeam.defaultedSignals).toEqual([]);
+    expect(output.normalizedInput.awayTeam.defaultedSignals).toEqual([]);
   });
 
   it("differentiates Argentina vs Iceland from Congo DR vs Chile", () => {
@@ -142,5 +236,21 @@ describe("real fixture prediction adapter", () => {
     expect(argentinaVsIceland.probabilities.oneXTwo.homeWin).not.toBe(congoVsChile.probabilities.oneXTwo.homeWin);
     expect(argentinaVsIceland.expectedGoals.home).toBeGreaterThan(argentinaVsIceland.expectedGoals.away);
     expect(congoVsChile.probabilities.oneXTwo.awayWin).toBeGreaterThan(congoVsChile.probabilities.oneXTwo.homeWin);
+  });
+
+  it("no longer produces identical previews for Mexico vs South Africa and South Korea vs Czech Republic", () => {
+    const mexicoVsSouthAfrica = generatePrediction(buildRealFixturePredictionInput(mexicoVsSouthAfricaFixtureView));
+    const southKoreaVsCzechRepublic = generatePrediction(
+      buildRealFixturePredictionInput(southKoreaVsCzechRepublicFixtureView),
+    );
+
+    expect(mexicoVsSouthAfrica.normalizedInput.dataCompleteness).toBeGreaterThan(0);
+    expect(southKoreaVsCzechRepublic.normalizedInput.dataCompleteness).toBeGreaterThan(0);
+    expect(mexicoVsSouthAfrica.probabilities.oneXTwo).not.toEqual(
+      southKoreaVsCzechRepublic.probabilities.oneXTwo,
+    );
+    expect(mexicoVsSouthAfrica.expectedGoals).not.toEqual(southKoreaVsCzechRepublic.expectedGoals);
+    expect(mexicoVsSouthAfrica.teamPower.home.score).not.toBe(southKoreaVsCzechRepublic.teamPower.home.score);
+    expect(mexicoVsSouthAfrica.teamPower.away.score).not.toBe(southKoreaVsCzechRepublic.teamPower.away.score);
   });
 });
