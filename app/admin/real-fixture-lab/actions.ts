@@ -713,29 +713,19 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
     }
   }
 
-  const { data: updatedMatch, error: updatedMatchError } = await supabase
+  const { error: updatedMatchError } = await supabase
     .from("matches")
     .update({ access_scope: "public" })
     .eq("id", match.id)
     .eq("slug", match.slug)
-    .eq("access_scope", "admin_only")
-    .select("id")
-    .maybeSingle();
+    .eq("access_scope", "admin_only");
 
-  if (updatedMatchError || !updatedMatch) {
-    if (updatedMatchError) {
-      logRealFixtureLabSupabaseError({
-        operation: "update_match_access_scope_for_publication",
-        table: "matches",
-        error: updatedMatchError,
-      });
-    } else {
-      console.error("real_fixture_lab_publication_error", {
-        operation: "update_match_access_scope_for_publication",
-        table: "matches",
-        message: "Update returned no match row.",
-      });
-    }
+  if (updatedMatchError) {
+    logRealFixtureLabSupabaseError({
+      operation: "update_match_access_scope_for_publication",
+      table: "matches",
+      error: updatedMatchError,
+    });
     redirectWithPublishStatus("error");
   }
 

@@ -285,8 +285,12 @@ function createMatchResultsVerificationBuilder(options?: {
 
 function createPublicationMatchBuilder(options?: {
   maybeSingle?: { data: unknown; error: unknown };
-  updateResult?: { data?: unknown; error: unknown };
+  updateResult?: { error: unknown };
 }) {
+  const updateChain = {
+    eq: vi.fn(() => updateChain),
+  };
+
   const builder = {
     select: vi.fn(() => builder),
     eq: vi.fn(() => builder),
@@ -298,24 +302,14 @@ function createPublicationMatchBuilder(options?: {
         },
       ),
     ),
-    update: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            select: vi.fn(() => ({
-              maybeSingle: vi.fn(() =>
-                Promise.resolve(
-                  options?.updateResult ?? {
-                    data: null,
-                    error: null,
-                  },
-                ),
-              ),
-            })),
-          })),
-        })),
-      })),
-    })),
+    update: vi.fn(() => {
+      updateChain.eq = vi.fn(() => updateChain);
+      updateChain.eq
+        .mockImplementationOnce(() => updateChain)
+        .mockImplementationOnce(() => updateChain)
+        .mockResolvedValueOnce(options?.updateResult ?? { error: null });
+      return updateChain;
+    }),
   };
 
   return builder;
@@ -883,7 +877,7 @@ describe("publishRealFixturePredictionAction", () => {
     internalPrediction?: { data: unknown; error: unknown };
     existingPublicPrediction?: { data: unknown; error: unknown };
     insertPublicPrediction?: { data?: unknown; error: unknown };
-    updateMatch?: { data?: unknown; error: unknown };
+    updateMatch?: { error: unknown };
   }) {
     const matchBuilder = createPublicationMatchBuilder({
       maybeSingle:
@@ -898,7 +892,7 @@ describe("publishRealFixturePredictionAction", () => {
           },
           error: null,
         },
-      updateResult: options?.updateMatch ?? { data: { id: fixture.id }, error: null },
+      updateResult: options?.updateMatch ?? { error: null },
     });
     const competitionBuilder = createSingleSelectBuilder(
       options?.competition ?? {
