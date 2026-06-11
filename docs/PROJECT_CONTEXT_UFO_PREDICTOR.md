@@ -1,6 +1,6 @@
 # UFO Predictor — Project Context
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
 UFO Predictor is a football prediction product focused on probabilistic match forecasts, transparent methodology, and safe free/premium presentation.
 
@@ -20,13 +20,14 @@ It does not:
 
 The current focus is MVP 1 for World Cup 2026.
 
-The first real World Cup fixture has been published publicly:
+Four real World Cup fixtures are public:
 
-- Mexico vs South Africa
-- `api-football:fixture:1489369`
-- model `v0.2-prelaunch`
+- Mexico vs South Africa — `api-football:fixture:1489369`;
+- South Korea vs Czech Republic — `api-football:fixture:1538999`;
+- Canada vs Bosnia & Herzegovina — `api-football:fixture:1539000`;
+- USA vs Paraguay — `api-football:fixture:1489370`.
 
-This validates the product path from real fixture ingest to public prediction visibility.
+This validates the product path from real fixture ingest to public prediction visibility across multiple selected fixtures.
 
 ## Brand/product promise
 
@@ -57,6 +58,20 @@ Public product must not expose:
 - betting odds as model input;
 - admin-only fixtures.
 
+## Current access-tier direction
+
+Not fully implemented yet.
+
+Recommended direction:
+
+| User type | Product value |
+|---|---|
+| Anonymous | 1X2 probabilities, confidence/risk, basic match context. |
+| Registered free | probable score, short interpretation, watchlist/following. |
+| Premium future | top scorelines, BTTS, Over/Under, deeper analysis and signal explanation. |
+
+This is still a product decision for E09, not an implemented contract.
+
 ## Current operational style
 
 The MVP 1 launch flow is intentionally manual and exact-fixture-based:
@@ -67,6 +82,15 @@ exact fixture read
 -> exact apply
 -> internal prediction
 -> manual publication
+-> public verification
+```
+
+Already-public fixtures can now be refreshed exactly:
+
+```text
+exact public fixture load
+-> fresh internal evidence
+-> replacement public prediction row
 -> public verification
 ```
 

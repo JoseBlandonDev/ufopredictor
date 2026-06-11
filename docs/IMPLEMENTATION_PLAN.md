@@ -1,10 +1,10 @@
-# UFO Predictor — Implementation Plan v2
+# UFO Predictor — Implementation Plan v3
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
 ## Implementation strategy
 
-Implement in small, reversible MVP slices. Each slice should either be:
+Implement in small, reversible MVP slices. Each slice should be one of:
 
 - read-only recognition;
 - code + tests;
@@ -12,11 +12,11 @@ Implement in small, reversible MVP slices. Each slice should either be:
 - docs refresh;
 - or a complete end-to-end operational step.
 
-Avoid mixing unrelated work. The project is already complicated enough without making every PR a buffet.
+Avoid mixing unrelated work. The project is already complicated enough without making every PR a buffet where the dessert is RLS failure.
 
 ## Current operational flow for one public World Cup fixture
 
-This is the proven MVP 1 flow:
+This is the proven MVP 1 first-publication flow:
 
 ```text
 1. choose exact fixture candidate
@@ -32,10 +32,36 @@ This is the proven MVP 1 flow:
 11. capture evidence
 ```
 
-Runtime-proven first fixture:
+Runtime-proven fixtures now include:
 
-- `api-football:fixture:1489369`
-- Mexico vs South Africa
+- `api-football:fixture:1489369` — Mexico vs South Africa;
+- `api-football:fixture:1538999` — South Korea vs Czech Republic;
+- `api-football:fixture:1539000` — Canada vs Bosnia & Herzegovina;
+- `api-football:fixture:1489370` — USA vs Paraguay.
+
+## Current operational flow for refreshing an already-public fixture
+
+This is the proven MVP 1 public-refresh flow:
+
+```text
+1. load exact public API-Football fixture in Real Fixture Lab
+2. generate fresh preview with current model/fallback logic
+3. run exact refresh action
+4. save new internal_lab evidence
+5. append new public_product prediction row
+6. leave old public_product rows as history
+7. verify /predictions reads latest public row
+8. verify /matches/[slug] reads latest public row
+```
+
+Runtime-proven refreshed fixtures:
+
+- Mexico vs South Africa;
+- South Korea vs Czech Republic.
+
+Required migration:
+
+- `0030_real_fixture_lab_public_refresh_rls.sql`
 
 ## Branch workflow
 
@@ -89,15 +115,10 @@ Rules:
 - Keep migration files idempotent where practical.
 - Treat manual SQL application as a separate operational step.
 
-Manual-publication migrations already involved:
+Important current migrations:
 
-- `0025_manual_publication_rls.sql`
-- `0026_fix_manual_publication_match_update_policy.sql`
-- `0027_inline_manual_publication_match_update_check.sql`
-- `0028_manual_publication_match_new_row_helper.sql`
-- `0029_manual_publication_match_access_scope_rpc.sql`
-
-The runtime-proven match publication mechanism is the `0029` RPC.
+- `0029_manual_publication_match_access_scope_rpc.sql` — stable first-publication RPC.
+- `0030_real_fixture_lab_public_refresh_rls.sql` — admin exact refresh support for already-public fixtures.
 
 ## Validation commands
 
@@ -122,73 +143,136 @@ For docs-only:
 
 ```bash
 git diff --check
+git diff --stat
+git diff --name-only
 git status --short
 ```
 
-## MVP 1 immediate implementation plan
+## MVP 1 completed implementation blocks
 
 ### E06 / F02 — Public Launch QA and Mock Cleanup
 
-Purpose:
+Status: complete for MVP 1 baseline.
 
-- make public pages launch-safe now that a real World Cup prediction is visible.
+Delivered:
 
-Implementation sequence:
+- launch-safe public surface;
+- mock/legacy rows excluded from primary public prediction surfaces;
+- homepage copy made product-facing;
+- public cards/details cleaned for real fixtures;
+- session-aware navbar/CTA behavior fixed;
+- public filters kept conservative.
 
-1. read-only audit public routes and query helpers;
-2. decide mock/preview handling;
-3. implement smallest UI/query cleanup;
-4. validate public detail for Mexico vs South Africa;
-5. run targeted tests/lint/build;
-6. capture screenshots/evidence.
+Boundary preserved:
 
-Likely files:
+- no `prediction_results` exposure;
+- no provider predictions;
+- no betting odds;
+- no service-role in app routes;
+- no payment implementation.
 
-- `app/predictions/page.tsx`
-- `components/public-prediction-card.tsx`
-- `app/matches/[slug]/page.tsx`
-- public Supabase query helpers under `lib/supabase/`
+### E07 — Next World Cup Fixture Expansion + Refresh
 
-Boundary:
+Status: complete / PR #61 merged.
 
-- no migrations unless audit finds a real data-boundary bug;
-- no model logic change;
-- no payment work;
-- no `prediction_results` exposure.
+Delivered:
 
-### E07 — Second exact fixture publication
+- static MVP 1 fallback signals for immediate World Cup teams;
+- exact public refresh path for already-public fixtures;
+- RLS migration `0030`;
+- Mexico and South Korea refreshed with fallback signals;
+- Canada and USA published with fallback signals active.
 
-Purpose:
-
-- repeat the exact public fixture flow for one more selected World Cup match.
-
-Steps:
-
-1. choose exact fixture id;
-2. `fixture` read;
-3. `ingest-dry-run` report;
-4. exact `--apply true` only after review;
-5. save internal prediction;
-6. publish manually;
-7. verify public surface.
-
-Boundary:
+Boundary preserved:
 
 - no broad apply;
-- no batch;
-- no auto-publication.
+- no batch publication;
+- no automatic publication;
+- no `prediction_results` exposure;
+- no provider predictions;
+- no betting odds;
+- no service-role in app routes.
 
-### G01 — Payment discovery, optional parallel
+## Next implementation plan
+
+### E09 — Access tiers for prediction detail + scoreline visibility
 
 Purpose:
 
-- explore PayPal/selected gateway tournament pass path.
+- create a clean value ladder for anonymous, free authenticated, and future premium users.
+
+Recognition questions first:
+
+1. What data is already available in public views/query helpers?
+2. Is probable score present in the public-safe payload?
+3. Are top scorelines / BTTS / O-U present and currently hidden?
+4. What can be shown without exposing `prediction_results`?
+5. What is currently gated by session/admin role?
+6. Does the implementation require new views/migrations, or only UI/query changes?
+
+Recommended access direction:
+
+| Tier | Candidate visibility |
+|---|---|
+| Anonymous | 1X2, confidence/risk, basic match detail, no betting/advice copy. |
+| Free authenticated | probable score, short interpretation, watchlist/following. |
+| Future premium | top scorelines, BTTS, Over/Under, expanded signal explanation, comparison/history. |
+
+Boundaries:
+
+- no payment implementation;
+- no `prediction_results` exposure;
+- no provider predictions;
+- no odds as hidden input;
+- no large model change.
+
+### E10 — Scoreline calibration + real signal enrichment plan
+
+Purpose:
+
+- address the model’s conservative scoreline behavior;
+- plan real data inputs beyond static fallback.
+
+Known issue:
+
+- several fixtures still rank `1-1` as top scoreline even when 1X2 leans meaningfully one way.
+
+Likely files to inspect later:
+
+- `lib/prediction-engine/expected-goals.ts`
+- `lib/prediction-engine/generate-prediction.ts`
+- `lib/prediction-engine/team-power.ts`
+- `lib/prediction-engine/confidence-risk.ts`
+- tests under `lib/prediction-engine/`
+
+Potential data enrichment:
+
+- FIFA ranking snapshots;
+- Elo-style ratings;
+- recent form;
+- attack/defense scores;
+- source/provenance dates;
+- DB-backed team strength snapshots.
 
 Boundary:
 
-- discovery only until public launch surface is stable;
-- no Stripe assumption;
-- no checkout implementation without explicit scope.
+- no odds as hidden input;
+- no provider predictions;
+- no silent manual score editing;
+- no overclaiming exact-score accuracy.
+
+### H01 — Result verification after first fixtures finish
+
+Trigger:
+
+- after one or more public World Cup fixtures are finished.
+
+Purpose:
+
+- ingest/verify actual results;
+- preserve internal evaluation path;
+- decide public presentation of final results;
+- avoid exposing `prediction_results` directly.
 
 ## Data/model implementation boundaries
 
@@ -196,7 +280,7 @@ Boundary:
 - Do not change model weights/features unless a planned calibration epic opens.
 - Do not use provider predictions.
 - Do not use betting odds as hidden input.
-- Market odds can be considered later only as a transparent benchmark/comparison layer.
+- Market odds can be considered later only as transparent benchmark/comparison, not as a hidden input.
 
 ## Public/private implementation boundaries
 

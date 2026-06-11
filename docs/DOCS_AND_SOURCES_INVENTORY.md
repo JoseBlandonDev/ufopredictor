@@ -1,6 +1,6 @@
 # UFO Predictor — Docs and Sources Inventory
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
 The project currently keeps canonical product/backend docs plus separate creative/Flow docs. Do not delete docs in this refresh. Some are primary, some are operational, and some are reference/secondary.
 
@@ -16,6 +16,12 @@ Use for:
 - branch discipline;
 - current next task;
 - hard no-go list.
+
+Current expected state:
+
+- post-E07;
+- four real World Cup fixtures public;
+- next work is access tiers / scoreline visibility.
 
 ### `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
 
@@ -36,7 +42,7 @@ Use for:
 
 - what is complete;
 - current MVP 1 state;
-- first public World Cup fixture evidence;
+- public fixture evidence;
 - immediate next step.
 
 ### `EPIC_PROGRESS_MATRIX.md`
@@ -64,9 +70,9 @@ Near-term execution plan.
 
 Use for:
 
-- E06/F02 public QA;
-- E07 next exact fixture publication;
-- optional G01 payment discovery.
+- E09 access tiers;
+- E10 scoreline calibration and signal enrichment;
+- result verification planning.
 
 ## Operational docs
 
@@ -76,9 +82,11 @@ Current handoff for Codex.
 
 Use before recognition/implementation prompts.
 
-Important current note:
+Important current notes:
 
-- stable publication path uses `0029_manual_publication_match_access_scope_rpc.sql` and RPC `publish_real_fixture_match_access_scope`.
+- stable first-publication path uses `0029_manual_publication_match_access_scope_rpc.sql` and RPC `publish_real_fixture_match_access_scope`;
+- exact public refresh uses `0030_real_fixture_lab_public_refresh_rls.sql`;
+- Codex should start next tasks with read-only recognition.
 
 ### `CODEX_WORKFLOW.md`
 
@@ -89,7 +97,8 @@ Use for:
 - branch discipline;
 - migration policy;
 - command clarity;
-- validation expectations.
+- validation expectations;
+- role split between ChatGPT and Codex.
 
 ### `IMPLEMENTATION_PLAN.md`
 
@@ -98,8 +107,9 @@ Tactical implementation phases and operational flow.
 Use for:
 
 - exact fixture publication sequence;
+- exact public refresh sequence;
 - migration/manual SQL workflow;
-- E06/E07 implementation ordering.
+- E09/E10 implementation ordering.
 
 ### `TRACK_D_API_FOOTBALL_HANDOFF.md`
 
@@ -108,7 +118,7 @@ Track D/API-Football/Real Fixture Lab operational context.
 Status:
 
 - historical and still useful for ingest/Lab context;
-- partly superseded by E03/E05 World Cup launch flow.
+- updated with MVP 1 public fixture expansion and exact refresh.
 
 ### `OPEN_DECISIONS.md`
 
@@ -117,8 +127,10 @@ Open and recently settled decisions.
 Current important decisions:
 
 - manual publication approach settled;
-- RPC publication path settled;
-- mock/preview public-surface handling still open;
+- RPC first-publication path settled;
+- exact public refresh path settled;
+- mock/preview public-surface handling settled for MVP 1 baseline;
+- access tiers / scoreline visibility still open;
 - payment provider still open;
 - formal prediction lineage still open.
 
@@ -132,6 +144,7 @@ Use for:
 
 - ingest/Lab/public route boundaries;
 - manual publication architecture;
+- exact public refresh architecture;
 - RLS/RPC posture.
 
 ### `DATA_DICTIONARY.md`
@@ -143,16 +156,19 @@ Use for:
 - actual known fields;
 - fields not to assume;
 - publication table/field behavior;
-- prediction/market schema corrections.
+- prediction/market schema corrections;
+- refresh row append behavior.
 
 ### `MODEL_V01.md`
 
-Historical model v0.1 reference.
+Historical model v0.1 plus active v0.2-prelaunch notes.
 
 Status:
 
-- historical baseline;
-- current active MVP 1 model is `v0.2-prelaunch`.
+- v0.1 historical;
+- active MVP 1 model is `v0.2-prelaunch`;
+- post-E07 fallback catalog expanded for immediate World Cup teams;
+- scoreline calibration remains future work.
 
 ### `PROJECT_CONTEXT_UFO_PREDICTOR.md`
 
@@ -162,7 +178,8 @@ Use for:
 
 - product mission;
 - non-betting/no-guarantee framing;
-- high-level positioning.
+- high-level positioning;
+- public/free/premium direction.
 
 ### `PROJECT_STATUS_FOR_MEETING.md`
 
@@ -185,19 +202,26 @@ These are separate from backend/product roadmap unless explicitly working on cre
 - `FLOW_CHARACTERS_ORION_VEGA_SOURCE.md`
 - `UFO_CHARACTERS_ORION_VEGA_SOURCE.md`
 
+Do not edit these during product/backend docs refresh unless the task is specifically creative.
+
 ## Important migration/source files
 
-Manual-publication migrations to know:
+Manual-publication and public-refresh migrations to know:
 
 - `0025_manual_publication_rls.sql`
 - `0026_fix_manual_publication_match_update_policy.sql`
 - `0027_inline_manual_publication_match_update_check.sql`
 - `0028_manual_publication_match_new_row_helper.sql`
 - `0029_manual_publication_match_access_scope_rpc.sql`
+- `0030_real_fixture_lab_public_refresh_rls.sql`
 
-Current stable runtime publication path:
+Current stable runtime first-publication path:
 
 - `0029_manual_publication_match_access_scope_rpc.sql`
+
+Current stable runtime public-refresh RLS support:
+
+- `0030_real_fixture_lab_public_refresh_rls.sql`
 
 Migration numbering caution:
 
@@ -215,7 +239,7 @@ Spreadsheet/backlog artifacts may exist outside canonical markdown docs, for exa
 
 - `UFO_Predictor_Backlog_Tracker_MVP1_Launch_Readiness.xlsx`
 
-Use spreadsheets as planning aids, not as the only source of truth.
+Use spreadsheets as planning aids, not as the only source of truth. Humanity has already lost enough things in spreadsheets.
 
 ## Current docs policy
 

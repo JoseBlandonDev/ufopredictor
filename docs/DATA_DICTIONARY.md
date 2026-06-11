@@ -1,8 +1,8 @@
 # UFO Predictor — Data Dictionary
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
-This dictionary focuses on the product and Real Fixture Lab data model currently used by MVP 1. It includes field names confirmed during the E03/E05 World Cup publication work, including several columns that were discovered by failed exploratory queries. Humanity invented schemas and then forgot to document them; this file is the apology letter.
+This dictionary focuses on the product and Real Fixture Lab data model currently used by MVP 1. It includes field names confirmed during the World Cup publication and refresh work, including several columns discovered by failed exploratory queries. Humanity invented schemas and then forgot to document them; this file is the apology letter.
 
 ## Core scope vocabulary
 
@@ -15,7 +15,9 @@ Known values in current flow:
 - `admin_only` — default for real API-Football ingested fixtures; visible in admin/Real Fixture Lab only.
 - `public` — visible through public prediction surfaces when paired with a public-product competition and public-product prediction.
 
-Legacy/internal values may exist in older migrations or fixtures, but MVP 1 World Cup publication uses only `admin_only -> public`.
+MVP 1 World Cup first-publication uses only `admin_only -> public`.
+
+Exact public refresh does **not** change `matches.access_scope`; it keeps the match public and appends a newer public prediction row.
 
 ### Prediction run scope
 
@@ -51,7 +53,7 @@ Confirmed fields:
 Important behavior:
 
 - The World Cup competition may pre-exist as a legacy/mock row with `slug='world-cup-2026'` and non-API external id.
-- E03D updated ingest writer behavior so competitions can be reused by slug when external id does not match.
+- Ingest writer behavior reuses competitions by slug when external id does not match.
 - If an existing row has `external_id = null`, the writer may backfill it.
 - If an existing row has a non-null legacy/mock `external_id`, the writer preserves it.
 
@@ -59,7 +61,7 @@ Important behavior:
 
 Purpose: stores competition seasons.
 
-Confirmed fields from schema/runtime evidence:
+Confirmed fields:
 
 | Field | Notes |
 |---|---|
@@ -71,7 +73,7 @@ Confirmed fields from schema/runtime evidence:
 
 Important correction:
 
-- `seasons` does not expose `external_id` in the current live schema, even though ingest uses planned external identifiers internally.
+- `seasons` does not expose `external_id` in the current live schema.
 
 ## `teams`
 
@@ -91,9 +93,7 @@ Confirmed fields:
 
 Important behavior:
 
-- E03E updated ingest writer behavior so teams can be reused by slug when external id does not match.
-- Mexico existed as a legacy/mock row (`mock-mexico`) before the World Cup ingest.
-- South Africa was inserted as an API-Football row during the first exact World Cup apply.
+- Ingest writer behavior reuses teams by slug when external id does not match.
 - If an existing team has `external_id = null`, the writer may backfill it.
 - If an existing team has a non-null legacy/mock `external_id`, the writer preserves it.
 
@@ -109,14 +109,14 @@ Confirmed fields:
 | `competition_id` | FK to `competitions`. |
 | `season_id` | FK to `seasons`. |
 | `external_id` | Provider external id. Example: `api-football:fixture:1489369`. |
-| `slug` | Unique match slug. Example: `world-cup-2026-mexico-vs-south-africa-2026-06-11`. |
+| `slug` | Unique match slug. |
 | `home_team_id` | FK to `teams`. |
 | `away_team_id` | FK to `teams`. |
 | `kickoff_at` | Kickoff timestamp. |
 | `status` | Match status. Scheduled World Cup fixture uses `scheduled`. |
 | `access_scope` | `admin_only` by ingest default; `public` after manual publication. |
 | `intake_source` | Real API-Football fixtures use `api_football`. |
-| `venue_id` | Currently planned as `NULL` unless provider venue support is added. |
+| `venue_id` | Currently planned as `NULL` unless provider venue support is added later. |
 | `source_note` | Audit/source text where available. |
 | `data_quality` | Internal data-quality metadata where available. |
 | `stage` | Competition stage/round where available. |
@@ -130,18 +130,18 @@ Important behavior:
 
 - World Cup ingest creates matches as `access_scope='admin_only'` and `intake_source='api_football'`.
 - The public product requires `matches.access_scope='public'` and a competition with `usage_scope='public_product'`.
-- Manual publication changes only `matches.access_scope` from `admin_only` to `public`.
-- The runtime-proven path uses RPC `publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)` from migration `0029_manual_publication_match_access_scope_rpc.sql`.
-- Do not update public visibility by ad hoc SQL unless explicitly performing a controlled rollback/recovery.
+- Manual first publication changes only `matches.access_scope` from `admin_only` to `public`.
+- The runtime-proven first publication path uses RPC `publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)` from migration `0029_manual_publication_match_access_scope_rpc.sql`.
+- Exact public refresh does not update `matches.access_scope`; it appends prediction rows.
 
-First public World Cup match:
+Current public World Cup matches:
 
-- id: `00ce2fbc-4ac1-4a47-a97e-c345745e31ef`
-- external_id: `api-football:fixture:1489369`
-- slug: `world-cup-2026-mexico-vs-south-africa-2026-06-11`
-- status: `scheduled`
-- intake_source: `api_football`
-- access_scope: `public`
+| External id | Match | Access |
+|---|---|---|
+| `api-football:fixture:1489369` | Mexico vs South Africa | public |
+| `api-football:fixture:1538999` | South Korea vs Czech Republic | public |
+| `api-football:fixture:1539000` | Canada vs Bosnia & Herzegovina | public |
+| `api-football:fixture:1489370` | USA vs Paraguay | public |
 
 ## `model_versions`
 
@@ -191,16 +191,10 @@ Public publication behavior:
 
 - Manual publication copies public-safe fields from one selected `internal_lab` prediction version into a new `public_product` prediction version.
 - The internal row remains untouched.
-- Existing matching `public_product` rows are reused idempotently.
-- E05 intentionally does not copy `prediction_markets`.
-- E05 intentionally does not write or expose `prediction_results`.
-
-First public fixture prediction rows:
-
-- public_product id: `5787306d-ee3a-4167-88ab-ce669f1ed644`
-- internal_lab id: `301a6ac4-b20c-4098-967e-9f124144f25f`
-- match id: `00ce2fbc-4ac1-4a47-a97e-c345745e31ef`
-- model version: `v0.2-prelaunch`
+- Exact public refresh appends a new replacement `public_product` prediction row.
+- Old public rows remain as history/audit.
+- Public views use the latest public-product row.
+- E05/E07 intentionally do not expose `prediction_results`.
 
 ## `prediction_markets`
 
@@ -227,9 +221,9 @@ Important corrections:
 
 Current MVP 1 behavior:
 
-- Manual basic publication does not copy markets.
-- Public basic cards/details currently rely primarily on `prediction_versions` and public projections.
-- Premium market publication is a future decision, not part of E05.
+- Public basic cards/details currently rely primarily on public prediction payload/projections.
+- Premium market/public market strategy remains a future access-tier decision.
+- Do not assume top scorelines/BTTS/O-U are public merely because they exist somewhere. That is how products accidentally become free buffets.
 
 ## `prediction_results`
 
@@ -275,7 +269,7 @@ A match appears publicly only when:
 
 ## Publication RPCs and helpers
 
-### Runtime-proven RPC
+### Runtime-proven first-publication RPC
 
 `public.publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)`
 
@@ -293,7 +287,19 @@ Behavior:
 - updates only `matches.access_scope='public'`
 - returns updated match id or `null`
 
-This is the stable publication path after direct RLS update attempts failed at runtime.
+### Exact public refresh RLS support
+
+Migration:
+
+- `0030_real_fixture_lab_public_refresh_rls.sql`
+
+Purpose:
+
+- allows authenticated admins to load exact already-public scheduled API-Football fixtures in Real Fixture Lab;
+- supports direct competition/team/internal prediction reads needed by the refresh screen;
+- supports replacement `public_product` insertion for exact refresh;
+- does not restore anonymous base-table reads;
+- does not touch `prediction_results`.
 
 ### Earlier publication RLS migrations
 
@@ -302,4 +308,4 @@ This is the stable publication path after direct RLS update attempts failed at r
 - `0027_inline_manual_publication_match_update_check.sql`
 - `0028_manual_publication_match_new_row_helper.sql`
 
-These are part of the applied history and should not be edited. The E05-G RPC in `0029` is the runtime-proven access-scope flip path.
+These are part of the applied history and should not be edited.

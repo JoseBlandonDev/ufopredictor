@@ -1,6 +1,6 @@
-# UFO Predictor — Roadmap and Backlog v2
+# UFO Predictor — Roadmap and Backlog v3
 
-Last refreshed: post-E05 / first public World Cup fixture publication.
+Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
 
 ## Planning principle
 
@@ -72,7 +72,7 @@ Final v0.2-prelaunch pilot metrics:
 
 ### D07 — Emergency Model Calibration
 
-Status: complete / frozen.
+Status: complete / launch-frozen.
 
 Delivered:
 
@@ -80,9 +80,14 @@ Delivered:
 - `v0.2-prelaunch` activated;
 - v0.2 predictions saved for D06 fixtures.
 
+Post-E07 update:
+
+- fallback signals were extended for immediate World Cup MVP 1 teams;
+- this was a controlled launch enrichment, not a full model rewrite.
+
 Boundary:
 
-- no model changes unless a future explicit calibration epic opens.
+- no further model changes unless a future explicit calibration epic opens.
 
 ### D08A — Admin Lab Navigation Cleanup
 
@@ -111,21 +116,22 @@ Core launch promise:
 
 ## MVP 1 current status
 
-In progress. First real World Cup fixture is now public.
+Active / public launch baseline established.
 
-Runtime-proven fixture:
+Four real World Cup fixtures are public:
 
-- `api-football:fixture:1489369`
-- Mexico vs South Africa
-- public match id: `00ce2fbc-4ac1-4a47-a97e-c345745e31ef`
-- public prediction version id: `5787306d-ee3a-4167-88ab-ce669f1ed644`
-- active model: `v0.2-prelaunch`
+- Mexico vs South Africa — `api-football:fixture:1489369`;
+- South Korea vs Czech Republic — `api-football:fixture:1538999`;
+- Canada vs Bosnia & Herzegovina — `api-football:fixture:1539000`;
+- USA vs Paraguay — `api-football:fixture:1489370`.
+
+Public predictions are no longer generic default clones for the launch window. Static fallback signals now provide non-default team context for the first MVP 1 fixtures.
 
 ## Epic E — World Cup Data & Prediction Launch
 
-Status: in progress.
+Status: active.
 
-Purpose: safely ingest selected World Cup fixtures, create internal predictions, and publish selected public-safe predictions.
+Purpose: safely ingest selected World Cup fixtures, create internal predictions, publish selected public-safe predictions, and keep publication exact/manual until further evidence supports automation.
 
 ### E01 — World Cup Launch Readiness
 
@@ -189,16 +195,7 @@ Delivered:
 - selected internal prediction cloned into `public_product` prediction version;
 - internal prediction row preserved;
 - no `prediction_results` exposure;
-- no `prediction_markets` copy;
 - match published to `access_scope='public'` through the E05-G RPC.
-
-Important migrations:
-
-- `0025_manual_publication_rls.sql`
-- `0026_fix_manual_publication_match_update_policy.sql`
-- `0027_inline_manual_publication_match_update_check.sql`
-- `0028_manual_publication_match_new_row_helper.sql`
-- `0029_manual_publication_match_access_scope_rpc.sql`
 
 Runtime winner:
 
@@ -207,54 +204,103 @@ Runtime winner:
 
 ### E06 / F02 — Public Launch QA and Mock Cleanup
 
+Status: complete baseline.
+
+Goal:
+
+- make sure real public fixtures are understandable and trustworthy;
+- prevent mock/previews from being confused with real published predictions.
+
+Delivered:
+
+- homepage no longer reads like an internal milestone memo;
+- `/predictions` focuses on real published World Cup fixtures;
+- public launch filters exclude legacy/mock rows from launch surfaces;
+- public copy clarified probability/risk boundaries;
+- session-aware navbar/CTA behavior fixed.
+
+### E07 — Next Exact World Cup Fixture Expansion + Refresh
+
+Status: complete / PR #61 merged.
+
+Goal:
+
+- expand public fixtures and remove default-signal collapse from immediate launch predictions.
+
+Delivered:
+
+- MVP 1 fallback signals for immediate World Cup teams;
+- exact public refresh path for already-public fixtures;
+- migration `0030_real_fixture_lab_public_refresh_rls.sql`;
+- Mexico and South Korea refreshed after fallback signals;
+- Canada and USA published with fallback signals active.
+
+Boundaries preserved:
+
+- exact fixture only;
+- no broad apply;
+- no batch publication;
+- no automatic publication;
+- no `prediction_results` exposure;
+- no provider predictions;
+- no betting odds.
+
+### E08 — Public Copy / Confidence / Risk Framing
+
+Status: partially complete.
+
+Delivered through E06/E07:
+
+- public no-guarantee framing;
+- high uncertainty copy;
+- confidence/risk labels.
+
+Remaining:
+
+- improve interpretation text per access tier;
+- avoid making “confidence” look like certainty when 1X2 is close;
+- decide how much of scoreline/exact score to show publicly.
+
+### E09 — Access Tiers for Prediction Detail + Scoreline Visibility
+
 Status: next.
 
 Goal:
 
-- make sure the first real public fixture is understandable and trustworthy;
-- prevent mock/previews from being confused with real published predictions.
+- define anonymous/free/premium boundaries;
+- decide probable score visibility;
+- decide top scoreline/BTTS/O-U visibility;
+- avoid exposing `prediction_results`;
+- keep payment implementation out of scope.
 
-Tasks:
+Backlog:
 
-- audit `/predictions` after Mexico vs South Africa publication;
-- audit `/matches/world-cup-2026-mexico-vs-south-africa-2026-06-11`;
-- decide whether legacy/mock cards remain, get hidden, or move to a separated preview section;
-- improve public copy for high uncertainty/risk;
-- verify public cards do not expose Lab internals;
-- confirm `prediction_results` remains invisible publicly.
+- inspect public query payloads;
+- design gated UI blocks;
+- ensure free registration has real value;
+- reserve deeper analysis for premium future;
+- update public copy.
 
-### E07 — Next Exact World Cup Fixture Expansion
+### E10 — Scoreline Calibration + Real Signal Enrichment Plan
 
-Status: next after E06.
-
-Goal:
-
-- publish the second selected real World Cup fixture through the same exact manual path.
-
-Rules:
-
-- exact fixture id only;
-- scheduled World Cup only;
-- dry-run first;
-- exact apply only after review;
-- internal prediction first;
-- manual publication only;
-- no batch.
-
-### E08 — Public Copy / Confidence / Risk Framing
-
-Status: planned.
+Status: next after E09.
 
 Goal:
 
-- improve high-uncertainty presentation;
-- avoid overclaiming exact score;
-- make probability/confidence/risk understandable;
-- reinforce probabilistic/no-betting-advice boundaries.
+- address over-conservative `1-1` scoreline tendency;
+- plan real team-strength data inputs.
+
+Backlog:
+
+- inspect expected goals and scoreline distribution;
+- build calibration tests;
+- plan FIFA/Elo/recent-form snapshot source;
+- define provenance/source dates;
+- consider DB-backed team strength snapshots.
 
 ## Epic F — Public Experience & Trust Layer
 
-Status: F01 complete; F02 next.
+Status: F01 and F02 baseline complete; access-tier work next.
 
 ### F01 — MVP 1 UI Polish
 
@@ -269,17 +315,19 @@ Delivered:
 
 ### F02 — Real-vs-Mock Public Surface Cleanup
 
-Status: next.
+Status: complete baseline.
 
-Can be handled as part of E06.
+Delivered:
 
-Backlog:
+- real published surfaces separated from legacy/mock content;
+- launch-safe public filters;
+- copy cleanup.
 
-- separate “real published” from “preview/mock”;
-- optionally hide mock cards from main public list;
-- add source labels if previews remain;
-- make “World Cup Group Stage” copy consistent;
-- verify mobile view of public cards.
+Follow-up:
+
+- mobile polish;
+- access-tier UI;
+- probable score/premium visibility.
 
 ## Epic G — Auth, Paywall, and One-Time Payment Gateway Slice
 
@@ -375,5 +423,5 @@ Do not do these without explicit approval:
 - betting odds as hidden model input;
 - service-role in app routes;
 - public exposure of `prediction_results`;
-- model rewrite before planned calibration;
+- large model rewrite before planned calibration;
 - editing already-applied migrations.
