@@ -1,5 +1,6 @@
 import "server-only";
 
+import { isLaunchSafePublicMatch } from "@/lib/supabase/public-launch-filters";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
 
@@ -156,8 +157,10 @@ export async function getPublicPredictionsData(
 
   return {
     status: "ready",
-    predictions: ((data ?? []) as PublicPredictionSummaryRow[]).map((prediction) =>
-      toPredictionCardView(prediction, viewer),
-    ),
+    predictions: ((data ?? []) as PublicPredictionSummaryRow[])
+      .filter((prediction) =>
+        isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug),
+      )
+      .map((prediction) => toPredictionCardView(prediction, viewer)),
   };
 }

@@ -65,10 +65,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
         <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
           <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
-          <li>Tu cuenta gratis activa el contexto completo de confianza/riesgo en vistas públicas.</li>
-          <li>Los previews seleccionados previos al Mundial se habilitarán para cuentas gratis.</li>
-          <li>El seguimiento de partidos y favoritos llegará próximamente.</li>
-          <li>Los paquetes premium del Mundial y el análisis avanzado llegarán más adelante.</li>
+          <li>Tu cuenta gratis activa el contexto completo de confianza y riesgo en vistas públicas.</li>
+          <li>Los partidos guardados muestran solo fixtures reales publicados para esta etapa de lanzamiento.</li>
+          <li>El seguimiento de partidos y favoritos seguirá ampliándose de forma gradual.</li>
+          <li>Premium y checkout llegarán más adelante.</li>
         </ul>
       </section>
 
@@ -215,13 +215,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <section className="ufo-card rounded-lg p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          Beta freemium
+          Acceso actual
         </p>
         <h2 className="mt-2 text-lg font-semibold">Estado de la etapa actual</h2>
         <p className="mt-3 text-sm text-[var(--muted)]">
-          El backend ya distingue acceso público, acceso beta controlado server-side, derechos
-          actuales y bypass administrativo explícito. Los pagos y payloads premium permanecen fuera
-          de alcance.
+          El backend ya distingue acceso público, derechos actuales y bypass administrativo explícito.
+          Los pagos y payloads premium permanecen fuera de alcance.
         </p>
       </section>
     </div>

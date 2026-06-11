@@ -1,5 +1,6 @@
 import "server-only";
 
+import { isLaunchSafePublicMatch } from "@/lib/supabase/public-launch-filters";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type PublicMatchIdRow = {
@@ -16,6 +17,7 @@ type PublicMatchDetailDashboardRow = {
   match_slug: string;
   kickoff_at: string;
   competition_name: string;
+  competition_slug: string;
   home_team_name: string;
   away_team_name: string;
   status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
@@ -127,6 +129,7 @@ export async function getSavedMatchStateBySlug(slug: string): Promise<SavedMatch
       message: "No fue posible consultar el estado de guardado de este partido.",
     };
   }
+
   const { matchId } = matchIdResult;
 
   const { data, error } = await supabase
@@ -298,7 +301,7 @@ export async function getSavedMatchesForDashboard(): Promise<SavedMatchesDashboa
   const { data: publicMatches, error: publicMatchesError } = await supabase
     .from("public_match_details")
     .select(
-      "match_id, match_slug, kickoff_at, competition_name, home_team_name, away_team_name, status, stage, venue_name, venue_city",
+      "match_id, match_slug, kickoff_at, competition_name, competition_slug, home_team_name, away_team_name, status, stage, venue_name, venue_city",
     )
     .in("match_id", matchIds);
 
@@ -318,6 +321,10 @@ export async function getSavedMatchesForDashboard(): Promise<SavedMatchesDashboa
       const detail = publicByMatchId.get(row.match_id);
 
       if (!detail) {
+        return null;
+      }
+
+      if (!isLaunchSafePublicMatch(detail.match_slug, detail.competition_slug)) {
         return null;
       }
 
