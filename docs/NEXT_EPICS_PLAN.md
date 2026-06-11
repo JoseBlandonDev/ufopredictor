@@ -1,127 +1,156 @@
 # UFO Predictor — Next Epics Plan
 
-Last refreshed: after PR #40.
+Last refreshed: post-E05 / first public World Cup fixture publication.
 
 This document defines the next executable blocks. It is intentionally shorter than `ROADMAP_AND_BACKLOG.md`.
 
-## Current next block
+## Current reality
 
-### D06 — Friendly Pilot / Calibration Batch
+The first real World Cup fixture is public:
 
-Status: next active block.
+- Mexico vs South Africa
+- `api-football:fixture:1489369`
+- match id `00ce2fbc-4ac1-4a47-a97e-c345745e31ef`
+- public prediction version id `5787306d-ee3a-4167-88ab-ce669f1ed644`
+- model `v0.2-prelaunch`
 
-Goal: select and operate 3-5 exact adult national-team friendly fixtures before the World Cup to validate the full internal loop and model v0.1.
+That means the next work is not “prove the path exists.” It exists. The next work is “make it launch-safe and repeatable without turning the database into soup.”
 
-D06 starts read-only and no-code unless evidence shows a gap.
+## Next Epic: E06 / F02 — Public Launch QA and Mock Cleanup
 
-## D06 sequence
+### Goal
 
-### D06A — Candidate discovery
+Make the public product trustworthy now that a real World Cup fixture is visible.
 
-Read-only discovery of pre-World-Cup friendlies.
+### Why this is next
 
-Command pattern:
+`/predictions` can show real published data and legacy/mock/previews close together. That is risky because users may not know what is real pipeline output and what is curated/demo content.
 
-```bash
-npm run spike:api-football -- --mode beta-candidates --competition friendlies --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 20 --prioritize true --report true
-```
+### Scope
 
-### D06B — Pilot matrix selection
+- Audit public prediction list.
+- Audit public match detail page.
+- Confirm no Lab/internal fields leak.
+- Decide mock/preview handling.
+- Improve uncertainty/risk copy.
+- Keep data/model/payment logic unchanged unless a bug is found.
 
-Select 3-5 exact fixtures.
-
-Criteria:
-
-- adult national-team friendlies;
-- before World Cup official matches;
-- enough time before kickoff to save prediction;
-- API-Football coverage looks normal;
-- exact fixture ID available;
-- not already finished for pre-match prediction;
-- varied teams/styles if possible.
-
-### D06C — Pre-match operation
-
-For each fixture:
+### Suggested branch
 
 ```bash
-npm run spike:api-football -- --mode fixture --fixtureId <providerFixtureId>
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --report true
+git checkout main
+git pull origin main
+git status --short
+git checkout -b feature/e06-public-launch-qa-mock-cleanup
+git status --short
+git branch --show-current
 ```
 
-Only after review/approval:
+### Suggested recognition prompt for Codex
 
-```bash
-npm run spike:api-football -- --mode ingest-dry-run --competition friendlies --fixtureId <providerFixtureId> --from <YYYY-MM-DD> --to <YYYY-MM-DD> --limit 1 --apply true --report true
+```text
+Read-only recognition for E06 / F02 public launch QA and mock cleanup.
+
+Context:
+- First real World Cup fixture is public: api-football:fixture:1489369, Mexico vs South Africa.
+- Match is public and has a public_product prediction version.
+- We need to audit public UX and decide how to handle legacy/mock/preview cards.
+
+Scope:
+- Inspect /predictions, /matches/[slug], dashboard/public routes, and relevant Supabase query helpers.
+- Do not modify files.
+- Do not run SQL writes.
+- Do not use service-role.
+- Do not change model logic.
+- Do not touch payment logic.
+
+Questions:
+1. Which public pages can show real published predictions?
+2. Which pages can still show mock/preview predictions?
+3. Are real and mock predictions visually mixed?
+4. Does Mexico vs South Africa public detail page have enough safe context?
+5. Does any public route expose internal_lab, prediction_results, provider predictions, or odds?
+6. What is the smallest safe UI/query cleanup for MVP 1?
+7. Should mocks be hidden, separated, or clearly labeled?
+8. What files would need changes?
+9. What tests/build validation should run?
+
+Return a read-only report and a minimal implementation recommendation. Do not edit files.
 ```
 
-Then save internal prediction in `/admin/real-fixture-lab`.
+## Next after E06: E07 — Second Exact World Cup Fixture Publication
 
-### D06D — Post-match operation
+### Goal
 
-After final score exists:
+Repeat the proven exact fixture flow for a second selected World Cup fixture.
 
-- exact post-match dry-run;
-- exact guarded apply;
-- verify result;
-- persist/refresh evaluation;
-- capture readback.
+### Preconditions
 
-### D06E/F — Evidence and model review
+- E06 public surface QA completed.
+- Mock/preview decision made.
+- Public detail for Mexico vs South Africa verified.
+- Current branch clean and based on updated `main`.
 
-Capture:
+### Flow
 
-- winner correctness;
-- BTTS correctness;
-- over/under correctness;
-- exact score correctness;
-- goal error;
-- confidence/risk notes;
-- failure patterns.
+```text
+fixture read
+-> ingest dry-run
+-> exact apply
+-> Real Fixture Lab internal prediction
+-> manual public publication
+-> public QA
+```
 
-## After D06
+### Boundaries
 
-### D07 — Emergency Model Calibration
+- exact fixture only;
+- no broad apply;
+- no batch publication;
+- no model changes;
+- no prediction_results exposure;
+- no markets copy unless a separate epic explicitly approves it.
 
-Use D06 evidence to decide minimum viable model changes before World Cup launch.
+## Optional parallel: Epic G — Payment/Tournament Pass Discovery
 
-No large model rewrite before pilot evidence.
+### Goal
 
-### D08 — Minimum Launch Polish
+Prepare payment/product monetization without blocking core prediction launch.
 
-Fix only the admin/public UI pieces that block useful MVP 1 launch.
+### Constraints
 
-### Epic E/F/G — MVP 1 launch preparation
+- do not assume Stripe;
+- evaluate PayPal or selected available gateway;
+- one-time tournament pass first;
+- recurring subscriptions later.
 
-After MVP 0 evidence:
+### Best parallel shape
 
-- Epic E — World Cup Data & Prediction Launch.
-- Epic F — Public Experience & Trust Layer.
-- Epic G — Auth, Paywall, and One-Time Payment Gateway Slice.
+Read-only discovery first. No checkout implementation until public prediction surface is stable.
 
-Payment note:
+## Later: Epic H — Live Evaluation
 
-- Do not assume Stripe.
-- Use PayPal or selected payment gateway.
-- For the World Cup, prefer one-time package / tournament pass over recurring subscription complexity.
+### Trigger
 
-## Parallel work recommendation
+Open after at least one public World Cup fixture has a final result.
 
-If another contributor joins:
+### Goal
 
-- Jonathan continues D06/D07.
-- Second contributor starts G01/G02/G04 recognition/design or F01/F03 public UX/trust layer.
+Verify real outcome, persist evaluation, and decide how/when to show aggregate public accuracy.
 
-Recognition/design first. No payment implementation without plan review.
+### Boundary
+
+Do not expose `prediction_results` directly. Any public accuracy layer must be aggregated and reviewed.
 
 ## Current no-go list
 
-- no broad friendlies apply;
-- no World Cup apply yet;
-- no provider predictions;
-- no odds;
-- no public exposure of Lab outputs;
-- no workers before manual pilot evidence;
-- no service-role app routes;
-- no manual result creation UI;
-- no score-editing UI.
+- broad World Cup apply;
+- automatic publication;
+- batch publication;
+- service-role in app routes;
+- provider predictions;
+- betting odds as hidden model input;
+- model rewrite;
+- premium market copy;
+- public `prediction_results`;
+- editing already-applied migrations.

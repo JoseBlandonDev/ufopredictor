@@ -1,74 +1,71 @@
-# UFO Predictor — Model v0.1
+# UFO Predictor — Model Notes
 
-Last refreshed: after PR #40.
+Last refreshed: post-E05 / first public World Cup fixture publication.
 
 ## Current status
 
-Model v0.1 is the current internal prediction model used by Real Fixture Lab.
+`v0.1` is now a historical baseline model contract. The active MVP 1 model is:
 
-It is usable for internal trial predictions, but it has not yet been calibrated from a 3-5 friendly pilot sample.
+- `v0.2-prelaunch`
 
-D06 is expected to generate the first compact pilot evidence set.
+The `v0.2-prelaunch` model was activated after the D07 sanity work because v0.1 collapsed too often into default/baseline signals for national-team fixtures in Real Fixture Lab.
 
-## Known characteristics
+## v0.1 historical role
 
-Current Real Fixture Lab outputs include:
+v0.1 remains useful as:
 
-- 1X2 probabilities;
-- BTTS probabilities;
-- over/under 2.5 probabilities;
-- top scoreline candidates;
-- confidence/risk notes;
-- model input summaries;
-- notes/factors.
+- a baseline historical row for comparison;
+- the original model contract reference;
+- a reminder not to overtrust default-signal output.
 
-Many inputs can still be default or neutral when provider/team signal data is incomplete.
+It should not be treated as the active World Cup launch model.
 
-The model does not use provider predictions or betting odds.
+## v0.2-prelaunch current role
 
-## Friendly match caveat
+`v0.2-prelaunch` is the current MVP 1 model version.
 
-Friendlies are noisy:
+It introduced local/static national-team fallback signals so Real Fixture Lab fixtures have more useful non-default context when richer provider data is unavailable.
 
-- many substitutions;
-- rotation-heavy lineups;
-- teams protecting key players;
-- unclear tactical intensity;
-- late experimentation.
+Current use:
 
-Therefore D06 friendlies should be used for:
+- internal Real Fixture Lab predictions;
+- first public World Cup prediction copy;
+- MVP 1 selected fixture publication.
 
-- validating the operational flow;
-- rough calibration;
-- identifying obvious model failures;
-- checking confidence/risk behavior.
+First public fixture using v0.2-prelaunch:
 
-They should not be treated as final proof of World Cup match accuracy.
+- Mexico vs South Africa
+- `api-football:fixture:1489369`
+- public prediction version id `5787306d-ee3a-4167-88ab-ce669f1ed644`
 
-## D06 evidence targets
+## D06/D07 evidence
 
-For each pilot fixture, capture:
+Final v0.2-prelaunch pilot metrics from 5 friendly fixtures:
 
-- winner correctness;
-- BTTS correctness;
-- over/under 2.5 correctness;
-- exact score correctness;
-- goal error;
-- confidence/risk usefulness;
-- recurring failure patterns.
+- winner: 4/5;
+- BTTS: 2/5;
+- over 2.5: 3/5;
+- exact score: 0/5;
+- total goal error: 8;
+- average goal error: 1.6.
 
-## D07 purpose
+Interpretation:
 
-D07 is Emergency Model Calibration.
+- Winner signal was acceptable for MVP 1 sanity.
+- BTTS and over/under still need future calibration.
+- Exact score should be de-emphasized publicly.
+- The sample is too small for strong performance claims.
 
-It should use D06 evidence to decide minimum viable changes before World Cup launch.
+## Current model boundary
 
-Possible D07 scope:
+The model is frozen for MVP 1 launch unless a future planned calibration epic is explicitly opened.
 
-- confidence/risk tuning;
-- top scoreline sanity;
-- neutral/friendly uncertainty handling;
-- default signal weighting review;
-- model copy/disclaimer improvements.
+Do not:
 
-No large model rewrite before pilot evidence.
+- rewrite model weights during launch QA;
+- add betting odds as hidden input;
+- add provider predictions;
+- present pilot metrics as statistically conclusive;
+- over-market exact score.
+
+Future model work belongs in a planned later epic, likely MVP 1.5 or MVP 2.

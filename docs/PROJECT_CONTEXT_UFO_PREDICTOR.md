@@ -1,47 +1,73 @@
 # UFO Predictor — Project Context
 
-Last refreshed: after PR #40.
+Last refreshed: post-E05 / first public World Cup fixture publication.
 
 UFO Predictor is a football prediction product focused on probabilistic match forecasts, transparent methodology, and safe free/premium presentation.
 
-The product is currently moving from internal real-data validation toward a pre-World-Cup friendly pilot and then a World Cup launch MVP.
+## Product stance
 
-## Current strategic direction
+UFO Predictor provides probabilistic analysis.
 
-The project now follows MVP stages:
+It does not:
 
-- MVP 0 — Pre-World-Cup Calibration Lab.
-- MVP 1 — World Cup Launch MVP.
-- MVP 1.5 — Live World Cup Iteration.
-- MVP 2 — Post-World-Cup Sustainable Product.
+- receive bets;
+- guarantee outcomes;
+- provide betting advice;
+- use provider predictions as its own hidden prediction source;
+- use betting odds as hidden model input in the current MVP stages.
 
-## Current focus
+## Current launch focus
 
-Epic D is active.
+The current focus is MVP 1 for World Cup 2026.
 
-D05 has completed the controlled single-fixture Real Fixture Lab foundation.
+The first real World Cup fixture has been published publicly:
 
-Next: D06 Friendly Pilot / Calibration Batch with 3-5 exact friendly fixtures.
+- Mexico vs South Africa
+- `api-football:fixture:1489369`
+- model `v0.2-prelaunch`
 
-## Product principles
+This validates the product path from real fixture ingest to public prediction visibility.
 
-- Do not use provider predictions.
-- Do not use betting odds.
-- Do not expose internal Lab outputs publicly without explicit publication rules.
-- Be honest about uncertainty.
-- Validate internal flow before automating it.
-- Build monetization for the World Cup, but avoid full premium complexity before proof.
+## Brand/product promise
 
-## Monetization context
+The product should feel:
 
-The World Cup is a short demand window.
+- data-driven;
+- transparent;
+- careful about uncertainty;
+- premium but not casino-like;
+- credible enough to survive contact with actual football, a sport designed to embarrass spreadsheets.
 
-MVP 1 should include a minimal monetization path if feasible:
+## Current product boundaries
 
-- one-time package / tournament pass;
-- PayPal or selected/available payment gateway;
-- simple paywall/entitlement.
+Public product may show:
 
-Do not assume Stripe.
+- selected real fixture predictions;
+- 1X2 probabilities;
+- confidence/risk framing;
+- basic match context;
+- public-safe explanation copy.
 
-Recurring subscriptions and premium depth are post-World-Cup unless explicitly pulled forward.
+Public product must not expose:
+
+- internal Lab rows;
+- `prediction_results`;
+- raw internal evaluation payloads;
+- provider predictions;
+- betting odds as model input;
+- admin-only fixtures.
+
+## Current operational style
+
+The MVP 1 launch flow is intentionally manual and exact-fixture-based:
+
+```text
+exact fixture read
+-> dry-run
+-> exact apply
+-> internal prediction
+-> manual publication
+-> public verification
+```
+
+No broad apply. No batch publication. No automatic publication.
