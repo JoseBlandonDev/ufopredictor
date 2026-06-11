@@ -20,21 +20,22 @@ export default async function PredictionsPage() {
         <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">
           Predicciones
         </p>
-        <h1 className="mt-3 text-4xl font-semibold">Panel público de predicciones Mundial 2026</h1>
+        <h1 className="mt-3 text-4xl font-semibold">Predicciones reales publicadas del Mundial 2026</h1>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
-          Las probabilidades 1X2 básicas están disponibles públicamente. Los datos internos del
-          Lab y el análisis premium quedan fuera de esta vista.
+          Las probabilidades 1X2 básicas ya están publicadas para fixtures reales seleccionados del
+          Mundial 2026. Los datos internos del Lab y el análisis premium quedan fuera de esta
+          vista.
         </p>
       </section>
 
       <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5">
         <h2 className="text-lg font-semibold">
-          {isAuthenticated ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
+          {isAuthenticated ? "Tu cuenta gratis está activa" : "Cuenta gratis disponible"}
         </h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
           {isAuthenticated
-            ? "Ya ves el contexto completo de confianza/riesgo en las predicciones públicas. Las señales preview seleccionadas aparecerán antes del Mundial."
-            : "Crea una cuenta gratis para desbloquear el contexto completo de confianza/riesgo, previews seleccionados y señales del modelo antes del Mundial."}
+            ? "Ya ves el contexto completo de confianza y riesgo en las predicciones públicas publicadas y puedes seguir el detalle del partido."
+            : "Crea una cuenta gratis para desbloquear el contexto completo de confianza y riesgo y seguir las predicciones públicas publicadas con más claridad."}
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           {isAuthenticated ? (
@@ -67,11 +68,22 @@ export default async function PredictionsPage() {
           </p>
         </section>
       ) : (
-        <div className="grid gap-4 xl:grid-cols-2">
-          {data.predictions.map((prediction) => (
-            <PublicPredictionCard key={prediction.matchSlug} prediction={prediction} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {data.predictions.map((prediction) => (
+              <PublicPredictionCard key={prediction.matchSlug} prediction={prediction} />
+            ))}
+          </div>
+
+          <section className="ufo-card rounded-lg border border-white/15 p-5">
+            <h2 className="text-lg font-semibold">Cómo leer esta vista</h2>
+            <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+              <p>Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.</p>
+              <p>Alta incertidumbre: probabilidades cercanas. Ventaja ligera, no certeza.</p>
+              <p>Esta vista sigue limitada a predicciones públicas básicas para fixtures reales seleccionados.</p>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

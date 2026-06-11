@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { BarChart3, Gauge, LayoutDashboard, LogIn, RadioTower } from "lucide-react";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { getCurrentProfile, getCurrentUser } from "@/lib/auth/session";
 
 const navItems = [
   { href: "/predictions", label: "Predicciones", icon: Gauge },
@@ -9,7 +11,10 @@ const navItems = [
   { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
 ];
 
-export function Navbar() {
+export async function Navbar() {
+  const [user, profile] = await Promise.all([getCurrentUser(), getCurrentProfile()]);
+  const isAdmin = profile?.role === "admin";
+
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[#050b14]/88 backdrop-blur">
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
@@ -42,19 +47,27 @@ export function Navbar() {
           })}
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href="/login"
-            className="flex items-center gap-2 rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10"
-          >
-            <LogIn className="h-3.5 w-3.5" />
-            Ingresar
-          </Link>
-          <Link
-            href="/admin/real-fixture-lab"
-            className="hidden rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 sm:block"
-          >
-            Real Fixture Lab
-          </Link>
+          {user ? (
+            <>
+              <LogoutButton />
+              {isAdmin ? (
+                <Link
+                  href="/admin/real-fixture-lab"
+                  className="hidden rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 sm:block"
+                >
+                  Real Fixture Lab
+                </Link>
+              ) : null}
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-2 rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              Ingresar
+            </Link>
+          )}
         </div>
       </nav>
       <div className="flex gap-1 overflow-x-auto border-t border-white/5 px-4 py-2 md:hidden">

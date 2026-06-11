@@ -102,7 +102,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
                   Señal básica
                 </p>
-                <p className="mt-1 text-xs text-[var(--muted)]">Confianza/riesgo completo con cuenta gratis</p>
+                <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
               </div>
             )}
           </div>
@@ -118,8 +118,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
           <div className="mt-5 space-y-2">
             <p className="text-xs text-[var(--muted)]">
               {isAuthenticated
-                ? "Vista registrada gratis: contexto completo de confianza/riesgo y lectura pública del partido."
-                : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
+                ? "Vista registrada gratis: contexto completo de confianza y riesgo y lectura pública del partido."
+                : "Vista pública básica: 1X2 completo y señal inicial de confianza y riesgo."}
             </p>
             <p className="text-xs text-[var(--muted)]">
               Publicada el{" "}
@@ -129,6 +129,12 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 timeZone: "America/Bogota",
               }).format(new Date(match.prediction.createdAt))}{" "}
               COT.
+            </p>
+            <p className="text-xs text-[var(--muted)]">
+              Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.
+            </p>
+            <p className="text-xs text-[var(--muted)]">
+              Alta incertidumbre: probabilidades cercanas. Una ventaja ligera no implica certeza.
             </p>
           </div>
         </section>
@@ -239,14 +245,17 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
 
       <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          {isAuthenticated ? "Tu cuenta gratis está activa" : "Preview con cuenta gratis"}
+          {isAuthenticated ? "Tu cuenta gratis está activa" : "Cuenta gratis disponible"}
         </p>
         <h2 className="mt-2 text-lg font-semibold">
           {isAuthenticated
-            ? "Los previews seleccionados aparecerán antes del Mundial cuando este partido esté habilitado."
-            : "Crea una cuenta gratis para acceder a previews seleccionados antes del Mundial."}
+            ? "Tu cuenta gratis ya desbloquea el contexto ampliado de confianza y riesgo para este partido publicado."
+            : "Crea una cuenta gratis para ver el contexto completo de confianza y riesgo en este partido publicado."}
         </h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">El análisis premium llegará más adelante.</p>
+        <p className="mt-2 text-sm text-[var(--muted)]">
+          El análisis premium llegará más adelante. Esta página mantiene la lectura pública básica
+          separada del contenido premium y del Lab interno.
+        </p>
         <div className="mt-4 flex flex-wrap gap-3">
           {isAuthenticated ? (
             <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
@@ -268,7 +277,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
       <section className="ufo-card rounded-lg p-5">
         <p className="text-sm text-[var(--muted)]">
           Esta página solo expone metadata pública básica del partido y probabilidades del modelo
-          cuando están disponibles.
+          cuando están disponibles. No muestra resultados internos, evaluaciones internas ni
+          automatización de publicación.
         </p>
       </section>
     </div>

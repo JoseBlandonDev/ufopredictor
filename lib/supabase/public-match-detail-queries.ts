@@ -1,13 +1,12 @@
 import "server-only";
 
 import { buildPremiumMatchResource } from "@/lib/permissions/premium-match-resource";
-import {
-  type PremiumMatchProjection,
-} from "@/lib/permissions/premium-match-projection";
+import { type PremiumMatchProjection } from "@/lib/permissions/premium-match-projection";
 import {
   resolvePremiumProjectionForMatch,
   type PremiumProjectionRpcRow,
 } from "@/lib/permissions/premium-match-projection-resolver";
+import { isLaunchSafePublicMatch } from "@/lib/supabase/public-launch-filters";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { PublicPredictionViewer } from "@/lib/supabase/public-prediction-queries";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
@@ -195,6 +194,12 @@ export async function getPublicMatchDetailData(
     return { status: "not_found" };
   }
 
+  const match = matchData as PublicMatchDetailRow;
+
+  if (!isLaunchSafePublicMatch(match.match_slug, match.competition_slug)) {
+    return { status: "not_found" };
+  }
+
   const { data: predictionData, error: predictionError } = await supabase
     .from("public_prediction_summaries")
     .select(
@@ -207,7 +212,6 @@ export async function getPublicMatchDetailData(
     return unavailable();
   }
 
-  const match = matchData as PublicMatchDetailRow;
   const prediction = predictionData as PublicMatchPredictionRow | null;
   const matchResourceBuild = buildPremiumMatchResource({
     matchId: match.match_id ?? null,
@@ -234,6 +238,7 @@ export async function getPublicMatchDetailData(
       premiumAccess = toLockedPremiumAccess();
     }
   }
+
   const premiumProjection = await resolvePremiumProjectionForMatch({
     premiumAccess,
     matchId: match.match_id,

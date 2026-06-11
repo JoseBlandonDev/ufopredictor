@@ -48,7 +48,7 @@ export default function TransparencyPage() {
             <li>No mostramos `prediction_results` en el producto público.</li>
             <li>No publicamos métricas internas crudas de laboratorio ni trazas de evaluación interna.</li>
             <li>No exponemos campos de depuración ni datos administrativos privados.</li>
-            <li>No presentamos métricas simuladas como si fueran rendimiento validado en producción.</li>
+            <li>No mostramos métricas simuladas como rendimiento validado en producción.</li>
           </ul>
         </section>
       </section>

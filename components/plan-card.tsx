@@ -11,7 +11,7 @@ export function PlanCard({ plan }: { plan: Plan }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-            {plan.isActive ? "Catálogo beta" : "Acceso futuro"}
+            {plan.isActive ? "Catálogo disponible" : "Acceso futuro"}
           </p>
           <h3 className="mt-2 text-xl font-semibold">{plan.name}</h3>
         </div>
@@ -26,7 +26,7 @@ export function PlanCard({ plan }: { plan: Plan }) {
 
       {plan.billingType !== "free" ? (
         <p className="mt-3 inline-flex rounded-md border border-white/15 px-2 py-1 text-xs text-[var(--muted)]">
-          Solo preview — llegará más adelante
+          Acceso futuro - llegará más adelante
         </p>
       ) : null}
 

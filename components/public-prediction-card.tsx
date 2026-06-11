@@ -51,7 +51,7 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
               Señal básica
             </p>
-            <p className="mt-1 text-xs text-[var(--muted)]">Confianza/riesgo completo con cuenta gratis</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
           </div>
         )}
       </div>
@@ -67,7 +67,12 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
       <p className="mt-4 text-xs text-[var(--muted)]">
         {prediction.viewer === "registered_free"
           ? "Vista registrada gratis: confianza y riesgo completos en el panel público."
-          : "Vista pública básica: 1X2 completo y señal teaser de confianza/riesgo."}
+          : "Vista pública básica: 1X2 completo y señal inicial de confianza y riesgo."}
+      </p>
+      <p className="mt-2 text-xs text-[var(--muted)]">
+        {prediction.viewer === "registered_free"
+          ? "Alta incertidumbre: probabilidades cercanas. Ventaja ligera, no certeza."
+          : "Las probabilidades reflejan una lectura del modelo, no una promesa de resultado."}
       </p>
       <Link href={`/matches/${prediction.matchSlug}`} className="ufo-link-action ufo-focus-ring mt-4">
         Ver detalle público
