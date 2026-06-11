@@ -285,12 +285,7 @@ function createMatchResultsVerificationBuilder(options?: {
 
 function createPublicationMatchBuilder(options?: {
   maybeSingle?: { data: unknown; error: unknown };
-  updateResult?: { error: unknown };
 }) {
-  const updateChain = {
-    eq: vi.fn(() => updateChain),
-  };
-
   const builder = {
     select: vi.fn(() => builder),
     eq: vi.fn(() => builder),
@@ -302,14 +297,6 @@ function createPublicationMatchBuilder(options?: {
         },
       ),
     ),
-    update: vi.fn(() => {
-      updateChain.eq = vi.fn(() => updateChain);
-      updateChain.eq
-        .mockImplementationOnce(() => updateChain)
-        .mockImplementationOnce(() => updateChain)
-        .mockResolvedValueOnce(options?.updateResult ?? { error: null });
-      return updateChain;
-    }),
   };
 
   return builder;
@@ -877,7 +864,7 @@ describe("publishRealFixturePredictionAction", () => {
     internalPrediction?: { data: unknown; error: unknown };
     existingPublicPrediction?: { data: unknown; error: unknown };
     insertPublicPrediction?: { data?: unknown; error: unknown };
-    updateMatch?: { error: unknown };
+    publishMatchRpc?: { data: unknown; error: unknown };
   }) {
     const matchBuilder = createPublicationMatchBuilder({
       maybeSingle:
@@ -892,7 +879,6 @@ describe("publishRealFixturePredictionAction", () => {
           },
           error: null,
         },
-      updateResult: options?.updateMatch ?? { error: null },
     });
     const competitionBuilder = createSingleSelectBuilder(
       options?.competition ?? {
@@ -926,6 +912,18 @@ describe("publishRealFixturePredictionAction", () => {
         throw new Error("should not write prediction_markets");
       }),
     };
+    const rpc = vi.fn((fn: string, args: unknown) => {
+      if (fn === "publish_real_fixture_match_access_scope") {
+        return Promise.resolve(
+          options?.publishMatchRpc ?? {
+            data: fixture.id,
+            error: null,
+          },
+        );
+      }
+
+      throw new Error(`unexpected rpc ${fn} ${JSON.stringify(args)}`);
+    });
 
     const from = vi.fn((table: string) => {
       if (table === "matches") return matchBuilder;
@@ -944,6 +942,7 @@ describe("publishRealFixturePredictionAction", () => {
 
     return {
       from,
+      rpc,
       matchBuilder,
       competitionBuilder,
       internalPredictionBuilder,
@@ -958,7 +957,7 @@ describe("publishRealFixturePredictionAction", () => {
 
   it("publishes an exact admin_only api_football scheduled match with a matching internal prediction", async () => {
     const client = buildPublicationClient();
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=published",
@@ -979,7 +978,10 @@ describe("publishRealFixturePredictionAction", () => {
       risk_level: "high",
       run_scope: "public_product",
     });
-    expect(client.matchBuilder.update).toHaveBeenCalledWith({ access_scope: "public" });
+    expect(client.rpc).toHaveBeenCalledWith("publish_real_fixture_match_access_scope", {
+      target_match_id: fixture.id,
+      target_match_slug: fixture.slug,
+    });
     expect(client.from).not.toHaveBeenCalledWith("prediction_markets");
     expect(client.from).not.toHaveBeenCalledWith("prediction_results");
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
@@ -989,7 +991,7 @@ describe("publishRealFixturePredictionAction", () => {
 
   it("leaves the internal prediction row untouched while creating a new public_product row", async () => {
     const client = buildPublicationClient();
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=published",
@@ -1004,14 +1006,17 @@ describe("publishRealFixturePredictionAction", () => {
     const client = buildPublicationClient({
       existingPublicPrediction: { data: { id: "public-prediction-1" }, error: null },
     });
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=already_published",
     );
 
     expect(client.existingPublicPredictionBuilder.insert).not.toHaveBeenCalled();
-    expect(client.matchBuilder.update).toHaveBeenCalledWith({ access_scope: "public" });
+    expect(client.rpc).toHaveBeenCalledWith("publish_real_fixture_match_access_scope", {
+      target_match_id: fixture.id,
+      target_match_slug: fixture.slug,
+    });
   });
 
   it("rejects when the match is not admin_only", async () => {
@@ -1028,7 +1033,7 @@ describe("publishRealFixturePredictionAction", () => {
         error: null,
       },
     });
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=blocked",
@@ -1050,7 +1055,7 @@ describe("publishRealFixturePredictionAction", () => {
         error: null,
       },
     });
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=blocked",
@@ -1071,7 +1076,7 @@ describe("publishRealFixturePredictionAction", () => {
         error: null,
       },
     });
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=blocked",
@@ -1085,7 +1090,7 @@ describe("publishRealFixturePredictionAction", () => {
         error: null,
       },
     });
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=blocked",
@@ -1099,7 +1104,7 @@ describe("publishRealFixturePredictionAction", () => {
         error: null,
       },
     });
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=blocked",
@@ -1113,7 +1118,7 @@ describe("publishRealFixturePredictionAction", () => {
         error: null,
       },
     });
-    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from, rpc: client.rpc });
 
     await expect(publishRealFixturePredictionAction(buildPublishFormData())).rejects.toThrow(
       "REDIRECT:/admin/real-fixture-lab?publish=blocked",

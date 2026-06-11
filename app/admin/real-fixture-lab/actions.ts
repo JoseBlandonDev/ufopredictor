@@ -713,14 +713,15 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
     }
   }
 
-  const { error: updatedMatchError } = await supabase
-    .from("matches")
-    .update({ access_scope: "public" })
-    .eq("id", match.id)
-    .eq("slug", match.slug)
-    .eq("access_scope", "admin_only");
+  const { data: updatedMatchId, error: updatedMatchError } = await supabase.rpc(
+    "publish_real_fixture_match_access_scope",
+    {
+      target_match_id: match.id,
+      target_match_slug: match.slug,
+    },
+  );
 
-  if (updatedMatchError) {
+  if (updatedMatchError || updatedMatchId !== match.id) {
     logRealFixtureLabSupabaseError({
       operation: "update_match_access_scope_for_publication",
       table: "matches",
