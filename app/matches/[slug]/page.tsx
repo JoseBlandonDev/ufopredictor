@@ -115,6 +115,50 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               }}
             />
           </div>
+          {match.prediction.viewer === "registered_free" ? (
+            <div className="mt-5 rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+                Marcador probable
+              </p>
+              {match.prediction.probableScore ? (
+                <>
+                  <p className="mt-2 text-2xl font-semibold text-white">{match.prediction.probableScore}</p>
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    Este es el escenario de marcador m&aacute;s probable seg&uacute;n el modelo, no una
+                    garant&iacute;a de resultado final.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    El marcador probable no est&aacute; disponible para este partido en este momento.
+                  </p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">
+                    La vista p&uacute;blica b&aacute;sica y el contexto de confianza/riesgo siguen
+                    disponibles.
+                  </p>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+                Marcador probable
+              </p>
+              <p className="mt-2 text-sm text-[var(--muted)]">
+                Crea una cuenta gratis para desbloquear el marcador probable del modelo para este
+                partido.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
+                  Crear cuenta gratis
+                </Link>
+                <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
+                  Iniciar sesi&oacute;n
+                </Link>
+              </div>
+            </div>
+          )}
           <div className="mt-5 space-y-2">
             <p className="text-xs text-[var(--muted)]">
               {isAuthenticated
