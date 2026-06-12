@@ -45,6 +45,10 @@ type PublicMatchPredictionRow = {
   risk_level: PredictionVersionRow["risk_level"];
 };
 
+type AuthenticatedPublicMatchProbableScoreRow = {
+  most_likely_score: string | null;
+};
+
 export type PublicMatchDetailView = {
   viewer: PublicPredictionViewer;
   matchSlug: string;
@@ -105,6 +109,7 @@ export type PublicMatchPredictionRegisteredView = PublicMatchPredictionBaseView 
   viewer: "registered_free";
   confidenceScore: number;
   riskLevel: PredictionVersionRow["risk_level"];
+  probableScore: string | null;
 };
 
 export type PublicMatchPredictionView =
@@ -144,6 +149,7 @@ export function toUnavailablePremiumAccess(
 export function toMatchPredictionView(
   prediction: PublicMatchPredictionRow,
   viewer: PublicPredictionViewer,
+  probableScore: string | null = null,
 ): PublicMatchPredictionView {
   if (viewer === "registered_free") {
     return {
@@ -154,6 +160,7 @@ export function toMatchPredictionView(
       awayWinProb: prediction.away_win_prob,
       confidenceScore: prediction.confidence_score,
       riskLevel: prediction.risk_level,
+      probableScore,
     };
   }
 
@@ -213,6 +220,23 @@ export async function getPublicMatchDetailData(
   }
 
   const prediction = predictionData as PublicMatchPredictionRow | null;
+  let probableScore: string | null = null;
+
+  if (viewer === "registered_free" && prediction) {
+    const { data: probableScoreData, error: probableScoreError } = await supabase.rpc(
+      "get_authenticated_public_match_probable_score",
+      {
+        p_match_id: match.match_id,
+      },
+    );
+
+    if (!probableScoreError && probableScoreData) {
+      probableScore = (
+        probableScoreData as AuthenticatedPublicMatchProbableScoreRow
+      ).most_likely_score;
+    }
+  }
+
   const matchResourceBuild = buildPremiumMatchResource({
     matchId: match.match_id ?? null,
     competitionAccessKey: match.competition_access_key ?? null,
@@ -273,7 +297,7 @@ export async function getPublicMatchDetailData(
       awayTeamFlagUrl: match.away_team_flag_url,
       venueName: match.venue_name,
       venueCity: match.venue_city,
-      prediction: prediction ? toMatchPredictionView(prediction, viewer) : null,
+      prediction: prediction ? toMatchPredictionView(prediction, viewer, probableScore) : null,
       premiumAccess,
       premiumProjection,
     },
