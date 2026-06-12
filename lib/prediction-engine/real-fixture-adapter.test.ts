@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { generatePrediction } from "./generate-prediction";
+import { resolveNationalTeamStrengthSnapshot } from "./national-team-strength-snapshots";
 import { buildRealFixturePredictionInput } from "./real-fixture-adapter";
 
 const clubFixtureView = {
@@ -122,9 +123,12 @@ describe("real fixture prediction adapter", () => {
     });
   });
 
-  it("injects national-team fallback signals with neutral market and lineup placeholders", () => {
+  it("injects source-dated national-team snapshot signals with neutral market and lineup placeholders", () => {
     const input = buildRealFixturePredictionInput(argentinaVsIcelandFixtureView);
+    const snapshot = resolveNationalTeamStrengthSnapshot({ name: "Argentina" });
 
+    expect(snapshot?.displayName).toBe("Argentina");
+    expect(snapshot?.snapshotDate).toBe("2026-06-12");
     expect(input.homeTeam.signals).toEqual({
       ratingScore: 95,
       recentFormScore: 88,
@@ -225,6 +229,26 @@ describe("real fixture prediction adapter", () => {
     expect(output.normalizedInput.awayTeam.providedSignals.length).toBeGreaterThan(0);
     expect(output.normalizedInput.homeTeam.defaultedSignals).toEqual([]);
     expect(output.normalizedInput.awayTeam.defaultedSignals).toEqual([]);
+  });
+
+  it("resolves the immediate public world cup teams through the snapshot catalog", () => {
+    const mexico = resolveNationalTeamStrengthSnapshot({ name: "Mexico" });
+    const southAfrica = resolveNationalTeamStrengthSnapshot({ name: "South Africa" });
+    const southKorea = resolveNationalTeamStrengthSnapshot({ name: "South Korea" });
+    const czechRepublic = resolveNationalTeamStrengthSnapshot({ name: "Czech Republic" });
+    const canada = resolveNationalTeamStrengthSnapshot({ name: "Canada" });
+    const bosnia = resolveNationalTeamStrengthSnapshot({ name: "Bosnia & Herzegovina" });
+    const usa = resolveNationalTeamStrengthSnapshot({ name: "USA" });
+    const paraguay = resolveNationalTeamStrengthSnapshot({ name: "Paraguay" });
+
+    expect(mexico?.sourceNotes).toContain("Curated");
+    expect(southAfrica?.sourceNotes).toContain("Curated");
+    expect(southKorea?.sourceNotes).toContain("Curated");
+    expect(czechRepublic?.sourceNotes).toContain("Curated");
+    expect(canada?.sourceNotes).toContain("Curated");
+    expect(bosnia?.sourceNotes).toContain("Curated");
+    expect(usa?.sourceNotes).toContain("Curated");
+    expect(paraguay?.sourceNotes).toContain("Curated");
   });
 
   it("differentiates Argentina vs Iceland from Congo DR vs Chile", () => {
