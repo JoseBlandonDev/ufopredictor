@@ -1,3 +1,4 @@
+import { WORLD_CUP_2026_TEAMS } from "../world-cup-2026";
 import type { TeamPredictionInput } from "./types";
 
 export type NationalTeamSnapshotSignals = NonNullable<TeamPredictionInput["signals"]>;
@@ -15,10 +16,22 @@ export type NationalTeamStrengthSnapshot = {
   signals: NationalTeamSnapshotSignals;
 };
 
+type SnapshotSeed = {
+  aliases?: string[];
+  sourceNotes?: string;
+  fifaRank?: number;
+  fifaPoints?: number;
+  eloRating?: number;
+  signals: Omit<NationalTeamSnapshotSignals, "marketScore" | "lineupContextScore">;
+};
+
 const SNAPSHOT_DATE = "2026-06-12";
-const SOURCE_LABEL = "MVP v0 curated national-team snapshot";
-const SOURCE_NOTES =
-  "Conservative normalized snapshot estimates based on public ranking/Elo-style references and recent-form review. Not an authoritative live feed.";
+const CANONICAL_SOURCE_LABEL = "MVP v0 curated national-team snapshot (World Cup 2026 canonical catalog)";
+const LEGACY_SOURCE_LABEL = "MVP v0 curated national-team snapshot (legacy test coverage)";
+const CANONICAL_SOURCE_NOTES =
+  "Curated MVP v0 estimate aligned to the repo-local FIFA-derived World Cup 2026 catalog. Uses conservative ranking, Elo-style, form, and team-balance heuristics. Not an authoritative live feed.";
+const LEGACY_SOURCE_NOTES =
+  "Curated MVP v0 estimate retained for non-canonical legacy/test coverage. Not an authoritative live feed.";
 // TODO(E10C/E11): move snapshot data into DB-backed team_strength_snapshots once
 // source cadence, provenance, and refresh workflow are defined. Keep this repo-local
 // catalog as the MVP 1.5 bridge until that operational path exists.
@@ -28,14 +41,8 @@ const NEUTRAL_ENGINE_FIELDS = {
   lineupContextScore: 50,
 } as const;
 
-export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = [
-  {
-    teamKey: "argentina",
-    aliases: ["argentina"],
-    displayName: "Argentina",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
+const CANONICAL_SNAPSHOT_SEEDS: Record<string, SnapshotSeed> = {
+  argentina: {
     fifaRank: 1,
     fifaPoints: 1885,
     eloRating: 2140,
@@ -44,16 +51,576 @@ export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = 
       recentFormScore: 88,
       attackScore: 92,
       defenseScore: 89,
-      ...NEUTRAL_ENGINE_FIELDS,
     },
   },
+  algeria: {
+    fifaRank: 36,
+    fifaPoints: 1498,
+    eloRating: 1790,
+    signals: {
+      ratingScore: 71,
+      recentFormScore: 63,
+      attackScore: 62,
+      defenseScore: 64,
+    },
+  },
+  australia: {
+    fifaRank: 25,
+    fifaPoints: 1555,
+    eloRating: 1765,
+    signals: {
+      ratingScore: 63,
+      recentFormScore: 58,
+      attackScore: 57,
+      defenseScore: 56,
+    },
+  },
+  austria: {
+    fifaRank: 22,
+    fifaPoints: 1580,
+    eloRating: 1865,
+    signals: {
+      ratingScore: 75,
+      recentFormScore: 67,
+      attackScore: 66,
+      defenseScore: 69,
+    },
+  },
+  belgium: {
+    fifaRank: 8,
+    fifaPoints: 1730,
+    eloRating: 1890,
+    signals: {
+      ratingScore: 83,
+      recentFormScore: 74,
+      attackScore: 79,
+      defenseScore: 73,
+    },
+  },
+  "bosnia-herzegovina": {
+    fifaRank: 74,
+    fifaPoints: 1330,
+    eloRating: 1705,
+    signals: {
+      ratingScore: 55,
+      recentFormScore: 52,
+      attackScore: 58,
+      defenseScore: 49,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with attacking upside but softer defensive resilience than the current launch leaders. Not an authoritative live feed.",
+  },
+  brazil: {
+    fifaRank: 5,
+    fifaPoints: 1780,
+    eloRating: 2015,
+    signals: {
+      ratingScore: 90,
+      recentFormScore: 82,
+      attackScore: 86,
+      defenseScore: 81,
+    },
+  },
+  "cabo-verde": {
+    fifaRank: 63,
+    fifaPoints: 1385,
+    eloRating: 1715,
+    signals: {
+      ratingScore: 57,
+      recentFormScore: 55,
+      attackScore: 53,
+      defenseScore: 56,
+    },
+  },
+  canada: {
+    fifaRank: 31,
+    fifaPoints: 1520,
+    eloRating: 1830,
+    signals: {
+      ratingScore: 68,
+      recentFormScore: 60,
+      attackScore: 63,
+      defenseScore: 58,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with a slightly stronger attack profile than the provisional launch fallback. Not an authoritative live feed.",
+  },
+  chile: {
+    fifaRank: 40,
+    fifaPoints: 1495,
+    eloRating: 1815,
+    signals: {
+      ratingScore: 74,
+      recentFormScore: 68,
+      attackScore: 72,
+      defenseScore: 70,
+    },
+  },
+  colombia: {
+    fifaRank: 12,
+    fifaPoints: 1675,
+    eloRating: 1858,
+    signals: {
+      ratingScore: 78,
+      recentFormScore: 70,
+      attackScore: 69,
+      defenseScore: 68,
+    },
+  },
+  "congo-dr": {
+    aliases: ["Congo RD"],
+    fifaRank: 61,
+    fifaPoints: 1395,
+    eloRating: 1735,
+    signals: {
+      ratingScore: 58,
+      recentFormScore: 54,
+      attackScore: 56,
+      defenseScore: 55,
+    },
+  },
+  croatia: {
+    fifaRank: 11,
+    fifaPoints: 1680,
+    eloRating: 1868,
+    signals: {
+      ratingScore: 78,
+      recentFormScore: 69,
+      attackScore: 73,
+      defenseScore: 72,
+    },
+  },
+  curacao: {
+    aliases: ["Curacao national team"],
+    fifaRank: 83,
+    fifaPoints: 1285,
+    eloRating: 1655,
+    signals: {
+      ratingScore: 50,
+      recentFormScore: 48,
+      attackScore: 49,
+      defenseScore: 47,
+    },
+  },
+  "czech-republic": {
+    fifaRank: 34,
+    fifaPoints: 1510,
+    eloRating: 1810,
+    signals: {
+      ratingScore: 66,
+      recentFormScore: 60,
+      attackScore: 58,
+      defenseScore: 54,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with balanced but slightly lighter defensive protection than Mexico or Paraguay tier teams. Not an authoritative live feed.",
+  },
+  "cote-divoire": {
+    aliases: ["Cote d'ivoire", "Côte d'Ivoire"],
+    fifaRank: 41,
+    fifaPoints: 1490,
+    eloRating: 1805,
+    signals: {
+      ratingScore: 70,
+      recentFormScore: 65,
+      attackScore: 67,
+      defenseScore: 63,
+    },
+  },
+  ecuador: {
+    fifaRank: 28,
+    fifaPoints: 1540,
+    eloRating: 1838,
+    signals: {
+      ratingScore: 73,
+      recentFormScore: 66,
+      attackScore: 65,
+      defenseScore: 69,
+    },
+  },
+  egypt: {
+    fifaRank: 38,
+    fifaPoints: 1490,
+    eloRating: 1780,
+    signals: {
+      ratingScore: 67,
+      recentFormScore: 60,
+      attackScore: 61,
+      defenseScore: 63,
+    },
+  },
+  england: {
+    fifaRank: 4,
+    fifaPoints: 1790,
+    eloRating: 2030,
+    signals: {
+      ratingScore: 90,
+      recentFormScore: 82,
+      attackScore: 84,
+      defenseScore: 81,
+    },
+  },
+  france: {
+    fifaRank: 2,
+    fifaPoints: 1850,
+    eloRating: 2105,
+    signals: {
+      ratingScore: 92,
+      recentFormScore: 83,
+      attackScore: 87,
+      defenseScore: 84,
+    },
+  },
+  germany: {
+    aliases: ["Alemania"],
+    fifaRank: 9,
+    fifaPoints: 1720,
+    eloRating: 1887,
+    signals: {
+      ratingScore: 81,
+      recentFormScore: 74,
+      attackScore: 76,
+      defenseScore: 75,
+    },
+  },
+  ghana: {
+    fifaRank: 62,
+    fifaPoints: 1388,
+    eloRating: 1720,
+    signals: {
+      ratingScore: 61,
+      recentFormScore: 56,
+      attackScore: 57,
+      defenseScore: 55,
+    },
+  },
+  haiti: {
+    fifaRank: 91,
+    fifaPoints: 1265,
+    eloRating: 1610,
+    signals: {
+      ratingScore: 44,
+      recentFormScore: 45,
+      attackScore: 46,
+      defenseScore: 43,
+    },
+  },
+  iran: {
+    fifaRank: 20,
+    fifaPoints: 1600,
+    eloRating: 1820,
+    signals: {
+      ratingScore: 69,
+      recentFormScore: 64,
+      attackScore: 60,
+      defenseScore: 67,
+    },
+  },
+  iraq: {
+    fifaRank: 59,
+    fifaPoints: 1400,
+    eloRating: 1715,
+    signals: {
+      ratingScore: 55,
+      recentFormScore: 52,
+      attackScore: 53,
+      defenseScore: 54,
+    },
+  },
+  japan: {
+    aliases: ["Japon"],
+    fifaRank: 18,
+    fifaPoints: 1615,
+    eloRating: 1794,
+    signals: {
+      ratingScore: 73,
+      recentFormScore: 68,
+      attackScore: 64,
+      defenseScore: 66,
+    },
+  },
+  jordan: {
+    fifaRank: 86,
+    fifaPoints: 1275,
+    eloRating: 1650,
+    signals: {
+      ratingScore: 49,
+      recentFormScore: 47,
+      attackScore: 48,
+      defenseScore: 46,
+    },
+  },
+  mexico: {
+    fifaRank: 15,
+    fifaPoints: 1650,
+    eloRating: 1875,
+    signals: {
+      ratingScore: 76,
+      recentFormScore: 69,
+      attackScore: 68,
+      defenseScore: 66,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with a modest attacking boost over the provisional fallback. Not an authoritative live feed.",
+  },
+  morocco: {
+    aliases: ["Marruecos"],
+    fifaRank: 13,
+    fifaPoints: 1665,
+    eloRating: 1819,
+    signals: {
+      ratingScore: 77,
+      recentFormScore: 71,
+      attackScore: 67,
+      defenseScore: 74,
+    },
+  },
+  netherlands: {
+    fifaRank: 7,
+    fifaPoints: 1740,
+    eloRating: 1960,
+    signals: {
+      ratingScore: 86,
+      recentFormScore: 77,
+      attackScore: 81,
+      defenseScore: 76,
+    },
+  },
+  "new-zealand": {
+    fifaRank: 94,
+    fifaPoints: 1240,
+    eloRating: 1615,
+    signals: {
+      ratingScore: 51,
+      recentFormScore: 49,
+      attackScore: 47,
+      defenseScore: 51,
+    },
+  },
+  norway: {
+    fifaRank: 33,
+    fifaPoints: 1518,
+    eloRating: 1840,
+    signals: {
+      ratingScore: 72,
+      recentFormScore: 64,
+      attackScore: 73,
+      defenseScore: 58,
+    },
+  },
+  panama: {
+    fifaRank: 58,
+    fifaPoints: 1408,
+    eloRating: 1710,
+    signals: {
+      ratingScore: 56,
+      recentFormScore: 53,
+      attackScore: 52,
+      defenseScore: 55,
+    },
+  },
+  paraguay: {
+    fifaRank: 32,
+    fifaPoints: 1515,
+    eloRating: 1825,
+    signals: {
+      ratingScore: 69,
+      recentFormScore: 62,
+      attackScore: 57,
+      defenseScore: 68,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with a conservative defense-first profile. Not an authoritative live feed.",
+  },
+  portugal: {
+    fifaRank: 6,
+    fifaPoints: 1785,
+    eloRating: 1939,
+    signals: {
+      ratingScore: 87,
+      recentFormScore: 80,
+      attackScore: 84,
+      defenseScore: 82,
+    },
+  },
+  qatar: {
+    fifaRank: 79,
+    fifaPoints: 1300,
+    eloRating: 1668,
+    signals: {
+      ratingScore: 54,
+      recentFormScore: 51,
+      attackScore: 52,
+      defenseScore: 51,
+    },
+  },
+  "saudi-arabia": {
+    fifaRank: 56,
+    fifaPoints: 1410,
+    eloRating: 1775,
+    signals: {
+      ratingScore: 62,
+      recentFormScore: 58,
+      attackScore: 60,
+      defenseScore: 59,
+    },
+  },
+  scotland: {
+    fifaRank: 45,
+    fifaPoints: 1465,
+    eloRating: 1780,
+    signals: {
+      ratingScore: 64,
+      recentFormScore: 58,
+      attackScore: 60,
+      defenseScore: 57,
+    },
+  },
+  senegal: {
+    fifaRank: 18,
+    fifaPoints: 1630,
+    eloRating: 1915,
+    signals: {
+      ratingScore: 84,
+      recentFormScore: 79,
+      attackScore: 82,
+      defenseScore: 80,
+    },
+  },
+  "south-africa": {
+    fifaRank: 57,
+    fifaPoints: 1405,
+    eloRating: 1675,
+    signals: {
+      ratingScore: 52,
+      recentFormScore: 54,
+      attackScore: 50,
+      defenseScore: 52,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with conservative finishing and defense values. Not an authoritative live feed.",
+  },
+  "south-korea": {
+    fifaRank: 21,
+    fifaPoints: 1595,
+    eloRating: 1840,
+    signals: {
+      ratingScore: 68,
+      recentFormScore: 62,
+      attackScore: 61,
+      defenseScore: 58,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with a slight upward adjustment to attacking balance. Not an authoritative live feed.",
+  },
+  spain: {
+    fifaRank: 3,
+    fifaPoints: 1815,
+    eloRating: 2050,
+    signals: {
+      ratingScore: 89,
+      recentFormScore: 81,
+      attackScore: 83,
+      defenseScore: 82,
+    },
+  },
+  sweden: {
+    fifaRank: 29,
+    fifaPoints: 1532,
+    eloRating: 1825,
+    signals: {
+      ratingScore: 70,
+      recentFormScore: 63,
+      attackScore: 62,
+      defenseScore: 67,
+    },
+  },
+  switzerland: {
+    fifaRank: 19,
+    fifaPoints: 1610,
+    eloRating: 1850,
+    signals: {
+      ratingScore: 75,
+      recentFormScore: 67,
+      attackScore: 68,
+      defenseScore: 71,
+    },
+  },
+  tunisia: {
+    fifaRank: 41,
+    fifaPoints: 1485,
+    eloRating: 1765,
+    signals: {
+      ratingScore: 60,
+      recentFormScore: 56,
+      attackScore: 54,
+      defenseScore: 60,
+    },
+  },
+  turkiye: {
+    fifaRank: 27,
+    fifaPoints: 1545,
+    eloRating: 1818,
+    signals: {
+      ratingScore: 71,
+      recentFormScore: 64,
+      attackScore: 66,
+      defenseScore: 63,
+    },
+  },
+  uruguay: {
+    fifaRank: 10,
+    fifaPoints: 1700,
+    eloRating: 1925,
+    signals: {
+      ratingScore: 82,
+      recentFormScore: 74,
+      attackScore: 76,
+      defenseScore: 79,
+    },
+  },
+  usa: {
+    fifaRank: 16,
+    fifaPoints: 1640,
+    eloRating: 1845,
+    signals: {
+      ratingScore: 70,
+      recentFormScore: 58,
+      attackScore: 67,
+      defenseScore: 56,
+    },
+    sourceNotes:
+      "Curated MVP v0 estimate aligned to the FIFA-derived tournament catalog, with stronger attack than defense while keeping non-odds fields neutral. Not an authoritative live feed.",
+  },
+  uzbekistan: {
+    fifaRank: 65,
+    fifaPoints: 1378,
+    eloRating: 1712,
+    signals: {
+      ratingScore: 59,
+      recentFormScore: 55,
+      attackScore: 54,
+      defenseScore: 57,
+    },
+  },
+};
+
+export const LEGACY_TEST_ONLY_TEAM_KEYS = [
+  "iceland",
+  "chile",
+  "hungary",
+  "kazakhstan",
+  "venezuela",
+] as const;
+
+export const LEGACY_TEST_ONLY_SNAPSHOTS: NationalTeamStrengthSnapshot[] = [
   {
     teamKey: "iceland",
     aliases: ["iceland"],
     displayName: "Iceland",
     snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
+    sourceLabel: LEGACY_SOURCE_LABEL,
+    sourceNotes: LEGACY_SOURCE_NOTES,
     fifaRank: 72,
     fifaPoints: 1340,
     eloRating: 1710,
@@ -70,8 +637,8 @@ export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = 
     aliases: ["chile"],
     displayName: "Chile",
     snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
+    sourceLabel: LEGACY_SOURCE_LABEL,
+    sourceNotes: LEGACY_SOURCE_NOTES,
     fifaRank: 40,
     fifaPoints: 1495,
     eloRating: 1815,
@@ -84,30 +651,12 @@ export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = 
     },
   },
   {
-    teamKey: "congo-dr",
-    aliases: ["congo-dr", "dr-congo", "congo-rd"],
-    displayName: "Congo DR",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
-    fifaRank: 61,
-    fifaPoints: 1395,
-    eloRating: 1735,
-    signals: {
-      ratingScore: 58,
-      recentFormScore: 54,
-      attackScore: 56,
-      defenseScore: 55,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
     teamKey: "hungary",
     aliases: ["hungary"],
     displayName: "Hungary",
     snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
+    sourceLabel: LEGACY_SOURCE_LABEL,
+    sourceNotes: LEGACY_SOURCE_NOTES,
     fifaRank: 27,
     fifaPoints: 1525,
     eloRating: 1860,
@@ -124,8 +673,8 @@ export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = 
     aliases: ["kazakhstan"],
     displayName: "Kazakhstan",
     snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
+    sourceLabel: LEGACY_SOURCE_LABEL,
+    sourceNotes: LEGACY_SOURCE_NOTES,
     fifaRank: 100,
     fifaPoints: 1205,
     eloRating: 1605,
@@ -138,66 +687,12 @@ export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = 
     },
   },
   {
-    teamKey: "saudi-arabia",
-    aliases: ["saudi-arabia"],
-    displayName: "Saudi Arabia",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
-    fifaRank: 56,
-    fifaPoints: 1410,
-    eloRating: 1775,
-    signals: {
-      ratingScore: 62,
-      recentFormScore: 58,
-      attackScore: 60,
-      defenseScore: 59,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "senegal",
-    aliases: ["senegal"],
-    displayName: "Senegal",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
-    fifaRank: 18,
-    fifaPoints: 1630,
-    eloRating: 1915,
-    signals: {
-      ratingScore: 84,
-      recentFormScore: 79,
-      attackScore: 82,
-      defenseScore: 80,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "iraq",
-    aliases: ["iraq"],
-    displayName: "Iraq",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
-    fifaRank: 59,
-    fifaPoints: 1400,
-    eloRating: 1715,
-    signals: {
-      ratingScore: 55,
-      recentFormScore: 52,
-      attackScore: 53,
-      defenseScore: 54,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
     teamKey: "venezuela",
     aliases: ["venezuela"],
     displayName: "Venezuela",
     snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes: SOURCE_NOTES,
+    sourceLabel: LEGACY_SOURCE_LABEL,
+    sourceNotes: LEGACY_SOURCE_NOTES,
     fifaRank: 47,
     fifaPoints: 1455,
     eloRating: 1785,
@@ -206,253 +701,6 @@ export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = 
       recentFormScore: 60,
       attackScore: 62,
       defenseScore: 61,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "mexico",
-    aliases: ["mexico"],
-    displayName: "Mexico",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references plus a modest attacking boost over the provisional fallback.",
-    fifaRank: 15,
-    fifaPoints: 1650,
-    eloRating: 1875,
-    signals: {
-      ratingScore: 76,
-      recentFormScore: 69,
-      attackScore: 68,
-      defenseScore: 66,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "south-africa",
-    aliases: ["south-africa"],
-    displayName: "South Africa",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references with conservative finishing and defense values.",
-    fifaRank: 57,
-    fifaPoints: 1405,
-    eloRating: 1675,
-    signals: {
-      ratingScore: 52,
-      recentFormScore: 54,
-      attackScore: 50,
-      defenseScore: 52,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "south-korea",
-    aliases: ["south-korea", "korea-republic"],
-    displayName: "South Korea",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references with a slight upward adjustment to attacking balance.",
-    fifaRank: 21,
-    fifaPoints: 1595,
-    eloRating: 1840,
-    signals: {
-      ratingScore: 68,
-      recentFormScore: 62,
-      attackScore: 61,
-      defenseScore: 58,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "czech-republic",
-    aliases: ["czech-republic", "czechia"],
-    displayName: "Czech Republic",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references with balanced but slightly lower defensive protection than Mexico/Paraguay tier teams.",
-    fifaRank: 34,
-    fifaPoints: 1510,
-    eloRating: 1810,
-    signals: {
-      ratingScore: 66,
-      recentFormScore: 60,
-      attackScore: 58,
-      defenseScore: 54,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "canada",
-    aliases: ["canada"],
-    displayName: "Canada",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references with a slightly stronger attack profile than the provisional fallback.",
-    fifaRank: 31,
-    fifaPoints: 1520,
-    eloRating: 1830,
-    signals: {
-      ratingScore: 68,
-      recentFormScore: 60,
-      attackScore: 63,
-      defenseScore: 58,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "bosnia-herzegovina",
-    aliases: ["bosnia-herzegovina", "bosnia-and-herzegovina"],
-    displayName: "Bosnia & Herzegovina",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references with attacking upside but softer defensive resilience.",
-    fifaRank: 74,
-    fifaPoints: 1330,
-    eloRating: 1705,
-    signals: {
-      ratingScore: 55,
-      recentFormScore: 52,
-      attackScore: 58,
-      defenseScore: 49,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "usa",
-    aliases: ["usa", "united-states"],
-    displayName: "USA",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references with stronger attack than defense, while keeping non-odds fields neutral.",
-    fifaRank: 16,
-    fifaPoints: 1640,
-    eloRating: 1845,
-    signals: {
-      ratingScore: 70,
-      recentFormScore: 58,
-      attackScore: 67,
-      defenseScore: 56,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "paraguay",
-    aliases: ["paraguay"],
-    displayName: "Paraguay",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: SOURCE_LABEL,
-    sourceNotes:
-      "Curated launch-window estimate using public ranking/Elo-style references with a conservative defense-first profile.",
-    fifaRank: 32,
-    fifaPoints: 1515,
-    eloRating: 1825,
-    signals: {
-      ratingScore: 69,
-      recentFormScore: 62,
-      attackScore: 57,
-      defenseScore: 68,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "colombia",
-    aliases: ["colombia"],
-    displayName: "Colombia",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: "MVP v0 curated national-team snapshot (seed/mock World Cup context)",
-    sourceNotes:
-      "Included because Colombia already appears in seeded/mock World Cup 2026 project data. Ratings remain curated MVP v0 estimates, not a live feed.",
-    fifaRank: 12,
-    fifaPoints: 1675,
-    eloRating: 1858,
-    signals: {
-      ratingScore: 78,
-      recentFormScore: 70,
-      attackScore: 69,
-      defenseScore: 68,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "portugal",
-    aliases: ["portugal"],
-    displayName: "Portugal",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: "MVP v0 curated national-team snapshot (seed/mock World Cup context)",
-    sourceNotes:
-      "Included because Portugal already appears in seeded/mock World Cup 2026 project data. Ratings remain curated MVP v0 estimates, not a live feed.",
-    fifaRank: 6,
-    fifaPoints: 1785,
-    eloRating: 1939,
-    signals: {
-      ratingScore: 87,
-      recentFormScore: 80,
-      attackScore: 84,
-      defenseScore: 82,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "japan",
-    aliases: ["japan", "japon"],
-    displayName: "Japan",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: "MVP v0 curated national-team snapshot (seed/mock World Cup context)",
-    sourceNotes:
-      "Included because Japan already appears in seeded/mock World Cup 2026 project data. Ratings remain curated MVP v0 estimates, not a live feed.",
-    fifaRank: 18,
-    fifaPoints: 1615,
-    eloRating: 1794,
-    signals: {
-      ratingScore: 73,
-      recentFormScore: 68,
-      attackScore: 64,
-      defenseScore: 66,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "germany",
-    aliases: ["germany", "alemania"],
-    displayName: "Germany",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: "MVP v0 curated national-team snapshot (mock World Cup app context)",
-    sourceNotes:
-      "Included because Germany already appears in mock World Cup product data. Ratings remain curated MVP v0 estimates, not a live feed.",
-    fifaRank: 9,
-    fifaPoints: 1720,
-    eloRating: 1887,
-    signals: {
-      ratingScore: 81,
-      recentFormScore: 74,
-      attackScore: 76,
-      defenseScore: 75,
-      ...NEUTRAL_ENGINE_FIELDS,
-    },
-  },
-  {
-    teamKey: "morocco",
-    aliases: ["morocco", "marruecos"],
-    displayName: "Morocco",
-    snapshotDate: SNAPSHOT_DATE,
-    sourceLabel: "MVP v0 curated national-team snapshot (mock World Cup app context)",
-    sourceNotes:
-      "Included because Morocco already appears in mock World Cup product data. Ratings remain curated MVP v0 estimates, not a live feed.",
-    fifaRank: 13,
-    fifaPoints: 1665,
-    eloRating: 1819,
-    signals: {
-      ratingScore: 77,
-      recentFormScore: 71,
-      attackScore: 67,
-      defenseScore: 74,
       ...NEUTRAL_ENGINE_FIELDS,
     },
   },
@@ -467,6 +715,70 @@ function normalizeNationalTeamKey(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+function buildSnapshotAliases(teamKey: string, aliases: string[]) {
+  const seen = new Set<string>();
+
+  return aliases.filter((alias) => {
+    const normalized = normalizeNationalTeamKey(alias);
+
+    if (!normalized || seen.has(normalized)) {
+      return false;
+    }
+
+    seen.add(normalized);
+    return true;
+  });
+}
+
+function buildCanonicalSnapshot(teamKey: string, seed: SnapshotSeed): NationalTeamStrengthSnapshot {
+  const team = WORLD_CUP_2026_TEAMS.find((entry) => entry.teamKey === teamKey);
+
+  if (!team) {
+    throw new Error(`Missing canonical World Cup team for snapshot seed: ${teamKey}`);
+  }
+
+  return {
+    teamKey,
+    aliases: buildSnapshotAliases(teamKey, [
+      teamKey,
+      team.slug,
+      team.displayName,
+      team.fifaOfficialName,
+      team.country,
+      ...team.aliases,
+      ...(seed.aliases ?? []),
+    ]),
+    displayName: team.displayName,
+    snapshotDate: SNAPSHOT_DATE,
+    sourceLabel: CANONICAL_SOURCE_LABEL,
+    sourceNotes: seed.sourceNotes ?? CANONICAL_SOURCE_NOTES,
+    fifaRank: seed.fifaRank,
+    fifaPoints: seed.fifaPoints,
+    eloRating: seed.eloRating,
+    signals: {
+      ...seed.signals,
+      ...NEUTRAL_ENGINE_FIELDS,
+    },
+  };
+}
+
+export const CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS: NationalTeamStrengthSnapshot[] = WORLD_CUP_2026_TEAMS.map(
+  (team) => {
+    const seed = CANONICAL_SNAPSHOT_SEEDS[team.teamKey];
+
+    if (!seed) {
+      throw new Error(`Missing snapshot seed for canonical World Cup team: ${team.teamKey}`);
+    }
+
+    return buildCanonicalSnapshot(team.teamKey, seed);
+  },
+);
+
+export const NATIONAL_TEAM_STRENGTH_SNAPSHOTS: NationalTeamStrengthSnapshot[] = [
+  ...CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS,
+  ...LEGACY_TEST_ONLY_SNAPSHOTS,
+];
 
 const NATIONAL_TEAM_SNAPSHOT_LOOKUP = new Map(
   NATIONAL_TEAM_STRENGTH_SNAPSHOTS.flatMap((snapshot) =>

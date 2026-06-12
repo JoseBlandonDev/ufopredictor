@@ -1,36 +1,54 @@
 import { describe, expect, it } from "vitest";
 
+import { WORLD_CUP_2026_TEAMS } from "../world-cup-2026";
 import {
+  CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS,
   getNationalTeamSnapshotCoverage,
+  LEGACY_TEST_ONLY_SNAPSHOTS,
+  LEGACY_TEST_ONLY_TEAM_KEYS,
   NATIONAL_TEAM_STRENGTH_SNAPSHOTS,
   resolveNationalTeamSnapshotSignals,
   resolveNationalTeamStrengthSnapshot,
 } from "./national-team-strength-snapshots";
 
-describe("national team strength snapshots", () => {
-  it("resolves source-dated snapshots for the immediate public world cup teams", () => {
-    const mexico = resolveNationalTeamStrengthSnapshot({ name: "Mexico" });
-    const southAfrica = resolveNationalTeamStrengthSnapshot({ name: "South Africa" });
-    const southKorea = resolveNationalTeamStrengthSnapshot({ name: "South Korea" });
-    const czechRepublic = resolveNationalTeamStrengthSnapshot({ name: "Czech Republic" });
-    const canada = resolveNationalTeamStrengthSnapshot({ name: "Canada" });
-    const bosnia = resolveNationalTeamStrengthSnapshot({ name: "Bosnia & Herzegovina" });
-    const usa = resolveNationalTeamStrengthSnapshot({ name: "USA" });
-    const paraguay = resolveNationalTeamStrengthSnapshot({ name: "Paraguay" });
+function normalizeAlias(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
+describe("national team strength snapshots", () => {
+  it("covers every canonical world cup 2026 team with a source-dated snapshot", () => {
+    expect(WORLD_CUP_2026_TEAMS).toHaveLength(48);
+    expect(CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS).toHaveLength(48);
+
+    const snapshotTeamKeys = new Set(CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS.map((snapshot) => snapshot.teamKey));
+
+    expect(WORLD_CUP_2026_TEAMS.every((team) => snapshotTeamKeys.has(team.teamKey))).toBe(true);
     expect(
-      [mexico, southAfrica, southKorea, czechRepublic, canada, bosnia, usa, paraguay].every(
-        (snapshot) => snapshot?.snapshotDate === "2026-06-12",
-      ),
-    ).toBe(true);
-    expect(
-      [mexico, southAfrica, southKorea, czechRepublic, canada, bosnia, usa, paraguay].every(
-        (snapshot) => snapshot?.sourceLabel.includes("snapshot"),
+      CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS.every(
+        (snapshot) =>
+          snapshot.snapshotDate === "2026-06-12" &&
+          snapshot.sourceLabel.includes("canonical catalog") &&
+          snapshot.sourceNotes.includes("Curated MVP v0 estimate"),
       ),
     ).toBe(true);
   });
 
-  it("extends coverage to the broader world cup teams already present in project context", () => {
+  it("resolves every canonical world cup team by display name", () => {
+    expect(
+      WORLD_CUP_2026_TEAMS.every((team) => {
+        const snapshot = resolveNationalTeamStrengthSnapshot({ name: team.displayName });
+        return snapshot?.teamKey === team.teamKey;
+      }),
+    ).toBe(true);
+  });
+
+  it("keeps the immediate public world cup teams covered", () => {
     const coverage = getNationalTeamSnapshotCoverage();
 
     expect(coverage).toEqual(
@@ -43,51 +61,58 @@ describe("national team strength snapshots", () => {
         "Bosnia & Herzegovina",
         "USA",
         "Paraguay",
-        "Colombia",
-        "Portugal",
-        "Japan",
-        "Germany",
-        "Morocco",
-        "Argentina",
       ]),
     );
   });
 
-  it("keeps alias resolution on a single source of truth", () => {
-    const southKorea = resolveNationalTeamStrengthSnapshot({ name: "South Korea" });
-    const koreaRepublic = resolveNationalTeamStrengthSnapshot({ name: "Korea Republic" });
-    const czechRepublic = resolveNationalTeamStrengthSnapshot({ name: "Czech Republic" });
-    const czechia = resolveNationalTeamStrengthSnapshot({ name: "Czechia" });
-    const bosniaAmpersand = resolveNationalTeamStrengthSnapshot({ name: "Bosnia & Herzegovina" });
-    const bosniaAnd = resolveNationalTeamStrengthSnapshot({ name: "Bosnia and Herzegovina" });
-    const usa = resolveNationalTeamStrengthSnapshot({ name: "USA" });
-    const unitedStates = resolveNationalTeamStrengthSnapshot({ name: "United States" });
-
-    expect(southKorea?.teamKey).toBe("south-korea");
-    expect(koreaRepublic?.teamKey).toBe("south-korea");
-    expect(czechRepublic?.teamKey).toBe("czech-republic");
-    expect(czechia?.teamKey).toBe("czech-republic");
-    expect(bosniaAmpersand?.teamKey).toBe("bosnia-herzegovina");
-    expect(bosniaAnd?.teamKey).toBe("bosnia-herzegovina");
-    expect(usa?.teamKey).toBe("usa");
-    expect(unitedStates?.teamKey).toBe("usa");
-    expect(southKorea?.signals).toEqual(koreaRepublic?.signals);
-    expect(czechRepublic?.signals).toEqual(czechia?.signals);
-    expect(bosniaAmpersand?.signals).toEqual(bosniaAnd?.signals);
-    expect(usa?.signals).toEqual(unitedStates?.signals);
+  it("keeps important aliases on a single source of truth", () => {
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Korea Republic" })?.teamKey).toBe("south-korea");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "South Korea" })?.teamKey).toBe("south-korea");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Czechia" })?.teamKey).toBe("czech-republic");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Czech Republic" })?.teamKey).toBe("czech-republic");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Bosnia and Herzegovina" })?.teamKey).toBe(
+      "bosnia-herzegovina",
+    );
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Bosnia & Herzegovina" })?.teamKey).toBe(
+      "bosnia-herzegovina",
+    );
+    expect(resolveNationalTeamStrengthSnapshot({ name: "United States" })?.teamKey).toBe("usa");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "USA" })?.teamKey).toBe("usa");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Turkey" })?.teamKey).toBe("turkiye");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Türkiye" })?.teamKey).toBe("turkiye");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Curacao" })?.teamKey).toBe("curacao");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Curaçao" })?.teamKey).toBe("curacao");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Ivory Coast" })?.teamKey).toBe("cote-divoire");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Côte d’Ivoire" })?.teamKey).toBe("cote-divoire");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Cape Verde" })?.teamKey).toBe("cabo-verde");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Cabo Verde" })?.teamKey).toBe("cabo-verde");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Iran" })?.teamKey).toBe("iran");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "IR Iran" })?.teamKey).toBe("iran");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "DR Congo" })?.teamKey).toBe("congo-dr");
+    expect(resolveNationalTeamStrengthSnapshot({ name: "Congo DR" })?.teamKey).toBe("congo-dr");
   });
 
-  it("avoids duplicate alias collisions across the catalog", () => {
-    const aliases = NATIONAL_TEAM_STRENGTH_SNAPSHOTS.flatMap((snapshot) => snapshot.aliases);
-    const normalizedAliases = aliases.map((alias) =>
-      alias
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, ""),
+  it("separates legacy test-only coverage from canonical world cup coverage", () => {
+    expect(LEGACY_TEST_ONLY_TEAM_KEYS).toEqual(["iceland", "chile", "hungary", "kazakhstan", "venezuela"]);
+    expect(LEGACY_TEST_ONLY_SNAPSHOTS.map((snapshot) => snapshot.teamKey)).toEqual([
+      "iceland",
+      "chile",
+      "hungary",
+      "kazakhstan",
+      "venezuela",
+    ]);
+
+    const canonicalTeamKeys = new Set(WORLD_CUP_2026_TEAMS.map((team) => team.teamKey));
+    const unexpectedTeamKeys = NATIONAL_TEAM_STRENGTH_SNAPSHOTS.map((snapshot) => snapshot.teamKey).filter(
+      (teamKey) => !canonicalTeamKeys.has(teamKey) && !LEGACY_TEST_ONLY_TEAM_KEYS.includes(teamKey),
     );
+
+    expect(unexpectedTeamKeys).toEqual([]);
+  });
+
+  it("avoids duplicate alias collisions across the full catalog", () => {
+    const aliases = NATIONAL_TEAM_STRENGTH_SNAPSHOTS.flatMap((snapshot) => snapshot.aliases);
+    const normalizedAliases = aliases.map(normalizeAlias);
 
     expect(new Set(normalizedAliases).size).toBe(normalizedAliases.length);
   });
@@ -105,22 +130,21 @@ describe("national team strength snapshots", () => {
     });
   });
 
+  it("keeps neutral market and lineup placeholders for all canonical snapshots", () => {
+    expect(
+      CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS.every(
+        (snapshot) =>
+          snapshot.signals.marketScore === 50 &&
+          snapshot.signals.lineupContextScore === 50 &&
+          snapshot.snapshotDate.length > 0 &&
+          snapshot.sourceLabel.length > 0 &&
+          snapshot.sourceNotes.length > 0,
+      ),
+    ).toBe(true);
+  });
+
   it("returns undefined for unknown teams", () => {
     expect(resolveNationalTeamStrengthSnapshot({ name: "Atletico Nacional" })).toBeUndefined();
     expect(resolveNationalTeamSnapshotSignals({ name: "Atletico Nacional" })).toBeUndefined();
-  });
-
-  it("provides provenance fields for every snapshot and keeps neutral market/lineup placeholders", () => {
-    expect(
-      NATIONAL_TEAM_STRENGTH_SNAPSHOTS.every((snapshot) => {
-        return (
-          snapshot.snapshotDate.length > 0 &&
-          snapshot.sourceLabel.length > 0 &&
-          snapshot.sourceNotes.length > 0 &&
-          snapshot.signals.marketScore === 50 &&
-          snapshot.signals.lineupContextScore === 50
-        );
-      }),
-    ).toBe(true);
   });
 });
