@@ -64,6 +64,21 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
           }}
         />
       </div>
+      {prediction.verifiedResult ? (
+        <div className="mt-5 rounded-lg border border-emerald-400/25 bg-emerald-500/8 p-4">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-emerald-300">
+            Resultado final verificado
+          </p>
+          <p className="mt-2 text-lg font-semibold text-white">
+            {prediction.homeTeamName} {prediction.verifiedResult.homeGoals} -{" "}
+            {prediction.verifiedResult.awayGoals} {prediction.awayTeamName}
+          </p>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            Este resultado final ya fue verificado y la prediccion publica se conserva como
+            referencia historica.
+          </p>
+        </div>
+      ) : null}
       <p className="mt-4 text-xs text-[var(--muted)]">
         {prediction.viewer === "registered_free"
           ? "Vista registrada gratis: confianza y riesgo completos en el panel público."

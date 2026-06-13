@@ -150,6 +150,9 @@ describe("public match detail queries", () => {
         away_team_id: "team-2",
         venue_name: "Venue",
         venue_city: "City",
+        verified_home_goals: 1,
+        verified_away_goals: 1,
+        result_verification_status: "verified",
       },
       predictionData: {
         prediction_created_at: "2026-06-11T12:00:00Z",
@@ -168,6 +171,11 @@ describe("public match detail queries", () => {
     expect(result.status).toBe("ready");
     if (result.status !== "ready" || result.match.prediction === null) return;
     expect(result.match.prediction.viewer).toBe("anonymous");
+    expect(result.match.verifiedResult).toEqual({
+      homeGoals: 1,
+      awayGoals: 1,
+      verificationStatus: "verified",
+    });
     expect(rpcCalls).toEqual([]);
   });
 
@@ -195,6 +203,9 @@ describe("public match detail queries", () => {
         away_team_id: "team-2",
         venue_name: "Venue",
         venue_city: "City",
+        verified_home_goals: null,
+        verified_away_goals: null,
+        result_verification_status: null,
       },
       predictionData: {
         prediction_created_at: "2026-06-11T12:00:00Z",
@@ -216,6 +227,7 @@ describe("public match detail queries", () => {
     expect(result.status).toBe("ready");
     if (result.status !== "ready" || result.match.prediction === null) return;
     expect(result.match.prediction.viewer).toBe("registered_free");
+    expect(result.match.verifiedResult).toBeNull();
     expect(result.match.prediction).toMatchObject({
       probableScore: "1-0",
       confidenceScore: 58,
@@ -255,6 +267,9 @@ describe("public match detail queries", () => {
         away_team_id: "team-2",
         venue_name: "Venue",
         venue_city: "City",
+        verified_home_goals: null,
+        verified_away_goals: null,
+        result_verification_status: null,
       },
       predictionData: {
         prediction_created_at: "2026-06-11T12:00:00Z",

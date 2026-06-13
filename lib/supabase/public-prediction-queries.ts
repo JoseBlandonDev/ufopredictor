@@ -23,12 +23,21 @@ type PublicPredictionSummaryRow = {
   away_team_flag_url: string | null;
   venue_name: string | null;
   venue_city: string | null;
+  verified_home_goals: number | null;
+  verified_away_goals: number | null;
+  result_verification_status: "verified" | null;
   prediction_created_at: string;
   home_win_prob: number;
   draw_prob: number;
   away_win_prob: number;
   confidence_score: number;
   risk_level: PredictionVersionRow["risk_level"];
+};
+
+export type PublicVerifiedResultView = {
+  homeGoals: number;
+  awayGoals: number;
+  verificationStatus: "verified";
 };
 
 type PublicPredictionCardBaseView = {
@@ -50,6 +59,7 @@ type PublicPredictionCardBaseView = {
   awayTeamFlagUrl: string | null;
   venueName: string | null;
   venueCity: string | null;
+  verifiedResult: PublicVerifiedResultView | null;
   homeWinProb: number;
   drawProb: number;
   awayWinProb: number;
@@ -72,7 +82,8 @@ export type PublicPredictionCardView =
 export type PublicPredictionsData =
   | {
       status: "ready";
-      predictions: PublicPredictionCardView[];
+      upcomingPredictions: PublicPredictionCardView[];
+      historicalPredictions: PublicPredictionCardView[];
     }
   | {
       status: "unavailable";
@@ -87,6 +98,17 @@ function unavailable(): PublicPredictionsData {
 }
 
 function toCardBaseView(prediction: PublicPredictionSummaryRow): PublicPredictionCardBaseView {
+  const verifiedResult =
+    prediction.result_verification_status === "verified" &&
+    prediction.verified_home_goals !== null &&
+    prediction.verified_away_goals !== null
+      ? {
+          homeGoals: prediction.verified_home_goals,
+          awayGoals: prediction.verified_away_goals,
+          verificationStatus: "verified" as const,
+        }
+      : null;
+
   return {
     viewer: "anonymous",
     predictionCreatedAt: prediction.prediction_created_at,
@@ -106,10 +128,43 @@ function toCardBaseView(prediction: PublicPredictionSummaryRow): PublicPredictio
     awayTeamFlagUrl: prediction.away_team_flag_url,
     venueName: prediction.venue_name,
     venueCity: prediction.venue_city,
+    verifiedResult,
     homeWinProb: prediction.home_win_prob,
     drawProb: prediction.draw_prob,
     awayWinProb: prediction.away_win_prob,
   };
+}
+
+function getUpcomingPriority(status: MatchRow["status"]) {
+  switch (status) {
+    case "live":
+      return 0;
+    case "scheduled":
+      return 1;
+    case "postponed":
+      return 2;
+    case "cancelled":
+      return 3;
+    case "finished":
+      return 4;
+    default:
+      return 5;
+  }
+}
+
+export function sortUpcomingPredictions(predictions: PublicPredictionCardView[]) {
+  return [...predictions].sort((left, right) => {
+    const statusDelta = getUpcomingPriority(left.status) - getUpcomingPriority(right.status);
+    if (statusDelta !== 0) return statusDelta;
+
+    return new Date(left.kickoffAt).getTime() - new Date(right.kickoffAt).getTime();
+  });
+}
+
+export function sortHistoricalPredictions(predictions: PublicPredictionCardView[]) {
+  return [...predictions].sort(
+    (left, right) => new Date(right.kickoffAt).getTime() - new Date(left.kickoffAt).getTime(),
+  );
 }
 
 export function toPredictionCardView(
@@ -147,7 +202,7 @@ export async function getPublicPredictionsData(
   const { data, error } = await supabase
     .from("public_prediction_summaries")
     .select(
-      "match_slug, kickoff_at, stage, status, competition_name, competition_slug, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, venue_name, venue_city, prediction_created_at, home_win_prob, draw_prob, away_win_prob, confidence_score, risk_level",
+      "match_slug, kickoff_at, stage, status, competition_name, competition_slug, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, venue_name, venue_city, verified_home_goals, verified_away_goals, result_verification_status, prediction_created_at, home_win_prob, draw_prob, away_win_prob, confidence_score, risk_level",
     )
     .order("kickoff_at");
 
@@ -155,12 +210,19 @@ export async function getPublicPredictionsData(
     return unavailable();
   }
 
+  const predictions = ((data ?? []) as PublicPredictionSummaryRow[])
+    .filter((prediction) =>
+      isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug),
+    )
+    .map((prediction) => toPredictionCardView(prediction, viewer));
+
   return {
     status: "ready",
-    predictions: ((data ?? []) as PublicPredictionSummaryRow[])
-      .filter((prediction) =>
-        isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug),
-      )
-      .map((prediction) => toPredictionCardView(prediction, viewer)),
+    upcomingPredictions: sortUpcomingPredictions(
+      predictions.filter((prediction) => prediction.status !== "finished"),
+    ),
+    historicalPredictions: sortHistoricalPredictions(
+      predictions.filter((prediction) => prediction.status === "finished"),
+    ),
   };
 }
