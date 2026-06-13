@@ -5,7 +5,7 @@ import {
   REAL_SIGNAL_PACK_SOURCE_LABEL,
   REAL_SIGNAL_PACK_SOURCE_NOTES,
 } from "./national-team-strength-signal-pack";
-import type { TeamPredictionInput } from "./types";
+import type { TeamPredictionInput, TeamStrengthMetadata } from "./types";
 
 export type NationalTeamSnapshotSignals = NonNullable<TeamPredictionInput["signals"]>;
 
@@ -32,6 +32,20 @@ export type NationalTeamStrengthSnapshot = {
   recentMatchCount?: number;
   signals: NationalTeamSnapshotSignals;
 };
+
+export function buildNationalTeamStrengthMetadata(snapshot: NationalTeamStrengthSnapshot): TeamStrengthMetadata {
+  return {
+    fifaRank: snapshot.fifaRank,
+    fifaPoints: snapshot.fifaPoints,
+    eloRank: snapshot.eloRank,
+    eloRating: snapshot.eloRating,
+    eloAverageRank: snapshot.eloAverageRank,
+    eloAverageRating: snapshot.eloAverageRating,
+    historicalGoalsForPerMatch: snapshot.historicalGoalsForPerMatch,
+    historicalGoalsAgainstPerMatch: snapshot.historicalGoalsAgainstPerMatch,
+    recentMatchCount: snapshot.recentMatchCount,
+  };
+}
 
 export type CanonicalSnapshotSeed = {
   aliases?: string[];
@@ -284,5 +298,20 @@ export function resolveNationalTeamSnapshotSignals(team: Pick<TeamPredictionInpu
 
   return {
     ...snapshot.signals,
+  };
+}
+
+export function resolveNationalTeamPredictionInputData(team: Pick<TeamPredictionInput, "name">) {
+  const snapshot = resolveNationalTeamStrengthSnapshot(team);
+
+  if (!snapshot) {
+    return undefined;
+  }
+
+  return {
+    signals: {
+      ...snapshot.signals,
+    },
+    metadata: buildNationalTeamStrengthMetadata(snapshot),
   };
 }

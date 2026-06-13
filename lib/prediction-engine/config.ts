@@ -17,4 +17,17 @@ export const DEFAULT_PREDICTION_ENGINE_CONFIG: PredictionEngineConfig = {
     marketScore: 0.15,
     lineupContextScore: 0.1,
   },
+  xgCalibration: {
+    historicalGoalsForBaseline: 1.35,
+    historicalGoalsAgainstBaseline: 1.2,
+    historicalGoalsForInfluence: 0.2,
+    historicalGoalsAgainstInfluence: 0.18,
+    ratingDifferentialInfluence: 0.2,
+    recentMatchCountCap: 10,
+    minimumMetadataReliability: 0.45,
+    scorelineGapBoostThreshold: 0.45,
+    scorelineGapBoostInfluence: 0.2,
+    scorelineUnderdogSuppressionThreshold: 1.35,
+    scorelineUnderdogSuppressionInfluence: 0.14,
+  },
 };

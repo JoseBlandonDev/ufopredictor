@@ -6,6 +6,18 @@ export type TeamSignalKey =
   | "marketScore"
   | "lineupContextScore";
 
+export type TeamStrengthMetadata = {
+  fifaRank?: number;
+  fifaPoints?: number;
+  eloRank?: number;
+  eloRating?: number;
+  eloAverageRank?: number;
+  eloAverageRating?: number;
+  historicalGoalsForPerMatch?: number;
+  historicalGoalsAgainstPerMatch?: number;
+  recentMatchCount?: number;
+};
+
 export type PredictionRunScope = "public_product" | "internal_lab";
 export type PredictionType = "pre_match_24h" | "pre_match_6h" | "post_lineup" | "pre_kickoff";
 export type RiskLevel = "low" | "medium" | "high";
@@ -14,6 +26,7 @@ export type TeamPredictionInput = {
   id: string;
   name: string;
   signals?: Partial<Record<TeamSignalKey, number | null>>;
+  metadata?: TeamStrengthMetadata;
 };
 
 export type MatchPredictionInput = {
@@ -30,6 +43,20 @@ export type MatchPredictionInput = {
 
 export type PredictionEngineWeights = Record<TeamSignalKey, number>;
 
+export type PredictionEngineXgCalibrationConfig = {
+  historicalGoalsForBaseline: number;
+  historicalGoalsAgainstBaseline: number;
+  historicalGoalsForInfluence: number;
+  historicalGoalsAgainstInfluence: number;
+  ratingDifferentialInfluence: number;
+  recentMatchCountCap: number;
+  minimumMetadataReliability: number;
+  scorelineGapBoostThreshold: number;
+  scorelineGapBoostInfluence: number;
+  scorelineUnderdogSuppressionThreshold: number;
+  scorelineUnderdogSuppressionInfluence: number;
+};
+
 export type PredictionEngineConfig = {
   modelVersion: string;
   baseGoalRate: number;
@@ -40,12 +67,14 @@ export type PredictionEngineConfig = {
   defaultSignalScore: number;
   defaultHomeAdvantageScore: number;
   weights: PredictionEngineWeights;
+  xgCalibration: PredictionEngineXgCalibrationConfig;
 };
 
 export type NormalizedTeamInput = {
   id: string;
   name: string;
   signals: Record<TeamSignalKey, number>;
+  metadata?: TeamStrengthMetadata;
   providedSignals: TeamSignalKey[];
   defaultedSignals: TeamSignalKey[];
 };

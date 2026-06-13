@@ -145,6 +145,24 @@ describe("real fixture prediction adapter", () => {
       marketScore: 50,
       lineupContextScore: 50,
     });
+    expect(input.homeTeam.metadata).toEqual({
+      fifaRank: 1,
+      fifaPoints: 1877.27,
+      eloRank: 2,
+      eloRating: 2115,
+      eloAverageRank: 5,
+      eloAverageRating: 1987,
+      historicalGoalsForPerMatch: 1.9055,
+      historicalGoalsAgainstPerMatch: 1.0225,
+      recentMatchCount: 10,
+    });
+    expect(input.awayTeam.metadata).toEqual({
+      fifaRank: 72,
+      fifaPoints: 1340,
+      eloRank: 71,
+      eloRating: 1710,
+      recentMatchCount: 0,
+    });
   });
 
   it("can generate an in-memory preview without provider predictions or odds", () => {

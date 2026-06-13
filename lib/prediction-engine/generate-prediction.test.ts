@@ -129,6 +129,7 @@ describe("generatePrediction", () => {
     expect(result.normalizedInput.homeTeam.signals.marketScore).toBe(50);
     expect(result.normalizedInput.awayTeam.signals.lineupContextScore).toBe(50);
     expect(result.notes.some((note) => note.includes("Market score is neutral"))).toBe(false);
+    expect(result.normalizedInput.homeTeam.metadata?.eloRating).toBe(2115);
     expect(result.teamPower.home.score).toBeGreaterThan(result.teamPower.away.score);
     expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
   });
@@ -162,5 +163,34 @@ describe("generatePrediction", () => {
     expect(result.normalizedInput.awayTeam.providedSignals.length).toBeGreaterThan(0);
     expect(result.normalizedInput.homeTeam.defaultedSignals).toEqual([]);
     expect(result.normalizedInput.awayTeam.defaultedSignals).toEqual([]);
+  });
+
+  it("does not leave 1-1 as the modal score for a clear canonical mismatch", () => {
+    const result = generatePrediction(
+      buildRealFixturePredictionInput({
+        id: "match-esp-nzl",
+        externalId: "api-football:fixture:esp-nzl",
+        slug: "world-cup-2026-spain-vs-new-zealand-2026-06-12",
+        competitionId: "competition-world-cup",
+        kickoffAt: "2026-06-12T21:00:00Z",
+        stage: "Group Stage - Round 1",
+        status: "scheduled",
+        accessScope: "admin_only",
+        intakeSource: "api_football",
+        sourceNote: "tracked by ingest",
+        competitionName: "World Cup",
+        homeTeamId: "team-esp",
+        homeTeamName: "Spain",
+        awayTeamId: "team-nzl",
+        awayTeamName: "New Zealand",
+        result: null,
+        savedPrediction: null,
+        savedEvaluation: null,
+      }),
+    );
+
+    expect(result.expectedGoals.home).toBeGreaterThan(result.expectedGoals.away + 0.7);
+    expect(result.mostLikelyScore).not.toBe("1-1");
+    expect(result.topScorelines[0]?.score).not.toBe("1-1");
   });
 });
