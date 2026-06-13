@@ -192,15 +192,6 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 : "Vista pública básica: 1X2 completo y señal inicial de confianza y riesgo."}
             </p>
             <p className="text-xs text-[var(--muted)]">
-              Publicada el{" "}
-              {new Intl.DateTimeFormat("es-CO", {
-                dateStyle: "medium",
-                timeStyle: "short",
-                timeZone: "America/Bogota",
-              }).format(new Date(match.prediction.createdAt))}{" "}
-              COT.
-            </p>
-            <p className="text-xs text-[var(--muted)]">
               Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.
             </p>
             <p className="text-xs text-[var(--muted)]">
