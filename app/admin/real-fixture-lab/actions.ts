@@ -130,6 +130,18 @@ function logRealFixtureLabSupabaseError(args: {
   });
 }
 
+function canRefreshPublicRealFixture(fixture: {
+  accessScope: string;
+  intakeSource: string;
+  status: string;
+}) {
+  return (
+    fixture.accessScope === "public" &&
+    fixture.intakeSource === "api_football" &&
+    (fixture.status === "scheduled" || fixture.status === "finished")
+  );
+}
+
 async function getActiveModelVersionOrRedirect(args: {
   externalId: string;
   onMissingModel: (externalId: string) => never;
@@ -378,11 +390,7 @@ export async function refreshPublishedRealFixturePredictionAction(formData: Form
     redirectWithRefreshStatus("not_found", externalId);
   }
 
-  if (
-    fixture.accessScope !== "public" ||
-    fixture.intakeSource !== "api_football" ||
-    fixture.status !== "scheduled"
-  ) {
+  if (!canRefreshPublicRealFixture(fixture)) {
     redirectWithRefreshStatus("blocked", externalId);
   }
 
