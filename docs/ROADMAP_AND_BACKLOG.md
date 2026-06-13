@@ -1,184 +1,387 @@
-# UFO Predictor — Roadmap and Backlog
+﻿# UFO Predictor Roadmap and Backlog
 
-Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
+_Last refreshed after PR #71: E10C signal enrichment, E10D xG/scoreline calibration, finished-fixture prelaunch refresh, public prediction priority/result display, and Real Fixture Lab usability updates._
 
-## Current roadmap position
+## Working rules
 
-UFO Predictor is in **MVP 1 World Cup Launch**.
+- Do not create a PR for every micro-change. Group related commits into a functional branch and open a PR when the block is useful and reviewable.
+- Do not refresh project docs after every micro-change. Refresh docs after meaningful project-state transitions, before a major handoff, or before moving to a new long conversation.
+- ChatGPT owns project-state documentation refreshes because it carries the cross-conversation context. The user manually copies refreshed Markdown files into `/docs`. Codex verifies docs-only consistency after the manual copy.
+- Supabase migrations are applied manually through Supabase SQL Editor unless the project explicitly changes that workflow.
+- Keep `prediction_results` internal. Public surfaces must only use public-safe projections.
+- Do not use betting odds or provider predictions as hidden model input.
+- Do not commit `codex-inputs/` or raw local source packs.
 
-The launch pipeline is controlled, public fixtures exist, finished-result verification exists, and the prediction-engine snapshot layer now has real national-team signal enrichment for the 48 canonical World Cup teams.
+---
 
-The next meaningful model step is **E10D: expected-goals / scoreline calibration**. Anything else is just rearranging furniture while the house is calculating `1-1` again.
+## Current MVP 1 baseline
 
-## Recently completed
+### Completed recently
 
-### E09A — authenticated probable score
+- **E10C - National-team signal enrichment**
+  - 48 canonical World Cup teams now have source-backed signal coverage.
+  - Signals include FIFA rank/points, Elo rank/rating, Elo average rank/rating, historical goals for/against per match, `recentMatchCount`, neutral `marketScore: 50`, and neutral `lineupContextScore: 50`.
 
-Status: Done / PR #63 merged.
+- **E10D - xG / scoreline calibration**
+  - Expected-goals and scoreline behavior now use E10C metadata more meaningfully.
+  - The old blind/default `1-1` tendency has been reduced for clear mismatches.
+  - The model is improved, not perfect. Do not backfit to real results.
 
-Delivered:
+- **Finished fixture prelaunch refresh**
+  - Exact admin-only refresh for already-public scheduled/finished fixtures is supported.
+  - Refresh is append-only and does not mutate match results or internal evaluation rows.
 
-- authenticated users can see probable score on public match detail;
-- anonymous users get teaser copy;
-- `prediction_results` remains internal;
-- no payment implementation.
+- **Public prediction priority and verified results**
+  - `/predictions` prioritizes active/upcoming fixtures.
+  - Finished fixtures are shown as recent results/history.
+  - Public cards/details can show verified final results through public-safe projections.
 
-### E10B — canonical World Cup catalog and snapshot foundation
+- **Real Fixture Lab usability**
+  - Active World Cup operational fixtures are prioritized.
+  - Legacy/pilot fixtures are secondary/collapsed.
+  - Admin controls have pointer/disabled/pending/loading feedback.
 
-Status: Done / PR #64 merged.
+### Operational state
 
-Delivered:
+The first four World Cup fixtures have been refreshed/verified as applicable:
 
-- canonical World Cup 2026 catalog;
-- 48-team coverage;
-- group/venue/fixture foundation;
-- national-team strength snapshot test coverage.
+- Mexico vs South Africa: final 2-0 verified; public prediction refreshed.
+- South Korea vs Czechia: final 2-1 verified; public prediction refreshed.
+- Canada vs Bosnia and Herzegovina: final 1-1 verified; public prediction refreshed.
+- USA vs Paraguay: final 4-1 verified/evaluated; public prediction refreshed.
 
-### H01A — public finished fixture result verification
+The next controlled batch has been ingested/published:
 
-Status: Done / PR #65 merged.
+- Qatar vs Switzerland
+- Brazil vs Morocco
+- Haiti vs Scotland
+- Australia vs Turkiye
+- Germany vs Curacao
+- Netherlands vs Japan
+- Ivory Coast vs Ecuador
+- Sweden vs Tunisia
 
-Delivered:
+---
 
-- admin Real Fixture Lab can verify finished public fixtures;
-- results verified for the initial completed public fixtures;
-- internal evaluation persistence remains protected;
-- public surface can show final status/result safely.
+## Parallel work strategy
 
-### E10C — real national-team signal enrichment
+Core model/data/fixture operations and product-platform work should be separated so another contributor can work in parallel without colliding with ongoing prediction/data changes.
 
-Status: Done / PR #66 merged.
+### Core work usually owned by the model/data track
 
-Delivered:
+Avoid assigning these to parallel contributors unless explicitly scoped:
 
-- generated static signal pack module;
-- FIFA rank/points for 48 canonical World Cup teams;
-- Elo rank/rating;
-- historical Elo match stats;
-- historical goals for/against and derivatives;
-- recent-form fields;
-- neutral market/lineup placeholders;
-- tests proving coverage and adapter compatibility.
+- `lib/prediction-engine/`
+- `lib/football-api/`
+- `scripts/api-football-read-spike.ts`
+- API-Football ingest/apply behavior
+- World Cup fixture/result verification flow
+- signal-pack generation and `codex-inputs/`
+- Supabase policies/views related to prediction publication or `prediction_results`
+- public prediction query core, unless the task is explicitly a public UI/projection task
 
-Not delivered by E10C:
+### Parallel-safe work areas
 
-- expected-goals calibration;
-- scoreline distribution tuning;
-- lineup/injury data;
-- market data;
-- public explanation rewrite.
+Good candidates for another contributor:
 
-## Active / immediate backlog
+- auth/account UX
+- login/logout redirect polish
+- plans/pricing page
+- payment provider research/spike
+- subscription/entitlement design proposal
+- premium gate UI shell
+- production readiness checklist
+- environment separation plan
+- domain/auth callback configuration audit
+- trust/legal/product copy
+- landing/product shell polish
 
-### Docs rebaseline post-E10C
+---
 
-Status: Active.
+# Epic G - Product Platform, Production Readiness, and Monetization Foundations
 
-Goal:
+**Status:** Planned / parallelizable  
+**Purpose:** Let a second contributor advance product platform, account, launch, environment, and monetization work while the main track continues with fixtures, data, signal refresh, and model operations.
 
-- update all project source docs after PR #66;
-- make next conversation and Codex start from the real current state;
-- remove stale wording about “only fallback signals” as the current model input foundation.
+## Boundaries for Epic G
 
-### E10D — expected-goals / scoreline calibration
+Epic G should not touch:
 
-Status: Next.
+- prediction engine formulas or calibration
+- API-Football ingest/apply logic
+- match result verification logic
+- `prediction_results`
+- signal packs or raw source packs
+- betting odds or provider predictions as hidden inputs
+- public prediction projections unless explicitly scoped and coordinated
+- Supabase RLS/schema for prediction publication unless explicitly approved
 
-Goal:
+Epic G may touch:
 
-- inspect current generated prediction outputs after E10C;
-- identify why `1-1` remains too common;
-- calibrate xG and modal-score behavior using the enriched signal layer;
-- keep public/ingest/UI/Supabase untouched unless explicitly scoped.
+- auth/account pages and UI
+- product shell and navigation
+- plans/pricing pages
+- payment provider spike documents
+- entitlement design documents
+- environment/production readiness documentation
+- deployment/domain configuration checks
+- non-sensitive UI copy
 
-Possible E10D tasks:
+---
 
-1. read-only audit of `expected-goals.ts`, `generate-prediction`, scoreline generation, and tests;
-2. generate output snapshots for representative fixtures;
-3. adjust xG mapping from team-strength differentials and recent form;
-4. tune draw/modal score behavior;
-5. add regression tests for clear mismatches and balanced fixtures;
-6. validate no public/internal boundary changes.
+## G01 - Google Auth and Account UX Polish
 
-Success criteria:
+**Goal:** Make login/account behavior reliable and understandable before public launch.
 
-- strong favorites do not collapse into generic low-confidence draws;
-- balanced fixtures can still produce draws;
-- modal scores respond to attack/defense/form signals;
-- tests prove behavior without overfitting to one live match.
+### Tasks
 
-## Later model/data backlog
+- Audit current Google login/logout flow.
+- Verify login on local/dev environment.
+- Verify login on `ufopredictor.com`.
+- Check OAuth redirect/callback configuration for production domain.
+- Check allowed origins / callback URLs in Supabase and Google Cloud Console.
+- Confirm post-login redirect behavior.
+- Confirm logout behavior.
+- Add clear error UI for failed auth or misconfigured callback.
+- Confirm mobile login flow.
 
-### E10E — lineup/injury context
+### Acceptance criteria
 
-Status: Later.
+- Google login works on production domain.
+- Users can log in, log out, and return to the intended page.
+- Failed login states show a clear message instead of silent failure.
+- No prediction/model/data files are touched.
 
-Current state:
+---
 
-- `lineupContextScore` is neutral `50` for all canonical teams.
+## G02 - Dev/Prod Environment Separation and Production Config Audit
 
-Future options:
+**Goal:** Separate local/dev and production behavior so launch testing does not accidentally depend on local-only assumptions.
 
-- manual editorial signal;
-- structured squad/availability input;
-- limited admin-only override with provenance;
-- no fake injury data, because apparently reality still matters.
+### Tasks
 
-### E10F — market context decision
+- Inventory required environment variables for local and production.
+- Confirm production Supabase URL/key configuration.
+- Confirm production auth callback URLs.
+- Confirm Vercel/project environment variables.
+- Confirm domain configuration for `ufopredictor.com`.
+- Confirm whether preview deployments should use separate callbacks or blocked auth.
+- Document manual Supabase SQL Editor migration process for production.
+- Add a production readiness checklist.
 
-Status: Open/Later.
+### Acceptance criteria
 
-Current state:
+- Production environment variables are documented.
+- Auth/domain config is documented and testable.
+- There is a clear checklist before launch.
+- No schema/RLS change is introduced unless separately approved.
 
-- `marketScore` is neutral `50`.
+---
 
-Decision needed:
+## G03 - Production Smoke Test on ufopredictor.com
 
-- whether UFO should use market odds as a transparent calibration/reference signal;
-- whether this conflicts with no-betting/no-provider-prediction positioning;
-- how to avoid hidden odds-driven predictions.
+**Goal:** Verify the deployed product works end-to-end on the real domain before public launch.
 
-Default until decided:
+### Tasks
 
-```text
-Do not use betting odds or provider predictions as hidden model input.
-```
+- Open the home page on `ufopredictor.com`.
+- Verify navigation links work.
+- Verify `/predictions` is reachable.
+- Verify match detail pages are reachable.
+- Verify login works.
+- Verify gated/premium placeholder behavior is understandable.
+- Verify logged-out and logged-in states.
+- Verify mobile layout basics.
+- Verify no admin/Lab links leak to public users.
+- Verify public pages do not expose internal payloads.
 
-### Data-quality cleanup
+### Acceptance criteria
 
-Status: Later.
+- Home, predictions, match detail, login, and account flows work on production domain.
+- Any broken routes/auth blockers are listed with exact reproduction steps.
+- No internal admin routes or payloads are exposed.
 
-Known issue:
+---
 
-- generated metadata may contain mojibake in source labels such as accented names.
+## G04 - Plans / Pricing Page MVP
 
-Impact:
+**Goal:** Prepare the public explanation of free vs premium access before real payments.
 
-- non-blocking if keys/tests/runtime are unaffected;
-- should be cleaned before any user-facing explanation uses those labels.
+### Tasks
 
-## MVP 1.5 backlog
+- Define free plan value.
+- Define premium plan value.
+- List premium features planned but not yet implemented.
+- Add no-guarantees / not-betting copy.
+- Add CTA behavior based on auth state.
+- Keep copy honest: probabilities, not certainty.
 
-- continue exact result verification for public fixtures;
-- public-safe final-result polish;
-- sample-size-aware accuracy reporting;
-- improved explanation copy using signal metadata;
-- admin tools for checking signal provenance.
+### Acceptance criteria
 
-## MVP 2 backlog
+- A user understands what free and premium mean.
+- No fake payment flow is implied as live if not live.
+- No odds/provider-prediction claims are made.
 
-- broader fixture coverage;
-- automation planning only after exact operations remain stable;
-- premium tiers/payment implementation;
-- deeper market outputs;
-- user watchlists and tournament-pass experience.
+---
 
-## Standing red lines
+## G05 - Payment Provider Spike
 
-- Keep `prediction_results` internal.
-- Do not expose Lab internals publicly.
-- Do not add broad ingest/apply.
-- Do not use provider predictions or betting odds as hidden input.
-- Do not commit `codex-inputs/`.
-- Do not edit applied migrations.
-- Do not let Codex “search the web” for data when normalized packs are available.
+**Goal:** Decide how payments should work before implementing real billing.
+
+### Tasks
+
+- Compare candidate providers such as Stripe, Mercado Pago, Wompi, or another region-appropriate provider.
+- Check country support, fees, settlement, tax/invoice implications, subscriptions, webhooks, and developer effort.
+- Recommend one provider and a fallback.
+- Document required environment variables and webhook needs.
+- Do not implement real payments yet unless explicitly approved.
+
+### Acceptance criteria
+
+- There is a clear provider recommendation.
+- Implementation risks and requirements are documented.
+- No production payment code is added without approval.
+
+---
+
+## G06 - Subscription / Entitlement Model Proposal
+
+**Goal:** Design how premium access should be represented before billing integration.
+
+### Tasks
+
+- Propose tables or metadata for plans, subscriptions, entitlements, and billing events.
+- Define free vs premium access checks.
+- Define how premium access gates public-safe prediction details.
+- Define webhook/event handling at a high level.
+- Identify RLS/security concerns.
+- Do not apply migrations yet unless explicitly approved.
+
+### Acceptance criteria
+
+- There is a reviewed entitlement design.
+- It does not expose `prediction_results`.
+- It keeps premium public-safe.
+
+---
+
+## G07 - Premium Gate UI Shell
+
+**Goal:** Improve the placeholder premium area without implementing the full premium prediction detail yet.
+
+### Tasks
+
+- Replace confusing empty premium states.
+- Show locked premium teaser when logged out/free.
+- Show clear "premium coming soon" or "premium details unavailable" language if needed.
+- Add CTA to plans/login.
+- Keep actual premium model outputs out of scope until the premium prediction detail epic.
+
+### Acceptance criteria
+
+- The premium area no longer looks broken.
+- It does not reveal internal Lab data.
+- It does not imply implemented features that do not exist.
+
+---
+
+## G08 - Trust, Legal, and Responsible Use Copy
+
+**Goal:** Add clear product trust language without overpromising prediction accuracy.
+
+### Tasks
+
+- Draft short disclaimers: predictions are probabilistic, not guarantees.
+- Clarify the product is not a betting service.
+- Clarify no betting odds/provider predictions are hidden model inputs.
+- Add responsible-use wording.
+- Review copy placement on home/plans/prediction pages.
+
+### Acceptance criteria
+
+- Public copy sets correct expectations.
+- No false accuracy claims.
+- No betting-like positioning.
+
+---
+
+# Core next epics after current MVP operations
+
+## Epic H - Premium Prediction Detail MVP
+
+**Status:** Planned  
+**Purpose:** Implement actual premium prediction content for paid users.
+
+Planned content:
+
+- top 3 probable scorelines with percentages
+- expected goals for both teams
+- BTTS probability
+- Over/Under 2.5 probability
+- 1X2 probability details
+- confidence/risk explanation
+- key public-safe model factors
+
+Boundaries:
+
+- no `prediction_results` exposure
+- no raw Lab payloads
+- no provider predictions
+- no betting odds as hidden input
+
+## Epic I - Venue and Match Context Metadata
+
+**Status:** Planned  
+**Purpose:** Replace "Sede por confirmar" and add stadium/city/time context.
+
+Planned content:
+
+- stadium name
+- city
+- country
+- kickoff local time where practical
+- source/provenance for venue data
+
+## Epic J - Signal Refresh Strategy
+
+**Status:** Planned  
+**Purpose:** Keep FIFA/Elo/recent-form signals fresh during the World Cup without reacting after every single match.
+
+Current direction:
+
+- daily or semi-manual refresh during tournament windows
+- regenerate normalized signal pack
+- run tests
+- use refreshed signals only for future predictions
+- later evaluate worker/cron automation
+
+Open questions:
+
+- how often to refresh Elo/FIFA during the tournament
+- how to handle differences between FIFA and Elo weighting
+- whether recent-form score should become a stronger runtime input
+- how to avoid overreacting to one result
+
+## Epic K - Continued Fixture Operations
+
+**Status:** Active / ongoing  
+**Purpose:** Continue exact controlled operations while automation remains limited.
+
+Loop:
+
+1. discover fixtures
+2. dry-run exact fixture
+3. apply exact fixture
+4. save internal prediction
+5. publish public prediction
+6. attach result when finished
+7. verify result
+8. persist internal evaluation
+
+Boundaries:
+
+- no broad tournament-wide apply unless approved
+- no hidden provider/odds input
+- keep `prediction_results` internal
+
+

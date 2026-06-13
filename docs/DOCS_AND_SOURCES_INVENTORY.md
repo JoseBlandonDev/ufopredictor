@@ -1,228 +1,65 @@
-# UFO Predictor — Docs and Sources Inventory
+# Docs and Sources Inventory - UFO Predictor
 
-Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
+_Last refreshed: post PR #71 plus parallel work planning._
 
-This file explains which docs to use for what. Because apparently without a map, every conversation becomes archaeology with worse tooling.
+## Source docs purpose
 
-## Primary project docs
+The `docs/` folder contains project-state sources used by ChatGPT/Codex handoffs. These docs should stay concise, current, and scoped.
 
-### `START_HERE_FOR_NEW_CONVERSATIONS.md`
+## Documentation refresh ownership
 
-Primary entry point for new ChatGPT/Codex conversations.
+Project-source refresh workflow:
 
-Use for:
+1. ChatGPT generates refreshed Markdown sources using cross-conversation context.
+2. User manually copies generated files into `docs/`.
+3. Codex performs docs-only verification.
+4. User commits after verification.
 
-- current state;
-- latest merged PRs;
-- next recommended work;
-- branch/migration/command discipline.
+Codex verifies docs. It is not the default author of broad project-state refresh docs unless explicitly instructed.
 
-### `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
+## Current refreshed source set
 
-High-signal source of truth for ChatGPT.
+Core files:
 
-Use for:
+- `START_HERE_FOR_NEW_CONVERSATIONS.md`
+- `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
+- `CURRENT_PROJECT_STATUS.md`
+- `CODEX_HANDOFF_CURRENT.md`
+- `CODEX_WORKFLOW.md`
+- `ARCHITECTURE_SUMMARY.md`
+- `ROADMAP_AND_BACKLOG.md`
+- `EPIC_PROGRESS_MATRIX.md`
+- `OPEN_DECISIONS.md`
+- `NEXT_EPICS_PLAN.md`
 
-- product summary;
-- current milestone;
-- model/data boundaries;
-- current next epic.
+Supporting files:
 
-### `CURRENT_PROJECT_STATUS.md`
+- `MODEL_V01.md`
+- `DATA_DICTIONARY.md`
+- `PROJECT_STATUS_FOR_MEETING.md`
+- `PROJECT_CONTEXT_UFO_PREDICTOR.md`
+- `TRACK_D_API_FOOTBALL_HANDOFF.md`
 
-Operational status snapshot.
+## Recent source changes captured
 
-Use for:
+- PR #66 E10C signal enrichment.
+- PR #68 E10D xG/scoreline calibration.
+- PR #69 finished fixture prelaunch refresh.
+- PR #70 public prediction priority and verified results.
+- PR #71 Real Fixture Lab active filters/usability.
+- Planned Epic G parallel product platform/monetization track.
 
-- what just merged;
-- validation status;
-- public/runtime status;
-- immediate cleanup.
+## Encoding note
 
-### `EPIC_PROGRESS_MATRIX.md`
+Docs should be saved as UTF-8. If copied through a tool that corrupts accents, prefer ASCII-safe spellings in docs rather than committing broken mojibake text.
 
-Epic state table.
+## Refresh cadence
 
-Use for:
+Refresh docs after meaningful project state changes:
 
-- tracking what is done vs next;
-- avoiding duplicate epics;
-- seeing MVP 1 progress.
+- completed epic/sub-epic;
+- multiple merged PRs that change current state;
+- before a major new conversation;
+- before a substantial handoff.
 
-### `ROADMAP_AND_BACKLOG.md`
-
-Longer roadmap/backlog.
-
-Use for:
-
-- E10D planning;
-- later model/data work;
-- MVP 1.5/MVP 2 backlog.
-
-## Operational docs
-
-### `CODEX_HANDOFF_CURRENT.md`
-
-Current handoff for Codex.
-
-Use before:
-
-- recognition prompts;
-- implementation prompts;
-- PR review prompts.
-
-Current critical context:
-
-- PR #66 E10C is merged;
-- generated signal module is committed;
-- `codex-inputs/` must not be committed;
-- E10D is the likely next implementation.
-
-### `CODEX_WORKFLOW.md`
-
-General Codex workflow rules.
-
-Use for:
-
-- branch discipline;
-- validation expectations;
-- migration rules;
-- command clarity.
-
-### `IMPLEMENTATION_PLAN.md`
-
-Tactical implementation flow.
-
-Use for:
-
-- exact fixture operations;
-- publication/refresh mechanics;
-- manual SQL workflow.
-
-May need future refresh if E10D changes model implementation sequence.
-
-### `TRACK_D_API_FOOTBALL_HANDOFF.md`
-
-API-Football / ingest / Real Fixture Lab operational context.
-
-Status:
-
-- still useful for ingest/Lab work;
-- not central to E10C signal pack, because E10C did not alter ingest.
-
-## Reference docs
-
-### `ARCHITECTURE_SUMMARY.md`
-
-Architecture overview.
-
-Use for:
-
-- ingest/Lab/public boundaries;
-- model snapshot layer;
-- generated signal-pack architecture;
-- RLS/RPC posture.
-
-### `DATA_DICTIONARY.md`
-
-Field/concept reference.
-
-Use for:
-
-- prediction visibility concepts;
-- national-team signal fields;
-- placeholder fields;
-- source-pack rules.
-
-### `MODEL_V01.md`
-
-Model status and limitations.
-
-Use for:
-
-- v0.2-prelaunch context;
-- E10C signal interpretation;
-- E10D planning.
-
-### `OPEN_DECISIONS.md`
-
-Open and settled decisions.
-
-Use for:
-
-- market signal policy;
-- lineup/injury context;
-- E10D calibration choices;
-- prediction lineage.
-
-### `NEXT_EPICS_PLAN.md`
-
-Near-term execution sequence.
-
-Use for:
-
-- cleanup after PR #66;
-- docs rebaseline;
-- E10D recognition/implementation.
-
-### `PROJECT_STATUS_FOR_MEETING.md`
-
-Stakeholder summary.
-
-Use for:
-
-- concise progress report;
-- what changed recently;
-- current risk framing;
-- recommended next work.
-
-## E10C source artifacts
-
-Local/source pack context:
-
-- FIFA ranking/points CSV was used as source material.
-- Elo ranking HTML was used for Elo rank/rating and historical stats.
-- Elo results 2025/2026 were used for recent form.
-- Elo fixtures/upcoming table was retained as source-preparation/reference context; fixture expectancy was not wired as an active runtime snapshot field in E10C.
-- Normalized pack files were placed locally under `codex-inputs/e10c/` during implementation.
-
-Important:
-
-```text
-codex-inputs/ was not committed and should be deleted after merge cleanup.
-```
-
-Committed runtime artifact:
-
-```text
-lib/prediction-engine/national-team-strength-signal-pack.ts
-```
-
-Generated pack files used during the task should be treated as local/audit inputs, not runtime dependencies.
-
-## Creative / audiovisual docs
-
-These are separate from backend/product roadmap unless the task is creative:
-
-- `UFO_FLOW_CAMPAIGN_SOURCE.md`
-- `UFO_FLOW_PRODUCTION_SOURCE.md`
-- `FLOW_VIDEO_PRODUCTION_PLAYBOOK.md`
-- `FLOW_CHARACTERS_ORION_VEGA_SOURCE.md`
-- `UFO_CHARACTERS_ORION_VEGA_SOURCE.md`
-
-Do not edit these during backend/model docs refresh unless explicitly requested.
-
-## Migration/source files to know
-
-Important recent migrations:
-
-- `0029_manual_publication_match_access_scope_rpc.sql`
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-- `0031_authenticated_public_match_probable_score.sql`
-- `0032_real_fixture_lab_public_finished_result_verification_rls.sql`
-
-Reminder:
-
-- migrations are applied manually;
-- do not edit applied migrations;
-- use new migrations for corrections.
+Do not refresh docs after every microchange.
