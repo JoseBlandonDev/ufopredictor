@@ -22,6 +22,10 @@ const resendConfirmationSchema = z.object({
   next: z.string().optional(),
 });
 
+const continueAfterConfirmationSchema = z.object({
+  next: z.string().optional(),
+});
+
 function buildRedirect(path: string, params: Record<string, string>) {
   const searchParams = new URLSearchParams(params);
 
@@ -35,11 +39,15 @@ function buildAuthConfirmUrl(nextPath: string) {
   return confirmUrl.toString();
 }
 
-function buildCheckEmailRedirect(nextPath: string, message?: string) {
+function buildCheckEmailRedirect(nextPath: string, message?: string, email?: string) {
   const params: Record<string, string> = { next: nextPath };
 
   if (message) {
     params.message = message;
+  }
+
+  if (email) {
+    params.email = email;
   }
 
   return buildRedirect("/auth/check-email", params);
@@ -127,7 +135,7 @@ export async function registerAction(formData: FormData) {
     redirect(nextPath);
   }
 
-  redirect(buildCheckEmailRedirect(nextPath));
+  redirect(buildCheckEmailRedirect(nextPath, undefined, input.data.email));
 }
 
 export async function resendConfirmationAction(formData: FormData) {
@@ -156,7 +164,28 @@ export async function resendConfirmationAction(formData: FormData) {
     buildCheckEmailRedirect(
       nextPath,
       "Si el correo corresponde a una cuenta pendiente, enviaremos una nueva confirmacion.",
+      input.data.email,
     ),
+  );
+}
+
+export async function continueAfterConfirmationAction(formData: FormData) {
+  const input = continueAfterConfirmationSchema.safeParse({
+    next: formData.get("next") ?? undefined,
+  });
+  const nextPath = getSafeRedirectPath(input.success ? input.data.next : undefined);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.auth.getUser();
+
+  if (!error && data.user) {
+    redirect(nextPath);
+  }
+
+  redirect(
+    buildRedirect("/login", {
+      message: "Tu correo ya puede estar confirmado. Inicia sesion para continuar.",
+      next: nextPath,
+    }),
   );
 }
 
