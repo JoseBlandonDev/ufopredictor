@@ -284,7 +284,7 @@ describe("controlled apply rules", () => {
     ).not.toThrow();
   });
 
-  it("rejects finished world cup fixture for narrow apply planning", () => {
+  it("allows finished public world cup fixture with one pending_review match_result", () => {
     const finishedPlan = planControlledFixtureWrite(
       [
         buildFixture({
@@ -310,8 +310,38 @@ describe("controlled apply rules", () => {
         to: "2026-06-11",
         limit: 1,
       },
+      {
+        matchByExternalId: new Map([
+          [
+            "api-football:fixture:1489369",
+            {
+              id: "match-1",
+              external_id: "api-football:fixture:1489369",
+              slug: "world-cup-2026-mexico-vs-south-africa-2026-06-11",
+              access_scope: "public",
+            },
+          ],
+        ]),
+      },
     );
 
+    expect(finishedPlan.matchPlans[0]).toMatchObject({
+      fixtureId: 1489369,
+      status: "finished",
+      accessScope: "public",
+      intakeSource: "api_football",
+    });
+    expect(finishedPlan.matchResultPlans).toEqual([
+      {
+        action: "create",
+        matchExternalId: "api-football:fixture:1489369",
+        homeGoals: 1,
+        awayGoals: 0,
+        verificationStatus: "pending_review",
+        intakeSource: "api_football",
+        sourceNote: finishedPlan.sourceNote,
+      },
+    ]);
     expect(() =>
       assertSingleWorldCupApplyPlan(finishedPlan, worldCupTarget, {
         competitionKey: "world-cup",
@@ -320,7 +350,7 @@ describe("controlled apply rules", () => {
         to: "2026-06-11",
         limit: 1,
       }),
-    ).toThrow(/scheduled exact fixture/i);
+    ).not.toThrow();
   });
 
   it("rejects world cup apply when more than one match is planned", () => {
@@ -366,7 +396,7 @@ describe("controlled apply rules", () => {
     ).toThrow(/exactly one planned match/i);
   });
 
-  it("rejects world cup apply when any match_result write is planned", () => {
+  it("rejects scheduled world cup apply when any match_result write is planned", () => {
     const plan = planControlledFixtureWrite(
       [
         buildFixture({
@@ -451,6 +481,45 @@ describe("controlled apply rules", () => {
         limit: 1,
       }),
     ).toThrow(/admin_only match access scope/i);
+  });
+
+  it("rejects finished world cup apply if the preserved access_scope is not public", () => {
+    const finishedPlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489369,
+          kickoffAt: "2026-06-11T19:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 2, away: 0 },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      },
+    );
+
+    expect(() =>
+      assertSingleWorldCupApplyPlan(finishedPlan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489369,
+        from: "2026-06-11",
+        to: "2026-06-11",
+        limit: 1,
+      }),
+    ).toThrow(/finished world cup apply requires public match access scope/i);
   });
 
   it("rejects world cup apply if intake_source is not api_football", () => {

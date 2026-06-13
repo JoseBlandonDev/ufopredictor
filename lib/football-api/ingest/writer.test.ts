@@ -118,6 +118,31 @@ function createStatefulWriterClient(state: {
     slug: string;
     country: string | null;
   }>;
+  matches?: Array<{
+    id: string;
+    external_id: string | null;
+    slug: string;
+    competition_id: string;
+    season_id: string;
+    home_team_id: string;
+    away_team_id: string;
+    venue_id: string | null;
+    kickoff_at: string;
+    stage: string | null;
+    status: string;
+    access_scope: string;
+    intake_source: string;
+    source_note: string | null;
+  }>;
+  match_results?: Array<{
+    id: string;
+    match_id: string;
+    home_goals: number;
+    away_goals: number;
+    verification_status: string;
+    intake_source: string;
+    source_note: string | null;
+  }>;
 }) {
   const db = {
     competitions: [...(state.competitions ?? [])],
@@ -130,7 +155,7 @@ function createStatefulWriterClient(state: {
       ends_at: string;
     }>,
     teams: [...(state.teams ?? [])],
-    matches: [] as Array<{
+    matches: [...(state.matches ?? [])] as Array<{
       id: string;
       external_id: string | null;
       slug: string;
@@ -146,7 +171,7 @@ function createStatefulWriterClient(state: {
       intake_source: string;
       source_note: string | null;
     }>,
-    match_results: [] as Array<{
+    match_results: [...(state.match_results ?? [])] as Array<{
       id: string;
       match_id: string;
       home_goals: number;
@@ -965,6 +990,95 @@ describe("writer team slug reuse", () => {
       limit: 1,
     });
 
+    expect(fake.calls.touchedTables).not.toContain("prediction_versions");
+    expect(fake.calls.touchedTables).not.toContain("prediction_results");
+  });
+
+  it("allows exact finished world cup apply to write one pending_review match_result for an existing public fixture", async () => {
+    const fake = createStatefulWriterClient({
+      competitions: [
+        {
+          id: "competition-existing",
+          external_id: "api-football:league:1",
+          name: "World Cup",
+          slug: "world-cup-2026",
+          country: "World",
+          type: "international",
+          usage_scope: "public_product",
+        },
+      ],
+      teams: [
+        {
+          id: "team-mexico",
+          external_id: "api-football:team:16",
+          name: "Mexico",
+          slug: "mexico",
+          country: "Mexico",
+        },
+        {
+          id: "team-south-africa",
+          external_id: "api-football:team:1531",
+          name: "South Africa",
+          slug: "south-africa",
+          country: "South Africa",
+        },
+      ],
+      matches: [
+        {
+          id: "match-public-1",
+          external_id: "api-football:fixture:1489369",
+          slug: "world-cup-2026-mexico-vs-south-africa-2026-06-11",
+          competition_id: "competition-existing",
+          season_id: "season-1",
+          home_team_id: "team-mexico",
+          away_team_id: "team-south-africa",
+          venue_id: null,
+          kickoff_at: "2026-06-11T19:00:00Z",
+          stage: "Group Stage - 1",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: "existing public match",
+        },
+      ],
+    });
+
+    createSupabaseScriptAdminClientMock.mockReturnValue(fake.client);
+
+    const report = await executeControlledFixtureWrite({
+      target: worldCupTarget,
+      fixtures: [
+        buildWorldCupFixture({
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 2, away: 0 },
+        }),
+      ],
+      apply: true,
+      fixtureId: 1489369,
+      from: "2026-06-11",
+      to: "2026-06-11",
+      limit: 1,
+    });
+
+    expect(report.counts.matchesUpdated).toBe(1);
+    expect(report.counts.matchResultsCreated).toBe(1);
+    expect(fake.db.matches[0]).toMatchObject({
+      id: "match-public-1",
+      external_id: "api-football:fixture:1489369",
+      access_scope: "public",
+      status: "finished",
+      intake_source: "api_football",
+    });
+    expect(fake.db.match_results).toEqual([
+      expect.objectContaining({
+        match_id: "match-public-1",
+        home_goals: 2,
+        away_goals: 0,
+        verification_status: "pending_review",
+        intake_source: "api_football",
+      }),
+    ]);
     expect(fake.calls.touchedTables).not.toContain("prediction_versions");
     expect(fake.calls.touchedTables).not.toContain("prediction_results");
   });
