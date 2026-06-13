@@ -17,17 +17,42 @@ const registerSchema = loginSchema.extend({
   password: z.string().min(8),
 });
 
+const resendConfirmationSchema = z.object({
+  email: z.string().trim().email(),
+  next: z.string().optional(),
+});
+
 function buildRedirect(path: string, params: Record<string, string>) {
   const searchParams = new URLSearchParams(params);
 
   return `${path}?${searchParams.toString()}`;
 }
 
-function buildAuthCallbackUrl(nextPath: string) {
-  const callbackUrl = buildAppUrl("/auth/callback");
-  callbackUrl.searchParams.set("next", nextPath);
+function buildAuthConfirmUrl(nextPath: string) {
+  const confirmUrl = buildAppUrl("/auth/confirm");
+  confirmUrl.searchParams.set("next", nextPath);
 
-  return callbackUrl.toString();
+  return confirmUrl.toString();
+}
+
+function buildCheckEmailRedirect(nextPath: string, message?: string) {
+  const params: Record<string, string> = { next: nextPath };
+
+  if (message) {
+    params.message = message;
+  }
+
+  return buildRedirect("/auth/check-email", params);
+}
+
+function getLoginErrorMessage(error: { code?: string; message?: string }) {
+  const normalizedError = `${error.code ?? ""} ${error.message ?? ""}`.toLowerCase();
+
+  if (normalizedError.includes("email_not_confirmed") || normalizedError.includes("email not confirmed")) {
+    return "Tu correo aun no esta confirmado. Revisa tu email o reenvia la confirmacion.";
+  }
+
+  return "No pudimos iniciar sesion. Revisa tus datos. Si te registraste con email y contrasena, confirma tu correo primero.";
 }
 
 export async function loginAction(formData: FormData) {
@@ -38,7 +63,7 @@ export async function loginAction(formData: FormData) {
   });
 
   if (!input.success) {
-    redirect(buildRedirect("/login", { error: "Ingresa un correo y una contraseña válidos." }));
+    redirect(buildRedirect("/login", { error: "Ingresa un correo y una contrasena validos." }));
   }
 
   const nextPath = getSafeRedirectPath(input.data.next);
@@ -51,7 +76,7 @@ export async function loginAction(formData: FormData) {
   if (error) {
     redirect(
       buildRedirect("/login", {
-        error: "No pudimos iniciar sesión. Revisa tu correo y contraseña.",
+        error: getLoginErrorMessage(error),
         next: nextPath,
       }),
     );
@@ -71,7 +96,7 @@ export async function registerAction(formData: FormData) {
   if (!input.success) {
     redirect(
       buildRedirect("/register", {
-        error: "Completa tus datos y usa una contraseña de mínimo 8 caracteres.",
+        error: "Completa tus datos y usa una contrasena de minimo 8 caracteres.",
       }),
     );
   }
@@ -85,14 +110,14 @@ export async function registerAction(formData: FormData) {
       data: {
         full_name: input.data.fullName,
       },
-      emailRedirectTo: buildAuthCallbackUrl(nextPath),
+      emailRedirectTo: buildAuthConfirmUrl(nextPath),
     },
   });
 
   if (error) {
     redirect(
       buildRedirect("/register", {
-        error: "No pudimos crear la cuenta. Verifica los datos o intenta más tarde.",
+        error: "No pudimos crear la cuenta. Verifica los datos o intenta mas tarde.",
         next: nextPath,
       }),
     );
@@ -102,11 +127,36 @@ export async function registerAction(formData: FormData) {
     redirect(nextPath);
   }
 
+  redirect(buildCheckEmailRedirect(nextPath));
+}
+
+export async function resendConfirmationAction(formData: FormData) {
+  const input = resendConfirmationSchema.safeParse({
+    email: formData.get("email"),
+    next: formData.get("next") ?? undefined,
+  });
+
+  const nextPath = getSafeRedirectPath(input.success ? input.data.next : undefined);
+
+  if (!input.success) {
+    redirect(buildCheckEmailRedirect(nextPath, "Ingresa un correo valido para reenviar la confirmacion."));
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  await supabase.auth.resend({
+    type: "signup",
+    email: input.data.email,
+    options: {
+      emailRedirectTo: buildAuthConfirmUrl(nextPath),
+    },
+  });
+
   redirect(
-    buildRedirect("/login", {
-      message: "Cuenta creada. Revisa tu correo para confirmar el acceso.",
-      next: nextPath,
-    }),
+    buildCheckEmailRedirect(
+      nextPath,
+      "Si el correo corresponde a una cuenta pendiente, enviaremos una nueva confirmacion.",
+    ),
   );
 }
 
@@ -114,5 +164,5 @@ export async function logoutAction() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
-  redirect(buildRedirect("/login", { message: "Sesión cerrada correctamente." }));
+  redirect(buildRedirect("/login", { message: "Sesion cerrada correctamente." }));
 }
