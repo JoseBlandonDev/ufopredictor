@@ -1,152 +1,126 @@
-# UFO Predictor — Next Epics Plan
+# Next Epics Plan - UFO Predictor
 
-Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
+_Last refreshed: post PR #71 plus parallel work planning._
 
 ## Current position
 
-E10C is complete and merged. The model now has real input signals for the 48 canonical World Cup teams.
+MVP 1 basic public fixture operations are functional. The public prediction list is readable, verified final results can be shown, and the admin Lab is usable for ongoing fixture operations.
 
-That means the next model work should be **calibration**, not more blind enrichment, not another “maybe the 1-1 will go away if we glare at it” session.
+The next work should avoid reopening closed foundations unless a bug appears.
 
-## Immediate sequence
-
-### Step 1 — Local cleanup after PR #66
-
-Run from PowerShell:
-
-```powershell
-git checkout main
-git pull origin main
-git status --short
-git branch -d feature/e10c-real-signal-enrichment
-git push origin --delete feature/e10c-real-signal-enrichment
-Remove-Item -Recurse -Force codex-inputs
-git status --short
-```
-
-### Step 2 — Docs rebaseline post-E10C
-
-Status: active.
-
-Goal:
-
-- update project source docs after PR #66;
-- ensure new conversations know E10C is done;
-- ensure Codex does not redo signal enrichment or parse raw packs.
-
-### Step 3 — E10D read-only recognition
-
-Before implementation, ask Codex to inspect:
-
-- expected goals;
-- scoreline generation;
-- how E10C signals flow into prediction generation;
-- tests and current outputs.
-
-No edits in recognition.
-
-### Step 4 — E10D implementation
-
-Implement calibrated xG/scoreline changes only after recognition is reviewed.
-
-## E10D proposed scope
+## Recommended next main epic: Premium Prediction Detail MVP
 
 ### Goal
 
-Use E10C signals to calibrate expected goals and most-likely-score behavior.
+Give paid/authenticated users more value than the public basic prediction while preserving internal/public boundaries.
 
-### Likely files to inspect/change
+### Suggested scope
 
-Likely inspect:
+- Top 3 probable scorelines with probabilities.
+- Expected goals for both teams.
+- BTTS probability.
+- Over/Under 2.5 probability.
+- Key model factors.
+- Confidence/risk explanation.
+- Clear "probability, not certainty" copy.
 
-- `lib/prediction-engine/expected-goals.ts`
-- prediction generation path;
-- national-team snapshot consumption;
-- scoreline probability logic;
-- tests around generated predictions.
+### Non-goals
 
-Likely tests:
+- Do not expose `prediction_results`.
+- Do not expose raw Lab/admin payloads.
+- Do not use odds/provider predictions.
+- Do not add signal refresh automation.
+- Do not add venue metadata unless separately scoped.
 
-- `lib/prediction-engine/generate-prediction.test.ts`
-- `lib/prediction-engine/national-team-strength-snapshots.test.ts`
-- adapter tests if fixture output changes.
+### Branch
 
-### E10D non-goals
-
-- no UI changes;
-- no publication/refresh changes;
-- no API-Football ingest changes;
-- no Supabase migrations;
-- no payments;
-- no public exposure of `prediction_results`;
-- no betting odds/provider prediction input.
-
-## E10D success criteria
-
-- favorites and mismatches produce more plausible xG gaps;
-- balanced fixtures can still produce draws;
-- `1-1` is no longer a lazy attractor for too many fixtures;
-- modal score distribution responds to FIFA/Elo/recent-form differences;
-- changes are covered by tests;
-- no public/internal boundary regressions.
-
-## Later epics
-
-### E10E — lineup/injury context
-
-Current placeholder:
-
-```text
-lineupContextScore = 50
+```powershell
+git checkout -b feature/premium-prediction-detail-mvp
 ```
 
-Future design should define:
+## Recommended parallel epic: Epic G - Product Platform and Monetization Foundations
 
-- data source;
-- manual vs automated handling;
-- freshness/provenance;
-- public explanation rules.
+### Goal
 
-### E10F — market context decision
+Let another contributor work in parallel on account, plans, billing, and product shell foundations while model/data/fixture operations continue separately.
 
-Current placeholder:
+### Suggested scope
 
-```text
-marketScore = 50
+- G01 Google auth/account UX polish.
+- G02 Plans/pricing page MVP.
+- G03 Payment provider spike.
+- G04 Subscription/entitlement model proposal.
+- G05 Premium gate UI shell.
+- G06 Trust/legal/product copy.
+
+### Non-goals
+
+- Do not touch prediction engine.
+- Do not touch API-Football ingest/apply.
+- Do not touch signal packs.
+- Do not expose `prediction_results`.
+- Do not change public prediction projections unless explicitly scoped.
+- Do not implement real payments before provider decision.
+
+### Branch
+
+```powershell
+git checkout -b feature/product-platform-foundations
 ```
 
-Open decision:
+## Recommended next epic 2: Venue/Stadium Metadata
 
-- whether to include market data as transparent calibration/reference;
-- how to avoid hidden betting-driven predictions;
-- whether product positioning allows it.
+### Goal
 
-Default:
+Replace "Sede por confirmar" with reliable stadium/city data where possible.
 
-```text
-Do not use betting odds or provider predictions as hidden model inputs.
+### Required decisions
+
+- Use API-Football venue data, manual World Cup venue map, or both?
+- Store venue IDs/names/cities in existing tables or new controlled mapping?
+- How to handle provider uncertainty?
+
+### Branch
+
+```powershell
+git checkout -b feature/world-cup-venue-metadata
 ```
 
-### Data-quality polish
+## Recommended next epic 3: Signal Refresh Strategy
 
-- cleanup mojibake/source labels;
-- ensure display labels are safe for future public explanation;
-- keep canonical keys stable.
+### Goal
 
-## Suggested E10D recognition prompt
+Keep FIFA/Elo/recent-form signal data reasonably fresh during the tournament without per-match manual chaos.
 
-```text
-We are working in UFO Predictor.
+### First version
 
-Run a read-only recognition for E10D scoreline/xG calibration.
+- Manual or semi-manual daily refresh.
+- Rebuild signal pack.
+- Review diff.
+- Commit safe generated artifacts.
+- Avoid per-match panic updates.
 
-Context:
-- PR #66 E10C real signal enrichment is merged.
-- The 48 canonical World Cup team snapshots now include FIFA rank/points, Elo rank/rating, historical stats, and recent-form fields.
-- marketScore and lineupContextScore are neutral placeholders at 50.
-- E10C did not change expected-goals.ts or scoreline calibration.
+### Later version
 
-Do not edit files, commit, push, run SQL, or use web search.
+- Worker/cron.
+- Audit trail.
+- Admin freshness indicator.
+- Controlled source snapshots.
 
-Inspect expected-goals and scoreline generation. Report where 1-1 overproduction likely comes from, how E10C signals currently feed the model, and propose a safe E10D implementation plan with tests.
+### Branch
+
+```powershell
+git checkout -b feature/national-team-signal-refresh-workflow
 ```
+
+## Recommended ongoing operations
+
+Continue exact fixture operations:
+
+1. Discover fixture IDs.
+2. Exact dry-run.
+3. Exact apply after approval.
+4. Save internal prediction.
+5. Publish public prediction.
+6. Verify final results.
+7. Persist internal evaluation.

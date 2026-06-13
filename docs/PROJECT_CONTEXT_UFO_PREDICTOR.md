@@ -1,97 +1,36 @@
-# UFO Predictor — Project Context
+# Project Context - UFO Predictor
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+_Last refreshed: post PR #71 plus parallel work planning._
 
-UFO Predictor is a football prediction product focused on probabilistic match forecasts, transparent methodology, and safe free/premium presentation.
+UFO Predictor is a probabilistic World Cup 2026 football prediction product.
 
-## Product stance
+Current phase: MVP 1 controlled public fixture operations.
 
-UFO Predictor provides probabilistic analysis.
+## Product boundaries
 
-It does not:
+UFO Predictor does not:
 
-- receive bets;
-- guarantee outcomes;
-- provide betting advice;
-- use provider predictions as its own hidden prediction source;
-- use betting odds as hidden model input in the current MVP stages.
+- accept bets;
+- guarantee results;
+- use provider predictions/odds as hidden inputs;
+- expose internal evaluation data publicly.
 
-## Current launch focus
+## Current product state
 
-The current focus is MVP 1 for World Cup 2026.
+- Public selected-fixture predictions exist.
+- Public predictions prioritize active/upcoming fixtures.
+- Finished fixtures can show verified final results.
+- Real Fixture Lab is usable for current operations.
+- Premium detail is not implemented.
 
-Four real World Cup fixtures are public:
+## Current model state
 
-- Mexico vs South Africa — `api-football:fixture:1489369`;
-- South Korea vs Czech Republic — `api-football:fixture:1538999`;
-- Canada vs Bosnia & Herzegovina — `api-football:fixture:1539000`;
-- USA vs Paraguay — `api-football:fixture:1489370`.
+- E10C signal enrichment complete.
+- E10D xG/scoreline calibration complete.
+- `marketScore` and `lineupContextScore` remain neutral.
 
-This validates the product path from real fixture ingest to public prediction visibility across multiple selected fixtures.
+## Collaboration context
 
-## Brand/product promise
+ChatGPT generates project-state docs refreshes. User manually copies docs into repo. Codex verifies docs-only consistency.
 
-The product should feel:
-
-- data-driven;
-- transparent;
-- careful about uncertainty;
-- premium but not casino-like;
-- credible enough to survive contact with actual football, a sport designed to embarrass spreadsheets.
-
-## Current product boundaries
-
-Public product may show:
-
-- selected real fixture predictions;
-- 1X2 probabilities;
-- confidence/risk framing;
-- basic match context;
-- public-safe explanation copy.
-
-Public product must not expose:
-
-- internal Lab rows;
-- `prediction_results`;
-- raw internal evaluation payloads;
-- provider predictions;
-- betting odds as model input;
-- admin-only fixtures.
-
-## Current access-tier direction
-
-Not fully implemented yet.
-
-Recommended direction:
-
-| User type | Product value |
-|---|---|
-| Anonymous | 1X2 probabilities, confidence/risk, basic match context. |
-| Registered free | probable score, short interpretation, watchlist/following. |
-| Premium future | top scorelines, BTTS, Over/Under, deeper analysis and signal explanation. |
-
-This is still a product decision for E09, not an implemented contract.
-
-## Current operational style
-
-The MVP 1 launch flow is intentionally manual and exact-fixture-based:
-
-```text
-exact fixture read
--> dry-run
--> exact apply
--> internal prediction
--> manual publication
--> public verification
-```
-
-Already-public fixtures can now be refreshed exactly:
-
-```text
-exact public fixture load
--> fresh internal evidence
--> replacement public prediction row
--> public verification
-```
-
-No broad apply. No batch publication. No automatic publication.
+A parallel-safe Epic G is planned for account/plans/billing/product shell work so another contributor can help without colliding with model/data operations.

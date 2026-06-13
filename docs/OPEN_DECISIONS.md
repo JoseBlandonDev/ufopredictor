@@ -1,169 +1,124 @@
-# UFO Predictor — Open Decisions
+# Open Decisions - UFO Predictor
 
-Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
+_Last refreshed: post PR #71 plus parallel work planning._
 
-## Recently settled
+## Decisions closed recently
 
-### Authenticated probable score
+### E10D direction
 
-Settled by PR #63.
+Decision: E10D was implemented as expected-goals/scoreline calibration using E10C enriched national-team metadata.
 
-Decision:
+Rationale: the model needed to stop behaving like a fallback-only engine that overproduced `1-1`, especially for clear mismatches.
 
-- probable score is available to authenticated users on match detail;
-- anonymous users see teaser/locked value state;
-- `prediction_results` stays internal.
+### Prelaunch refresh for finished fixtures
 
-### Canonical 48-team World Cup catalog
+Decision: allow exact admin-only append refresh for already-public scheduled/finished fixtures during prelaunch.
 
-Settled by PR #64.
+Rationale: before public launch, some first fixtures had been published with incomplete model/data context. Refreshing with the current model/data is acceptable when not using final results as hidden prediction input.
 
-Decision:
+Boundary: this is append-only and does not mutate results or internal evaluations.
 
-- use canonical World Cup 2026 catalog as internal source of truth for team coverage;
-- keep legacy/test-only snapshot keys only where tests still require them.
+### Public verified result display
 
-### Public finished result verification
+Decision: verified final scores can be shown publicly as public-safe match data.
 
-Settled by PR #65.
+Boundary: do not expose `prediction_results`, exact-score correctness internals, raw evaluation payloads, or Lab payloads.
 
-Decision:
+### Lab legacy fixtures
 
-- finished public fixtures can be verified in Real Fixture Lab;
-- internal evaluation can be persisted;
-- public UI may show final status/result;
-- public UI must not expose internal evaluation or `prediction_results`.
+Decision: do not delete legacy/pilot fixtures yet. Relegate/collapse them in the Lab UI.
 
-### E10C real signal enrichment
+Rationale: preserves audit/history while making current operations usable.
 
-Settled by PR #66.
+### Documentation refresh ownership
 
-Decision:
+Decision: ChatGPT generates project-source documentation refreshes. The user manually copies files into `docs/`. Codex verifies docs-only consistency afterward.
 
-- commit static generated signal module;
-- do not commit `codex-inputs/`;
-- use FIFA/Elo/recent-form fields in national-team snapshots;
-- keep market and lineup signals neutral placeholders;
-- defer expected-goals/scoreline calibration to E10D.
+Rationale: ChatGPT holds broader cross-conversation context. Codex is better suited to repo verification, status checks, and diff auditing.
 
-## Current open decisions
+### Parallel work track
 
-### 1. E10D calibration strategy
+Decision: define Epic G as a parallel-safe Product Platform and Monetization Foundations track.
 
-Open.
+Rationale: another contributor can work on account/plans/billing/product shell tasks while main work continues on data/model/fixtures.
 
-Questions:
+Boundary: Epic G must avoid prediction engine, ingest, signal packs, result verification, and internal prediction result exposure unless explicitly scoped.
 
-- how much should Elo/FIFA differential move xG?
-- how much should recent form move xG?
-- how should historical attack/defense affect scoreline probabilities?
-- how should the draw probability be dampened or preserved?
-- what fixtures become regression examples?
+## Open decisions
 
-Default posture:
+### Premium MVP content
 
-```text
-Start with read-only recognition and output snapshots before changing math.
-```
+Need to decide exact public-safe premium fields and layout.
 
-### 2. Market signal policy
+Likely included:
 
-Open.
-
-Current state:
-
-```text
-marketScore = 50
-```
-
-Questions:
-
-- should market odds ever be used as an explicit transparent signal?
-- would this conflict with UFO’s no-betting/no-guarantee positioning?
-- how do we prevent hidden provider/odds copying?
-
-Default decision until changed:
-
-```text
-No betting odds or provider predictions as hidden model input.
-```
-
-### 3. Lineup/injury context
-
-Open.
-
-Current state:
-
-```text
-lineupContextScore = 50
-```
-
-Questions:
-
-- manual editorial admin field or structured external source?
-- how fresh must lineup data be?
-- how should uncertainty be represented?
-- should the public ever see this as explanation copy?
-
-### 4. Encoding/mojibake cleanup
-
-Open / low priority.
-
-Known issue:
-
-- some generated source labels may contain mojibake for accented names.
-
-Decision needed:
-
-- clean now as data polish, or defer until explanation/display uses those labels.
-
-Current recommendation:
-
-```text
-Defer unless labels become user-facing or tests reveal risk.
-```
-
-### 5. Formal prediction lineage
-
-Open.
-
-Current state:
-
-- public rows are operationally linked by process/history;
-- no formal DB-native `source_prediction_version_id` lineage has been implemented.
-
-Question:
-
-- add lineage before broader automation/public accuracy dashboard?
-
-Current recommendation:
-
-- acceptable for MVP 1;
-- revisit before scale/automation.
-
-### 6. Premium detail scope
-
-Open.
-
-Already done:
-
-- authenticated probable score.
-
-Still open:
-
-- top scorelines;
+- top 3 scorelines with probabilities;
+- expected goals;
 - BTTS;
-- over/under;
-- deeper model explanation;
-- watchlist/tournament pass value.
+- Over/Under 2.5;
+- key model factors;
+- confidence/risk explanation.
 
-Do not implement payments until premium value is more concrete.
+Need to avoid:
 
-## Standing decisions that should not be reopened casually
+- raw Lab payloads;
+- `prediction_results`;
+- provider predictions;
+- odds as hidden input.
 
-- Manual exact-fixture publication remains the MVP path.
-- Broad ingest/apply is forbidden for now.
-- Supabase migrations are manual.
-- `prediction_results` stays internal.
-- Public rows should be public-safe copies, not Lab internals.
-- Codex should not search the web for model data when normalized local packs are provided.
+### Venue/stadium metadata
+
+Need to decide source and storage:
+
+- API-Football venue data;
+- manual World Cup canonical venue map;
+- hybrid approach;
+- fallback copy when venue is unknown.
+
+### Signal refresh strategy
+
+Need to decide cadence and ownership:
+
+- daily refresh during World Cup;
+- semi-manual checkpoints;
+- no per-match panic updates;
+- later worker/cron automation.
+
+### Payment provider
+
+Need to choose provider before real billing implementation:
+
+- Stripe Checkout;
+- Mercado Pago;
+- Wompi;
+- other provider based on market/support.
+
+This decision requires up-to-date provider research before implementation.
+
+### Subscription/entitlement model
+
+Need to decide schema and gating model before real premium enforcement.
+
+Possible concepts:
+
+- plans;
+- subscriptions;
+- entitlements;
+- billing events;
+- account profile state.
+
+### Lineup/injury context
+
+`lineupContextScore` remains neutral. Need source and update strategy.
+
+### Market context
+
+`marketScore` remains neutral. If implemented, must avoid using betting odds or provider predictions as hidden prediction inputs unless the product direction explicitly changes and legal/product boundaries are revisited.
+
+## Decisions not to reopen casually
+
+- Do not expose `prediction_results` publicly.
+- Do not use odds/provider predictions as hidden model input.
+- Do not commit `codex-inputs/`.
+- Do not automate broad API-Football writes without a dedicated safety design.
+- Do not document every microchange.

@@ -1,165 +1,135 @@
-# UFO Predictor — Data Dictionary
+# Data Dictionary - UFO Predictor
 
-Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
+_Last refreshed: post PR #71 plus parallel work planning._
 
-This dictionary documents fields and concepts that matter for the current MVP 1 prediction/publication flow. Do not treat this as a complete database schema dump. That would be useful in theory and unreadable in practice, a classic human compromise.
+## Purpose
 
-## Prediction visibility concepts
+This file summarizes project-level data concepts and public/internal boundaries. It is not a full database schema dump.
 
-### `prediction_results`
+## Core entities
 
-Internal-only prediction/evaluation data.
+### competitions
 
-Rules:
+Represents competitions such as World Cup 2026.
 
-- do not expose publicly;
-- do not use directly in public routes;
-- do not show internal evaluation payloads;
-- keep Lab/admin boundary intact.
+Important concepts:
 
-### `internal_lab`
+- `usage_scope = public_product` for public product competitions.
+- Public fixture flows should only expose controlled public competition data.
 
-Internal prediction/evidence row type or context.
+### matches
 
-Used for:
+Represents fixtures/matches.
 
-- Real Fixture Lab evidence;
-- admin review;
-- internal evaluation.
+Important fields/concepts:
 
-Not public.
+- `external_id` such as `api-football:fixture:<id>`.
+- `intake_source = api_football` for real fixtures ingested from API-Football.
+- `access_scope` controls admin/public reach.
+- `status` can include scheduled/finished states.
+- venue metadata is incomplete and may remain null/unknown.
 
-### `public_product`
+### teams
 
-Public-safe prediction row/context.
+Represents teams from provider/canonical data.
 
-Used for:
+World Cup canonical team enrichment is separate from raw provider team rows.
 
-- public predictions list;
-- match detail;
-- public display of selected safe fields.
+### prediction_versions
 
-Public refresh appends a new `public_product` row rather than mutating history.
+Stores prediction version rows.
 
-## Match/publication concepts
+Key concepts:
 
-### Match access/public status
+- `run_scope = internal_lab` for internal/admin predictions.
+- `run_scope = public_product` for public-facing prediction rows.
+- `prediction_type = pre_match_24h` for the current main real fixture prediction type.
+- Refresh is append-only: new versions are inserted rather than mutating old ones.
 
-Manual publication changes match visibility through narrow controlled RPC, not direct random row edits.
+### prediction_markets
 
-Stable RPC:
+Stores market/probability rows associated with predictions.
 
-```text
-publish_real_fixture_match_access_scope(target_match_id, target_match_slug)
-```
+Public basic surface uses public-safe 1X2 and summary probabilities.
 
-### Finished result verification
+### match_results
 
-Finished public fixtures can go through:
+Stores match results and verification state.
 
-```text
-pending_review -> verified
-```
+Current public projection only exposes verified final result fields.
 
-Admin action verifies the result and allows internal evaluation persistence. Public final result/status can be shown without exposing internal `prediction_results`.
+Public-safe verified fields include:
 
-## National-team strength snapshot fields
+- verified home goals;
+- verified away goals;
+- verification status when verified.
 
-After PR #66, canonical World Cup national-team snapshots include real signal metadata for all 48 teams.
+Unverified/pending results should not be treated as final public truth.
 
-### FIFA fields
+### prediction_results
 
-| Field | Meaning | Status |
-|---|---|---:|
-| `fifaRank` | FIFA ranking position | active after E10C |
-| `fifaPoints` | FIFA ranking points | active after E10C |
-| `fifaScore` | derived normalized FIFA signal score, where present | active after E10C |
-| `fifaSourceTeamName` / provenance equivalent | source-label mapping | metadata; may contain encoding/source-label cleanup debt |
+Internal evaluation results only.
 
-### Elo fields
+Do not expose publicly.
 
-| Field | Meaning | Status |
-|---|---|---:|
-| `eloRank` | Elo ranking position | active after E10C |
-| `eloRating` | Elo rating | active after E10C |
-| `eloAverageRank` | Elo average rank from the source pack | active after E10C |
-| `eloAverageRating` | Elo average rating from the source pack | active after E10C |
+Examples of internal evaluation fields that must remain private:
 
-Raw Elo totals such as matches, wins, losses, draws, goals for, and goals against were used during source-pack preparation, but E10C does **not** expose those raw totals directly in the runtime snapshot layer. The committed snapshot layer exposes the derived fields below instead. A future data-quality/model task can promote additional raw fields if the model needs them.
+- exact score correctness;
+- winner correctness;
+- goal error;
+- evaluation payloads;
+- internal audit data.
 
-### Derived historical fields
+## Public views / projections
 
-| Field | Meaning | Status |
-|---|---|---:|
-| `historicalGoalsForPerMatch` | goals-for rate derived from historical Elo stats | active after E10C |
-| `historicalGoalsAgainstPerMatch` | goals-against rate derived from historical Elo stats | active after E10C |
+### public_prediction_summaries
 
-Other normalized scores may exist in the local/generated signal-pack source, but they should not be documented as active runtime snapshot fields unless the TypeScript snapshot type exposes them. Yes, field drift is how documentation becomes decorative wallpaper.
+Public-safe summary for public prediction cards/list.
 
-### Recent-form fields
+After PR #70 / migration `0034_public_verified_match_results_projection.sql`, it can include verified final result fields appended to the existing projection.
 
-| Field | Meaning | Status |
-|---|---|---:|
-| `recentMatchCount` | recent matches available/used from the source pack | active after E10C |
+Must not expose `prediction_results`.
 
-Recent-form data came from 2025/2026 results in the local normalized E10C pack. E10C records recent-form availability/count in the runtime snapshot layer; deeper recent-form scoring remains available for future model work and E10D analysis if wired explicitly.
+### public_match_details
 
-### Placeholder fields
+Public-safe detail projection for selected public matches.
 
-| Field | Current value | Meaning |
-|---|---:|---|
-| `marketScore` | `50` | neutral placeholder; no market/odds signal currently used |
-| `lineupContextScore` | `50` | neutral placeholder; no lineup/injury signal currently used |
+After PR #70 / migration `0034_public_verified_match_results_projection.sql`, it can include verified final result fields.
 
-Do not interpret these as real signals yet. They are placeholders, not tiny oracles.
+Must not expose internal Lab/evaluation data.
 
-## Generated source module
+## Model signal concepts
 
-Committed generated module:
+E10C generated runtime-safe signal metadata for 48 canonical World Cup teams:
 
-```text
-lib/prediction-engine/national-team-strength-signal-pack.ts
-```
+- FIFA rank / points;
+- Elo rank / rating;
+- Elo average rank / rating;
+- historical goals for per match;
+- historical goals against per match;
+- recentMatchCount;
+- neutral `marketScore: 50`;
+- neutral `lineupContextScore: 50`.
 
-Expected properties:
+Raw source files and `codex-inputs/` are not runtime dependencies and must not be committed unless explicitly scoped.
 
-- static source constants;
-- no runtime filesystem dependency;
-- no runtime `codex-inputs/` dependency;
-- generated from reviewed local pack;
-- covers all 48 canonical World Cup teams.
+## Product platform data concepts planned for Epic G
 
-## Local input files
+Epic G may propose but should not blindly apply real schema changes for:
 
-Local-only source packs may live temporarily under:
+- profiles/account state;
+- plans;
+- subscriptions;
+- entitlements;
+- billing events;
+- payment provider customer IDs;
+- premium access state.
 
-```text
-codex-inputs/
-```
+Any payment/subscription schema should be reviewed before migrations are applied.
 
-Rules:
+## Boundary reminders
 
-- do not commit;
-- do not import from runtime code;
-- delete after merge/cleanup;
-- use only for generation/audit.
-
-## Known data-quality debt
-
-Some source labels may have encoding/mojibake for accented names such as country display labels.
-
-Current interpretation:
-
-- non-blocking if canonical keys and tests are correct;
-- should be cleaned before user-facing explanation copy depends on those labels.
-
-## Forbidden data assumptions
-
-Do not assume:
-
-- market odds exist as model input;
-- provider predictions exist as model input;
-- lineup/injury context is real yet;
-- `prediction_results` can be publicly queried;
-- raw source HTML/CSV should be used at runtime;
-- all public result/evaluation data is safe to expose.
+- Public views expose safe product data only.
+- Internal Lab and evaluation data stay internal.
+- Supabase migrations are applied manually through SQL Editor.
+- Do not use betting odds or provider predictions as hidden model inputs.

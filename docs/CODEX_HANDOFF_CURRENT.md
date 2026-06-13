@@ -1,202 +1,134 @@
-# Codex Handoff — UFO Predictor Current
+# Codex Handoff Current - UFO Predictor
 
-Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
+_Last refreshed: post PR #71 plus parallel work planning._
 
-Use this before asking Codex to inspect or implement anything. Codex is powerful, but so is a chainsaw. Context first, limbs later.
+## Baseline ritual
 
-## Current branch baseline
-
-Start from updated `main` unless the user explicitly says otherwise.
-
-Recommended PowerShell baseline:
+Before implementation work:
 
 ```powershell
 git checkout main
 git pull origin main
 git status --short
-git log --oneline -5
 ```
 
-Never work directly on `main` for implementation.
+Never implement directly on `main`. Create a scoped feature branch unless the user explicitly says otherwise.
 
-## Recent merged PRs
+## Current project state
 
-| PR | Title | Notes |
-|---:|---|---|
-| #63 | `feat: gate probable score to authenticated match detail` | authenticated probable score, anonymous teaser, `prediction_results` internal |
-| #64 | `Feature/e10b real team strength snapshots` | canonical 48-team World Cup catalog/snapshot foundation |
-| #65 | `feat: support public finished fixture result verification` | admin verification of finished public fixture results |
-| #66 | `feat: enrich national team strength signals` | E10C real signal pack wired into snapshot layer |
+Merged recent work:
 
-## PR #66 implementation summary
+- PR #66: E10C real national-team signal enrichment.
+- PR #68: E10D scoreline expected-goals calibration.
+- PR #69: exact finished fixture prelaunch refresh.
+- PR #70: public prediction priority and verified result display.
+- PR #71: Real Fixture Lab active filters/usability.
 
-E10C added a static generated source module:
+MVP 1 basic public World Cup fixture operations are functional for selected fixtures.
 
-```text
-lib/prediction-engine/national-team-strength-signal-pack.ts
-```
+## Hard boundaries
 
-It is used by:
+Do not:
 
-```text
-lib/prediction-engine/national-team-strength-snapshots.ts
-```
+- expose `prediction_results` publicly;
+- expose raw evaluation or Lab payloads;
+- use betting odds or provider predictions as hidden model inputs;
+- commit `codex-inputs/`;
+- run broad API-Football apply flows without explicit approval;
+- change Supabase manually unless the user explicitly instructs SQL Editor work;
+- implement premium by leaking admin/internal fields.
 
-Tests updated:
+## Documentation refresh ownership
 
-```text
-lib/prediction-engine/national-team-strength-snapshots.test.ts
-lib/prediction-engine/real-fixture-adapter.test.ts
-```
+ChatGPT is responsible for generating project-state documentation refreshes because it has broader cross-conversation context.
 
-E10C fields include:
+User manually copies the generated Markdown files into `docs/`.
 
-- FIFA rank/points;
-- Elo rank/rating;
-- historical Elo match stats;
-- goals for/against and per-match derivatives;
-- recent-form fields;
-- neutral `marketScore: 50`;
-- neutral `lineupContextScore: 50`.
+Codex role after that is verification/audit:
 
-E10C did not change:
+- confirm current branch/status;
+- confirm changed files are docs-only;
+- detect accidental app/code/migration/test changes;
+- detect stale or contradictory statements;
+- detect mojibake/encoding corruption;
+- recommend a commit message.
 
-- `expected-goals.ts`;
-- scoreline calibration;
-- publication/refresh;
-- API-Football ingest;
-- UI/app routes;
-- Supabase migrations/policies/helpers.
+Do not independently rewrite full project-state docs unless the user explicitly asks for a repo-only reconstruction.
 
-## Local source-pack rule
+## Operational fixture state
 
-`codex-inputs/` was used as a local staging folder for normalized data packs.
+Completed first four fixtures:
 
-Rules:
+- Mexico vs South Africa: 2-0, verified, public prediction refreshed.
+- South Korea vs Czechia: 2-1, verified, public prediction refreshed.
+- Canada vs Bosnia & Herzegovina: 1-1, verified, public prediction refreshed.
+- USA vs Paraguay: 4-1, verified/evaluated, public prediction refreshed.
 
-- do not commit `codex-inputs/`;
-- do not import from `codex-inputs/` in runtime code;
-- do not depend on local JSON/CSV/HTML at runtime;
-- generated source modules may be committed if intentionally produced from reviewed packs.
+Published upcoming fixtures:
 
-## Current recommended next implementation: E10D
+- Qatar vs Switzerland
+- Brazil vs Morocco
+- Haiti vs Scotland
+- Australia vs Turkiye
+- Germany vs Curacao
+- Netherlands vs Japan
+- Ivory Coast vs Ecuador
+- Sweden vs Tunisia
 
-Suggested branch:
+## Parallel work track
+
+Epic G - Product Platform and Monetization Foundations is planned as parallel-safe work for a second contributor.
+
+Good Codex scopes for Epic G:
+
+- auth/account UX polish;
+- plans/pricing page MVP;
+- payment provider research/spike;
+- subscription/entitlement proposal;
+- premium gate shell;
+- trust/legal copy.
+
+Avoid touching model/data/fixture operations unless specifically scoped:
+
+- `lib/prediction-engine/`;
+- `lib/football-api/`;
+- ingest scripts;
+- signal packs;
+- public prediction SQL/views;
+- result verification flows;
+- `prediction_results`.
+
+## Recommended next implementation scopes
+
+### Premium prediction detail MVP
+
+Use a scoped branch such as:
 
 ```powershell
-git checkout main
-git pull origin main
-git status --short
-git checkout -b feature/e10d-scoreline-calibration
-git status --short
-git branch --show-current
+git checkout -b feature/premium-prediction-detail-mvp
 ```
 
-E10D goal:
+Goal: public-safe premium outputs like top scorelines, xG, BTTS, Over/Under, and factors.
 
-```text
-Calibrate expected-goals and scoreline distribution using E10C enriched national-team signals.
+### Product platform foundations
+
+Use a scoped branch such as:
+
+```powershell
+git checkout -b feature/product-platform-foundations
 ```
 
-Do not start E10D by changing files. First ask Codex for read-only recognition.
-
-## Prompt: read-only recognition for E10D
-
-```text
-We are working in the UFO Predictor repo.
-
-Start from the current branch and run a read-only recognition for E10D scoreline/xG calibration.
-
-Context:
-- PR #66 E10C real signal enrichment is merged.
-- The snapshot layer now includes FIFA rank/points, Elo rank/rating, historical stats, recent-form fields, and neutral market/lineup placeholders for the 48 canonical World Cup teams.
-- E10C did not change expected-goals or scoreline calibration.
-
-Read-only scope:
-- Do not edit files.
-- Do not commit.
-- Do not push.
-- Do not run SQL.
-- Do not touch Supabase.
-- Do not run DB writes.
-- Do not use web search.
-
-Inspect:
-- lib/prediction-engine/expected-goals.ts
-- lib/prediction-engine/generate-prediction.ts or equivalent generation path
-- national-team strength snapshot consumption
-- scoreline probability/modal-score logic
-- related tests
-
-Report:
-1. current branch and git status;
-2. how E10C signals currently feed prediction generation;
-3. where expected goals are computed;
-4. where scoreline/modal-score behavior is determined;
-5. why 1-1 may remain overproduced;
-6. a safe implementation plan for E10D;
-7. exact files likely to change;
-8. tests to add/update;
-9. risks and non-goals.
-
-Non-goals:
-- no UI changes;
-- no publication/refresh changes;
-- no API-Football ingest changes;
-- no Supabase migrations;
-- no prediction_results exposure;
-- no betting odds/provider predictions as hidden input.
-```
-
-## Stable runtime paths
-
-### Manual first publication
-
-Uses:
-
-- `0029_manual_publication_match_access_scope_rpc.sql`
-- `publish_real_fixture_match_access_scope(target_match_id, target_match_slug)`
-
-Do not replace this with direct match updates.
-
-### Exact public refresh
-
-Uses:
-
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-- admin-only RLS helper/policy expansion for already-public scheduled API-Football public-product fixtures.
-
-### Authenticated probable score
-
-Uses:
-
-- `0031_authenticated_public_match_probable_score.sql`
-
-### Finished public result verification
-
-Uses:
-
-- `0032_real_fixture_lab_public_finished_result_verification_rls.sql`
+Goal: parallel account/plans/billing shell work that avoids core model/data operations.
 
 ## Validation expectations
 
-For model-layer work, Codex should usually run:
+Typical validation:
 
 ```powershell
 git diff --check
-npm run test -- lib/prediction-engine/national-team-strength-snapshots.test.ts lib/prediction-engine/real-fixture-adapter.test.ts lib/prediction-engine/generate-prediction.test.ts
 npm run lint
 npm run build
+git status --short
 ```
 
-Use narrower test commands during iteration if needed, but final report must be explicit.
-
-## Forbidden unless explicitly scoped
-
-- broad ingest/apply;
-- service-role app routes;
-- public exposure of `prediction_results`;
-- Supabase migration creation;
-- odds/provider prediction input;
-- committing raw source packs;
-- editing docs and code in the same PR unless user asks.
+Run targeted tests relevant to touched files.
