@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { buildAppUrl } from "@/lib/auth/app-url";
 import { getSafeRedirectPath } from "@/lib/auth/paths";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -22,12 +23,8 @@ function buildRedirect(path: string, params: Record<string, string>) {
   return `${path}?${searchParams.toString()}`;
 }
 
-function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-}
-
 function buildAuthCallbackUrl(nextPath: string) {
-  const callbackUrl = new URL("/auth/callback", getAppUrl());
+  const callbackUrl = buildAppUrl("/auth/callback");
   callbackUrl.searchParams.set("next", nextPath);
 
   return callbackUrl.toString();
