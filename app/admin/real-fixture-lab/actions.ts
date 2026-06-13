@@ -81,6 +81,15 @@ type StoredEvaluationMarket = {
   probability: number;
 };
 
+type RealFixtureLabProtectedMatch = {
+  id: string;
+  competition_id: string;
+  external_id: string;
+  access_scope: "admin_only" | "public" | "premium" | "lab_only";
+  intake_source: "mock" | "manual" | "csv_import" | "api_football";
+  status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
+};
+
 function redirectWithSaveStatus(status: SaveStatus, externalId: string): never {
   redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&save=${status}`);
 }
@@ -194,6 +203,42 @@ function resolveEvaluationMarkets(markets: StoredEvaluationMarket[]) {
       under: probabilities.get("over_2_5:under")!,
     },
   };
+}
+
+async function canAccessRealFixtureLabProtectedMatch(args: {
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  match: RealFixtureLabProtectedMatch;
+  competitionOperation: string;
+  onCompetitionError: (externalId: string) => never;
+}): Promise<boolean> {
+  if (args.match.intake_source !== "api_football") {
+    return false;
+  }
+
+  if (args.match.access_scope === "admin_only") {
+    return true;
+  }
+
+  if (args.match.access_scope !== "public" || args.match.status !== "finished") {
+    return false;
+  }
+
+  const { data: competition, error: competitionError } = await args.supabase
+    .from("competitions")
+    .select("id, usage_scope")
+    .eq("id", args.match.competition_id)
+    .maybeSingle();
+
+  if (competitionError) {
+    logRealFixtureLabSupabaseError({
+      operation: args.competitionOperation,
+      table: "competitions",
+      error: competitionError,
+    });
+    args.onCompetitionError(args.match.external_id);
+  }
+
+  return competition?.usage_scope === "public_product";
 }
 
 export async function saveRealFixturePredictionAction(formData: FormData) {
@@ -506,11 +551,9 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
 
   const { data: match, error: matchError } = await supabase
     .from("matches")
-    .select("id, external_id, access_scope, intake_source")
+    .select("id, competition_id, external_id, access_scope, intake_source, status")
     .eq("id", prediction.match_id)
     .eq("external_id", externalId)
-    .eq("access_scope", "admin_only")
-    .eq("intake_source", "api_football")
     .maybeSingle();
 
   if (matchError) {
@@ -523,6 +566,17 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
   }
 
   if (!match) {
+    redirectWithEvaluationStatus("not_found", externalId);
+  }
+
+  const canAccessMatch = await canAccessRealFixtureLabProtectedMatch({
+    supabase,
+    match,
+    competitionOperation: "select_competition_for_evaluation",
+    onCompetitionError: (targetExternalId) => redirectWithEvaluationStatus("error", targetExternalId),
+  });
+
+  if (!canAccessMatch) {
     redirectWithEvaluationStatus("not_found", externalId);
   }
 
@@ -711,11 +765,9 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
 
   const { data: match, error: matchError } = await supabase
     .from("matches")
-    .select("id")
+    .select("id, competition_id, external_id, access_scope, intake_source, status")
     .eq("id", result.match_id)
     .eq("external_id", externalId)
-    .eq("access_scope", "admin_only")
-    .eq("intake_source", "api_football")
     .maybeSingle();
 
   if (matchError) {
@@ -728,6 +780,17 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
   }
 
   if (!match) {
+    redirectWithResultStatus("not_found", externalId);
+  }
+
+  const canAccessMatch = await canAccessRealFixtureLabProtectedMatch({
+    supabase,
+    match,
+    competitionOperation: "select_competition_for_result_verification",
+    onCompetitionError: (targetExternalId) => redirectWithResultStatus("error", targetExternalId),
+  });
+
+  if (!canAccessMatch) {
     redirectWithResultStatus("not_found", externalId);
   }
 

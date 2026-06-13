@@ -41,6 +41,24 @@ type FixtureEntry = {
   evaluationStatus: FixtureSummaryStatus;
 };
 
+export function canVerifyRealFixtureResultControl(fixture: RealFixtureLabFixtureView) {
+  return (
+    fixture.intakeSource === "api_football" &&
+    fixture.result?.verification_status === "pending_review" &&
+    (fixture.accessScope === "admin_only" ||
+      (fixture.accessScope === "public" && fixture.status === "finished"))
+  );
+}
+
+export function canPersistRealFixtureEvaluationControl(fixture: RealFixtureLabFixtureView) {
+  return (
+    fixture.intakeSource === "api_football" &&
+    fixture.savedPrediction !== null &&
+    (fixture.accessScope === "admin_only" ||
+      (fixture.accessScope === "public" && fixture.status === "finished"))
+  );
+}
+
 function formatKickoff(value: string) {
   return new Date(value).toLocaleString("es-CO", {
     dateStyle: "medium",
@@ -139,7 +157,7 @@ function getSaveStatusMessage(status: string | undefined) {
     case "not_found":
       return {
         title: "Fixture no disponible",
-        body: "El fixture solicitado ya no esta disponible dentro del alcance admin_only de API-Football.",
+        body: "El fixture solicitado ya no esta disponible dentro del alcance habilitado de API-Football para esta ruta.",
         tone: "warning" as const,
       };
     case "invalid":
@@ -200,7 +218,7 @@ function getEvaluationStatusMessage(status: string | undefined) {
     case "not_found":
       return {
         title: "Prediccion no disponible",
-        body: "La prediccion interna solicitada ya no esta disponible dentro del alcance admin_only de API-Football.",
+        body: "La prediccion interna solicitada ya no esta disponible dentro del alcance habilitado de API-Football para esta ruta.",
         tone: "warning" as const,
       };
     case "invalid":
@@ -225,7 +243,7 @@ function getResultStatusMessage(status: string | undefined) {
     case "verified":
       return {
         title: "Resultado marcado como verificado",
-        body: "El match_result real quedo marcado como verified para este fixture admin_only de API-Football.",
+        body: "El match_result real quedo marcado como verified para este fixture exacto de API-Football.",
         tone: "success" as const,
       };
     case "already_verified":
@@ -249,7 +267,7 @@ function getResultStatusMessage(status: string | undefined) {
     case "not_found":
       return {
         title: "Resultado fuera de alcance",
-        body: "El match_result solicitado ya no coincide con un fixture admin_only de API-Football dentro de esta ruta.",
+        body: "El match_result solicitado ya no coincide con un fixture exacto de API-Football habilitado dentro de esta ruta.",
         tone: "warning" as const,
       };
     case "invalid":
@@ -721,8 +739,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                               Resultado rechazado. Este slice no permite cambiarlo ni re-verificarlo.
                             </div>
                           )}
-                          {fixture.accessScope === "admin_only" &&
-                          fixture.result.verification_status === "pending_review" ? (
+                          {canVerifyRealFixtureResultControl(fixture) ? (
                             <form action={verifyRealFixtureResultAction} className="pt-1">
                               <input type="hidden" name="externalId" value={fixture.externalId} />
                               <input type="hidden" name="matchResultId" value={fixture.result.id} />
@@ -730,7 +747,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                                 type="submit"
                                 className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/15 px-3 py-2 text-sm font-medium text-[var(--warning)] transition hover:bg-[var(--warning)]/20"
                               >
-                                Marcar resultado como verificado
+                                Verify result
                               </button>
                             </form>
                           ) : null}
@@ -898,7 +915,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                             </form>
                           )
                         ) : null}
-                        {fixture.accessScope === "admin_only" && fixture.savedPrediction ? (
+                        {canPersistRealFixtureEvaluationControl(fixture) && fixture.savedPrediction ? (
                           fixture.result?.verification_status === "verified" ? (
                             fixture.savedEvaluation ? (
                               <div className="mt-3 space-y-3">

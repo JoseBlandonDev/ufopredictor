@@ -188,10 +188,6 @@ function isAllowedExactFriendlyMatchStatus(status: MatchRow["status"]): boolean 
   return status === "scheduled" || status === "finished";
 }
 
-function isAllowedExactWorldCupMatchStatus(status: MatchRow["status"]): boolean {
-  return status === "scheduled";
-}
-
 function assertExactSingleFixtureSharedGuards(
   plan: ControlledWritePlan,
   target: TargetCompetition,
@@ -200,6 +196,7 @@ function assertExactSingleFixtureSharedGuards(
     targetKey: "friendlies" | "world-cup";
     targetLeagueId: number;
     targetLabel: string;
+    allowedAccessScopes?: MatchRow["access_scope"][];
   },
 ) {
   if (target.key !== options.targetKey || target.leagueId !== options.targetLeagueId) {
@@ -246,8 +243,11 @@ function assertExactSingleFixtureSharedGuards(
     );
   }
 
-  if (matchPlan.accessScope !== "admin_only") {
-    assertApplyError(`${options.targetLabel} apply requires admin_only match access scope.`);
+  const allowedAccessScopes = options.allowedAccessScopes ?? ["admin_only"];
+  if (!allowedAccessScopes.includes(matchPlan.accessScope)) {
+    assertApplyError(
+      `${options.targetLabel} apply requires ${allowedAccessScopes.join(" or ")} match access scope.`,
+    );
   }
 
   if (matchPlan.intakeSource !== "api_football") {
@@ -277,6 +277,49 @@ function assertExactFriendlySharedGuards(
   return matchPlan;
 }
 
+function assertFinishedExactFixtureResultPlan(
+  plan: ControlledWritePlan,
+  matchPlan: MatchWritePlan,
+  targetLabel: "Friendlies" | "World Cup",
+) {
+  if (plan.matchResultPlans.length !== 1) {
+    assertApplyError(
+      `Finished ${targetLabel.toLowerCase()} apply requires exactly one planned match_result for the selected fixture.`,
+    );
+  }
+
+  const resultPlan = plan.matchResultPlans[0];
+  if (!resultPlan || resultPlan.action === "skip") {
+    assertApplyError(
+      `Finished ${targetLabel.toLowerCase()} apply requires one pending_review match_result write plan.`,
+    );
+  }
+
+  if (resultPlan.matchExternalId !== matchPlan.externalId) {
+    assertApplyError(
+      `Finished ${targetLabel.toLowerCase()} apply requires the planned match_result to match the exact fixture.`,
+    );
+  }
+
+  if (resultPlan.verificationStatus !== "pending_review") {
+    assertApplyError(
+      `Finished ${targetLabel.toLowerCase()} apply requires pending_review verification status.`,
+    );
+  }
+
+  if (resultPlan.intakeSource !== "api_football") {
+    assertApplyError(
+      `Finished ${targetLabel.toLowerCase()} apply requires api_football match_result intake source.`,
+    );
+  }
+
+  if (resultPlan.homeGoals === null || resultPlan.awayGoals === null) {
+    assertApplyError(
+      `Finished ${targetLabel.toLowerCase()} apply requires non-null final goals for the selected fixture.`,
+    );
+  }
+}
+
 export function assertSingleWorldCupApplyPlan(
   plan: ControlledWritePlan,
   target: TargetCompetition,
@@ -290,17 +333,34 @@ export function assertSingleWorldCupApplyPlan(
     targetKey: "world-cup",
     targetLeagueId: 1,
     targetLabel: "World Cup",
+    allowedAccessScopes: ["admin_only", "public"],
   });
 
-  if (!isAllowedExactWorldCupMatchStatus(matchPlan.status)) {
-    assertApplyError("World Cup apply requires a scheduled exact fixture.");
+  if (matchPlan.status === "scheduled") {
+    if (matchPlan.accessScope !== "admin_only") {
+      assertApplyError("World Cup apply requires admin_only match access scope.");
+    }
+
+    if (plan.matchResultPlans.length !== 0) {
+      assertApplyError(
+        "World Cup apply requires zero planned match_results for the selected fixture.",
+      );
+    }
+
+    return;
   }
 
-  if (plan.matchResultPlans.length !== 0) {
+  if (matchPlan.status !== "finished") {
+    assertApplyError("World Cup apply requires a scheduled or finished exact fixture.");
+  }
+
+  if (matchPlan.accessScope !== "public") {
     assertApplyError(
-      "World Cup apply requires zero planned match_results for the selected fixture.",
+      "Finished World Cup apply requires public match access scope.",
     );
   }
+
+  assertFinishedExactFixtureResultPlan(plan, matchPlan, "World Cup");
 }
 
 export function assertSingleFriendlyApplyPlan(
@@ -324,42 +384,7 @@ export function assertSingleFriendlyApplyPlan(
     return;
   }
 
-  if (plan.matchResultPlans.length !== 1) {
-    assertApplyError(
-      "Finished friendlies apply requires exactly one planned match_result for the selected fixture.",
-    );
-  }
-
-  const resultPlan = plan.matchResultPlans[0];
-  if (!resultPlan || resultPlan.action === "skip") {
-    assertApplyError(
-      "Finished friendlies apply requires one pending_review match_result write plan.",
-    );
-  }
-
-  if (resultPlan.matchExternalId !== matchPlan.externalId) {
-    assertApplyError(
-      "Finished friendlies apply requires the planned match_result to match the exact fixture.",
-    );
-  }
-
-  if (resultPlan.verificationStatus !== "pending_review") {
-    assertApplyError(
-      "Finished friendlies apply requires pending_review verification status.",
-    );
-  }
-
-  if (resultPlan.intakeSource !== "api_football") {
-    assertApplyError(
-      "Finished friendlies apply requires api_football match_result intake source.",
-    );
-  }
-
-  if (resultPlan.homeGoals === null || resultPlan.awayGoals === null) {
-    assertApplyError(
-      "Finished friendlies apply requires non-null final goals for the selected fixture.",
-    );
-  }
+  assertFinishedExactFixtureResultPlan(plan, matchPlan, "Friendlies");
 }
 
 type ExistingState = {
