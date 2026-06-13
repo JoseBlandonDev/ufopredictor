@@ -16,6 +16,9 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
   const alternateHrefWithNext = nextPath
     ? `${alternateHref}?next=${encodeURIComponent(nextPath)}`
     : alternateHref;
+  const checkEmailHref = nextPath
+    ? `/auth/check-email?next=${encodeURIComponent(nextPath)}`
+    : "/auth/check-email";
 
   return (
     <section className="panel w-full max-w-md rounded-lg p-6 sm:p-8">
@@ -25,10 +28,10 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
         </span>
         <p className="font-mono text-xs uppercase tracking-[0.2em]">{isLogin ? "Acceso" : "Registro"}</p>
       </div>
-      <h1 className="mt-5 text-3xl font-semibold">{isLogin ? "Inicia sesión" : "Crea tu cuenta"}</h1>
+      <h1 className="mt-5 text-3xl font-semibold">{isLogin ? "Inicia sesion" : "Crea tu cuenta"}</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
         {isLogin
-          ? "Accede a tu panel y a las señales habilitadas para tu perfil."
+          ? "Accede a tu panel y a las senales habilitadas para tu perfil."
           : "Crea tu perfil de observador para acceder al panel de UFO Predictor."}
       </p>
 
@@ -69,7 +72,7 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
           </label>
         ) : null}
         <label className="block space-y-2 text-sm">
-          <span className="text-[var(--muted)]">Correo electrónico</span>
+          <span className="text-[var(--muted)]">Correo electronico</span>
           <input
             name="email"
             type="email"
@@ -79,7 +82,7 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
           />
         </label>
         <label className="block space-y-2 text-sm">
-          <span className="text-[var(--muted)]">Contraseña</span>
+          <span className="text-[var(--muted)]">Contrasena</span>
           <input
             name="password"
             type="password"
@@ -97,10 +100,18 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
         </button>
       </form>
 
+      {isLogin ? (
+        <p className="mt-4 text-sm text-[var(--muted)]">
+          <Link href={checkEmailHref} className="text-[var(--accent)] hover:text-white">
+            Reenviar confirmacion de correo
+          </Link>
+        </p>
+      ) : null}
+
       <p className="mt-6 text-sm text-[var(--muted)]">
-        {isLogin ? "¿Aún no tienes cuenta? " : "¿Ya tienes cuenta? "}
+        {isLogin ? "Aun no tienes cuenta? " : "Ya tienes cuenta? "}
         <Link href={alternateHrefWithNext} className="text-[var(--accent)] hover:text-white">
-          {isLogin ? "Regístrate" : "Inicia sesión"}
+          {isLogin ? "Registrate" : "Inicia sesion"}
         </Link>
       </p>
     </section>
