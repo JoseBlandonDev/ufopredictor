@@ -347,7 +347,7 @@ function getRefreshStatusMessage(status: string | undefined) {
     case "blocked":
       return {
         title: "Refresh bloqueado por guardrails",
-        body: "Este fixture no cumple el contrato minimo del refresh exacto: debe seguir siendo un fixture API-Football programado y ya publico.",
+        body: "Este fixture no cumple el contrato minimo del refresh exacto: debe seguir siendo un fixture API-Football ya publico y estar en estado scheduled o finished.",
         tone: "warning" as const,
       };
     case "not_found":

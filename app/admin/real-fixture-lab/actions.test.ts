@@ -1392,11 +1392,69 @@ describe("refreshPublishedRealFixturePredictionAction", () => {
     expect(revalidatePathMock).toHaveBeenCalledWith(`/matches/${fixture.slug}`);
   });
 
+  it("also allows refresh for an exact finished public fixture without touching results", async () => {
+    getAdminRealFixtureLabDataMock.mockResolvedValue({
+      status: "ready",
+      selectedExternalId: publicFixture.externalId,
+      fixtures: [
+        {
+          ...publicFixture,
+          status: "finished",
+        },
+      ],
+      warnings: [],
+    });
+    const matchResultsBuilder = {
+      update: vi.fn(() => {
+        throw new Error("should not update match_results");
+      }),
+      insert: vi.fn(() => {
+        throw new Error("should not insert match_results");
+      }),
+      select: vi.fn(() => {
+        throw new Error("should not read match_results");
+      }),
+    };
+    const client = buildRefreshClient();
+    const originalFrom = client.from;
+    const from = vi.fn((table: string) => {
+      if (table === "match_results") return matchResultsBuilder;
+      return originalFrom(table);
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from });
+
+    await expect(refreshPublishedRealFixturePredictionAction(buildRefreshFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&refresh=refreshed`,
+    );
+
+    expect(from).not.toHaveBeenCalledWith("match_results");
+    expect(from).not.toHaveBeenCalledWith("prediction_results");
+  });
+
   it("blocks refresh when the selected fixture is not already public", async () => {
     getAdminRealFixtureLabDataMock.mockResolvedValue({
       status: "ready",
       selectedExternalId: fixture.externalId,
       fixtures: [fixture],
+      warnings: [],
+    });
+
+    await expect(refreshPublishedRealFixturePredictionAction(buildRefreshFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&refresh=blocked`,
+    );
+    expect(createSupabaseServerClientMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks refresh when the selected public fixture is neither scheduled nor finished", async () => {
+    getAdminRealFixtureLabDataMock.mockResolvedValue({
+      status: "ready",
+      selectedExternalId: publicFixture.externalId,
+      fixtures: [
+        {
+          ...publicFixture,
+          status: "live",
+        },
+      ],
       warnings: [],
     });
 
