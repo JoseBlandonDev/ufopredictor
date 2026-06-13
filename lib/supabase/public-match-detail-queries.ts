@@ -34,6 +34,9 @@ type PublicMatchDetailRow = {
   away_team_id: string;
   venue_name: string | null;
   venue_city: string | null;
+  verified_home_goals: number | null;
+  verified_away_goals: number | null;
+  result_verification_status: "verified" | null;
 };
 
 type PublicMatchPredictionRow = {
@@ -67,6 +70,11 @@ export type PublicMatchDetailView = {
   awayTeamFlagUrl: string | null;
   venueName: string | null;
   venueCity: string | null;
+  verifiedResult: {
+    homeGoals: number;
+    awayGoals: number;
+    verificationStatus: "verified";
+  } | null;
   prediction: PublicMatchPredictionView | null;
   premiumAccess: PublicMatchPremiumAccess;
   premiumProjection: PremiumMatchProjection;
@@ -188,7 +196,7 @@ export async function getPublicMatchDetailData(
   const { data: matchData, error: matchError } = await supabase
     .from("public_match_details")
     .select(
-      "match_slug, match_id, kickoff_at, stage, status, competition_name, competition_slug, competition_access_key, competition_id, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, home_team_id, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, away_team_id, venue_name, venue_city",
+      "match_slug, match_id, kickoff_at, stage, status, competition_name, competition_slug, competition_access_key, competition_id, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, home_team_id, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, away_team_id, venue_name, venue_city, verified_home_goals, verified_away_goals, result_verification_status",
     )
     .eq("match_slug", slug)
     .maybeSingle();
@@ -277,6 +285,17 @@ export async function getPublicMatchDetailData(
     },
   });
 
+  const verifiedResult =
+    match.result_verification_status === "verified" &&
+    match.verified_home_goals !== null &&
+    match.verified_away_goals !== null
+      ? {
+          homeGoals: match.verified_home_goals,
+          awayGoals: match.verified_away_goals,
+          verificationStatus: "verified" as const,
+        }
+      : null;
+
   return {
     status: "ready",
     match: {
@@ -297,6 +316,7 @@ export async function getPublicMatchDetailData(
       awayTeamFlagUrl: match.away_team_flag_url,
       venueName: match.venue_name,
       venueCity: match.venue_city,
+      verifiedResult,
       prediction: prediction ? toMatchPredictionView(prediction, viewer, probableScore) : null,
       premiumAccess,
       premiumProjection,

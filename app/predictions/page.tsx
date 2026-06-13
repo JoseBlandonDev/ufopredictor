@@ -60,7 +60,7 @@ export default async function PredictionsPage() {
           <h2 className="text-lg font-semibold">Predicciones temporalmente no disponibles</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">{data.message}</p>
         </section>
-      ) : data.predictions.length === 0 ? (
+      ) : data.upcomingPredictions.length === 0 && data.historicalPredictions.length === 0 ? (
         <section className="ufo-card rounded-lg p-6">
           <h2 className="text-lg font-semibold">Aún no hay predicciones públicas</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
@@ -69,11 +69,39 @@ export default async function PredictionsPage() {
         </section>
       ) : (
         <>
-          <div className="grid gap-4 xl:grid-cols-2">
-            {data.predictions.map((prediction) => (
-              <PublicPredictionCard key={prediction.matchSlug} prediction={prediction} />
-            ))}
-          </div>
+          {data.upcomingPredictions.length > 0 ? (
+            <section className="space-y-4">
+              <div>
+                <h2 className="text-2xl font-semibold">Predicciones activas y prÃ³ximas</h2>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  Los partidos en vivo o por jugar aparecen primero para priorizar la lectura actual
+                  del modelo.
+                </p>
+              </div>
+              <div className="grid gap-4 xl:grid-cols-2">
+                {data.upcomingPredictions.map((prediction) => (
+                  <PublicPredictionCard key={prediction.matchSlug} prediction={prediction} />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {data.historicalPredictions.length > 0 ? (
+            <section className="space-y-4">
+              <div>
+                <h2 className="text-2xl font-semibold">Resultados recientes e historial</h2>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  Los fixtures finalizados quedan en una secciÃ³n secundaria para no dominar la vista
+                  principal de predicciones.
+                </p>
+              </div>
+              <div className="grid gap-4 xl:grid-cols-2">
+                {data.historicalPredictions.map((prediction) => (
+                  <PublicPredictionCard key={prediction.matchSlug} prediction={prediction} />
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="ufo-card rounded-lg border border-white/15 p-5">
             <h2 className="text-lg font-semibold">Cómo leer esta vista</h2>

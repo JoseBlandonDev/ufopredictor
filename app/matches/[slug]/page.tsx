@@ -83,6 +83,22 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
+      {match.verifiedResult ? (
+        <section className="ufo-card rounded-lg border border-emerald-400/25 bg-emerald-500/8 p-5 sm:p-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-300">
+            Resultado final verificado
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold">
+            {match.homeTeamName} {match.verifiedResult.homeGoals} - {match.verifiedResult.awayGoals}{" "}
+            {match.awayTeamName}
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Este partido ya tiene marcador final verificado. La prediccion publica se mantiene abajo
+            como referencia historica, sin exponer evaluacion interna del modelo.
+          </p>
+        </section>
+      ) : null}
+
       {match.prediction ? (
         <section className="ufo-card rounded-lg p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
