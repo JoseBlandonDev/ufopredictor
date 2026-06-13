@@ -3,6 +3,7 @@ import type {
   NormalizedMatchInput,
   NormalizedTeamInput,
   PredictionEngineConfig,
+  TeamStrengthMetadata,
   TeamPredictionInput,
   TeamSignalKey,
 } from "./types";
@@ -29,6 +30,52 @@ function isUsableNumber(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+function normalizeMetadata(metadata: TeamPredictionInput["metadata"]): TeamStrengthMetadata | undefined {
+  if (!metadata) {
+    return undefined;
+  }
+
+  const normalized: TeamStrengthMetadata = {};
+
+  if (isUsableNumber(metadata.fifaRank)) {
+    normalized.fifaRank = Math.max(1, metadata.fifaRank);
+  }
+
+  if (isUsableNumber(metadata.fifaPoints)) {
+    normalized.fifaPoints = Math.max(0, metadata.fifaPoints);
+  }
+
+  if (isUsableNumber(metadata.eloRank)) {
+    normalized.eloRank = Math.max(1, metadata.eloRank);
+  }
+
+  if (isUsableNumber(metadata.eloRating)) {
+    normalized.eloRating = Math.max(0, metadata.eloRating);
+  }
+
+  if (isUsableNumber(metadata.eloAverageRank)) {
+    normalized.eloAverageRank = Math.max(1, metadata.eloAverageRank);
+  }
+
+  if (isUsableNumber(metadata.eloAverageRating)) {
+    normalized.eloAverageRating = Math.max(0, metadata.eloAverageRating);
+  }
+
+  if (isUsableNumber(metadata.historicalGoalsForPerMatch)) {
+    normalized.historicalGoalsForPerMatch = Math.max(0, metadata.historicalGoalsForPerMatch);
+  }
+
+  if (isUsableNumber(metadata.historicalGoalsAgainstPerMatch)) {
+    normalized.historicalGoalsAgainstPerMatch = Math.max(0, metadata.historicalGoalsAgainstPerMatch);
+  }
+
+  if (isUsableNumber(metadata.recentMatchCount)) {
+    normalized.recentMatchCount = Math.max(0, metadata.recentMatchCount);
+  }
+
+  return Object.keys(normalized).length > 0 ? normalized : undefined;
+}
+
 function normalizeTeam(team: TeamPredictionInput, config: PredictionEngineConfig): NormalizedTeamInput {
   const providedSignals: TeamSignalKey[] = [];
   const defaultedSignals: TeamSignalKey[] = [];
@@ -50,6 +97,7 @@ function normalizeTeam(team: TeamPredictionInput, config: PredictionEngineConfig
     id: team.id,
     name: team.name,
     signals,
+    metadata: normalizeMetadata(team.metadata),
     providedSignals,
     defaultedSignals,
   };
