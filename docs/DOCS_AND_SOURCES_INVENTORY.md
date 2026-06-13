@@ -1,78 +1,63 @@
 # UFO Predictor — Docs and Sources Inventory
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-The project currently keeps canonical product/backend docs plus separate creative/Flow docs. Do not delete docs in this refresh. Some are primary, some are operational, and some are reference/secondary.
+This file explains which docs to use for what. Because apparently without a map, every conversation becomes archaeology with worse tooling.
 
 ## Primary project docs
 
 ### `START_HERE_FOR_NEW_CONVERSATIONS.md`
 
-Entry point for new ChatGPT/Codex conversations.
+Primary entry point for new ChatGPT/Codex conversations.
 
 Use for:
 
-- current project state;
-- branch discipline;
-- current next task;
-- hard no-go list.
-
-Current expected state:
-
-- post-E07;
-- four real World Cup fixtures public;
-- next work is access tiers / scoreline visibility.
+- current state;
+- latest merged PRs;
+- next recommended work;
+- branch/migration/command discipline.
 
 ### `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
 
-High-signal source for ChatGPT planning.
+High-signal source of truth for ChatGPT.
 
 Use for:
 
-- current MVP stage;
-- architecture summary;
-- active next work;
-- current boundaries.
+- product summary;
+- current milestone;
+- model/data boundaries;
+- current next epic.
 
 ### `CURRENT_PROJECT_STATUS.md`
 
-Detailed status report.
+Operational status snapshot.
 
 Use for:
 
-- what is complete;
-- current MVP 1 state;
-- public fixture evidence;
-- immediate next step.
+- what just merged;
+- validation status;
+- public/runtime status;
+- immediate cleanup.
 
 ### `EPIC_PROGRESS_MATRIX.md`
 
-Epic and MVP-stage status table.
+Epic state table.
 
 Use for:
 
-- avoiding improvised epics;
-- seeing current and future blocks at a glance.
+- tracking what is done vs next;
+- avoiding duplicate epics;
+- seeing MVP 1 progress.
 
 ### `ROADMAP_AND_BACKLOG.md`
 
-Full roadmap/backlog by MVP stage.
+Longer roadmap/backlog.
 
 Use for:
 
-- MVP 0/1/1.5/2 plan;
-- epic definitions;
-- future scope.
-
-### `NEXT_EPICS_PLAN.md`
-
-Near-term execution plan.
-
-Use for:
-
-- E09 access tiers;
-- E10 scoreline calibration and signal enrichment;
-- result verification planning.
+- E10D planning;
+- later model/data work;
+- MVP 1.5/MVP 2 backlog.
 
 ## Operational docs
 
@@ -80,121 +65,144 @@ Use for:
 
 Current handoff for Codex.
 
-Use before recognition/implementation prompts.
+Use before:
 
-Important current notes:
+- recognition prompts;
+- implementation prompts;
+- PR review prompts.
 
-- stable first-publication path uses `0029_manual_publication_match_access_scope_rpc.sql` and RPC `publish_real_fixture_match_access_scope`;
-- exact public refresh uses `0030_real_fixture_lab_public_refresh_rls.sql`;
-- Codex should start next tasks with read-only recognition.
+Current critical context:
+
+- PR #66 E10C is merged;
+- generated signal module is committed;
+- `codex-inputs/` must not be committed;
+- E10D is the likely next implementation.
 
 ### `CODEX_WORKFLOW.md`
 
-Rules for Codex, branches, PRs, migration coordination, and validation.
+General Codex workflow rules.
 
 Use for:
 
 - branch discipline;
-- migration policy;
-- command clarity;
 - validation expectations;
-- role split between ChatGPT and Codex.
+- migration rules;
+- command clarity.
 
 ### `IMPLEMENTATION_PLAN.md`
 
-Tactical implementation phases and operational flow.
+Tactical implementation flow.
 
 Use for:
 
-- exact fixture publication sequence;
-- exact public refresh sequence;
-- migration/manual SQL workflow;
-- E09/E10 implementation ordering.
+- exact fixture operations;
+- publication/refresh mechanics;
+- manual SQL workflow.
+
+May need future refresh if E10D changes model implementation sequence.
 
 ### `TRACK_D_API_FOOTBALL_HANDOFF.md`
 
-Track D/API-Football/Real Fixture Lab operational context.
+API-Football / ingest / Real Fixture Lab operational context.
 
 Status:
 
-- historical and still useful for ingest/Lab context;
-- updated with MVP 1 public fixture expansion and exact refresh.
-
-### `OPEN_DECISIONS.md`
-
-Open and recently settled decisions.
-
-Current important decisions:
-
-- manual publication approach settled;
-- RPC first-publication path settled;
-- exact public refresh path settled;
-- mock/preview public-surface handling settled for MVP 1 baseline;
-- access tiers / scoreline visibility still open;
-- payment provider still open;
-- formal prediction lineage still open.
+- still useful for ingest/Lab work;
+- not central to E10C signal pack, because E10C did not alter ingest.
 
 ## Reference docs
 
 ### `ARCHITECTURE_SUMMARY.md`
 
-Architecture reference.
+Architecture overview.
 
 Use for:
 
-- ingest/Lab/public route boundaries;
-- manual publication architecture;
-- exact public refresh architecture;
+- ingest/Lab/public boundaries;
+- model snapshot layer;
+- generated signal-pack architecture;
 - RLS/RPC posture.
 
 ### `DATA_DICTIONARY.md`
 
-Data model reference.
+Field/concept reference.
 
 Use for:
 
-- actual known fields;
-- fields not to assume;
-- publication table/field behavior;
-- prediction/market schema corrections;
-- refresh row append behavior.
+- prediction visibility concepts;
+- national-team signal fields;
+- placeholder fields;
+- source-pack rules.
 
 ### `MODEL_V01.md`
 
-Historical model v0.1 plus active v0.2-prelaunch notes.
-
-Status:
-
-- v0.1 historical;
-- active MVP 1 model is `v0.2-prelaunch`;
-- post-E07 fallback catalog expanded for immediate World Cup teams;
-- scoreline calibration remains future work.
-
-### `PROJECT_CONTEXT_UFO_PREDICTOR.md`
-
-Stable product/project context.
+Model status and limitations.
 
 Use for:
 
-- product mission;
-- non-betting/no-guarantee framing;
-- high-level positioning;
-- public/free/premium direction.
+- v0.2-prelaunch context;
+- E10C signal interpretation;
+- E10D planning.
+
+### `OPEN_DECISIONS.md`
+
+Open and settled decisions.
+
+Use for:
+
+- market signal policy;
+- lineup/injury context;
+- E10D calibration choices;
+- prediction lineage.
+
+### `NEXT_EPICS_PLAN.md`
+
+Near-term execution sequence.
+
+Use for:
+
+- cleanup after PR #66;
+- docs rebaseline;
+- E10D recognition/implementation.
 
 ### `PROJECT_STATUS_FOR_MEETING.md`
 
-Meeting-ready summary.
+Stakeholder summary.
 
 Use for:
 
-- concise stakeholder update;
-- what shipped;
-- current risks;
+- concise progress report;
+- what changed recently;
+- current risk framing;
 - recommended next work.
+
+## E10C source artifacts
+
+Local/source pack context:
+
+- FIFA ranking/points CSV was used as source material.
+- Elo ranking HTML was used for Elo rank/rating and historical stats.
+- Elo results 2025/2026 were used for recent form.
+- Elo fixtures/upcoming table was retained as source-preparation/reference context; fixture expectancy was not wired as an active runtime snapshot field in E10C.
+- Normalized pack files were placed locally under `codex-inputs/e10c/` during implementation.
+
+Important:
+
+```text
+codex-inputs/ was not committed and should be deleted after merge cleanup.
+```
+
+Committed runtime artifact:
+
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
+
+Generated pack files used during the task should be treated as local/audit inputs, not runtime dependencies.
 
 ## Creative / audiovisual docs
 
-These are separate from backend/product roadmap unless explicitly working on creative assets:
+These are separate from backend/product roadmap unless the task is creative:
 
 - `UFO_FLOW_CAMPAIGN_SOURCE.md`
 - `UFO_FLOW_PRODUCTION_SOURCE.md`
@@ -202,50 +210,19 @@ These are separate from backend/product roadmap unless explicitly working on cre
 - `FLOW_CHARACTERS_ORION_VEGA_SOURCE.md`
 - `UFO_CHARACTERS_ORION_VEGA_SOURCE.md`
 
-Do not edit these during product/backend docs refresh unless the task is specifically creative.
+Do not edit these during backend/model docs refresh unless explicitly requested.
 
-## Important migration/source files
+## Migration/source files to know
 
-Manual-publication and public-refresh migrations to know:
-
-- `0025_manual_publication_rls.sql`
-- `0026_fix_manual_publication_match_update_policy.sql`
-- `0027_inline_manual_publication_match_update_check.sql`
-- `0028_manual_publication_match_new_row_helper.sql`
-- `0029_manual_publication_match_access_scope_rpc.sql`
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-
-Current stable runtime first-publication path:
+Important recent migrations:
 
 - `0029_manual_publication_match_access_scope_rpc.sql`
-
-Current stable runtime public-refresh RLS support:
-
 - `0030_real_fixture_lab_public_refresh_rls.sql`
+- `0031_authenticated_public_match_probable_score.sql`
+- `0032_real_fixture_lab_public_finished_result_verification_rls.sql`
 
-Migration numbering caution:
+Reminder:
 
-- the repo already contains two different `0027` migration filenames:
-  - `0027_google_oauth_profile_sync.sql`
-  - `0027_inline_manual_publication_match_update_check.sql`
-- do not rename already-merged/applied migrations retroactively;
+- migrations are applied manually;
 - do not edit applied migrations;
-- future migration tasks must inspect existing filenames and reserve the next unused number before implementation;
-- manual Supabase SQL application should be tracked in task notes and/or the PR body.
-
-## Auxiliary planning artifacts
-
-Spreadsheet/backlog artifacts may exist outside canonical markdown docs, for example:
-
-- `UFO_Predictor_Backlog_Tracker_MVP1_Launch_Readiness.xlsx`
-
-Use spreadsheets as planning aids, not as the only source of truth. Humanity has already lost enough things in spreadsheets.
-
-## Current docs policy
-
-- Keep all canonical docs in this refresh.
-- Do not destructively delete historical context.
-- Keep `ROADMAP_AND_BACKLOG.md` as full map.
-- Keep `NEXT_EPICS_PLAN.md` as near-term plan.
-- Keep Flow/campaign/video docs separate from backend/product roadmap unless explicitly working on creative assets.
-- Update docs after meaningful MVP-stage shifts, public publication milestones, or schema/RLS discoveries.
+- use new migrations for corrections.

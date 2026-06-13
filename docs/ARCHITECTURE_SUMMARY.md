@@ -1,253 +1,195 @@
 # UFO Predictor — Architecture Summary
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-## Current architecture posture
+## Architecture posture
 
-UFO Predictor now has a runtime-proven MVP 1 path for selected real World Cup fixtures and a runtime-proven refresh path for already-public predictions.
-
-First-publication path:
+UFO Predictor uses a deliberately controlled architecture for real football prediction publication:
 
 ```text
-API-Football exact fixture
--> guarded exact ingest/apply
--> admin-only Real Fixture Lab match
--> internal_lab prediction save
--> manual publication action
--> public_product prediction copy
--> SECURITY DEFINER RPC flips match to public
--> public projections render in /predictions and /matches/[slug]
+external fixture source
+-> controlled exact ingest
+-> internal prediction engine / Real Fixture Lab
+-> manual publication to public_product
+-> public-safe surfaces
 ```
 
-Already-public refresh path:
+The system favors exact fixture operations over broad automation. Boring? Yes. Safer? Also yes, which is apparently still a virtue when databases are involved.
 
-```text
-public API-Football fixture
--> exact admin Real Fixture Lab load
--> fresh internal_lab evidence row
--> replacement public_product prediction row appended
--> older public_product rows remain as history
--> public projections render latest public_product row
-```
+## Main boundaries
 
-The architecture remains deliberately conservative. Real fixtures enter as internal/admin-only, predictions are produced and saved internally, and only selected public-safe copies are exposed after explicit admin action. Revolutionary, really: the system does not spray database rows at strangers.
+### Public app boundary
 
-## Application layers
+Public users may see:
 
-### Public product routes
-
-Public-facing routes are designed to read from safe public projections and product-scoped rows, not directly from Lab/internal tables.
-
-Relevant routes:
-
-- `/`
-- `/predictions`
-- `/matches/[slug]`
-- `/pricing`
-- `/dashboard`
-- `/transparency`
-
-Public prediction reads rely on:
-
-- `public_prediction_summaries`
-- `public_match_details`
-
-A real match becomes public only when all required visibility gates align:
-
-- `matches.access_scope = 'public'`
-- `competitions.usage_scope = 'public_product'`
-- a compatible `prediction_versions` row exists with `run_scope='public_product'`
-
-As of post-E07, four real World Cup fixtures are public:
-
-- `api-football:fixture:1489369` — Mexico vs South Africa;
-- `api-football:fixture:1538999` — South Korea vs Czech Republic;
-- `api-football:fixture:1539000` — Canada vs Bosnia & Herzegovina;
-- `api-football:fixture:1489370` — USA vs Paraguay.
-
-### Admin / Real Fixture Lab
-
-Admin route:
-
-- `/admin/real-fixture-lab`
-
-Purpose:
-
-- inspect exact API-Football fixtures already ingested;
-- run internal prediction preview;
-- save internal Lab predictions;
-- review results and evaluations;
-- manually publish one selected public-safe prediction for one selected fixture;
-- refresh an already-public exact fixture after model/fallback updates.
-
-The admin app route uses the normal authenticated server client and admin session checks. It does not use service-role in app routes.
-
-## Data ingest architecture
-
-API-Football ingest remains guarded and exact for MVP 1.
-
-Current behavior:
-
-- broad World Cup apply remains blocked;
-- broad friendlies apply remains blocked;
-- exact fixture apply can be allowed only when explicit guard conditions pass;
-- World Cup scheduled fixture ingest creates matches as `admin_only`, not public;
-- provider venue support is not assumed, so `venue_id` remains `null` unless supported later.
-
-Important ingest protections:
-
-- competition reuse by slug prevents duplicate `world-cup-2026` rows when legacy/mock data exists;
-- team reuse by slug prevents duplicate team rows when legacy/mock data exists;
-- existing non-null legacy/mock `external_id` values are preserved rather than blindly overwritten.
-
-## Prediction architecture
-
-### Model version
-
-Current active model:
-
-- `v0.2-prelaunch`
-
-The model remains launch-frozen unless a planned calibration epic explicitly opens. MVP 1 fallback signals were expanded for immediate World Cup fixtures, but this is still a constrained static enrichment, not a broad model rewrite.
-
-### Internal prediction
-
-Internal predictions are saved as:
-
-- `prediction_versions.run_scope = 'internal_lab'`
-- `prediction_versions.prediction_type = 'pre_match_24h'`
-
-These rows are not public product rows.
-
-### Public prediction
-
-Manual publication creates a public-safe copy:
-
-- `prediction_versions.run_scope = 'public_product'`
-- same match;
-- same model version;
-- same prediction type;
-- copied public-safe prediction payload;
-- no `prediction_results` exposure.
-
-For exact refresh, a new replacement `public_product` row is appended. Older public rows remain as history/audit. The public read layer surfaces the latest public-product row.
-
-There is currently no DB-native lineage field linking the public row to the source internal row. Operational evidence exists through Lab actions and timestamps; formal lineage remains an open future decision.
-
-## Manual first-publication architecture
-
-E05 introduced the first manual publication bridge.
-
-The bridge does two conceptual operations:
-
-1. Copy a selected internal prediction into a public product prediction row.
-2. Flip the selected match from `admin_only` to `public`.
-
-The second operation was stabilized through a dedicated RPC after direct RLS update policies failed at runtime.
-
-Runtime-proven RPC:
-
-- migration: `0029_manual_publication_match_access_scope_rpc.sql`
-- function: `publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)`
-- type: `SECURITY DEFINER`
-- grant: execute to `authenticated`
-- exact behavior: updates only `matches.access_scope = 'public'`
-
-RPC preconditions:
-
-- caller must be admin through `is_real_fixture_lab_admin()`;
-- exact match id + slug;
-- current row must be `access_scope='admin_only'`;
-- current row must be `status='scheduled'`;
-- current row must be `intake_source='api_football'`;
-- linked competition must be `usage_scope='public_product'`.
-
-The app action remains exact-fixture only. It does not batch and does not publish from ingest.
-
-## Exact public refresh architecture
-
-PR #61 added the exact public refresh path.
-
-Purpose:
-
-- support regenerating a public prediction for an already-public scheduled API-Football fixture after model/fallback improvements;
-- preserve public audit/history;
-- avoid rolling back `matches.access_scope`;
-- avoid deleting old predictions;
-- keep refresh admin-only and exact.
-
-Behavior:
-
-1. admin loads one exact public API-Football fixture by `external_id`;
-2. Real Fixture Lab generates a fresh preview with current model/fallback logic;
-3. refresh action saves a new `internal_lab` evidence row;
-4. refresh action appends a new `public_product` row;
-5. old public rows remain untouched;
-6. public projections read latest `public_product` row.
-
-Required migration:
-
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-
-This migration broadens admin-only RLS helper/policy behavior for the exact refresh workflow. It does not restore anonymous base-table reads and does not expose `prediction_results`.
-
-## Supabase / RLS posture
-
-The project intentionally uses RLS and normal authenticated app clients.
-
-Rules:
-
-- no service-role in app routes;
-- migrations are reviewed and applied manually in Supabase SQL Editor;
-- already-applied migrations are not edited;
-- new DB behavior gets a new migration;
-- public read projections remain the public boundary;
-- `prediction_results` remains internal-only.
-
-Relevant publication/refresh migrations:
-
-- `0025_manual_publication_rls.sql` — initial narrow manual-publication grants/policies.
-- `0026_fix_manual_publication_match_update_policy.sql` — old-row/new-row update policy split attempt.
-- `0027_inline_manual_publication_match_update_check.sql` — inline new-row check attempt.
-- `0028_manual_publication_match_new_row_helper.sql` — new-row helper attempt.
-- `0029_manual_publication_match_access_scope_rpc.sql` — runtime-proven first-publication RPC.
-- `0030_real_fixture_lab_public_refresh_rls.sql` — admin exact refresh support for already-public API-Football fixtures.
-
-The earlier policy attempts are part of history. The stable first-publication mechanism is the `0029` RPC. The stable exact refresh RLS support is `0030`.
-
-## Public/private boundary
-
-Public product may show:
-
-- basic 1X2 probabilities;
+- public match/prediction summaries;
+- 1X2 probabilities;
 - confidence/risk framing;
 - public-safe match detail;
-- selected public prediction copy.
+- final result/status where verified;
+- authenticated probable score where allowed.
 
-Public product must not expose:
+Public users must not see:
 
-- `prediction_results`;
-- internal evaluations;
-- Lab-only signals as raw internals;
-- provider predictions;
-- betting odds as model input;
-- admin-only matches;
-- unverified result/evaluation internals.
+- raw `prediction_results`;
+- internal Lab/evaluation payloads;
+- admin-only evidence;
+- provider prediction data;
+- service-role data.
 
-## Product access boundary still pending
+### Admin / Real Fixture Lab boundary
 
-The next architecture/product decision is access-tiering:
+The Real Fixture Lab is admin/internal.
 
-- anonymous: likely 1X2, confidence/risk, basic match info;
-- free authenticated: likely probable score, watchlist, short interpretation;
-- future premium: likely top scorelines, BTTS, over/under, expanded reasoning/signals.
+It handles:
 
-This is not implemented yet. The project should not accidentally give away all premium-shaped value in the anonymous product and then wonder why no one pays. A bold theory, but worth testing.
+- exact fixture loading;
+- internal prediction generation;
+- public publication actions;
+- exact refresh of already-public fixtures;
+- finished-result verification;
+- internal evaluation persistence.
 
-## Operational caveats
+### Database / RLS boundary
 
-- Publication is manual and one fixture at a time.
-- Broad World Cup apply/publication remains out of scope.
-- Public refresh is exact, admin-only, and not automatic.
-- The current publication audit is operational rather than DB-native lineage; future schema can add lineage if needed.
-- Scoreline generation currently leans too often toward `1-1`; future calibration should address this separately from launch publication plumbing.
+Supabase policies and migrations are intentionally narrow.
+
+Important manual migrations:
+
+- `0029_manual_publication_match_access_scope_rpc.sql`
+- `0030_real_fixture_lab_public_refresh_rls.sql`
+- `0031_authenticated_public_match_probable_score.sql`
+- `0032_real_fixture_lab_public_finished_result_verification_rls.sql`
+
+Migrations are applied manually through Supabase SQL Editor. Do not assume deployment automation.
+
+## Prediction engine architecture
+
+### Snapshot layer
+
+The national-team strength snapshot layer is the stable team-input layer for prediction generation.
+
+After PR #66, canonical World Cup team snapshots are built from a generated static signal module:
+
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
+
+The consuming snapshot file:
+
+```text
+lib/prediction-engine/national-team-strength-snapshots.ts
+```
+
+The generated source module is intentionally runtime-safe:
+
+- no filesystem reads;
+- no runtime JSON/CSV/HTML import;
+- no dependency on `codex-inputs/`;
+- exports static constants;
+- is versioned as source code.
+
+### Signal categories after E10C
+
+The runtime snapshot layer now carries:
+
+- FIFA rank/points;
+- Elo rank/rating;
+- Elo average rank/rating;
+- derived historical goals for/against per match;
+- recent-form availability via `recentMatchCount`;
+- neutral market/lineup placeholders.
+
+The source pack used richer Elo/source data during preparation, but raw Elo match totals, wins/losses/draws, raw goals for/against, and fixture-expectancy metadata are not exposed as active runtime snapshot fields in E10C.
+
+### Still separate: scoreline/xG calibration
+
+E10C did not touch expected-goals or scoreline calibration.
+
+Files such as `expected-goals.ts` remain the next likely target for E10D, but only after read-only diagnosis.
+
+## Publication architecture
+
+### First public publication
+
+Stable path:
+
+```text
+internal_lab prediction
+-> public_product copy
+-> match access scope flipped to public by RPC
+```
+
+RPC:
+
+```text
+publish_real_fixture_match_access_scope(target_match_id, target_match_slug)
+```
+
+Do not replace this with direct match updates unless explicitly scoped.
+
+### Public refresh architecture
+
+Already-public fixtures can be refreshed exactly:
+
+```text
+public fixture
+-> admin Lab refresh
+-> new internal_lab evidence
+-> new public_product replacement row
+-> public views read latest public_product row
+```
+
+Old rows remain as history.
+
+### Finished-result verification architecture
+
+Finished public fixture results are handled through Lab/admin flow:
+
+```text
+finished fixture result
+-> pending_review
+-> admin Verify result
+-> verified result status
+-> internal evaluation persistence
+```
+
+Public surfaces can show final status/result, but internal evaluation remains protected.
+
+## Source-pack architecture
+
+E10C source data came from local normalized packs generated from reviewed FIFA/Elo sources.
+
+Important rule:
+
+```text
+Raw input packs belong in codex-inputs/ locally and must not be committed.
+```
+
+Committed artifact:
+
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
+
+This lets runtime use stable source code, not local scratch files. A rare outbreak of common sense.
+
+## Current architecture risks
+
+| Risk | Status | Notes |
+|---|---:|---|
+| scoreline over-conservatism | open | E10D target |
+| market signal absent | accepted | placeholder `50` |
+| lineup/injury signal absent | accepted | placeholder `50` |
+| encoding/mojibake metadata | non-blocking | cleanup later |
+| formal DB lineage from public row to internal row | open | acceptable for MVP 1, revisit before broader automation |
+| broad automation | intentionally avoided | exact fixture operations only |
+
+## Architectural red lines
+
+- Keep `prediction_results` internal.
+- Keep admin Lab separate from public app.
+- Keep service-role out of app routes.
+- Keep migrations manual and reviewed.
+- Do not commit `codex-inputs/`.
+- Do not use betting odds or provider predictions as hidden model input.

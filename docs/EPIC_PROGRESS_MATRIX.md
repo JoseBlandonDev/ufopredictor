@@ -1,75 +1,83 @@
 # UFO Predictor — Epic Progress Matrix
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-| Epic / Block | MVP Stage | Status | Purpose | Next Action |
-|---|---:|---|---|---|
-| Epic A — Project Foundation | Foundation | Complete | Repo/app/Supabase/project base. | None. Maintain only. |
-| Epic B — Public Prediction Foundation | Foundation | Complete | Public-safe prediction structures and read boundaries. | Continue using public projections. |
-| Epic C — Registered/Premium Foundation | Foundation | Complete | Registered user/free-premium scaffolding. | Define access tiers in E09. |
-| Epic D — Real Data & Calibration Lab | MVP 0 | Complete / PASS | Validate controlled real-data loop before World Cup. | Frozen except explicit follow-up. |
-| D05 — Real Fixture Lab Loop | MVP 0 | Complete | Exact fixture ingest, internal prediction, result verification, evaluation persistence. | Use as internal foundation. |
-| D06 — Friendly Pilot Batch | MVP 0 | Complete | 5 exact friendlies fully evaluated. | Do not keep extending D06. |
-| D07 — Model Sanity / v0.2-prelaunch | MVP 0 | Complete / Frozen | Fix default-signal collapse and activate MVP 1 model. | Keep active. Further calibration in E10/M later. |
-| D08A — Admin Lab Navigation Cleanup | MVP 0/1 | Complete | Make Real Fixture Lab accessible and clarify legacy/mock lanes. | Maintain. |
-| F01 — MVP 1 UI Polish | MVP 1 | Complete | Polish public/admin UX without logic changes. | Use as launch baseline. |
-| Epic E — World Cup Data & Prediction Launch | MVP 1 | Active | Launch real World Cup fixture ingestion/publication. | Continue exact fixture ops only. |
-| E01 — Launch Readiness Recognition | MVP 1 | Complete | Establish World Cup launch readiness and next work. | Superseded by E03/E07. |
-| E03B — Exact Scheduled World Cup Apply Guard | MVP 1 | Complete | Allow only one scheduled World Cup fixture apply by exact fixture id. | Keep broad apply blocked. |
-| E03D — Competition Slug Reuse | MVP 1 | Complete | Reuse existing `world-cup-2026` row when external id differs. | Maintain in ingest writer. |
-| E03E — Team Slug Reuse | MVP 1 | Complete | Reuse existing team rows when external id differs. | Maintain in ingest writer. |
-| E04 — First Exact World Cup Fixture Ingest | MVP 1 | Complete | Ingest Mexico vs South Africa as admin-only real fixture. | Repeat only for selected exact fixtures. |
-| E05 — Manual Public Prediction Publication | MVP 1 | Runtime pass | Clone selected internal prediction into public_product and publish exact match. | Keep manual; do not batch. |
-| E05-G — Publication Access RPC | MVP 1 | Runtime pass | Use `0029` RPC to flip `matches.access_scope` safely. | Preserve as stable first-publication path. |
-| E06 / F02 — Public Launch QA & Mock Cleanup | MVP 1 | Complete baseline | Make public surface launch-safe and real-fixture focused. | Maintain; polish through E09. |
-| E07 — Next World Cup Fixture Expansion | MVP 1 | Complete / PR #61 | Add fallback signals, publish more fixtures, support exact public refresh. | Use proven flow for future selected fixtures. |
-| E08 — Public Copy / Confidence / Risk Framing | MVP 1 | Partially complete | Safer public probability/risk framing. | Continue as part of E09. |
-| E09 — Access Tiers for Prediction Detail | MVP 1 | Next | Decide anonymous/free/premium visibility for prediction detail and scorelines. | Start read-only recognition. |
-| E10 — Scoreline Calibration & Signal Enrichment Plan | MVP 1/1.5 | Next after E09 | Reduce over-conservative `1-1` behavior and plan real data snapshots. | Recognition/planning first. |
-| Epic G — Auth/Payment/Tournament Pass | MVP 1 | Future / Optional parallel | Payment gateway/tournament-pass flow. | Discovery only after access-tier definition. |
-| Epic H — Live Evaluation & Model Iteration | MVP 1.5 | Future | Use real World Cup outcomes for evaluation/iteration. | Open after fixtures finish. |
-| Epic I — Workers Lite & Automation | MVP 1.5 | Future | Reduce manual operator burden during tournament. | Not before manual exact flow stays stable. |
-| Epic J — Product Iteration During Tournament | MVP 1.5 | Future | Improve pricing/copy/features from real usage. | Later. |
-| Epic K — Recurring Competitions | MVP 2 | Future | Support post-World-Cup recurring competitions. | Later. |
-| Epic L — Recurring Payments & Premium Depth | MVP 2 | Future | Subscriptions and deeper premium product. | Later. |
-| Epic M — Model & Transparency Maturity | MVP 2 | Future | Better features, calibration, transparency. | Later. |
-| Epic N — Production Ops & Scale | MVP 2 | Future | Operational hardening and scaling. | Later. |
+## Legend
 
-## Current MVP 1 milestone
+| Status | Meaning |
+|---|---|
+| Done | implemented, validated, merged or operationally complete |
+| Active | current project focus |
+| Next | should be planned next |
+| Later | known future work, not current scope |
+| Blocked/Open | requires decision or dependency |
 
-Four real World Cup fixtures are public:
+## MVP 0 — Calibration Lab
 
-- `api-football:fixture:1489369` — Mexico vs South Africa;
-- `api-football:fixture:1538999` — South Korea vs Czech Republic;
-- `api-football:fixture:1539000` — Canada vs Bosnia & Herzegovina;
-- `api-football:fixture:1489370` — USA vs Paraguay.
+| Epic / Task | Status | Notes |
+|---|---:|---|
+| A — project/app foundation | Done | base Next/Supabase app foundation |
+| B — public prediction foundation | Done | public prediction display foundation |
+| C — registered/premium foundation | Done | auth/user groundwork exists |
+| D05 — Real Fixture Lab loop | Done | internal Lab path proved |
+| D06 — friendly pilot | Done | small-sample operational pilot complete |
+| D07 — `v0.2-prelaunch` model sanity | Done | frozen for MVP 1 launch baseline |
+| D08A — admin navigation cleanup | Done | admin usability improved |
 
-MVP 1 now has:
+## MVP 1 — World Cup Launch
 
-- exact fixture ingest;
-- manual publication;
-- exact public refresh;
-- fallback signals for immediate launch teams;
-- public-safe real fixture surface.
+| Epic / Task | Status | Notes |
+|---|---:|---|
+| F01 — MVP 1 UI polish | Done | table/action polish complete |
+| E03 — exact World Cup ingest hardening | Done | exact fixture guard foundations |
+| E04 — first exact World Cup fixture ingest | Done | first real fixture path proved |
+| E05 — manual public prediction publication | Done | stable RPC/manual publication path |
+| E06/F02 — public launch QA / mock cleanup | Done | real fixture public surface safe |
+| E07 — next World Cup fixture publication + public refresh | Done | PR #61 merged |
+| E09A — authenticated probable score | Done | PR #63 merged, migration #0031 applied |
+| E10B — canonical World Cup catalog / real team snapshot foundation | Done | PR #64 merged |
+| H01A — public finished fixture result verification | Done | PR #65 merged, migration #0032 applied |
+| E10C — real signal enrichment for 48 teams | Done | PR #66 merged |
+| Post-E10C docs rebaseline | Active | refresh current docs after PR #66 |
+| E10D — xG / scoreline calibration | Next | must use E10C signal layer, not blind tweaks |
 
-## Current bottleneck
+## MVP 1.5 — Live World Cup Iteration
 
-The public product now needs value-tier and model-output clarity, not more RLS archaeology unless a real bug appears. The next work should focus on:
+| Epic / Task | Status | Notes |
+|---|---:|---|
+| Result verification loop extension | Active/Later | continue verifying finished public fixtures exactly |
+| Public-safe final-result polish | Later | improve user-facing final result presentation if needed |
+| Accuracy dashboard | Later | needs sample size; do not fake significance |
+| Richer explanation layer | Later | use signal metadata to explain without exposing internals |
+| Encoding/source-label cleanup | Later | mojibake in generated metadata is non-blocking but ugly, naturally |
 
-1. access tiers;
-2. probable score visibility;
-3. premium/free separation;
-4. scoreline calibration;
-5. real signal enrichment;
-6. result verification after fixtures finish.
+## Model / Data Epics
 
-## Non-negotiable boundaries
+| Epic / Task | Status | Notes |
+|---|---:|---|
+| E10A — read-only model/data diagnosis | Done | discovery/diagnosis only, no PR |
+| E10B — canonical catalog + 48-team snapshot coverage | Done | PR #64 merged |
+| E10C — FIFA/Elo/recent-form signal enrichment | Done | PR #66 merged |
+| E10D — expected-goals and scoreline calibration | Next | inspect outputs, calibrate distribution, reduce over-conservative `1-1` |
+| E10E — lineup/injury context | Later | placeholder currently `50` |
+| E10F — market context decision | Open/Later | must avoid hidden betting/provider-prediction input |
 
-- No broad World Cup apply.
-- No batch publication.
-- No automatic publication.
-- No provider predictions.
-- No betting odds as hidden model input.
-- No public exposure of `prediction_results`.
-- No service-role in app routes.
-- No large model rewrite before a planned calibration epic.
+## Access / Monetization
+
+| Epic / Task | Status | Notes |
+|---|---:|---|
+| Authenticated probable score | Done | PR #63 merged |
+| Free vs premium detail strategy | Active/Later | probable score currently authenticated; premium deeper markets not implemented |
+| Payments / tournament pass | Later | do not implement before value tiers settle |
+| Premium markets | Later | BTTS/O-U/top scorelines remain future scope |
+
+## Operational Guardrails
+
+| Guardrail | Status | Notes |
+|---|---:|---|
+| `prediction_results` internal-only | Active | must remain protected |
+| Exact fixture operations | Active | no broad/batch apply |
+| Manual migrations | Active | Supabase SQL Editor workflow |
+| No service-role app routes | Active | security boundary |
+| No provider prediction copying | Active | no “borrowed model wearing UFO costume” |
+| `codex-inputs/` uncommitted | Active | source packs are local inputs, not repo artifacts |

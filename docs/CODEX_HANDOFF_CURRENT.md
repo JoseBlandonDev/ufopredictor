@@ -1,317 +1,202 @@
 # Codex Handoff — UFO Predictor Current
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-This file gives Codex the current state and guardrails. Codex should not invent roadmap structure or “simplify” the publication path into another elegant RLS trap. The system has already paid that tuition.
+Use this before asking Codex to inspect or implement anything. Codex is powerful, but so is a chainsaw. Context first, limbs later.
 
-## Current project status
+## Current branch baseline
 
-UFO Predictor has four real World Cup fixtures publicly visible in the product.
+Start from updated `main` unless the user explicitly says otherwise.
 
-Public fixtures:
+Recommended PowerShell baseline:
 
-| Match | API-Football fixture | State |
-|---|---|---|
-| Mexico vs South Africa | `api-football:fixture:1489369` | public; refreshed after fallback signals |
-| South Korea vs Czech Republic | `api-football:fixture:1538999` | public; refreshed after fallback signals |
-| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | public; published with fallback active |
-| USA vs Paraguay | `api-football:fixture:1489370` | public; published with fallback active |
-
-The current milestone is not broad automation. It is a manual, exact-fixture, admin-controlled publication bridge plus an exact admin refresh path for already-public fixtures.
-
-## Recently completed work
-
-### D06/D07 close
-
-- D06 friendly pilot completed with 5 evaluated fixtures.
-- D07 activated `v0.2-prelaunch` and froze model changes for MVP 1.
-
-### F01 UI polish
-
-- Public/admin UI polish merged.
-- No model/data/payment logic changes in F01.
-
-### E03 World Cup ingest hardening
-
-Completed:
-
-- exact scheduled World Cup fixture apply guard;
-- competition slug reuse during ingest apply;
-- team slug reuse during ingest apply;
-- first exact World Cup fixture ingest.
-
-Important ingest boundary:
-
-- broad World Cup apply is still blocked;
-- exact World Cup apply requires explicit fixture id, date range, and limit 1.
-
-### E05 manual publication bridge
-
-Completed/runtime-proven:
-
-- admin action can publish one selected internal prediction;
-- action copies selected `internal_lab` prediction into `public_product`;
-- internal row remains untouched;
-- no `prediction_results` access/exposure;
-- match access is published through RPC.
-
-### E06/F02 public launch cleanup
-
-Completed for MVP 1 baseline:
-
-- public launch surface is real-fixture safe;
-- mock/preview mixing was removed from the primary public prediction path;
-- homepage and public copy now read as product, not release notes from a bunker;
-- navbar/session-aware CTAs were corrected.
-
-### E07 fixture expansion and refresh
-
-Completed in PR #61:
-
-- static fallback signals added for immediate World Cup teams;
-- Mexico/South Korea public predictions refreshed after fallback improvement;
-- Canada and USA fixtures published with fallback active;
-- exact admin public refresh path implemented;
-- migration `0030_real_fixture_lab_public_refresh_rls.sql` added and applied manually.
-
-## Manual first-publication architecture
-
-The stable runtime path for the `matches.access_scope` flip is:
-
-- migration: `0029_manual_publication_match_access_scope_rpc.sql`
-- RPC: `public.publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)`
-- called from `app/admin/real-fixture-lab/actions.ts`
-
-RPC behavior:
-
-- `SECURITY DEFINER`
-- exact match id + slug only
-- requires admin user
-- requires current match row to be `admin_only + scheduled + api_football`
-- requires linked competition `usage_scope='public_product'`
-- updates only `matches.access_scope = 'public'`
-- returns updated match id or `null`
-
-Do not replace this with a direct `matches.update(...)` path unless a new explicit task says so.
-
-## Exact public refresh architecture
-
-PR #61 added exact refresh support for already-public API-Football fixtures.
-
-Behavior:
-
-- Real Fixture Lab can load one exact `public + api_football + scheduled` fixture for admin refresh;
-- refresh generates a fresh preview with current model/fallback logic;
-- refresh saves a new `internal_lab` evidence row;
-- refresh appends a new replacement `public_product` row;
-- older public rows remain as audit/history;
-- public views read the latest public row;
-- no `prediction_results` exposure;
-- no provider predictions;
-- no betting odds.
-
-Migration:
-
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-
-This was necessary because the Lab could not directly read public API-Football base-table rows under the previous RLS posture. The public product itself remains view-based.
-
-## Applied/known publication migrations
-
-These exist in current history and should not be edited:
-
-- `0025_manual_publication_rls.sql`
-- `0026_fix_manual_publication_match_update_policy.sql`
-- `0027_inline_manual_publication_match_update_check.sql`
-- `0028_manual_publication_match_new_row_helper.sql`
-- `0029_manual_publication_match_access_scope_rpc.sql`
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-
-If another DB correction is needed, add a new migration. Do not rewrite applied history. Really. It was not fun the first time either.
-
-## Data model notes
-
-### `prediction_versions`
-
-Use:
-
-- `id`
-- `match_id`
-- `run_scope`
-- `prediction_type`
-- `model_version_id`
-- `created_at`
-
-Do not assume:
-
-- `model_version` column;
-- `updated_at` column;
-- `source_prediction_version_id`;
-- `metadata_json`;
-- `source_note`.
-
-Join model version through:
-
-- `prediction_versions.model_version_id = model_versions.id`
-- `model_versions.version`
-
-Exact refresh appends a new `public_product` prediction row rather than updating an old public row in place.
-
-### `model_versions`
-
-Use:
-
-- `version`, not `version_key`.
-
-Current active model:
-
-- `v0.2-prelaunch`
-
-### `prediction_markets`
-
-Use:
-
-- `market`
-- `selection`
-- `probability`
-- `confidence`
-- `is_premium`
-
-Do not assume:
-
-- `market_key`
-- `outcome_key`
-
-Market visibility/publication remains a future access-tier/premium decision.
-
-### `matches`
-
-Manual public first-publication changes only:
-
-- `access_scope: admin_only -> public`
-
-Exact refresh for already-public fixtures does not change `matches.access_scope`.
-
-Do not expose or modify result/evaluation internals in this path.
-
-## Current branch/process expectations
-
-Before any implementation:
-
-```bash
-git checkout main
-git pull origin main
-git status --short
-git checkout -b feature/<real-task-name>
-git status --short
-git branch --show-current
-```
-
-After a PR merge:
-
-```bash
+```powershell
 git checkout main
 git pull origin main
 git status --short
 git log --oneline -5
-git branch -d <merged-branch>
-git push origin --delete <merged-branch>
-git status --short
 ```
 
-Never implement on `main`.
+Never work directly on `main` for implementation.
 
-## Migration operations
+## Recent merged PRs
 
-Supabase migrations are not auto-applied.
+| PR | Title | Notes |
+|---:|---|---|
+| #63 | `feat: gate probable score to authenticated match detail` | authenticated probable score, anonymous teaser, `prediction_results` internal |
+| #64 | `Feature/e10b real team strength snapshots` | canonical 48-team World Cup catalog/snapshot foundation |
+| #65 | `feat: support public finished fixture result verification` | admin verification of finished public fixture results |
+| #66 | `feat: enrich national team strength signals` | E10C real signal pack wired into snapshot layer |
 
-Codex may create migration files when instructed, but remote SQL application is manual and must be explicitly approved by the user.
+## PR #66 implementation summary
 
-Codex must not:
+E10C added a static generated source module:
 
-- run remote SQL;
-- apply migrations;
-- use service-role;
-- edit already-applied migrations;
-- guess migration state from repo alone when live DB evidence is needed.
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
 
-## Current recommended next work
+It is used by:
 
-### E09 — Access tiers for prediction detail + scoreline visibility
+```text
+lib/prediction-engine/national-team-strength-snapshots.ts
+```
 
-Start with read-only recognition.
+Tests updated:
 
-Goal:
+```text
+lib/prediction-engine/national-team-strength-snapshots.test.ts
+lib/prediction-engine/real-fixture-adapter.test.ts
+```
 
-- inspect what public routes can already read;
-- decide anonymous/free-auth/premium boundaries;
-- decide whether probable score belongs in anonymous, registered-free, or premium;
-- decide whether top scorelines / BTTS / Over-Under should be premium-only;
-- avoid exposing `prediction_results`;
-- avoid implementing payments in this slice.
+E10C fields include:
 
-Likely files to inspect:
+- FIFA rank/points;
+- Elo rank/rating;
+- historical Elo match stats;
+- goals for/against and per-match derivatives;
+- recent-form fields;
+- neutral `marketScore: 50`;
+- neutral `lineupContextScore: 50`.
 
-- `app/predictions/page.tsx`
-- `components/public-prediction-card.tsx`
-- `app/matches/[slug]/page.tsx`
-- `lib/supabase/public-prediction-queries.ts`
-- `lib/supabase/public-match-detail-queries.ts`
-- `components/plan-card.tsx`
-- dashboard/access helpers if role/session logic is involved
+E10C did not change:
 
-Do not change files in the recognition step.
+- `expected-goals.ts`;
+- scoreline calibration;
+- publication/refresh;
+- API-Football ingest;
+- UI/app routes;
+- Supabase migrations/policies/helpers.
 
-## Later recommended work
+## Local source-pack rule
 
-### E10 — Scoreline calibration and real signal enrichment plan
+`codex-inputs/` was used as a local staging folder for normalized data packs.
 
-Reasons:
+Rules:
 
-- current model differentiates fixtures better after fallback expansion;
-- scoreline generation still tends too often toward `1-1`;
-- static fallback should evolve toward real data snapshots with provenance.
+- do not commit `codex-inputs/`;
+- do not import from `codex-inputs/` in runtime code;
+- do not depend on local JSON/CSV/HTML at runtime;
+- generated source modules may be committed if intentionally produced from reviewed packs.
 
-Possible future inputs:
+## Current recommended next implementation: E10D
 
-- FIFA rankings;
-- Elo-style ratings;
-- recent form;
-- attack/defense signals;
-- source dates;
-- DB-backed team strength snapshots.
+Suggested branch:
 
-## Hard boundaries
+```powershell
+git checkout main
+git pull origin main
+git status --short
+git checkout -b feature/e10d-scoreline-calibration
+git status --short
+git branch --show-current
+```
 
-- no broad World Cup apply;
-- no broad friendlies apply;
-- no batch publication;
-- no automatic publication;
-- no service-role in app routes;
-- no public `prediction_results`;
-- no provider predictions;
-- no betting odds as hidden model input;
-- no payment implementation unless a dedicated Epic G slice is opened;
-- no large model rewrite without planned calibration scope.
+E10D goal:
 
-## Validation defaults
+```text
+Calibrate expected-goals and scoreline distribution using E10C enriched national-team signals.
+```
 
-For implementation:
+Do not start E10D by changing files. First ask Codex for read-only recognition.
 
-```bash
+## Prompt: read-only recognition for E10D
+
+```text
+We are working in the UFO Predictor repo.
+
+Start from the current branch and run a read-only recognition for E10D scoreline/xG calibration.
+
+Context:
+- PR #66 E10C real signal enrichment is merged.
+- The snapshot layer now includes FIFA rank/points, Elo rank/rating, historical stats, recent-form fields, and neutral market/lineup placeholders for the 48 canonical World Cup teams.
+- E10C did not change expected-goals or scoreline calibration.
+
+Read-only scope:
+- Do not edit files.
+- Do not commit.
+- Do not push.
+- Do not run SQL.
+- Do not touch Supabase.
+- Do not run DB writes.
+- Do not use web search.
+
+Inspect:
+- lib/prediction-engine/expected-goals.ts
+- lib/prediction-engine/generate-prediction.ts or equivalent generation path
+- national-team strength snapshot consumption
+- scoreline probability/modal-score logic
+- related tests
+
+Report:
+1. current branch and git status;
+2. how E10C signals currently feed prediction generation;
+3. where expected goals are computed;
+4. where scoreline/modal-score behavior is determined;
+5. why 1-1 may remain overproduced;
+6. a safe implementation plan for E10D;
+7. exact files likely to change;
+8. tests to add/update;
+9. risks and non-goals.
+
+Non-goals:
+- no UI changes;
+- no publication/refresh changes;
+- no API-Football ingest changes;
+- no Supabase migrations;
+- no prediction_results exposure;
+- no betting odds/provider predictions as hidden input.
+```
+
+## Stable runtime paths
+
+### Manual first publication
+
+Uses:
+
+- `0029_manual_publication_match_access_scope_rpc.sql`
+- `publish_real_fixture_match_access_scope(target_match_id, target_match_slug)`
+
+Do not replace this with direct match updates.
+
+### Exact public refresh
+
+Uses:
+
+- `0030_real_fixture_lab_public_refresh_rls.sql`
+- admin-only RLS helper/policy expansion for already-public scheduled API-Football public-product fixtures.
+
+### Authenticated probable score
+
+Uses:
+
+- `0031_authenticated_public_match_probable_score.sql`
+
+### Finished public result verification
+
+Uses:
+
+- `0032_real_fixture_lab_public_finished_result_verification_rls.sql`
+
+## Validation expectations
+
+For model-layer work, Codex should usually run:
+
+```powershell
 git diff --check
-npm run test -- <targeted-test-file>
+npm run test -- lib/prediction-engine/national-team-strength-snapshots.test.ts lib/prediction-engine/real-fixture-adapter.test.ts lib/prediction-engine/generate-prediction.test.ts
 npm run lint
 npm run build
-git status --short
 ```
 
-Restore `next-env.d.ts` if build changes it unintentionally.
+Use narrower test commands during iteration if needed, but final report must be explicit.
 
-For docs-only:
+## Forbidden unless explicitly scoped
 
-```bash
-git diff --check
-git status --short
-git diff --name-only
-```
+- broad ingest/apply;
+- service-role app routes;
+- public exposure of `prediction_results`;
+- Supabase migration creation;
+- odds/provider prediction input;
+- committing raw source packs;
+- editing docs and code in the same PR unless user asks.

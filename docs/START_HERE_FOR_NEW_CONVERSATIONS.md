@@ -1,23 +1,36 @@
 # START HERE — UFO Predictor
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-This file is the entry point for new ChatGPT/Codex conversations. Use it to avoid inventing a new roadmap every time a conversation starts. The project has already suffered enough from humans, branches, and RLS policies trying to be clever.
+This file is the entry point for new ChatGPT/Codex conversations. Use it before proposing work. The project has already survived enough branches, RLS policies, and “small tweaks” pretending to be architecture.
 
 ## Current position
 
 UFO Predictor is in **MVP 1 World Cup Launch**.
 
-The public product now has four real World Cup 2026 fixtures visible through the controlled MVP 1 path:
+The app has a controlled public World Cup 2026 path and now has a stronger model-input foundation for all **48 canonical World Cup teams**.
+
+Recent merged PRs changed the launch baseline:
+
+| PR | Status | Meaning |
+|---|---:|---|
+| #63 `feat: gate probable score to authenticated match detail` | merged | authenticated users can see probable score on match detail; anonymous users see teaser; `prediction_results` remains internal |
+| #64 `Feature/e10b real team strength snapshots` | merged | canonical World Cup 2026 catalog and complete national-team snapshot coverage foundation |
+| #65 `feat: support public finished fixture result verification` | merged | Real Fixture Lab can verify finished public fixture results and persist internal evaluation safely |
+| #66 `feat: enrich national team strength signals` | merged | E10C added real FIFA/Elo/recent-form signal enrichment for the 48 canonical teams |
+
+## Public fixture baseline
+
+The initial controlled public World Cup fixtures include:
 
 | Match | API-Football fixture | Public state | Notes |
-|---|---|---|---|
-| Mexico vs South Africa | `api-football:fixture:1489369` | `public` | Published first, later refreshed after MVP 1 fallback signals. |
-| South Korea vs Czech Republic | `api-football:fixture:1538999` | `public` | Published second, later refreshed after MVP 1 fallback signals. |
-| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | `public` | Published with MVP 1 fallback signals active. |
-| USA vs Paraguay | `api-football:fixture:1489370` | `public` | Published with MVP 1 fallback signals active. |
+|---|---:|---|---|
+| Mexico vs South Africa | `api-football:fixture:1489369` | public / finished | result verified 2-0 through Lab flow |
+| South Korea vs Czechia | `api-football:fixture:1538999` | public / finished | result verified 2-1 through Lab flow |
+| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | public / finished | result verified 1-1 through Lab flow |
+| USA vs Paraguay | `api-football:fixture:1489370` | public | publication path proved; live/result handling depends on current match state |
 
-The proven path is still manual and exact-fixture based:
+The controlled publication path remains:
 
 ```text
 exact API-Football World Cup fixture
@@ -27,14 +40,15 @@ exact API-Football World Cup fixture
 -> public match/prediction visibility
 ```
 
-A second operational path is now also proven:
+The finished-result verification path now also exists:
 
 ```text
-already-public API-Football fixture
+public finished API-Football fixture
 -> exact admin Real Fixture Lab load
--> regenerated internal_lab evidence
--> appended replacement public_product prediction
--> public views pick latest public_product row
+-> pending_review result write
+-> admin Verify result
+-> internal evaluation persistence
+-> public final status/result display without exposing prediction_results
 ```
 
 ## Completed foundations
@@ -50,86 +64,71 @@ already-public API-Football fixture
 - E05 — manual public prediction publication: runtime pass.
 - E06/F02 — public launch QA / mock cleanup: complete for MVP 1 baseline.
 - E07 — next World Cup fixture expansion and public refresh: complete / PR #61 merged.
-
-## Recent important PRs
-
-- PR #58 — public launch surface real-fixture safe.
-- PR #61 — E07 next World Cup fixture publication and public refresh path.
-
-PR #61 included:
-
-- MVP 1 static fallback signals for immediate World Cup teams;
-- exact admin refresh support for already-public API-Football fixtures;
-- migration `0030_real_fixture_lab_public_refresh_rls.sql`;
-- public refresh of Mexico and South Korea predictions;
-- publication of Canada and USA fixtures with fallback signals active.
+- E09A — authenticated probable score gating: complete / PR #63 merged.
+- E10B — canonical World Cup catalog + 48-team snapshot coverage: complete / PR #64 merged.
+- H01A — public finished fixture result verification: complete / PR #65 merged.
+- E10C — real signal enrichment for 48 national teams: complete / PR #66 merged.
 
 ## Active model state
 
-Active model:
+Active model family:
 
-- `v0.2-prelaunch`
+```text
+v0.2-prelaunch + E10C signal-enriched national-team snapshots
+```
 
-MVP 1 fallback signals now cover the first launch-window teams:
+E10C added a generated static signal module:
 
-- Mexico;
-- South Africa;
-- South Korea / Korea Republic;
-- Czech Republic / Czechia;
-- Canada;
-- Bosnia & Herzegovina / Bosnia and Herzegovina;
-- USA / United States;
-- Paraguay.
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
 
-The model now avoids full default-signal collapse for the first public fixtures. It is still not a full real-time model. Scoreline generation remains conservative and tends too often toward `1-1`; that is future calibration work, not something to quietly hack into the current launch path because apparently one bug is never enough.
+The snapshot layer now has real signal coverage for the 48 canonical World Cup teams:
+
+- FIFA rank and FIFA points;
+- Elo rank and Elo rating;
+- historical Elo match stats;
+- historical goals for/against and per-match derivatives;
+- recent-form fields from 2025/2026 results;
+- neutral placeholders for `marketScore` and `lineupContextScore`.
+
+Important interpretation:
+
+- E10C improved **model inputs**.
+- E10C did **not** calibrate expected goals or scoreline distribution.
+- `expected-goals.ts` and scoreline tuning remain E10D work.
 
 ## Immediate next work
 
-Recommended next epic:
+Recommended next step before new implementation:
 
 ```text
-E09 — Access Tiers for Prediction Detail + Scoreline Visibility
+Docs rebaseline post-E10C / PR #66
 ```
 
-Goal:
-
-- define what anonymous users see;
-- define what free authenticated users see;
-- define what future premium users see;
-- decide whether probable score is public, registered-free, or premium;
-- keep `prediction_results` internal;
-- do not implement payments yet.
-
-Suggested next branch:
-
-```bash
-git checkout main
-git pull origin main
-git status --short
-git checkout -b feature/e09-access-tiers-prediction-detail
-git status --short
-git branch --show-current
-```
-
-Likely following epic:
+Recommended next implementation epic:
 
 ```text
-E10 — Scoreline Calibration + Real Signal Enrichment Plan
+E10D — xG and scoreline calibration using the new real signals
 ```
 
-Goal:
+E10D should inspect and calibrate:
 
-- inspect expected-goals / scoreline generation;
-- reduce over-conservative `1-1` behavior;
-- plan real data enrichment using FIFA/Elo-style snapshots, recent form, attack/defense, and provenance.
+- expected-goals computation;
+- draw probability behavior;
+- most-likely-score distribution;
+- overproduction of `1-1`;
+- outputs such as `1-0`, `2-0`, `2-1`, `1-1` under realistic team-strength gaps.
+
+E10D must not be a blind tweak. The whole point of E10C was to stop adjusting outputs while feeding the model fog.
 
 ## Branch discipline
 
 Never work directly on `main`.
 
-After every PR merge, the user should run:
+After every PR merge, run from PowerShell:
 
-```bash
+```powershell
 git checkout main
 git pull origin main
 git status --short
@@ -139,7 +138,7 @@ git push origin --delete <merged-branch>
 git status --short
 ```
 
-If remote branch deletion says the remote ref does not exist, it usually means GitHub already deleted it. Not a blocker. Humanity survives.
+If remote branch deletion says the remote ref does not exist, GitHub probably already deleted it. Annoying, but not a blocker. A rare moment where doing nothing is correct.
 
 ## Codex usage rules
 
@@ -159,6 +158,14 @@ Default recognition constraints:
 - do not run `--apply true`.
 
 Implementation prompts must clearly say what Codex may modify.
+
+For E10D, the prompt must explicitly mention:
+
+- E10C / PR #66 is already merged;
+- do not touch publication/refresh/ingest/UI/Supabase unless explicitly scoped;
+- use existing 48-team signal metadata;
+- do not use provider predictions or betting odds as hidden model input;
+- keep `prediction_results` internal.
 
 ## Commands clarity rule
 
@@ -202,7 +209,17 @@ Exact public refresh uses:
 - `0030_real_fixture_lab_public_refresh_rls.sql`
 - admin-only RLS helper/policy expansion for already-public scheduled API-Football public-product fixtures.
 
-Do not replace the stable RPC/manual publication flow with direct `matches.update(...)` unless a future task explicitly requires it.
+Authenticated probable score uses:
+
+- `0031_authenticated_public_match_probable_score.sql`
+- authenticated-only access to `most_likely_score` on public match detail.
+
+Finished public fixture verification uses:
+
+- `0032_real_fixture_lab_public_finished_result_verification_rls.sql`
+- admin-only verification/persistence path in Real Fixture Lab.
+
+Do not replace stable RPC/manual publication flow with direct `matches.update(...)` unless a future task explicitly requires it.
 
 ## Current MVP-stage roadmap
 
@@ -216,40 +233,25 @@ Status: active / public launch baseline established.
 
 Current focus:
 
-- E09 — access tiers and scoreline visibility;
-- E10 — scoreline calibration and real signal enrichment planning;
-- result verification after public fixtures finish;
-- controlled exact-fixture expansion only.
+- result verification for finished public fixtures;
+- model credibility improvements through real signals;
+- E10D xG/scoreline calibration;
+- access-tier polish and future premium value definition.
 
 ### MVP 1.5 — Live World Cup Iteration
 
-Future.
+Likely work:
 
-Likely epics:
+- stronger scoreline calibration;
+- better explanation copy using signal metadata;
+- public-safe final-result presentation;
+- optional accuracy dashboard once sample size exists.
 
-- H — live evaluation/model iteration;
-- I — workers lite/automation;
-- J — product/monetization iteration.
+## Red lines
 
-### MVP 2 — Post-World-Cup Sustainable Product
-
-Future.
-
-## Hard no-go list
-
-Until explicitly approved:
-
-- broad friendlies apply;
-- broad World Cup apply;
-- automatic publication;
-- batch publication;
-- provider predictions;
-- betting odds as hidden model input;
-- public exposure of Lab/internal outputs;
-- public exposure of `prediction_results`;
-- service-role in app routes;
-- score-editing UI;
-- manual result creation UI;
-- full workers before manual flow evidence;
-- large model rewrite before planned calibration;
-- payment implementation outside a defined Epic G slice.
+- Keep `prediction_results` internal.
+- Do not expose internal Lab/evaluation payloads publicly.
+- Do not use betting odds/provider predictions as hidden model input.
+- Do not run broad World Cup ingest/apply.
+- Do not commit `codex-inputs/` or local source packs.
+- Do not silently modify scoreline calibration outside E10D.

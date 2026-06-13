@@ -1,8 +1,8 @@
 # ChatGPT Project Source — UFO Predictor Current
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-This is the high-signal project source for ChatGPT conversations. It should prevent new conversations from improvising the roadmap, because apparently stale documentation is how software projects summon fog machines.
+This is the high-signal project source for ChatGPT conversations. It should prevent new conversations from improvising the roadmap, because stale documentation is basically a fog machine with commit history.
 
 ## Product summary
 
@@ -12,23 +12,42 @@ Current launch focus:
 
 - World Cup 2026 selected fixtures;
 - public basic predictions;
-- confidence/risk framing;
+- authenticated probable-score value;
 - protected internal Lab/evaluation data;
-- manual exact-fixture operations before any automation;
-- preparing access tiers for public/free/premium detail.
+- controlled exact-fixture operations before automation;
+- improving model credibility through real team-strength signals.
 
 ## Current milestone
 
-MVP 1 has moved past “first fixture proof.” Four real World Cup fixtures are public.
+MVP 1 has moved beyond first-public-fixture proof. It now has:
 
-| Match | Fixture | Slug | Status |
-|---|---|---|---|
-| Mexico vs South Africa | `api-football:fixture:1489369` | `world-cup-2026-mexico-vs-south-africa-2026-06-11` | public; refreshed after fallback signals |
-| South Korea vs Czech Republic | `api-football:fixture:1538999` | `world-cup-2026-south-korea-vs-czech-republic-2026-06-12` | public; refreshed after fallback signals |
-| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | `world-cup-2026-canada-vs-bosnia-herzegovina-2026-06-12` | public; published with fallback signals active |
-| USA vs Paraguay | `api-football:fixture:1489370` | known public World Cup match slug in app/DB | public; published with fallback signals active |
+- selected World Cup fixtures public;
+- authenticated probable-score gating;
+- finished-result verification for public fixtures;
+- a 48-team canonical World Cup catalog;
+- real FIFA/Elo/recent-form signal enrichment for all 48 canonical teams.
 
-This proves the MVP 1 path is operational across multiple fixtures:
+Recent merged PRs:
+
+| PR | Title | Project meaning |
+|---:|---|---|
+| #63 | `feat: gate probable score to authenticated match detail` | probable score gated to authenticated match detail; public teaser for anonymous users |
+| #64 | `Feature/e10b real team strength snapshots` | 48-team canonical World Cup catalog and complete snapshot coverage foundation |
+| #65 | `feat: support public finished fixture result verification` | admin Lab can verify public finished results and persist internal evaluation |
+| #66 | `feat: enrich national team strength signals` | E10C wired real FIFA/Elo/recent-form signal pack into national-team snapshots |
+
+## Public fixture state
+
+Initial controlled fixtures:
+
+| Match | Fixture | Slug / status note |
+|---|---:|---|
+| Mexico vs South Africa | `api-football:fixture:1489369` | public; finished result verified 2-0 |
+| South Korea vs Czechia | `api-football:fixture:1538999` | public; finished result verified 2-1 |
+| Canada vs Bosnia & Herzegovina | `api-football:fixture:1539000` | public; finished result verified 1-1 |
+| USA vs Paraguay | `api-football:fixture:1489370` | public World Cup match; publication path proved |
+
+Core publication path:
 
 ```text
 API-Football exact fixture
@@ -39,14 +58,15 @@ API-Football exact fixture
 -> public match visibility
 ```
 
-It also proves the refresh path for already-public fixtures:
+Public result verification path:
 
 ```text
-public API-Football fixture
--> exact admin Real Fixture Lab load
--> regenerated internal_lab evidence
--> appended replacement public_product prediction
--> public views read latest public_product row
+finished public fixture
+-> exact Real Fixture Lab load
+-> pending_review result write
+-> admin verification
+-> internal prediction evaluation
+-> public final status/result remains safe
 ```
 
 ## MVP stage map
@@ -65,8 +85,8 @@ Includes:
 Important interpretation:
 
 - operational loop proved;
-- model sample too small for strong performance claims;
-- model remains `v0.2-prelaunch` for MVP 1 unless a dedicated calibration epic opens.
+- sample too small for strong public performance claims;
+- model remains in prelaunch family until dedicated calibration work lands.
 
 ### MVP 1 — World Cup Launch MVP
 
@@ -79,209 +99,106 @@ Completed:
 - E04 first exact World Cup fixture ingest;
 - E05 manual public prediction publication runtime pass;
 - E06/F02 public surface QA and mock cleanup;
-- E07 selected fixture expansion, fallback signals, and exact public refresh.
+- E07 selected fixture expansion, fallback signals, and exact public refresh;
+- E09A authenticated probable-score gating;
+- E10B canonical World Cup catalog and 48-team strength snapshot foundation;
+- H01A public finished result verification;
+- E10C real signal enrichment for all 48 teams.
 
 Next:
 
-- E09 access tiers for prediction detail and scoreline visibility;
-- E10 scoreline calibration and real signal enrichment plan;
-- live result verification once fixtures finish;
-- optional G01 payment/tournament-pass discovery after access-tier definition.
+- post-E10C docs rebaseline;
+- E10D xG/scoreline calibration using E10C signals;
+- optional data-quality cleanup for encoding/source labels;
+- lineups/injury context planning;
+- market-signal decision only if explicitly scoped and product-safe.
 
 ### MVP 1.5 — Live World Cup Iteration
 
-Future.
-
 Likely work:
 
-- live result verification;
-- public performance aggregation only after enough sample exists;
-- operational automation;
-- product/monetization iteration.
+- scoreline calibration;
+- better public explanations powered by metadata;
+- final-result UX polish;
+- accuracy dashboard once sample size is not laughably small.
 
-### MVP 2 — Sustainable Post-World-Cup Product
+## Active architecture summary
 
-Future.
+### Ingest / Lab / Public boundary
 
-Likely work:
+- API-Football ingest remains controlled and exact-fixture based.
+- Real Fixture Lab remains internal/admin.
+- Manual publication creates `public_product` rows.
+- Public surfaces never expose `prediction_results` or internal evaluation payloads.
 
-- recurring competitions;
-- recurring payments;
-- richer model/transparency;
-- production scale.
+### Signal enrichment boundary
 
-## Current architecture in one page
+E10C added:
 
-### Ingest
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
 
-- API-Football is the real fixture source.
-- World Cup ingest is exact-fixture only.
-- Broad World Cup apply remains blocked.
-- Real fixtures are ingested as `admin_only`.
-- Competition/team slug reuse protects against legacy/mock duplicate slugs.
+It is a generated static source module. It must not depend on `codex-inputs/`, filesystem reads, runtime JSON imports, or external web calls.
 
-### Internal prediction
+The snapshot layer now builds canonical World Cup snapshots using the generated pack while preserving legacy/test-only snapshot keys.
 
-- Real Fixture Lab generates and saves `internal_lab` predictions.
-- Current prediction type: `pre_match_24h`.
-- Current active model: `v0.2-prelaunch`.
+## Active model input state
 
-### Public publication
+The model now has real signal fields for the 48 canonical teams:
 
-Manual first publication:
+- `fifaRank`
+- `fifaPoints`
+- `eloRank`
+- `eloRating`
+- `eloAverageRank`
+- `eloAverageRating`
+- derived historical goals for/against per match
+- recent-form availability via `recentMatchCount`
+- neutral `marketScore: 50`
+- neutral `lineupContextScore: 50`
 
-1. validates selected match and selected internal prediction;
-2. creates a `public_product` prediction version;
-3. flips exact match to `public` through RPC;
-4. leaves internal prediction unchanged;
-5. does not expose `prediction_results`;
-6. does not rely on provider predictions or betting odds.
+Raw Elo totals and fixture-expectancy data were part of the source-preparation context, but E10C did not expose them as active runtime snapshot fields.
 
-Runtime-proven RPC:
+Important: E10C improved inputs, not scoreline calibration. Expected goals and scoreline distribution are still conservative and must be handled in E10D.
 
-- `publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)`
-- migration: `0029_manual_publication_match_access_scope_rpc.sql`
+## Current model limitations
 
-### Public refresh
+- Market signal is neutral placeholder.
+- Lineup/injury signal is neutral placeholder.
+- Some source-label encoding/mojibake may remain in generated metadata.
+- Recent form exists but weighting and effect on xG may need calibration.
+- Scoreline generation can still overfavor `1-1` because E10D has not happened.
 
-Exact refresh for already-public fixtures:
+## Red lines and settled constraints
 
-1. loads one exact public API-Football fixture in Real Fixture Lab;
-2. regenerates prediction using current model/fallback logic;
-3. saves new `internal_lab` evidence;
-4. appends a new replacement `public_product` row;
-5. leaves older public rows as audit/history;
-6. keeps `matches.access_scope='public'` unchanged;
-7. public views pick the latest public row.
+- `prediction_results` remains internal only.
+- Public rows must remain public-safe.
+- No betting odds/provider predictions as hidden model input.
+- No broad/batch apply.
+- No service-role app routes.
+- No manual stored row edits.
+- No committed `codex-inputs/`.
+- No scoreline/xG tuning without explicit E10D scope.
 
-Required migration:
+## Recommended next task
 
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-- applied manually in Supabase SQL Editor.
+First, ensure local cleanup after PR #66:
 
-### Public reads
-
-Public product reads from public-safe projections/query helpers:
-
-- `public_prediction_summaries`
-- `public_match_details`
-
-A public match must be:
-
-- `matches.access_scope='public'`
-- competition `usage_scope='public_product'`
-- compatible public prediction row exists.
-
-## Important data model corrections
-
-### `model_versions`
-
-- use `version`, not `version_key`.
-- active model: `v0.2-prelaunch`.
-
-### `prediction_versions`
-
-- has `model_version_id`, not `model_version`.
-- does not have `updated_at` in current live schema.
-- public/internal distinction is `run_scope`.
-- no formal lineage field exists yet.
-- refresh appends a replacement `public_product` row rather than updating older rows in place.
-
-### `prediction_markets`
-
-- use `market` and `selection`.
-- do not assume `market_key` or `outcome_key`.
-- markets remain a future access-tier/premium decision.
-
-### `matches`
-
-- MVP 1 first publication changes `access_scope` from `admin_only` to `public` via RPC.
-- exact refresh for already-public fixtures does not mutate `matches.access_scope`.
-
-## Current open decisions
-
-- Access tiers for prediction detail: anonymous vs free authenticated vs premium.
-- Whether probable score should be public, free-authenticated, or premium.
-- Whether top scorelines / BTTS / Over-Under should be premium-only.
-- How to calibrate scoreline generation, which currently leans too often toward `1-1`.
-- How to add real signal enrichment: FIFA/Elo snapshots, recent form, attack/defense, source/provenance dates.
-- When/if to add DB-native lineage from public prediction to internal source prediction.
-- Which payment gateway/tournament pass path to use.
-- How/when to show verified real match results and aggregate public transparency.
-
-## Next recommended conversation/task
-
-Start E09 access tiers.
-
-Recommended objective:
-
-- inspect public detail/card data currently available;
-- decide what anonymous users see;
-- decide what registered-free users see;
-- decide what future premium users see;
-- avoid `prediction_results` exposure;
-- avoid payment implementation in this slice;
-- design the smallest safe UI/query/data change.
-
-Recommended Codex use:
-
-- use Codex for read-only recognition after ChatGPT planning;
-- do not spend Codex tokens rewriting docs when ChatGPT has the context. Yes, apparently that needed saying.
-
-## Branch and command discipline
-
-User runs PowerShell commands. Be explicit when a command is for the user.
-
-Before implementation:
-
-```bash
+```powershell
 git checkout main
 git pull origin main
 git status --short
-git checkout -b feature/<real-task-name>
-git status --short
-git branch --show-current
-```
-
-After PR merge:
-
-```bash
-git checkout main
-git pull origin main
-git status --short
-git log --oneline -5
-git branch -d <merged-branch>
-git push origin --delete <merged-branch>
+git branch -d feature/e10c-real-signal-enrichment
+git push origin --delete feature/e10c-real-signal-enrichment
+Remove-Item -Recurse -Force codex-inputs
 git status --short
 ```
 
-Do not implement on `main`.
+Then proceed with:
 
-## Migration discipline
+```text
+E10D — calibrate expected goals and scoreline distribution using the E10C real signal layer
+```
 
-Supabase migrations are manual.
-
-Rules:
-
-- create migration files in repo;
-- apply manually in Supabase SQL Editor only after review;
-- verify live DB objects after application;
-- never edit already-applied migrations;
-- add new migration for new DB changes;
-- coordinate migration numbers in parallel work.
-
-## Hard no-go list
-
-Until explicitly approved:
-
-- broad World Cup apply;
-- broad friendlies apply;
-- automatic publication;
-- batch publication;
-- service-role in app routes;
-- public exposure of `prediction_results`;
-- provider predictions;
-- betting odds as hidden model input;
-- large model rewrite;
-- payment implementation outside Epic G;
-- editing applied migrations.
+E10D should start read-only. It must compare current outputs before changing model math. No more tuning by vibes, humanity has caused enough damage that way.

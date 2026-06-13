@@ -1,139 +1,156 @@
 # UFO Predictor — Model Notes
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-## Current status
+## Model status
 
-`v0.1` is now a historical baseline model contract. The active MVP 1 model is:
+The active MVP 1 model is best described as:
 
-- `v0.2-prelaunch`
+```text
+v0.2-prelaunch with E10C enriched national-team strength inputs
+```
 
-The `v0.2-prelaunch` model was activated after the D07 sanity work because v0.1 collapsed too often into default/baseline signals for national-team fixtures in Real Fixture Lab.
+E10C changed the **input/snapshot layer**, not the final expected-goals or scoreline calibration. This distinction matters, because otherwise someone will ask why one merged PR did not magically make the universe deterministic. Again.
 
-Post-E07, the model still remains `v0.2-prelaunch`, but the static national-team fallback catalog was expanded for the immediate World Cup launch window.
+## Historical model context
 
-## v0.1 historical role
+### v0.1
 
-v0.1 remains useful as:
+Historical baseline. Useful for context only.
 
-- a baseline historical row for comparison;
-- the original model contract reference;
-- a reminder not to overtrust default-signal output.
+### v0.2-prelaunch
 
-It should not be treated as the active World Cup launch model.
+MVP 1 prelaunch model family. It powered the initial World Cup public fixture path after Real Fixture Lab validation and fallback signal improvements.
 
-## v0.2-prelaunch current role
+### E10C enriched snapshot layer
 
-`v0.2-prelaunch` is the current MVP 1 model version.
+Current model input enhancement.
 
-It uses local/static national-team fallback signals so Real Fixture Lab fixtures have more useful non-default context when richer provider data is unavailable.
+Delivered in PR #66:
 
-Current use:
+- 48 canonical World Cup team signal coverage;
+- FIFA ranking and points;
+- Elo ranking and rating;
+- historical Elo match stats;
+- historical goals for/against;
+- recent-form fields;
+- neutral placeholders for market and lineup context.
 
-- internal Real Fixture Lab predictions;
-- selected public World Cup prediction copies;
-- exact public refresh for already-public fixtures.
+## Current signal fields
 
-Public fixtures using v0.2-prelaunch after PR #61:
+Representative fields now available through the national-team snapshot layer:
 
-- Mexico vs South Africa;
-- South Korea vs Czech Republic;
-- Canada vs Bosnia & Herzegovina;
-- USA vs Paraguay.
+| Field | Meaning | Status |
+|---|---|---:|
+| `fifaRank` | FIFA ranking position | active |
+| `fifaPoints` | FIFA ranking points | active |
+| `eloRank` | Elo ranking position | active |
+| `eloRating` | Elo rating | active |
+| `historicalGoalsForPerMatch` | historical attacking proxy | active |
+| `historicalGoalsAgainstPerMatch` | historical defensive proxy | active |
+| `recentMatchCount` | number of recent matches used | active |
+| `recentFormScore` | derived recent-form signal | active |
+| `marketScore` | market/odds placeholder | neutral `50` |
+| `lineupContextScore` | lineup/injury placeholder | neutral `50` |
 
-## MVP 1 fallback catalog expansion
+## How E10C should be interpreted
 
-PR #61 added immediate World Cup fallback coverage for:
+E10C gives the prediction engine better team-strength context.
 
-- Mexico;
-- South Africa;
-- South Korea;
-- Korea Republic;
-- Czech Republic;
-- Czechia;
-- Canada;
-- Bosnia & Herzegovina;
-- Bosnia and Herzegovina;
-- USA;
-- United States;
-- Paraguay.
+It does **not** mean:
 
-Purpose:
+- scorelines are fully calibrated;
+- expected goals are final;
+- market context exists;
+- lineups/injuries exist;
+- model accuracy can be claimed from a tiny World Cup sample.
 
-- avoid full default-signal collapse;
-- differentiate early public World Cup fixtures;
-- keep launch predictions deterministic and reviewable;
-- avoid depending on provider predictions or betting odds.
+It does mean:
 
-This is a pragmatic MVP 1 bridge, not a full real-time data model. Calling it “fully data-driven” would be a little too optimistic, like naming a paper boat Titanic II.
+- the 48 World Cup teams no longer depend on thin fallback-only inputs;
+- calibration can now be done on a more credible base;
+- tests can assert real signal coverage.
 
-## D06/D07 evidence
+## Current scoreline limitation
 
-Final v0.2-prelaunch pilot metrics from 5 friendly fixtures:
+The model has tended to overproduce conservative outcomes such as `1-1`.
 
-- winner: 4/5;
-- BTTS: 2/5;
-- over 2.5: 3/5;
-- exact score: 0/5;
-- total goal error: 8;
-- average goal error: 1.6.
+Potential causes to inspect in E10D:
 
-Interpretation:
+- expected-goals compression;
+- draw probability too strong;
+- attack/defense differentials not moving xG enough;
+- recent-form fields present but not weighted strongly enough;
+- modal-score mapping too conservative.
 
-- Winner signal was acceptable for MVP 1 sanity.
-- BTTS and over/under still need future calibration.
-- Exact score should be de-emphasized publicly.
-- The sample is too small for strong performance claims.
+Do not “fix” this by hardcoding examples or overfitting to one live result. If the model starts chasing today’s match like a golden retriever chasing a laser pointer, we have failed.
 
-## Post-E07 public behavior
+## E10D target
 
-After fallback expansion and refresh:
+E10D should calibrate:
 
-- Mexico vs South Africa moved away from default-like 1X2 output;
-- South Korea vs Czech Republic remains naturally close, but no longer uses zero-signal/default context;
-- Canada and USA fixtures were published with fallback active;
-- confidence/risk now reflects non-default signal completeness for covered teams.
+- xG baseline;
+- home/neutral/host context effects;
+- strength differential effects;
+- attack/defense scaling;
+- recent-form scaling;
+- draw/modal-score distribution;
+- scoreline tests for mismatches vs balanced matches.
 
-## Known model limitations
+Non-goals for E10D unless explicitly added:
 
-### Scoreline conservatism
+- UI changes;
+- publication flow changes;
+- API-Football ingest changes;
+- Supabase migrations;
+- odds/provider prediction input;
+- public exposure of internal evaluation.
 
-The model still tends too often toward `1-1` as the top scoreline.
+## Market and lineup signals
 
-This likely means:
+Current placeholders:
 
-- 1X2 probabilities can move meaningfully;
-- expected goals / scoreline distribution remains too compressed;
-- favorite edge does not influence scoreline outcomes strongly enough.
+```text
+marketScore = 50
+lineupContextScore = 50
+```
 
-Future task:
+Future market signal must be explicitly decided. Default is no betting odds or provider predictions as hidden model input.
 
-- E10 — Scoreline Calibration + Real Signal Enrichment Plan.
+Future lineup signal could be manual/admin/editorial or sourced from structured availability data, but should include provenance.
 
-### Static fallback limitations
+## Source/provenance posture
 
-The current fallback is repo-local and static.
+The E10C pack was generated from reviewed local data sources and committed as a static source module.
 
-Future enrichment should consider:
+Runtime must use:
 
-- FIFA ranking snapshots;
-- Elo-style ratings;
-- recent form;
-- attack/defense features;
-- source/provenance dates;
-- DB-backed team strength snapshots.
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
 
-## Current model boundary
+Runtime must not use:
 
-The model is frozen for MVP 1 launch unless a future planned calibration epic is explicitly opened.
+```text
+codex-inputs/
+raw HTML
+raw CSV
+local scratch JSON
+```
 
-Do not:
+## Model communication rules
 
-- rewrite model weights during access-tier work;
-- add betting odds as hidden input;
-- add provider predictions;
-- present pilot metrics as statistically conclusive;
-- over-market exact score;
-- manually edit scores as if that were modeling. It is not. It is costume design.
+Public copy should frame predictions as:
 
-Future model work belongs in a planned later epic, likely E10/MVP 1.5 or MVP 2.
+- probabilistic;
+- data-driven;
+- uncertain;
+- non-betting;
+- no guarantees.
+
+Do not claim:
+
+- guaranteed winners;
+- betting edge;
+- insider certainty;
+- provider-derived authority.
