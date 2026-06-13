@@ -256,10 +256,7 @@ export async function getPublicMatchDetailData(
   let premiumAccess: PublicMatchPremiumAccess;
 
   if (matchResourceBuild.status === "invalid") {
-    premiumAccess =
-      matchResourceBuild.reason === "unrecognized_world_cup_stage"
-        ? toUnavailablePremiumAccess("invalid_match_context")
-        : toUnavailablePremiumAccess("missing_match_context");
+    premiumAccess = toUnavailablePremiumAccess("missing_match_context");
   } else {
     const accessDecision = await getPremiumMatchAccessDecision(matchResourceBuild.resource);
     if (accessDecision.status === "unavailable") {

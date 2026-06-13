@@ -964,6 +964,7 @@ describe("publishRealFixturePredictionAction", () => {
     match?: { data: unknown; error: unknown };
     competition?: { data: unknown; error: unknown };
     internalPrediction?: { data: unknown; error: unknown };
+    sourcePredictionMarkets?: { data: unknown; error: unknown };
     existingPublicPrediction?: { data: unknown; error: unknown };
     insertPublicPrediction?: { data?: unknown; error: unknown };
     publishMatchRpc?: { data: unknown; error: unknown };
@@ -1006,13 +1007,36 @@ describe("publishRealFixturePredictionAction", () => {
         throw new Error("should not update prediction_results");
       }),
     };
+    const sourcePredictionMarkets =
+      options?.sourcePredictionMarkets?.data ??
+      [
+        {
+          market: "btts",
+          selection: "yes",
+          probability: 48.1,
+          confidence: 41.05,
+          is_premium: false,
+        },
+        {
+          market: "over_2_5",
+          selection: "under",
+          probability: 54.6,
+          confidence: 41.05,
+          is_premium: false,
+        },
+      ];
     const predictionMarketsBuilder = {
-      select: vi.fn(() => {
-        throw new Error("should not read prediction_markets");
-      }),
-      insert: vi.fn(() => {
-        throw new Error("should not write prediction_markets");
-      }),
+      select: vi.fn(() => ({
+        eq: vi.fn(() =>
+          Promise.resolve(
+            options?.sourcePredictionMarkets ?? {
+              data: sourcePredictionMarkets,
+              error: null,
+            },
+          ),
+        ),
+      })),
+      insert: vi.fn(() => Promise.resolve({ error: null })),
     };
     const rpc = vi.fn((fn: string, args: unknown) => {
       if (fn === "publish_real_fixture_match_access_scope") {
@@ -1049,6 +1073,7 @@ describe("publishRealFixturePredictionAction", () => {
       competitionBuilder,
       internalPredictionBuilder,
       existingPublicPredictionBuilder,
+      predictionMarketsBuilder,
     };
   }
 
@@ -1084,8 +1109,29 @@ describe("publishRealFixturePredictionAction", () => {
       target_match_id: fixture.id,
       target_match_slug: fixture.slug,
     });
-    expect(client.from).not.toHaveBeenCalledWith("prediction_markets");
+    expect(client.from).toHaveBeenCalledWith("prediction_markets");
     expect(client.from).not.toHaveBeenCalledWith("prediction_results");
+    expect(client.predictionMarketsBuilder.select).toHaveBeenCalledWith(
+      "market, selection, probability, confidence, is_premium",
+    );
+    expect(client.predictionMarketsBuilder.insert).toHaveBeenCalledWith([
+      {
+        prediction_version_id: "public-prediction-1",
+        market: "btts",
+        selection: "yes",
+        probability: 48.1,
+        confidence: 41.05,
+        is_premium: false,
+      },
+      {
+        prediction_version_id: "public-prediction-1",
+        market: "over_2_5",
+        selection: "under",
+        probability: 54.6,
+        confidence: 41.05,
+        is_premium: false,
+      },
+    ]);
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
     expect(revalidatePathMock).toHaveBeenCalledWith("/predictions");
     expect(revalidatePathMock).toHaveBeenCalledWith(`/matches/${fixture.slug}`);
@@ -1287,6 +1333,7 @@ describe("refreshPublishedRealFixturePredictionAction", () => {
     existingPublicPrediction?: { data: unknown; error: unknown };
     insertInternalPrediction?: { data?: unknown; error: unknown };
     insertReplacementPublicPrediction?: { data?: unknown; error: unknown };
+    sourcePredictionMarkets?: { data: unknown; error: unknown };
   }) {
     const modelVersionsBuilder = createPredictionVersionInsertBuilder({
       maybeSingle: { data: { id: "model-1", version: "v0.2", created_at: "2026-06-11T08:00:00Z" }, error: null },
@@ -1314,6 +1361,38 @@ describe("refreshPublishedRealFixturePredictionAction", () => {
       },
     });
     const predictionMarketsBuilder = {
+      select: vi.fn(() => ({
+        eq: vi.fn(() =>
+          Promise.resolve(
+            options?.sourcePredictionMarkets ?? {
+              data: [
+                {
+                  market: "match_winner",
+                  selection: "home",
+                  probability: 51,
+                  confidence: 58,
+                  is_premium: false,
+                },
+                {
+                  market: "btts",
+                  selection: "no",
+                  probability: 57,
+                  confidence: 58,
+                  is_premium: false,
+                },
+                {
+                  market: "over_2_5",
+                  selection: "under",
+                  probability: 60,
+                  confidence: 58,
+                  is_premium: false,
+                },
+              ],
+              error: null,
+            },
+          ),
+        ),
+      })),
       insert: vi.fn(() => Promise.resolve({ error: null })),
     };
 
@@ -1372,6 +1451,9 @@ describe("refreshPublishedRealFixturePredictionAction", () => {
         is_premium: false,
       }),
     ]);
+    expect(client.predictionMarketsBuilder.select).toHaveBeenCalledWith(
+      "market, selection, probability, confidence, is_premium",
+    );
     expect(client.existingPublicPredictionBuilder.insert).toHaveBeenCalledWith({
       match_id: fixture.id,
       model_version_id: "model-1",
@@ -1387,6 +1469,32 @@ describe("refreshPublishedRealFixturePredictionAction", () => {
       risk_level: "medium",
       run_scope: "public_product",
     });
+    expect(client.predictionMarketsBuilder.insert).toHaveBeenNthCalledWith(2, [
+      {
+        prediction_version_id: "new-public-prediction-1",
+        market: "match_winner",
+        selection: "home",
+        probability: 51,
+        confidence: 58,
+        is_premium: false,
+      },
+      {
+        prediction_version_id: "new-public-prediction-1",
+        market: "btts",
+        selection: "no",
+        probability: 57,
+        confidence: 58,
+        is_premium: false,
+      },
+      {
+        prediction_version_id: "new-public-prediction-1",
+        market: "over_2_5",
+        selection: "under",
+        probability: 60,
+        confidence: 58,
+        is_premium: false,
+      },
+    ]);
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
     expect(revalidatePathMock).toHaveBeenCalledWith("/predictions");
     expect(revalidatePathMock).toHaveBeenCalledWith(`/matches/${fixture.slug}`);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildAuthorizedPremiumPayload,
+  selectAllowedPremiumModelDetail,
   selectAllowedPremiumMarkets,
   selectAllowedPremiumNarrative,
   shapePremiumMatchProjection,
@@ -22,6 +23,29 @@ const authorizedPayload: PremiumMatchAuthorizedPayload = {
     premiumAnalysis: "Resumen premium",
     whyItChanged: "Contexto adicional",
     riskNotes: "Notas de riesgo",
+  },
+  modelDetail: {
+    expectedGoals: {
+      home: 1.62,
+      away: 0.88,
+    },
+    topScorelines: [
+      { score: "1-0", probability: 0.19 },
+      { score: "2-0", probability: 0.14 },
+      { score: "1-1", probability: 0.12 },
+    ],
+    bothTeamsToScore: {
+      yesProbability: 47.3,
+      noProbability: 52.7,
+    },
+    totalGoals25: {
+      overProbability: 44.8,
+      underProbability: 55.2,
+    },
+    confidence: {
+      score: 74.1,
+      riskLevel: "medium",
+    },
   },
   confidenceContext: {
     confidenceScore: 74.1,
@@ -85,6 +109,55 @@ describe("premium match projection contract", () => {
     expect(narrative).toBeNull();
   });
 
+  it("selects a normalized premium model detail block", () => {
+    const modelDetail = selectAllowedPremiumModelDetail({
+      expected_goals: {
+        home: 1.62,
+        away: 0.88,
+      },
+      top_scorelines: [
+        { score: "1-0", probability: 0.19 },
+        { score: "2-0", probability: 0.14 },
+        { score: "1-1", probability: 0.12 },
+        { score: "0-0", probability: 0.09 },
+      ],
+      both_teams_to_score: {
+        yes_probability: 47.3,
+        no_probability: 52.7,
+      },
+      total_goals_2_5: {
+        over_probability: 44.8,
+        under_probability: 55.2,
+      },
+      confidence: {
+        score: 74.1,
+        risk_level: "medium",
+      },
+    });
+
+    expect(modelDetail).toEqual(authorizedPayload.modelDetail);
+  });
+
+  it("returns null model detail when required values are malformed", () => {
+    const modelDetail = selectAllowedPremiumModelDetail({
+      expected_goals: {
+        home: 1.62,
+        away: null,
+      },
+      top_scorelines: [{ score: "1-0", probability: 0.19 }],
+      both_teams_to_score: {
+        yes_probability: 47.3,
+        no_probability: 52.7,
+      },
+      total_goals_2_5: {
+        over_probability: 44.8,
+        under_probability: 55.2,
+      },
+    });
+
+    expect(modelDetail).toBeNull();
+  });
+
   it("builds authorized payload with filtered fields only", () => {
     const payload = buildAuthorizedPremiumPayload({
       markets: [
@@ -107,6 +180,29 @@ describe("premium match projection contract", () => {
         why_it_changed: "Injuries updated",
         risk_notes: "Volatility high",
       },
+      modelDetail: {
+        expected_goals: {
+          home: 1.4,
+          away: 1.1,
+        },
+        top_scorelines: [
+          { score: "1-1", probability: 0.16 },
+          { score: "1-0", probability: 0.13 },
+          { score: "2-1", probability: 0.11 },
+        ],
+        both_teams_to_score: {
+          yes_probability: 54.4,
+          no_probability: 45.6,
+        },
+        total_goals_2_5: {
+          over_probability: 49.2,
+          under_probability: 50.8,
+        },
+        confidence: {
+          score: 67.5,
+          risk_level: "medium",
+        },
+      },
       confidenceContext: null,
     });
 
@@ -126,7 +222,34 @@ describe("premium match projection contract", () => {
         whyItChanged: "Injuries updated",
         riskNotes: "Volatility high",
       },
-      confidenceContext: null,
+      modelDetail: {
+        expectedGoals: {
+          home: 1.4,
+          away: 1.1,
+        },
+        topScorelines: [
+          { score: "1-1", probability: 0.16 },
+          { score: "1-0", probability: 0.13 },
+          { score: "2-1", probability: 0.11 },
+        ],
+        bothTeamsToScore: {
+          yesProbability: 54.4,
+          noProbability: 45.6,
+        },
+        totalGoals25: {
+          overProbability: 49.2,
+          underProbability: 50.8,
+        },
+        confidence: {
+          score: 67.5,
+          riskLevel: "medium",
+        },
+      },
+      confidenceContext: {
+        confidenceScore: 67.5,
+        riskLevel: "medium",
+        explanation: null,
+      },
     });
   });
 
