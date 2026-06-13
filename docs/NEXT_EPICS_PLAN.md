@@ -1,199 +1,152 @@
 # UFO Predictor — Next Epics Plan
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-This document defines the next executable blocks. It is intentionally shorter than `ROADMAP_AND_BACKLOG.md`.
+## Current position
 
-## Current reality
+E10C is complete and merged. The model now has real input signals for the 48 canonical World Cup teams.
 
-The public product now has four real World Cup fixtures visible:
+That means the next model work should be **calibration**, not more blind enrichment, not another “maybe the 1-1 will go away if we glare at it” session.
 
-- Mexico vs South Africa — `api-football:fixture:1489369`;
-- South Korea vs Czech Republic — `api-football:fixture:1538999`;
-- Canada vs Bosnia & Herzegovina — `api-football:fixture:1539000`;
-- USA vs Paraguay — `api-football:fixture:1489370`.
+## Immediate sequence
 
-That means the next work is not “prove the path exists.” It exists. The next work is to decide what product value belongs to anonymous/free/premium tiers and to improve model-output credibility without pretending the current fallback file is a supercomputer. Because it is not. It is a helpful bandage with a passport.
+### Step 1 — Local cleanup after PR #66
 
-## Completed near-term epics
+Run from PowerShell:
 
-### E06 / F02 — Public Launch QA and Mock Cleanup
-
-Status: complete baseline.
-
-Delivered:
-
-- public launch surface cleaned;
-- primary public predictions are real fixture focused;
-- public copy is no longer release-note flavored;
-- navbar and CTA session behavior corrected;
-- public-safe filters exclude legacy/mock rows from launch surfaces.
-
-### E07 — Next World Cup Fixture Expansion
-
-Status: complete / PR #61 merged.
-
-Delivered:
-
-- additional World Cup fixtures processed;
-- fallback signals expanded for immediate launch teams;
-- exact public refresh path added;
-- migration `0030` applied manually;
-- four real fixtures visible publicly.
-
-## Next Epic: E09 — Access Tiers for Prediction Detail + Scoreline Visibility
-
-### Goal
-
-Define and implement the MVP 1 value ladder.
-
-The product must decide what is visible to:
-
-- anonymous users;
-- free authenticated users;
-- future premium users.
-
-### Why this is next
-
-Right now public cards show 1X2, confidence, and risk. The Lab also has probable score and top scorelines, but those are not clearly positioned in the product. If everything valuable becomes public, registration and premium become decorative buttons. Humanity has tried that monetization plan. It is called “oops.”
-
-### Recommended access direction
-
-| Tier | Suggested visibility |
-|---|---|
-| Anonymous | Match info, 1X2 probabilities, confidence/risk, no-betting/no-guarantee copy. |
-| Free authenticated | Probable score, short interpretation, watchlist/following. |
-| Future premium | Top scorelines, BTTS, Over/Under, expanded signal explanation, model movement/history. |
-
-### Scope
-
-- Inspect public prediction queries and payload shape.
-- Confirm whether probable score is already public-safe.
-- Confirm whether top scorelines / BTTS / O-U are accessible but hidden.
-- Decide UI copy and gated blocks.
-- Keep payment implementation out of scope.
-- Keep `prediction_results` internal.
-
-### Suggested branch
-
-```bash
+```powershell
 git checkout main
 git pull origin main
 git status --short
-git checkout -b feature/e09-access-tiers-prediction-detail
+git branch -d feature/e10c-real-signal-enrichment
+git push origin --delete feature/e10c-real-signal-enrichment
+Remove-Item -Recurse -Force codex-inputs
 git status --short
-git branch --show-current
 ```
 
-### Suggested recognition prompt for Codex
+### Step 2 — Docs rebaseline post-E10C
+
+Status: active.
+
+Goal:
+
+- update project source docs after PR #66;
+- ensure new conversations know E10C is done;
+- ensure Codex does not redo signal enrichment or parse raw packs.
+
+### Step 3 — E10D read-only recognition
+
+Before implementation, ask Codex to inspect:
+
+- expected goals;
+- scoreline generation;
+- how E10C signals flow into prediction generation;
+- tests and current outputs.
+
+No edits in recognition.
+
+### Step 4 — E10D implementation
+
+Implement calibrated xG/scoreline changes only after recognition is reviewed.
+
+## E10D proposed scope
+
+### Goal
+
+Use E10C signals to calibrate expected goals and most-likely-score behavior.
+
+### Likely files to inspect/change
+
+Likely inspect:
+
+- `lib/prediction-engine/expected-goals.ts`
+- prediction generation path;
+- national-team snapshot consumption;
+- scoreline probability logic;
+- tests around generated predictions.
+
+Likely tests:
+
+- `lib/prediction-engine/generate-prediction.test.ts`
+- `lib/prediction-engine/national-team-strength-snapshots.test.ts`
+- adapter tests if fixture output changes.
+
+### E10D non-goals
+
+- no UI changes;
+- no publication/refresh changes;
+- no API-Football ingest changes;
+- no Supabase migrations;
+- no payments;
+- no public exposure of `prediction_results`;
+- no betting odds/provider prediction input.
+
+## E10D success criteria
+
+- favorites and mismatches produce more plausible xG gaps;
+- balanced fixtures can still produce draws;
+- `1-1` is no longer a lazy attractor for too many fixtures;
+- modal score distribution responds to FIFA/Elo/recent-form differences;
+- changes are covered by tests;
+- no public/internal boundary regressions.
+
+## Later epics
+
+### E10E — lineup/injury context
+
+Current placeholder:
 
 ```text
-Read-only recognition for E09 access tiers and prediction detail visibility.
-
-Context:
-- MVP 1 has four real public World Cup fixtures.
-- Public cards show 1X2 + confidence/risk.
-- Real Fixture Lab shows probable score/top scorelines internally.
-- We need to decide what anonymous, free authenticated, and future premium users can see.
-
-Scope:
-- Inspect /predictions, /matches/[slug], dashboard, pricing/access copy, and public Supabase query helpers.
-- Do not modify files.
-- Do not run SQL writes.
-- Do not use service-role.
-- Do not expose prediction_results.
-- Do not implement payments.
-
-Questions:
-1. What fields are available in public_prediction_summaries and public_match_details?
-2. Is probable score available from public-safe data already?
-3. Are top scorelines, BTTS, and Over/Under available or only in internal payloads?
-4. What does anonymous currently see?
-5. What does an authenticated free user currently see?
-6. What would require a migration/view change?
-7. What is the smallest safe implementation slice?
-8. What files would likely change?
-9. What tests/build validation should run?
-
-Return a read-only report and a minimal recommendation. Do not edit files.
+lineupContextScore = 50
 ```
 
-## Next after E09: E10 — Scoreline Calibration + Real Signal Enrichment Plan
+Future design should define:
 
-### Goal
+- data source;
+- manual vs automated handling;
+- freshness/provenance;
+- public explanation rules.
 
-Improve credibility of exact-score/probable-score outputs and plan real data enrichment.
+### E10F — market context decision
 
-### Why this matters
+Current placeholder:
 
-The current model now differentiates fixtures better after fallback expansion, but scoreline generation still leans too much toward `1-1`. That is fine as a cautious baseline, but awkward as a product if every match appears to be spiritually drawn.
+```text
+marketScore = 50
+```
 
-### Scope
+Open decision:
 
-- inspect expected goals / scoreline generation;
-- understand why favorites still often show `1-1` as top scoreline;
-- design calibration tests;
-- plan real data inputs;
-- avoid hidden betting odds/provider predictions.
+- whether to include market data as transparent calibration/reference;
+- how to avoid hidden betting-driven predictions;
+- whether product positioning allows it.
 
-### Potential real data sources/features
+Default:
 
-- FIFA ranking snapshots;
-- Elo-style ratings;
-- recent form;
-- attack/defense signals;
-- competition context;
-- source/provenance dates;
-- DB-backed team strength snapshots.
+```text
+Do not use betting odds or provider predictions as hidden model inputs.
+```
 
-### Boundary
+### Data-quality polish
 
-Recognition/planning first. No large model rewrite during public launch without an explicit implementation slice.
+- cleanup mojibake/source labels;
+- ensure display labels are safe for future public explanation;
+- keep canonical keys stable.
 
-## Later: H01 — Result Verification for Public Fixtures
+## Suggested E10D recognition prompt
 
-### Trigger
+```text
+We are working in UFO Predictor.
 
-Open after one or more public World Cup fixtures finish.
+Run a read-only recognition for E10D scoreline/xG calibration.
 
-### Goal
+Context:
+- PR #66 E10C real signal enrichment is merged.
+- The 48 canonical World Cup team snapshots now include FIFA rank/points, Elo rank/rating, historical stats, and recent-form fields.
+- marketScore and lineupContextScore are neutral placeholders at 50.
+- E10C did not change expected-goals.ts or scoreline calibration.
 
-- ingest real result;
-- verify result;
-- persist internal evaluation;
-- decide public result display;
-- keep `prediction_results` internal.
+Do not edit files, commit, push, run SQL, or use web search.
 
-### Public transparency caution
-
-Do not publish model-performance claims from one or two matches as if statistics resigned and handed us the keys.
-
-## Optional parallel: Epic G — Payment/Tournament Pass Discovery
-
-### Goal
-
-Prepare monetization without derailing the product surface.
-
-### Constraints
-
-- do not assume Stripe;
-- evaluate PayPal or selected available gateway;
-- one-time tournament pass first;
-- recurring subscriptions later.
-
-### Best parallel shape
-
-Discovery only until access tiers are defined. No checkout implementation until product value is clear.
-
-## Current no-go list
-
-- broad World Cup apply;
-- automatic publication;
-- batch publication;
-- service-role in app routes;
-- provider predictions;
-- betting odds as hidden model input;
-- model rewrite without planned calibration scope;
-- premium market copy without access-tier decision;
-- public `prediction_results`;
-- editing already-applied migrations.
+Inspect expected-goals and scoreline generation. Report where 1-1 overproduction likely comes from, how E10C signals currently feed the model, and propose a safe E10D implementation plan with tests.
+```

@@ -1,238 +1,169 @@
 # UFO Predictor — Open Decisions
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-## Recently settled decisions
+## Recently settled
 
-### How should a selected internal prediction become public?
+### Authenticated probable score
 
-Decision: use a manual admin publication bridge.
+Settled by PR #63.
 
-Current contract:
+Decision:
 
-- selected `internal_lab` prediction is copied into a `public_product` prediction version;
-- the internal row is left untouched;
-- the selected match is flipped from `admin_only` to `public`;
-- no `prediction_results` are exposed;
-- no batch publication.
+- probable score is available to authenticated users on match detail;
+- anonymous users see teaser/locked value state;
+- `prediction_results` stays internal.
 
-Runtime-proven access-scope flip:
+### Canonical 48-team World Cup catalog
 
-- use RPC `publish_real_fixture_match_access_scope(target_match_id, target_match_slug)` from `0029_manual_publication_match_access_scope_rpc.sql`.
+Settled by PR #64.
 
-### Should already-public fixtures be refreshable after model/fallback updates?
+Decision:
 
-Decision: yes, through exact admin refresh only.
+- use canonical World Cup 2026 catalog as internal source of truth for team coverage;
+- keep legacy/test-only snapshot keys only where tests still require them.
 
-Current contract:
+### Public finished result verification
 
-- only exact API-Football public fixtures can be refreshed;
-- refresh creates new `internal_lab` evidence;
-- refresh appends a new replacement `public_product` row;
-- old public rows remain as history/audit;
-- `matches.access_scope` remains `public`;
-- no `prediction_results` exposure.
+Settled by PR #65.
 
-Runtime-proven RLS support:
+Decision:
 
-- migration `0030_real_fixture_lab_public_refresh_rls.sql`.
+- finished public fixtures can be verified in Real Fixture Lab;
+- internal evaluation can be persisted;
+- public UI may show final status/result;
+- public UI must not expose internal evaluation or `prediction_results`.
 
-### Should app routes use service-role for publication or refresh?
+### E10C real signal enrichment
 
-Decision: no.
+Settled by PR #66.
 
-The app keeps normal authenticated server client behavior and uses admin checks/RLS/RPCs rather than service-role in routes.
+Decision:
 
-### Should broad World Cup apply be enabled now?
+- commit static generated signal module;
+- do not commit `codex-inputs/`;
+- use FIFA/Elo/recent-form fields in national-team snapshots;
+- keep market and lineup signals neutral placeholders;
+- defer expected-goals/scoreline calibration to E10D.
 
-Decision: no.
+## Current open decisions
 
-World Cup apply remains exact-fixture only.
+### 1. E10D calibration strategy
 
-### Should v0.2-prelaunch be changed immediately?
+Open.
 
-Decision: no large rewrite.
+Questions:
 
-MVP 1 fallback signals were expanded for immediate launch teams, but the active model remains `v0.2-prelaunch`. Further scoreline/model calibration requires a dedicated epic.
+- how much should Elo/FIFA differential move xG?
+- how much should recent form move xG?
+- how should historical attack/defense affect scoreline probabilities?
+- how should the draw probability be dampened or preserved?
+- what fixtures become regression examples?
 
-### What should happen to public mock/previews?
+Default posture:
 
-Decision: do not mix legacy/mock rows into the main launch-safe public prediction surface.
+```text
+Start with read-only recognition and output snapshots before changing math.
+```
 
-The public prediction surface now focuses on real World Cup fixtures. Mocks/previews should stay out of the primary public launch UX unless explicitly separated/labeled in a future design.
+### 2. Market signal policy
 
-### Which second fixture should be published?
-
-Superseded.
-
-The product now has four real public fixtures:
-
-- Mexico vs South Africa;
-- South Korea vs Czech Republic;
-- Canada vs Bosnia & Herzegovina;
-- USA vs Paraguay.
-
-## Immediate open decisions
-
-### E09 — What should each access tier see?
-
-Need define the product value ladder.
-
-Candidate direction:
-
-| Tier | Candidate visibility |
-|---|---|
-| Anonymous | 1X2 probabilities, confidence/risk, basic match info. |
-| Free authenticated | probable score, short interpretation, watchlist/following. |
-| Future premium | top scorelines, BTTS, Over/Under, expanded signals/explanation, model movement/history. |
-
-Open questions:
-
-- Is probable score enough value to require login?
-- Should exact score remain premium-only?
-- Should BTTS/O-U be premium-only?
-- Should registered-free users see only one probable score and no top 3?
-- How should “premium unavailable yet” be messaged without looking broken?
-
-### Should probable score be visible publicly?
+Open.
 
 Current state:
 
-- Lab shows probable score/top scorelines.
-- Public cards/details currently emphasize 1X2, confidence, and risk.
+```text
+marketScore = 50
+```
 
-Options:
+Questions:
 
-1. Keep probable score hidden from anonymous users.
-2. Show probable score to free authenticated users only.
-3. Show probable score publicly but reserve top scorelines for premium.
-4. Reserve all scoreline information for premium.
+- should market odds ever be used as an explicit transparent signal?
+- would this conflict with UFO’s no-betting/no-guarantee positioning?
+- how do we prevent hidden provider/odds copying?
 
-Recommendation:
+Default decision until changed:
 
-- Keep 1X2 public.
-- Use probable score as free-authenticated value.
-- Reserve top scorelines / BTTS / Over-Under for premium future.
+```text
+No betting odds or provider predictions as hidden model input.
+```
 
-This gives people a reason to register and eventually pay, a shocking concept in product design.
+### 3. Lineup/injury context
 
-### How should “confidence” be framed when 1X2 is close?
-
-Current issue:
-
-- Some fixtures show relatively high confidence while 1X2 probabilities remain close.
-- Users may interpret confidence as certainty unless copy is careful.
-
-Open direction:
-
-- define confidence as confidence in model/input quality, not certainty of outcome;
-- keep risk label visible;
-- add better interpretation copy in public detail.
-
-### How should scoreline generation be calibrated?
-
-Current issue:
-
-- model differentiates fixtures better after fallback expansion;
-- scoreline generation still tends too much toward `1-1`.
-
-Future work:
-
-- inspect expected-goals logic;
-- inspect scoreline probability distribution;
-- test how team-power differences affect scorelines;
-- avoid over-marketing exact score.
-
-### How should real data enrichment work?
-
-Current fallback is static/repo-local.
-
-Future options:
-
-1. keep static fallback but expand carefully;
-2. add DB-backed team strength snapshots;
-3. ingest/maintain FIFA/Elo-style rankings;
-4. add recent form/attack/defense;
-5. add provenance/source dates.
-
-Open decision:
-
-- which source is authoritative enough for MVP 1.5;
-- whether data lives in repo or DB;
-- how often it updates;
-- how to avoid hidden odds/provider predictions.
-
-### Should public predictions have DB-native lineage?
+Open.
 
 Current state:
 
-- no `source_prediction_version_id`;
-- no `metadata_json`;
-- no `source_note` on `prediction_versions`.
+```text
+lineupContextScore = 50
+```
 
-Open decision:
+Questions:
 
-- add lineage field in a future migration;
-- or keep operational/manual evidence for MVP 1.
+- manual editorial admin field or structured external source?
+- how fresh must lineup data be?
+- how should uncertainty be represented?
+- should the public ever see this as explanation copy?
 
-Recommendation:
+### 4. Encoding/mojibake cleanup
 
-- defer if launch pressure is high;
-- add before broader/batch publication or automation.
+Open / low priority.
 
-### Payment provider and tournament pass
+Known issue:
 
-Still open.
+- some generated source labels may contain mojibake for accented names.
 
-Constraints:
+Decision needed:
 
-- do not assume Stripe;
-- PayPal or another selected/available gateway is preferred for MVP 1 exploration;
-- World Cup monetization should start with a one-time tournament pass or package;
-- recurring subscriptions are post-World-Cup unless there is a clear reason.
+- clean now as data polish, or defer until explanation/display uses those labels.
 
-## Medium-term open decisions
+Current recommendation:
 
-### Workers / automation
+```text
+Defer unless labels become user-facing or tests reveal risk.
+```
 
-Manual flow works for exact fixtures. Automation is still future.
+### 5. Formal prediction lineage
 
-Open questions:
+Open.
 
-- when to automate exact fixture refresh;
-- how to avoid broad writes;
-- how to schedule pre-match publication windows;
-- whether workers should only prepare drafts and leave publication manual.
+Current state:
 
-### Result/evaluation public transparency
+- public rows are operationally linked by process/history;
+- no formal DB-native `source_prediction_version_id` lineage has been implemented.
 
-`prediction_results` is internal-only today.
+Question:
 
-Open questions:
+- add lineage before broader automation/public accuracy dashboard?
 
-- when and how to show public historical accuracy;
-- what aggregation level is safe;
-- whether public accuracy should wait for enough real World Cup sample size;
-- how to show final match results publicly without exposing internal evaluation rows.
+Current recommendation:
 
-### Model feature expansion
+- acceptable for MVP 1;
+- revisit before scale/automation.
 
-Current `v0.2-prelaunch` uses static fallback signals for launch-window teams.
+### 6. Premium detail scope
 
-Future possible sources:
+Open.
 
-- stronger team ratings/Elo;
-- roster/injury/lineup context;
-- recent competitive form;
-- market benchmarks as comparison only, not hidden input;
-- venue/travel context.
+Already done:
 
-Decision remains: no large model rewrite during MVP 1 launch unless explicitly planned.
+- authenticated probable score.
 
-## Closed historical decisions retained for context
+Still open:
 
-- D06 friendly pilot completed with 5 evaluated fixtures.
-- D07 activated `v0.2-prelaunch` and froze it.
-- Real Fixture Lab remains admin/internal.
-- Provider predictions and betting odds remain outside current model input.
-- Payments are not implemented.
+- top scorelines;
+- BTTS;
+- over/under;
+- deeper model explanation;
+- watchlist/tournament pass value.
+
+Do not implement payments until premium value is more concrete.
+
+## Standing decisions that should not be reopened casually
+
+- Manual exact-fixture publication remains the MVP path.
+- Broad ingest/apply is forbidden for now.
+- Supabase migrations are manual.
+- `prediction_results` stays internal.
+- Public rows should be public-safe copies, not Lab internals.
+- Codex should not search the web for model data when normalized local packs are provided.

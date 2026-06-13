@@ -1,311 +1,165 @@
 # UFO Predictor — Data Dictionary
 
-Last refreshed: post-E07 / MVP 1 public fixture expansion and refresh.
+Last refreshed: post-E10C / PR #66 real national-team signal enrichment.
 
-This dictionary focuses on the product and Real Fixture Lab data model currently used by MVP 1. It includes field names confirmed during the World Cup publication and refresh work, including several columns discovered by failed exploratory queries. Humanity invented schemas and then forgot to document them; this file is the apology letter.
+This dictionary documents fields and concepts that matter for the current MVP 1 prediction/publication flow. Do not treat this as a complete database schema dump. That would be useful in theory and unreadable in practice, a classic human compromise.
 
-## Core scope vocabulary
+## Prediction visibility concepts
 
-### Match access scope
+### `prediction_results`
 
-`matches.access_scope` controls whether a match is internal/admin-only or visible through public projections.
+Internal-only prediction/evaluation data.
 
-Known values in current flow:
+Rules:
 
-- `admin_only` — default for real API-Football ingested fixtures; visible in admin/Real Fixture Lab only.
-- `public` — visible through public prediction surfaces when paired with a public-product competition and public-product prediction.
+- do not expose publicly;
+- do not use directly in public routes;
+- do not show internal evaluation payloads;
+- keep Lab/admin boundary intact.
 
-MVP 1 World Cup first-publication uses only `admin_only -> public`.
+### `internal_lab`
 
-Exact public refresh does **not** change `matches.access_scope`; it keeps the match public and appends a newer public prediction row.
+Internal prediction/evidence row type or context.
 
-### Prediction run scope
+Used for:
 
-`prediction_versions.run_scope` separates internal Lab predictions from public product predictions.
+- Real Fixture Lab evidence;
+- admin review;
+- internal evaluation.
 
-Known values:
+Not public.
 
-- `internal_lab` — saved internal Real Fixture Lab prediction.
-- `public_product` — public-safe copy of a selected internal prediction.
+### `public_product`
 
-### Prediction type
+Public-safe prediction row/context.
 
-Current MVP 1 real fixture prediction type:
+Used for:
 
-- `pre_match_24h`
+- public predictions list;
+- match detail;
+- public display of selected safe fields.
 
-## `competitions`
+Public refresh appends a new `public_product` row rather than mutating history.
 
-Purpose: stores competitions/tournaments such as World Cup 2026.
+## Match/publication concepts
 
-Confirmed fields:
+### Match access/public status
 
-| Field | Notes |
-|---|---|
-| `id` | UUID primary key. |
-| `external_id` | Provider or legacy external id. Example: `api-football:league:1`; legacy example: `mock-world-cup-2026`. |
-| `slug` | Unique slug. Example: `world-cup-2026`. |
-| `name` | Display name. |
-| `usage_scope` | Product scope. World Cup uses `public_product`. |
-| `created_at` | Timestamp. |
-| `updated_at` | Timestamp. |
+Manual publication changes match visibility through narrow controlled RPC, not direct random row edits.
 
-Important behavior:
+Stable RPC:
 
-- The World Cup competition may pre-exist as a legacy/mock row with `slug='world-cup-2026'` and non-API external id.
-- Ingest writer behavior reuses competitions by slug when external id does not match.
-- If an existing row has `external_id = null`, the writer may backfill it.
-- If an existing row has a non-null legacy/mock `external_id`, the writer preserves it.
+```text
+publish_real_fixture_match_access_scope(target_match_id, target_match_slug)
+```
 
-## `seasons`
+### Finished result verification
 
-Purpose: stores competition seasons.
+Finished public fixtures can go through:
 
-Confirmed fields:
+```text
+pending_review -> verified
+```
 
-| Field | Notes |
-|---|---|
-| `id` | UUID primary key. |
-| `competition_id` | FK to `competitions`. |
-| `name` | Season label, e.g. `2026`. |
-| `created_at` | Timestamp. |
-| `updated_at` | Timestamp. |
+Admin action verifies the result and allows internal evaluation persistence. Public final result/status can be shown without exposing internal `prediction_results`.
 
-Important correction:
+## National-team strength snapshot fields
 
-- `seasons` does not expose `external_id` in the current live schema.
+After PR #66, canonical World Cup national-team snapshots include real signal metadata for all 48 teams.
 
-## `teams`
+### FIFA fields
 
-Purpose: stores teams/national teams.
+| Field | Meaning | Status |
+|---|---|---:|
+| `fifaRank` | FIFA ranking position | active after E10C |
+| `fifaPoints` | FIFA ranking points | active after E10C |
+| `fifaScore` | derived normalized FIFA signal score, where present | active after E10C |
+| `fifaSourceTeamName` / provenance equivalent | source-label mapping | metadata; may contain encoding/source-label cleanup debt |
 
-Confirmed fields:
+### Elo fields
 
-| Field | Notes |
-|---|---|
-| `id` | UUID primary key. |
-| `external_id` | Provider or legacy external id. Examples: `api-football:team:1531`, `mock-mexico`. |
-| `slug` | Unique team slug. Examples: `mexico`, `south-africa`. |
-| `name` | Display name. |
-| `country` | Country metadata; may be `NULL`. |
-| `created_at` | Timestamp. |
-| `updated_at` | Timestamp. |
+| Field | Meaning | Status |
+|---|---|---:|
+| `eloRank` | Elo ranking position | active after E10C |
+| `eloRating` | Elo rating | active after E10C |
+| `eloAverageRank` | Elo average rank from the source pack | active after E10C |
+| `eloAverageRating` | Elo average rating from the source pack | active after E10C |
 
-Important behavior:
+Raw Elo totals such as matches, wins, losses, draws, goals for, and goals against were used during source-pack preparation, but E10C does **not** expose those raw totals directly in the runtime snapshot layer. The committed snapshot layer exposes the derived fields below instead. A future data-quality/model task can promote additional raw fields if the model needs them.
 
-- Ingest writer behavior reuses teams by slug when external id does not match.
-- If an existing team has `external_id = null`, the writer may backfill it.
-- If an existing team has a non-null legacy/mock `external_id`, the writer preserves it.
+### Derived historical fields
 
-## `matches`
+| Field | Meaning | Status |
+|---|---|---:|
+| `historicalGoalsForPerMatch` | goals-for rate derived from historical Elo stats | active after E10C |
+| `historicalGoalsAgainstPerMatch` | goals-against rate derived from historical Elo stats | active after E10C |
 
-Purpose: stores fixtures/matches.
+Other normalized scores may exist in the local/generated signal-pack source, but they should not be documented as active runtime snapshot fields unless the TypeScript snapshot type exposes them. Yes, field drift is how documentation becomes decorative wallpaper.
 
-Confirmed fields:
-
-| Field | Notes |
-|---|---|
-| `id` | UUID primary key. |
-| `competition_id` | FK to `competitions`. |
-| `season_id` | FK to `seasons`. |
-| `external_id` | Provider external id. Example: `api-football:fixture:1489369`. |
-| `slug` | Unique match slug. |
-| `home_team_id` | FK to `teams`. |
-| `away_team_id` | FK to `teams`. |
-| `kickoff_at` | Kickoff timestamp. |
-| `status` | Match status. Scheduled World Cup fixture uses `scheduled`. |
-| `access_scope` | `admin_only` by ingest default; `public` after manual publication. |
-| `intake_source` | Real API-Football fixtures use `api_football`. |
-| `venue_id` | Currently planned as `NULL` unless provider venue support is added later. |
-| `source_note` | Audit/source text where available. |
-| `data_quality` | Internal data-quality metadata where available. |
-| `stage` | Competition stage/round where available. |
-| `lab_status` | Lab/review status where available. |
-| `reviewed_at` | Review timestamp where applicable. |
-| `reviewed_by` | Reviewer id where applicable. |
-| `created_at` | Timestamp. |
-| `updated_at` | Timestamp. |
-
-Important behavior:
-
-- World Cup ingest creates matches as `access_scope='admin_only'` and `intake_source='api_football'`.
-- The public product requires `matches.access_scope='public'` and a competition with `usage_scope='public_product'`.
-- Manual first publication changes only `matches.access_scope` from `admin_only` to `public`.
-- The runtime-proven first publication path uses RPC `publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)` from migration `0029_manual_publication_match_access_scope_rpc.sql`.
-- Exact public refresh does not update `matches.access_scope`; it appends prediction rows.
-
-Current public World Cup matches:
-
-| External id | Match | Access |
-|---|---|---|
-| `api-football:fixture:1489369` | Mexico vs South Africa | public |
-| `api-football:fixture:1538999` | South Korea vs Czech Republic | public |
-| `api-football:fixture:1539000` | Canada vs Bosnia & Herzegovina | public |
-| `api-football:fixture:1489370` | USA vs Paraguay | public |
+### Recent-form fields
 
-## `model_versions`
+| Field | Meaning | Status |
+|---|---|---:|
+| `recentMatchCount` | recent matches available/used from the source pack | active after E10C |
 
-Purpose: stores model contracts/version metadata.
+Recent-form data came from 2025/2026 results in the local normalized E10C pack. E10C records recent-form availability/count in the runtime snapshot layer; deeper recent-form scoring remains available for future model work and E10D analysis if wired explicitly.
 
-Confirmed fields:
+### Placeholder fields
 
-| Field | Notes |
-|---|---|
-| `id` | UUID primary key. |
-| `version` | Human-readable model version. Examples: `v0.1`, `v0.2-prelaunch`. |
-| `description` | Version description. |
-| `weights_json` | Model weights/config JSON. |
-| `is_active` | Active model flag. |
-| `created_at` | Timestamp. |
-| `updated_at` | Timestamp. |
+| Field | Current value | Meaning |
+|---|---:|---|
+| `marketScore` | `50` | neutral placeholder; no market/odds signal currently used |
+| `lineupContextScore` | `50` | neutral placeholder; no lineup/injury signal currently used |
 
-Important corrections:
+Do not interpret these as real signals yet. They are placeholders, not tiny oracles.
 
-- There is no `version_key` column in the current live schema.
-- Use `model_versions.version` when joining from `prediction_versions.model_version_id`.
-- Active MVP 1 model is `v0.2-prelaunch`.
+## Generated source module
 
-## `prediction_versions`
+Committed generated module:
 
-Purpose: stores prediction payloads for a match.
+```text
+lib/prediction-engine/national-team-strength-signal-pack.ts
+```
 
-Confirmed fields:
+Expected properties:
 
-| Field | Notes |
-|---|---|
-| `id` | UUID primary key. |
-| `match_id` | FK to `matches`. |
-| `run_scope` | `internal_lab` or `public_product`. |
-| `prediction_type` | Current real fixture type: `pre_match_24h`. |
-| `model_version_id` | FK to `model_versions`. |
-| `created_at` | Timestamp. |
+- static source constants;
+- no runtime filesystem dependency;
+- no runtime `codex-inputs/` dependency;
+- generated from reviewed local pack;
+- covers all 48 canonical World Cup teams.
 
-Important corrections:
+## Local input files
 
-- There is no `model_version` column on `prediction_versions`; join through `model_version_id` to `model_versions.version`.
-- There is no `updated_at` column on `prediction_versions` in current live schema.
-- There is currently no DB-native lineage field linking a `public_product` row back to its source `internal_lab` row.
-- There is no confirmed `source_prediction_version_id`, `source_note`, or generic `metadata_json` on this table.
+Local-only source packs may live temporarily under:
 
-Public publication behavior:
+```text
+codex-inputs/
+```
 
-- Manual publication copies public-safe fields from one selected `internal_lab` prediction version into a new `public_product` prediction version.
-- The internal row remains untouched.
-- Exact public refresh appends a new replacement `public_product` prediction row.
-- Old public rows remain as history/audit.
-- Public views use the latest public-product row.
-- E05/E07 intentionally do not expose `prediction_results`.
+Rules:
 
-## `prediction_markets`
+- do not commit;
+- do not import from runtime code;
+- delete after merge/cleanup;
+- use only for generation/audit.
 
-Purpose: stores market/outcome rows derived from a prediction version.
+## Known data-quality debt
 
-Confirmed fields:
+Some source labels may have encoding/mojibake for accented names such as country display labels.
 
-| Field | Notes |
-|---|---|
-| `id` | UUID primary key. |
-| `prediction_version_id` | FK to `prediction_versions`. |
-| `market` | Market name. Examples: `match_winner`, `over_2_5`, `btts`, `exact_score`. |
-| `selection` | Outcome selection. Examples: `home`, `draw`, `away`, `over`, `under`, `yes`, `no`, score strings. |
-| `probability` | Numeric probability. |
-| `confidence` | Numeric confidence. |
-| `is_premium` | Premium-gating flag. |
-| `created_at` | Timestamp. |
+Current interpretation:
 
-Important corrections:
+- non-blocking if canonical keys and tests are correct;
+- should be cleaned before user-facing explanation copy depends on those labels.
 
-- There is no `market_key` column in the current live schema.
-- There is no `outcome_key` column in the current live schema.
-- Use `market` and `selection`.
+## Forbidden data assumptions
 
-Current MVP 1 behavior:
+Do not assume:
 
-- Public basic cards/details currently rely primarily on public prediction payload/projections.
-- Premium market/public market strategy remains a future access-tier decision.
-- Do not assume top scorelines/BTTS/O-U are public merely because they exist somewhere. That is how products accidentally become free buffets.
-
-## `prediction_results`
-
-Purpose: stores internal post-match evaluation results.
-
-Current boundary:
-
-- Internal only.
-- Written by Real Fixture Lab evaluation flows after results are verified.
-- Not used for public publication.
-- Not exposed in `public_prediction_summaries`, `public_match_details`, or premium/public projections.
-
-Do not add `prediction_results` to public views without a separate reviewed epic.
-
-## Ingest tracking tables
-
-Purpose: track API-Football ingest runs and item-level audit results.
-
-Known tables:
-
-- `ingest_runs`
-- `ingest_run_items`
-
-Behavior:
-
-- exact apply failures can leave audit/run-tracking rows even when domain rows fail later;
-- this is expected because the writer is not fully transaction-wrapped;
-- source notes and run tags are used to locate created/updated rows;
-- rollback remains manual/script-reviewed.
-
-## Public read projections
-
-Public UI reads through safe query/projection boundaries, especially:
-
-- `public_prediction_summaries`
-- `public_match_details`
-
-A match appears publicly only when:
-
-- `matches.access_scope = 'public'`
-- its competition has `competitions.usage_scope = 'public_product'`
-- it has a compatible `prediction_versions` row with `run_scope='public_product'`
-
-## Publication RPCs and helpers
-
-### Runtime-proven first-publication RPC
-
-`public.publish_real_fixture_match_access_scope(target_match_id uuid, target_match_slug text)`
-
-Introduced in:
-
-- `0029_manual_publication_match_access_scope_rpc.sql`
-
-Behavior:
-
-- `SECURITY DEFINER`
-- exact match id + slug only
-- requires admin user
-- requires current row to be `admin_only + scheduled + api_football`
-- requires linked competition `usage_scope='public_product'`
-- updates only `matches.access_scope='public'`
-- returns updated match id or `null`
-
-### Exact public refresh RLS support
-
-Migration:
-
-- `0030_real_fixture_lab_public_refresh_rls.sql`
-
-Purpose:
-
-- allows authenticated admins to load exact already-public scheduled API-Football fixtures in Real Fixture Lab;
-- supports direct competition/team/internal prediction reads needed by the refresh screen;
-- supports replacement `public_product` insertion for exact refresh;
-- does not restore anonymous base-table reads;
-- does not touch `prediction_results`.
-
-### Earlier publication RLS migrations
-
-- `0025_manual_publication_rls.sql`
-- `0026_fix_manual_publication_match_update_policy.sql`
-- `0027_inline_manual_publication_match_update_check.sql`
-- `0028_manual_publication_match_new_row_helper.sql`
-
-These are part of the applied history and should not be edited.
+- market odds exist as model input;
+- provider predictions exist as model input;
+- lineup/injury context is real yet;
+- `prediction_results` can be publicly queried;
+- raw source HTML/CSV should be used at runtime;
+- all public result/evaluation data is safe to expose.
