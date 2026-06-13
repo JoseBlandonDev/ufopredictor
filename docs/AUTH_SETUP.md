@@ -93,6 +93,12 @@ UFO Predictor uses a server-side confirmation route:
 - `/auth/confirm` is reserved for email confirmation links with `token_hash`.
 - `/auth/check-email` is the post-signup waiting/resend screen.
 
+After email/password signup, the app redirects to `/auth/check-email` with a
+sanitized `next` path and the submitted email as a query parameter. The email is
+not a secret, but it can appear in browser history and request logs; keep it only
+for this confirmation UX and resend flow. Do not use it for authorization or
+account existence checks.
+
 Recommended `Confirm signup` action link inside the Supabase template:
 
 ```html
