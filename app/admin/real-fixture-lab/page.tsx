@@ -12,12 +12,14 @@ import {
   getAdminRealFixtureLabData,
   type RealFixtureLabFixtureView,
 } from "@/lib/supabase/real-fixture-lab-queries";
+import { SubmitButton } from "./submit-button";
 
 export const dynamic = "force-dynamic";
 
 type RealFixtureLabPageProps = {
   searchParams: Promise<{
     externalId?: string;
+    summaryFilter?: string;
     save?: string;
     evaluation?: string;
     result?: string;
@@ -40,6 +42,309 @@ type FixtureEntry = {
   derivedSignalWarning: string | null;
   evaluationStatus: FixtureSummaryStatus;
 };
+
+type SummaryFilter =
+  | "all"
+  | "world_cup_active"
+  | "needs_prediction"
+  | "pending_result"
+  | "verified_evaluated"
+  | "legacy_pilot";
+
+type SummarySection = {
+  key: string;
+  title: string;
+  description: string;
+  entries: FixtureEntry[];
+};
+
+const SUMMARY_FILTER_OPTIONS: Array<{
+  value: SummaryFilter;
+  label: string;
+}> = [
+  { value: "all", label: "All" },
+  { value: "world_cup_active", label: "World Cup active" },
+  { value: "needs_prediction", label: "Needs prediction" },
+  { value: "pending_result", label: "Pending result" },
+  { value: "verified_evaluated", label: "Verified / evaluated" },
+  { value: "legacy_pilot", label: "Legacy / pilot" },
+];
+
+const ACTION_BUTTON_CLASS =
+  "cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50";
+const ACCENT_BUTTON_CLASS = `${ACTION_BUTTON_CLASS} border-[var(--accent)]/35 bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/20`;
+const WARNING_BUTTON_CLASS = `${ACTION_BUTTON_CLASS} border-[var(--warning)]/35 bg-[var(--warning)]/15 text-[var(--warning)] hover:bg-[var(--warning)]/20`;
+const EMERALD_BUTTON_CLASS = `${ACTION_BUTTON_CLASS} border-emerald-400/35 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15`;
+
+function normalizeSummaryFilter(value: string | undefined): SummaryFilter {
+  switch (value) {
+    case "world_cup_active":
+    case "needs_prediction":
+    case "pending_result":
+    case "verified_evaluated":
+    case "legacy_pilot":
+      return value;
+    default:
+      return "all";
+  }
+}
+
+function isWorldCupFixture(fixture: RealFixtureLabFixtureView) {
+  return fixture.competitionName.toLowerCase().includes("world cup");
+}
+
+function needsPrediction(entry: FixtureEntry) {
+  return !entry.fixture.hasSavedPredictionForActiveModel;
+}
+
+function hasPendingResult(fixture: RealFixtureLabFixtureView) {
+  return (
+    fixture.status === "finished" &&
+    (fixture.result === null || fixture.result.verification_status !== "verified")
+  );
+}
+
+function isVerifiedOrEvaluated(entry: FixtureEntry) {
+  return (
+    entry.fixture.result?.verification_status === "verified" || entry.fixture.savedEvaluation !== null
+  );
+}
+
+function getUpcomingFixturePriority(fixture: RealFixtureLabFixtureView) {
+  if (fixture.status === "live") return 0;
+  if (fixture.status === "scheduled") return 1;
+  return 2;
+}
+
+function sortUpcomingEntries(left: FixtureEntry, right: FixtureEntry) {
+  const priorityDelta =
+    getUpcomingFixturePriority(left.fixture) - getUpcomingFixturePriority(right.fixture);
+  if (priorityDelta !== 0) {
+    return priorityDelta;
+  }
+
+  if (needsPrediction(left) !== needsPrediction(right)) {
+    return needsPrediction(left) ? -1 : 1;
+  }
+
+  return (
+    new Date(left.fixture.kickoffAt).getTime() - new Date(right.fixture.kickoffAt).getTime()
+  );
+}
+
+function sortFinishedEntries(left: FixtureEntry, right: FixtureEntry) {
+  if (needsPrediction(left) !== needsPrediction(right)) {
+    return needsPrediction(left) ? -1 : 1;
+  }
+
+  return (
+    new Date(right.fixture.kickoffAt).getTime() - new Date(left.fixture.kickoffAt).getTime()
+  );
+}
+
+export function organizeFixtureEntries(
+  fixtureEntries: FixtureEntry[],
+  summaryFilter: SummaryFilter,
+): { primarySections: SummarySection[]; legacyEntries: FixtureEntry[] } {
+  const worldCupEntries = fixtureEntries.filter((entry) => isWorldCupFixture(entry.fixture));
+  const legacyEntries = fixtureEntries
+    .filter((entry) => !isWorldCupFixture(entry.fixture))
+    .sort(sortFinishedEntries);
+
+  const upcomingWorldCup = worldCupEntries
+    .filter((entry) => entry.fixture.status === "scheduled" || entry.fixture.status === "live")
+    .sort(sortUpcomingEntries);
+  const pendingWorldCup = worldCupEntries
+    .filter((entry) => hasPendingResult(entry.fixture))
+    .sort(sortFinishedEntries);
+  const verifiedWorldCup = worldCupEntries
+    .filter(
+      (entry) =>
+        entry.fixture.status === "finished" &&
+        entry.fixture.result?.verification_status === "verified" &&
+        !hasPendingResult(entry.fixture),
+    )
+    .sort(sortFinishedEntries);
+
+  const primarySections: SummarySection[] = [
+    {
+      key: "upcoming",
+      title: "World Cup active",
+      description: "Upcoming and live World Cup fixtures stay first for current operations.",
+      entries: upcomingWorldCup,
+    },
+    {
+      key: "pending",
+      title: "Pending result verification",
+      description: "Finished World Cup fixtures that still need a verified result or follow-up.",
+      entries: pendingWorldCup,
+    },
+    {
+      key: "verified",
+      title: "Verified / evaluated recent fixtures",
+      description: "Recent finished World Cup fixtures with verified results or saved evaluation state.",
+      entries: verifiedWorldCup,
+    },
+  ];
+
+  const applyFilter = (entries: FixtureEntry[]) => {
+    switch (summaryFilter) {
+      case "world_cup_active":
+        return entries.filter((entry) => isWorldCupFixture(entry.fixture));
+      case "needs_prediction":
+        return entries.filter((entry) => needsPrediction(entry));
+      case "pending_result":
+        return entries.filter((entry) => hasPendingResult(entry.fixture));
+      case "verified_evaluated":
+        return entries.filter((entry) => isVerifiedOrEvaluated(entry));
+      case "legacy_pilot":
+        return [];
+      case "all":
+      default:
+        return entries;
+    }
+  };
+
+  return {
+    primarySections: primarySections
+      .map((section) => ({
+        ...section,
+        entries: applyFilter(section.entries),
+      }))
+      .filter((section) => section.entries.length > 0),
+    legacyEntries:
+      summaryFilter === "legacy_pilot"
+        ? legacyEntries
+        : summaryFilter === "all"
+          ? legacyEntries
+          : legacyEntries.filter((entry) => {
+              switch (summaryFilter) {
+                case "needs_prediction":
+                  return needsPrediction(entry);
+                case "pending_result":
+                  return hasPendingResult(entry.fixture);
+                case "verified_evaluated":
+                  return isVerifiedOrEvaluated(entry);
+                default:
+                  return false;
+              }
+            }),
+  };
+}
+
+function buildAdminLabHref(args: {
+  externalId?: string | null;
+  summaryFilter?: SummaryFilter;
+}) {
+  const params = new URLSearchParams();
+
+  if (args.externalId) {
+    params.set("externalId", args.externalId);
+  }
+
+  if (args.summaryFilter && args.summaryFilter !== "all") {
+    params.set("summaryFilter", args.summaryFilter);
+  }
+
+  const query = params.toString();
+  return query ? `/admin/real-fixture-lab?${query}` : "/admin/real-fixture-lab";
+}
+
+function SummaryTable(args: {
+  entries: FixtureEntry[];
+  summaryFilter: SummaryFilter;
+}) {
+  const { entries, summaryFilter } = args;
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full border-collapse text-left text-sm">
+        <thead>
+          <tr className="border-b border-white/10 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
+            <th className="px-3 py-3 font-medium">Fixture</th>
+            <th className="px-3 py-3 font-medium">Kickoff</th>
+            <th className="px-3 py-3 font-medium">Status</th>
+            <th className="px-3 py-3 font-medium">Prediction</th>
+            <th className="px-3 py-3 font-medium">Result</th>
+            <th className="px-3 py-3 font-medium">Evaluation</th>
+            <th className="px-3 py-3 font-medium">Signals</th>
+            <th className="w-32 px-3 py-3 font-medium whitespace-nowrap">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry) => (
+            <tr key={entry.fixture.id} className="border-b border-white/10 align-top">
+              <td className="px-3 py-3">
+                <p className="font-medium text-white">
+                  {entry.fixture.homeTeamName} vs {entry.fixture.awayTeamName}
+                </p>
+                <p className="mt-1 font-mono text-xs text-[var(--muted)]">{entry.fixture.externalId}</p>
+                <p className="mt-1 text-xs text-[var(--muted)]">{entry.fixture.competitionName}</p>
+              </td>
+              <td className="px-3 py-3 text-[var(--muted)]">{formatKickoff(entry.fixture.kickoffAt)}</td>
+              <td className="px-3 py-3">
+                <span className="rounded-md border border-white/10 px-2 py-1 text-xs text-[var(--muted)]">
+                  {entry.fixture.status}
+                </span>
+              </td>
+              <td className="px-3 py-3 text-[var(--muted)]">
+                {entry.fixture.savedPrediction ? (
+                  <div className="space-y-1">
+                    <p className="text-emerald-300">saved</p>
+                    <p className="font-mono text-xs">
+                      prediction_version_id: {entry.fixture.savedPrediction.id}
+                    </p>
+                    <p>
+                      model_version:{" "}
+                      {entry.fixture.savedPrediction.modelVersionVersion ??
+                        entry.fixture.savedPrediction.modelVersionId}
+                    </p>
+                    <p>prediction_type: {entry.fixture.savedPrediction.predictionType}</p>
+                    <p>run_scope: {entry.fixture.savedPrediction.runScope}</p>
+                  </div>
+                ) : (
+                  <span className="text-[var(--warning)]">not saved</span>
+                )}
+              </td>
+              <td className="px-3 py-3 text-[var(--muted)]">
+                {entry.fixture.result ? entry.fixture.result.verification_status : "no result"}
+              </td>
+              <td className="px-3 py-3 text-[var(--muted)]">
+                {formatFixtureEvaluationStatus(entry.evaluationStatus)}
+              </td>
+              <td className="px-3 py-3 text-[var(--muted)]">
+                {entry.derivedSignalWarning ? (
+                  <div className="space-y-1">
+                    <p className="text-[var(--warning)]">{entry.derivedSignalWarning}</p>
+                    <p>
+                      data_completeness:{" "}
+                      {formatPercentage(entry.preview.normalizedInput.dataCompleteness * 100)}
+                    </p>
+                    <p>provided_home: {entry.preview.normalizedInput.homeTeam.providedSignals.length}</p>
+                    <p>provided_away: {entry.preview.normalizedInput.awayTeam.providedSignals.length}</p>
+                  </div>
+                ) : (
+                  <span>ok</span>
+                )}
+              </td>
+              <td className="px-3 py-3 whitespace-nowrap">
+                <a
+                  href={buildAdminLabHref({
+                    externalId: entry.fixture.externalId,
+                    summaryFilter,
+                  })}
+                  className="inline-flex min-w-28 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-center text-xs font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                >
+                  Open detail
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function canVerifyRealFixtureResultControl(fixture: RealFixtureLabFixtureView) {
   return (
@@ -376,8 +681,10 @@ function getRefreshStatusMessage(status: string | undefined) {
 export default async function RealFixtureLabPage({ searchParams }: RealFixtureLabPageProps) {
   await requireAdmin("/admin/real-fixture-lab");
 
-  const { externalId, save, evaluation, result, publish, refresh } = await searchParams;
+  const { externalId, summaryFilter: rawSummaryFilter, save, evaluation, result, publish, refresh } =
+    await searchParams;
   const selectedExternalId = externalId?.trim() || null;
+  const summaryFilter = normalizeSummaryFilter(rawSummaryFilter);
   const saveStatusMessage = getSaveStatusMessage(save);
   const evaluationStatusMessage = getEvaluationStatusMessage(evaluation);
   const resultStatusMessage = getResultStatusMessage(result);
@@ -415,6 +722,8 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
   for (const entry of fixtureEntries) {
     entry.evaluationStatus = getFixtureEvaluationStatus(entry);
   }
+
+  const organizedFixtures = organizeFixtureEntries(fixtureEntries, summaryFilter);
 
   const selectedFixtureEntry = selectedExternalId
     ? selectedFixtureLabData.status === "ready"
@@ -512,7 +821,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
               />
               <button
                 type="submit"
-                className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
+                className={ACCENT_BUTTON_CLASS}
               >
                 Cargar fixture
               </button>
@@ -550,7 +859,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             <div>
               <h2 className="text-lg font-semibold">Pilot summary</h2>
               <p className="mt-1 text-sm text-[var(--muted)]">
-                Resumen admin-only de fixtures reales API-Football ya disponibles dentro del piloto D06.
+                Resumen admin-only de fixtures reales API-Football priorizado para la operacion actual del Mundial.
               </p>
             </div>
             <span className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-3 py-1 text-xs text-[var(--accent)]">
@@ -569,78 +878,63 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             </div>
           ) : null}
 
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
-                  <th className="px-3 py-3 font-medium">Fixture</th>
-                  <th className="px-3 py-3 font-medium">Kickoff</th>
-                  <th className="px-3 py-3 font-medium">Status</th>
-                  <th className="px-3 py-3 font-medium">Prediction</th>
-                  <th className="px-3 py-3 font-medium">Result</th>
-                  <th className="px-3 py-3 font-medium">Evaluation</th>
-                  <th className="px-3 py-3 font-medium">Signals</th>
-                  <th className="w-32 px-3 py-3 font-medium whitespace-nowrap">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fixtureEntries.map((entry) => (
-                  <tr key={entry.fixture.id} className="border-b border-white/10 align-top">
-                    <td className="px-3 py-3">
-                      <p className="font-medium text-white">
-                        {entry.fixture.homeTeamName} vs {entry.fixture.awayTeamName}
-                      </p>
-                      <p className="mt-1 font-mono text-xs text-[var(--muted)]">{entry.fixture.externalId}</p>
-                    </td>
-                    <td className="px-3 py-3 text-[var(--muted)]">{formatKickoff(entry.fixture.kickoffAt)}</td>
-                    <td className="px-3 py-3">
-                      <span className="rounded-md border border-white/10 px-2 py-1 text-xs text-[var(--muted)]">
-                        {entry.fixture.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-[var(--muted)]">
-                      {entry.fixture.savedPrediction ? (
-                        <div className="space-y-1">
-                          <p className="text-emerald-300">saved</p>
-                          <p className="font-mono text-xs">prediction_version_id: {entry.fixture.savedPrediction.id}</p>
-                          <p>model_version: {entry.fixture.savedPrediction.modelVersionVersion ?? entry.fixture.savedPrediction.modelVersionId}</p>
-                          <p>prediction_type: {entry.fixture.savedPrediction.predictionType}</p>
-                          <p>run_scope: {entry.fixture.savedPrediction.runScope}</p>
-                        </div>
-                      ) : (
-                        <span className="text-[var(--warning)]">not saved</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-3 text-[var(--muted)]">
-                      {entry.fixture.result ? entry.fixture.result.verification_status : "no result"}
-                    </td>
-                    <td className="px-3 py-3 text-[var(--muted)]">
-                      {formatFixtureEvaluationStatus(entry.evaluationStatus)}
-                    </td>
-                    <td className="px-3 py-3 text-[var(--muted)]">
-                      {entry.derivedSignalWarning ? (
-                        <div className="space-y-1">
-                          <p className="text-[var(--warning)]">{entry.derivedSignalWarning}</p>
-                          <p>data_completeness: {formatPercentage(entry.preview.normalizedInput.dataCompleteness * 100)}</p>
-                          <p>provided_home: {entry.preview.normalizedInput.homeTeam.providedSignals.length}</p>
-                          <p>provided_away: {entry.preview.normalizedInput.awayTeam.providedSignals.length}</p>
-                        </div>
-                      ) : (
-                        <span>ok</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-3 whitespace-nowrap">
-                      <a
-                        href={`/admin/real-fixture-lab?externalId=${encodeURIComponent(entry.fixture.externalId)}`}
-                        className="inline-flex min-w-28 items-center justify-center whitespace-nowrap rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-center text-xs font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
-                      >
-                        Open detail
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {SUMMARY_FILTER_OPTIONS.map((option) => {
+              const isActive = summaryFilter === option.value;
+
+              return (
+                <a
+                  key={option.value}
+                  href={buildAdminLabHref({
+                    externalId: selectedExternalId,
+                    summaryFilter: option.value,
+                  })}
+                  className={`inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-xs font-medium transition ${
+                    isActive
+                      ? "border-[var(--accent)]/45 bg-[var(--accent)]/15 text-[var(--accent)]"
+                      : "border-white/10 bg-white/[0.03] text-[var(--muted)] hover:border-[var(--accent)]/25 hover:text-white"
+                  }`}
+                >
+                  {option.label}
+                </a>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 space-y-6">
+            {organizedFixtures.primarySections.length ? (
+              organizedFixtures.primarySections.map((section) => (
+                <section key={section.key} className="space-y-3">
+                  <div>
+                    <h3 className="text-base font-semibold">{section.title}</h3>
+                    <p className="mt-1 text-sm text-[var(--muted)]">{section.description}</p>
+                  </div>
+                  <SummaryTable entries={section.entries} summaryFilter={summaryFilter} />
+                </section>
+              ))
+            ) : summaryFilter === "legacy_pilot" ? null : (
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm text-[var(--muted)]">
+                No active World Cup fixtures match the current filter.
+              </div>
+            )}
+
+            {organizedFixtures.legacyEntries.length ? (
+              <details className="rounded-lg border border-white/10 bg-white/[0.02] p-4">
+                <summary className="cursor-pointer list-none text-base font-semibold text-white">
+                  Legacy / pilot fixtures
+                </summary>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  Earlier pilot and non-operational fixtures stay available for reference without taking over the active summary.
+                </p>
+                <div className="mt-4">
+                  <SummaryTable entries={organizedFixtures.legacyEntries} summaryFilter={summaryFilter} />
+                </div>
+              </details>
+            ) : summaryFilter === "legacy_pilot" ? (
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm text-[var(--muted)]">
+                No legacy or pilot fixtures match the current filter.
+              </div>
+            ) : null}
           </div>
         </section>
       )}
@@ -743,12 +1037,11 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                             <form action={verifyRealFixtureResultAction} className="pt-1">
                               <input type="hidden" name="externalId" value={fixture.externalId} />
                               <input type="hidden" name="matchResultId" value={fixture.result.id} />
-                              <button
-                                type="submit"
-                                className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/15 px-3 py-2 text-sm font-medium text-[var(--warning)] transition hover:bg-[var(--warning)]/20"
-                              >
-                                Verify result
-                              </button>
+                              <SubmitButton
+                                idleLabel="Verify result"
+                                pendingLabel="Verifying result..."
+                                className={WARNING_BUTTON_CLASS}
+                              />
                             </form>
                           ) : null}
                         </div>
@@ -906,12 +1199,11 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                           ) : (
                             <form action={saveRealFixturePredictionAction} className="mt-3 space-y-3">
                               <input type="hidden" name="externalId" value={fixture.externalId} />
-                              <button
-                                type="submit"
-                                className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
-                              >
-                                Guardar prediccion interna para modelo activo
-                              </button>
+                              <SubmitButton
+                                idleLabel="Guardar prediccion interna para modelo activo"
+                                pendingLabel="Guardando prediccion..."
+                                className={ACCENT_BUTTON_CLASS}
+                              />
                             </form>
                           )
                         ) : null}
@@ -932,24 +1224,22 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                                 <form action={persistRealFixtureEvaluationAction} className="space-y-3">
                                   <input type="hidden" name="predictionVersionId" value={fixture.savedPrediction.id} />
                                   <input type="hidden" name="externalId" value={fixture.externalId} />
-                                  <button
-                                    type="submit"
-                                    className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
-                                  >
-                                    Refrescar evaluacion desde resultado verificado
-                                  </button>
+                                  <SubmitButton
+                                    idleLabel="Refrescar evaluacion desde resultado verificado"
+                                    pendingLabel="Refrescando evaluacion..."
+                                    className={ACCENT_BUTTON_CLASS}
+                                  />
                                 </form>
                               </div>
                             ) : (
                               <form action={persistRealFixtureEvaluationAction} className="mt-3 space-y-3">
                                 <input type="hidden" name="predictionVersionId" value={fixture.savedPrediction.id} />
                                 <input type="hidden" name="externalId" value={fixture.externalId} />
-                                <button
-                                  type="submit"
-                                  className="rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/15 px-3 py-2 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)]/20"
-                                >
-                                  Persistir evaluacion interna
-                                </button>
+                                <SubmitButton
+                                  idleLabel="Persistir evaluacion interna"
+                                  pendingLabel="Persistiendo evaluacion..."
+                                  className={ACCENT_BUTTON_CLASS}
+                                />
                               </form>
                             )
                           ) : fixture.result ? (
@@ -980,12 +1270,11 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                               name="internalPredictionVersionId"
                               value={fixture.savedPrediction.id}
                             />
-                            <button
-                              type="submit"
-                              className="rounded-md border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/15"
-                            >
-                              Publicar prediccion basica para este fixture
-                            </button>
+                            <SubmitButton
+                              idleLabel="Publicar prediccion basica para este fixture"
+                              pendingLabel="Publicando prediccion..."
+                              className={EMERALD_BUTTON_CLASS}
+                            />
                             <p className="text-xs text-[var(--muted)]">
                               Crea una nueva prediccion <code>public_product</code> para este partido y cambia
                               solo este match a alcance <code>public</code>. No modifica la fila interna ni toca
@@ -996,12 +1285,11 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                         {fixture.accessScope === "public" ? (
                           <form action={refreshPublishedRealFixturePredictionAction} className="mt-4 space-y-3">
                             <input type="hidden" name="externalId" value={fixture.externalId} />
-                            <button
-                              type="submit"
-                              className="rounded-md border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/15"
-                            >
-                              Refrescar prediccion publica para este fixture
-                            </button>
+                            <SubmitButton
+                              idleLabel="Refrescar prediccion publica para este fixture"
+                              pendingLabel="Refrescando prediccion..."
+                              className={EMERALD_BUTTON_CLASS}
+                            />
                             <p className="text-xs text-[var(--muted)]">
                               Guarda una nueva evidencia <code>internal_lab</code> con el modelo activo y crea una
                               nueva fila <code>public_product</code> para que el producto publico lea la version

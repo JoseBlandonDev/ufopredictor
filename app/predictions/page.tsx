@@ -23,8 +23,7 @@ export default async function PredictionsPage() {
         <h1 className="mt-3 text-4xl font-semibold">Predicciones reales publicadas del Mundial 2026</h1>
         <p className="mt-3 max-w-2xl text-[var(--muted)]">
           Las probabilidades 1X2 básicas ya están publicadas para fixtures reales seleccionados del
-          Mundial 2026. Los datos internos del Lab y el análisis premium quedan fuera de esta
-          vista.
+          Mundial 2026. Los datos internos del Lab y el análisis premium quedan fuera de esta vista.
         </p>
       </section>
 
@@ -72,7 +71,7 @@ export default async function PredictionsPage() {
           {data.upcomingPredictions.length > 0 ? (
             <section className="space-y-4">
               <div>
-                <h2 className="text-2xl font-semibold">Predicciones activas y prÃ³ximas</h2>
+                <h2 className="text-2xl font-semibold">Predicciones activas y próximas</h2>
                 <p className="mt-2 text-sm text-[var(--muted)]">
                   Los partidos en vivo o por jugar aparecen primero para priorizar la lectura actual
                   del modelo.
@@ -91,7 +90,7 @@ export default async function PredictionsPage() {
               <div>
                 <h2 className="text-2xl font-semibold">Resultados recientes e historial</h2>
                 <p className="mt-2 text-sm text-[var(--muted)]">
-                  Los fixtures finalizados quedan en una secciÃ³n secundaria para no dominar la vista
+                  Los fixtures finalizados quedan en una sección secundaria para no dominar la vista
                   principal de predicciones.
                 </p>
               </div>

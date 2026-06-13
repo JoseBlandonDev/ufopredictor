@@ -74,8 +74,8 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
             {prediction.verifiedResult.awayGoals} {prediction.awayTeamName}
           </p>
           <p className="mt-2 text-xs text-[var(--muted)]">
-            Este resultado final ya fue verificado y la prediccion publica se conserva como
-            referencia historica.
+            Este resultado final ya fue verificado y la predicción pública se conserva como
+            referencia histórica.
           </p>
         </div>
       ) : null}
