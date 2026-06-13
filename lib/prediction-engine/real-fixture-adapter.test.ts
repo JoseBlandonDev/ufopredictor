@@ -128,12 +128,12 @@ describe("real fixture prediction adapter", () => {
     const snapshot = resolveNationalTeamStrengthSnapshot({ name: "Argentina" });
 
     expect(snapshot?.displayName).toBe("Argentina");
-    expect(snapshot?.snapshotDate).toBe("2026-06-12");
+    expect(snapshot?.snapshotDate).toBe("2026-06-13");
     expect(input.homeTeam.signals).toEqual({
-      ratingScore: 95,
-      recentFormScore: 88,
-      attackScore: 92,
-      defenseScore: 89,
+      ratingScore: 94.29,
+      recentFormScore: 100,
+      attackScore: 65.36,
+      defenseScore: 72.62,
       marketScore: 50,
       lineupContextScore: 50,
     });
@@ -241,14 +241,14 @@ describe("real fixture prediction adapter", () => {
     const usa = resolveNationalTeamStrengthSnapshot({ name: "USA" });
     const paraguay = resolveNationalTeamStrengthSnapshot({ name: "Paraguay" });
 
-    expect(mexico?.sourceNotes).toContain("Curated");
-    expect(southAfrica?.sourceNotes).toContain("Curated");
-    expect(southKorea?.sourceNotes).toContain("Curated");
-    expect(czechRepublic?.sourceNotes).toContain("Curated");
-    expect(canada?.sourceNotes).toContain("Curated");
-    expect(bosnia?.sourceNotes).toContain("Curated");
-    expect(usa?.sourceNotes).toContain("Curated");
-    expect(paraguay?.sourceNotes).toContain("Curated");
+    expect(mexico?.sourceNotes).toContain("normalized local E10C signal pack");
+    expect(southAfrica?.sourceNotes).toContain("normalized local E10C signal pack");
+    expect(southKorea?.sourceNotes).toContain("normalized local E10C signal pack");
+    expect(czechRepublic?.sourceNotes).toContain("normalized local E10C signal pack");
+    expect(canada?.sourceNotes).toContain("normalized local E10C signal pack");
+    expect(bosnia?.sourceNotes).toContain("normalized local E10C signal pack");
+    expect(usa?.sourceNotes).toContain("normalized local E10C signal pack");
+    expect(paraguay?.sourceNotes).toContain("normalized local E10C signal pack");
   });
 
   it("differentiates Argentina vs Iceland from Congo DR vs Chile", () => {
