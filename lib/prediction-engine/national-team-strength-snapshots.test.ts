@@ -32,9 +32,23 @@ describe("national team strength snapshots", () => {
     expect(
       CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS.every(
         (snapshot) =>
-          snapshot.snapshotDate === "2026-06-12" &&
-          snapshot.sourceLabel.includes("canonical catalog") &&
-          snapshot.sourceNotes.includes("Curated MVP v0 estimate"),
+          snapshot.snapshotDate === "2026-06-13" &&
+          snapshot.sourceLabel === "E10C normalized FIFA + Elo + recent-form signal pack" &&
+          snapshot.sourceNotes.includes("normalized local E10C signal pack"),
+      ),
+    ).toBe(true);
+  });
+
+  it("carries real FIFA, Elo, and recent-form metadata for every canonical team", () => {
+    expect(
+      CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS.every(
+        (snapshot) =>
+          typeof snapshot.fifaRank === "number" &&
+          typeof snapshot.fifaPoints === "number" &&
+          typeof snapshot.eloRank === "number" &&
+          typeof snapshot.eloRating === "number" &&
+          typeof snapshot.recentMatchCount === "number" &&
+          snapshot.recentMatchCount > 0,
       ),
     ).toBe(true);
   });
@@ -121,10 +135,10 @@ describe("national team strength snapshots", () => {
     const signals = resolveNationalTeamSnapshotSignals({ name: "Mexico" });
 
     expect(signals).toEqual({
-      ratingScore: 76,
-      recentFormScore: 69,
-      attackScore: 68,
-      defenseScore: 66,
+      ratingScore: 62.5,
+      recentFormScore: 90.67,
+      attackScore: 55.26,
+      defenseScore: 72.53,
       marketScore: 50,
       lineupContextScore: 50,
     });
@@ -140,6 +154,22 @@ describe("national team strength snapshots", () => {
           snapshot.sourceLabel.length > 0 &&
           snapshot.sourceNotes.length > 0,
       ),
+    ).toBe(true);
+  });
+
+  it("does not silently fall back to default-like empty canonical signals", () => {
+    expect(
+      WORLD_CUP_2026_TEAMS.every((team) => {
+        const signals = resolveNationalTeamSnapshotSignals({ name: team.displayName });
+
+        return (
+          signals !== undefined &&
+          signals.ratingScore !== undefined &&
+          signals.recentFormScore !== undefined &&
+          signals.attackScore !== undefined &&
+          signals.defenseScore !== undefined
+        );
+      }),
     ).toBe(true);
   });
 
