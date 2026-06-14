@@ -161,6 +161,7 @@ Manual QA checklist for email/password auth:
 6. Try logging in before confirming a fresh account and verify the message explains that the email is not confirmed.
 7. Use `/auth/check-email` to resend confirmation and verify the response does not reveal account existence.
 8. Confirm Google login still returns through `/auth/callback` and reaches `/dashboard`.
+9. If Supabase returns an ambiguous signup response after sending email, confirm the user still lands on `/auth/check-email` instead of seeing a red register error.
 
 ## Admin Lab auth relationship
 

@@ -124,10 +124,11 @@ export async function registerAction(formData: FormData) {
 
   if (error) {
     redirect(
-      buildRedirect("/register", {
-        error: "No pudimos crear la cuenta. Verifica los datos o intenta mas tarde.",
-        next: nextPath,
-      }),
+      buildCheckEmailRedirect(
+        nextPath,
+        "Si los datos son validos, enviaremos una confirmacion a ese correo. Revisa tu bandeja o solicita un reenvio.",
+        input.data.email,
+      ),
     );
   }
 
