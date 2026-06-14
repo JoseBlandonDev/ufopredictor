@@ -65,6 +65,9 @@ describe("real fixture lab queries", () => {
         predictionType: "pre_match_24h",
         runScope: "internal_lab",
       },
+      latestPublicPredictionId: "public-prediction-1",
+      latestPublicPredictionCreatedAt: "2026-06-08T13:00:00Z",
+      latestPublicPredictionMarketCount: 4,
       savedEvaluation: {
         winnerCorrect: true,
         bttsCorrect: true,
@@ -92,6 +95,9 @@ describe("real fixture lab queries", () => {
         runScope: "internal_lab",
         modelVersionVersion: "v0.1",
       },
+      latestPublicPredictionId: "public-prediction-1",
+      latestPublicPredictionCreatedAt: "2026-06-08T13:00:00Z",
+      latestPublicPredictionMarketCount: 4,
       savedEvaluation: {
         winnerCorrect: true,
         bttsCorrect: true,
@@ -100,13 +106,18 @@ describe("real fixture lab queries", () => {
     });
   });
 
-  it("queries only admin_only api_football fixtures and does not perform writes", async () => {
+  it("queries admin_only and public api_football fixtures for the summary without performing writes", async () => {
     const eqCalls: Array<[string, unknown]> = [];
+    const inCalls: Array<[string, unknown[]]> = [];
     const fromCalls: string[] = [];
 
     const matchesBuilder = {
       eq(column: string, value: unknown) {
         eqCalls.push([column, value]);
+        return matchesBuilder;
+      },
+      in(column: string, values: unknown[]) {
+        inCalls.push([column, values]);
         return matchesBuilder;
       },
       maybeSingle() {
@@ -145,22 +156,17 @@ describe("real fixture lab queries", () => {
 
     createSupabaseServerClientMock.mockResolvedValue(fakeClient);
 
-    const result = await getAdminRealFixtureLabData({
-      externalId,
-    });
+    const result = await getAdminRealFixtureLabData();
 
     expect(result).toEqual({
       status: "ready",
-      selectedExternalId: externalId,
+      selectedExternalId: null,
       fixtures: [],
       warnings: [],
     });
     expect(fromCalls).toEqual(["matches"]);
-    expect(eqCalls).toEqual([
-      ["external_id", externalId],
-      ["intake_source", "api_football"],
-      ["access_scope", "admin_only"],
-    ]);
+    expect(eqCalls).toEqual([["intake_source", "api_football"]]);
+    expect(inCalls).toEqual([["access_scope", ["admin_only", "public"]]]);
   });
 
   it("keeps exact admin_only lookup restricted when public refresh mode is disabled", async () => {
@@ -473,7 +479,8 @@ describe("real fixture lab queries", () => {
           table === "teams" ||
           table === "match_results" ||
           table === "prediction_results" ||
-          table === "model_versions"
+          table === "model_versions" ||
+          table === "prediction_markets"
         ) {
           const label =
             table === "competitions"
@@ -484,7 +491,9 @@ describe("real fixture lab queries", () => {
                   ? "result"
                   : table === "prediction_results"
                     ? "evaluation"
-                    : "model";
+                    : table === "prediction_markets"
+                      ? "public markets"
+                      : "model";
           const builder = {
             eq() {
               return builder;
@@ -556,6 +565,9 @@ describe("real fixture lab queries", () => {
       competitionName: "Competicion no disponible",
       homeTeamName: "Equipo local no disponible",
       awayTeamName: "Equipo visitante no disponible",
+      latestPublicPredictionId: null,
+      latestPublicPredictionCreatedAt: null,
+      latestPublicPredictionMarketCount: 0,
       result: null,
       savedPrediction: null,
       savedEvaluation: null,
@@ -566,6 +578,7 @@ describe("real fixture lab queries", () => {
       expect.stringContaining("team read blocked"),
       expect.stringContaining("team read blocked"),
       expect.stringContaining("result read blocked"),
+      expect.stringContaining("prediction read blocked"),
       expect.stringContaining("prediction read blocked"),
     ]);
   });
@@ -713,6 +726,23 @@ describe("real fixture lab queries", () => {
           };
         }
 
+        if (table === "prediction_markets") {
+          const builder = {
+            eq() {
+              return Promise.resolve({
+                data: [{ id: "market-1" }, { id: "market-2" }],
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
         if (table === "model_versions") {
           const builder = {
             eq() {
@@ -790,6 +820,11 @@ describe("real fixture lab queries", () => {
       errorSummary: "Predicted score 1-0; actual score 2-0.",
       validatedAt: "2026-06-10T12:00:00Z",
     });
+    expect(result.fixtures[0]).toMatchObject({
+      latestPublicPredictionId: "prediction-1",
+      latestPublicPredictionCreatedAt: "2026-06-08T12:00:00Z",
+      latestPublicPredictionMarketCount: 2,
+    });
     expect(result.fixtures[0].result).toMatchObject({
       id: "result-1",
       verification_status: "verified",
@@ -827,6 +862,9 @@ describe("real fixture lab queries", () => {
         reviewed_at: null,
         reviewed_by: null,
       },
+      latestPublicPredictionId: null,
+      latestPublicPredictionCreatedAt: null,
+      latestPublicPredictionMarketCount: 0,
       savedPrediction: null,
       savedEvaluation: null,
     });
@@ -859,6 +897,9 @@ describe("real fixture lab queries", () => {
         reviewed_at: "2026-06-10T18:00:00Z",
         reviewed_by: "admin-2",
       },
+      latestPublicPredictionId: null,
+      latestPublicPredictionCreatedAt: null,
+      latestPublicPredictionMarketCount: 0,
       savedPrediction: null,
       savedEvaluation: null,
     });

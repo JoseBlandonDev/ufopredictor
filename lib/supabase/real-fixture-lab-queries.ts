@@ -86,6 +86,9 @@ export type RealFixtureLabFixtureView = {
   activeModelVersion: string | null;
   activeModelSavedPredictionId: string | null;
   hasSavedPredictionForActiveModel: boolean;
+  latestPublicPredictionId: string | null;
+  latestPublicPredictionCreatedAt: string | null;
+  latestPublicPredictionMarketCount: number;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
   savedEvaluation: RealFixtureLabSavedEvaluation | null;
@@ -124,6 +127,9 @@ export function mapRealFixtureLabFixtureView(args: {
   awayTeam: RealFixtureLabTeam | null;
   activeModelVersion: RealFixtureLabActiveModelVersion | null;
   activeModelSavedPredictionId: string | null;
+  latestPublicPredictionId: string | null;
+  latestPublicPredictionCreatedAt: string | null;
+  latestPublicPredictionMarketCount: number;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
   savedEvaluation: RealFixtureLabSavedEvaluation | null;
@@ -135,6 +141,9 @@ export function mapRealFixtureLabFixtureView(args: {
     awayTeam,
     activeModelVersion,
     activeModelSavedPredictionId,
+    latestPublicPredictionId,
+    latestPublicPredictionCreatedAt,
+    latestPublicPredictionMarketCount,
     result,
     savedPrediction,
     savedEvaluation,
@@ -160,6 +169,9 @@ export function mapRealFixtureLabFixtureView(args: {
     activeModelVersion: activeModelVersion?.version ?? null,
     activeModelSavedPredictionId,
     hasSavedPredictionForActiveModel: activeModelSavedPredictionId !== null,
+    latestPublicPredictionId,
+    latestPublicPredictionCreatedAt,
+    latestPublicPredictionMarketCount,
     result,
     savedPrediction,
     savedEvaluation,
@@ -189,8 +201,8 @@ export async function getAdminRealFixtureLabData(
     : await supabase
         .from("matches")
         .select(matchSelect)
-        .eq("access_scope", "admin_only")
         .eq("intake_source", "api_football")
+        .in("access_scope", ["admin_only", "public"])
         .order("kickoff_at");
 
   if (matchError) {
@@ -242,6 +254,7 @@ export async function getAdminRealFixtureLabData(
         { data: resultData, error: resultError },
         { data: savedPredictionData, error: savedPredictionError },
         { data: activeModelSavedPredictionData, error: activeModelSavedPredictionError },
+        { data: latestPublicPredictionData, error: latestPublicPredictionError },
       ] = await Promise.all([
         supabase.from("competitions").select("id, name").eq("id", match.competition_id).maybeSingle(),
         supabase.from("teams").select("id, name").eq("id", match.home_team_id).maybeSingle(),
@@ -272,6 +285,15 @@ export async function getAdminRealFixtureLabData(
               .limit(1)
               .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
+        supabase
+          .from("prediction_versions")
+          .select("id, created_at")
+          .eq("match_id", match.id)
+          .eq("prediction_type", REAL_FIXTURE_LAB_PREDICTION_TYPE)
+          .eq("run_scope", "public_product")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
       ]);
 
       if (competitionError) {
@@ -302,8 +324,30 @@ export async function getAdminRealFixtureLabData(
         );
       }
 
+      if (latestPublicPredictionError) {
+        warnings.push(
+          `No fue posible leer la prediccion publica mas reciente del fixture ${match.external_id}: ${latestPublicPredictionError.message}`,
+        );
+      }
+
       let savedPrediction: RealFixtureLabSavedPrediction | null = null;
       let savedEvaluation: RealFixtureLabSavedEvaluation | null = null;
+      let latestPublicPredictionMarketCount = 0;
+
+      if (latestPublicPredictionData) {
+        const { data: publicMarketRows, error: publicMarketRowsError } = await supabase
+          .from("prediction_markets")
+          .select("id")
+          .eq("prediction_version_id", latestPublicPredictionData.id);
+
+        if (publicMarketRowsError) {
+          warnings.push(
+            `No fue posible leer los mercados publicos del fixture ${match.external_id}: ${publicMarketRowsError.message}`,
+          );
+        } else {
+          latestPublicPredictionMarketCount = publicMarketRows?.length ?? 0;
+        }
+      }
 
       if (savedPredictionData) {
         const { data: modelVersionData, error: modelVersionError } = await supabase
@@ -361,6 +405,9 @@ export async function getAdminRealFixtureLabData(
         awayTeam: (awayTeamData as RealFixtureLabTeam | null) ?? null,
         activeModelVersion,
         activeModelSavedPredictionId: activeModelSavedPredictionData?.id ?? null,
+        latestPublicPredictionId: latestPublicPredictionData?.id ?? null,
+        latestPublicPredictionCreatedAt: latestPublicPredictionData?.created_at ?? null,
+        latestPublicPredictionMarketCount,
         result: (resultData as RealFixtureLabResult | null) ?? null,
         savedPrediction,
         savedEvaluation,
