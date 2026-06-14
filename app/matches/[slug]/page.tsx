@@ -63,6 +63,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   const hasLegacyPremiumMarkets =
     match.premiumProjection.status === "authorized" &&
     match.premiumProjection.payload.markets.length > 0;
+  const canShowRegisteredFreeProbableScore =
+    match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
 
   return (
     <div className="space-y-6">
@@ -146,7 +148,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                 Marcador probable
               </p>
-              {match.prediction.probableScore ? (
+              {canShowRegisteredFreeProbableScore && match.prediction.probableScore ? (
                 <>
                   <p className="mt-2 text-2xl font-semibold text-white">{match.prediction.probableScore}</p>
                   <p className="mt-2 text-sm text-[var(--muted)]">
@@ -154,14 +156,25 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                     garant&iacute;a de resultado final.
                   </p>
                 </>
-              ) : (
+              ) : canShowRegisteredFreeProbableScore ? (
                 <>
                   <p className="mt-2 text-sm text-[var(--muted)]">
                     El marcador probable no est&aacute; disponible para este partido en este momento.
                   </p>
                   <p className="mt-2 text-xs text-[var(--muted)]">
-                    La vista p&uacute;blica b&aacute;sica y el contexto de confianza/riesgo siguen
-                    disponibles.
+                    Despu&eacute;s del resultado verificado, este detalle puede mostrarse como referencia
+                    post-partido.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    El marcador probable y los escenarios avanzados est&aacute;n reservados para el
+                    detalle premium antes del partido.
+                  </p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">
+                    Despu&eacute;s del resultado verificado, este detalle puede mostrarse como referencia
+                    post-partido.
                   </p>
                 </>
               )}
