@@ -181,6 +181,34 @@ export function toMatchPredictionView(
   };
 }
 
+function hasVerifiedPublicResult(match: PublicMatchDetailRow) {
+  return (
+    match.result_verification_status === "verified" &&
+    match.verified_home_goals !== null &&
+    match.verified_away_goals !== null
+  );
+}
+
+function toVerifiedPublicResult(
+  match: PublicMatchDetailRow,
+): PublicMatchDetailView["verifiedResult"] {
+  if (!hasVerifiedPublicResult(match)) {
+    return null;
+  }
+
+  const homeGoals = match.verified_home_goals;
+  const awayGoals = match.verified_away_goals;
+  if (homeGoals === null || awayGoals === null) {
+    return null;
+  }
+
+  return {
+    homeGoals,
+    awayGoals,
+    verificationStatus: "verified" as const,
+  };
+}
+
 export async function getPublicMatchDetailData(
   slug: string,
   viewer: PublicPredictionViewer,
@@ -230,7 +258,7 @@ export async function getPublicMatchDetailData(
   const prediction = predictionData as PublicMatchPredictionRow | null;
   let probableScore: string | null = null;
 
-  if (viewer === "registered_free" && prediction) {
+  if (viewer === "registered_free" && prediction && hasVerifiedPublicResult(match)) {
     const { data: probableScoreData, error: probableScoreError } = await supabase.rpc(
       "get_authenticated_public_match_probable_score",
       {
@@ -256,10 +284,7 @@ export async function getPublicMatchDetailData(
   let premiumAccess: PublicMatchPremiumAccess;
 
   if (matchResourceBuild.status === "invalid") {
-    premiumAccess =
-      matchResourceBuild.reason === "unrecognized_world_cup_stage"
-        ? toUnavailablePremiumAccess("invalid_match_context")
-        : toUnavailablePremiumAccess("missing_match_context");
+    premiumAccess = toUnavailablePremiumAccess("missing_match_context");
   } else {
     const accessDecision = await getPremiumMatchAccessDecision(matchResourceBuild.resource);
     if (accessDecision.status === "unavailable") {
@@ -285,16 +310,7 @@ export async function getPublicMatchDetailData(
     },
   });
 
-  const verifiedResult =
-    match.result_verification_status === "verified" &&
-    match.verified_home_goals !== null &&
-    match.verified_away_goals !== null
-      ? {
-          homeGoals: match.verified_home_goals,
-          awayGoals: match.verified_away_goals,
-          verificationStatus: "verified" as const,
-        }
-      : null;
+  const verifiedResult = toVerifiedPublicResult(match);
 
   return {
     status: "ready",

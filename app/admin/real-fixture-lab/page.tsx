@@ -35,12 +35,23 @@ type FixtureSummaryStatus =
   | "waiting_result"
   | "no_saved_prediction";
 
+type FixtureOperationalState =
+  | "needs_prediction"
+  | "future_premium_missing"
+  | "future_ready"
+  | "kickoff_passed_no_result"
+  | "likely_finished_needs_result_check"
+  | "pending_result_review"
+  | "verified_missing_evaluation"
+  | "complete";
+
 type FixtureEntry = {
   fixture: RealFixtureLabFixtureView;
   predictionInput: ReturnType<typeof buildRealFixturePredictionInput>;
   preview: ReturnType<typeof generatePrediction>;
   derivedSignalWarning: string | null;
   evaluationStatus: FixtureSummaryStatus;
+  operationalState: FixtureOperationalState;
 };
 
 type SummaryFilter =
@@ -75,6 +86,7 @@ const ACTION_BUTTON_CLASS =
 const ACCENT_BUTTON_CLASS = `${ACTION_BUTTON_CLASS} border-[var(--accent)]/35 bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/20`;
 const WARNING_BUTTON_CLASS = `${ACTION_BUTTON_CLASS} border-[var(--warning)]/35 bg-[var(--warning)]/15 text-[var(--warning)] hover:bg-[var(--warning)]/20`;
 const EMERALD_BUTTON_CLASS = `${ACTION_BUTTON_CLASS} border-emerald-400/35 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15`;
+const RESULT_CHECK_GRACE_MS = 150 * 60 * 1000;
 
 function normalizeSummaryFilter(value: string | undefined): SummaryFilter {
   switch (value) {
@@ -93,142 +105,217 @@ function isWorldCupFixture(fixture: RealFixtureLabFixtureView) {
   return fixture.competitionName.toLowerCase().includes("world cup");
 }
 
-function needsPrediction(entry: FixtureEntry) {
-  return !entry.fixture.hasSavedPredictionForActiveModel;
+function parseApiFootballFixtureId(externalId: string) {
+  const match = /^api-football:fixture:(\d+)$/.exec(externalId);
+  return match ? match[1] : null;
 }
 
-function hasPendingResult(fixture: RealFixtureLabFixtureView) {
-  return (
-    fixture.status === "finished" &&
-    (fixture.result === null || fixture.result.verification_status !== "verified")
-  );
+function getFixtureOperationalState(
+  fixture: RealFixtureLabFixtureView,
+  evaluationStatus: FixtureSummaryStatus,
+  now: Date,
+): FixtureOperationalState {
+  const kickoffTime = new Date(fixture.kickoffAt).getTime();
+  const nowTime = now.getTime();
+  const hasVerifiedResult = fixture.result?.verification_status === "verified";
+
+  if (hasVerifiedResult) {
+    if (fixture.savedPrediction !== null && evaluationStatus !== "saved") {
+      return "verified_missing_evaluation";
+    }
+
+    return "complete";
+  }
+
+  if (fixture.result !== null) {
+    return "pending_result_review";
+  }
+
+  if (nowTime >= kickoffTime) {
+    if (nowTime - kickoffTime >= RESULT_CHECK_GRACE_MS) {
+      return "likely_finished_needs_result_check";
+    }
+
+    return "kickoff_passed_no_result";
+  }
+
+  if (fixture.latestPublicPredictionId === null) {
+    return "needs_prediction";
+  }
+
+  if (
+    fixture.latestPublicPredictionMarketCount <= 0 &&
+    !fixture.hasLatestPublicModelDetail
+  ) {
+    return "future_premium_missing";
+  }
+
+  return "future_ready";
 }
 
-function isVerifiedOrEvaluated(entry: FixtureEntry) {
-  return (
-    entry.fixture.result?.verification_status === "verified" || entry.fixture.savedEvaluation !== null
-  );
-}
-
-function getUpcomingFixturePriority(fixture: RealFixtureLabFixtureView) {
-  if (fixture.status === "live") return 0;
-  if (fixture.status === "scheduled") return 1;
-  return 2;
+function getUpcomingFixturePriority(entry: FixtureEntry) {
+  switch (entry.operationalState) {
+    case "needs_prediction":
+      return 0;
+    case "future_premium_missing":
+      return 1;
+    case "future_ready":
+      return 2;
+    default:
+      return 3;
+  }
 }
 
 function sortUpcomingEntries(left: FixtureEntry, right: FixtureEntry) {
-  const priorityDelta =
-    getUpcomingFixturePriority(left.fixture) - getUpcomingFixturePriority(right.fixture);
+  const priorityDelta = getUpcomingFixturePriority(left) - getUpcomingFixturePriority(right);
   if (priorityDelta !== 0) {
     return priorityDelta;
   }
 
-  if (needsPrediction(left) !== needsPrediction(right)) {
-    return needsPrediction(left) ? -1 : 1;
+  return new Date(left.fixture.kickoffAt).getTime() - new Date(right.fixture.kickoffAt).getTime();
+}
+
+function getOperationalPriority(entry: FixtureEntry) {
+  switch (entry.operationalState) {
+    case "likely_finished_needs_result_check":
+      return 0;
+    case "pending_result_review":
+      return 1;
+    case "kickoff_passed_no_result":
+      return 2;
+    case "verified_missing_evaluation":
+      return 3;
+    default:
+      return 4;
+  }
+}
+
+function sortOperationalEntries(left: FixtureEntry, right: FixtureEntry) {
+  const priorityDelta = getOperationalPriority(left) - getOperationalPriority(right);
+  if (priorityDelta !== 0) {
+    return priorityDelta;
   }
 
+  return new Date(right.fixture.kickoffAt).getTime() - new Date(left.fixture.kickoffAt).getTime();
+}
+
+function sortLegacyEntries(left: FixtureEntry, right: FixtureEntry) {
+  return new Date(right.fixture.kickoffAt).getTime() - new Date(left.fixture.kickoffAt).getTime();
+}
+
+function sortVerifiedEntries(left: FixtureEntry, right: FixtureEntry) {
+  if (left.operationalState !== right.operationalState) {
+    return left.operationalState === "verified_missing_evaluation" ? -1 : 1;
+  }
+
+  return new Date(right.fixture.kickoffAt).getTime() - new Date(left.fixture.kickoffAt).getTime();
+}
+
+function isOperationalNowState(state: FixtureOperationalState) {
   return (
-    new Date(left.fixture.kickoffAt).getTime() - new Date(right.fixture.kickoffAt).getTime()
+    state === "kickoff_passed_no_result" ||
+    state === "likely_finished_needs_result_check" ||
+    state === "pending_result_review" ||
+    state === "verified_missing_evaluation"
   );
 }
 
-function sortFinishedEntries(left: FixtureEntry, right: FixtureEntry) {
-  if (needsPrediction(left) !== needsPrediction(right)) {
-    return needsPrediction(left) ? -1 : 1;
-  }
+function isUpcomingState(state: FixtureOperationalState) {
+  return state === "needs_prediction" || state === "future_premium_missing" || state === "future_ready";
+}
 
-  return (
-    new Date(right.fixture.kickoffAt).getTime() - new Date(left.fixture.kickoffAt).getTime()
-  );
+function isVerifiedState(state: FixtureOperationalState) {
+  return state === "verified_missing_evaluation" || state === "complete";
 }
 
 export function organizeFixtureEntries(
   fixtureEntries: FixtureEntry[],
   summaryFilter: SummaryFilter,
+  now: Date = new Date(),
 ): { primarySections: SummarySection[]; legacyEntries: FixtureEntry[] } {
   const worldCupEntries = fixtureEntries.filter((entry) => isWorldCupFixture(entry.fixture));
   const legacyEntries = fixtureEntries
     .filter((entry) => !isWorldCupFixture(entry.fixture))
-    .sort(sortFinishedEntries);
+    .sort(sortLegacyEntries);
 
-  const upcomingWorldCup = worldCupEntries
-    .filter((entry) => entry.fixture.status === "scheduled" || entry.fixture.status === "live")
+  const refreshEntries = worldCupEntries.map((entry) => ({
+    ...entry,
+    evaluationStatus: getFixtureEvaluationStatus(entry),
+    operationalState: getFixtureOperationalState(entry.fixture, getFixtureEvaluationStatus(entry), now),
+  }));
+
+  const operationalWorldCup = refreshEntries
+    .filter((entry) => isOperationalNowState(entry.operationalState))
+    .sort(sortOperationalEntries);
+  const upcomingWorldCup = refreshEntries
+    .filter((entry) => isUpcomingState(entry.operationalState))
     .sort(sortUpcomingEntries);
-  const pendingWorldCup = worldCupEntries
-    .filter((entry) => hasPendingResult(entry.fixture))
-    .sort(sortFinishedEntries);
-  const verifiedWorldCup = worldCupEntries
-    .filter(
-      (entry) =>
-        entry.fixture.status === "finished" &&
-        entry.fixture.result?.verification_status === "verified" &&
-        !hasPendingResult(entry.fixture),
-    )
-    .sort(sortFinishedEntries);
+  const verifiedWorldCup = refreshEntries
+    .filter((entry) => isVerifiedState(entry.operationalState))
+    .sort(sortVerifiedEntries);
 
-  const primarySections: SummarySection[] = [
-    {
-      key: "upcoming",
-      title: "World Cup active",
-      description: "Upcoming and live World Cup fixtures stay first for current operations.",
-      entries: upcomingWorldCup,
-    },
-    {
-      key: "pending",
-      title: "Pending result verification",
-      description: "Finished World Cup fixtures that still need a verified result or follow-up.",
-      entries: pendingWorldCup,
-    },
-    {
-      key: "verified",
-      title: "Verified / evaluated recent fixtures",
-      description: "Recent finished World Cup fixtures with verified results or saved evaluation state.",
-      entries: verifiedWorldCup,
-    },
-  ];
-
-  const applyFilter = (entries: FixtureEntry[]) => {
-    switch (summaryFilter) {
-      case "world_cup_active":
-        return entries.filter((entry) => isWorldCupFixture(entry.fixture));
-      case "needs_prediction":
-        return entries.filter((entry) => needsPrediction(entry));
-      case "pending_result":
-        return entries.filter((entry) => hasPendingResult(entry.fixture));
-      case "verified_evaluated":
-        return entries.filter((entry) => isVerifiedOrEvaluated(entry));
-      case "legacy_pilot":
-        return [];
-      case "all":
-      default:
-        return entries;
-    }
+  const sectionsByFilter: Record<SummaryFilter, SummarySection[]> = {
+    all: [
+      {
+        key: "operational",
+        title: "Operational now",
+        description: "World Cup fixtures that still need result follow-up or internal completion.",
+        entries: operationalWorldCup,
+      },
+      {
+        key: "upcoming",
+        title: "Upcoming fixtures",
+        description: "Scheduled World Cup fixtures prioritized for exact pre-kickoff operations.",
+        entries: upcomingWorldCup,
+      },
+    ],
+    world_cup_active: [
+      {
+        key: "operational",
+        title: "Operational now",
+        description: "World Cup fixtures that still need result follow-up or internal completion.",
+        entries: operationalWorldCup,
+      },
+      {
+        key: "upcoming",
+        title: "Upcoming fixtures",
+        description: "Scheduled World Cup fixtures prioritized for exact pre-kickoff operations.",
+        entries: upcomingWorldCup,
+      },
+    ],
+    needs_prediction: [
+      {
+        key: "needs_prediction",
+        title: "Needs prediction",
+        description: "Fixtures without a latest public prediction row yet.",
+        entries: upcomingWorldCup.filter((entry) => entry.operationalState === "needs_prediction"),
+      },
+    ],
+    pending_result: [
+      {
+        key: "pending_result",
+        title: "Pending result follow-up",
+        description: "Fixtures past kickoff or with unverified results that still need manual result handling.",
+        entries: operationalWorldCup.filter(
+          (entry) => entry.operationalState !== "verified_missing_evaluation",
+        ),
+      },
+    ],
+    verified_evaluated: [
+      {
+        key: "verified",
+        title: "Verified / evaluated",
+        description:
+          "Verified results remain split between fixtures still missing internal evaluation and fixtures already complete.",
+        entries: verifiedWorldCup,
+      },
+    ],
+    legacy_pilot: [],
   };
 
   return {
-    primarySections: primarySections
-      .map((section) => ({
-        ...section,
-        entries: applyFilter(section.entries),
-      }))
-      .filter((section) => section.entries.length > 0),
-    legacyEntries:
-      summaryFilter === "legacy_pilot"
-        ? legacyEntries
-        : summaryFilter === "all"
-          ? legacyEntries
-          : legacyEntries.filter((entry) => {
-              switch (summaryFilter) {
-                case "needs_prediction":
-                  return needsPrediction(entry);
-                case "pending_result":
-                  return hasPendingResult(entry.fixture);
-                case "verified_evaluated":
-                  return isVerifiedOrEvaluated(entry);
-                default:
-                  return false;
-              }
-            }),
+    primarySections: sectionsByFilter[summaryFilter].filter((section) => section.entries.length > 0),
+    legacyEntries: summaryFilter === "all" || summaryFilter === "legacy_pilot" ? legacyEntries : [],
   };
 }
 
@@ -263,11 +350,11 @@ function SummaryTable(args: {
           <tr className="border-b border-white/10 text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
             <th className="px-3 py-3 font-medium">Fixture</th>
             <th className="px-3 py-3 font-medium">Kickoff</th>
-            <th className="px-3 py-3 font-medium">Status</th>
-            <th className="px-3 py-3 font-medium">Prediction</th>
+            <th className="px-3 py-3 font-medium">Match</th>
+            <th className="px-3 py-3 font-medium">Public row</th>
             <th className="px-3 py-3 font-medium">Result</th>
             <th className="px-3 py-3 font-medium">Evaluation</th>
-            <th className="px-3 py-3 font-medium">Signals</th>
+            <th className="px-3 py-3 font-medium">Ops state</th>
             <th className="w-32 px-3 py-3 font-medium whitespace-nowrap">Action</th>
           </tr>
         </thead>
@@ -279,53 +366,73 @@ function SummaryTable(args: {
                   {entry.fixture.homeTeamName} vs {entry.fixture.awayTeamName}
                 </p>
                 <p className="mt-1 font-mono text-xs text-[var(--muted)]">{entry.fixture.externalId}</p>
+                <p className="mt-1 font-mono text-xs text-[var(--muted)]">slug: {entry.fixture.slug}</p>
+                {parseApiFootballFixtureId(entry.fixture.externalId) ? (
+                  <p className="mt-1 font-mono text-xs text-[var(--muted)]">
+                    api_football_fixture_id: {parseApiFootballFixtureId(entry.fixture.externalId)}
+                  </p>
+                ) : null}
                 <p className="mt-1 text-xs text-[var(--muted)]">{entry.fixture.competitionName}</p>
               </td>
               <td className="px-3 py-3 text-[var(--muted)]">{formatKickoff(entry.fixture.kickoffAt)}</td>
               <td className="px-3 py-3">
-                <span className="rounded-md border border-white/10 px-2 py-1 text-xs text-[var(--muted)]">
-                  {entry.fixture.status}
-                </span>
+                <div className="space-y-1 text-[var(--muted)]">
+                  <p>
+                    <span className="rounded-md border border-white/10 px-2 py-1 text-xs text-[var(--muted)]">
+                      {entry.fixture.status}
+                    </span>
+                  </p>
+                  <p className="text-xs">access_scope: {entry.fixture.accessScope}</p>
+                  <p className="text-xs">{entry.fixture.stage ?? "Etapa sin registrar"}</p>
+                </div>
               </td>
               <td className="px-3 py-3 text-[var(--muted)]">
-                {entry.fixture.savedPrediction ? (
+                {entry.fixture.latestPublicPredictionId ? (
                   <div className="space-y-1">
-                    <p className="text-emerald-300">saved</p>
+                    <p className="text-emerald-300">latest public_product</p>
                     <p className="font-mono text-xs">
-                      prediction_version_id: {entry.fixture.savedPrediction.id}
+                      prediction_version_id: {entry.fixture.latestPublicPredictionId}
                     </p>
-                    <p>
-                      model_version:{" "}
-                      {entry.fixture.savedPrediction.modelVersionVersion ??
-                        entry.fixture.savedPrediction.modelVersionId}
-                    </p>
-                    <p>prediction_type: {entry.fixture.savedPrediction.predictionType}</p>
-                    <p>run_scope: {entry.fixture.savedPrediction.runScope}</p>
+                    <p>market_count: {entry.fixture.latestPublicPredictionMarketCount}</p>
+                    <p>model_detail: {entry.fixture.hasLatestPublicModelDetail ? "yes" : "no"}</p>
+                    {entry.fixture.latestPublicPredictionCreatedAt ? (
+                      <p>created_at: {formatTimestamp(entry.fixture.latestPublicPredictionCreatedAt)}</p>
+                    ) : null}
                   </div>
                 ) : (
-                  <span className="text-[var(--warning)]">not saved</span>
+                  <span className="text-[var(--warning)]">no public prediction</span>
                 )}
               </td>
               <td className="px-3 py-3 text-[var(--muted)]">
-                {entry.fixture.result ? entry.fixture.result.verification_status : "no result"}
-              </td>
-              <td className="px-3 py-3 text-[var(--muted)]">
-                {formatFixtureEvaluationStatus(entry.evaluationStatus)}
-              </td>
-              <td className="px-3 py-3 text-[var(--muted)]">
-                {entry.derivedSignalWarning ? (
+                {entry.fixture.result ? (
                   <div className="space-y-1">
-                    <p className="text-[var(--warning)]">{entry.derivedSignalWarning}</p>
-                    <p>
-                      data_completeness:{" "}
-                      {formatPercentage(entry.preview.normalizedInput.dataCompleteness * 100)}
+                    <p className="font-mono text-white">
+                      {entry.fixture.result.home_goals}-{entry.fixture.result.away_goals}
                     </p>
-                    <p>provided_home: {entry.preview.normalizedInput.homeTeam.providedSignals.length}</p>
-                    <p>provided_away: {entry.preview.normalizedInput.awayTeam.providedSignals.length}</p>
+                    <p>{entry.fixture.result.verification_status}</p>
                   </div>
                 ) : (
-                  <span>ok</span>
+                  "no result"
                 )}
+              </td>
+              <td className="px-3 py-3 text-[var(--muted)]">
+                <div className="space-y-1">
+                  <p>{formatFixtureEvaluationStatus(entry.evaluationStatus)}</p>
+                  {entry.fixture.savedPrediction ? (
+                    <p className="font-mono text-xs">internal_prediction_id: {entry.fixture.savedPrediction.id}</p>
+                  ) : null}
+                </div>
+              </td>
+              <td className="px-3 py-3 text-[var(--muted)]">
+                <div className="space-y-2">
+                  <span className={getOperationalStateClassName(entry.operationalState)}>
+                    {formatOperationalState(entry.operationalState)}
+                  </span>
+                  <p className="text-xs">{getRecommendedNextAction(entry)}</p>
+                  {entry.derivedSignalWarning ? (
+                    <p className="text-xs text-[var(--warning)]">{entry.derivedSignalWarning}</p>
+                  ) : null}
+                </div>
               </td>
               <td className="px-3 py-3 whitespace-nowrap">
                 <a
@@ -374,6 +481,61 @@ function formatKickoff(value: string) {
 
 function formatPercentage(value: number) {
   return `${value.toFixed(1)}%`;
+}
+
+function getOperationalStateClassName(state: FixtureOperationalState) {
+  switch (state) {
+    case "future_ready":
+    case "complete":
+      return "inline-flex rounded-md border border-emerald-400/35 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300";
+    case "verified_missing_evaluation":
+    case "future_premium_missing":
+      return "inline-flex rounded-md border border-[var(--accent)]/35 bg-[var(--accent)]/10 px-2 py-1 text-xs text-[var(--accent)]";
+    default:
+      return "inline-flex rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/10 px-2 py-1 text-xs text-[var(--warning)]";
+  }
+}
+
+function formatOperationalState(state: FixtureOperationalState) {
+  switch (state) {
+    case "needs_prediction":
+      return "needs prediction";
+    case "future_premium_missing":
+      return "premium markets missing";
+    case "future_ready":
+      return "future ready";
+    case "kickoff_passed_no_result":
+      return "kickoff passed, no result";
+    case "likely_finished_needs_result_check":
+      return "likely finished, check result";
+    case "pending_result_review":
+      return "pending result review";
+    case "verified_missing_evaluation":
+      return "verified result, evaluation missing";
+    case "complete":
+      return "complete";
+  }
+}
+
+function getRecommendedNextAction(entry: FixtureEntry) {
+  switch (entry.operationalState) {
+    case "needs_prediction":
+      return "Publicar o refrescar exactamente antes del kickoff.";
+    case "future_premium_missing":
+      return "Hacer exact refresh pre-kickoff para poblar prediction_markets.";
+    case "future_ready":
+      return "Monitorear hasta kickoff; no requiere accion inmediata.";
+    case "kickoff_passed_no_result":
+      return "Consultar el fixture exacto y confirmar si ya existe resultado final.";
+    case "likely_finished_needs_result_check":
+      return "Prioridad alta: cargar o verificar resultado final exacto.";
+    case "pending_result_review":
+      return "Verificar el match_result pendiente antes de evaluar.";
+    case "verified_missing_evaluation":
+      return "Persistir la evaluacion interna; sigue operativo, no cerrado.";
+    case "complete":
+      return "Sin accion operativa inmediata.";
+  }
 }
 
 function formatTimestamp(value: string) {
@@ -703,6 +865,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         includePublicExactMatch: true,
       })
     : realFixtureLabData;
+  const now = new Date();
   const fixtureEntries: FixtureEntry[] =
     realFixtureLabData.status === "ready"
       ? realFixtureLabData.fixtures.map((fixture) => {
@@ -715,15 +878,17 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             preview,
             derivedSignalWarning: getDerivedSignalWarning(preview),
             evaluationStatus: "waiting_result",
+            operationalState: "future_ready",
           };
         })
       : [];
 
   for (const entry of fixtureEntries) {
     entry.evaluationStatus = getFixtureEvaluationStatus(entry);
+    entry.operationalState = getFixtureOperationalState(entry.fixture, entry.evaluationStatus, now);
   }
 
-  const organizedFixtures = organizeFixtureEntries(fixtureEntries, summaryFilter);
+  const organizedFixtures = organizeFixtureEntries(fixtureEntries, summaryFilter, now);
 
   const selectedFixtureEntry = selectedExternalId
     ? selectedFixtureLabData.status === "ready"
@@ -734,18 +899,24 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
 
             return {
               fixture,
-              predictionInput,
-              preview,
-              derivedSignalWarning: getDerivedSignalWarning(preview),
-              evaluationStatus: getFixtureEvaluationStatus({
-                fixture,
                 predictionInput,
                 preview,
                 derivedSignalWarning: getDerivedSignalWarning(preview),
-                evaluationStatus: "waiting_result",
-              }),
-            };
+                evaluationStatus: getFixtureEvaluationStatus({
+                  fixture,
+                predictionInput,
+                  preview,
+                  derivedSignalWarning: getDerivedSignalWarning(preview),
+                  evaluationStatus: "waiting_result",
+                  operationalState: "future_ready",
+                }),
+                operationalState: "future_ready",
+              };
           })
+          .map((entry) => ({
+            ...entry,
+            operationalState: getFixtureOperationalState(entry.fixture, entry.evaluationStatus, now),
+          }))
           .find((entry) => entry.fixture.externalId === selectedExternalId) ?? null
       : null
     : null;
@@ -759,8 +930,9 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         <h1 className="mt-3 text-4xl font-semibold">Real Fixture Lab Trial</h1>
         <p className="mt-3 max-w-3xl text-[var(--muted)]">
           Superficie interna de solo lectura para fixtures reales ingeridos desde API-Football. Este flujo
-          permanece restringido a administracion, conserva el resumen piloto en <code>admin_only</code> y
-          solo habilita un refresh exacto para fixtures ya publicos cuando hace falta regenerar la
+          permanece restringido a administracion, mezcla fixtures operativos <code>public</code> y
+          referencias <code>admin_only</code> en el resumen, y solo habilita un refresh exacto para
+          fixtures ya publicos cuando hace falta regenerar la
           prediccion basica.
         </p>
       </section>
@@ -803,7 +975,7 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
             <span className="rounded-md border border-[var(--accent)]/30 bg-[var(--accent)]/10 px-2 py-1 text-[var(--accent)]">
               API-Football real fixture
             </span>
-            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">admin_only summary</span>
+            <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">public + admin summary</span>
             <span className="rounded-md border border-white/10 px-2 py-1 text-[var(--muted)]">exact public refresh</span>
           </div>
           <form action="/admin/real-fixture-lab" method="get" className="mt-4 space-y-3">
@@ -849,8 +1021,8 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
         <section className="panel rounded-lg p-5">
           <h2 className="text-lg font-semibold">Sin fixtures internos disponibles</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Aun no hay fixtures reales API-Football con alcance <code>admin_only</code> disponibles para el
-            resumen piloto. El refresh exacto de fixtures publicos sigue disponible por external id.
+            Aun no hay fixtures reales API-Football operativos disponibles para el resumen piloto. El
+            refresh exacto de fixtures publicos sigue disponible por external id.
           </p>
         </section>
       ) : (

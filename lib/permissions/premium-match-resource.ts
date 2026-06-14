@@ -20,12 +20,7 @@ export type PremiumMatchResourceBuildResult =
     }
   | {
       status: "invalid";
-      reason:
-        | "missing_match_id"
-        | "missing_competition_access_key"
-        | "missing_home_team_id"
-        | "missing_away_team_id"
-        | "unrecognized_world_cup_stage";
+      reason: "missing_match_id" | "missing_competition_access_key" | "missing_home_team_id" | "missing_away_team_id";
       message: string;
     };
 
@@ -105,13 +100,6 @@ export function buildPremiumMatchResource(
 
   if (canonicalCompetition === WORLD_CUP_2026_COMPETITION_KEY && input.stageLabel) {
     stageAccessKey = deriveWorldCupStageAccessKey(input.stageLabel);
-
-    if (stageAccessKey === null) {
-      return invalid(
-        "unrecognized_world_cup_stage",
-        "World Cup stage could not be normalized from server stageLabel.",
-      );
-    }
   }
 
   return {

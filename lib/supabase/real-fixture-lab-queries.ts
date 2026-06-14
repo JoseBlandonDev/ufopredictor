@@ -66,6 +66,36 @@ type RealFixtureLabSavedEvaluation = {
   validatedAt: string;
 };
 
+type RealFixtureLabPublicProjectionRpcRow = {
+  markets?: Array<{
+    marketKey?: string;
+    label?: string;
+    selection?: string;
+    probability?: number;
+    confidence?: number | null;
+  }> | null;
+  model_detail?: {
+    expected_goals?: {
+      home?: number | null;
+      away?: number | null;
+    } | null;
+    top_scorelines?:
+      | Array<{
+          score?: string | null;
+          probability?: number | null;
+        }>
+      | null;
+    both_teams_to_score?: {
+      yes_probability?: number | null;
+      no_probability?: number | null;
+    } | null;
+    total_goals_2_5?: {
+      over_probability?: number | null;
+      under_probability?: number | null;
+    } | null;
+  } | null;
+};
+
 export type RealFixtureLabFixtureView = {
   id: string;
   externalId: string;
@@ -86,6 +116,10 @@ export type RealFixtureLabFixtureView = {
   activeModelVersion: string | null;
   activeModelSavedPredictionId: string | null;
   hasSavedPredictionForActiveModel: boolean;
+  latestPublicPredictionId: string | null;
+  latestPublicPredictionCreatedAt: string | null;
+  latestPublicPredictionMarketCount: number;
+  hasLatestPublicModelDetail: boolean;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
   savedEvaluation: RealFixtureLabSavedEvaluation | null;
@@ -124,6 +158,10 @@ export function mapRealFixtureLabFixtureView(args: {
   awayTeam: RealFixtureLabTeam | null;
   activeModelVersion: RealFixtureLabActiveModelVersion | null;
   activeModelSavedPredictionId: string | null;
+  latestPublicPredictionId: string | null;
+  latestPublicPredictionCreatedAt: string | null;
+  latestPublicPredictionMarketCount: number;
+  hasLatestPublicModelDetail: boolean;
   result: RealFixtureLabResult | null;
   savedPrediction: RealFixtureLabSavedPrediction | null;
   savedEvaluation: RealFixtureLabSavedEvaluation | null;
@@ -135,6 +173,10 @@ export function mapRealFixtureLabFixtureView(args: {
     awayTeam,
     activeModelVersion,
     activeModelSavedPredictionId,
+    latestPublicPredictionId,
+    latestPublicPredictionCreatedAt,
+    latestPublicPredictionMarketCount,
+    hasLatestPublicModelDetail,
     result,
     savedPrediction,
     savedEvaluation,
@@ -160,10 +202,43 @@ export function mapRealFixtureLabFixtureView(args: {
     activeModelVersion: activeModelVersion?.version ?? null,
     activeModelSavedPredictionId,
     hasSavedPredictionForActiveModel: activeModelSavedPredictionId !== null,
+    latestPublicPredictionId,
+    latestPublicPredictionCreatedAt,
+    latestPublicPredictionMarketCount,
+    hasLatestPublicModelDetail,
     result,
     savedPrediction,
     savedEvaluation,
   };
+}
+
+function hasPublicModelDetail(
+  projection: RealFixtureLabPublicProjectionRpcRow | null,
+): boolean {
+  const modelDetail = projection?.model_detail;
+  if (!modelDetail) {
+    return false;
+  }
+
+  const hasExpectedGoals =
+    typeof modelDetail.expected_goals?.home === "number" &&
+    Number.isFinite(modelDetail.expected_goals.home) &&
+    typeof modelDetail.expected_goals?.away === "number" &&
+    Number.isFinite(modelDetail.expected_goals.away);
+  const hasTopScorelines =
+    Array.isArray(modelDetail.top_scorelines) && modelDetail.top_scorelines.length > 0;
+  const hasBtts =
+    typeof modelDetail.both_teams_to_score?.yes_probability === "number" &&
+    Number.isFinite(modelDetail.both_teams_to_score.yes_probability) &&
+    typeof modelDetail.both_teams_to_score?.no_probability === "number" &&
+    Number.isFinite(modelDetail.both_teams_to_score.no_probability);
+  const hasOverUnder25 =
+    typeof modelDetail.total_goals_2_5?.over_probability === "number" &&
+    Number.isFinite(modelDetail.total_goals_2_5.over_probability) &&
+    typeof modelDetail.total_goals_2_5?.under_probability === "number" &&
+    Number.isFinite(modelDetail.total_goals_2_5.under_probability);
+
+  return hasExpectedGoals && hasTopScorelines && hasBtts && hasOverUnder25;
 }
 
 export async function getAdminRealFixtureLabData(
@@ -189,8 +264,8 @@ export async function getAdminRealFixtureLabData(
     : await supabase
         .from("matches")
         .select(matchSelect)
-        .eq("access_scope", "admin_only")
         .eq("intake_source", "api_football")
+        .in("access_scope", ["admin_only", "public"])
         .order("kickoff_at");
 
   if (matchError) {
@@ -242,6 +317,7 @@ export async function getAdminRealFixtureLabData(
         { data: resultData, error: resultError },
         { data: savedPredictionData, error: savedPredictionError },
         { data: activeModelSavedPredictionData, error: activeModelSavedPredictionError },
+        { data: latestPublicPredictionData, error: latestPublicPredictionError },
       ] = await Promise.all([
         supabase.from("competitions").select("id, name").eq("id", match.competition_id).maybeSingle(),
         supabase.from("teams").select("id, name").eq("id", match.home_team_id).maybeSingle(),
@@ -272,6 +348,15 @@ export async function getAdminRealFixtureLabData(
               .limit(1)
               .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
+        supabase
+          .from("prediction_versions")
+          .select("id, created_at")
+          .eq("match_id", match.id)
+          .eq("prediction_type", REAL_FIXTURE_LAB_PREDICTION_TYPE)
+          .eq("run_scope", "public_product")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
       ]);
 
       if (competitionError) {
@@ -302,8 +387,53 @@ export async function getAdminRealFixtureLabData(
         );
       }
 
+      if (latestPublicPredictionError) {
+        warnings.push(
+          `No fue posible leer la prediccion publica mas reciente del fixture ${match.external_id}: ${latestPublicPredictionError.message}`,
+        );
+      }
+
       let savedPrediction: RealFixtureLabSavedPrediction | null = null;
       let savedEvaluation: RealFixtureLabSavedEvaluation | null = null;
+      let latestPublicPredictionMarketCount = 0;
+      let hasLatestPublicModelDetail = false;
+
+      if (latestPublicPredictionData) {
+        const { data: publicMarketRows, error: publicMarketRowsError } = await supabase
+          .from("prediction_markets")
+          .select("id")
+          .eq("prediction_version_id", latestPublicPredictionData.id);
+
+        if (publicMarketRowsError) {
+          warnings.push(
+            `No fue posible leer los mercados publicos del fixture ${match.external_id}: ${publicMarketRowsError.message}`,
+          );
+        } else {
+          latestPublicPredictionMarketCount = publicMarketRows?.length ?? 0;
+        }
+
+        if (latestPublicPredictionMarketCount === 0) {
+          const { data: publicProjectionData, error: publicProjectionError } = await supabase.rpc(
+            "get_premium_match_projection",
+            {
+              p_match_id: match.id,
+            },
+          );
+
+          if (publicProjectionError) {
+            warnings.push(
+              `No fue posible leer el detalle premium publico del fixture ${match.external_id}: ${publicProjectionError.message}`,
+            );
+          } else {
+            latestPublicPredictionMarketCount =
+              ((publicProjectionData as RealFixtureLabPublicProjectionRpcRow | null)?.markets ?? [])
+                .length;
+            hasLatestPublicModelDetail = hasPublicModelDetail(
+              (publicProjectionData as RealFixtureLabPublicProjectionRpcRow | null) ?? null,
+            );
+          }
+        }
+      }
 
       if (savedPredictionData) {
         const { data: modelVersionData, error: modelVersionError } = await supabase
@@ -361,6 +491,10 @@ export async function getAdminRealFixtureLabData(
         awayTeam: (awayTeamData as RealFixtureLabTeam | null) ?? null,
         activeModelVersion,
         activeModelSavedPredictionId: activeModelSavedPredictionData?.id ?? null,
+        latestPublicPredictionId: latestPublicPredictionData?.id ?? null,
+        latestPublicPredictionCreatedAt: latestPublicPredictionData?.created_at ?? null,
+        latestPublicPredictionMarketCount,
+        hasLatestPublicModelDetail,
         result: (resultData as RealFixtureLabResult | null) ?? null,
         savedPrediction,
         savedEvaluation,

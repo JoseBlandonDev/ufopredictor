@@ -4,12 +4,14 @@ import {
   type PremiumMatchAuthorizedPayload,
   type PremiumMatchProjection,
   type RawPremiumMarketCandidate,
+  type RawPremiumModelDetailCandidate,
   type RawPremiumNarrativeCandidate,
 } from "./premium-match-projection";
 
 export type PremiumProjectionRpcRow = {
   markets?: RawPremiumMarketCandidate[] | null;
   narratives?: RawPremiumNarrativeCandidate[] | null;
+  model_detail?: RawPremiumModelDetailCandidate | null;
 };
 
 export type PremiumProjectionAccess =
@@ -30,6 +32,7 @@ function toAuthorizedPremiumPayload(
   return buildAuthorizedPremiumPayload({
     markets: rpcRow.markets ?? [],
     narrative: preferredNarrative,
+    modelDetail: rpcRow.model_detail ?? null,
     confidenceContext: null,
   });
 }

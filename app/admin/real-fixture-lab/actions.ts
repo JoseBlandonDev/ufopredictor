@@ -81,6 +81,14 @@ type StoredEvaluationMarket = {
   probability: number;
 };
 
+type ClonablePredictionMarket = {
+  market: "match_winner" | "over_2_5" | "btts" | "exact_score";
+  selection: string;
+  probability: number;
+  confidence: number | null;
+  is_premium: boolean;
+};
+
 type RealFixtureLabProtectedMatch = {
   id: string;
   competition_id: string;
@@ -215,6 +223,55 @@ function resolveEvaluationMarkets(markets: StoredEvaluationMarket[]) {
       under: probabilities.get("over_2_5:under")!,
     },
   };
+}
+
+async function clonePredictionMarketsToPublicVersion(args: {
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  sourcePredictionVersionId: string;
+  targetPredictionVersionId: string;
+  selectOperation: string;
+  insertOperation: string;
+  onFailure: () => never;
+}) {
+  const { data: sourceMarkets, error: sourceMarketsError } = await args.supabase
+    .from("prediction_markets")
+    .select("market, selection, probability, confidence, is_premium")
+    .eq("prediction_version_id", args.sourcePredictionVersionId);
+
+  if (sourceMarketsError) {
+    logRealFixtureLabSupabaseError({
+      operation: args.selectOperation,
+      table: "prediction_markets",
+      error: sourceMarketsError,
+    });
+    args.onFailure();
+  }
+
+  const publicMarketInserts = ((sourceMarkets ?? []) as ClonablePredictionMarket[]).map((market) => ({
+    prediction_version_id: args.targetPredictionVersionId,
+    market: market.market,
+    selection: market.selection,
+    probability: market.probability,
+    confidence: market.confidence,
+    is_premium: market.is_premium,
+  }));
+
+  if (publicMarketInserts.length === 0) {
+    return;
+  }
+
+  const { error: insertPublicMarketsError } = await args.supabase
+    .from("prediction_markets")
+    .insert(publicMarketInserts);
+
+  if (insertPublicMarketsError) {
+    logRealFixtureLabSupabaseError({
+      operation: args.insertOperation,
+      table: "prediction_markets",
+      error: insertPublicMarketsError,
+    });
+    args.onFailure();
+  }
 }
 
 async function canAccessRealFixtureLabProtectedMatch(args: {
@@ -513,6 +570,15 @@ export async function refreshPublishedRealFixturePredictionAction(formData: Form
     }
     redirectWithRefreshStatus("error", externalId);
   }
+
+  await clonePredictionMarketsToPublicVersion({
+    supabase,
+    sourcePredictionVersionId: insertedInternalPrediction.id,
+    targetPredictionVersionId: insertedPublicPrediction.id,
+    selectOperation: "select_internal_prediction_markets_for_public_refresh",
+    insertOperation: "insert_public_prediction_markets_for_refresh",
+    onFailure: () => redirectWithRefreshStatus("error", externalId),
+  });
 
   revalidatePath("/admin/real-fixture-lab");
   revalidatePath("/predictions");
@@ -981,6 +1047,15 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
       }
       redirectWithPublishStatus("error");
     }
+
+    await clonePredictionMarketsToPublicVersion({
+      supabase,
+      sourcePredictionVersionId: internalPrediction.id,
+      targetPredictionVersionId: insertedPublicPrediction.id,
+      selectOperation: "select_internal_prediction_markets_for_publication",
+      insertOperation: "insert_public_prediction_markets_for_publication",
+      onFailure: () => redirectWithPublishStatus("error"),
+    });
   }
 
   const { data: updatedMatchId, error: updatedMatchError } = await supabase.rpc(

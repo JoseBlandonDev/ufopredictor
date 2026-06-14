@@ -53,6 +53,20 @@ describe("premium match resource contract", () => {
     expect(result.resource.stageAccessKey).toBe(buildWorldCupGroupAccessKey("A"));
   });
 
+  it("keeps real world cup stage labels like Group Stage - 1 valid with no stage key", () => {
+    const result = buildPremiumMatchResource({
+      matchId: "match-group-stage-1",
+      competitionAccessKey: WORLD_CUP_2026_COMPETITION_KEY,
+      homeTeamId: "team-home",
+      awayTeamId: "team-away",
+      stageLabel: "Group Stage - 1",
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") return;
+    expect(result.resource.stageAccessKey).toBeNull();
+  });
+
   it("builds canonical final stage access key", () => {
     const result = buildPremiumMatchResource({
       matchId: "match-3",
@@ -79,16 +93,32 @@ describe("premium match resource contract", () => {
     ).toMatchObject({ status: "invalid", reason: "missing_match_id" });
   });
 
-  it("returns controlled error for unrecognized world cup stage", () => {
-    expect(
-      buildPremiumMatchResource({
-        matchId: "match-4",
-        competitionAccessKey: WORLD_CUP_2026_COMPETITION_KEY,
-        homeTeamId: "team-home",
-        awayTeamId: "team-away",
-        stageLabel: "golden stage",
-      }),
-    ).toMatchObject({ status: "invalid", reason: "unrecognized_world_cup_stage" });
+  it("degrades unknown world cup stage labels to null stage access", () => {
+    const result = buildPremiumMatchResource({
+      matchId: "match-4",
+      competitionAccessKey: WORLD_CUP_2026_COMPETITION_KEY,
+      homeTeamId: "team-home",
+      awayTeamId: "team-away",
+      stageLabel: "golden stage",
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") return;
+    expect(result.resource.stageAccessKey).toBeNull();
+  });
+
+  it("keeps known knockout labels normalized", () => {
+    const result = buildPremiumMatchResource({
+      matchId: "match-quarterfinal",
+      competitionAccessKey: WORLD_CUP_2026_COMPETITION_KEY,
+      homeTeamId: "team-home",
+      awayTeamId: "team-away",
+      stageLabel: "quarter-final",
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") return;
+    expect(result.resource.stageAccessKey).toBe(buildWorldCupStageAccessKey("quarterfinal"));
   });
 
   it("is compatible with resolvePremiumMatchAccess", () => {

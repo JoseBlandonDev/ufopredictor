@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 const {
@@ -92,6 +92,10 @@ function buildFixture(overrides: Record<string, unknown> = {}) {
     activeModelVersion: "v0.2-prelaunch",
     activeModelSavedPredictionId: "prediction-1",
     hasSavedPredictionForActiveModel: true,
+    latestPublicPredictionId: "public-prediction-1",
+    latestPublicPredictionCreatedAt: "2026-06-11T10:00:00Z",
+    latestPublicPredictionMarketCount: 0,
+    hasLatestPublicModelDetail: false,
     result: {
       id: "result-1",
       home_goals: 2,
@@ -124,6 +128,7 @@ function buildEntry(overrides: Record<string, unknown> = {}) {
     preview,
     derivedSignalWarning: null,
     evaluationStatus: "waiting_result" as const,
+    operationalState: "future_ready" as const,
   };
 }
 
@@ -173,9 +178,15 @@ async function renderSummary(fixtures: Array<ReturnType<typeof buildFixture>>) {
 describe("RealFixtureLabPage control visibility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-14T12:00:00Z"));
     requireAdminMock.mockResolvedValue({ user: { id: "admin-1" } });
     buildRealFixturePredictionInputMock.mockReturnValue({ matchId: "match-1" });
     generatePredictionMock.mockReturnValue(preview);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("renders the verification control for a selected public finished fixture with pending_review result", async () => {
@@ -226,6 +237,11 @@ describe("RealFixtureLabPage control visibility", () => {
           competitionName: "World Cup 2026",
           kickoffAt: "2026-06-14T02:00:00Z",
           hasSavedPredictionForActiveModel: false,
+          latestPublicPredictionId: null,
+          latestPublicPredictionCreatedAt: null,
+          latestPublicPredictionMarketCount: 0,
+          hasLatestPublicModelDetail: false,
+          result: null,
           savedPrediction: null,
           activeModelSavedPredictionId: null,
         }),
@@ -280,19 +296,114 @@ describe("RealFixtureLabPage control visibility", () => {
         }),
       ],
       "all",
+      new Date("2026-06-13T12:00:00Z"),
     );
 
     expect(organized.primarySections.map((section) => section.title)).toEqual([
-      "World Cup active",
-      "Pending result verification",
-      "Verified / evaluated recent fixtures",
+      "Operational now",
+      "Upcoming fixtures",
     ]);
     expect(organized.primarySections[0]?.entries[0]?.fixture.externalId).toBe(
+      "api-football:fixture:wc-pending",
+    );
+    expect(organized.primarySections[1]?.entries[0]?.fixture.externalId).toBe(
       "api-football:fixture:wc-upcoming",
     );
     expect(organized.legacyEntries.map((entry) => entry.fixture.externalId)).toEqual([
       "api-football:fixture:legacy",
     ]);
+  });
+
+  it("keeps verified_missing_evaluation in All and shows complete only in Verified / evaluated", () => {
+    const verifiedMissingEvaluation = buildEntry({
+      id: "wc-verified-missing-eval",
+      externalId: "api-football:fixture:wc-verified-missing-eval",
+      competitionName: "World Cup 2026",
+      status: "finished",
+      kickoffAt: "2026-06-13T02:00:00Z",
+      result: {
+        id: "result-verified",
+        home_goals: 1,
+        away_goals: 0,
+        verification_status: "verified",
+        intake_source: "api_football",
+        source_note: null,
+        reviewed_at: "2026-06-13T05:00:00Z",
+        reviewed_by: "admin-1",
+      },
+      savedEvaluation: null,
+    });
+    const completeFixture = buildEntry({
+      id: "wc-complete",
+      externalId: "api-football:fixture:wc-complete",
+      competitionName: "World Cup 2026",
+      status: "finished",
+      kickoffAt: "2026-06-12T02:00:00Z",
+      result: {
+        id: "result-complete",
+        home_goals: 2,
+        away_goals: 1,
+        verification_status: "verified",
+        intake_source: "api_football",
+        source_note: null,
+        reviewed_at: "2026-06-12T05:00:00Z",
+        reviewed_by: "admin-1",
+      },
+      savedEvaluation: {
+        winnerCorrect: true,
+        bttsCorrect: true,
+        over25Correct: true,
+        exactScoreCorrect: false,
+        goalError: 1,
+        errorSummary: null,
+        validatedAt: "2026-06-12T06:00:00Z",
+      },
+    });
+
+    const allView = organizeFixtureEntries(
+      [verifiedMissingEvaluation, completeFixture],
+      "all",
+      new Date("2026-06-14T12:00:00Z"),
+    );
+    const verifiedView = organizeFixtureEntries(
+      [verifiedMissingEvaluation, completeFixture],
+      "verified_evaluated",
+      new Date("2026-06-14T12:00:00Z"),
+    );
+
+    expect(allView.primarySections).toHaveLength(1);
+    expect(allView.primarySections[0]?.entries.map((entry) => entry.fixture.externalId)).toEqual([
+      "api-football:fixture:wc-verified-missing-eval",
+    ]);
+    expect(verifiedView.primarySections[0]?.entries.map((entry) => entry.fixture.externalId)).toEqual([
+      "api-football:fixture:wc-verified-missing-eval",
+      "api-football:fixture:wc-complete",
+    ]);
+  });
+
+  it("treats upcoming public fixtures with model detail but zero direct market count as future_ready", () => {
+    const organized = organizeFixtureEntries(
+      [
+        buildEntry({
+          id: "wc-model-detail-ready",
+          externalId: "api-football:fixture:wc-model-detail-ready",
+          competitionName: "World Cup 2026",
+          status: "scheduled",
+          kickoffAt: "2026-06-15T02:00:00Z",
+          result: null,
+          latestPublicPredictionId: "public-prediction-1",
+          latestPublicPredictionCreatedAt: "2026-06-14T20:00:00Z",
+          latestPublicPredictionMarketCount: 0,
+          hasLatestPublicModelDetail: true,
+        }),
+      ],
+      "all",
+      new Date("2026-06-14T12:00:00Z"),
+    );
+
+    expect(organized.primarySections).toHaveLength(1);
+    expect(organized.primarySections[0]?.title).toBe("Upcoming fixtures");
+    expect(organized.primarySections[0]?.entries[0]?.operationalState).toBe("future_ready");
   });
 
   it("renders summary filters and the legacy section affordance", async () => {
@@ -316,6 +427,7 @@ describe("RealFixtureLabPage control visibility", () => {
     ]);
 
     expect(html).toContain("World Cup active");
+    expect(html).toContain("Operational now");
     expect(html).toContain("Needs prediction");
     expect(html).toContain("Legacy / pilot fixtures");
   });
