@@ -81,12 +81,22 @@ Epic G - Product Platform and Monetization Foundations is planned as parallel-sa
 
 Good Codex scopes for Epic G:
 
-- auth/account UX polish;
-- plans/pricing page MVP;
-- payment provider research/spike;
-- subscription/entitlement proposal;
-- premium gate shell;
-- trust/legal copy.
+- G01 Auth/account UX - done;
+- G02 Dev/Prod Environment Separation and Production Config Audit - documented in `docs/PRODUCTION_READINESS.md`;
+- G03 Production Smoke Test on `ufopredictor.com` - pending;
+- G04 plans/pricing page MVP;
+- G05 payment provider research/spike;
+- G06 subscription/entitlement proposal;
+- G07 premium gate shell;
+- G08 trust/legal copy.
+
+Production config baseline:
+
+- MVP web production target is Vercel with `https://ufopredictor.com`.
+- Supabase Auth handles auth; Resend is only Supabase Auth SMTP.
+- Current Vercel web runtime should need only `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL`.
+- `SUPABASE_SERVICE_ROLE_KEY` belongs to scripts/ops/admin local contexts, not the current Vercel web runtime.
+- Preview auth is not formally supported unless preview callback URLs are designed separately.
 
 Avoid touching model/data/fixture operations unless specifically scoped:
 
@@ -118,7 +128,7 @@ Use a scoped branch such as:
 git checkout -b feature/product-platform-foundations
 ```
 
-Goal: parallel account/plans/billing shell work that avoids core model/data operations.
+Goal: continue Epic G from G03 production smoke test or G04 plans/pricing while avoiding core model/data operations.
 
 ## Validation expectations
 

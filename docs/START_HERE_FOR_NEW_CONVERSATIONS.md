@@ -132,12 +132,22 @@ Purpose: let another contributor work on account, plan, billing, and product she
 
 Parallel-safe areas:
 
-- Google auth polish and account UX;
-- plans/pricing page MVP;
-- payment provider spike;
-- subscription/entitlement design proposal;
-- premium gate UI shell;
-- trust/legal/product copy.
+- G01 Auth/account UX - Done;
+- G02 dev/prod environment separation and production config audit - documented in `docs/PRODUCTION_READINESS.md`;
+- G03 production smoke test on `ufopredictor.com` - pending;
+- G04 plans/pricing page MVP;
+- G05 payment provider spike;
+- G06 subscription/entitlement design proposal;
+- G07 premium gate UI shell;
+- G08 trust/legal/product copy.
+
+Production readiness notes:
+
+- MVP web production target is Vercel + `https://ufopredictor.com`.
+- Supabase Auth is the auth system; Resend is configured only as Supabase Auth SMTP.
+- Vercel web runtime needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL`.
+- In production, `NEXT_PUBLIC_APP_URL` must be `https://ufopredictor.com`.
+- Vercel preview auth is not part of formal MVP smoke testing unless preview callback URLs are configured separately.
 
 Do not let parallel work touch prediction engine, ingest, signal packs, result verification, public prediction projections, or `prediction_results` unless explicitly scoped.
 
@@ -157,7 +167,7 @@ Parallel track:
 git checkout -b feature/product-platform-foundations
 ```
 
-Goal: account/plans/billing shell and entitlement planning, isolated from model/data operations.
+Goal: continue Epic G from G03 production smoke test or G04 plans/pricing, isolated from model/data operations.
 
 ## Hard boundaries
 

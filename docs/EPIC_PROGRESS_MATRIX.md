@@ -16,7 +16,10 @@ _Last refreshed: post PR #71 plus parallel work planning._
 | Public prediction priority UI | Done | Active/upcoming first, finished historical section. |
 | Real Fixture Lab active filters/usability | Done | Active filters, legacy collapse, pending/loading controls. |
 | Premium prediction detail MVP | Next main product epic | Top scorelines, xG, BTTS, O/U, factors. |
-| Epic G - Product platform foundations | Planned parallel track | Auth/account, plans, billing spike, entitlements, gate shell. |
+| Epic G G01 - Auth/account UX | Done | Google login, email/password registration, confirmation, callback, check-email, and account UX are complete. |
+| Epic G G02 - Production config audit | In progress / documented | Dev/prod env separation and manual config checklist live in `docs/PRODUCTION_READINESS.md`; G03 smoke test is still pending. |
+| Epic G G03 - Production smoke test | Pending | Must verify `ufopredictor.com` end to end before launch. |
+| Epic G G04-G08 - Product platform follow-up | Planned parallel track | Plans/pricing, payment spike, entitlement proposal, premium gate shell, trust/legal copy. |
 | Venue/stadium metadata | Open | Source/storage/display not finished. |
 | Signal refresh strategy | Open | Daily/semi-manual first; workers later. |
 | Lineup/injury context | Open | `lineupContextScore` still neutral. |
@@ -36,7 +39,7 @@ Primary:
 
 Parallel-safe:
 
-2. Epic G - Product Platform and Monetization Foundations.
+2. Epic G - continue from G03 production smoke test or G04 plans/pricing, depending on launch priority.
 
 Secondary:
 

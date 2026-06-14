@@ -100,8 +100,19 @@ Good candidates for another contributor:
 
 # Epic G - Product Platform, Production Readiness, and Monetization Foundations
 
-**Status:** Planned / parallelizable  
+**Status:** Active / parallelizable
 **Purpose:** Let a second contributor advance product platform, account, launch, environment, and monetization work while the main track continues with fixtures, data, signal refresh, and model operations.
+
+Current Epic G sequence:
+
+- G01 Auth/account UX - Done.
+- G02 Dev/Prod Environment Separation and Production Config Audit - In progress / documented in `docs/PRODUCTION_READINESS.md`.
+- G03 Production Smoke Test - Pending.
+- G04 Plans/Pricing MVP - Pending.
+- G05 Payment Provider Spike - Pending.
+- G06 Subscription/Entitlement Model Proposal - Pending.
+- G07 Premium Gate UI Shell - Pending.
+- G08 Trust/Legal/Responsible Use Copy - Pending.
 
 ## Boundaries for Epic G
 
@@ -131,6 +142,8 @@ Epic G may touch:
 
 ## G01 - Google Auth and Account UX Polish
 
+**Status:** Done.
+
 **Goal:** Make login/account behavior reliable and understandable before public launch.
 
 ### Tasks
@@ -156,6 +169,8 @@ Epic G may touch:
 
 ## G02 - Dev/Prod Environment Separation and Production Config Audit
 
+**Status:** In progress / documented. G02 created the configuration checklist in `docs/PRODUCTION_READINESS.md`; it did not run the G03 production smoke test.
+
 **Goal:** Separate local/dev and production behavior so launch testing does not accidentally depend on local-only assumptions.
 
 ### Tasks
@@ -179,6 +194,8 @@ Epic G may touch:
 ---
 
 ## G03 - Production Smoke Test on ufopredictor.com
+
+**Status:** Pending.
 
 **Goal:** Verify the deployed product works end-to-end on the real domain before public launch.
 
@@ -205,6 +222,8 @@ Epic G may touch:
 
 ## G04 - Plans / Pricing Page MVP
 
+**Status:** Pending.
+
 **Goal:** Prepare the public explanation of free vs premium access before real payments.
 
 ### Tasks
@@ -226,6 +245,8 @@ Epic G may touch:
 
 ## G05 - Payment Provider Spike
 
+**Status:** Pending.
+
 **Goal:** Decide how payments should work before implementing real billing.
 
 ### Tasks
@@ -245,6 +266,8 @@ Epic G may touch:
 ---
 
 ## G06 - Subscription / Entitlement Model Proposal
+
+**Status:** Pending.
 
 **Goal:** Design how premium access should be represented before billing integration.
 
@@ -267,6 +290,8 @@ Epic G may touch:
 
 ## G07 - Premium Gate UI Shell
 
+**Status:** Pending.
+
 **Goal:** Improve the placeholder premium area without implementing the full premium prediction detail yet.
 
 ### Tasks
@@ -286,6 +311,8 @@ Epic G may touch:
 ---
 
 ## G08 - Trust, Legal, and Responsible Use Copy
+
+**Status:** Pending.
 
 **Goal:** Add clear product trust language without overpromising prediction accuracy.
 

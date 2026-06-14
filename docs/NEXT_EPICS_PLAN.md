@@ -44,14 +44,16 @@ git checkout -b feature/premium-prediction-detail-mvp
 
 Let another contributor work in parallel on account, plans, billing, and product shell foundations while model/data/fixture operations continue separately.
 
-### Suggested scope
+### Suggested scope / sequence
 
-- G01 Google auth/account UX polish.
-- G02 Plans/pricing page MVP.
-- G03 Payment provider spike.
-- G04 Subscription/entitlement model proposal.
-- G05 Premium gate UI shell.
-- G06 Trust/legal/product copy.
+- G01 Auth/account UX - Done.
+- G02 Dev/Prod Environment Separation and Production Config Audit - In progress / documented in `docs/PRODUCTION_READINESS.md`.
+- G03 Production Smoke Test - Pending.
+- G04 Plans/Pricing MVP - Pending.
+- G05 Payment Provider Spike - Pending.
+- G06 Subscription/Entitlement Model Proposal - Pending.
+- G07 Premium Gate UI Shell - Pending.
+- G08 Trust/Legal/Responsible Use Copy - Pending.
 
 ### Non-goals
 

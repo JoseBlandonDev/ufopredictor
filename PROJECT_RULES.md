@@ -19,11 +19,13 @@ Este archivo define reglas obligatorias para cualquier humano o IA que trabaje e
 - UI: **React**.
 - Estilos: **Tailwind CSS**.
 - Componentes: **shadcn/ui** cuando aplique.
-- Runtime/hosting objetivo: **Railway**.
+- Runtime/hosting objetivo actual para MVP web production: **Vercel** con `ufopredictor.com`.
+- `railway.json` y referencias Railway pertenecen al prototipo/estado previo salvo que una decision futura reactive Railway.
 - Base de datos objetivo: **Supabase PostgreSQL**.
 - Auth objetivo: **Supabase Auth**.
 - Seguridad DB: **Supabase RLS**.
-- Emails: **Resend + React Email**.
+- Emails de autenticacion: **Supabase Auth via Resend SMTP** configurado en Supabase Dashboard.
+- No hay servicio propio de email en la app Next.js y la app no usa Resend SDK actualmente.
 - Validación de datos: **Zod**.
 - Repositorio: **GitHub**.
 
@@ -35,7 +37,8 @@ Este archivo define reglas obligatorias para cualquier humano o IA que trabaje e
 - No llamar APIs externas directamente desde componentes de cliente.
 - No devolver datos premium al frontend si el usuario no tiene permiso.
 - El paywall no debe ser solo visual. El backend/API debe filtrar los datos.
-- Supabase Service Role Key solo se usa en servidor/workers, nunca en cliente.
+- Supabase Service Role Key solo se usa en scripts/ops/admin aprobados, nunca en cliente.
+- No poner `SUPABASE_SERVICE_ROLE_KEY` en Vercel web runtime si la app web no lo necesita.
 
 ## 4. Reglas de arquitectura
 
@@ -95,8 +98,9 @@ En el primer prototipo:
 
 - Usar mock data.
 - No conectar Supabase real todavía.
-- No conectar Railway real todavía.
-- No conectar Resend real todavía.
+- Railway queda como referencia legacy/prototipo salvo decision futura.
+- Resend real puede usarse en produccion solo como SMTP de Supabase Auth.
+- No agregar `RESEND_API_KEY` al runtime Next/Vercel mientras la app no use Resend SDK.
 - No conectar API-Football/Sportmonks real todavía.
 - No conectar LLM real todavía.
 - No implementar pagos reales todavía.

@@ -89,12 +89,18 @@ The project needs a defined signal refresh strategy for FIFA/Elo/recent form. Cu
 
 Epic G is planned as a parallel-safe track for another contributor:
 
-- Google auth/account UX polish;
-- plans/pricing MVP;
-- payment provider spike;
-- subscription/entitlement model proposal;
-- premium gate shell;
-- trust/legal/product copy.
+- G01 Auth/account UX - done;
+- G02 Dev/Prod Environment Separation and Production Config Audit - documented in `docs/PRODUCTION_READINESS.md`;
+- G03 Production Smoke Test on `ufopredictor.com` - pending;
+- G04 plans/pricing MVP;
+- G05 payment provider spike;
+- G06 subscription/entitlement model proposal;
+- G07 premium gate shell;
+- G08 trust/legal/product copy.
+
+G02 does not mean production has been smoke-tested. It documents required
+Supabase, Google OAuth, Resend SMTP, Vercel, domain, redirect, and environment
+configuration before G03.
 
 This work should avoid model, ingest, signal pack, and result verification files.
 
