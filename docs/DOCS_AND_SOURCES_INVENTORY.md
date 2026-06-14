@@ -29,6 +29,7 @@ Core files:
 - `ARCHITECTURE_SUMMARY.md`
 - `ROADMAP_AND_BACKLOG.md`
 - `EPIC_PROGRESS_MATRIX.md`
+- `PRODUCTION_READINESS.md`
 - `OPEN_DECISIONS.md`
 - `NEXT_EPICS_PLAN.md`
 
@@ -48,6 +49,7 @@ Supporting files:
 - PR #70 public prediction priority and verified results.
 - PR #71 Real Fixture Lab active filters/usability.
 - Planned Epic G parallel product platform/monetization track.
+- Epic G G02 dev/prod environment separation and production config checklist.
 
 ## Encoding note
 

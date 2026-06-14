@@ -140,12 +140,23 @@ Purpose: advance account, plans, billing, entitlement, and product shell work wi
 
 Candidate tasks:
 
-- G01 Google auth and account UX polish.
-- G02 Plans/pricing page MVP.
-- G03 Payment provider spike.
-- G04 Subscription/entitlement data model proposal.
-- G05 Premium gate UI shell.
-- G06 Trust/legal/product copy.
+- G01 Auth/account UX - done.
+- G02 Dev/Prod Environment Separation and Production Config Audit - documented in `docs/PRODUCTION_READINESS.md`.
+- G03 Production Smoke Test on `ufopredictor.com` - pending.
+- G04 Plans/pricing page MVP.
+- G05 Payment provider spike.
+- G06 Subscription/entitlement model proposal.
+- G07 Premium gate UI shell.
+- G08 Trust/legal/responsible use copy.
+
+G02 production config baseline:
+
+- MVP web production target is Vercel + `https://ufopredictor.com`.
+- Supabase Auth is the auth system.
+- Resend is used only as Supabase Auth SMTP, not from the Next.js app.
+- Vercel web runtime requires `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL`.
+- Production `NEXT_PUBLIC_APP_URL` must be `https://ufopredictor.com`.
+- Vercel preview auth is not part of formal MVP smoke testing unless preview callback URLs are configured separately.
 
 Boundaries:
 
@@ -163,7 +174,7 @@ Boundaries:
 3. Signal refresh strategy for FIFA/Elo/recent form.
 4. Lineup/injury context.
 5. Market context without hidden odds/provider predictions.
-6. Product platform foundations for accounts/plans/billing.
+6. Product platform foundations: G02 documented, G03 smoke test pending, G04-G08 planned.
 
 ## Recommended next branches
 
