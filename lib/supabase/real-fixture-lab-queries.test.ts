@@ -68,6 +68,7 @@ describe("real fixture lab queries", () => {
       latestPublicPredictionId: "public-prediction-1",
       latestPublicPredictionCreatedAt: "2026-06-08T13:00:00Z",
       latestPublicPredictionMarketCount: 4,
+      hasLatestPublicModelDetail: true,
       savedEvaluation: {
         winnerCorrect: true,
         bttsCorrect: true,
@@ -98,6 +99,7 @@ describe("real fixture lab queries", () => {
       latestPublicPredictionId: "public-prediction-1",
       latestPublicPredictionCreatedAt: "2026-06-08T13:00:00Z",
       latestPublicPredictionMarketCount: 4,
+      hasLatestPublicModelDetail: true,
       savedEvaluation: {
         winnerCorrect: true,
         bttsCorrect: true,
@@ -568,6 +570,7 @@ describe("real fixture lab queries", () => {
       latestPublicPredictionId: null,
       latestPublicPredictionCreatedAt: null,
       latestPublicPredictionMarketCount: 0,
+      hasLatestPublicModelDetail: false,
       result: null,
       savedPrediction: null,
       savedEvaluation: null,
@@ -824,12 +827,290 @@ describe("real fixture lab queries", () => {
       latestPublicPredictionId: "prediction-1",
       latestPublicPredictionCreatedAt: "2026-06-08T12:00:00Z",
       latestPublicPredictionMarketCount: 2,
+      hasLatestPublicModelDetail: false,
     });
     expect(result.fixtures[0].result).toMatchObject({
       id: "result-1",
       verification_status: "verified",
       reviewed_at: "2026-06-10T12:30:00Z",
       reviewed_by: "admin-1",
+    });
+  });
+
+  it("falls back to the premium projection rpc model detail when direct public market reads return zero rows", async () => {
+    let teamReads = 0;
+    let predictionVersionReads = 0;
+
+    const fakeClient = {
+      from(table: string) {
+        if (table === "matches") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            in() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: {
+                  id: "match-public-1",
+                  external_id: externalId,
+                  slug: "germany-curacao",
+                  competition_id: "competition-1",
+                  home_team_id: "team-1",
+                  away_team_id: "team-2",
+                  kickoff_at: "2026-06-14T17:00:00Z",
+                  stage: "Group Stage - 1",
+                  status: "scheduled",
+                  access_scope: "public",
+                  intake_source: "api_football",
+                  source_note: "public fixture",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "competitions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: { id: "competition-1", name: "World Cup" },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "teams") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              teamReads += 1;
+              return Promise.resolve({
+                data: {
+                  id: teamReads === 1 ? "team-1" : "team-2",
+                  name: teamReads === 1 ? "Germany" : "Curacao",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "match_results") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: null,
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "prediction_versions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            order() {
+              return builder;
+            },
+            limit() {
+              return builder;
+            },
+            maybeSingle() {
+              predictionVersionReads += 1;
+              if (predictionVersionReads === 1) {
+                return Promise.resolve({
+                  data: {
+                    id: "internal-prediction-1",
+                    model_version_id: "model-1",
+                    created_at: "2026-06-13T20:00:00Z",
+                    prediction_type: "pre_match_24h",
+                    run_scope: "internal_lab",
+                  },
+                  error: null,
+                });
+              }
+
+              if (predictionVersionReads === 2) {
+                return Promise.resolve({
+                  data: {
+                    id: "active-model-internal-prediction-1",
+                  },
+                  error: null,
+                });
+              }
+
+              return Promise.resolve({
+                data: {
+                  id: "public-prediction-1",
+                  created_at: "2026-06-13T23:15:24.49231+00:00",
+                },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "prediction_markets") {
+          const builder = {
+            eq() {
+              return Promise.resolve({
+                data: [],
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "model_versions") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            order() {
+              return builder;
+            },
+            limit() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: { id: "model-1", version: "v0.2" },
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        if (table === "prediction_results") {
+          const builder = {
+            eq() {
+              return builder;
+            },
+            maybeSingle() {
+              return Promise.resolve({
+                data: null,
+                error: null,
+              });
+            },
+          };
+
+          return {
+            select() {
+              return builder;
+            },
+          };
+        }
+
+        throw new Error(`unexpected table ${table}`);
+      },
+      rpc(fn: string, args: Record<string, unknown>) {
+        expect(fn).toBe("get_premium_match_projection");
+        expect(args).toEqual({
+          p_match_id: "match-public-1",
+        });
+
+        return Promise.resolve({
+          data: {
+            markets: [],
+            model_detail: {
+              expected_goals: {
+                home: 2.1,
+                away: 0.6,
+              },
+              top_scorelines: [
+                { score: "2-0", probability: 18.2 },
+                { score: "3-0", probability: 15.1 },
+                { score: "2-1", probability: 12.3 },
+              ],
+              both_teams_to_score: {
+                yes_probability: 38.4,
+                no_probability: 61.6,
+              },
+              total_goals_2_5: {
+                over_probability: 57.2,
+                under_probability: 42.8,
+              },
+            },
+          },
+          error: null,
+        });
+      },
+    };
+
+    createSupabaseServerClientMock.mockResolvedValue(fakeClient);
+
+    const result = await getAdminRealFixtureLabData({
+      externalId,
+      includePublicExactMatch: true,
+    });
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") {
+      throw new Error("expected ready result");
+    }
+    expect(result.fixtures[0]).toMatchObject({
+      accessScope: "public",
+      latestPublicPredictionId: "public-prediction-1",
+      latestPublicPredictionCreatedAt: "2026-06-13T23:15:24.49231+00:00",
+      latestPublicPredictionMarketCount: 0,
+      hasLatestPublicModelDetail: true,
     });
   });
 
@@ -865,6 +1146,7 @@ describe("real fixture lab queries", () => {
       latestPublicPredictionId: null,
       latestPublicPredictionCreatedAt: null,
       latestPublicPredictionMarketCount: 0,
+      hasLatestPublicModelDetail: false,
       savedPrediction: null,
       savedEvaluation: null,
     });
@@ -900,6 +1182,7 @@ describe("real fixture lab queries", () => {
       latestPublicPredictionId: null,
       latestPublicPredictionCreatedAt: null,
       latestPublicPredictionMarketCount: 0,
+      hasLatestPublicModelDetail: false,
       savedPrediction: null,
       savedEvaluation: null,
     });

@@ -143,7 +143,10 @@ function getFixtureOperationalState(
     return "needs_prediction";
   }
 
-  if (fixture.latestPublicPredictionMarketCount <= 0) {
+  if (
+    fixture.latestPublicPredictionMarketCount <= 0 &&
+    !fixture.hasLatestPublicModelDetail
+  ) {
     return "future_premium_missing";
   }
 
@@ -391,6 +394,7 @@ function SummaryTable(args: {
                       prediction_version_id: {entry.fixture.latestPublicPredictionId}
                     </p>
                     <p>market_count: {entry.fixture.latestPublicPredictionMarketCount}</p>
+                    <p>model_detail: {entry.fixture.hasLatestPublicModelDetail ? "yes" : "no"}</p>
                     {entry.fixture.latestPublicPredictionCreatedAt ? (
                       <p>created_at: {formatTimestamp(entry.fixture.latestPublicPredictionCreatedAt)}</p>
                     ) : null}

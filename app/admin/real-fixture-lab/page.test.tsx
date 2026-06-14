@@ -95,6 +95,7 @@ function buildFixture(overrides: Record<string, unknown> = {}) {
     latestPublicPredictionId: "public-prediction-1",
     latestPublicPredictionCreatedAt: "2026-06-11T10:00:00Z",
     latestPublicPredictionMarketCount: 0,
+    hasLatestPublicModelDetail: false,
     result: {
       id: "result-1",
       home_goals: 2,
@@ -239,6 +240,7 @@ describe("RealFixtureLabPage control visibility", () => {
           latestPublicPredictionId: null,
           latestPublicPredictionCreatedAt: null,
           latestPublicPredictionMarketCount: 0,
+          hasLatestPublicModelDetail: false,
           result: null,
           savedPrediction: null,
           activeModelSavedPredictionId: null,
@@ -377,6 +379,31 @@ describe("RealFixtureLabPage control visibility", () => {
       "api-football:fixture:wc-verified-missing-eval",
       "api-football:fixture:wc-complete",
     ]);
+  });
+
+  it("treats upcoming public fixtures with model detail but zero direct market count as future_ready", () => {
+    const organized = organizeFixtureEntries(
+      [
+        buildEntry({
+          id: "wc-model-detail-ready",
+          externalId: "api-football:fixture:wc-model-detail-ready",
+          competitionName: "World Cup 2026",
+          status: "scheduled",
+          kickoffAt: "2026-06-15T02:00:00Z",
+          result: null,
+          latestPublicPredictionId: "public-prediction-1",
+          latestPublicPredictionCreatedAt: "2026-06-14T20:00:00Z",
+          latestPublicPredictionMarketCount: 0,
+          hasLatestPublicModelDetail: true,
+        }),
+      ],
+      "all",
+      new Date("2026-06-14T12:00:00Z"),
+    );
+
+    expect(organized.primarySections).toHaveLength(1);
+    expect(organized.primarySections[0]?.title).toBe("Upcoming fixtures");
+    expect(organized.primarySections[0]?.entries[0]?.operationalState).toBe("future_ready");
   });
 
   it("renders summary filters and the legacy section affordance", async () => {
