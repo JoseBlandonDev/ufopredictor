@@ -1,40 +1,44 @@
-# Track D API-Football Handoff - UFO Predictor
+# Track D / API-Football Handoff
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
-## Current ingest posture
+## Current operation model
 
-API-Football operations remain controlled and exact-fixture scoped.
+Use exact fixture workflow:
 
-Current safe flow:
+1. Read provider fixture with `npm run spike:api-football -- --mode fixture --fixtureId <id>`.
+2. Run exact ingest dry-run.
+3. Apply only when dry-run confirms expected finished result.
+4. Verify result in Real Fixture Lab.
+5. Persist internal evaluation if available.
+6. Verify public display.
 
-```text
-discovery -> exact dry-run -> exact apply -> admin review/save/publish -> verify result -> persist evaluation
-```
+Real Fixture Lab Ops Summary is now the main operations dashboard and shows fixture IDs, result status, evaluation status, and suggested actions.
 
-Do not run broad blind apply flows.
+## Latest verified/evaluated results
 
-## Current known operations
+| API-Football fixture | Match | Result |
+|---:|---|---:|
+| 1489374 | Germany vs Curacao | 7-1 |
+| 1489376 | Netherlands vs Japan | 2-2 |
+| 1489375 | Ivory Coast vs Ecuador | 1-0 |
+| 1539002 | Sweden vs Tunisia | 5-1 |
+| 1539001 | Australia vs Turkiye | 2-0 |
+| 1489372 | Haiti vs Scotland | 0-1 |
+| 1489371 | Brazil vs Morocco | 1-1 |
+| 1489373 | Qatar vs Switzerland | 1-1 |
 
-First four selected World Cup fixtures have verified results and refreshed public predictions.
+Older verified fixtures remain visible in public history:
 
-Upcoming selected fixtures have been ingested/published for current operations.
+- USA 4-1 Paraguay.
+- Canada 1-1 Bosnia & Herzegovina.
+- South Korea 2-1 Czechia.
+- Mexico 2-0 South Africa.
 
-## Result verification
+## Next API-Football/data task
 
-Finished results should be attached through exact fixture apply and then verified through admin flow.
+Identify upcoming fixtures and publish the next prediction batch. Result verification flow is working; the product now needs new future predictions.
 
-Public pages only show verified final results through public-safe projections.
+## Boundaries
 
-## Parallel work warning
-
-Epic G platform/monetization work should not touch API-Football ingest/apply logic.
-
-If another contributor needs fixture data for UI, use existing public-safe/query boundaries and avoid changing Track D operations.
-
-## Open Track D items
-
-- Continue exact fixture discovery/loading.
-- Define safe cadence for result checks.
-- Later: worker/cron design for controlled checks.
-- Keep rollback/manual review posture until automation is deliberately designed.
+Do not batch apply broad unknown fixtures, use provider predictions or odds, expose internal evaluation payloads, or use `prediction_results` in public pages.

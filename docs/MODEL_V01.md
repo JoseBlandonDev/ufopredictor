@@ -1,76 +1,27 @@
-# Model V01 - UFO Predictor
+# Model V0.1 / V0.2 Notes - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
-## Current model status
+## Current model/product relationship
 
-The model is no longer in the early fallback-only state.
+Premium Prediction Detail MVP exposes more of the existing model output, but does not change the model itself. Public-safe fields now available to premium/admin on match detail include expected goals, top scorelines, BTTS, Over/Under 2.5, confidence, and risk.
 
-E10C and E10D are complete:
+## Recent evaluation observations
 
-- E10C enriched the 48 canonical World Cup teams with real signals.
-- E10D recalibrated expected-goals and scoreline behavior using enriched metadata.
+| Match | Result | Observation |
+|---|---:|---|
+| Sweden vs Tunisia | 5-1 | Direction/favorite signal was useful; exact probable score was conservative. |
+| Germany vs Curacao | 7-1 | Strong favorite/goleada case for tail calibration review. |
+| Netherlands vs Japan | 2-2 | Draw result useful for draw calibration review. |
+| Ivory Coast vs Ecuador | 1-0 | Low-scoring home win. |
 
-The model still remains an MVP model. It should be described as probabilistic and experimental, not as a guarantee engine. Humans keep asking for certainty from football. The sport has spent a century saying no.
+## Interpretation policy
 
-## Current signal inputs
+- 1X2 probabilities are model readings, not promises.
+- Most likely score is a scenario, not a guaranteed prediction.
+- High confidence does not mean exact score certainty.
+- Scoreline calibration should be reviewed over a larger result sample.
 
-Available enriched national-team signals:
+## Torneo Mundialista / Human Signal
 
-- FIFA rank / points;
-- Elo rank / rating;
-- Elo average rank / rating;
-- historical goals for per match;
-- historical goals against per match;
-- recentMatchCount;
-- neutral `marketScore: 50`;
-- neutral `lineupContextScore: 50`.
-
-## E10D calibration meaning
-
-E10D improved the way enriched metadata affects expected goals and scoreline output.
-
-Goal:
-
-- reduce lazy/default `1-1` behavior for clear mismatches;
-- keep draws plausible for balanced teams;
-- keep changes bounded and explainable;
-- avoid hardcoding outcomes.
-
-Non-goals:
-
-- no use of final results as prediction input;
-- no betting odds/provider prediction input;
-- no claim of professional-grade calibration;
-- no lineup/injury completeness;
-- no market context.
-
-## Known limitations
-
-- `marketScore` is still neutral.
-- `lineupContextScore` is still neutral.
-- Venue/stadium effects are incomplete.
-- Signal freshness strategy is not formalized.
-- Calibration sample is still small.
-- Premium explanations are not implemented.
-
-## Monitoring priorities
-
-Track over more finished fixtures:
-
-- winner correctness;
-- exact score behavior;
-- draw frequency;
-- xG spread for mismatches;
-- over/under distribution;
-- confidence/risk calibration.
-
-Monitoring should remain internal unless a public-safe product view is explicitly designed.
-
-## Next model/data work
-
-1. Signal refresh strategy.
-2. Lineup/injury context.
-3. Market context strategy without hidden odds/provider predictions.
-4. Confidence/risk calibration review.
-5. Broader calibration monitoring after more fixtures.
+Torneo Mundialista human picks may be useful as product/marketing/Human Signal in the future, but they are not model inputs today. Do not introduce hidden human-pick signals into the UFO model without an approved design.

@@ -1,36 +1,25 @@
 # Project Context - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
-UFO Predictor is a probabilistic World Cup 2026 football prediction product.
+UFO Predictor is a probabilistic football prediction product focused on controlled public World Cup predictions, result verification, and transparent responsible framing.
 
-Current phase: MVP 1 controlled public fixture operations.
+## Current context
 
-## Product boundaries
+- Public predictions MVP is functional.
+- Premium Prediction Detail MVP v1 is implemented on match detail.
+- Real Fixture Lab is the operational admin dashboard.
+- Latest World Cup result batch has been verified/evaluated.
+- Next need is publishing the next batch of predictions.
 
-UFO Predictor does not:
+## Product principles
 
-- accept bets;
-- guarantee results;
-- use provider predictions/odds as hidden inputs;
-- expose internal evaluation data publicly.
+- Public pages expose public-safe model outputs only.
+- Internal Lab/evaluation payloads remain private.
+- `prediction_results` is not a public product source.
+- Provider odds/predictions are not hidden inputs.
+- Probabilities are readings, not guarantees.
 
-## Current product state
+## Related product
 
-- Public selected-fixture predictions exist.
-- Public predictions prioritize active/upcoming fixtures.
-- Finished fixtures can show verified final results.
-- Real Fixture Lab is usable for current operations.
-- Premium detail is not implemented.
-
-## Current model state
-
-- E10C signal enrichment complete.
-- E10D xG/scoreline calibration complete.
-- `marketScore` and `lineupContextScore` remain neutral.
-
-## Collaboration context
-
-ChatGPT generates project-state docs refreshes. User manually copies docs into repo. Codex verifies docs-only consistency.
-
-A parallel-safe Epic G is planned for account/plans/billing/product shell work so another contributor can help without colliding with model/data operations.
+Torneo Mundialista is a separate free friends prediction game. It is planned as a discovery surface for UFO Predictor through an export-first integration. UFO may export a complete public-safe JSON prediction package; Torneo controls reveal/display rules.

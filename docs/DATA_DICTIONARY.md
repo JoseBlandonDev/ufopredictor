@@ -1,135 +1,95 @@
 # Data Dictionary - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
-## Purpose
+## Core concepts
 
-This file summarizes project-level data concepts and public/internal boundaries. It is not a full database schema dump.
+### `public_product`
 
-## Core entities
+Prediction run scope used for public product surfaces. Public pages and premium projection should use latest public-safe `public_product` rows only.
 
-### competitions
+### `internal_lab`
 
-Represents competitions such as World Cup 2026.
+Internal/admin prediction run scope. Used for Real Fixture Lab evidence and evaluation. Must not be used as runtime fallback for public pages.
 
-Important concepts:
+### `prediction_versions`
 
-- `usage_scope = public_product` for public product competitions.
-- Public fixture flows should only expose controlled public competition data.
+Stores prediction output fields such as 1X2 probabilities, expected goals, most likely score, top scorelines JSON, confidence score, and risk level.
 
-### matches
+### `prediction_markets`
 
-Represents fixtures/matches.
+Stores market-style rows such as `btts`, `over_2_5`, `exact_score`, and `match_winner`. RLS/read paths may hide direct counts in some admin summary contexts; premium model detail readiness can still be derived from the protected RPC.
 
-Important fields/concepts:
+### `model_detail`
 
-- `external_id` such as `api-football:fixture:<id>`.
-- `intake_source = api_football` for real fixtures ingested from API-Football.
-- `access_scope` controls admin/public reach.
-- `status` can include scheduled/finished states.
-- venue metadata is incomplete and may remain null/unknown.
+Public-safe premium model detail block returned by `get_premium_match_projection`.
 
-### teams
+Conceptual normalized shape:
 
-Represents teams from provider/canonical data.
+```ts
+type PremiumModelDetail = {
+  expectedGoals: { home: number; away: number } | null
+  topScorelines: Array<{ score: string; probability: number }>
+  bothTeamsToScore: { yesProbability: number; noProbability: number } | null
+  totalGoals25: { overProbability: number; underProbability: number } | null
+  confidence: { score: number | null; riskLevel: string | null } | null
+}
+```
 
-World Cup canonical team enrichment is separate from raw provider team rows.
+### Probable score
 
-### prediction_versions
+The most likely scoreline. It is premium-sensitive before result verification. Registered-free users only fetch/see it after verified result.
 
-Stores prediction version rows.
+### Verified result
 
-Key concepts:
+Public-safe final score after admin verification. It can be displayed publicly without exposing internal evaluation details.
 
-- `run_scope = internal_lab` for internal/admin predictions.
-- `run_scope = public_product` for public-facing prediction rows.
-- `prediction_type = pre_match_24h` for the current main real fixture prediction type.
-- Refresh is append-only: new versions are inserted rather than mutating old ones.
+### Internal evaluation
 
-### prediction_markets
+Admin-only evaluation of prediction correctness after verified result. It must not be exposed in public product payloads.
 
-Stores market/probability rows associated with predictions.
+## Torneo Mundialista export payload - planned
 
-Public basic surface uses public-safe 1X2 and summary probabilities.
+Planned V0 is a JSON package exported by an admin from UFO Predictor.
 
-### match_results
+Conceptual shape:
 
-Stores match results and verification state.
+```ts
+type TorneoUfoExport = {
+  schemaVersion: "torneo-ufo-export-v1"
+  generatedAt: string
+  source: "ufo_predictor"
+  sourceAppUrl: string
+  competition: "world-cup-2026"
+  range: { from: string; to: string }
+  displayGuidance: {
+    defaultTeaser: "show_1x2_probabilities_and_link"
+    exactScoreRecommendedReveal: "after_user_pick_or_pick_deadline"
+    topScorelinesRecommendedReveal: "after_user_pick_or_pick_deadline"
+    postMatchUse: "comparison_and_learning"
+  }
+  fixtures: Array<{
+    externalId: string
+    fixtureId: number
+    slug: string
+    ufoUrl: string
+    kickoffAt: string
+    homeTeam: string
+    awayTeam: string
+    prediction: {
+      homeWinProbability: number
+      drawProbability: number
+      awayWinProbability: number
+      confidenceScore: number | null
+      riskLevel: "low" | "medium" | "high" | null
+      mostLikelyScore: string | null
+      expectedGoals: { home: number; away: number } | null
+      topScorelines: Array<{ score: string; probability: number }>
+      bothTeamsToScore: { yesProbability: number; noProbability: number } | null
+      totalGoals25: { overProbability: number; underProbability: number } | null
+    }
+  }>
+}
+```
 
-Current public projection only exposes verified final result fields.
-
-Public-safe verified fields include:
-
-- verified home goals;
-- verified away goals;
-- verification status when verified.
-
-Unverified/pending results should not be treated as final public truth.
-
-### prediction_results
-
-Internal evaluation results only.
-
-Do not expose publicly.
-
-Examples of internal evaluation fields that must remain private:
-
-- exact score correctness;
-- winner correctness;
-- goal error;
-- evaluation payloads;
-- internal audit data.
-
-## Public views / projections
-
-### public_prediction_summaries
-
-Public-safe summary for public prediction cards/list.
-
-After PR #70 / migration `0034_public_verified_match_results_projection.sql`, it can include verified final result fields appended to the existing projection.
-
-Must not expose `prediction_results`.
-
-### public_match_details
-
-Public-safe detail projection for selected public matches.
-
-After PR #70 / migration `0034_public_verified_match_results_projection.sql`, it can include verified final result fields.
-
-Must not expose internal Lab/evaluation data.
-
-## Model signal concepts
-
-E10C generated runtime-safe signal metadata for 48 canonical World Cup teams:
-
-- FIFA rank / points;
-- Elo rank / rating;
-- Elo average rank / rating;
-- historical goals for per match;
-- historical goals against per match;
-- recentMatchCount;
-- neutral `marketScore: 50`;
-- neutral `lineupContextScore: 50`.
-
-Raw source files and `codex-inputs/` are not runtime dependencies and must not be committed unless explicitly scoped.
-
-## Product platform data concepts planned for Epic G
-
-Epic G may propose but should not blindly apply real schema changes for:
-
-- profiles/account state;
-- plans;
-- subscriptions;
-- entitlements;
-- billing events;
-- payment provider customer IDs;
-- premium access state.
-
-Any payment/subscription schema should be reviewed before migrations are applied.
-
-## Boundary reminders
-
-- Public views expose safe product data only.
-- Internal Lab and evaluation data stay internal.
-- Supabase migrations are applied manually through SQL Editor.
-- Do not use betting odds or provider predictions as hidden model inputs.
+This payload must not include `prediction_results`, raw evaluation internals, raw Lab payloads, service-role-only data, odds, or provider predictions.

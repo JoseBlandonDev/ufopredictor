@@ -1,180 +1,74 @@
 # Start Here for New Conversations - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
-
-## Read this first
-
-UFO Predictor is a probabilistic football prediction product focused on World Cup 2026 real fixtures. The current project state is MVP 1 controlled public fixture operations, not the old MVP 0 fallback-only Lab.
-
-Use this file to quickly understand where the project is, what is safe to touch, and what should happen next. Do not assume older docs or old conversation context are current unless they agree with this source set.
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
 ## Current baseline
 
-Recent merged work:
+The project is on `main` after PR #77 (`codex/premium-prediction-detail-mvp`) was merged and local `main` was pulled clean. The product/data/model track is now past the first Premium Prediction Detail MVP and the Real Fixture Lab operational summary.
 
-| PR | Status | Meaning |
-|---:|---|---|
-| #66 | merged | E10C real national-team signal enrichment for 48 canonical World Cup teams. |
-| #67 | merged | Docs rebaseline after E10C. |
-| #68 | merged | E10D expected-goals / scoreline calibration. |
-| #69 | merged | Exact prelaunch refresh for already-public finished fixtures. |
-| #70 | merged | Public predictions priority plus public verified final results. |
-| #71 | merged | Real Fixture Lab active filters, legacy collapse, and admin action UX. |
+Current repo expectation for a new task:
 
-The repo should normally start from updated `main` before any new feature branch:
-
-```powershell
+```bash
 git checkout main
 git pull origin main
 git status --short
 ```
 
-## Model state
+Expected status: clean.
 
-E10C is complete. The 48 canonical World Cup teams have runtime-safe enriched signals:
+## What is now done
 
-- FIFA rank / points;
-- Elo rank / rating;
-- Elo average rank / rating;
-- historical goals for per match;
-- historical goals against per match;
-- recentMatchCount;
-- neutral `marketScore: 50`;
-- neutral `lineupContextScore: 50`.
+### Premium Prediction Detail MVP v1
 
-E10D is complete. Expected goals and scoreline behavior now use the enriched context more meaningfully. The old blind `1-1` attractor has been reduced for clear mismatches, while balanced fixtures can still naturally produce low-score draws.
+Implemented on match detail only (`/matches/[slug]`). It reuses the existing premium gate and the protected RPC `public.get_premium_match_projection(p_match_id uuid)` from migration `0035_premium_match_model_detail_projection.sql`.
 
-Do not claim the model is final or professionally calibrated. It is a better MVP baseline, not prophecy with a UI.
+Authorized premium/admin viewers can see public-safe model detail: expected goals, top 3 probable scorelines, BTTS, Over/Under 2.5, and confidence/risk context when safely projected.
 
-## Public product state
+This does not expose `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, odds/provider predictions, or service-role app routes.
 
-Current public behavior:
+### Free-tier probable score gating
 
-- `/predictions` shows selected public World Cup predictions.
-- Active/upcoming fixtures are prioritized.
-- Finished fixtures move to a recent results / history section.
-- Public cards and match detail pages can show verified final result fields.
-- Public pages remain public-safe.
+Registered-free users no longer see or fetch the probable score before a result is verified. The probable-score RPC only runs for registered-free viewers when a public prediction exists and the final result is verified. Anonymous users never see probable score in the public/basic section. Premium/admin access remains through the premium projection path.
 
-Public pages must not expose:
+### Real Fixture Lab Ops Summary
 
-- `prediction_results`;
-- internal evaluation payloads;
-- Lab/admin payloads;
-- service-role data;
-- provider predictions;
-- betting odds as hidden model input.
+Real Fixture Lab now acts as the operational dashboard for World Cup fixture work. It shows external IDs, API-Football fixture IDs, latest public prediction row, result status, evaluation status, ops state and suggested action. It uses `model_detail: yes` as a readiness signal when direct `prediction_markets` count is hidden by RLS/read-path behavior.
 
-## Admin / operations state
+### Latest verified/evaluated result batch
 
-Real Fixture Lab now prioritizes current World Cup operations:
+Recent completed and verified/evaluated fixtures now include:
 
-- active World Cup fixtures first;
-- finished fixtures needing result verification/evaluation surfaced;
-- legacy/pilot fixtures secondary/collapsed;
-- lightweight operational filters;
-- pointer/disabled UX on controls;
-- pending/loading labels on submit actions.
+| Match | Result |
+|---|---:|
+| Germany vs Curacao | 7-1 |
+| Netherlands vs Japan | 2-2 |
+| Ivory Coast vs Ecuador | 1-0 |
+| Sweden vs Tunisia | 5-1 |
+| Australia vs Turkiye | 2-0 |
+| Haiti vs Scotland | 0-1 |
+| Brazil vs Morocco | 1-1 |
+| Qatar vs Switzerland | 1-1 |
+| USA vs Paraguay | 4-1 |
+| Canada vs Bosnia & Herzegovina | 1-1 |
+| South Korea vs Czechia | 2-1 |
+| Mexico vs South Africa | 2-0 |
 
-Exact fixture lookup behavior remains unchanged.
+If no new fixtures have been published since this batch, `/predictions` may show only historical results and no active/upcoming fixtures.
 
-## Current fixture operations state
+## Immediate next work
 
-First four selected fixtures:
+1. **Load/publish the next World Cup prediction batch.** Identify upcoming fixtures, publish latest `public_product` rows, confirm premium `model_detail`, and verify `/predictions` + `/matches/[slug]`.
+2. **TM01 - Torneo Mundialista export discovery.** Plan an admin-only JSON export from UFO Predictor/Real Fixture Lab for a date range. Torneo Mundialista decides what fields to display and when.
+3. Continue regular fixture result operations from Real Fixture Lab.
 
-| Fixture | Result | Current state |
-|---|---:|---|
-| Mexico vs South Africa | 2-0 | verified result, public prediction refreshed. |
-| South Korea vs Czechia | 2-1 | verified result, public prediction refreshed. |
-| Canada vs Bosnia & Herzegovina | 1-1 | verified result, public prediction refreshed. |
-| USA vs Paraguay | 4-1 | verified/evaluated result, public prediction refreshed. |
+## Epic G parallel track
 
-Published upcoming fixtures:
+Done: G01 auth foundation and G02 production config/readiness audit.
 
-- Qatar vs Switzerland
-- Brazil vs Morocco
-- Haiti vs Scotland
-- Australia vs Turkiye
-- Germany vs Curacao
-- Netherlands vs Japan
-- Ivory Coast vs Ecuador
-- Sweden vs Tunisia
+Pending: G03 production smoke test, G04 plans/pricing MVP, G05 payment provider spike, G06 subscription/entitlement model proposal, G07 premium gate UI shell/CTA, G08 trust/legal/responsible-use copy.
 
-Controlled operational flow remains:
-
-```text
-fixture discovery -> exact dry-run -> exact apply -> save internal prediction -> publish public prediction -> verify result -> persist internal evaluation
-```
-
-Avoid broad batch writes unless explicitly scoped and reviewed.
-
-## Documentation refresh workflow
-
-This project uses a split responsibility for documentation refreshes:
-
-1. ChatGPT prepares refreshed Markdown project-source docs because it holds the cross-conversation project context.
-2. The user manually copies the generated Markdown files into `docs/`.
-3. Codex verifies the copied docs with a docs-only audit.
-4. Codex checks branch/status, docs-only diff, internal consistency, and accidental code/migration/test changes.
-5. The user commits the docs refresh after verification.
-
-Codex should not be the default author of project-state refresh docs. Codex can verify, audit, and propose corrections after manual copy.
-
-Docs refreshes should happen after meaningful project-state transitions, not after every microchange.
-
-## Parallel work planning
-
-A new parallel-safe track has been defined:
-
-**Epic G - Product Platform and Monetization Foundations**
-
-Purpose: let another contributor work on account, plan, billing, and product shell tasks while the main model/data/operator work continues separately.
-
-Parallel-safe areas:
-
-- G01 Auth/account UX - Done;
-- G02 dev/prod environment separation and production config audit - documented in `docs/PRODUCTION_READINESS.md`;
-- G03 production smoke test on `ufopredictor.com` - pending;
-- G04 plans/pricing page MVP;
-- G05 payment provider spike;
-- G06 subscription/entitlement design proposal;
-- G07 premium gate UI shell;
-- G08 trust/legal/product copy.
-
-Production readiness notes:
-
-- MVP web production target is Vercel + `https://ufopredictor.com`.
-- Supabase Auth is the auth system; Resend is configured only as Supabase Auth SMTP.
-- Vercel web runtime needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_APP_URL`.
-- In production, `NEXT_PUBLIC_APP_URL` must be `https://ufopredictor.com`.
-- Vercel preview auth is not part of formal MVP smoke testing unless preview callback URLs are configured separately.
-
-Do not let parallel work touch prediction engine, ingest, signal packs, result verification, public prediction projections, or `prediction_results` unless explicitly scoped.
-
-## Recommended next main work
-
-Primary product track:
-
-```powershell
-git checkout -b feature/premium-prediction-detail-mvp
-```
-
-Goal: top 3 scorelines, expected goals, BTTS, Over/Under 2.5, key factors, and public-safe explanation for paid/authenticated contexts.
-
-Parallel track:
-
-```powershell
-git checkout -b feature/product-platform-foundations
-```
-
-Goal: continue Epic G from G03 production smoke test or G04 plans/pricing, isolated from model/data operations.
+Do not mix Epic G payments/checkout work into product/data/model tasks unless explicitly approved.
 
 ## Hard boundaries
 
-- `prediction_results` remains internal.
-- No betting odds or provider predictions as hidden inputs.
-- Do not commit `codex-inputs/`.
-- Supabase migrations are applied manually through SQL Editor.
-- Keep API-Football operations exact-fixture scoped unless a task explicitly authorizes otherwise.
-- Do not refresh or recalibrate to fit final scores.
-- Do not use public UI to expose internal Lab/evaluation state.
+Do not expose `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions as model inputs, or service-role usage in app routes. Do not change API-Football ingest/apply, signal packs, or prediction engine unless explicitly scoped.
