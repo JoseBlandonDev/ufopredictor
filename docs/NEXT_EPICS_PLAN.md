@@ -1,128 +1,45 @@
 # Next Epics Plan - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
-## Current position
+## Immediate priority
 
-MVP 1 basic public fixture operations are functional. The public prediction list is readable, verified final results can be shown, and the admin Lab is usable for ongoing fixture operations.
+### Data Ops 01 - Load/publish next World Cup prediction batch
 
-The next work should avoid reopening closed foundations unless a bug appears.
+Reason: the latest visible batch has been completed, verified, and evaluated. `/predictions` may currently show only historical results until more future fixtures are published.
 
-## Recommended next main epic: Premium Prediction Detail MVP
+Scope: identify next fixtures, generate/refine predictions, publish public rows, ensure premium `model_detail` readiness, verify public list/detail pages, and maintain current safety boundaries.
 
-### Goal
+## Product/discovery priority
 
-Give paid/authenticated users more value than the public basic prediction while preserving internal/public boundaries.
+### TM01 - Admin JSON Export for Torneo Mundialista
 
-### Suggested scope
+Goal: use Torneo Mundialista as a discovery surface for UFO Predictor.
 
-- Top 3 probable scorelines with probabilities.
-- Expected goals for both teams.
-- BTTS probability.
-- Over/Under 2.5 probability.
-- Key model factors.
-- Confidence/risk explanation.
-- Clear "probability, not certainty" copy.
+Recommended V0: admin-only export from Real Fixture Lab, complete public-safe prediction package, JSON first, Torneo controls display/reveal, no endpoint-first integration.
 
-### Non-goals
+## Premium/Product next
 
-- Do not expose `prediction_results`.
-- Do not expose raw Lab/admin payloads.
-- Do not use odds/provider predictions.
-- Do not add signal refresh automation.
-- Do not add venue metadata unless separately scoped.
+### Premium v2 - Post-match demo policy
 
-### Branch
+Decide whether registered-free users should see full premium model detail after verified result. This can demonstrate premium value without giving pre-match edge.
 
-```powershell
-git checkout -b feature/premium-prediction-detail-mvp
-```
+## Data/Model next
 
-## Recommended parallel epic: Epic G - Product Platform and Monetization Foundations
+### Scoreline calibration review
 
-### Goal
+Recent fixtures show useful calibration cases: Sweden 5-1 Tunisia, Germany 7-1 Curacao, Netherlands 2-2 Japan. Review scoreline/extreme-goal calibration after more results accumulate.
 
-Let another contributor work in parallel on account, plans, billing, and product shell foundations while model/data/fixture operations continue separately.
+### Signal refresh strategy
 
-### Suggested scope / sequence
+Define refresh cadence and operational boundaries.
 
-- G01 Auth/account UX - Done.
-- G02 Dev/Prod Environment Separation and Production Config Audit - In progress / documented in `docs/PRODUCTION_READINESS.md`.
-- G03 Production Smoke Test - Pending.
-- G04 Plans/Pricing MVP - Pending.
-- G05 Payment Provider Spike - Pending.
-- G06 Subscription/Entitlement Model Proposal - Pending.
-- G07 Premium Gate UI Shell - Pending.
-- G08 Trust/Legal/Responsible Use Copy - Pending.
+### Venue/stadium metadata
 
-### Non-goals
+Add trusted venue/stadium display when provider support is reviewed.
 
-- Do not touch prediction engine.
-- Do not touch API-Football ingest/apply.
-- Do not touch signal packs.
-- Do not expose `prediction_results`.
-- Do not change public prediction projections unless explicitly scoped.
-- Do not implement real payments before provider decision.
+## Epic G parallel plan
 
-### Branch
+G03 production smoke test, G04 plans/pricing, G05 payment provider spike, G06 entitlement model, G07 premium gate shell/CTA, G08 trust/legal copy.
 
-```powershell
-git checkout -b feature/product-platform-foundations
-```
-
-## Recommended next epic 2: Venue/Stadium Metadata
-
-### Goal
-
-Replace "Sede por confirmar" with reliable stadium/city data where possible.
-
-### Required decisions
-
-- Use API-Football venue data, manual World Cup venue map, or both?
-- Store venue IDs/names/cities in existing tables or new controlled mapping?
-- How to handle provider uncertainty?
-
-### Branch
-
-```powershell
-git checkout -b feature/world-cup-venue-metadata
-```
-
-## Recommended next epic 3: Signal Refresh Strategy
-
-### Goal
-
-Keep FIFA/Elo/recent-form signal data reasonably fresh during the tournament without per-match manual chaos.
-
-### First version
-
-- Manual or semi-manual daily refresh.
-- Rebuild signal pack.
-- Review diff.
-- Commit safe generated artifacts.
-- Avoid per-match panic updates.
-
-### Later version
-
-- Worker/cron.
-- Audit trail.
-- Admin freshness indicator.
-- Controlled source snapshots.
-
-### Branch
-
-```powershell
-git checkout -b feature/national-team-signal-refresh-workflow
-```
-
-## Recommended ongoing operations
-
-Continue exact fixture operations:
-
-1. Discover fixture IDs.
-2. Exact dry-run.
-3. Exact apply after approval.
-4. Save internal prediction.
-5. Publish public prediction.
-6. Verify final results.
-7. Persist internal evaluation.
+Keep Epic G separate from product/data/model tasks unless explicitly coordinated.

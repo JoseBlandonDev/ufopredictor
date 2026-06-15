@@ -1,129 +1,57 @@
 # Current Project Status - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
 ## Executive status
 
-UFO Predictor has moved from MVP 0/Lab validation into MVP 1 controlled public World Cup fixture operations.
+The project has moved past public prediction MVP and now has a working Premium Prediction Detail MVP on match detail pages. Real Fixture Lab is the active admin operations surface for fixture/result workflows. The latest World Cup fixture batch has been verified and evaluated, so the next product/data need is loading a new batch of upcoming predictions.
 
-The project now supports selected real World Cup fixtures from ingestion to public prediction, result verification, and public-safe final result display.
+## Current product capabilities
 
-## What is completed
+- Public predictions list with 1X2 probabilities and verified result blocks.
+- Public match detail with 1X2 probabilities and responsible risk/confidence framing.
+- Premium match detail with public-safe model detail for authorized viewers.
+- Registered-free probable score gated until verified result.
+- Real Fixture Lab operations dashboard with fixture IDs, public row status, result status, evaluation status, and ops state.
+- Controlled result verification and internal evaluation persistence.
 
-### Model and signals
+## Recent completed work
 
-- E10C complete: real national-team strength signal enrichment for the 48 canonical World Cup teams.
-- E10D complete: expected-goals/scoreline calibration improved using E10C metadata.
-- The model no longer relies on the early fallback-only state that overproduced `1-1` for many fixtures.
+- PR #77 merged: Premium Prediction Detail MVP + Real Fixture Lab Ops Summary.
+- Migration `0035_premium_match_model_detail_projection.sql` added and manually applied.
+- Match detail public timestamp removed.
+- Probable score protected from registered-free pre-match/live/unverified views.
+- Latest result batch verified/evaluated.
 
-### Public product
+## Recent results
 
-- Public predictions page exists and is usable.
-- Active/upcoming fixtures are prioritized.
-- Finished fixtures are shown in a secondary recent results/history section.
-- Verified final results can be shown on public cards and match detail pages.
-- Public pages remain public-safe and do not expose internal evaluation tables.
+| Match | Result |
+|---|---:|
+| Germany vs Curacao | 7-1 |
+| Netherlands vs Japan | 2-2 |
+| Ivory Coast vs Ecuador | 1-0 |
+| Sweden vs Tunisia | 5-1 |
+| Australia vs Turkiye | 2-0 |
+| Haiti vs Scotland | 0-1 |
+| Brazil vs Morocco | 1-1 |
+| Qatar vs Switzerland | 1-1 |
+| USA vs Paraguay | 4-1 |
+| Canada vs Bosnia & Herzegovina | 1-1 |
+| South Korea vs Czechia | 2-1 |
+| Mexico vs South Africa | 2-0 |
 
-### Admin / operations
+## Immediate gaps
 
-- Real Fixture Lab can operate exact API-Football fixtures.
-- Finished public fixtures can be refreshed during prelaunch through an exact admin-only path.
-- Real Fixture Lab prioritizes operational World Cup fixtures and collapses legacy/pilot fixtures.
-- Lab buttons provide pointer/pending/loading feedback.
+1. No next upcoming batch may be visible on `/predictions` until new fixtures are published.
+2. Torneo Mundialista integration is planned, not implemented.
+3. Venue/stadium metadata remains pending.
+4. Signal refresh cadence remains open.
+5. Premium v2/post-match demo policy remains open.
+6. Payments/plans/entitlements remain Epic G future work.
 
-### Supabase/manual migrations
+## Recommended next actions
 
-Applied manually via SQL Editor:
-
-- `0033_real_fixture_lab_finished_public_refresh_prediction_policies.sql`
-- `0034_public_verified_match_results_projection.sql`
-
-## Current fixture state
-
-### Completed first four fixtures
-
-| Fixture | Result | Public state |
-|---|---:|---|
-| Mexico vs South Africa | 2-0 | verified result, refreshed public prediction |
-| South Korea vs Czechia | 2-1 | verified result, refreshed public prediction |
-| Canada vs Bosnia & Herzegovina | 1-1 | verified result, refreshed public prediction |
-| USA vs Paraguay | 4-1 | verified/evaluated result, refreshed public prediction |
-
-### Published upcoming fixtures
-
-- Qatar vs Switzerland
-- Brazil vs Morocco
-- Haiti vs Scotland
-- Australia vs Turkiye
-- Germany vs Curacao
-- Netherlands vs Japan
-- Ivory Coast vs Ecuador
-- Sweden vs Tunisia
-
-## What remains incomplete
-
-### Premium
-
-Premium projection content is not implemented yet. The intended MVP premium detail should expose public-safe richer model outputs, likely:
-
-- top 3 probable scorelines with percentages;
-- expected goals;
-- BTTS;
-- Over/Under 2.5;
-- main model factors;
-- confidence/risk explanation.
-
-### Venues
-
-Venue/stadium/city metadata is still incomplete. Public pages may still show "Sede por confirmar".
-
-### Signal refresh
-
-The project needs a defined signal refresh strategy for FIFA/Elo/recent form. Current likely path:
-
-- daily or semi-manual refresh during World Cup;
-- no update after every single match unless deliberately scoped;
-- later worker/cron automation.
-
-### Product platform / monetization
-
-Epic G is planned as a parallel-safe track for another contributor:
-
-- G01 Auth/account UX - done;
-- G02 Dev/Prod Environment Separation and Production Config Audit - documented in `docs/PRODUCTION_READINESS.md`;
-- G03 Production Smoke Test on `ufopredictor.com` - pending;
-- G04 plans/pricing MVP;
-- G05 payment provider spike;
-- G06 subscription/entitlement model proposal;
-- G07 premium gate shell;
-- G08 trust/legal/product copy.
-
-G02 does not mean production has been smoke-tested. It documents required
-Supabase, Google OAuth, Resend SMTP, Vercel, domain, redirect, and environment
-configuration before G03.
-
-This work should avoid model, ingest, signal pack, and result verification files.
-
-### Lineups and market context
-
-- `lineupContextScore` remains neutral placeholder.
-- `marketScore` remains neutral placeholder.
-- Do not use odds/provider predictions as hidden input.
-
-## Current risk areas
-
-- Overfitting future calibration to a tiny sample of finished fixtures.
-- Treating refreshed prelaunch predictions as original pre-match history without internal context.
-- Broad API-Football writes instead of exact fixture operations.
-- Publicly exposing internal evaluation state.
-- Letting manual signal refresh become an operational bottleneck.
-- Parallel contributors touching model/data files and creating conflicts.
-
-## Recommended next work
-
-1. Premium prediction detail MVP.
-2. Product platform / monetization foundations as parallel work.
-3. Venue/stadium metadata.
-4. Signal refresh strategy.
-5. Continue controlled fixture operations.
-6. Later: docs/source rebaseline after the next major block.
+1. Load/publish next World Cup prediction batch.
+2. Plan TM01 admin JSON export for Torneo Mundialista.
+3. Continue result verification/evaluation operations from Real Fixture Lab.
+4. Keep Epic G parallel and scoped.

@@ -1,92 +1,27 @@
 # Codex Workflow - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last reviewed in this refresh: post PR #77. Workflow remains the same._
 
-## Default workflow
+## Standard task flow
 
 1. Start from updated `main`.
-2. Confirm branch and status.
-3. Create a scoped branch.
-4. Inspect before implementing.
-5. Keep scope narrow.
-6. Run targeted tests plus lint/build where practical.
-7. Report changed files and boundaries.
-
-Baseline commands:
-
-```powershell
-git checkout main
-git pull origin main
-git status --short
-git checkout -b feature/<scope>
-```
+2. Confirm clean worktree.
+3. Create a focused branch.
+4. Keep scope narrow.
+5. Run targeted tests, lint, build when code changes.
+6. For docs-only refreshes, verify docs-only diff and stale contradictions.
+7. Do not push/PR for every micro-step; push when a coherent slice is complete.
 
 ## Documentation refresh workflow
 
-Project-state documentation refreshes are owned by ChatGPT, not Codex by default.
+When ChatGPT generates updated docs:
 
-Reason: ChatGPT holds the cross-conversation context that is broader than the repo snapshot. Codex can inspect the repo, but it should not invent project-state docs from scratch unless explicitly asked.
+1. User copies files into `docs/`.
+2. Codex verifies docs-only scope.
+3. Codex checks stale contradictions and scope claims.
+4. User commits docs refresh.
+5. User updates ChatGPT project sources.
 
-Correct docs refresh flow:
+## Hard boundaries
 
-1. ChatGPT generates refreshed Markdown docs.
-2. User manually copies the files into `docs/`.
-3. Codex runs a docs-only verification.
-4. Codex reports:
-   - branch/status;
-   - changed files;
-   - docs-only confirmation;
-   - accidental non-doc changes;
-   - consistency issues;
-   - mojibake/encoding issues;
-   - recommended commit message.
-5. User commits docs refresh.
-
-Docs refreshes should happen after meaningful state changes, not every microcommit.
-
-## Manual Supabase migrations
-
-Supabase migrations are applied manually by the user in SQL Editor. Codex may generate or inspect migrations when asked, but must not assume they have been applied until the user confirms.
-
-## Parallel work rules
-
-Parallel work is allowed when it is intentionally isolated from active model/data operations.
-
-Epic G parallel-safe areas:
-
-- account/auth UX;
-- plans/pricing;
-- payment provider spike;
-- entitlement design;
-- premium gate shell;
-- trust/legal copy.
-
-Parallel work should avoid:
-
-- prediction engine;
-- API-Football ingest/apply;
-- generated signal packs;
-- fixture result verification internals;
-- public prediction projections;
-- `prediction_results`.
-
-## Forbidden unless explicitly scoped
-
-- Broad ingest/apply writes.
-- Public exposure of internal evaluation data.
-- Hidden odds/provider predictions.
-- Committing `codex-inputs/`.
-- Service-role app routes.
-- Mixing unrelated features in one branch.
-- Docs PRs for tiny microchanges.
-
-## Reporting format
-
-Final Codex reports should include:
-
-1. current branch/status;
-2. files changed;
-3. what changed;
-4. validation results;
-5. boundary confirmation;
-6. next recommended action.
+Codex should not expose or introduce public `prediction_results` usage, raw evaluation payloads, service-role app routes, provider odds/prediction inputs, or payment/checkout work outside Epic G.

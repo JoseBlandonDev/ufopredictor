@@ -1,124 +1,57 @@
 # Open Decisions - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
-## Decisions closed recently
+## Recently closed decisions
 
-### E10D direction
+### Premium Prediction Detail MVP v1 scope
 
-Decision: E10D was implemented as expected-goals/scoreline calibration using E10C enriched national-team metadata.
+Decision: closed. Premium v1 is match-detail only and uses a protected public-safe projection. It includes expected goals, top scorelines, BTTS, Over/Under 2.5, confidence/risk. It does not include payments, checkout, full subscription management, factors/narrative v2, or `/predictions` premium expansion.
 
-Rationale: the model needed to stop behaving like a fallback-only engine that overproduced `1-1`, especially for clear mismatches.
+### Free probable score policy
 
-### Prelaunch refresh for finished fixtures
+Decision: closed. Registered-free users do not see or fetch probable score before result verification. After verified result, probable score may be shown as post-match reference. Premium/admin access remains through premium projection.
 
-Decision: allow exact admin-only append refresh for already-public scheduled/finished fixtures during prelaunch.
+### Real Fixture Lab as ops dashboard
 
-Rationale: before public launch, some first fixtures had been published with incomplete model/data context. Refreshing with the current model/data is acceptable when not using final results as hidden prediction input.
-
-Boundary: this is append-only and does not mutate results or internal evaluations.
-
-### Public verified result display
-
-Decision: verified final scores can be shown publicly as public-safe match data.
-
-Boundary: do not expose `prediction_results`, exact-score correctness internals, raw evaluation payloads, or Lab payloads.
-
-### Lab legacy fixtures
-
-Decision: do not delete legacy/pilot fixtures yet. Relegate/collapse them in the Lab UI.
-
-Rationale: preserves audit/history while making current operations usable.
-
-### Documentation refresh ownership
-
-Decision: ChatGPT generates project-source documentation refreshes. The user manually copies files into `docs/`. Codex verifies docs-only consistency afterward.
-
-Rationale: ChatGPT holds broader cross-conversation context. Codex is better suited to repo verification, status checks, and diff auditing.
-
-### Parallel work track
-
-Decision: define Epic G as a parallel-safe Product Platform and Monetization Foundations track.
-
-Rationale: another contributor can work on account/plans/billing/product shell tasks while main work continues on data/model/fixtures.
-
-Boundary: Epic G must avoid prediction engine, ingest, signal packs, result verification, and internal prediction result exposure unless explicitly scoped.
+Decision: closed. Real Fixture Lab is the current operational queue for World Cup fixtures/results, including latest public prediction status, result state, evaluation state, and ops state.
 
 ## Open decisions
 
-### Premium MVP content
+### TM01 Torneo Mundialista export schema
 
-Need to decide exact public-safe premium fields and layout.
+Status: open. Proposed direction: admin-only JSON export from UFO Predictor / Real Fixture Lab.
 
-Likely included:
+Questions: final schema version, export date range controls, whether CSV is also needed, where the export button lives, and how Torneo imports the file.
 
-- top 3 scorelines with probabilities;
-- expected goals;
-- BTTS;
-- Over/Under 2.5;
-- key model factors;
-- confidence/risk explanation.
+### Torneo Mundialista reveal policy
 
-Need to avoid:
+Status: open. UFO can export a complete public-safe package; Torneo decides display policy.
 
-- raw Lab payloads;
-- `prediction_results`;
-- provider predictions;
-- odds as hidden input.
+Open questions: show only 1X2 before user pick, reveal exact score after user pick, reveal top scorelines after pick deadline, and show post-match comparison between user/group/global/UFO.
+
+Recommended default: do not show exact UFO score before a user submits a pick unless intentionally approved for acquisition/marketing.
+
+### Post-match premium demo v2
+
+Status: open. Should registered-free users see full premium model detail after a verified result? This could demonstrate premium value without giving pre-match edge.
+
+### Next prediction batch cadence
+
+Status: open. Publish by next 2 days, next 7 days, matchday window, or manual fixture selection?
+
+### Scoreline calibration review
+
+Status: open. Recent examples show direction can be correct while exact scoreline remains conservative, e.g. Sweden 5-1 Tunisia. Decide whether to review scoreline tail/extreme-goal calibration.
 
 ### Venue/stadium metadata
 
-Need to decide source and storage:
-
-- API-Football venue data;
-- manual World Cup canonical venue map;
-- hybrid approach;
-- fallback copy when venue is unknown.
+Status: open. Provider venue fields are not yet trusted/implemented for public display.
 
 ### Signal refresh strategy
 
-Need to decide cadence and ownership:
+Status: open. Cadence and boundaries for refreshing model inputs remain undecided.
 
-- daily refresh during World Cup;
-- semi-manual checkpoints;
-- no per-match panic updates;
-- later worker/cron automation.
+### Epic G payment/entitlement decisions
 
-### Payment provider
-
-Need to choose provider before real billing implementation:
-
-- Stripe Checkout;
-- Mercado Pago;
-- Wompi;
-- other provider based on market/support.
-
-This decision requires up-to-date provider research before implementation.
-
-### Subscription/entitlement model
-
-Need to decide schema and gating model before real premium enforcement.
-
-Possible concepts:
-
-- plans;
-- subscriptions;
-- entitlements;
-- billing events;
-- account profile state.
-
-### Lineup/injury context
-
-`lineupContextScore` remains neutral. Need source and update strategy.
-
-### Market context
-
-`marketScore` remains neutral. If implemented, must avoid using betting odds or provider predictions as hidden prediction inputs unless the product direction explicitly changes and legal/product boundaries are revisited.
-
-## Decisions not to reopen casually
-
-- Do not expose `prediction_results` publicly.
-- Do not use odds/provider predictions as hidden model input.
-- Do not commit `codex-inputs/`.
-- Do not automate broad API-Football writes without a dedicated safety design.
-- Do not document every microchange.
+Status: open and parallel. Payment provider, entitlement model, plans/pricing, and premium gate shell remain Epic G work.

@@ -1,115 +1,60 @@
 # Architecture Summary - UFO Predictor
 
-_Last refreshed: post PR #71 plus parallel work planning._
+_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
 
-## Current architecture read
+## Core architecture
 
-UFO Predictor has an MVP 1 public real-fixture flow backed by internal admin operations and public-safe projections.
+UFO Predictor separates public product data from internal Lab/evaluation data. Public surfaces read public-safe views/projections only. Internal evaluation stays in admin flows.
 
-The architecture still separates:
+## Public prediction surfaces
 
-- internal Lab/admin prediction and evaluation;
-- public-safe prediction summaries;
-- verified result projection;
-- exact API-Football fixture operations;
-- runtime-safe static model signal data.
+- `/predictions` reads public prediction summaries.
+- `/matches/[slug]` reads public match detail and public prediction summary.
+- Verified final results are displayed from public-safe fields.
+- `prediction_results` is not publicly exposed.
 
-## Public surface
+## Premium match detail
 
-Public pages can show:
+Premium Prediction Detail MVP v1 is implemented through a protected RPC:
 
-- selected public fixtures;
-- match metadata;
-- public 1X2 probabilities;
-- confidence/risk labels;
-- public probable score where available;
-- verified final result fields;
-- explanatory copy around probabilities.
+```sql
+public.get_premium_match_projection(p_match_id uuid)
+```
 
-Public pages must not expose:
+Migration: `supabase/migrations/0035_premium_match_model_detail_projection.sql`.
 
-- `prediction_results`;
-- raw evaluation payloads;
-- Lab/admin payloads;
-- provider predictions;
-- betting odds as hidden model input;
-- service-role data.
+Key properties:
 
-## Public projections
+- `SECURITY DEFINER`;
+- `set search_path = public, pg_temp`;
+- requires `auth.uid()`;
+- `authenticated` execute grant;
+- no anon execute grant;
+- reads latest `public_product` prediction only;
+- no `prediction_results`;
+- defensive `top_scores_json` parsing;
+- public-safe `model_detail` JSON.
 
-The public prediction surface relies on public-safe projections/views and query helpers. PR #70 added verified-result projection to public-safe views through:
+Projected model detail: expected goals, top scorelines, BTTS, Over/Under 2.5, confidence/risk.
 
-- `0034_public_verified_match_results_projection.sql`.
+## Free-tier probable score gating
 
-This projects only verified final result fields. It must not become a doorway to internal evaluation state. Humanity has enough doorways to bad ideas.
-
-## Finished fixture refresh path
-
-PR #69 plus migration `0033_real_fixture_lab_finished_public_refresh_prediction_policies.sql` allow exact admin-only prelaunch refresh for already-public scheduled/finished API-Football fixtures.
-
-Properties:
-
-- exact `externalId` driven;
-- admin-only;
-- append-only prediction rows;
-- no result mutation;
-- no `prediction_results` mutation/exposure;
-- no batch refresh;
-- no provider predictions/odds.
+`get_authenticated_public_match_probable_score` is only called for registered-free viewers when the result is verified and verified goals are present. Pre-match/live/unverified registered-free users do not fetch probable score.
 
 ## Real Fixture Lab
 
-PR #71 improved Real Fixture Lab usability without changing backend action semantics:
+Real Fixture Lab is the admin operations surface. It can inspect exact API-Football/public fixtures, refresh exact public predictions, verify results, persist internal evaluation, and display the operational summary.
 
-- current World Cup fixtures prioritized;
-- legacy/pilot fixtures secondary/collapsed;
-- filters for operational states;
-- pending/loading submit UI;
-- pointer/disabled controls;
-- exact fixture lookup unchanged.
+The summary uses direct `prediction_markets` count first and falls back to public-safe `model_detail` readiness from the premium RPC. This handles RLS/read-path cases where direct market count is `0` but premium detail is still available.
 
-## Prediction model runtime
+## API-Football ingest/apply
 
-E10C introduced runtime-safe enriched national-team strength signals for 48 canonical World Cup teams. E10D recalibrated expected-goals and scoreline behavior to use that context more meaningfully.
+The exact fixture spike/dry-run/apply flow remains unchanged by PR #77. Apply creates pending review result rows; verification/evaluation happen in Real Fixture Lab.
 
-Runtime must not load raw source packs from `codex-inputs/`.
+## Torneo Mundialista planned export
 
-## Data and migrations
+Planned architecture is export-first: admin-only JSON export from Real Fixture Lab/UFO Predictor, no public endpoint by default, no service-role app route, only public-safe prediction fields, and Torneo controls reveal/display behavior.
 
-Supabase migrations are applied manually through SQL Editor. When a migration is added to the repo, the user still applies it manually to the target database.
+## Hard boundaries
 
-Recent relevant migrations:
-
-- `0033_real_fixture_lab_finished_public_refresh_prediction_policies.sql`
-- `0034_public_verified_match_results_projection.sql`
-
-## Parallel work architecture boundaries
-
-Epic G is planned for product platform and monetization foundations. It should stay mostly in account/plans/billing/product shell files.
-
-Parallel contributors should not touch:
-
-- `lib/prediction-engine/`;
-- API-Football ingest/apply logic;
-- generated signal packs;
-- `prediction_results`;
-- result verification internals;
-- public prediction projections;
-- manual publication/refresh internals.
-
-Possible future platform areas:
-
-- auth/account UX;
-- plans/pricing;
-- payment provider spike;
-- entitlement design;
-- premium gate shell;
-- trust/legal copy.
-
-## Open architecture gaps
-
-- Premium detail projection is not implemented.
-- Venue/stadium metadata is incomplete.
-- Signal refresh workflow is not formalized.
-- Lineup/injury and market context remain neutral placeholders.
-- Worker/cron automation is future work.
+No public exposure of `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions, or service-role app-route data.
