@@ -98,8 +98,51 @@ type RealFixtureLabProtectedMatch = {
   status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
 };
 
-function redirectWithSaveStatus(status: SaveStatus, externalId: string): never {
-  redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&save=${status}`);
+const DEFAULT_REAL_FIXTURE_LAB_RETURN_TO = "/admin/real-fixture-lab";
+const ADMIN_REAL_FIXTURE_RETURN_PATHS = new Set([
+  "/admin/real-fixture-lab",
+  "/admin/real-fixture-publish-queue",
+]);
+
+function normalizeAdminReturnTo(value: FormDataEntryValue | null, fallback = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO) {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const trimmed = value.trim();
+  return ADMIN_REAL_FIXTURE_RETURN_PATHS.has(trimmed) ? trimmed : fallback;
+}
+
+function buildAdminRouteStatusHref(args: {
+  basePath: string;
+  params: Record<string, string | undefined>;
+}) {
+  const searchParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(args.params)) {
+    if (value) {
+      searchParams.set(key, value);
+    }
+  }
+
+  const query = searchParams.toString();
+  return query ? `${args.basePath}?${query}` : args.basePath;
+}
+
+function redirectWithSaveStatus(
+  status: SaveStatus,
+  externalId: string,
+  returnTo = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO,
+): never {
+  redirect(
+    buildAdminRouteStatusHref({
+      basePath: returnTo,
+      params: {
+        externalId,
+        save: status,
+      },
+    }),
+  );
 }
 
 function redirectWithEvaluationStatus(status: EvaluationStatus, externalId: string): never {
@@ -110,8 +153,22 @@ function redirectWithResultStatus(status: ResultVerificationStatus, externalId: 
   redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=${status}`);
 }
 
-function redirectWithPublishStatus(status: PublishStatus): never {
-  redirect(`/admin/real-fixture-lab?publish=${status}`);
+function redirectWithPublishStatus(
+  status: PublishStatus,
+  args: {
+    returnTo?: string;
+    externalId?: string;
+  } = {},
+): never {
+  redirect(
+    buildAdminRouteStatusHref({
+      basePath: args.returnTo ?? DEFAULT_REAL_FIXTURE_LAB_RETURN_TO,
+      params: {
+        publish: status,
+        externalId: args.externalId,
+      },
+    }),
+  );
 }
 
 function redirectWithRefreshStatus(status: RefreshStatus, externalId: string): never {
@@ -320,29 +377,30 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
   }
 
   const externalId = input.data.externalId;
-  await requireAdmin("/admin/real-fixture-lab");
+  const returnTo = normalizeAdminReturnTo(formData.get("returnTo"));
+  await requireAdmin(returnTo);
 
   const fixtureData = await getAdminRealFixtureLabData({ externalId });
 
   if (fixtureData.status !== "ready") {
-    redirectWithSaveStatus("error", externalId);
+    redirectWithSaveStatus("error", externalId, returnTo);
   }
 
   const fixture = fixtureData.fixtures[0];
 
   if (!fixture) {
-    redirectWithSaveStatus("not_found", externalId);
+    redirectWithSaveStatus("not_found", externalId, returnTo);
   }
 
   if (fixture.accessScope !== "admin_only" || fixture.intakeSource !== "api_football") {
-    redirectWithSaveStatus("error", externalId);
+    redirectWithSaveStatus("error", externalId, returnTo);
   }
 
   const predictionInput = buildRealFixturePredictionInput(fixture);
   const predictionOutput = generatePrediction(predictionInput);
   const { supabase, activeModelVersion } = await getActiveModelVersionOrRedirect({
     externalId,
-    onMissingModel: (targetExternalId) => redirectWithSaveStatus("no_model", targetExternalId),
+    onMissingModel: (targetExternalId) => redirectWithSaveStatus("no_model", targetExternalId, returnTo),
   });
 
   const { data: existingPrediction, error: existingPredictionError } = await supabase
@@ -362,11 +420,11 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
       table: "prediction_versions",
       error: existingPredictionError,
     });
-    redirectWithSaveStatus("error", externalId);
+    redirectWithSaveStatus("error", externalId, returnTo);
   }
 
   if (existingPrediction) {
-    redirectWithSaveStatus("duplicate", externalId);
+    redirectWithSaveStatus("duplicate", externalId, returnTo);
   }
 
   const predictionVersionInsert = buildRealFixturePredictionVersionInsert({
@@ -395,7 +453,7 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
         message: "Insert returned no prediction_version row.",
       });
     }
-    redirectWithSaveStatus("error", externalId);
+    redirectWithSaveStatus("error", externalId, returnTo);
   }
 
   const predictionMarketInserts = buildRealFixturePredictionMarketInserts({
@@ -413,11 +471,12 @@ export async function saveRealFixturePredictionAction(formData: FormData) {
       table: "prediction_markets",
       error: insertedPredictionMarketsError,
     });
-    redirectWithSaveStatus("error", externalId);
+    redirectWithSaveStatus("error", externalId, returnTo);
   }
 
   revalidatePath("/admin/real-fixture-lab");
-  redirectWithSaveStatus("saved", externalId);
+  revalidatePath("/admin/real-fixture-publish-queue");
+  redirectWithSaveStatus("saved", externalId, returnTo);
 }
 
 export async function refreshPublishedRealFixturePredictionAction(formData: FormData) {
@@ -916,7 +975,10 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
   }
 
   const { matchId, matchSlug, internalPredictionVersionId } = input.data;
-  await requireAdmin("/admin/real-fixture-lab");
+  const returnTo = normalizeAdminReturnTo(formData.get("returnTo"));
+  const externalIdValue = formData.get("externalId");
+  const externalId = typeof externalIdValue === "string" && externalIdValue.trim() ? externalIdValue.trim() : undefined;
+  await requireAdmin(returnTo);
   const supabase = await createSupabaseServerClient();
 
   const { data: match, error: matchError } = await supabase
@@ -931,11 +993,11 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
       table: "matches",
       error: matchError,
     });
-    redirectWithPublishStatus("error");
+    redirectWithPublishStatus("error", { returnTo, externalId });
   }
 
   if (!match || match.slug !== matchSlug) {
-    redirectWithPublishStatus("not_found");
+    redirectWithPublishStatus("not_found", { returnTo, externalId });
   }
 
   if (
@@ -943,7 +1005,7 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
     match.intake_source !== "api_football" ||
     match.status !== "scheduled"
   ) {
-    redirectWithPublishStatus("blocked");
+    redirectWithPublishStatus("blocked", { returnTo, externalId });
   }
 
   const { data: competition, error: competitionError } = await supabase
@@ -958,11 +1020,11 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
       table: "competitions",
       error: competitionError,
     });
-    redirectWithPublishStatus("error");
+    redirectWithPublishStatus("error", { returnTo, externalId });
   }
 
   if (!competition || competition.usage_scope !== "public_product") {
-    redirectWithPublishStatus("blocked");
+    redirectWithPublishStatus("blocked", { returnTo, externalId });
   }
 
   const { data: internalPrediction, error: internalPredictionError } = await supabase
@@ -979,7 +1041,7 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
       table: "prediction_versions",
       error: internalPredictionError,
     });
-    redirectWithPublishStatus("error");
+    redirectWithPublishStatus("error", { returnTo, externalId });
   }
 
   if (
@@ -988,7 +1050,7 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
     internalPrediction.run_scope !== REAL_FIXTURE_LAB_RUN_SCOPE ||
     internalPrediction.prediction_type !== REAL_FIXTURE_LAB_PREDICTION_TYPE
   ) {
-    redirectWithPublishStatus("blocked");
+    redirectWithPublishStatus("blocked", { returnTo, externalId });
   }
 
   const { data: existingPublicPrediction, error: existingPublicPredictionError } = await supabase
@@ -1007,7 +1069,7 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
       table: "prediction_versions",
       error: existingPublicPredictionError,
     });
-    redirectWithPublishStatus("error");
+    redirectWithPublishStatus("error", { returnTo, externalId });
   }
 
   if (!existingPublicPrediction) {
@@ -1045,7 +1107,7 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
           message: "Insert returned no public prediction_version row.",
         });
       }
-      redirectWithPublishStatus("error");
+      redirectWithPublishStatus("error", { returnTo, externalId });
     }
 
     await clonePredictionMarketsToPublicVersion({
@@ -1054,7 +1116,7 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
       targetPredictionVersionId: insertedPublicPrediction.id,
       selectOperation: "select_internal_prediction_markets_for_publication",
       insertOperation: "insert_public_prediction_markets_for_publication",
-      onFailure: () => redirectWithPublishStatus("error"),
+      onFailure: () => redirectWithPublishStatus("error", { returnTo, externalId }),
     });
   }
 
@@ -1072,11 +1134,15 @@ export async function publishRealFixturePredictionAction(formData: FormData) {
       table: "matches",
       error: updatedMatchError,
     });
-    redirectWithPublishStatus("error");
+    redirectWithPublishStatus("error", { returnTo, externalId });
   }
 
   revalidatePath("/admin/real-fixture-lab");
+  revalidatePath("/admin/real-fixture-publish-queue");
   revalidatePath("/predictions");
   revalidatePath(`/matches/${matchSlug}`);
-  redirectWithPublishStatus(existingPublicPrediction ? "already_published" : "published");
+  redirectWithPublishStatus(existingPublicPrediction ? "already_published" : "published", {
+    returnTo,
+    externalId,
+  });
 }

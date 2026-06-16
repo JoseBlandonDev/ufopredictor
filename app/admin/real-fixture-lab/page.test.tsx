@@ -37,7 +37,8 @@ vi.mock("./actions", () => ({
   refreshPublishedRealFixturePredictionAction: vi.fn(),
 }));
 
-import RealFixtureLabPage, { organizeFixtureEntries } from "./page";
+import RealFixtureLabPage from "./page";
+import { organizeFixtureEntries } from "./page-helpers";
 
 const preview = {
   probabilities: {
