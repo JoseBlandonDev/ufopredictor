@@ -1,6 +1,6 @@
 # Codex Workflow - UFO Predictor
 
-_Last reviewed in this refresh: post PR #77. Workflow remains the same._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Standard task flow
 
@@ -22,6 +22,10 @@ When ChatGPT generates updated docs:
 4. User commits docs refresh.
 5. User updates ChatGPT project sources.
 
+## Current operational note
+
+Use `/admin/real-fixture-publish-queue` as the current admin publication path. Do not rely on Real Fixture Lab exact-detail until the stack overflow follow-up is fixed.
+
 ## Hard boundaries
 
-Codex should not expose or introduce public `prediction_results` usage, raw evaluation payloads, service-role app routes, provider odds/prediction inputs, or payment/checkout work outside Epic G.
+Codex should not expose or introduce public `prediction_results` usage, raw evaluation payloads, service-role app routes, provider odds/prediction inputs, payment/checkout work outside Epic G, or Torneo human-pick model inputs.

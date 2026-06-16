@@ -1,6 +1,6 @@
 # Data Dictionary - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Core concepts
 
@@ -10,7 +10,7 @@ Prediction run scope used for public product surfaces. Public pages and premium 
 
 ### `internal_lab`
 
-Internal/admin prediction run scope. Used for Real Fixture Lab evidence and evaluation. Must not be used as runtime fallback for public pages.
+Internal/admin prediction run scope. Used for admin evidence and evaluation. Must not be used as runtime fallback for public pages.
 
 ### `prediction_versions`
 
@@ -47,6 +47,10 @@ Public-safe final score after admin verification. It can be displayed publicly w
 ### Internal evaluation
 
 Admin-only evaluation of prediction correctness after verified result. It must not be exposed in public product payloads.
+
+### Real fixture publish queue
+
+Admin-only operational queue at `/admin/real-fixture-publish-queue`. It reads minimal fixture/prediction status and reuses existing actions to save internal predictions and publish public products. It is not a public data source and must not render raw payloads.
 
 ## Torneo Mundialista export payload - planned
 
@@ -92,4 +96,4 @@ type TorneoUfoExport = {
 }
 ```
 
-This payload must not include `prediction_results`, raw evaluation internals, raw Lab payloads, service-role-only data, odds, or provider predictions.
+This payload must not include `prediction_results`, raw evaluation internals, raw Lab payloads, service-role-only data, odds, provider predictions, payment data, or Torneo human picks as UFO model inputs.

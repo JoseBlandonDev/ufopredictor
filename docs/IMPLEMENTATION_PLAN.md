@@ -1,6 +1,6 @@
 # Implementation Plan - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Completed implementation blocks
 
@@ -8,9 +8,13 @@ _Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Op
 
 Done via PR #77: protected premium projection RPC, model detail normalization/resolver, match detail premium UI, tests, and migration `0035_premium_match_model_detail_projection.sql`.
 
-### Real Fixture Lab Ops Summary
+### Data Ops 01 and Data Ops 02
 
-Done via PR #77: operational summary sections, public row/status/evaluation metadata, model detail readiness fallback, and tests.
+Done operationally. Public upcoming runway is restored/expanded and recent finished fixtures are verified/evaluated.
+
+### Real Fixture Publish Queue
+
+Done via PR #81. `/admin/real-fixture-publish-queue` provides a lightweight admin-only path to save/publish scheduled exact fixtures using existing actions.
 
 ### Probable score gate
 
@@ -18,36 +22,42 @@ Done via PR #77. Registered-free probable score is gated until verified result.
 
 ## Next implementation candidates
 
-### Data Ops 01 - Load next prediction batch
-
-Implementation type: operational/data task.
-
-Steps:
-
-1. Identify upcoming World Cup fixtures.
-2. Generate/refine predictions.
-3. Publish public rows.
-4. Verify premium model detail readiness.
-5. Verify public pages.
-
 ### TM01 - Admin JSON export for Torneo Mundialista
 
 Implementation type: small product/admin tool.
 
 Proposed scope:
 
-- admin-only export button/action in Real Fixture Lab;
+- admin-only export action/page;
 - date-range JSON export;
 - full public-safe prediction package;
 - UFO match links;
-- no public endpoint;
+- no public endpoint by default;
 - no writes;
-- no service-role app route.
+- no service-role app route;
+- no Torneo human-pick signals as UFO model inputs.
+
+### Real Fixture Lab stack overflow cleanup
+
+Implementation type: admin refactor/bug fix.
+
+Goal: resolve `RangeError: Maximum call stack size exceeded` in `/admin/real-fixture-lab` and exact-detail route without regressing the publish queue.
+
+Recommended direction: split the Lab into smaller components/routes, keep heavy previews out of page render, and avoid broad summary/detail coupling.
 
 ### Premium v2 - Post-match demo unlock
 
 Implementation type: product policy + UI. Decide and implement whether registered-free users should see full premium model detail after verified result.
 
+## Epic G implementation candidates
+
+- G03 production smoke test.
+- G04 plans/pricing MVP.
+- G05 Wompi payment integration spike/MVP.
+- G06 entitlement model.
+- G07 premium gate shell/CTA.
+- G08 trust/legal/responsible-use copy.
+
 ## Deferred
 
-Payments/checkout, full entitlement automation, public API endpoint for Torneo, venue metadata, and signal refresh automation.
+Public API endpoint for Torneo, venue metadata, signal refresh automation, full subscription automation, and Real Fixture Lab full rebuild.

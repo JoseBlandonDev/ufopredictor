@@ -1,6 +1,6 @@
 # Codex Handoff Current - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Repo baseline
 
@@ -12,60 +12,77 @@ git pull origin main
 git status --short
 ```
 
-Expected status: clean.
+Expected status: clean after PR #81 is merged locally.
 
 ## Completed since prior handoff
 
 ### PR #77 - Premium Prediction Detail MVP + Lab Ops Summary
 
-Completed and merged:
+Completed and merged: premium model detail on `/matches/[slug]`, protected public-safe premium projection RPC, Lab Ops Summary, score gating, and safe public projection boundaries.
 
-- Premium Prediction Detail MVP v1 in `/matches/[slug]`.
-- Migration `0035_premium_match_model_detail_projection.sql`.
-- Protected RPC extension for public-safe premium model detail.
-- Real Fixture Lab Ops Summary.
-- World Cup stage/resource normalization for labels like `Group Stage - 1`.
-- Publication/refresh flow now clones `prediction_markets` for new public rows where applicable.
-- Public timestamp in match detail removed.
-- Probable score gated for registered-free users before verified result.
+### Data Ops 01 and Data Ops 02
 
-### Latest fixture operations
+Completed operationally:
 
-The latest known World Cup batch was applied, verified, and evaluated:
+- restored active/upcoming predictions after the prior verified batch;
+- verified/evaluated Spain, Belgium, Saudi Arabia, and Iran results;
+- published a 12-fixture active/upcoming runway.
 
-| Match | Result |
-|---|---:|
-| Germany vs Curacao | 7-1 |
-| Netherlands vs Japan | 2-2 |
-| Ivory Coast vs Ecuador | 1-0 |
-| Sweden vs Tunisia | 5-1 |
-| Australia vs Turkiye | 2-0 |
-| Haiti vs Scotland | 0-1 |
-| Brazil vs Morocco | 1-1 |
-| Qatar vs Switzerland | 1-1 |
-| USA vs Paraguay | 4-1 |
-| Canada vs Bosnia & Herzegovina | 1-1 |
-| South Korea vs Czechia | 2-1 |
-| Mexico vs South Africa | 2-0 |
+Active/upcoming public fixtures:
+
+| API-Football fixture | Match | Kickoff UTC | Status |
+|---:|---|---:|---|
+| 1489383 | France vs Senegal | 2026-06-16 19:00 | public / future ready |
+| 1539016 | Iraq vs Norway | 2026-06-16 22:00 | public / future ready |
+| 1489381 | Argentina vs Algeria | 2026-06-17 01:00 | public / future ready |
+| 1489382 | Austria vs Jordan | 2026-06-17 04:00 | public / future ready |
+| 1539003 | Portugal vs Congo DR | 2026-06-17 17:00 | public / future ready |
+| 1489384 | England vs Croatia | 2026-06-17 20:00 | public / future ready |
+| 1489385 | Ghana vs Panama | 2026-06-17 23:00 | public / future ready |
+| 1489386 | Uzbekistan vs Colombia | 2026-06-18 02:00 | public / future ready |
+| 1539004 | Czechia vs South Africa | 2026-06-18 16:00 | public / future ready |
+| 1539005 | Switzerland vs Bosnia & Herzegovina | 2026-06-18 19:00 | public / future ready |
+| 1489387 | Canada vs Qatar | 2026-06-18 22:00 | public / future ready |
+| 1489388 | Mexico vs South Korea | 2026-06-19 01:00 | public / future ready |
+
+Latest verified/evaluated fixtures:
+
+| API-Football fixture | Match | Result | Status |
+|---:|---|---:|---|
+| 1489380 | Spain vs Cape Verde Islands | 0-0 | verified / evaluated |
+| 1489377 | Belgium vs Egypt | 1-1 | verified / evaluated |
+| 1489379 | Saudi Arabia vs Uruguay | 1-1 | verified / evaluated |
+| 1489378 | Iran vs New Zealand | 2-2 | verified / evaluated |
+
+### PR #81 - Real Fixture Publish Queue Operational Bypass
+
+Merged: `/admin/real-fixture-publish-queue` is now available as the admin-only publication path for scheduled real fixtures. It reuses existing save/publish actions and avoids the unstable Real Fixture Lab exact-detail route.
+
+## Known blocker
+
+`/admin/real-fixture-lab` and exact-detail routes still trigger `RangeError: Maximum call stack size exceeded`. Do not use those routes as the primary publication path. Treat Lab cleanup as a separate focused bug.
 
 ## Immediate next recommended task
-
-### Data Ops 01 - Load next World Cup prediction batch
-
-Scope: identify next upcoming fixtures, generate/refine predictions, publish `public_product` rows, confirm premium model detail readiness, and verify `/predictions` shows active/upcoming fixtures again. Do not touch result verification, historical results, model internals, or API-Football ingest/apply unless explicitly approved.
-
-## Planned discovery task
 
 ### TM01 - Admin JSON export for Torneo Mundialista
 
 Goal: export a complete public-safe UFO prediction package for Torneo Mundialista.
 
-Preferred V0: admin-only JSON export from Real Fixture Lab with date/range selection, 1X2, confidence/risk, probable score, top scorelines, xG, BTTS, Over/Under, metadata, and UFO links. Torneo decides display/reveal rules. No endpoint by default.
+Preferred V0: admin-only JSON export with date/range selection, 1X2, confidence/risk, probable score, top scorelines, xG, BTTS, Over/Under, metadata, and UFO links. Torneo decides display/reveal rules. No endpoint by default.
+
+## Operational follow-up
+
+Monitor the 12 active/upcoming fixtures. When provider status is final, process results through the exact result ingest/review/evaluation flow. Do not verify live/unfinal fixtures.
 
 ## Epic G status
 
-Parallel track: G01 done, G02 done, G03-G08 pending.
+Parallel track:
+
+- G01 done.
+- G02 dev/prod environment separation + config readiness done as readiness baseline.
+- G03-G08 pending.
+- G05 is Wompi-focused; Wompi is the intended payment gateway direction, but integration is not implemented.
 
 ## Hard boundaries
 
-Do not expose `prediction_results`, raw Lab/admin/evaluation payloads, service-role in app routes, provider odds/predictions, or hidden human picks from Torneo as model input. No payments/checkout unless explicitly Epic G.
+Do not expose `prediction_results`, raw Lab/admin/evaluation payloads, service-role app routes, provider odds/predictions, payment secrets, or hidden human picks from Torneo as model input. No payments/checkout unless explicitly Epic G.
