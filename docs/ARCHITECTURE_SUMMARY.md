@@ -1,6 +1,6 @@
 # Architecture Summary - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Core architecture
 
@@ -41,20 +41,33 @@ Projected model detail: expected goals, top scorelines, BTTS, Over/Under 2.5, co
 
 `get_authenticated_public_match_probable_score` is only called for registered-free viewers when the result is verified and verified goals are present. Pre-match/live/unverified registered-free users do not fetch probable score.
 
-## Real Fixture Lab
+## Admin fixture operations
 
-Real Fixture Lab is the admin operations surface. It can inspect exact API-Football/public fixtures, refresh exact public predictions, verify results, persist internal evaluation, and display the operational summary.
+### Current publication path
 
-The summary uses direct `prediction_markets` count first and falls back to public-safe `model_detail` readiness from the premium RPC. This handles RLS/read-path cases where direct market count is `0` but premium detail is still available.
+`/admin/real-fixture-publish-queue` is the current lightweight admin-only path for publishing scheduled real fixtures. It lists minimal fixture state and reuses existing server actions:
+
+- `saveRealFixturePredictionAction`
+- `publishRealFixturePredictionAction`
+
+It does not generate heavy previews during render, does not introduce new write logic, and does not expose raw internals.
+
+### Real Fixture Lab
+
+Real Fixture Lab previously served as the main operations dashboard for fixture/result follow-up. Its exact-detail route currently has a known stack overflow blocker and should be fixed separately. Until then, use the publish queue for publication operations and avoid exact-detail routes.
 
 ## API-Football ingest/apply
 
-The exact fixture spike/dry-run/apply flow remains unchanged by PR #77. Apply creates pending review result rows; verification/evaluation happen in Real Fixture Lab.
+The exact fixture spike/dry-run/apply flow remains unchanged. Apply creates/updates exact operational rows; public publication is controlled through admin actions. Result verification/evaluation remains separate and should only run after provider status is final.
 
 ## Torneo Mundialista planned export
 
-Planned architecture is export-first: admin-only JSON export from Real Fixture Lab/UFO Predictor, no public endpoint by default, no service-role app route, only public-safe prediction fields, and Torneo controls reveal/display behavior.
+Planned architecture is export-first: admin-only JSON export from UFO Predictor, no public endpoint by default, no service-role app route, only public-safe prediction fields, and Torneo controls reveal/display behavior.
+
+## Epic G / payments architecture direction
+
+Epic G remains parallel. G02 covers dev/prod environment separation and config readiness. G05 is Wompi-focused but not implemented. Payment secrets must not enter public/client runtime; entitlement activation must be tied to verified payment events in a future scoped design.
 
 ## Hard boundaries
 
-No public exposure of `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions, or service-role app-route data.
+No public exposure of `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions, service-role app-route data, payment secrets, or Torneo human picks as UFO model inputs.

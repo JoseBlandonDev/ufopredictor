@@ -1,12 +1,12 @@
 # Start Here for New Conversations - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Current baseline
 
-The project is on `main` after PR #77 (`codex/premium-prediction-detail-mvp`) was merged and local `main` was pulled clean. The product/data/model track is now past the first Premium Prediction Detail MVP and the Real Fixture Lab operational summary.
+The project is on `main` after PR #81 (`feat: add real fixture publish queue operational bypass`) was merged. The current product/data state is past Data Ops 01 and Data Ops 02: recent finished fixtures have verified/evaluated results, and `/predictions` has an active runway of upcoming World Cup predictions.
 
-Current repo expectation for a new task:
+Start each task from updated `main`:
 
 ```bash
 git checkout main
@@ -20,23 +20,43 @@ Expected status: clean.
 
 ### Premium Prediction Detail MVP v1
 
-Implemented on match detail only (`/matches/[slug]`). It reuses the existing premium gate and the protected RPC `public.get_premium_match_projection(p_match_id uuid)` from migration `0035_premium_match_model_detail_projection.sql`.
-
-Authorized premium/admin viewers can see public-safe model detail: expected goals, top 3 probable scorelines, BTTS, Over/Under 2.5, and confidence/risk context when safely projected.
-
-This does not expose `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, odds/provider predictions, or service-role app routes.
+Implemented on `/matches/[slug]`. Authorized premium/admin viewers can see public-safe model detail: expected goals, top 3 probable scorelines, BTTS, Over/Under 2.5, and confidence/risk context. This does not expose `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, odds/provider predictions, or service-role app routes.
 
 ### Free-tier probable score gating
 
-Registered-free users no longer see or fetch the probable score before a result is verified. The probable-score RPC only runs for registered-free viewers when a public prediction exists and the final result is verified. Anonymous users never see probable score in the public/basic section. Premium/admin access remains through the premium projection path.
+Registered-free users do not see or fetch probable score before a result is verified. Anonymous users never see probable score in the public/basic section. Premium/admin access remains through the protected premium projection path.
 
-### Real Fixture Lab Ops Summary
+### Data Ops 01 and Data Ops 02
 
-Real Fixture Lab now acts as the operational dashboard for World Cup fixture work. It shows external IDs, API-Football fixture IDs, latest public prediction row, result status, evaluation status, ops state and suggested action. It uses `model_detail: yes` as a readiness signal when direct `prediction_markets` count is hidden by RLS/read-path behavior.
+Data Ops 01 restored active/upcoming predictions after the previous result batch. Data Ops 02 expanded the public upcoming runway.
 
-### Latest verified/evaluated result batch
+Current active/upcoming public fixtures:
 
-Recent completed and verified/evaluated fixtures now include:
+| API-Football fixture | Match | Kickoff UTC | Status |
+|---:|---|---:|---|
+| 1489383 | France vs Senegal | 2026-06-16 19:00 | public / future ready |
+| 1539016 | Iraq vs Norway | 2026-06-16 22:00 | public / future ready |
+| 1489381 | Argentina vs Algeria | 2026-06-17 01:00 | public / future ready |
+| 1489382 | Austria vs Jordan | 2026-06-17 04:00 | public / future ready |
+| 1539003 | Portugal vs Congo DR | 2026-06-17 17:00 | public / future ready |
+| 1489384 | England vs Croatia | 2026-06-17 20:00 | public / future ready |
+| 1489385 | Ghana vs Panama | 2026-06-17 23:00 | public / future ready |
+| 1489386 | Uzbekistan vs Colombia | 2026-06-18 02:00 | public / future ready |
+| 1539004 | Czechia vs South Africa | 2026-06-18 16:00 | public / future ready |
+| 1539005 | Switzerland vs Bosnia & Herzegovina | 2026-06-18 19:00 | public / future ready |
+| 1489387 | Canada vs Qatar | 2026-06-18 22:00 | public / future ready |
+| 1489388 | Mexico vs South Korea | 2026-06-19 01:00 | public / future ready |
+
+Latest verified/evaluated fixtures from the recent operations cycle:
+
+| API-Football fixture | Match | Result | Status |
+|---:|---|---:|---|
+| 1489380 | Spain vs Cape Verde Islands | 0-0 | verified / evaluated |
+| 1489377 | Belgium vs Egypt | 1-1 | verified / evaluated |
+| 1489379 | Saudi Arabia vs Uruguay | 1-1 | verified / evaluated |
+| 1489378 | Iran vs New Zealand | 2-2 | verified / evaluated |
+
+Prior verified/evaluated fixtures remain in public history:
 
 | Match | Result |
 |---|---:|
@@ -53,22 +73,23 @@ Recent completed and verified/evaluated fixtures now include:
 | South Korea vs Czechia | 2-1 |
 | Mexico vs South Africa | 2-0 |
 
-If no new fixtures have been published since this batch, `/predictions` may show only historical results and no active/upcoming fixtures.
+### Admin publish queue bypass
+
+PR #81 added `/admin/real-fixture-publish-queue`, an admin-only lightweight queue for saving and publishing exact real fixtures. It reuses existing save/publish server actions and avoids the heavy Real Fixture Lab exact-detail render path.
+
+Use this route for publication operations until the Real Fixture Lab blocker is fixed.
+
+## Known blocker
+
+`/admin/real-fixture-lab` and especially `/admin/real-fixture-lab?externalId=...` remain unstable with `RangeError: Maximum call stack size exceeded`. Treat this as a separate follow-up bug. Do not use Real Fixture Lab exact-detail as the primary publication path.
 
 ## Immediate next work
 
-1. **Load/publish the next World Cup prediction batch.** Identify upcoming fixtures, publish latest `public_product` rows, confirm premium `model_detail`, and verify `/predictions` + `/matches/[slug]`.
-2. **TM01 - Torneo Mundialista export discovery.** Plan an admin-only JSON export from UFO Predictor/Real Fixture Lab for a date range. Torneo Mundialista decides what fields to display and when.
-3. Continue regular fixture result operations from Real Fixture Lab.
-
-## Epic G parallel track
-
-Done: G01 auth foundation and G02 production config/readiness audit.
-
-Pending: G03 production smoke test, G04 plans/pricing MVP, G05 payment provider spike, G06 subscription/entitlement model proposal, G07 premium gate UI shell/CTA, G08 trust/legal/responsible-use copy.
-
-Do not mix Epic G payments/checkout work into product/data/model tasks unless explicitly approved.
+1. **TM01 - Torneo Mundialista admin JSON export MVP.** Build an admin-only export from UFO Predictor using public-safe prediction fields and UFO match links. Torneo controls reveal/display rules.
+2. **Monitor active fixtures and process results as they finish.** Use exact fixture result flow only after provider status is final.
+3. **Fix Real Fixture Lab stack overflow** as a separate admin cleanup task.
+4. Continue Epic G in parallel: dev/prod environment verification, production smoke, Wompi payment integration planning, plans/pricing, entitlements, premium gate, and trust/legal copy.
 
 ## Hard boundaries
 
-Do not expose `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions as model inputs, or service-role usage in app routes. Do not change API-Football ingest/apply, signal packs, or prediction engine unless explicitly scoped.
+Do not expose `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions as model inputs, or service-role usage in app routes. Do not change API-Football ingest/apply, signal packs, prediction engine, payments, checkout, or Torneo integration unless explicitly scoped.

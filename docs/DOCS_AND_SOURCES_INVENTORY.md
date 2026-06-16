@@ -1,14 +1,18 @@
 # Docs and Sources Inventory - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Current docs baseline
 
 This docs refresh aligns sources to:
 
-- PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary merged to `main`.
-- Latest World Cup result batch verified/evaluated.
-- Torneo Mundialista export-first integration added as planned/discovery.
+- PR #81 real fixture publish queue operational bypass merged to `main`.
+- Data Ops 01 and Data Ops 02 completed.
+- 12 active/upcoming World Cup predictions published.
+- Recent finished fixtures verified/evaluated.
+- Real Fixture Lab exact-detail stack overflow documented as known follow-up.
+- TM01 Torneo Mundialista export remains planned/next.
+- Epic G updated to include dev/prod environment separation and Wompi payment direction.
 
 ## Primary project docs
 
@@ -42,4 +46,6 @@ This docs refresh aligns sources to:
 
 ## Notes
 
-Docs should not claim payments, checkout, full entitlement automation, Torneo integration, or public endpoint integration are implemented. Those remain pending/planned unless future PRs complete them.
+Docs should not claim payments, checkout, full entitlement automation, Wompi integration, Torneo integration, or public endpoint integration are implemented. Those remain pending/planned unless future PRs complete them.
+
+Docs should also not treat Real Fixture Lab exact-detail as the reliable primary publication path while the stack overflow blocker remains open. Use `/admin/real-fixture-publish-queue` for publication operations.

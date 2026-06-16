@@ -1,34 +1,32 @@
 # Next Epics Plan - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
-## Immediate priority
-
-### Data Ops 01 - Load/publish next World Cup prediction batch
-
-Reason: the latest visible batch has been completed, verified, and evaluated. `/predictions` may currently show only historical results until more future fixtures are published.
-
-Scope: identify next fixtures, generate/refine predictions, publish public rows, ensure premium `model_detail` readiness, verify public list/detail pages, and maintain current safety boundaries.
-
-## Product/discovery priority
+## Immediate product/integration priority
 
 ### TM01 - Admin JSON Export for Torneo Mundialista
 
 Goal: use Torneo Mundialista as a discovery surface for UFO Predictor.
 
-Recommended V0: admin-only export from Real Fixture Lab, complete public-safe prediction package, JSON first, Torneo controls display/reveal, no endpoint-first integration.
+Recommended V0: admin-only JSON export from UFO Predictor, complete public-safe prediction package, JSON first, UFO match links, Torneo controls display/reveal, no endpoint-first integration.
 
-## Premium/Product next
+The export should support Torneo showing UFO as a comparison/marketing layer, for example: 1X2 probabilities, confidence/risk, a link to the UFO match detail, and optional exact-score/top-scoreline reveal only after user pick or deadline.
 
-### Premium v2 - Post-match demo policy
+## Operational priority
 
-Decide whether registered-free users should see full premium model detail after verified result. This can demonstrate premium value without giving pre-match edge.
+### Active fixture result monitoring
+
+Monitor the 12 active/upcoming fixtures and process result verification/evaluation only after provider status is final. Do not verify live/unfinal fixtures.
+
+### Real Fixture Lab stack overflow cleanup
+
+The exact-detail route remains blocked with `RangeError: Maximum call stack size exceeded`. This is separate from TM01 and should not block ongoing publication because `/admin/real-fixture-publish-queue` is available.
 
 ## Data/Model next
 
 ### Scoreline calibration review
 
-Recent fixtures show useful calibration cases: Sweden 5-1 Tunisia, Germany 7-1 Curacao, Netherlands 2-2 Japan. Review scoreline/extreme-goal calibration after more results accumulate.
+Recent fixtures show useful calibration cases: Germany 7-1 Curacao, Sweden 5-1 Tunisia, Spain 0-0 Cape Verde, Belgium 1-1 Egypt, Saudi Arabia 1-1 Uruguay, Iran 2-2 New Zealand. Review scoreline/extreme-goal calibration after more results accumulate.
 
 ### Signal refresh strategy
 
@@ -38,8 +36,19 @@ Define refresh cadence and operational boundaries.
 
 Add trusted venue/stadium display when provider support is reviewed.
 
+## Premium/Product next
+
+### Premium v2 - Post-match demo policy
+
+Decide whether registered-free users should see full premium model detail after verified result. This can demonstrate premium value without giving pre-match edge.
+
 ## Epic G parallel plan
 
-G03 production smoke test, G04 plans/pricing, G05 payment provider spike, G06 entitlement model, G07 premium gate shell/CTA, G08 trust/legal copy.
+- G03 production smoke test.
+- G04 plans/pricing MVP.
+- G05 Wompi payment integration spike/MVP.
+- G06 entitlement model.
+- G07 premium gate shell/CTA.
+- G08 trust/legal/responsible-use copy.
 
 Keep Epic G separate from product/data/model tasks unless explicitly coordinated.

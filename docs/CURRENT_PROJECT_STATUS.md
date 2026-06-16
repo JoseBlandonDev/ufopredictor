@@ -1,10 +1,12 @@
 # Current Project Status - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 ## Executive status
 
-The project has moved past public prediction MVP and now has a working Premium Prediction Detail MVP on match detail pages. Real Fixture Lab is the active admin operations surface for fixture/result workflows. The latest World Cup fixture batch has been verified and evaluated, so the next product/data need is loading a new batch of upcoming predictions.
+UFO Predictor has a working public prediction product, Premium Prediction Detail MVP on match detail pages, verified result history, and a new admin-only publish queue that keeps fixture publication operational while the original Real Fixture Lab exact-detail route is unstable.
+
+Data Ops 01 and Data Ops 02 are complete. `/predictions` currently has a useful active/upcoming runway instead of only historical results.
 
 ## Current product capabilities
 
@@ -12,18 +14,43 @@ The project has moved past public prediction MVP and now has a working Premium P
 - Public match detail with 1X2 probabilities and responsible risk/confidence framing.
 - Premium match detail with public-safe model detail for authorized viewers.
 - Registered-free probable score gated until verified result.
-- Real Fixture Lab operations dashboard with fixture IDs, public row status, result status, evaluation status, and ops state.
+- Admin-only publish queue for scheduled real fixture save/publish operations.
 - Controlled result verification and internal evaluation persistence.
 
 ## Recent completed work
 
 - PR #77 merged: Premium Prediction Detail MVP + Real Fixture Lab Ops Summary.
-- Migration `0035_premium_match_model_detail_projection.sql` added and manually applied.
-- Match detail public timestamp removed.
-- Probable score protected from registered-free pre-match/live/unverified views.
-- Latest result batch verified/evaluated.
+- Data Ops 01 completed: next fixture batch loaded/published and results processed.
+- Data Ops 02 completed: active upcoming runway expanded.
+- PR #81 merged: real fixture publish queue operational bypass.
 
-## Recent results
+## Active/upcoming predictions
+
+| API-Football fixture | Match | Kickoff UTC | Status |
+|---:|---|---:|---|
+| 1489383 | France vs Senegal | 2026-06-16 19:00 | public / future ready |
+| 1539016 | Iraq vs Norway | 2026-06-16 22:00 | public / future ready |
+| 1489381 | Argentina vs Algeria | 2026-06-17 01:00 | public / future ready |
+| 1489382 | Austria vs Jordan | 2026-06-17 04:00 | public / future ready |
+| 1539003 | Portugal vs Congo DR | 2026-06-17 17:00 | public / future ready |
+| 1489384 | England vs Croatia | 2026-06-17 20:00 | public / future ready |
+| 1489385 | Ghana vs Panama | 2026-06-17 23:00 | public / future ready |
+| 1489386 | Uzbekistan vs Colombia | 2026-06-18 02:00 | public / future ready |
+| 1539004 | Czechia vs South Africa | 2026-06-18 16:00 | public / future ready |
+| 1539005 | Switzerland vs Bosnia & Herzegovina | 2026-06-18 19:00 | public / future ready |
+| 1489387 | Canada vs Qatar | 2026-06-18 22:00 | public / future ready |
+| 1489388 | Mexico vs South Korea | 2026-06-19 01:00 | public / future ready |
+
+## Recent verified/evaluated results
+
+| API-Football fixture | Match | Result | Status |
+|---:|---|---:|---|
+| 1489380 | Spain vs Cape Verde Islands | 0-0 | verified / evaluated |
+| 1489377 | Belgium vs Egypt | 1-1 | verified / evaluated |
+| 1489379 | Saudi Arabia vs Uruguay | 1-1 | verified / evaluated |
+| 1489378 | Iran vs New Zealand | 2-2 | verified / evaluated |
+
+Prior verified results remain visible in history:
 
 | Match | Result |
 |---|---:|
@@ -40,18 +67,18 @@ The project has moved past public prediction MVP and now has a working Premium P
 | South Korea vs Czechia | 2-1 |
 | Mexico vs South Africa | 2-0 |
 
-## Immediate gaps
+## Current risks / gaps
 
-1. No next upcoming batch may be visible on `/predictions` until new fixtures are published.
-2. Torneo Mundialista integration is planned, not implemented.
+1. Real Fixture Lab exact/detail route has a known `RangeError: Maximum call stack size exceeded` blocker.
+2. TM01 Torneo Mundialista export is planned, not implemented.
 3. Venue/stadium metadata remains pending.
 4. Signal refresh cadence remains open.
 5. Premium v2/post-match demo policy remains open.
-6. Payments/plans/entitlements remain Epic G future work.
+6. Epic G payments/plans/entitlements remain future work; Wompi is the intended gateway direction but not implemented.
 
 ## Recommended next actions
 
-1. Load/publish next World Cup prediction batch.
-2. Plan TM01 admin JSON export for Torneo Mundialista.
-3. Continue result verification/evaluation operations from Real Fixture Lab.
-4. Keep Epic G parallel and scoped.
+1. Build TM01 admin JSON export MVP for Torneo Mundialista.
+2. Monitor active fixtures and process results only after provider status is final.
+3. Create a separate focused fix for Real Fixture Lab stack overflow.
+4. Continue Epic G in parallel: production smoke, dev/prod operational verification, Wompi, entitlements, premium gate, and trust/legal copy.

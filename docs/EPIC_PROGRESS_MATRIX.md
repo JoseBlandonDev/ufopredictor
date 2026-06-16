@@ -1,34 +1,34 @@
 # Epic Progress Matrix - UFO Predictor
 
-_Last refreshed: post PR #77 Premium Prediction Detail MVP / Real Fixture Lab Ops Summary, after latest World Cup result batch verification._
+_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
 
 | Track / Epic | Status | Notes |
 |---|---|---|
 | Public Prediction MVP | Done | Public 1X2 predictions, match detail, verified result display. |
-| Result Verification Flow | Done / Operational | Real Fixture Lab handles pending review and verified results. |
+| Result Verification Flow | Done / Operational | Results can be verified/evaluated after exact provider final state. |
 | Internal Evaluation Persistence | Done / Operational | Evaluations remain internal/admin-only. |
 | Premium Prediction Detail MVP v1 | Done | Match detail only; xG, top scorelines, BTTS, O/U, confidence/risk via protected RPC. |
 | Free Probable Score Gate | Done | Registered-free users no longer see/fetch probable score before verified result. |
-| Real Fixture Lab Ops Summary | Done | Current admin operations dashboard for fixture/result follow-up. |
-| Latest Result Batch | Done | Germany, Netherlands, Ivory Coast, Sweden plus prior fixtures verified/evaluated. |
-| Next Prediction Batch | Pending | Immediate next data-ops task. |
-| Torneo Mundialista Export | Planned / Discovery | Export-first admin JSON package, not endpoint-first. |
+| Data Ops 01 | Done | First upcoming batch restored and recent results processed. |
+| Data Ops 02 | Done | Active/upcoming runway expanded to 12 fixtures. |
+| Real Fixture Publish Queue | Done / Operational | PR #81 admin-only bypass for scheduled fixture save/publish. |
+| Real Fixture Lab Exact Detail | Blocked | Stack overflow; use publish queue until separate fix. |
+| Torneo Mundialista Export | Planned / Next | TM01 admin JSON export, not endpoint-first. |
 | Venue/Stadium Metadata | Pending | Provider venue support still not implemented. |
 | Signal Refresh Strategy | Open | Cadence and rules still pending. |
 | Premium v2 / Post-match Demo | Open | Decide whether registered-free gets full premium detail post-verification. |
 | Epic G01 Auth Foundation | Done | Google login, email/password, confirmation flow. |
-| Epic G02 Production Config Audit | Done | Config/readiness audit, not smoke test. |
-| Epic G03 Production Smoke Test | Pending | Parallel Epic G task. |
+| Epic G02 Dev/Prod Environment + Config Readiness | Done / Verify in G03 | Environment/config readiness done; production smoke remains pending. |
+| Epic G03 Production Smoke Test | Pending | Must include public surfaces, queue admin path, auth, and no leaks. |
 | Epic G04 Plans/Pricing | Pending | Parallel Epic G task. |
-| Epic G05 Payment Provider Spike | Pending | Parallel Epic G task. |
-| Epic G06 Entitlement Model | Pending | Parallel Epic G task. |
-| Epic G07 Premium Gate Shell | Pending | Parallel Epic G task. |
-| Epic G08 Trust/Legal Copy | Pending | Parallel Epic G task. |
+| Epic G05 Wompi Payment Integration | Pending | Wompi is the intended gateway direction; integration not implemented. |
+| Epic G06 Entitlement Model | Pending | Subscription/tournament pass entitlement design. |
+| Epic G07 Premium Gate Shell | Pending | CTA/gated UI shell. |
+| Epic G08 Trust/Legal Copy | Pending | Responsible-use, no betting, no guarantees. |
 
 ## Current priority order
 
-1. Load/publish next World Cup prediction batch.
-2. Plan TM01 Torneo Mundialista admin JSON export.
-3. Continue fixture result verification/evaluation operations.
-4. Decide post-match premium demo v2.
-5. Continue Epic G in parallel without mixing payment work into model/data tasks.
+1. TM01 Torneo Mundialista admin JSON export MVP.
+2. Monitor active fixtures and process results as they finish.
+3. Fix Real Fixture Lab stack overflow as separate admin cleanup.
+4. Continue Epic G in parallel: production smoke, Wompi, entitlements, pricing, trust/legal.
