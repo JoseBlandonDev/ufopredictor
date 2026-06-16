@@ -228,7 +228,7 @@ function isVerifiedState(state: FixtureOperationalState) {
   return state === "verified_missing_evaluation" || state === "complete";
 }
 
-export function organizeFixtureEntries(
+function organizeFixtureEntries(
   fixtureEntries: FixtureEntry[],
   summaryFilter: SummaryFilter,
   now: Date = new Date(),
@@ -453,7 +453,7 @@ function SummaryTable(args: {
   );
 }
 
-export function canVerifyRealFixtureResultControl(fixture: RealFixtureLabFixtureView) {
+function canVerifyRealFixtureResultControl(fixture: RealFixtureLabFixtureView) {
   return (
     fixture.intakeSource === "api_football" &&
     fixture.result?.verification_status === "pending_review" &&
@@ -462,7 +462,7 @@ export function canVerifyRealFixtureResultControl(fixture: RealFixtureLabFixture
   );
 }
 
-export function canPersistRealFixtureEvaluationControl(fixture: RealFixtureLabFixtureView) {
+function canPersistRealFixtureEvaluationControl(fixture: RealFixtureLabFixtureView) {
   return (
     fixture.intakeSource === "api_football" &&
     fixture.savedPrediction !== null &&
