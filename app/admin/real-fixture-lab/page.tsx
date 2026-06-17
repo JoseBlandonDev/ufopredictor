@@ -47,8 +47,6 @@ type FixtureOperationalState =
 
 type FixtureEntry = {
   fixture: RealFixtureLabFixtureView;
-  predictionInput: ReturnType<typeof buildRealFixturePredictionInput>;
-  preview: ReturnType<typeof generatePrediction>;
   derivedSignalWarning: string | null;
   evaluationStatus: FixtureSummaryStatus;
   operationalState: FixtureOperationalState;
@@ -554,7 +552,7 @@ function formatMetric(value: boolean | null) {
   return value ? "correct" : "incorrect";
 }
 
-function getFixtureEvaluationStatus(entry: FixtureEntry): FixtureSummaryStatus {
+function getFixtureEvaluationStatus(entry: Pick<FixtureEntry, "fixture">): FixtureSummaryStatus {
   if (!entry.fixture.savedPrediction) {
     return "no_saved_prediction";
   }
@@ -868,19 +866,12 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
   const now = new Date();
   const fixtureEntries: FixtureEntry[] =
     realFixtureLabData.status === "ready"
-      ? realFixtureLabData.fixtures.map((fixture) => {
-          const predictionInput = buildRealFixturePredictionInput(fixture);
-          const preview = generatePrediction(predictionInput);
-
-          return {
-            fixture,
-            predictionInput,
-            preview,
-            derivedSignalWarning: getDerivedSignalWarning(preview),
-            evaluationStatus: "waiting_result",
-            operationalState: "future_ready",
-          };
-        })
+      ? realFixtureLabData.fixtures.map((fixture) => ({
+          fixture,
+          derivedSignalWarning: null,
+          evaluationStatus: "waiting_result",
+          operationalState: "future_ready",
+        }))
       : [];
 
   for (const entry of fixtureEntries) {
@@ -904,11 +895,6 @@ export default async function RealFixtureLabPage({ searchParams }: RealFixtureLa
                 derivedSignalWarning: getDerivedSignalWarning(preview),
                 evaluationStatus: getFixtureEvaluationStatus({
                   fixture,
-                predictionInput,
-                  preview,
-                  derivedSignalWarning: getDerivedSignalWarning(preview),
-                  evaluationStatus: "waiting_result",
-                  operationalState: "future_ready",
                 }),
                 operationalState: "future_ready",
               };
