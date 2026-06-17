@@ -121,10 +121,16 @@ function buildEvaluationFormData() {
   return formData;
 }
 
-function buildVerificationFormData(matchResultId = "00000000-0000-4000-8000-000000000456") {
+function buildVerificationFormData(
+  matchResultId = "00000000-0000-4000-8000-000000000456",
+  returnTo?: string,
+) {
   const formData = new FormData();
   formData.set("externalId", externalId);
   formData.set("matchResultId", matchResultId);
+  if (returnTo) {
+    formData.set("returnTo", returnTo);
+  }
   return formData;
 }
 
@@ -851,6 +857,25 @@ describe("verifyRealFixtureResultAction", () => {
       }),
     );
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
+  });
+
+  it("returns to the lightweight result review queue when requested", async () => {
+    const client = buildVerificationClient();
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(
+      verifyRealFixtureResultAction(
+        buildVerificationFormData(
+          "00000000-0000-4000-8000-000000000456",
+          "/admin/real-fixture-result-review-queue",
+        ),
+      ),
+    ).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-result-review-queue?externalId=${encodeURIComponent(externalId)}&result=verified`,
+    );
+
+    expect(requireAdminMock).toHaveBeenCalledWith("/admin/real-fixture-result-review-queue");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-result-review-queue");
   });
 
   it("allows verification for an exact public finished api_football fixture in public_product scope", async () => {

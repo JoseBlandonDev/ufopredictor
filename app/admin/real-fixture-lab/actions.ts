@@ -102,6 +102,7 @@ const DEFAULT_REAL_FIXTURE_LAB_RETURN_TO = "/admin/real-fixture-lab";
 const ADMIN_REAL_FIXTURE_RETURN_PATHS = new Set([
   "/admin/real-fixture-lab",
   "/admin/real-fixture-publish-queue",
+  "/admin/real-fixture-result-review-queue",
 ]);
 
 function normalizeAdminReturnTo(value: FormDataEntryValue | null, fallback = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO) {
@@ -149,8 +150,20 @@ function redirectWithEvaluationStatus(status: EvaluationStatus, externalId: stri
   redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&evaluation=${status}`);
 }
 
-function redirectWithResultStatus(status: ResultVerificationStatus, externalId: string): never {
-  redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=${status}`);
+function redirectWithResultStatus(
+  status: ResultVerificationStatus,
+  externalId: string,
+  returnTo = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO,
+): never {
+  redirect(
+    buildAdminRouteStatusHref({
+      basePath: returnTo,
+      params: {
+        externalId,
+        result: status,
+      },
+    }),
+  );
 }
 
 function redirectWithPublishStatus(
@@ -862,7 +875,8 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
   }
 
   const { externalId, matchResultId } = input.data;
-  const { user } = await requireAdmin("/admin/real-fixture-lab");
+  const returnTo = normalizeAdminReturnTo(formData.get("returnTo"));
+  const { user } = await requireAdmin(returnTo);
   const supabase = await createSupabaseServerClient();
 
   const { data: result, error: resultError } = await supabase
@@ -877,23 +891,23 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
       table: "match_results",
       error: resultError,
     });
-    redirectWithResultStatus("error", externalId);
+    redirectWithResultStatus("error", externalId, returnTo);
   }
 
   if (!result) {
-    redirectWithResultStatus("no_result", externalId);
+    redirectWithResultStatus("no_result", externalId, returnTo);
   }
 
   if (result.verification_status === "verified") {
-    redirectWithResultStatus("already_verified", externalId);
+    redirectWithResultStatus("already_verified", externalId, returnTo);
   }
 
   if (result.verification_status === "rejected") {
-    redirectWithResultStatus("rejected", externalId);
+    redirectWithResultStatus("rejected", externalId, returnTo);
   }
 
   if (result.verification_status !== "pending_review") {
-    redirectWithResultStatus("error", externalId);
+    redirectWithResultStatus("error", externalId, returnTo);
   }
 
   const { data: match, error: matchError } = await supabase
@@ -909,22 +923,22 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
       table: "matches",
       error: matchError,
     });
-    redirectWithResultStatus("error", externalId);
+    redirectWithResultStatus("error", externalId, returnTo);
   }
 
   if (!match) {
-    redirectWithResultStatus("not_found", externalId);
+    redirectWithResultStatus("not_found", externalId, returnTo);
   }
 
   const canAccessMatch = await canAccessRealFixtureLabProtectedMatch({
     supabase,
     match,
     competitionOperation: "select_competition_for_result_verification",
-    onCompetitionError: (targetExternalId) => redirectWithResultStatus("error", targetExternalId),
+    onCompetitionError: (targetExternalId) => redirectWithResultStatus("error", targetExternalId, returnTo),
   });
 
   if (!canAccessMatch) {
-    redirectWithResultStatus("not_found", externalId);
+    redirectWithResultStatus("not_found", externalId, returnTo);
   }
 
   const verificationUpdate = {
@@ -956,11 +970,12 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
         message: "Update returned no match_result row.",
       });
     }
-    redirectWithResultStatus("error", externalId);
+    redirectWithResultStatus("error", externalId, returnTo);
   }
 
   revalidatePath("/admin/real-fixture-lab");
-  redirectWithResultStatus("verified", externalId);
+  revalidatePath("/admin/real-fixture-result-review-queue");
+  redirectWithResultStatus("verified", externalId, returnTo);
 }
 
 export async function publishRealFixturePredictionAction(formData: FormData) {

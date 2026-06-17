@@ -431,5 +431,7 @@ describe("RealFixtureLabPage control visibility", () => {
     expect(html).toContain("Operational now");
     expect(html).toContain("Needs prediction");
     expect(html).toContain("Legacy / pilot fixtures");
+    expect(buildRealFixturePredictionInputMock).not.toHaveBeenCalled();
+    expect(generatePredictionMock).not.toHaveBeenCalled();
   });
 });
