@@ -68,6 +68,8 @@ Planned architecture is export-first: admin-only JSON export from UFO Predictor,
 
 Epic G remains parallel. G02 covers dev/prod environment separation and config readiness. G05 is Wompi-focused but not implemented. Payment secrets must not enter public/client runtime; entitlement activation must be tied to verified payment events in a future scoped design.
 
+G06B adds the backend binding layer for entitlement activation without adding checkout. `entitlement_grants` is the audit/idempotency ledger for manual admin grants now and verified payment grants later. Effective premium authorization remains in current, unexpired `user_entitlements` or `user_match_unlocks`, with explicit admin bypass only where protected queries allow it. `subscriptions` records the commercial relationship/status but is not sufficient authorization by itself.
+
 ## Hard boundaries
 
 No public exposure of `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions, service-role app-route data, payment secrets, or Torneo human picks as UFO model inputs.

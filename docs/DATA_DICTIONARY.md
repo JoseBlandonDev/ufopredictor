@@ -40,6 +40,22 @@ type PremiumModelDetail = {
 
 The most likely scoreline. It is premium-sensitive before result verification. Registered-free users only fetch/see it after verified result.
 
+### `subscriptions`
+
+Commercial/status record for a user's relationship to a plan. In G06B it can be created or updated by an admin/manual activation, but it is not an authorization source by itself.
+
+### `user_entitlements`
+
+Effective premium authorization for global or resource-scoped access, such as global premium or a competition/world-cup pass. Premium resolvers should use current, unexpired rows here when deciding whether to reveal protected model detail.
+
+### `user_match_unlocks`
+
+Effective premium authorization for a single match. Premium resolvers should use current, unexpired rows here when deciding whether to reveal protected model detail for that match.
+
+### `entitlement_grants`
+
+Audit and idempotency ledger for entitlement activation. G06B uses it for manual admin grants and revocations; future verified payment events should write through the same binding instead of creating a parallel premium system.
+
 ### Verified result
 
 Public-safe final score after admin verification. It can be displayed publicly without exposing internal evaluation details.

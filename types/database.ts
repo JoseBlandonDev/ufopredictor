@@ -82,6 +82,37 @@ export type UserMatchUnlockRow = {
   expires_at: Timestamp | null;
 };
 
+export type EntitlementGrantRow = {
+  id: string;
+  idempotency_key: string;
+  source_type: "manual_admin" | "wompi_webhook" | "wompi_transaction" | "system";
+  source_reference: string | null;
+  user_id: string;
+  plan_id: string | null;
+  subscription_id: string | null;
+  user_entitlement_id: string | null;
+  user_match_unlock_id: string | null;
+  grant_type:
+    | "global_premium_access"
+    | "competition_access"
+    | "stage_access"
+    | "team_access"
+    | "match_access"
+    | "match_unlock";
+  resource_type: "competition" | "match" | "stage" | "team" | "global";
+  resource_id: string | null;
+  match_id: string | null;
+  starts_at: Timestamp;
+  ends_at: Timestamp | null;
+  status: "active" | "revoked" | "expired";
+  created_by: string | null;
+  revoked_by: string | null;
+  revoked_at: Timestamp | null;
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
 export type UserSavedMatchRow = {
   id: string;
   user_id: string;
@@ -320,6 +351,7 @@ export type DatabaseTables = {
   subscriptions: SubscriptionRow;
   user_entitlements: UserEntitlementRow;
   user_match_unlocks: UserMatchUnlockRow;
+  entitlement_grants: EntitlementGrantRow;
   user_saved_matches: UserSavedMatchRow;
   competitions: CompetitionRow;
   seasons: SeasonRow;
@@ -347,6 +379,7 @@ type DatabaseInserts = {
   subscriptions: Insert<SubscriptionRow, "user_id" | "plan_id">;
   user_entitlements: Insert<UserEntitlementRow, "user_id" | "entitlement_type" | "resource_type" | "resource_id">;
   user_match_unlocks: Insert<UserMatchUnlockRow, "user_id" | "match_id">;
+  entitlement_grants: Insert<EntitlementGrantRow, "idempotency_key" | "source_type" | "user_id" | "grant_type" | "resource_type" | "starts_at">;
   user_saved_matches: Insert<UserSavedMatchRow, "user_id" | "match_id">;
   competitions: Insert<CompetitionRow, "name" | "slug" | "type">;
   seasons: Insert<SeasonRow, "competition_id" | "name" | "year" | "starts_at" | "ends_at">;
