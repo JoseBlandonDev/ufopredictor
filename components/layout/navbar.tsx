@@ -51,12 +51,20 @@ export async function Navbar() {
             <>
               <LogoutButton />
               {isAdmin ? (
-                <Link
-                  href="/admin/real-fixture-lab"
-                  className="hidden rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 sm:block"
-                >
-                  Real Fixture Lab
-                </Link>
+                <>
+                  <Link
+                    href="/admin/torneo-export"
+                    className="hidden rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 sm:block"
+                  >
+                    Torneo Export
+                  </Link>
+                  <Link
+                    href="/admin/real-fixture-lab"
+                    className="hidden rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/70 px-3 py-2 text-xs font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 sm:block"
+                  >
+                    Real Fixture Lab
+                  </Link>
+                </>
               ) : null}
             </>
           ) : (
