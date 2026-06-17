@@ -159,6 +159,21 @@ must apply entitlement or unlock decisions in their server-side projection
 before data reaches the browser. C02 does not open premium matches,
 `prediction_markets`, `prediction_narratives`, or `prediction_results`.
 
+G06B adds `supabase/migrations/0036_entitlement_activation_binding.sql` as the
+minimal activation layer. It creates `entitlement_grants` as an audit and
+idempotency ledger, plus admin-only `activate_entitlement_grant` and
+`revoke_entitlement_grant` RPCs. These RPCs materialize effective access into
+`user_entitlements` for global/competition grants or `user_match_unlocks` for
+single-match unlocks. `subscriptions` may be created or updated to document a
+manual commercial/admin relationship, but it is still not an authorization
+source by itself.
+
+The application helper in `lib/supabase/entitlement-grant-queries.ts` uses the
+signed-in admin session and `createSupabaseServerClient()`. It does not use a
+service-role app route. Client-side code must not insert, update, or revoke
+entitlements directly; future payment webhooks should authenticate and verify
+payment events server-side before calling the same activation binding.
+
 ## Data Intake Minimal
 
 Data Intake Minimal lets Beta Lab represent internal fixtures and final scores
@@ -249,6 +264,13 @@ and their public catalog features. Authenticated users may read only their own
 subscriptions, current entitlements, and current match unlocks. It adds no
 insert, update, or delete capability, and it does not change Lab or prediction
 content policies.
+
+Migration `0036` adds `entitlement_grants` with RLS. Users may read their own
+grant ledger rows; admins may read all grants through the `is_app_admin()`
+helper. Mutations happen only through admin-only security-definer RPCs. Grant
+idempotency is enforced by `entitlement_grants.idempotency_key`, while duplicate
+effective access rows are prevented by unique expression indexes on the
+entitlement and match-unlock access keys.
 
 ## Applying After Review
 

@@ -359,6 +359,52 @@ describe("resolvePremiumMatchAccess", () => {
     ).toBe(false);
   });
 
+  it("recognizes access after a manual competition grant materializes an entitlement", () => {
+    const manualGrantEntitlement = entitlement({
+      entitlement_type: "competition_access",
+      resource_type: "competition",
+      resource_id: protectedMatch.competitionId,
+      starts_at: "2026-05-25T00:00:00.000Z",
+      ends_at: null,
+    });
+
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          viewerKind: "authenticated",
+          role: "free_user",
+          entitlements: [manualGrantEntitlement],
+        },
+        protectedMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "entitlement_access", canAccess: true });
+  });
+
+  it("stops recognizing access after a manual grant revocation expires its entitlement", () => {
+    const revokedGrantEntitlement = entitlement({
+      entitlement_type: "competition_access",
+      resource_type: "competition",
+      resource_id: protectedMatch.competitionId,
+      starts_at: "2026-05-25T00:00:00.000Z",
+      ends_at: "2026-05-26T11:59:59.000Z",
+    });
+
+    expect(
+      resolvePremiumMatchAccess(
+        {
+          ...emptyViewer,
+          viewerKind: "authenticated",
+          role: "free_user",
+          entitlements: [revokedGrantEntitlement],
+        },
+        protectedMatch,
+        now,
+      ),
+    ).toMatchObject({ source: "none", canAccess: false });
+  });
+
   it("does not grant consumable match-pack quantity without an explicit unlock", () => {
     expect(
       resolvePremiumMatchAccess(

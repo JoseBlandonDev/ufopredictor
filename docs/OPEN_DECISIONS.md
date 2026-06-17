@@ -20,6 +20,8 @@ Decision: closed. `/admin/real-fixture-publish-queue` is the current admin-only 
 
 Decision direction: Wompi is the intended payment gateway for the local/Colombian payment path. Implementation details remain open under Epic G05.
 
+G06B note: entitlement activation now has a backend binding layer for admin/manual grants. Wompi checkout, payment verification, webhook authentication, and payment secret handling remain out of scope until G05.
+
 ## Open decisions
 
 ### TM01 Torneo Mundialista export schema
@@ -62,4 +64,4 @@ Status: open. Cadence and boundaries for refreshing model inputs remain undecide
 
 ### Epic G payment/entitlement decisions
 
-Status: open and parallel. Wompi integration architecture, checkout/payment confirmation, webhook handling, entitlement activation, plans/pricing, and premium gate shell remain Epic G work.
+Status: partially narrowed and parallel. G06B defines the entitlement activation binding: grants are idempotent, admin-only for now, and materialize access into `user_entitlements` or `user_match_unlocks`. Wompi integration architecture, checkout/payment confirmation, webhook handling, plans/pricing, and premium gate shell remain Epic G work.

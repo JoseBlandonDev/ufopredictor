@@ -22,7 +22,7 @@ _Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 com
 | Epic G03 Production Smoke Test | Pending | Must include public surfaces, queue admin path, auth, and no leaks. |
 | Epic G04 Plans/Pricing | Pending | Parallel Epic G task. |
 | Epic G05 Wompi Payment Integration | Pending | Wompi is the intended gateway direction; integration not implemented. |
-| Epic G06 Entitlement Model | Pending | Subscription/tournament pass entitlement design. |
+| Epic G06 Entitlement Activation Binding | Implemented / Backend | Admin/manual grants bind into existing entitlements and match unlocks; Wompi remains G05. |
 | Epic G07 Premium Gate Shell | Pending | CTA/gated UI shell. |
 | Epic G08 Trust/Legal Copy | Pending | Responsible-use, no betting, no guarantees. |
 
@@ -31,4 +31,4 @@ _Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 com
 1. TM01 Torneo Mundialista admin JSON export MVP.
 2. Monitor active fixtures and process results as they finish.
 3. Fix Real Fixture Lab stack overflow as separate admin cleanup.
-4. Continue Epic G in parallel: production smoke, Wompi, entitlements, pricing, trust/legal.
+4. Continue Epic G in parallel: production smoke, Wompi, pricing, premium gate shell, trust/legal.
