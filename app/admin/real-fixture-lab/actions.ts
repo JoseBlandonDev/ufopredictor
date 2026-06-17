@@ -103,6 +103,7 @@ const ADMIN_REAL_FIXTURE_RETURN_PATHS = new Set([
   "/admin/real-fixture-lab",
   "/admin/real-fixture-publish-queue",
   "/admin/real-fixture-result-review-queue",
+  "/admin/real-fixture-evaluation-queue",
 ]);
 
 function normalizeAdminReturnTo(value: FormDataEntryValue | null, fallback = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO) {
@@ -146,8 +147,20 @@ function redirectWithSaveStatus(
   );
 }
 
-function redirectWithEvaluationStatus(status: EvaluationStatus, externalId: string): never {
-  redirect(`/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&evaluation=${status}`);
+function redirectWithEvaluationStatus(
+  status: EvaluationStatus,
+  externalId: string,
+  returnTo = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO,
+): never {
+  redirect(
+    buildAdminRouteStatusHref({
+      basePath: returnTo,
+      params: {
+        externalId,
+        evaluation: status,
+      },
+    }),
+  );
 }
 
 function redirectWithResultStatus(
@@ -659,17 +672,25 @@ export async function refreshPublishedRealFixturePredictionAction(formData: Form
 }
 
 export async function persistRealFixtureEvaluationAction(formData: FormData) {
+  const returnTo = normalizeAdminReturnTo(formData.get("returnTo"));
   const input = persistRealFixtureEvaluationSchema.safeParse({
     predictionVersionId: formData.get("predictionVersionId"),
     externalId: formData.get("externalId"),
   });
 
   if (!input.success) {
-    redirect(`/admin/real-fixture-lab?evaluation=invalid`);
+    redirect(
+      buildAdminRouteStatusHref({
+        basePath: returnTo,
+        params: {
+          evaluation: "invalid",
+        },
+      }),
+    );
   }
 
   const { predictionVersionId, externalId } = input.data;
-  await requireAdmin("/admin/real-fixture-lab");
+  await requireAdmin(returnTo);
   const supabase = await createSupabaseServerClient();
 
   const { data: prediction, error: predictionError } = await supabase
@@ -688,11 +709,11 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
       table: "prediction_versions",
       error: predictionError,
     });
-    redirectWithEvaluationStatus("error", externalId);
+    redirectWithEvaluationStatus("error", externalId, returnTo);
   }
 
   if (!prediction) {
-    redirectWithEvaluationStatus("not_found", externalId);
+    redirectWithEvaluationStatus("not_found", externalId, returnTo);
   }
 
   const { data: match, error: matchError } = await supabase
@@ -708,22 +729,22 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
       table: "matches",
       error: matchError,
     });
-    redirectWithEvaluationStatus("error", externalId);
+    redirectWithEvaluationStatus("error", externalId, returnTo);
   }
 
   if (!match) {
-    redirectWithEvaluationStatus("not_found", externalId);
+    redirectWithEvaluationStatus("not_found", externalId, returnTo);
   }
 
   const canAccessMatch = await canAccessRealFixtureLabProtectedMatch({
     supabase,
     match,
     competitionOperation: "select_competition_for_evaluation",
-    onCompetitionError: (targetExternalId) => redirectWithEvaluationStatus("error", targetExternalId),
+    onCompetitionError: (targetExternalId) => redirectWithEvaluationStatus("error", targetExternalId, returnTo),
   });
 
   if (!canAccessMatch) {
-    redirectWithEvaluationStatus("not_found", externalId);
+    redirectWithEvaluationStatus("not_found", externalId, returnTo);
   }
 
   const [
@@ -754,7 +775,7 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
       table: "match_results",
       error: resultError,
     });
-    redirectWithEvaluationStatus("error", externalId);
+    redirectWithEvaluationStatus("error", externalId, returnTo);
   }
 
   if (marketError) {
@@ -763,7 +784,7 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
       table: "prediction_markets",
       error: marketError,
     });
-    redirectWithEvaluationStatus("error", externalId);
+    redirectWithEvaluationStatus("error", externalId, returnTo);
   }
 
   if (existingEvaluationError) {
@@ -772,22 +793,22 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
       table: "prediction_results",
       error: existingEvaluationError,
     });
-    redirectWithEvaluationStatus("error", externalId);
+    redirectWithEvaluationStatus("error", externalId, returnTo);
   }
 
   if (!result) {
-    redirectWithEvaluationStatus("no_result", externalId);
+    redirectWithEvaluationStatus("no_result", externalId, returnTo);
   }
 
   if (result.verification_status !== "verified") {
-    redirectWithEvaluationStatus("unverified", externalId);
+    redirectWithEvaluationStatus("unverified", externalId, returnTo);
   }
 
   const markets = resolveEvaluationMarkets((marketData ?? []) as StoredEvaluationMarket[]);
   const topScorelines = topScorelinesSchema.safeParse(prediction.top_scores_json);
 
   if (!markets || !topScorelines.success) {
-    redirectWithEvaluationStatus("incomplete", externalId);
+    redirectWithEvaluationStatus("incomplete", externalId, returnTo);
   }
 
   const evaluation = evaluatePrediction(
@@ -815,7 +836,7 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
   );
 
   if (evaluation.status !== "evaluable") {
-    redirectWithEvaluationStatus("not_evaluable", externalId);
+    redirectWithEvaluationStatus("not_evaluable", externalId, returnTo);
   }
 
   const { prediction_version_id, ...evaluationFields } = evaluation.predictionResultsPayload;
@@ -857,11 +878,12 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
         message: "Mutation returned no prediction_result row.",
       });
     }
-    redirectWithEvaluationStatus("error", externalId);
+    redirectWithEvaluationStatus("error", externalId, returnTo);
   }
 
   revalidatePath("/admin/real-fixture-lab");
-  redirectWithEvaluationStatus(existingEvaluation ? "refreshed" : "saved", externalId);
+  revalidatePath("/admin/real-fixture-evaluation-queue");
+  redirectWithEvaluationStatus(existingEvaluation ? "refreshed" : "saved", externalId, returnTo);
 }
 
 export async function verifyRealFixtureResultAction(formData: FormData) {

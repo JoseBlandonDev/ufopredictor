@@ -114,10 +114,13 @@ function buildSaveFormData() {
   return formData;
 }
 
-function buildEvaluationFormData() {
+function buildEvaluationFormData(returnTo?: string) {
   const formData = new FormData();
   formData.set("predictionVersionId", predictionVersionId);
   formData.set("externalId", externalId);
+  if (returnTo) {
+    formData.set("returnTo", returnTo);
+  }
   return formData;
 }
 
@@ -680,6 +683,22 @@ describe("persistRealFixtureEvaluationAction", () => {
         goal_error: 1,
       }),
     );
+  });
+
+  it("returns to the lightweight evaluation queue when requested", async () => {
+    const client = buildEvaluationClient();
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(
+      persistRealFixtureEvaluationAction(
+        buildEvaluationFormData("/admin/real-fixture-evaluation-queue"),
+      ),
+    ).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-evaluation-queue?externalId=${encodeURIComponent(externalId)}&evaluation=saved`,
+    );
+
+    expect(requireAdminMock).toHaveBeenCalledWith("/admin/real-fixture-evaluation-queue");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-evaluation-queue");
   });
 
   it("blocks when no prediction version exists", async () => {
