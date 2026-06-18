@@ -1,5 +1,7 @@
 import { PlanCard } from "@/components/plan-card";
+import { WompiCheckoutButton } from "@/components/wompi-checkout-button";
 import { getPublicPlansCatalogData } from "@/lib/supabase/entitlement-queries";
+import { getWorldCupPassDisplayPrice } from "@/lib/wompi/config";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +45,7 @@ const worldCupPackageRoadmap = [
 
 export default async function PricingPage() {
   const catalog = await getPublicPlansCatalogData();
+  const worldCupPassPrice = getWorldCupPassDisplayPrice();
 
   return (
     <div className="space-y-8">
@@ -52,8 +55,8 @@ export default async function PricingPage() {
         </p>
         <h1 className="text-4xl font-semibold">Ruta de acceso actual</h1>
         <p className="max-w-3xl text-[var(--muted)]">
-          Las cuentas gratis están disponibles ahora. Premium y checkout llegarán más adelante.
-          En esta fase todavía no hay pagos habilitados.
+          Las cuentas gratis están disponibles ahora. El World Cup Pass sandbox ya puede iniciar
+          checkout con Wompi; el acceso se confirma solo con webhook validado.
         </p>
       </section>
 
@@ -74,20 +77,28 @@ export default async function PricingPage() {
           </p>
         </article>
 
-        <article className="ufo-card rounded-lg border border-white/15 p-5 sm:p-6">
+        <article className="ufo-card rounded-lg border border-[var(--accent)]/40 p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-                Más adelante
+                Sandbox Wompi
               </p>
-              <h2 className="mt-2 text-xl font-semibold">Planes premium</h2>
+              <h2 className="mt-2 text-xl font-semibold">World Cup Pass</h2>
             </div>
-            <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Próximamente</span>
+            <span className="ufo-pill">MVP</span>
           </div>
           <p className="mt-3 text-sm text-[var(--muted)]">
-            El análisis más profundo y las capas premium adicionales se introducirán en una fase
-            posterior.
+            {worldCupPassPrice}
           </p>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            Accede a xG, top scorelines, BTTS, Over/Under y lectura avanzada del modelo.
+          </p>
+          <p className="mt-3 text-xs text-[var(--muted)]">
+            El redirect no activa premium. La activación ocurre cuando Wompi confirma el pago por webhook validado.
+          </p>
+          <div className="mt-5">
+            <WompiCheckoutButton />
+          </div>
         </article>
       </section>
 
@@ -99,12 +110,11 @@ export default async function PricingPage() {
             </p>
             <h2 className="mt-2 text-2xl font-semibold">Ruta planeada del catálogo premium</h2>
           </div>
-          <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Sin checkout activo</span>
+          <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Sandbox parcial</span>
         </div>
         <p className="mt-3 max-w-3xl text-sm text-[var(--muted)]">
-          Estos paquetes están planeados para el Mundial. Todavía no hay checkout activo ni pagos
-          habilitados en esta fase. El acceso premium se habilitará únicamente con autorización
-          server-side.
+          El MVP habilita solo World Cup Pass con Wompi sandbox. Los demás paquetes siguen
+          planeados. El acceso premium se habilita únicamente con autorización server-side.
         </p>
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
           {worldCupPackageRoadmap.map((pkg) => (
@@ -130,13 +140,13 @@ export default async function PricingPage() {
             Las cuentas gratis siguen activas mientras la publicación de planes premium se organiza
             para más adelante.
           </p>
-          <p className="mt-2">Todavía no hay checkout ni pagos disponibles.</p>
+          <p className="mt-2">El checkout sandbox usa Wompi y requiere webhook validado para activar premium.</p>
         </section>
       ) : catalog.plans.length === 0 ? (
         <section className="ufo-card rounded-lg p-5 text-sm text-[var(--muted)]">
           <p>No hay planes públicos visibles en este momento.</p>
           <p className="mt-2">El acceso con cuenta gratis sigue disponible.</p>
-          <p className="mt-2">Todavía no hay checkout ni pagos disponibles.</p>
+          <p className="mt-2">El World Cup Pass sandbox se muestra arriba aunque el catálogo dinámico no esté disponible.</p>
         </section>
       ) : (
         <section className="space-y-4">
@@ -150,8 +160,8 @@ export default async function PricingPage() {
             <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Pagos deshabilitados</span>
           </div>
           <p className="max-w-3xl text-sm text-[var(--muted)]">
-            Estas tarjetas describen el catálogo planeado. Todavía no hay checkout ni pagos
-            disponibles.
+            Estas tarjetas describen el catálogo planeado. Solo World Cup Pass tiene checkout sandbox
+            en este MVP.
           </p>
           <div className="grid gap-4 lg:grid-cols-3">
             {catalog.plans.map((plan) => (

@@ -28,7 +28,9 @@ PR #81 added an admin-only publish queue and should be included in production re
 
 ## Payment readiness
 
-Wompi is the intended payment gateway direction for Epic G05, but payment integration is not implemented. Before any payment PR, define sandbox/prod variables, webhook/confirmation handling, entitlement activation, and rollback behavior.
+G05B adds a Wompi sandbox MVP for `world-cup-pass`. Production remains pending. Before production payment enablement, configure production Wompi keys, production webhook URL, final COP price, Railway smoke test, webhook retry monitoring, and advisor review.
+
+Redirect pages are informational only. Verified Wompi webhook processing is the only payment path that activates G06 entitlements.
 
 ## Current smoke-test targets
 
@@ -37,6 +39,8 @@ Wompi is the intended payment gateway direction for Epic G05, but payment integr
 - `/matches/[slug]` public and authenticated states
 - `/admin/real-fixture-publish-queue`
 - Auth flows and confirmation emails
+- `/pricing` Wompi sandbox checkout CTA
+- `/api/wompi/webhook` verified webhook processing
 - No public exposure of internal evaluation or `prediction_results`
 
 ## Known production risk

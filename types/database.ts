@@ -113,6 +113,37 @@ export type EntitlementGrantRow = {
   updated_at: Timestamp;
 };
 
+export type WompiPaymentIntentRow = {
+  id: string;
+  reference: string;
+  user_id: string;
+  plan_id: string;
+  amount_in_cents: number;
+  currency: "COP";
+  status: "PENDING" | "APPROVED" | "DECLINED" | "ERROR";
+  checkout_payload: Json;
+  entitlement_mapping_json: Json;
+  expires_at: Timestamp | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type WompiPaymentEventRow = {
+  id: string;
+  transaction_id: string | null;
+  reference: string | null;
+  event_type: string | null;
+  status: "PENDING" | "APPROVED" | "DECLINED" | "ERROR" | null;
+  checksum: string;
+  raw_event_json: Json;
+  verified_at: Timestamp | null;
+  processed_at: Timestamp | null;
+  entitlement_grant_id: string | null;
+  processing_error: string | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
 export type UserSavedMatchRow = {
   id: string;
   user_id: string;
@@ -352,6 +383,8 @@ export type DatabaseTables = {
   user_entitlements: UserEntitlementRow;
   user_match_unlocks: UserMatchUnlockRow;
   entitlement_grants: EntitlementGrantRow;
+  wompi_payment_intents: WompiPaymentIntentRow;
+  wompi_payment_events: WompiPaymentEventRow;
   user_saved_matches: UserSavedMatchRow;
   competitions: CompetitionRow;
   seasons: SeasonRow;
@@ -380,6 +413,8 @@ type DatabaseInserts = {
   user_entitlements: Insert<UserEntitlementRow, "user_id" | "entitlement_type" | "resource_type" | "resource_id">;
   user_match_unlocks: Insert<UserMatchUnlockRow, "user_id" | "match_id">;
   entitlement_grants: Insert<EntitlementGrantRow, "idempotency_key" | "source_type" | "user_id" | "grant_type" | "resource_type" | "starts_at">;
+  wompi_payment_intents: Insert<WompiPaymentIntentRow, "reference" | "user_id" | "plan_id" | "amount_in_cents" | "currency">;
+  wompi_payment_events: Insert<WompiPaymentEventRow, "checksum" | "raw_event_json">;
   user_saved_matches: Insert<UserSavedMatchRow, "user_id" | "match_id">;
   competitions: Insert<CompetitionRow, "name" | "slug" | "type">;
   seasons: Insert<SeasonRow, "competition_id" | "name" | "year" | "starts_at" | "ends_at">;
