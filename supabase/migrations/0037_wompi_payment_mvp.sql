@@ -2,6 +2,9 @@
 -- Premium authorization continues to come from user_entitlements and
 -- user_match_unlocks. subscriptions remains commercial status only.
 
+create schema if not exists vault;
+create extension if not exists supabase_vault with schema vault;
+
 insert into public.plans (
   id,
   name,
@@ -233,10 +236,15 @@ begin
     raise exception 'event_json must be a JSON object' using errcode = '22023';
   end if;
 
-  v_events_secret := nullif(current_setting('app.wompi_events_secret', true), '');
+  select nullif(decrypted_secret, '')
+  into v_events_secret
+  from vault.decrypted_secrets
+  where name = 'wompi_events_secret'
+  order by updated_at desc
+  limit 1;
 
   if v_events_secret is null then
-    raise exception 'app.wompi_events_secret database setting is required'
+    raise exception 'wompi_events_secret Vault secret is required'
       using errcode = '22023';
   end if;
 
