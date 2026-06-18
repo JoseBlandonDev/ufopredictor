@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { parseWompiTransactionEvent } from "@/lib/wompi/events";
-import { requireWompiServerConfig } from "@/lib/wompi/config";
-import { verifyEventChecksum } from "@/lib/wompi/signature";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const config = requireWompiServerConfig();
   const headerChecksum = request.headers.get("x-event-checksum");
   let rawEvent: unknown;
 
@@ -26,16 +23,6 @@ export async function POST(request: Request) {
       { error: error instanceof Error ? error.message : "Invalid Wompi event." },
       { status: 400 },
     );
-  }
-
-  const isVerified = verifyEventChecksum({
-    event,
-    eventsSecret: config.eventsSecret,
-    headerChecksum,
-  });
-
-  if (!isVerified) {
-    return NextResponse.json({ error: "Invalid Wompi checksum." }, { status: 401 });
   }
 
   const supabase = await createSupabaseServerClient();

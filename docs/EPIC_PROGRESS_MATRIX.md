@@ -21,7 +21,7 @@ _Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 com
 | Epic G02 Dev/Prod Environment + Config Readiness | Done / Verify in G03 | Environment/config readiness done; production smoke remains pending. |
 | Epic G03 Production Smoke Test | Pending | Must include public surfaces, queue admin path, auth, and no leaks. |
 | Epic G04 Plans/Pricing | Pending | Parallel Epic G task. |
-| Epic G05 Wompi Payment Integration | Sandbox MVP | Wompi sandbox checkout + verified webhook activation for `world-cup-pass`; production pending. |
+| Epic G05 Wompi Payment Integration | Production Smoke | Wompi checkout + verified webhook activation for `world-cup-pass`; production smoke in progress. |
 | Epic G06 Entitlement Activation Binding | Implemented / Backend | Admin/manual grants bind into existing entitlements and match unlocks; Wompi remains G05. |
 | Epic G07 Premium Gate Shell | Pending | CTA/gated UI shell. |
 | Epic G08 Trust/Legal Copy | Pending | Responsible-use, no betting, no guarantees. |

@@ -9,10 +9,9 @@ function setWompiEnv(overrides: Record<string, string | undefined> = {}) {
   process.env.WOMPI_API_BASE_URL = "https://sandbox.wompi.co/v1";
   process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY = "pub_test_xxx";
   process.env.WOMPI_PRIVATE_KEY = "prv_test_xxx";
-  process.env.WOMPI_EVENTS_SECRET = "test_events_xxx";
   process.env.WOMPI_INTEGRITY_SECRET = "test_integrity_xxx";
   process.env.WOMPI_CURRENCY = "COP";
-  process.env.WOMPI_WORLD_CUP_PASS_AMOUNT_COP = "87000";
+  process.env.WOMPI_WORLD_CUP_PASS_AMOUNT_COP = "69900";
   process.env.NEXT_PUBLIC_APP_URL = "https://ufopredictor.com";
 
   for (const [key, value] of Object.entries(overrides)) {
@@ -29,12 +28,24 @@ afterEach(() => {
 });
 
 describe("Wompi config", () => {
-  it("requires server-only Wompi secrets for checkout/webhook work", async () => {
+  it("requires only checkout secrets in app routes and leaves event verification to Vault", async () => {
+    setWompiEnv({ WOMPI_PRIVATE_KEY: undefined });
+
+    const { requireWompiServerConfig } = await import("./config");
+
+    expect(() => requireWompiServerConfig()).toThrow("Missing WOMPI_PRIVATE_KEY");
+  });
+
+  it("does not require the Wompi events secret in Railway app env", async () => {
     setWompiEnv({ WOMPI_EVENTS_SECRET: undefined });
 
     const { requireWompiServerConfig } = await import("./config");
 
-    expect(() => requireWompiServerConfig()).toThrow("Missing WOMPI_EVENTS_SECRET");
+    expect(requireWompiServerConfig()).toMatchObject({
+      env: "sandbox",
+      currency: "COP",
+      worldCupPassAmountCop: 69900,
+    });
   });
 
   it("loads sandbox config and keeps the COP amount configurable", async () => {
@@ -54,6 +65,6 @@ describe("Wompi config", () => {
 
     const { getWorldCupPassDisplayPrice } = await import("./config");
 
-    expect(getWorldCupPassDisplayPrice()).toBe("25 USDT · aprox. $87.000 COP");
+    expect(getWorldCupPassDisplayPrice()).toBe("20 USDT · aprox. $69.900 COP");
   });
 });
