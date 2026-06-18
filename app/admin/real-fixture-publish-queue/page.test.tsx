@@ -78,6 +78,7 @@ describe("RealFixturePublishQueuePage", () => {
     expect(html).toContain("Save prediction");
     expect(html).toContain("Publish basic");
     expect(html).toContain("future ready");
+    expect(html).toContain("Cola dinamica para fixtures World Cup API-Football admin_only proximos");
     expect(html).toContain("/admin/real-fixture-publish-queue");
   });
 
