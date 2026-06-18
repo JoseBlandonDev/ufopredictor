@@ -123,7 +123,8 @@ export default async function RealFixturePublishQueuePage({
           <div>
             <h2 className="text-lg font-semibold">Pending exact fixtures</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Cola limitada a los 7 fixtures exactos de Data Ops 02 pendientes de save/publish.
+              Cola dinamica para fixtures World Cup API-Football admin_only proximos que necesitan
+              guardado interno o publicacion public_product.
             </p>
           </div>
           <span className="rounded-md border border-[var(--accent)]/25 bg-[var(--accent)]/10 px-3 py-1 text-xs text-[var(--accent)]">

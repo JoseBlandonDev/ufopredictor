@@ -1,25 +1,20 @@
 import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isLaunchSafePublicMatch } from "./public-launch-filters";
 import {
   REAL_FIXTURE_LAB_PREDICTION_TYPE,
   REAL_FIXTURE_LAB_RUN_SCOPE,
 } from "../prediction-engine/real-fixture-persistence";
 
-export const REAL_FIXTURE_PUBLISH_QUEUE_EXTERNAL_IDS = [
-  "api-football:fixture:1489384",
-  "api-football:fixture:1489385",
-  "api-football:fixture:1489386",
-  "api-football:fixture:1539004",
-  "api-football:fixture:1539005",
-  "api-football:fixture:1489387",
-  "api-football:fixture:1489388",
-] as const;
+const WORLD_CUP_COMPETITION_SLUG = "world-cup-2026";
+const WORLD_CUP_PUBLISH_QUEUE_WINDOW_DAYS = 10;
 
 type PublishQueueMatchRow = {
   id: string;
   external_id: string;
   slug: string;
+  competition_id: string;
   home_team_id: string;
   away_team_id: string;
   kickoff_at: string;
@@ -37,6 +32,12 @@ type PublishQueuePredictionRow = {
   id: string;
   match_id: string;
   created_at: string;
+};
+
+type PublishQueueCompetitionRow = {
+  id: string;
+  slug: string;
+  usage_scope: string;
 };
 
 export type RealFixturePublishQueueRow = {
@@ -77,9 +78,15 @@ function buildLatestPredictionMap(rows: PublishQueuePredictionRow[] | null | und
 
 export async function getRealFixturePublishQueueData(): Promise<RealFixturePublishQueueData> {
   const supabase = await createSupabaseServerClient();
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const maxKickoffIso = new Date(
+    now.getTime() + WORLD_CUP_PUBLISH_QUEUE_WINDOW_DAYS * 24 * 60 * 60 * 1000,
+  ).toISOString();
 
   const [
     { data: activeModelVersionData },
+    { data: competitionData, error: competitionError },
     { data: matchData, error: matchError },
   ] = await Promise.all([
     supabase
@@ -90,18 +97,36 @@ export async function getRealFixturePublishQueueData(): Promise<RealFixturePubli
       .limit(1)
       .maybeSingle(),
     supabase
+      .from("competitions")
+      .select("id, slug, usage_scope")
+      .eq("slug", WORLD_CUP_COMPETITION_SLUG)
+      .eq("usage_scope", "public_product")
+      .maybeSingle(),
+    supabase
       .from("matches")
-      .select("id, external_id, slug, home_team_id, away_team_id, kickoff_at, status, access_scope, intake_source")
-      .in("external_id", [...REAL_FIXTURE_PUBLISH_QUEUE_EXTERNAL_IDS])
+      .select("id, external_id, slug, competition_id, home_team_id, away_team_id, kickoff_at, status, access_scope, intake_source")
+      .eq("access_scope", "admin_only")
       .eq("intake_source", "api_football")
+      .eq("status", "scheduled")
+      .gte("kickoff_at", nowIso)
+      .lte("kickoff_at", maxKickoffIso)
       .order("kickoff_at", { ascending: true }),
   ]);
+
+  if (competitionError || !competitionData) {
+    throw new Error("No fue posible identificar la competencia publica del Mundial 2026 para la cola.");
+  }
 
   if (matchError) {
     throw new Error(`No fue posible leer la cola de fixtures reales: ${matchError.message}`);
   }
 
-  const matches = (matchData ?? []) as PublishQueueMatchRow[];
+  const competition = competitionData as PublishQueueCompetitionRow;
+  const matches = ((matchData ?? []) as PublishQueueMatchRow[]).filter(
+    (match) =>
+      match.competition_id === competition.id &&
+      isLaunchSafePublicMatch(match.slug, competition.slug),
+  );
 
   if (matches.length === 0) {
     return {
@@ -153,18 +178,20 @@ export async function getRealFixturePublishQueueData(): Promise<RealFixturePubli
 
   return {
     activeModelVersionId: activeModelVersionData?.id ?? null,
-    rows: matches.map((match) => ({
-      id: match.id,
-      externalId: match.external_id,
-      apiFootballFixtureId: parseApiFootballFixtureId(match.external_id),
-      slug: match.slug,
-      kickoffAt: match.kickoff_at,
-      status: match.status,
-      accessScope: match.access_scope,
-      homeTeamName: teamById.get(match.home_team_id) ?? "Equipo local no disponible",
-      awayTeamName: teamById.get(match.away_team_id) ?? "Equipo visitante no disponible",
-      savedPredictionId: savedPredictionByMatchId.get(match.id) ?? null,
-      latestPublicPredictionId: publicPredictionByMatchId.get(match.id) ?? null,
-    })),
+    rows: matches
+      .map((match) => ({
+        id: match.id,
+        externalId: match.external_id,
+        apiFootballFixtureId: parseApiFootballFixtureId(match.external_id),
+        slug: match.slug,
+        kickoffAt: match.kickoff_at,
+        status: match.status,
+        accessScope: match.access_scope,
+        homeTeamName: teamById.get(match.home_team_id) ?? "Equipo local no disponible",
+        awayTeamName: teamById.get(match.away_team_id) ?? "Equipo visitante no disponible",
+        savedPredictionId: savedPredictionByMatchId.get(match.id) ?? null,
+        latestPublicPredictionId: publicPredictionByMatchId.get(match.id) ?? null,
+      }))
+      .filter((match) => match.latestPublicPredictionId === null),
   };
 }
