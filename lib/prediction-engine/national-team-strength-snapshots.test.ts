@@ -32,9 +32,10 @@ describe("national team strength snapshots", () => {
     expect(
       CANONICAL_WORLD_CUP_TEAM_SNAPSHOTS.every(
         (snapshot) =>
-          snapshot.snapshotDate === "2026-06-13" &&
-          snapshot.sourceLabel === "E10C normalized FIFA + Elo + recent-form signal pack" &&
-          snapshot.sourceNotes.includes("normalized local E10C signal pack"),
+          snapshot.snapshotDate === "2026-06-18" &&
+          snapshot.sourceLabel === "SIGNAL04 static FIFA + Elo + recent aggregate signal pack" &&
+          snapshot.sourceNotes.includes("validated aggregate recent-form inputs") &&
+          snapshot.sourceNotes.includes("raw recent-match arrays"),
       ),
     ).toBe(true);
   });
@@ -135,10 +136,10 @@ describe("national team strength snapshots", () => {
     const signals = resolveNationalTeamSnapshotSignals({ name: "Mexico" });
 
     expect(signals).toEqual({
-      ratingScore: 62.5,
-      recentFormScore: 90.67,
-      attackScore: 55.26,
-      defenseScore: 72.53,
+      ratingScore: 64.67,
+      recentFormScore: 86.67,
+      attackScore: 55.35,
+      defenseScore: 72.68,
       marketScore: 50,
       lineupContextScore: 50,
     });

@@ -129,7 +129,7 @@ describe("generatePrediction", () => {
     expect(result.normalizedInput.homeTeam.signals.marketScore).toBe(50);
     expect(result.normalizedInput.awayTeam.signals.lineupContextScore).toBe(50);
     expect(result.notes.some((note) => note.includes("Market score is neutral"))).toBe(false);
-    expect(result.normalizedInput.homeTeam.metadata?.eloRating).toBe(2115);
+    expect(result.normalizedInput.homeTeam.metadata?.eloRating).toBe(2128);
     expect(result.teamPower.home.score).toBeGreaterThan(result.teamPower.away.score);
     expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
   });
