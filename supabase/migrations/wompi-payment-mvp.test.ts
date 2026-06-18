@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -6,6 +6,18 @@ const migration = readFileSync(
   join(process.cwd(), "supabase/migrations/0037_wompi_payment_mvp.sql"),
   "utf8",
 );
+const repairMigrationName = readdirSync(join(process.cwd(), "supabase/migrations")).find((fileName) =>
+  fileName.endsWith("_qualify_wompi_pgcrypto_functions.sql"),
+);
+const repairMigration = repairMigrationName
+  ? readFileSync(join(process.cwd(), "supabase/migrations", repairMigrationName), "utf8")
+  : "";
+const priceMigrationName = readdirSync(join(process.cwd(), "supabase/migrations")).find((fileName) =>
+  fileName.endsWith("_set_world_cup_pass_production_price.sql"),
+);
+const priceMigration = priceMigrationName
+  ? readFileSync(join(process.cwd(), "supabase/migrations", priceMigrationName), "utf8")
+  : "";
 const webhookRoute = readFileSync(
   join(process.cwd(), "app/api/wompi/webhook/route.ts"),
   "utf8",
@@ -57,7 +69,7 @@ describe("0037 Wompi payment MVP migration", () => {
     expect(migration).toContain("drop function if exists public.activate_verified_wompi_entitlement(jsonb, text, text)");
     expect(migration).toContain("from vault.decrypted_secrets");
     expect(migration).toContain("where name = 'wompi_events_secret'");
-    expect(migration).toContain("digest(v_concat || v_timestamp || v_events_secret, 'sha256')");
+    expect(migration).toContain("extensions.digest(v_concat || v_timestamp || v_events_secret, 'sha256')");
     expect(migration).not.toContain("p_events_secret");
     expect(webhookRoute).not.toContain("p_events_secret");
   });
@@ -88,8 +100,11 @@ describe("0037 Wompi payment MVP migration", () => {
     expect(migration).not.toContain("pg_reload_conf");
   });
 
-  it("validates Wompi checksums before processing and keeps the route server-only", () => {
-    expect(webhookRoute).toContain("verifyEventChecksum");
+  it("delegates Wompi checksum verification to the Vault-backed RPC", () => {
+    expect(webhookRoute).toContain("activate_verified_wompi_entitlement");
+    expect(webhookRoute).toContain("p_header_checksum: headerChecksum");
+    expect(webhookRoute).not.toContain("verifyEventChecksum");
+    expect(webhookRoute).not.toContain("WOMPI_EVENTS_SECRET");
     expect(webhookRoute).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
   });
 
@@ -104,12 +119,31 @@ describe("0037 Wompi payment MVP migration", () => {
     expect(migration).toContain("create or replace function public.create_wompi_world_cup_pass_intent");
     expect(migration).toContain("v_user_id := auth.uid()");
     expect(migration).toContain("where slug = 'world-cup-pass'");
-    expect(migration).toContain("8700000");
+    expect(migration).toContain("extensions.gen_random_bytes(6)");
+    expect(migration).toContain("6990000");
     expect(migration).toContain("'COP'");
     expect(migration).toContain("'competition_access'");
     expect(migration).toContain("'world_cup_2026'");
     expect(migration).toContain("grant execute on function public.create_wompi_world_cup_pass_intent(timestamptz) to authenticated");
     expect(migration).toContain("revoke execute on function public.create_wompi_world_cup_pass_intent(timestamptz) from anon");
+  });
+
+  it("keeps repair migration scoped to pgcrypto function qualification", () => {
+    expect(repairMigrationName).toBeDefined();
+    expect(repairMigration).toContain("extensions.gen_random_bytes(6)");
+    expect(repairMigration).toContain("extensions.digest(v_concat || v_timestamp || v_events_secret, ''sha256'')");
+    expect(repairMigration).toContain("notify pgrst, 'reload schema'");
+    expect(repairMigration).not.toContain("create table public.wompi_payment_intents");
+    expect(repairMigration).not.toContain("grant select, insert on public.wompi_payment_intents to authenticated");
+  });
+
+  it("keeps the production World Cup Pass price aligned with checkout config", () => {
+    expect(priceMigrationName).toBeDefined();
+    expect(priceMigration).toContain("price = 20");
+    expect(priceMigration).toContain("'8700000', '6990000'");
+    expect(priceMigration).toContain("notify pgrst, 'reload schema'");
+    expect(migration).toContain("6990000");
+    expect(migration).not.toContain("8700000");
   });
 
   it("uses the constrained checkout RPC from the app route", () => {

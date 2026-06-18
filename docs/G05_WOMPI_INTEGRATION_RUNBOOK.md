@@ -1,17 +1,17 @@
-# G05 Wompi Sandbox Integration Runbook
+# G05 Wompi Production Integration Runbook
 
-_Last refreshed: G05B Wompi sandbox checkout + webhook MVP._
+_Last refreshed: G05B Wompi production checkout + webhook MVP._
 
 ## Scope
 
-This is a sandbox MVP for selling `world-cup-pass` through Wompi Colombia and activating the existing G06 entitlement layer after a verified webhook. It does not add betting, odds advice, dynamic FX, production payment secrets, prediction-engine changes, API-Football changes, ingest changes, or result-verification changes.
+This is a production-enabled MVP for selling `world-cup-pass` through Wompi Colombia and activating the existing G06 entitlement layer after a verified webhook. It does not add betting, odds advice, dynamic FX, payment secrets, prediction-engine changes, API-Football changes, ingest changes, or result-verification changes.
 
 ## Product And Amount
 
 - Product: `world-cup-pass`.
-- Visible price: `25 USDT · aprox. $87.000 COP`.
-- Configured charge amount: `WOMPI_WORLD_CUP_PASS_AMOUNT_COP=87000`.
-- Wompi checkout amount: `amount_in_cents=8700000`.
+- Visible price: `20 USDT · aprox. $69.900 COP`.
+- Configured charge amount: `WOMPI_WORLD_CUP_PASS_AMOUNT_COP=69900`.
+- Wompi checkout amount: `amount_in_cents=6990000`.
 - Currency: `COP`.
 - Resource mapping: `competition_access` on `world_cup_2026`.
 
@@ -29,16 +29,15 @@ NEXT_PUBLIC_APP_URL
 Server-only:
 
 ```txt
-WOMPI_ENV=sandbox
-WOMPI_API_BASE_URL=https://sandbox.wompi.co/v1
-WOMPI_PRIVATE_KEY=prv_test_xxx
-WOMPI_EVENTS_SECRET=test_events_xxx
-WOMPI_INTEGRITY_SECRET=test_integrity_xxx
+WOMPI_ENV=production
+WOMPI_API_BASE_URL=https://production.wompi.co/v1
+WOMPI_PRIVATE_KEY=prv_prod_xxx
+WOMPI_INTEGRITY_SECRET=prod_integrity_xxx
 WOMPI_CURRENCY=COP
-WOMPI_WORLD_CUP_PASS_AMOUNT_COP=87000
+WOMPI_WORLD_CUP_PASS_AMOUNT_COP=69900
 ```
 
-The webhook RPC does not accept the Wompi events secret from callers. Store the same value in Supabase Vault outside source control:
+The webhook RPC does not accept the Wompi events secret from callers. Store the production events secret in Supabase Vault outside source control:
 
 ```sql
 select vault.create_secret(
@@ -58,8 +57,8 @@ Do not commit real Wompi keys. Railway is the current deployment target for this
 4. The browser is sent to Wompi Web Checkout.
 5. The redirect returns to `/payments/wompi/return` and is informational only.
 6. Wompi sends `POST /api/wompi/webhook`.
-7. The route verifies the event checksum with `WOMPI_EVENTS_SECRET`.
-8. The database RPC revalidates the checksum with the Supabase Vault `wompi_events_secret`, records the event idempotently, and activates G06 only for `APPROVED`.
+7. The route parses the Wompi event and passes the event plus `X-Event-Checksum` to the database RPC.
+8. The database RPC validates the checksum with the Supabase Vault `wompi_events_secret`, records the event idempotently, and activates G06 only for `APPROVED`.
 
 ## Activation Contract
 
@@ -81,8 +80,8 @@ Duplicate webhook deliveries return the already processed event and do not dupli
 ## Sandbox Test
 
 1. Apply `supabase/migrations/0037_wompi_payment_mvp.sql`.
-2. Configure Railway sandbox env vars and the Supabase Vault `wompi_events_secret`.
-3. Set the Wompi sandbox webhook URL to:
+2. Configure Railway production checkout env vars and the Supabase Vault `wompi_events_secret`.
+3. Set the Wompi production webhook URL to:
 
 ```txt
 https://<railway-domain>/api/wompi/webhook
@@ -90,14 +89,14 @@ https://<railway-domain>/api/wompi/webhook
 
 4. Sign in and open `/pricing`.
 5. Start checkout from World Cup Pass.
-6. Complete a Wompi sandbox payment.
+6. Complete a Wompi production payment.
 7. Confirm the redirect page says access is being verified.
 8. Confirm Wompi webhook creates one `entitlement_grants` row and a current `user_entitlements` row for `world_cup_2026`.
 9. Confirm a duplicate event does not create another grant.
 
 ## Production Pending
 
-- Production Wompi public/private/events/integrity keys.
+- Production Wompi public/private/events/integrity keys configured.
 - Production webhook URL configured in Wompi.
 - Final COP price confirmation.
 - Production smoke test on Railway domain.

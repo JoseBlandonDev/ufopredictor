@@ -58,7 +58,7 @@ Audit and idempotency ledger for entitlement activation. G06B uses it for manual
 
 ### `wompi_payment_intents`
 
-Server-created checkout intent for the Wompi sandbox MVP. It stores the unique reference, user, plan, configured COP amount converted to Wompi `amount_in_cents`, checkout payload, entitlement mapping, and status. It must not store card numbers or sensitive payment instrument data.
+Server-created checkout intent for the Wompi checkout MVP. It stores the unique reference, user, plan, configured COP amount converted to Wompi `amount_in_cents`, checkout payload, entitlement mapping, and status. It must not store card numbers or sensitive payment instrument data.
 
 ### `wompi_payment_events`
 

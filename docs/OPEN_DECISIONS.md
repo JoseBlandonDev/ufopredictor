@@ -18,7 +18,7 @@ Decision: closed. `/admin/real-fixture-publish-queue` is the current admin-only 
 
 ### Payment gateway direction
 
-Decision: Wompi sandbox is implemented for the `world-cup-pass` MVP. Production activation remains open pending production keys, webhook URL, final COP price, and smoke test.
+Decision: Wompi production checkout is enabled for the `world-cup-pass` MVP. Production activation now depends on successful live smoke test and webhook monitoring.
 
 G06B note: entitlement activation has a backend binding layer for admin/manual grants. G05B adds the verified Wompi webhook path into the same ledger/materialization model instead of creating a parallel premium system.
 
@@ -64,4 +64,4 @@ Status: open. Cadence and boundaries for refreshing model inputs remain undecide
 
 ### Epic G payment/entitlement decisions
 
-Status: partially narrowed. Sandbox Wompi checkout and webhook activation exist for `world-cup-pass`; production remains open. `subscriptions` still does not authorize premium access by itself.
+Status: partially narrowed. Wompi checkout and webhook activation exist for `world-cup-pass`; production remains open. `subscriptions` still does not authorize premium access by itself.

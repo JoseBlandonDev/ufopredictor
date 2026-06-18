@@ -1,9 +1,9 @@
 import "server-only";
 
 export const WOMPI_WORLD_CUP_PASS_PLAN_SLUG = "world-cup-pass";
-export const WOMPI_WORLD_CUP_PASS_PRICE_LABEL = "25 USDT";
+export const WOMPI_WORLD_CUP_PASS_PRICE_LABEL = "20 USDT";
 export const WOMPI_WORLD_CUP_PASS_RESOURCE_ID = "world_cup_2026";
-export const DEFAULT_WOMPI_WORLD_CUP_PASS_AMOUNT_COP = 87000;
+export const DEFAULT_WOMPI_WORLD_CUP_PASS_AMOUNT_COP = 69900;
 
 export type WompiEnvironment = "sandbox" | "production";
 
@@ -12,7 +12,6 @@ export type WompiServerConfig = {
   apiBaseUrl: string;
   publicKey: string;
   privateKey: string;
-  eventsSecret: string;
   integritySecret: string;
   currency: "COP";
   worldCupPassAmountCop: number;
@@ -85,7 +84,6 @@ export function requireWompiServerConfig(): WompiServerConfig {
     apiBaseUrl: requireEnv("WOMPI_API_BASE_URL"),
     publicKey: requireEnv("NEXT_PUBLIC_WOMPI_PUBLIC_KEY"),
     privateKey: requireEnv("WOMPI_PRIVATE_KEY"),
-    eventsSecret: requireEnv("WOMPI_EVENTS_SECRET"),
     integritySecret: requireEnv("WOMPI_INTEGRITY_SECRET"),
     currency,
     worldCupPassAmountCop: parsePositiveInteger(

@@ -20,7 +20,7 @@ values (
   'World Cup Pass',
   'world-cup-pass',
   'Acceso premium para el Mundial 2026.',
-  25,
+  20,
   'USD',
   'one_time',
   true
@@ -152,7 +152,7 @@ begin
   end if;
 
   loop
-    v_reference := 'ufo_wc_' || to_char(clock_timestamp(), 'YYYYMMDDHH24MISS') || '_' || encode(gen_random_bytes(6), 'hex');
+    v_reference := 'ufo_wc_' || to_char(clock_timestamp(), 'YYYYMMDDHH24MISS') || '_' || encode(extensions.gen_random_bytes(6), 'hex');
 
     insert into public.wompi_payment_intents (
       reference,
@@ -169,7 +169,7 @@ begin
       v_reference,
       v_user_id,
       v_plan_id,
-      8700000,
+      6990000,
       'COP',
       'PENDING',
       '{}'::jsonb,
@@ -286,7 +286,7 @@ begin
     v_concat := v_concat || coalesce(v_cursor #>> '{}', '');
   end loop;
 
-  v_expected_checksum := upper(encode(digest(v_concat || v_timestamp || v_events_secret, 'sha256'), 'hex'));
+  v_expected_checksum := upper(encode(extensions.digest(v_concat || v_timestamp || v_events_secret, 'sha256'), 'hex'));
 
   if v_expected_checksum <> v_body_checksum then
     raise exception 'Invalid Wompi event checksum' using errcode = '22023';

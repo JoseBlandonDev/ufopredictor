@@ -7,7 +7,7 @@ describe("Wompi checkout helpers", () => {
   it("converts configured COP pesos to Wompi amount_in_cents", async () => {
     const { amountCopToWompiAmountInCents } = await import("./checkout");
 
-    expect(amountCopToWompiAmountInCents(87000)).toBe(8700000);
+    expect(amountCopToWompiAmountInCents(69900)).toBe(6990000);
   });
 
   it("can build checkout with the DB-constrained Wompi amount", async () => {
@@ -19,20 +19,19 @@ describe("Wompi checkout helpers", () => {
         apiBaseUrl: "https://sandbox.wompi.co/v1",
         publicKey: "pub_test_xxx",
         privateKey: "prv_test_xxx",
-        eventsSecret: "test_events_xxx",
         integritySecret: "test_integrity_xxx",
         currency: "COP",
         worldCupPassAmountCop: 1,
         appUrl: "https://ufopredictor.com",
       },
       reference: "ufo_wc_20260617154512_abcdef123456",
-      amountInCents: 8700000,
+      amountInCents: 6990000,
       expirationTime: "2026-06-17T16:15:12.000Z",
     });
 
-    expect(payload.amountInCents).toBe(8700000);
+    expect(payload.amountInCents).toBe(6990000);
     expect(payload.currency).toBe("COP");
-    expect(payload.checkoutUrl).toContain("amount-in-cents=8700000");
+    expect(payload.checkoutUrl).toContain("amount-in-cents=6990000");
   });
 
   it("generates Wompi-safe unique references", async () => {

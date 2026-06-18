@@ -55,7 +55,7 @@ export default async function PricingPage() {
         </p>
         <h1 className="text-4xl font-semibold">Ruta de acceso actual</h1>
         <p className="max-w-3xl text-[var(--muted)]">
-          Las cuentas gratis están disponibles ahora. El World Cup Pass sandbox ya puede iniciar
+          Las cuentas gratis están disponibles ahora. El World Cup Pass ya puede iniciar
           checkout con Wompi; el acceso se confirma solo con webhook validado.
         </p>
       </section>
@@ -81,11 +81,11 @@ export default async function PricingPage() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-                Sandbox Wompi
+                Wompi
               </p>
               <h2 className="mt-2 text-xl font-semibold">World Cup Pass</h2>
             </div>
-            <span className="ufo-pill">MVP</span>
+            <span className="ufo-pill">Activo</span>
           </div>
           <p className="mt-3 text-sm text-[var(--muted)]">
             {worldCupPassPrice}
@@ -110,10 +110,10 @@ export default async function PricingPage() {
             </p>
             <h2 className="mt-2 text-2xl font-semibold">Ruta planeada del catálogo premium</h2>
           </div>
-          <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Sandbox parcial</span>
+          <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Ruta parcial</span>
         </div>
         <p className="mt-3 max-w-3xl text-sm text-[var(--muted)]">
-          El MVP habilita solo World Cup Pass con Wompi sandbox. Los demás paquetes siguen
+          El MVP habilita solo World Cup Pass con Wompi. Los demás paquetes siguen
           planeados. El acceso premium se habilita únicamente con autorización server-side.
         </p>
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
@@ -140,13 +140,13 @@ export default async function PricingPage() {
             Las cuentas gratis siguen activas mientras la publicación de planes premium se organiza
             para más adelante.
           </p>
-          <p className="mt-2">El checkout sandbox usa Wompi y requiere webhook validado para activar premium.</p>
+          <p className="mt-2">El checkout usa Wompi y requiere webhook validado para activar premium.</p>
         </section>
       ) : catalog.plans.length === 0 ? (
         <section className="ufo-card rounded-lg p-5 text-sm text-[var(--muted)]">
           <p>No hay planes públicos visibles en este momento.</p>
           <p className="mt-2">El acceso con cuenta gratis sigue disponible.</p>
-          <p className="mt-2">El World Cup Pass sandbox se muestra arriba aunque el catálogo dinámico no esté disponible.</p>
+          <p className="mt-2">El World Cup Pass se muestra arriba aunque el catálogo dinámico no esté disponible.</p>
         </section>
       ) : (
         <section className="space-y-4">
@@ -160,7 +160,7 @@ export default async function PricingPage() {
             <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Pagos deshabilitados</span>
           </div>
           <p className="max-w-3xl text-sm text-[var(--muted)]">
-            Estas tarjetas describen el catálogo planeado. Solo World Cup Pass tiene checkout sandbox
+            Estas tarjetas describen el catálogo planeado. Solo World Cup Pass tiene checkout con Wompi
             en este MVP.
           </p>
           <div className="grid gap-4 lg:grid-cols-3">

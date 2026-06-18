@@ -28,7 +28,7 @@ PR #81 added an admin-only publish queue and should be included in production re
 
 ## Payment readiness
 
-G05B adds a Wompi sandbox MVP for `world-cup-pass`. Production remains pending. Before production payment enablement, configure production Wompi keys, production webhook URL, final COP price, Railway smoke test, webhook retry monitoring, and advisor review.
+G05B adds a Wompi production-enabled MVP for `world-cup-pass`. Before opening payments broadly, verify production Wompi keys, production webhook URL, final COP price, Railway smoke test, webhook retry monitoring, and advisor review.
 
 Redirect pages are informational only. Verified Wompi webhook processing is the only payment path that activates G06 entitlements.
 
@@ -39,7 +39,7 @@ Redirect pages are informational only. Verified Wompi webhook processing is the 
 - `/matches/[slug]` public and authenticated states
 - `/admin/real-fixture-publish-queue`
 - Auth flows and confirmation emails
-- `/pricing` Wompi sandbox checkout CTA
+- `/pricing` Wompi checkout CTA
 - `/api/wompi/webhook` verified webhook processing
 - No public exposure of internal evaluation or `prediction_results`
 

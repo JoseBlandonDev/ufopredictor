@@ -44,7 +44,7 @@ export function WompiCheckoutButton() {
       </button>
       {status === "error" ? (
         <p className="text-xs text-[var(--warning)]">
-          No fue posible iniciar el checkout. Inicia sesion y verifica la configuracion sandbox.
+          No fue posible iniciar el checkout. Verifica la sesion y la configuracion de pago.
         </p>
       ) : null}
     </div>
