@@ -57,6 +57,15 @@ export type PredictionEngineXgCalibrationConfig = {
   scorelineUnderdogSuppressionInfluence: number;
 };
 
+export type PredictionEngineDrawReconciliationConfig = {
+  maxExpectedGoalsGap: number;
+  maxTotalExpectedGoals: number;
+  maxLeaderMargin: number;
+  maxProbabilityShift: number;
+  targetTopEdge: number;
+  minimumModalDrawLead: number;
+};
+
 export type PredictionEngineConfig = {
   modelVersion: string;
   baseGoalRate: number;
@@ -68,6 +77,7 @@ export type PredictionEngineConfig = {
   defaultHomeAdvantageScore: number;
   weights: PredictionEngineWeights;
   xgCalibration: PredictionEngineXgCalibrationConfig;
+  drawReconciliation: PredictionEngineDrawReconciliationConfig;
 };
 
 export type NormalizedTeamInput = {

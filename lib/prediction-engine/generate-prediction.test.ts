@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_PREDICTION_ENGINE_CONFIG } from "./config";
 import { generatePrediction } from "./generate-prediction";
 import { balancedLabFixture, incompleteLabFixture, strongHomeLabFixture } from "./lab-fixtures";
+import { reconcileDrawMarket } from "./markets";
 import { buildRealFixturePredictionInput } from "./real-fixture-adapter";
+import type { ScorelineProbability } from "./types";
 
 function collectNumbers(value: unknown): number[] {
   if (typeof value === "number") {
@@ -18,6 +20,29 @@ function collectNumbers(value: unknown): number[] {
   }
 
   return [];
+}
+
+function buildWorldCupFixture(homeTeamName: string, awayTeamName: string) {
+  return buildRealFixturePredictionInput({
+    id: `${homeTeamName}-${awayTeamName}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    externalId: `fixture:${homeTeamName}:${awayTeamName}`,
+    slug: `${homeTeamName}-vs-${awayTeamName}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    competitionId: "competition-world-cup",
+    kickoffAt: "2026-06-12T19:00:00Z",
+    stage: "Group Stage - Round 1",
+    status: "scheduled",
+    accessScope: "admin_only",
+    intakeSource: "api_football",
+    sourceNote: "draw reconciliation fixture",
+    competitionName: "World Cup",
+    homeTeamId: `${homeTeamName}-id`.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    homeTeamName,
+    awayTeamId: `${awayTeamName}-id`.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    awayTeamName,
+    result: null,
+    savedPrediction: null,
+    savedEvaluation: null,
+  });
 }
 
 describe("generatePrediction", () => {
@@ -101,6 +126,34 @@ describe("generatePrediction", () => {
     expect(result.predictionMarketsProjection.some((market) => market.market === "over_2_5")).toBe(true);
   });
 
+  it("keeps reconciled 1X2 probabilities finite, bounded, and normalized", () => {
+    const topScorelines: ScorelineProbability[] = [
+      { homeGoals: 1, awayGoals: 1, score: "1-1", probability: 12.2 },
+      { homeGoals: 1, awayGoals: 0, score: "1-0", probability: 11.1 },
+      { homeGoals: 0, awayGoals: 1, score: "0-1", probability: 9.9 },
+    ];
+    const reconciled = reconcileDrawMarket(
+      {
+        oneXTwo: {
+          homeWin: 40,
+          draw: 37.5,
+          awayWin: 22.5,
+        },
+        btts: { yes: 52, no: 48 },
+        overUnder25: { over: 43, under: 57 },
+      },
+      { home: 1.25, away: 1.1 },
+      topScorelines,
+      DEFAULT_PREDICTION_ENGINE_CONFIG,
+    );
+    const total = reconciled.oneXTwo.homeWin + reconciled.oneXTwo.draw + reconciled.oneXTwo.awayWin;
+    const bounded = Object.values(reconciled.oneXTwo).every((value) => value >= 0 && value <= 100 && Number.isFinite(value));
+
+    expect(reconciled.oneXTwo.draw).toBeGreaterThan(reconciled.oneXTwo.homeWin);
+    expect(total).toBeCloseTo(100, 4);
+    expect(bounded).toBe(true);
+  });
+
   it("uses injected fallback signals to avoid baseline mode for known national teams", () => {
     const result = generatePrediction(
       buildRealFixturePredictionInput({
@@ -132,6 +185,45 @@ describe("generatePrediction", () => {
     expect(result.normalizedInput.homeTeam.metadata?.eloRating).toBe(2128);
     expect(result.teamPower.home.score).toBeGreaterThan(result.teamPower.away.score);
     expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
+  });
+
+  it("lets draw become the top 1X2 outcome for low-gap low-total fixtures when 1-1 is already modal", () => {
+    const result = generatePrediction(buildWorldCupFixture("Canada", "Bosnia & Herzegovina"));
+
+    expect(result.mostLikelyScore).toBe("1-1");
+    expect(result.probabilities.oneXTwo.draw).toBeGreaterThan(result.probabilities.oneXTwo.homeWin);
+    expect(result.probabilities.oneXTwo.draw).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
+  });
+
+  it("still lets draw become the top 1X2 outcome for another balanced modal-draw fixture within the cap", () => {
+    const result = generatePrediction(buildWorldCupFixture("Saudi Arabia", "Uruguay"));
+
+    expect(result.mostLikelyScore).toBe("1-1");
+    expect(result.probabilities.oneXTwo.draw).toBeGreaterThan(result.probabilities.oneXTwo.homeWin);
+    expect(result.probabilities.oneXTwo.draw).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
+  });
+
+  it("does not partially reshape a close fixture when draw cannot become top within the allowed cap", () => {
+    const result = generatePrediction(buildWorldCupFixture("Mexico", "South Korea"));
+
+    expect(result.mostLikelyScore).toBe("1-1");
+    expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.draw);
+    expect(result.probabilities.oneXTwo.awayWin).toBeGreaterThan(result.probabilities.oneXTwo.draw);
+  });
+
+  it("keeps medium favorites ahead when the xG gap is too wide for draw reconciliation", () => {
+    const result = generatePrediction(buildWorldCupFixture("South Korea", "Czech Republic"));
+
+    expect(result.mostLikelyScore).toBe("1-1");
+    expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.draw);
+  });
+
+  it("keeps strong favorites stable under draw reconciliation", () => {
+    const result = generatePrediction(buildWorldCupFixture("Spain", "New Zealand"));
+
+    expect(result.mostLikelyScore).not.toBe("1-1");
+    expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(80);
+    expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.draw);
   });
 
   it("uses static fallback signals for immediate world cup teams instead of baseline defaults", () => {
