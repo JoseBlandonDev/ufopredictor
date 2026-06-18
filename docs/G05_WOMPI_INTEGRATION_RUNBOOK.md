@@ -38,11 +38,14 @@ WOMPI_CURRENCY=COP
 WOMPI_WORLD_CUP_PASS_AMOUNT_COP=87000
 ```
 
-The webhook RPC does not accept the Wompi events secret from callers. Configure the same value as a Postgres setting outside source control:
+The webhook RPC does not accept the Wompi events secret from callers. Store the same value in Supabase Vault outside source control:
 
 ```sql
-alter database postgres set app.wompi_events_secret = '<WOMPI_EVENTS_SECRET>';
-select pg_reload_conf();
+select vault.create_secret(
+  '<WOMPI_EVENTS_SECRET>',
+  'wompi_events_secret',
+  'Wompi events secret for webhook validation'
+);
 ```
 
 Do not commit real Wompi keys. Railway is the current deployment target for this MVP.
@@ -56,7 +59,7 @@ Do not commit real Wompi keys. Railway is the current deployment target for this
 5. The redirect returns to `/payments/wompi/return` and is informational only.
 6. Wompi sends `POST /api/wompi/webhook`.
 7. The route verifies the event checksum with `WOMPI_EVENTS_SECRET`.
-8. The database RPC revalidates the checksum with the Postgres `app.wompi_events_secret` setting, records the event idempotently, and activates G06 only for `APPROVED`.
+8. The database RPC revalidates the checksum with the Supabase Vault `wompi_events_secret`, records the event idempotently, and activates G06 only for `APPROVED`.
 
 ## Activation Contract
 
@@ -78,7 +81,7 @@ Duplicate webhook deliveries return the already processed event and do not dupli
 ## Sandbox Test
 
 1. Apply `supabase/migrations/0037_wompi_payment_mvp.sql`.
-2. Configure Railway sandbox env vars and the Postgres `app.wompi_events_secret` setting.
+2. Configure Railway sandbox env vars and the Supabase Vault `wompi_events_secret`.
 3. Set the Wompi sandbox webhook URL to:
 
 ```txt

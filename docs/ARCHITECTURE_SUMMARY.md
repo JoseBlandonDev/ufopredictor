@@ -70,7 +70,7 @@ Epic G remains parallel. G02 covers dev/prod environment separation and config r
 
 G06B adds the backend binding layer for entitlement activation without adding checkout. `entitlement_grants` is the audit/idempotency ledger for manual admin grants now and verified payment grants later. Effective premium authorization remains in current, unexpired `user_entitlements` or `user_match_unlocks`, with explicit admin bypass only where protected queries allow it. `subscriptions` records the commercial relationship/status but is not sufficient authorization by itself.
 
-G05B uses `wompi_payment_intents` and `wompi_payment_events` as payment ledgers. Browser redirects never activate premium. A Wompi event must pass checksum validation in the app route and again inside `public.activate_verified_wompi_entitlement(...)`, which reads the server-controlled Postgres `app.wompi_events_secret` setting instead of accepting a caller-provided secret. The RPC then materializes `competition_access` for `world_cup_2026` through G06 tables.
+G05B uses `wompi_payment_intents` and `wompi_payment_events` as payment ledgers. Browser redirects never activate premium. A Wompi event must pass checksum validation in the app route and again inside `public.activate_verified_wompi_entitlement(...)`, which reads the server-controlled Supabase Vault secret named `wompi_events_secret` instead of accepting a caller-provided secret. The RPC then materializes `competition_access` for `world_cup_2026` through G06 tables.
 
 ## Hard boundaries
 

@@ -48,14 +48,44 @@ describe("0037 Wompi payment MVP migration", () => {
     expect(migration).toContain("if v_status <> 'APPROVED' then");
     expect(migration).toContain("set processed_at = now()");
     expect(migration).toContain("return v_event;");
+    expect(migration.indexOf("if v_status <> 'APPROVED' then")).toBeLessThan(
+      migration.indexOf("insert into public.entitlement_grants"),
+    );
   });
 
   it("does not let direct RPC callers activate with an invented secret", () => {
     expect(migration).toContain("drop function if exists public.activate_verified_wompi_entitlement(jsonb, text, text)");
-    expect(migration).toContain("current_setting('app.wompi_events_secret', true)");
+    expect(migration).toContain("from vault.decrypted_secrets");
+    expect(migration).toContain("where name = 'wompi_events_secret'");
     expect(migration).toContain("digest(v_concat || v_timestamp || v_events_secret, 'sha256')");
     expect(migration).not.toContain("p_events_secret");
     expect(webhookRoute).not.toContain("p_events_secret");
+  });
+
+  it("fails safely when the Vault Wompi events secret is missing", () => {
+    expect(migration).toContain("if v_events_secret is null then");
+    expect(migration).toContain("wompi_events_secret Vault secret is required");
+    expect(migration.indexOf("wompi_events_secret Vault secret is required")).toBeLessThan(
+      migration.indexOf("insert into public.wompi_payment_events"),
+    );
+  });
+
+  it("uses the Vault secret to validate APPROVED events before activation", () => {
+    expect(migration.indexOf("from vault.decrypted_secrets")).toBeLessThan(
+      migration.indexOf("v_expected_checksum :="),
+    );
+    expect(migration.indexOf("if v_expected_checksum <> v_body_checksum then")).toBeLessThan(
+      migration.indexOf("insert into public.entitlement_grants"),
+    );
+    expect(migration.indexOf("if v_status <> 'APPROVED' then")).toBeLessThan(
+      migration.indexOf("insert into public.entitlement_grants"),
+    );
+  });
+
+  it("does not depend on database settings for the Wompi events secret", () => {
+    expect(migration).not.toContain("current_setting('app.wompi_events_secret'");
+    expect(migration).not.toContain("alter database");
+    expect(migration).not.toContain("pg_reload_conf");
   });
 
   it("validates Wompi checksums before processing and keeps the route server-only", () => {
