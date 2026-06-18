@@ -66,9 +66,11 @@ Planned architecture is export-first: admin-only JSON export from UFO Predictor,
 
 ## Epic G / payments architecture direction
 
-Epic G remains parallel. G02 covers dev/prod environment separation and config readiness. G05 is Wompi-focused but not implemented. Payment secrets must not enter public/client runtime; entitlement activation must be tied to verified payment events in a future scoped design.
+Epic G remains parallel. G02 covers dev/prod environment separation and config readiness. G05B implements a Wompi sandbox MVP for `world-cup-pass`. Payment secrets must not enter public/client runtime; only `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` and `NEXT_PUBLIC_APP_URL` are browser-safe.
 
 G06B adds the backend binding layer for entitlement activation without adding checkout. `entitlement_grants` is the audit/idempotency ledger for manual admin grants now and verified payment grants later. Effective premium authorization remains in current, unexpired `user_entitlements` or `user_match_unlocks`, with explicit admin bypass only where protected queries allow it. `subscriptions` records the commercial relationship/status but is not sufficient authorization by itself.
+
+G05B uses `wompi_payment_intents` and `wompi_payment_events` as payment ledgers. Browser redirects never activate premium. A Wompi event must pass checksum validation in the app route and again inside `public.activate_verified_wompi_entitlement(...)`, which reads the server-controlled Postgres `app.wompi_events_secret` setting instead of accepting a caller-provided secret. The RPC then materializes `competition_access` for `world_cup_2026` through G06 tables.
 
 ## Hard boundaries
 

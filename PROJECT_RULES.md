@@ -19,8 +19,8 @@ Este archivo define reglas obligatorias para cualquier humano o IA que trabaje e
 - UI: **React**.
 - Estilos: **Tailwind CSS**.
 - Componentes: **shadcn/ui** cuando aplique.
-- Runtime/hosting objetivo actual para MVP web production: **Vercel** con `ufopredictor.com`.
-- `railway.json` y referencias Railway pertenecen al prototipo/estado previo salvo que una decision futura reactive Railway.
+- Runtime/hosting objetivo actual para MVP web production: **Railway** con `ufopredictor.com`.
+- `railway.json` pertenece al despliegue actual. Referencias antiguas a Vercel deben tratarse como legado salvo que una decision futura reactive Vercel.
 - Base de datos objetivo: **Supabase PostgreSQL**.
 - Auth objetivo: **Supabase Auth**.
 - Seguridad DB: **Supabase RLS**.
@@ -38,7 +38,7 @@ Este archivo define reglas obligatorias para cualquier humano o IA que trabaje e
 - No devolver datos premium al frontend si el usuario no tiene permiso.
 - El paywall no debe ser solo visual. El backend/API debe filtrar los datos.
 - Supabase Service Role Key solo se usa en scripts/ops/admin aprobados, nunca en cliente.
-- No poner `SUPABASE_SERVICE_ROLE_KEY` en Vercel web runtime si la app web no lo necesita.
+- No poner `SUPABASE_SERVICE_ROLE_KEY` en Railway/Next.js web runtime si la app web no lo necesita.
 
 ## 4. Reglas de arquitectura
 
@@ -103,7 +103,7 @@ En el primer prototipo:
 - No agregar `RESEND_API_KEY` al runtime Next/Vercel mientras la app no use Resend SDK.
 - No conectar API-Football/Sportmonks real todavía.
 - No conectar LLM real todavía.
-- No implementar pagos reales todavía.
+- Los pagos reales de produccion no estan habilitados todavia; solo se permite el MVP sandbox Wompi aprobado para `world-cup-pass`.
 - Crear skeletons y TODOs claros para esas futuras integraciones.
 
 ## 9. Reglas de Git

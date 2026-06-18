@@ -232,6 +232,11 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             <p className="mt-2 text-sm text-[var(--muted)]">
               Esta cuenta todavía no tiene derechos premium para este partido.
             </p>
+            <div className="mt-4">
+              <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
+                Ver World Cup Pass
+              </Link>
+            </div>
           </>
         ) : match.premiumProjection.status === "unavailable" ? (
           <>

@@ -56,6 +56,18 @@ Effective premium authorization for a single match. Premium resolvers should use
 
 Audit and idempotency ledger for entitlement activation. G06B uses it for manual admin grants and revocations; future verified payment events should write through the same binding instead of creating a parallel premium system.
 
+### `wompi_payment_intents`
+
+Server-created checkout intent for the Wompi sandbox MVP. It stores the unique reference, user, plan, configured COP amount converted to Wompi `amount_in_cents`, checkout payload, entitlement mapping, and status. It must not store card numbers or sensitive payment instrument data.
+
+### `wompi_payment_events`
+
+Verified Wompi webhook ledger. It stores transaction id, reference, event type, normalized status, checksum, raw event JSON, processing timestamps, linked `entitlement_grant_id`, and processing errors. `APPROVED` events activate G06 once; `PENDING`, `DECLINED`, and `ERROR` are recorded without activation.
+
+### `world_cup_2026`
+
+Canonical entitlement resource id for the World Cup 2026 competition pass. Any legacy feature/seed key such as `world-cup-2026` should be normalized to `world_cup_2026` before writing entitlements.
+
 ### Verified result
 
 Public-safe final score after admin verification. It can be displayed publicly without exposing internal evaluation details.
