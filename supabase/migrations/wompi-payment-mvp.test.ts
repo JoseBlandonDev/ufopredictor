@@ -30,6 +30,12 @@ const hardenedAdminPriceMigrationName = readdirSync(join(process.cwd(), "supabas
 const hardenedAdminPriceMigration = hardenedAdminPriceMigrationName
   ? readFileSync(join(process.cwd(), "supabase/migrations", hardenedAdminPriceMigrationName), "utf8")
   : "";
+const adminPriceUpsertRepairMigrationName = readdirSync(join(process.cwd(), "supabase/migrations")).find((fileName) =>
+  fileName.endsWith("_fix_wompi_admin_price_upsert_conflict.sql"),
+);
+const adminPriceUpsertRepairMigration = adminPriceUpsertRepairMigrationName
+  ? readFileSync(join(process.cwd(), "supabase/migrations", adminPriceUpsertRepairMigrationName), "utf8")
+  : "";
 const webhookRoute = readFileSync(
   join(process.cwd(), "app/api/wompi/webhook/route.ts"),
   "utf8",
@@ -188,6 +194,18 @@ describe("0037 Wompi payment MVP migration", () => {
     expect(hardenedAdminPriceMigration).toContain("Admins may insert Wompi product prices");
     expect(hardenedAdminPriceMigration).toContain("Admins may update Wompi product prices");
     expect(hardenedAdminPriceMigration).toContain("notify pgrst, 'reload schema'");
+  });
+
+  it("repairs the admin price upsert conflict without widening RPC access", () => {
+    expect(adminPriceUpsertRepairMigrationName).toBeDefined();
+    expect(adminPriceUpsertRepairMigration).toContain("security invoker");
+    expect(adminPriceUpsertRepairMigration).toContain("if not public.is_real_fixture_lab_admin() then");
+    expect(adminPriceUpsertRepairMigration).toContain("on conflict on constraint wompi_product_prices_pkey do update");
+    expect(adminPriceUpsertRepairMigration).not.toContain("on conflict (product_slug)");
+    expect(adminPriceUpsertRepairMigration).toContain(
+      "revoke execute on function public.admin_update_wompi_world_cup_pass_price(integer, text, integer, text, timestamptz) from anon",
+    );
+    expect(adminPriceUpsertRepairMigration).toContain("notify pgrst, 'reload schema'");
   });
 
   it("uses the constrained checkout RPC from the app route", () => {
