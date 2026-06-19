@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "ufo-signal-source-manifest-v2",
+  "generatedAt": "2026-06-19T00:00:00Z",
+  "sources": [
+    {
+      "filename": "ranking-fifa-raw.html",
+      "originalUploadedName": "Fifa.html",
+      "sha256": "b11817b6e95331d1fd3d0807f7efb60cf2f8b074c72e9d0e345d00886002bb41",
+      "role": "FIFA verification, Spanish names and recent-form cross-check"
+    },
+    {
+      "filename": "ranking-fifa-raw.csv",
+      "originalUploadedName": "Ranking FIFA - Fifa.csv",
+      "sha256": "bb9fa11d485c098f01312029c43873d2654f9572b26b1515528f36a343a4d0c9",
+      "role": "Machine-readable FIFA rank and points"
+    },
+    {
+      "filename": "ranking-elo-raw.html",
+      "originalUploadedName": "ranking ELO.html",
+      "sha256": "cff5e0de39e25abcb3fd140fabe3189e302884fa854a38d6f57b2c5c4a1ed236",
+      "role": "Current Elo rank/rating and historical aggregates"
+    },
+    {
+      "filename": "results-elo-raw.html",
+      "originalUploadedName": "results.html",
+      "sha256": "051188a3dc7087c15300b9a503dd442f101d3582c9926282c11044c8d78d71e7",
+      "role": "Canonical recent-result parsing"
+    },
+    {
+      "filename": "fixtures-elo-raw.html",
+      "originalUploadedName": "fix.html",
+      "sha256": "986f05dd04c5d3bf4199ce3167fe6e330bf0e0cd59386643a53acdf54753fa7a",
+      "role": "Fixture-specific Elo review alerts"
+    },
+    {
+      "filename": "ufo-national-team-signal-refresh-post-md1-v1.json",
+      "originalUploadedName": "ufo-national-team-signal-refresh-post-md1-v1.json",
+      "sha256": "5cd202e81ffcc3403508d8edd966a7b703d0e866e6f16fc14cd70a2149953da0",
+      "role": "Prior baseline for diff"
+    }
+  ],
+  "importantBoundary": "Raw and normalized files are not runtime dependencies; Codex must generate/update static TypeScript."
+}

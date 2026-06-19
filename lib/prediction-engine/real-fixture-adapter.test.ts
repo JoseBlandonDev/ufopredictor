@@ -128,12 +128,12 @@ describe("real fixture prediction adapter", () => {
     const snapshot = resolveNationalTeamStrengthSnapshot({ name: "Argentina" });
 
     expect(snapshot?.displayName).toBe("Argentina");
-    expect(snapshot?.snapshotDate).toBe("2026-06-18");
+    expect(snapshot?.snapshotDate).toBe("2026-06-19");
     expect(input.homeTeam.signals).toEqual({
       ratingScore: 99.86,
       recentFormScore: 100,
       attackScore: 65.43,
-      defenseScore: 72.79,
+      defenseScore: 72.76,
       marketScore: 50,
       lineupContextScore: 50,
     });

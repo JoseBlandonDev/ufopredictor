@@ -187,12 +187,12 @@ describe("generatePrediction", () => {
     expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
   });
 
-  it("lets draw become the top 1X2 outcome for low-gap low-total fixtures when 1-1 is already modal", () => {
+  it("keeps a close fixture from forcing draw above both sides when the refreshed gap is still meaningful", () => {
     const result = generatePrediction(buildWorldCupFixture("Canada", "Bosnia & Herzegovina"));
 
     expect(result.mostLikelyScore).toBe("1-1");
-    expect(result.probabilities.oneXTwo.draw).toBeGreaterThan(result.probabilities.oneXTwo.homeWin);
-    expect(result.probabilities.oneXTwo.draw).toBeGreaterThan(result.probabilities.oneXTwo.awayWin);
+    expect(result.probabilities.oneXTwo.homeWin).toBeGreaterThan(result.probabilities.oneXTwo.draw);
+    expect(result.probabilities.oneXTwo.awayWin).toBeGreaterThan(result.probabilities.oneXTwo.draw);
   });
 
   it("still lets draw become the top 1X2 outcome for another balanced modal-draw fixture within the cap", () => {
