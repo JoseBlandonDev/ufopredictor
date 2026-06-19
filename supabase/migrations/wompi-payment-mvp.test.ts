@@ -218,8 +218,9 @@ describe("0037 Wompi payment MVP migration", () => {
   });
 
   it("keeps browser redirect pages informational", () => {
-    expect(returnPage).toContain("Esta pantalla no activa premium");
-    expect(returnPage).toContain("El redirect del navegador es solo informativo");
+    expect(returnPage).toContain("getViewerEntitlementSummary");
+    expect(returnPage).toContain('redirect("/dashboard")');
+    expect(returnPage).toContain("Actualizando estado automaticamente");
     expect(returnPage).not.toContain("activate_verified_wompi_entitlement");
   });
 });
