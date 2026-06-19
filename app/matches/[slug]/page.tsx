@@ -63,6 +63,9 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   const hasLegacyPremiumMarkets =
     match.premiumProjection.status === "authorized" &&
     match.premiumProjection.payload.markets.length > 0;
+  const hasPremiumAccess =
+    match.premiumProjection.status === "authorized" ||
+    match.premiumProjection.status === "authorized_unavailable";
   const canShowRegisteredFreeProbableScore =
     match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
 
@@ -400,6 +403,25 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         )}
       </section>
 
+      {hasPremiumAccess ? (
+        <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+            World Cup Pass activo
+          </p>
+          <h2 className="mt-2 text-lg font-semibold">
+            Tu acceso premium ya valida el detalle avanzado disponible para este partido.
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            El contenido premium se muestra arriba cuando existe una proyeccion publicada para este partido.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
+              Abrir panel
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           Partidos guardados
@@ -438,6 +460,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         )}
       </section>
 
+      {!hasPremiumAccess ? (
       <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           {isAuthenticated ? "Tu cuenta gratis está activa" : "Cuenta gratis disponible"}
@@ -468,6 +491,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
           )}
         </div>
       </section>
+      ) : null}
 
       <section className="ufo-card rounded-lg p-5">
         <p className="text-sm text-[var(--muted)]">

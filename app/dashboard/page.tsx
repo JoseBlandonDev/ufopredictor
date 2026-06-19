@@ -18,6 +18,19 @@ const roleLabels = {
   premium_user: "Cuenta premium futura",
 };
 
+type ReadyEntitlementSummary = Extract<
+  Awaited<ReturnType<typeof getViewerEntitlementSummary>>,
+  { status: "ready" }
+>;
+
+function hasCurrentPaidAccess(summary: ReadyEntitlementSummary) {
+  return (
+    summary.activeSubscriptions.length > 0 ||
+    summary.entitlements.length > 0 ||
+    summary.matchUnlocks.length > 0
+  );
+}
+
 function dateLabel(value: string | null) {
   if (!value) {
     return "Sin vencimiento";
@@ -38,6 +51,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const params = await searchParams;
   const summary = await getViewerEntitlementSummary();
   const savedMatches = await getSavedMatchesForDashboard();
+  const paidAccessActive = summary.status === "ready" && hasCurrentPaidAccess(summary);
 
   return (
     <div className="space-y-6">
@@ -59,17 +73,27 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
               Acceso actual
             </p>
-            <h2 className="mt-2 text-lg font-semibold">Tu cuenta gratis</h2>
+            <h2 className="mt-2 text-lg font-semibold">
+              {paidAccessActive ? "World Cup Pass activo" : "Tu cuenta gratis"}
+            </h2>
           </div>
-          <span className="ufo-pill">Activo</span>
+          <span className="ufo-pill">{paidAccessActive ? "Premium activo" : "Activo"}</span>
         </div>
-        <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
-          <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
-          <li>Tu cuenta gratis activa el contexto completo de confianza y riesgo en vistas públicas.</li>
-          <li>Los partidos guardados muestran solo fixtures reales publicados para esta etapa de lanzamiento.</li>
-          <li>El seguimiento de partidos y favoritos seguirá ampliándose de forma gradual.</li>
-          <li>Premium y checkout llegarán más adelante.</li>
-        </ul>
+        {paidAccessActive ? (
+          <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+            <li>Tu pago fue confirmado por Wompi y el acceso quedo activado en el servidor.</li>
+            <li>World Cup Pass habilita derechos premium para la competencia World Cup 2026.</li>
+            <li>El contenido premium se muestra cuando el partido tiene proyeccion premium publicada.</li>
+            <li>El acceso se conserva en tus derechos actuales, no depende del redirect del navegador.</li>
+          </ul>
+        ) : (
+          <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+            <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
+            <li>Tu cuenta gratis activa el contexto completo de confianza y riesgo en vistas públicas.</li>
+            <li>Los partidos guardados muestran solo fixtures reales publicados para esta etapa de lanzamiento.</li>
+            <li>World Cup Pass ya está disponible en Planes y se activa solo con pago aprobado por Wompi.</li>
+          </ul>
+        )}
       </section>
 
       {params.error === "admin-access-required" ? (
@@ -94,16 +118,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   <h2 className="mt-2 text-lg font-semibold">Estado de acceso</h2>
                 </div>
                 <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
-                  {roleLabels[summary.role]}
+                  {hasCurrentPaidAccess(summary) ? "Premium activo" : roleLabels[summary.role]}
                 </span>
               </div>
-              <p className="mt-4 font-mono text-2xl">{roleLabels[summary.role]}</p>
+              <p className="mt-4 font-mono text-2xl">
+                {hasCurrentPaidAccess(summary) ? "World Cup Pass activo" : roleLabels[summary.role]}
+              </p>
               <p className="mt-2 text-sm text-[var(--muted)]">
                 Suscripciones activas: {summary.activeSubscriptions.length}. El rol de perfil por sí
                 solo no desbloquea contenido protegido.
               </p>
-              <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring mt-5">
-                Ver ruta de planes
+              <Link
+                href={hasCurrentPaidAccess(summary) ? "/predictions" : "/pricing"}
+                className="ufo-btn-primary ufo-focus-ring mt-5"
+              >
+                {hasCurrentPaidAccess(summary) ? "Explorar predicciones" : "Ver ruta de planes"}
               </Link>
             </section>
 
@@ -139,13 +168,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
           <section className="ufo-card rounded-lg p-5 sm:p-6">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-              Premium futuro
+              Acceso premium
             </p>
-            <h2 className="mt-2 text-lg font-semibold">Partidos desbloqueados</h2>
+            <h2 className="mt-2 text-lg font-semibold">Desbloqueos por partido</h2>
             <div className="mt-4 space-y-3">
               {summary.matchUnlocks.length === 0 ? (
                 <p className="text-sm text-[var(--muted)]">
+                  {hasCurrentPaidAccess(summary) ? (
+                    "Tu World Cup Pass aparece en derechos actuales; esta lista solo muestra desbloqueos individuales."
+                  ) : (
+                    <>
                   Aún no tienes partidos desbloqueados. El detalle premium todavía no está habilitado.
+                    </>
+                  )}
                 </p>
               ) : (
                 summary.matchUnlocks.map((unlock) => (
@@ -220,7 +255,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <h2 className="mt-2 text-lg font-semibold">Estado de la etapa actual</h2>
         <p className="mt-3 text-sm text-[var(--muted)]">
           El backend ya distingue acceso público, derechos actuales y bypass administrativo explícito.
-          Los pagos y payloads premium permanecen fuera de alcance.
+          Los pagos confirmados por Wompi activan derechos premium sin depender del redirect del navegador.
         </p>
       </section>
     </div>

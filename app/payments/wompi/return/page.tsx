@@ -1,25 +1,43 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
+
+type ReadyEntitlementSummary = Extract<
+  Awaited<ReturnType<typeof getViewerEntitlementSummary>>,
+  { status: "ready" }
+>;
+
+function hasCurrentPaidAccess(summary: ReadyEntitlementSummary) {
+  return (
+    summary.activeSubscriptions.length > 0 ||
+    summary.entitlements.length > 0 ||
+    summary.matchUnlocks.length > 0
+  );
+}
 
 function statusCopy(status: string | null) {
   switch (status?.toUpperCase()) {
     case "APPROVED":
       return {
-        eyebrow: "Pago reportado",
-        title: "Estamos verificando tu acceso",
-        body: "Wompi reporto el pago como aprobado. El World Cup Pass se activa cuando el webhook validado confirme el evento en el servidor.",
+        eyebrow: "Pago aprobado",
+        title: "Activando tu World Cup Pass",
+        body: "Tu pago fue aprobado. Estamos actualizando tu acceso automaticamente; esta pantalla se refresca sola.",
+        refresh: true,
       };
     case "DECLINED":
     case "ERROR":
       return {
         eyebrow: "Pago no completado",
         title: "El acceso no se activo",
-        body: "Esta pantalla no activa premium. Si quieres intentarlo de nuevo, vuelve a pricing e inicia un checkout nuevo.",
+        body: "Wompi no aprobo esta transaccion. Puedes volver a pricing e iniciar un checkout nuevo.",
+        refresh: false,
       };
     default:
       return {
-        eyebrow: "Verificacion en curso",
-        title: "Estamos esperando confirmacion",
-        body: "El redirect del navegador es solo informativo. El acceso se activa unicamente cuando el webhook validado de Wompi sea procesado.",
+        eyebrow: "Pago en curso",
+        title: "Actualizando estado automaticamente",
+        body: "Apenas Wompi confirme el pago, tu World Cup Pass aparecera activo en el panel.",
+        refresh: true,
       };
   }
 }
@@ -30,10 +48,18 @@ export default async function WompiReturnPage({
   searchParams: Promise<{ status?: string; id?: string; reference?: string }>;
 }) {
   const params = await searchParams;
+  const summary = await getViewerEntitlementSummary();
+  const paidAccessActive = summary.status === "ready" && hasCurrentPaidAccess(summary);
+
+  if (paidAccessActive) {
+    redirect("/dashboard");
+  }
+
   const copy = statusCopy(params.status ?? null);
 
   return (
     <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-6">
+      {copy.refresh ? <meta httpEquiv="refresh" content="3" /> : null}
       <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
         {copy.eyebrow}
       </p>

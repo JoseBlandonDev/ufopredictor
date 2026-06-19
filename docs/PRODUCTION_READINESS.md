@@ -28,7 +28,9 @@ PR #81 added an admin-only publish queue and should be included in production re
 
 ## Payment readiness
 
-G05B adds a Wompi production-enabled MVP for `world-cup-pass`. Before opening payments broadly, verify production Wompi keys, production webhook URL, final COP price, Railway smoke test, webhook retry monitoring, and advisor review.
+G05B adds a Wompi production-enabled MVP for `world-cup-pass`. Before opening payments broadly, verify production Wompi keys, production webhook URL, final COP price, Railway smoke test, and webhook retry monitoring.
+
+The Wompi webhook RPC remains intentionally callable by `anon` because Wompi webhooks are unauthenticated browserless deliveries. It is treated as a public API endpoint: callers do not provide secrets, the checksum is recomputed with the Supabase Vault `wompi_events_secret`, direct event-table access is denied, and only verified `APPROVED` events activate G06 access. Security advisors outside the Wompi payment surface should be handled in their owning epics to avoid changing prediction or Real Fixture Lab behavior during payment rollout.
 
 Redirect pages are informational only. Verified Wompi webhook processing is the only payment path that activates G06 entitlements.
 

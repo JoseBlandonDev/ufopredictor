@@ -81,23 +81,37 @@ wompi:<transaction_id>:APPROVED
 
 Duplicate webhook deliveries return the already processed event and do not duplicate grants.
 
-## Sandbox Test
+## Security Advisor Note
+
+Supabase may flag `public.activate_verified_wompi_entitlement(jsonb, text)` because it is a `SECURITY DEFINER` RPC executable by `anon`. That exposure is intentional for Wompi's unauthenticated webhook delivery. The function is treated as a public API endpoint and is constrained as follows:
+
+- callers never send or control `wompi_events_secret`;
+- the secret is read from Supabase Vault;
+- the Wompi checksum is recomputed inside Postgres before any write;
+- invalid checksum, missing Vault secret, missing intent, amount mismatch, or currency mismatch fail closed;
+- only `APPROVED` events activate G06 access;
+- `PENDING`, `DECLINED`, and `ERROR` events are recorded without grants;
+- direct table access to `wompi_payment_events` remains denied for `anon` and `authenticated`.
+
+## Production Smoke Test
 
 1. Apply `supabase/migrations/0037_wompi_payment_mvp.sql`.
-2. Configure Railway production checkout env vars and the Supabase Vault `wompi_events_secret`.
-3. Set the Wompi production webhook URL to:
+2. Apply any later Wompi repair/hardening migrations.
+3. Configure Railway production checkout env vars and the Supabase Vault `wompi_events_secret`.
+4. Set the Wompi production webhook URL to:
 
 ```txt
 https://<railway-domain>/api/wompi/webhook
 ```
 
-4. Sign in and open `/pricing`.
-5. Start checkout from World Cup Pass.
-6. Optionally update the price in `/admin/payments` and confirm `/pricing` reflects it.
-7. Complete a Wompi production payment.
-8. Confirm the redirect page says access is being verified.
-9. Confirm Wompi webhook creates one `entitlement_grants` row and a current `user_entitlements` row for `world_cup_2026`.
-10. Confirm a duplicate event does not create another grant.
+5. Sign in and open `/pricing`.
+6. Start checkout from World Cup Pass.
+7. Optionally update the price in `/admin/payments` and confirm `/pricing` reflects it.
+8. Complete a Wompi production payment.
+9. Confirm `/payments/wompi/return` redirects to `/dashboard` after the webhook has processed the approved payment.
+10. Confirm the dashboard shows World Cup Pass active.
+11. Confirm Wompi webhook creates one `entitlement_grants` row and a current `user_entitlements` row for `world_cup_2026`.
+12. Confirm a duplicate event does not create another grant.
 
 ## Production Pending
 
@@ -106,7 +120,7 @@ https://<railway-domain>/api/wompi/webhook
 - Final COP price confirmation.
 - Production smoke test on Railway domain.
 - Monitoring/log review for webhook failures.
-- Security advisor review for the intentionally exposed webhook RPC.
+- Ongoing security advisor review for global non-Wompi objects.
 
 ## Source Notes
 
