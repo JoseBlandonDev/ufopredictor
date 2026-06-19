@@ -9,13 +9,13 @@ This is a production-enabled MVP for selling `world-cup-pass` through Wompi Colo
 ## Product And Amount
 
 - Product: `world-cup-pass`.
-- Visible price: `20 USDT · aprox. $69.900 COP`.
-- Configured charge amount: `WOMPI_WORLD_CUP_PASS_AMOUNT_COP=69900`.
-- Wompi checkout amount: `amount_in_cents=6990000`.
+- Visible price and checkout amount are controlled from `/admin/payments`.
+- Default seeded price: `20 USDT · aprox. $69.900 COP`.
+- Default seeded Wompi checkout amount: `amount_in_cents=6990000`.
 - Currency: `COP`.
 - Resource mapping: `competition_access` on `world_cup_2026`.
 
-Wompi Colombia expects the checkout amount as `amount-in-cents` / `amount_in_cents`. For COP, multiply configured pesos by 100.
+Wompi Colombia expects the checkout amount as `amount-in-cents` / `amount_in_cents`. For COP, the database RPC multiplies admin-entered pesos by 100.
 
 ## Environment
 
@@ -34,7 +34,6 @@ WOMPI_API_BASE_URL=https://production.wompi.co/v1
 WOMPI_PRIVATE_KEY=prv_prod_xxx
 WOMPI_INTEGRITY_SECRET=prod_integrity_xxx
 WOMPI_CURRENCY=COP
-WOMPI_WORLD_CUP_PASS_AMOUNT_COP=69900
 ```
 
 The webhook RPC does not accept the Wompi events secret from callers. Store the production events secret in Supabase Vault outside source control:
@@ -53,12 +52,17 @@ Do not commit real Wompi keys. Railway is the current deployment target for this
 
 1. Signed-in user clicks the World Cup Pass CTA on `/pricing`.
 2. `POST /api/wompi/checkout` calls `create_wompi_world_cup_pass_intent` for that user.
-3. The server calculates the Wompi checkout integrity signature.
-4. The browser is sent to Wompi Web Checkout.
-5. The redirect returns to `/payments/wompi/return` and is informational only.
-6. Wompi sends `POST /api/wompi/webhook`.
-7. The route parses the Wompi event and passes the event plus `X-Event-Checksum` to the database RPC.
-8. The database RPC validates the checksum with the Supabase Vault `wompi_events_secret`, records the event idempotently, and activates G06 only for `APPROVED`.
+3. The database reads the active World Cup Pass price from `wompi_product_prices`; clients never send amount, currency, plan, or entitlement mapping.
+4. The server calculates the Wompi checkout integrity signature for the DB amount.
+5. The browser is sent to Wompi Web Checkout.
+6. The redirect returns to `/payments/wompi/return` and is informational only.
+7. Wompi sends `POST /api/wompi/webhook`.
+8. The route parses the Wompi event and passes the event plus `X-Event-Checksum` to the database RPC.
+9. The database RPC validates the checksum with the Supabase Vault `wompi_events_secret`, records the event idempotently, and activates G06 only for `APPROVED`.
+
+## Admin Price Control
+
+Use `/admin/payments` to update the permanent World Cup Pass price or start a temporary offer in minutes. The admin screen writes through `admin_update_wompi_world_cup_pass_price(...)`. The next checkout uses the new active price immediately; no Railway env edit is required.
 
 ## Activation Contract
 
@@ -89,10 +93,11 @@ https://<railway-domain>/api/wompi/webhook
 
 4. Sign in and open `/pricing`.
 5. Start checkout from World Cup Pass.
-6. Complete a Wompi production payment.
-7. Confirm the redirect page says access is being verified.
-8. Confirm Wompi webhook creates one `entitlement_grants` row and a current `user_entitlements` row for `world_cup_2026`.
-9. Confirm a duplicate event does not create another grant.
+6. Optionally update the price in `/admin/payments` and confirm `/pricing` reflects it.
+7. Complete a Wompi production payment.
+8. Confirm the redirect page says access is being verified.
+9. Confirm Wompi webhook creates one `entitlement_grants` row and a current `user_entitlements` row for `world_cup_2026`.
+10. Confirm a duplicate event does not create another grant.
 
 ## Production Pending
 

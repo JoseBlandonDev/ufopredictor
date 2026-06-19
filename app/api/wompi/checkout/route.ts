@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { amountCopToWompiAmountInCents, buildWompiCheckoutPayload } from "@/lib/wompi/checkout";
+import { buildWompiCheckoutPayload } from "@/lib/wompi/checkout";
 import { requireWompiServerConfig } from "@/lib/wompi/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { WompiPaymentIntentRow } from "@/types/database";
@@ -32,13 +32,6 @@ export async function POST() {
   }
 
   const intent = intentData as WompiPaymentIntentRow;
-  const configuredAmountInCents = amountCopToWompiAmountInCents(
-    config.worldCupPassAmountCop,
-  );
-
-  if (configuredAmountInCents !== intent.amount_in_cents) {
-    return NextResponse.json({ error: "Wompi amount configuration mismatch." }, { status: 500 });
-  }
 
   const checkoutPayload = buildWompiCheckoutPayload({
     config,
