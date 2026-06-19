@@ -1,24 +1,16 @@
 import Link from "next/link";
-import { PublicPredictionCard } from "@/components/public-prediction-card";
-import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
-import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
+import {
+  getPredictionsViewerContext,
+  renderPredictionCards,
+  renderPredictionsAccountCallout,
+} from "./page-helpers";
 import { getPublicPredictionsData } from "@/lib/supabase/public-prediction-queries";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function PredictionsPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const viewer = user ? "registered_free" : "anonymous";
-  const isAuthenticated = viewer === "registered_free";
-  const [data, viewerSummary] = await Promise.all([
-    getPublicPredictionsData(viewer),
-    user ? getViewerEntitlementSummary() : Promise.resolve(null),
-  ]);
-  const premiumAccessActive = hasCurrentPremiumAccess(viewerSummary);
+  const { viewer, isAuthenticated, premiumAccessActive } = await getPredictionsViewerContext();
+  const data = await getPublicPredictionsData(viewer);
 
   return (
     <div className="space-y-6">
@@ -33,47 +25,7 @@ export default async function PredictionsPage() {
         </p>
       </section>
 
-      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5">
-        <h2 className="text-lg font-semibold">
-          {premiumAccessActive
-            ? "World Cup Pass activo"
-            : isAuthenticated
-              ? "Tu cuenta gratis esta activa"
-              : "Cuenta gratis disponible"}
-        </h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          {premiumAccessActive
-            ? "Tu acceso premium ya esta activo. Entra al detalle de cada partido para ver las secciones avanzadas que esten publicadas."
-            : isAuthenticated
-              ? "Ya ves el contexto completo de confianza y riesgo en las predicciones publicas publicadas y puedes seguir el detalle del partido."
-              : "Crea una cuenta gratis para desbloquear el contexto completo de confianza y riesgo y seguir las predicciones publicas publicadas con mas claridad."}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          {premiumAccessActive ? (
-            <>
-              <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
-                Abrir panel premium
-              </Link>
-              <Link href="/pricing" className="ufo-btn-secondary ufo-focus-ring">
-                Revisar World Cup Pass
-              </Link>
-            </>
-          ) : isAuthenticated ? (
-            <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
-              Abrir tu panel
-            </Link>
-          ) : (
-            <>
-              <Link href="/register?next=/predictions" className="ufo-btn-primary ufo-focus-ring">
-                Crear cuenta gratis
-              </Link>
-              <Link href="/login?next=/predictions" className="ufo-btn-secondary ufo-focus-ring">
-                Iniciar sesion
-              </Link>
-            </>
-          )}
-        </div>
-      </section>
+      {renderPredictionsAccountCallout({ isAuthenticated, premiumAccessActive })}
 
       {data.status === "unavailable" ? (
         <section className="ufo-card rounded-lg border border-[var(--warning)]/25 p-6">
@@ -91,43 +43,43 @@ export default async function PredictionsPage() {
         <>
           {data.upcomingPredictions.length > 0 ? (
             <section className="space-y-4">
-              <div>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
                 <h2 className="text-2xl font-semibold">Predicciones activas y proximas</h2>
                 <p className="mt-2 text-sm text-[var(--muted)]">
                   Los partidos en vivo o por jugar aparecen primero para priorizar la lectura actual
                   del modelo.
                 </p>
+                </div>
+                <Link href="/predictions/upcoming" className="ufo-link-action ufo-focus-ring">
+                  Ver todos los proximos
+                </Link>
               </div>
-              <div className="grid gap-4 xl:grid-cols-2">
-                {data.upcomingPredictions.map((prediction) => (
-                  <PublicPredictionCard
-                    key={prediction.matchSlug}
-                    prediction={prediction}
-                    premiumAccessActive={premiumAccessActive}
-                  />
-                ))}
-              </div>
+              {renderPredictionCards({
+                predictions: data.upcomingPredictions,
+                premiumAccessActive,
+              })}
             </section>
           ) : null}
 
           {data.historicalPredictions.length > 0 ? (
             <section className="space-y-4">
-              <div>
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
                 <h2 className="text-2xl font-semibold">Resultados recientes e historial</h2>
                 <p className="mt-2 text-sm text-[var(--muted)]">
                   Los fixtures finalizados quedan en una seccion secundaria para no dominar la vista
                   principal de predicciones.
                 </p>
+                </div>
+                <Link href="/predictions/history" className="ufo-link-action ufo-focus-ring">
+                  Ver historial completo
+                </Link>
               </div>
-              <div className="grid gap-4 xl:grid-cols-2">
-                {data.historicalPredictions.map((prediction) => (
-                  <PublicPredictionCard
-                    key={prediction.matchSlug}
-                    prediction={prediction}
-                    premiumAccessActive={premiumAccessActive}
-                  />
-                ))}
-              </div>
+              {renderPredictionCards({
+                predictions: data.historicalPredictions,
+                premiumAccessActive,
+              })}
             </section>
           ) : null}
 
