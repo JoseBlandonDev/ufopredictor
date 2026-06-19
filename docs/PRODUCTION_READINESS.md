@@ -1,89 +1,111 @@
 # Production Readiness - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 Data Ops 06 and frontend visual audit (2026-06-19)._
 
 ## Current status
 
-The product is operational in production with public predictions, premium access, Wompi payment activation, automatic entitlement, admin payment controls, verified results, evaluation, publication queues, and Torneo export.
+Operational in production:
 
-The model refresh is merged and closed for the current cycle.
+- public predictions;
+- premium detail;
+- Wompi approved-webhook activation;
+- entitlements;
+- admin pricing;
+- exact fixture/result/evaluation queues;
+- reproducible signals;
+- Prediction Review Gate;
+- Torneo export.
 
-## Current operational checks
+Matchday 2 is complete and the final JSON was delivered.
 
-- Result Review Queue pending: 0.
-- Evaluation Queue pending: 0.
-- Four public fixtures upcoming.
-- Public verified history includes Canada 6-0 Qatar and Mexico 1-0 South Korea.
-- Focused queues avoid dependence on Real Fixture Lab exact-detail.
+## Verified production milestones
 
-## Required launch-week smoke matrix
+- API-Football key configured for Review Gate revalidation.
+- Review migration applied with RLS.
+- Shadow and human decision flow tested.
+- 24/24 Matchday 2 fixtures confirmed.
+- 9 new immutable public versions created.
+- export validated with 24 unique fixtures and complete markets.
 
-Devices/browsers:
+## P0 launch issues
+
+### Pricing truth
+
+Visible production/admin pricing showed an inconsistent USDT/COP relationship. Resolve before paid acquisition.
+
+### Home freshness
+
+Home still highlights an opening-match fixture and initial coverage messaging.
+
+### Truthful model status
+
+Transparency says calibration is active. Model calibration is closed; operational beta and signal updates remain active.
+
+### Catalog clarity
+
+World Cup Pass appears duplicated/ambiguous among current and future offers.
+
+## Required smoke matrix
+
+Devices:
 
 - Android Chrome;
 - iPhone Safari;
 - desktop Chrome;
-- desktop Edge or Firefox.
+- desktop Edge/Firefox.
 
 Roles:
 
 - anonymous;
 - registered-free;
 - premium;
-- admin.
+- admin without entitlement;
+- admin with entitlement.
 
 Flows:
 
 - home;
-- predictions;
+- predictions/upcoming/history;
 - match detail;
-- signup/login/email confirmation;
+- auth;
 - pricing;
-- Wompi checkout;
-- payment return/activation;
-- premium-active UI;
-- logout;
-- admin result/evaluation/publish/payment controls;
+- Wompi checkout/webhook/return;
+- dashboard;
+- admin payments;
+- publish/result/evaluation queues;
+- Prediction Review Gate;
 - Torneo export.
 
-## Mobile/responsive readiness
+## Accessibility/performance
 
-G09 should verify navbar, cards, long text, grids/tables, pricing/account/premium/payment presentation, touch targets, and horizontal overflow.
+Check:
 
-## PWA readiness
-
-G10 may ship installability metadata and icons. Do not cache:
-
-- Wompi checkout/redirect/callback/webhook;
-- auth;
-- admin;
-- API routes;
-- Supabase responses;
-- premium projections;
-- dynamic prediction/result data.
-
-G11 service-worker/offline behavior may be deferred.
-
-## Model/product communication
-
-- Probabilities are not guarantees.
-- Exact score is a scenario.
-- Fair stored metrics currently show 57.1% 1X2 and 25.0% exact score on 28 fixtures.
-- Continue fixture sanity gating and responsible-use copy.
-
-## Known non-blocking risks
-
-- Real Fixture Lab exact-detail stack overflow.
-- Long `/predictions` history until UIHISTORY01.
-- xG compression and blowout underestimation.
-- Venue metadata gaps.
+- keyboard/focus;
+- contrast;
+- touch targets;
+- mobile navigation;
+- horizontal overflow;
+- long admin pages;
+- console errors;
+- LCP/CLS;
+- large image sizing.
 
 ## Release blockers
 
-- broken payment activation;
-- premium entitlement mismatch;
+- incorrect checkout price;
+- payment activation failure;
+- entitlement mismatch;
 - public/internal data leak;
-- mobile navigation or checkout failure;
-- critical accessibility failure in core flows;
-- unsafe PWA caching;
-- unverified fixture/result publication.
+- broken core mobile navigation;
+- unsafe caching;
+- unverified result publication;
+- broken export contract.
+
+## Known non-blocking risks
+
+- Real Fixture Lab exact-detail.
+- venue gaps;
+- Review Gate copy/length;
+- no AI provider;
+- reviewed-xG preview only;
+- scoreline/blowout limitations.

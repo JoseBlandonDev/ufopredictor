@@ -1,129 +1,122 @@
-# G05 Wompi Production Integration Runbook
+# G05 Wompi Integration Runbook - UFO Predictor
 
-_Last refreshed: G05B Wompi production checkout + webhook MVP._
+_Last refreshed: post production launch and post-PR99 documentation rebaseline (2026-06-19)._
 
-## Scope
+## Status
 
-This is a production-enabled MVP for selling `world-cup-pass` through Wompi Colombia and activating the existing G06 entitlement layer after a verified webhook. It does not add betting, odds advice, dynamic FX, payment secrets, prediction-engine changes, API-Football changes, ingest changes, or result-verification changes.
+G05 Wompi Payment Integration is **Done / Production Live** for the World Cup Pass MVP.
 
-## Product And Amount
+A verified `APPROVED` Wompi webhook activates premium through G06 entitlement logic.
 
-- Product: `world-cup-pass`.
-- Visible price and checkout amount are controlled from `/admin/payments`.
-- Default seeded price: `20 USDT · aprox. $69.900 COP`.
-- Default seeded Wompi checkout amount: `amount_in_cents=6990000`.
-- Currency: `COP`.
-- Resource mapping: `competition_access` on `world_cup_2026`.
+## High-level flow
 
-Wompi Colombia expects the checkout amount as `amount-in-cents` / `amount_in_cents`. For COP, the database RPC multiplies admin-entered pesos by 100.
+```text
+Authenticated user starts checkout
+-> server creates controlled payment intent
+-> Wompi processes payment
+-> redirect/status page remains informational
+-> Wompi sends webhook
+-> checksum/event is validated
+-> approved event creates/reuses entitlement grant
+-> user entitlement becomes active
+-> premium UI resolves from authorization state
+```
 
-## Environment
+## Security rules
 
-Only these Wompi variables may reach the browser:
+- Redirect never activates premium.
+- Browser/client fields never prove payment.
+- Caller cannot supply the event secret.
+- Payment secrets remain server-side.
+- No service-role key in app routes.
+- `subscriptions` is not authorization.
+- Duplicate approved events must not duplicate access.
+- Non-approved states do not activate premium.
 
-```txt
+## Pricing source of truth
+
+World Cup Pass pricing is DB/admin controlled through:
+
+```text
+/admin/payments
+```
+
+Do not rely on old documentation examples as the current commercial price.
+
+Before marketing or checkout smoke, verify all of these agree:
+
+- COP amount stored in DB;
+- public USDT label;
+- `/pricing`;
+- `/admin/payments`;
+- Wompi checkout amount;
+- offer state and expiry.
+
+A 2026-06-19 visual audit found an inconsistent visible combination of `20 USDT` and approximately `2.000 COP`. Treat this as a P0 commercial configuration/copy issue until the owner confirms and corrects the intended price.
+
+## Production configuration
+
+Expected variable families:
+
+```text
+WOMPI_ENV
+WOMPI_API_BASE_URL
 NEXT_PUBLIC_WOMPI_PUBLIC_KEY
+WOMPI_PRIVATE_KEY
+WOMPI_EVENTS_SECRET
+WOMPI_INTEGRITY_SECRET
+WOMPI_CURRENCY
 NEXT_PUBLIC_APP_URL
 ```
 
-Server-only:
+Real values must never be committed or pasted into documentation.
 
-```txt
-WOMPI_ENV=production
-WOMPI_API_BASE_URL=https://production.wompi.co/v1
-WOMPI_PRIVATE_KEY=prv_prod_xxx
-WOMPI_INTEGRITY_SECRET=prod_integrity_xxx
-WOMPI_CURRENCY=COP
+## Vault and webhook
+
+Production webhook:
+
+```text
+https://ufopredictor.com/api/wompi/webhook
 ```
 
-The webhook RPC does not accept the Wompi events secret from callers. Store the production events secret in Supabase Vault outside source control:
+Supabase Vault secret name:
 
-```sql
-select vault.create_secret(
-  '<WOMPI_EVENTS_SECRET>',
-  'wompi_events_secret',
-  'Wompi events secret for webhook validation'
-);
+```text
+wompi_events_secret
 ```
 
-Do not commit real Wompi keys. Railway is the current deployment target for this MVP.
+Railway and Vault event secrets must match the active Wompi environment.
 
-## Flow
+## Successful payment verification
 
-1. Signed-in user clicks the World Cup Pass CTA on `/pricing`.
-2. `POST /api/wompi/checkout` calls `create_wompi_world_cup_pass_intent` for that user.
-3. The database reads the active World Cup Pass price from `wompi_product_prices`; clients never send amount, currency, plan, or entitlement mapping.
-4. The server calculates the Wompi checkout integrity signature for the DB amount.
-5. The browser is sent to Wompi Web Checkout.
-6. The redirect returns to `/payments/wompi/return` and is informational only.
-7. Wompi sends `POST /api/wompi/webhook`.
-8. The route parses the Wompi event and passes the event plus `X-Event-Checksum` to the database RPC.
-9. The database RPC validates the checksum with the Supabase Vault `wompi_events_secret`, records the event idempotently, and activates G06 only for `APPROVED`.
+1. Wompi transaction is approved.
+2. Webhook logs show successful processing.
+3. `wompi_payment_events` contains the event.
+4. `entitlement_grants` contains the activation ledger row.
+5. `user_entitlements` contains active World Cup access.
+6. Premium content resolves on match detail.
+7. Pricing/dashboard reflect the user state.
 
-## Admin Price Control
+## Refunds and cancellations
 
-Use `/admin/payments` to update the permanent World Cup Pass price or start a temporary offer in minutes. The admin screen writes through `admin_update_wompi_world_cup_pass_price(...)`. The next checkout uses the new active price immediately; no Railway env edit is required.
+Still open.
 
-## Activation Contract
+Early-production default:
 
-`public.activate_verified_wompi_entitlement(...)` writes through:
+- inspect the Wompi transaction;
+- revoke or expire entitlement through an approved admin path;
+- retain grant/audit history;
+- document the support action;
+- automate only after a dedicated approved slice.
 
-- `wompi_payment_events`;
-- `entitlement_grants`;
-- `user_entitlements`;
-- `subscriptions` as commercial status only.
+## Secret rotation
 
-The stable idempotency key is:
+Rotate if secrets were exposed, mixed between environments, or suspicious activity appears.
 
-```txt
-wompi:<transaction_id>:APPROVED
-```
+After rotation:
 
-Duplicate webhook deliveries return the already processed event and do not duplicate grants.
-
-## Security Advisor Note
-
-Supabase may flag `public.activate_verified_wompi_entitlement(jsonb, text)` because it is a `SECURITY DEFINER` RPC executable by `anon`. That exposure is intentional for Wompi's unauthenticated webhook delivery. The function is treated as a public API endpoint and is constrained as follows:
-
-- callers never send or control `wompi_events_secret`;
-- the secret is read from Supabase Vault;
-- the Wompi checksum is recomputed inside Postgres before any write;
-- invalid checksum, missing Vault secret, missing intent, amount mismatch, or currency mismatch fail closed;
-- only `APPROVED` events activate G06 access;
-- `PENDING`, `DECLINED`, and `ERROR` events are recorded without grants;
-- direct table access to `wompi_payment_events` remains denied for `anon` and `authenticated`.
-
-## Production Smoke Test
-
-1. Apply `supabase/migrations/0037_wompi_payment_mvp.sql`.
-2. Apply any later Wompi repair/hardening migrations.
-3. Configure Railway production checkout env vars and the Supabase Vault `wompi_events_secret`.
-4. Set the Wompi production webhook URL to:
-
-```txt
-https://<railway-domain>/api/wompi/webhook
-```
-
-5. Sign in and open `/pricing`.
-6. Start checkout from World Cup Pass.
-7. Optionally update the price in `/admin/payments` and confirm `/pricing` reflects it.
-8. Complete a Wompi production payment.
-9. Confirm `/payments/wompi/return` redirects to `/dashboard` after the webhook has processed the approved payment.
-10. Confirm the dashboard shows World Cup Pass active.
-11. Confirm Wompi webhook creates one `entitlement_grants` row and a current `user_entitlements` row for `world_cup_2026`.
-12. Confirm a duplicate event does not create another grant.
-
-## Production Pending
-
-- Production Wompi public/private/events/integrity keys configured.
-- Production webhook URL configured in Wompi.
-- Final COP price confirmation.
-- Production smoke test on Railway domain.
-- Monitoring/log review for webhook failures.
-- Ongoing security advisor review for global non-Wompi objects.
-
-## Source Notes
-
-- Wompi Web Checkout docs: https://docs.wompi.co/docs/colombia/widget-checkout-web/
-- Wompi event docs: https://docs.wompi.co/docs/colombia/eventos/
-- Supabase API/RLS docs: https://supabase.com/docs/guides/api/securing-your-api
+1. update Railway;
+2. update Vault;
+3. redeploy;
+4. verify webhook configuration;
+5. run a controlled payment smoke.

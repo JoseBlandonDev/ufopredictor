@@ -1,6 +1,6 @@
 # G06 Entitlement Activation Binding Runbook
 
-_Last refreshed: G06B backend activation binding (2026-06-17)._
+_Last refreshed: post G05/G06 production activation baseline (2026-06-19)._
 
 ## Scope
 
@@ -116,16 +116,16 @@ Revocation marks the grant as `revoked`, expires the linked entitlement or match
 
 `lib/supabase/entitlement-grant-queries.ts` wraps the RPCs for future admin surfaces or server actions. It must be called only after `requireAdmin()` succeeds and uses `createSupabaseServerClient()` with the signed-in admin session. Do not call these RPCs from public client code.
 
-## Future Wompi Integration
+## Wompi Production Integration
 
-G05 should verify Wompi events before activation and then call the same binding with:
+The live Wompi path verifies approved events before activation and calls the same binding with:
 
 - a deterministic idempotency key, such as `wompi:<event_id>` or `wompi:<transaction_id>:<status>`;
-- `source_type` set to a payment source after that path is explicitly enabled;
+- `source_type` set to the payment source used by the webhook path;
 - `source_reference` set to the Wompi transaction/event reference;
 - the mapped plan, resource, match, and expiration window.
 
-G05 must not create a parallel premium table, set `profiles.role` as the access control mechanism, expose service-role app routes, or grant direct client write access to entitlement tables.
+The Wompi activation path must not create a parallel premium table, set `profiles.role` as the access control mechanism, expose service-role app routes, or grant direct client write access to entitlement tables.
 
 ## Manual Test Checklist
 

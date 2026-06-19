@@ -1,105 +1,107 @@
 # Roadmap and Backlog - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 Data Ops 06 and frontend visual audit (2026-06-19)._
 
-## Completed / operational
+## Completed
 
-### Public Prediction MVP
+### Public and premium product
 
-Public World Cup prediction list/detail, verified final-result display, and internal evaluation separation.
+- public prediction list/detail;
+- verified results;
+- bounded recent results;
+- paginated history/upcoming routes;
+- premium xG, scorelines, BTTS, O/U, confidence/risk;
+- registered-free score gate.
 
-### Premium Prediction Detail and Free Gate
+### Operations
 
-Protected premium model detail and registered-free probable-score gating are operational.
+- Result Review Queue;
+- Evaluation Queue;
+- Real Fixture Publish Queue;
+- exact API-Football workflow;
+- Matchday 2 batch and idempotence.
 
-### Data Ops 01-04
+### Model/data
 
-Operational fixture publication, result review/evaluation, public runway management, and model/data refresh through PR #94.
+- PR #94 model closeout;
+- PR #97 reproducible signal refresh;
+- 2026-06-19 source snapshot and generator.
 
-### Real Fixture Publish Queue
+### Review and partner integration
 
-Admin-only lightweight exact-fixture save/publish path.
+- PR #98 Prediction Review Gate;
+- TM01 admin export;
+- PR #99 final 24-fixture Matchday 2 JSON;
+- JSON delivered to Torneo.
 
-### Torneo Mundialista Export
+### Monetization
 
-Admin public-safe JSON export implemented.
-
-### Epic G platform/monetization baseline
-
-- G01 auth foundation: done.
-- G02 dev/prod/config readiness: done.
-- G04 plans/pricing/admin pricing baseline: implemented.
-- G05 Wompi checkout/payment integration: operational.
-- G06 entitlement activation: operational.
-- G07 premium-active UX/gate experience: operational.
-
-G08 trust/legal copy still requires final production verification.
-
-### Model refresh PR #94
-
-- SIGNAL04 retained.
-- DRAW01 retained.
-- expected-goals formula unchanged.
-- 28-fixture fair evaluation closeout documented.
+- Wompi production payment;
+- G06 entitlement activation;
+- G07 premium active experience;
+- admin pricing controls.
 
 ## Immediate backlog
 
-### Documentation closeout
+### Data operations
 
-Merge refreshed canonical docs and update ChatGPT project sources before opening the next fixture/model conversation.
+- Matchday 2 final-result monitoring;
+- evaluation persistence;
+- next fixture runway.
 
-### Data Ops 05 / next runway
+### G04 pricing/catalog P0
 
-Monitor current four fixtures, process exact final results, then load/publish the next approved runway after sanity review.
+Acceptance:
 
-### UIHISTORY01
+- owner-confirmed final price;
+- consistent COP and USDT;
+- checkout matches DB;
+- no duplicate World Cup Pass;
+- clear active vs future products.
 
-Limit `/predictions` to four recent verified results and add paginated `/predictions/history`.
+### G08 trust/truthful copy
 
-### Real Fixture Lab cleanup
+Acceptance:
 
-Fix exact-detail stack overflow without regressing focused queues.
+- model calibration closed;
+- signals can refresh;
+- no-betting/no-guarantee;
+- purchase/refund expectations;
+- consistent pricing/footer/return/transparency copy.
 
-## Model/data backlog
+### G09 frontend commercial readiness
 
-### Repeatable signal refresh
+See dedicated plan.
 
-Use the documented FIFA CSV + Elo ranking/results HTML package workflow with a required quality report.
+Key items:
 
-### Future xG research
+- dynamic home;
+- Spanish display consistency;
+- dashboard access clarity;
+- Review Gate polish;
+- compact admin empty states;
+- responsive pass.
 
-Separate later project. Do not reopen current formula from fixture intuition alone.
+### G03/G13 production smoke
 
-### Venue/stadium metadata
+Formal device/role/flow matrix.
 
-Add only after provider reliability is reviewed.
+### Refund/revocation operations
 
-## Epic G launch-week parallel backlog
+Document and test manual support path.
 
-### G09 Mobile and Responsive Launch Polish
+## Planned/deferred
 
-Public/account/premium/payment presentation only. No business-logic changes.
+- G10 PWA installability.
+- G11 safe update/offline strategy.
+- G12 accessibility/performance.
+- Review Gate AI.
+- reviewed-xG publication.
+- Real Fixture Lab exact-detail.
+- venue metadata.
+- future xG research.
+- signal refresh scheduling.
 
-### G10 PWA Installability MVP
+## Guardrails
 
-Manifest, icons, standalone metadata, mobile installability. No aggressive caching.
-
-### G11 PWA Update and Offline Safety
-
-Service-worker version/update plan and public-shell-only offline strategy. May be deferred if risky.
-
-### G12 Accessibility and Performance Launch Pass
-
-Lighthouse, keyboard/focus, contrast, touch targets, LCP/CLS, console errors, heavy routes.
-
-### G13 Cross-Device Production Smoke Test
-
-Android Chrome, iOS Safari, desktop browsers, anonymous/free/premium/admin/payment flows.
-
-### G14 Launch Coordination and Parallel Ownership
-
-Explicit file ownership. Parallel contributors do not edit canonical docs, model, ingest, results, migrations, Wompi webhook, or entitlements without assignment.
-
-## Non-goals / guardrails
-
-No public `prediction_results`, no hidden provider odds/predictions, no Torneo human-pick model input, no raw refresh package runtime import, no client payment secrets, and no combined model/publication mega-slices.
+No public `prediction_results`, no provider odds/predictions as hidden model inputs, no Torneo human-pick input, no post-result rewrites, no client payment secrets, and no unreviewed broad fixture writes.

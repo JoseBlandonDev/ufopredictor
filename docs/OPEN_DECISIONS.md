@@ -1,59 +1,115 @@
 # Open Decisions - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 documentation rebaseline (2026-06-19)._
 
 ## Closed decisions
 
-### Model refresh PR #94
+### Model calibration
 
-Closed: retain SIGNAL04 and DRAW01. Keep expected-goals formula unchanged. Do not retry rejected candidates without new evidence.
+Closed through PR #94:
 
-### Model performance reporting
+- SIGNAL04 retained;
+- DRAW01 retained;
+- expected-goals unchanged;
+- stored pre-match rows remain the fair report.
 
-Closed: stored pre-match rows are the fair report. Refreshed-signal historical recomputations are diagnostic only.
+### Reproducible signal baseline
 
-### Payment gateway and entitlement
+Closed through PR #97:
 
-Closed operational baseline: Wompi payment confirmation activates premium access. Dedicated runbooks remain authoritative for implementation/security details.
+- tracked 2026-06-19 source snapshot;
+- deterministic generator;
+- quality gates;
+- runtime static pack.
 
-### Torneo export
+### Prediction review architecture
 
-Closed: admin public-safe export exists. Torneo human picks are not UFO model inputs.
+Closed through PR #98:
 
-### Publication operations
+- separate review tables;
+- immutable shadow/decision lineage;
+- provider revalidation;
+- no fake AI fallback.
 
-Closed: focused Publish/Result Review/Evaluation queues are the normal operational paths while Real Fixture Lab exact-detail remains unstable.
+### Matchday 2 and Torneo export
+
+Closed through PR #99:
+
+- 24/24 fixtures;
+- batch idempotence;
+- final `torneo-ufo-export-v1` delivered.
 
 ## Open decisions
 
-### UIHISTORY01 scheduling
+### Final World Cup Pass price
 
-Recognition is complete. Decide whether implementation runs before or in parallel with the next runway. It is a small UI slice and should not touch model/payments/migrations.
+Owner must confirm the intended commercial amount and label.
 
-### Next runway cadence
+Resolve consistency across:
 
-Choose the next approved window after current four fixtures: next 2 days, matchday window, or manual set. Preserve sanity gating.
+- DB COP amount;
+- USDT label;
+- public pricing;
+- admin pricing;
+- checkout.
 
-### Signal refresh trigger
+### Signal refresh cadence
 
-Define meaningful trigger threshold: ranking release, complete matchday, or result batch. Do not refresh after every unexpected match.
+Choose a repeatable trigger and owner.
 
-### Future xG research
+Candidate triggers:
 
-Open but deferred. Requires larger clean sample, explicit metrics, and isolated experiments.
+- official ranking release;
+- completed matchday;
+- meaningful result batch.
 
-### PWA scope
+### Review Gate AI provider
 
-G10 installability is launch-safe. Decide whether G11 service-worker/offline behavior ships now or later. Default: defer risky caching.
+Decide whether to connect one concrete provider. No provider is connected now.
 
-### Mobile/PWA ownership
+### Reviewed-xG publication policy
 
-Assign exact files before parallel work. Canonical docs and sensitive payment/model paths remain owner-locked.
+Preview exists. Publication remains disabled.
 
-### Trust/legal final pass
+Decide later:
 
-Verify responsible-use, no-guarantee, and non-betting language across production surfaces.
+- whether publication is allowed;
+- bounds by competition;
+- required human reason and audit;
+- whether AI may only propose, never decide.
+
+### Refund/revocation operations
+
+Define:
+
+- support workflow;
+- entitlement revocation;
+- refund/cancellation policy;
+- audit expectations;
+- future automation threshold.
+
+### Home content strategy
+
+Choose dynamic source for:
+
+- featured match;
+- active coverage count;
+- current tournament stage.
+
+Avoid hardcoded opening-match messaging.
+
+### Public language strategy
+
+Choose Spanish display names and translated operational labels while keeping provider/database identities in English.
 
 ### Venue metadata
 
-Still open pending provider reliability review.
+Open pending provider quality review.
+
+### Real Fixture Lab exact-detail
+
+Decide whether to fix, replace, or retire it after focused queues have proven sufficient.
+
+### PWA offline scope
+
+Default remains no dynamic/auth/payment/admin caching. Decide whether any service worker ships after smoke testing.

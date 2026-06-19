@@ -1,77 +1,106 @@
 # Implementation Plan - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 documentation rebaseline (2026-06-19)._
 
-## Completed implementation blocks
+## Completed blocks
 
 - Public prediction MVP.
-- Protected premium prediction detail.
-- Registered-free probable-score gate.
+- Prediction pagination/history PR #96.
+- Premium prediction detail.
+- Free probable-score gate.
 - Result Review and Evaluation queues.
 - Real Fixture Publish Queue.
-- Torneo Mundialista admin export.
-- Wompi checkout/payment activation.
-- Automatic premium entitlement.
-- Premium-active UX.
-- Admin price/payment controls.
-- SIGNAL04 and DRAW01 through PR #94.
+- Wompi production payment flow.
+- G06 entitlement activation.
+- G07 premium active experience.
+- Admin price controls.
+- Model closeout PR #94.
+- Reproducible signal refresh PR #97.
+- Prediction Review Gate PR #98.
+- Data Ops 06 Matchday 2 completion PR #99.
+- Torneo Mundialista export and final 24-fixture delivery.
 
-## Current implementation freeze
+## Current freeze boundaries
 
-Do not reopen model code during the documentation closeout. `expected-goals.ts` remains unchanged. SIGNAL04/DRAW01 are accepted for the current operational cycle.
+Do not reopen model formulas during operational/frontend work.
 
-## Next focused implementation candidates
+Frozen by default:
 
-### Data Ops 05
+- `expected-goals.ts`;
+- DRAW01;
+- Poisson logic;
+- accepted SIGNAL04 score formulas;
+- finished/kickoff-passed stored predictions.
 
-Exact-fixture result processing and next-runway publication. No broad apply.
+## Immediate implementation slices
 
-### UIHISTORY01
+### Data operations
 
-Likely files:
+- monitor Matchday 2 provider final states;
+- exact result apply;
+- Result Review Queue;
+- Evaluation Queue;
+- next fixture runway.
 
-- `app/predictions/page.tsx`;
-- `app/predictions/history/page.tsx`;
-- `lib/supabase/public-prediction-queries.ts`;
-- focused tests.
+### G04 P0 pricing truth
 
-No public contract or card redesign required for MVP.
+Confirm intended commercial price and align:
 
-### G09 Mobile/Responsive
+- DB COP amount;
+- USDT label;
+- `/pricing`;
+- `/admin/payments`;
+- checkout.
 
-Visual-only and test scope. Coordinate navbar/account/pricing/payment presentation ownership.
+### G08 truthful model-status copy
 
-### G10 PWA Installability
+Correct public copy that says calibration is active. Model calibration is closed; operational beta and signal refresh remain active.
 
-Manifest/icons/metadata only for MVP. Avoid service-worker caching of auth, admin, API, Supabase, Wompi, premium, or dynamic predictions.
+### G09 frontend commercial readiness
 
-### G12 Accessibility/Performance
+Implement from `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`.
 
-Audit and targeted fixes without model/payment business logic changes.
+First slices:
 
-### G13 Production Smoke
+1. home freshness;
+2. pricing/catalog simplification;
+3. dashboard access-state clarity;
+4. Review Gate copy/states;
+5. Spanish presentation consistency.
 
-Role/device matrix including payment and premium activation.
+### G03/G13 production smoke
 
-### Real Fixture Lab cleanup
+Formal role/device matrix after the P0 frontend fixes.
 
-Separate admin bug/refactor. Do not couple to runway publication.
+## Deferred or separate
 
-## Validation expectations
+- Review Gate AI connection.
+- Reviewed-xG publication.
+- Real Fixture Lab exact-detail repair.
+- Future xG research.
+- Venue metadata.
+- risky PWA offline caching.
 
-Code slices:
+## Validation
+
+Code:
 
 ```bash
 git diff --check
-npm run test -- <targeted-tests>
+npx vitest run <focused-tests>
 npm run lint
 npm run build
-git status --short
 ```
 
-Docs slices:
+Signal work:
+
+```bash
+npm run signal:check:national-team-pack
+```
+
+Docs:
 
 - docs-only diff;
 - stale contradiction search;
-- cross-document metric/status consistency;
-- no protected runbook edits unless assigned.
+- no unsupported claims;
+- no secrets.

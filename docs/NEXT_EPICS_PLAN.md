@@ -1,70 +1,84 @@
 # Next Epics Plan - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 Data Ops 06 and Torneo delivery (2026-06-19)._
 
-## Immediate sequence
+## Immediate operational sequence
 
-### 1. Documentation closeout
+### 1. Matchday 2 result operations
 
-Merge the post-PR94 documentation refresh, including model evidence, signal-refresh procedure, current monetization state, and launch ownership rules.
+- monitor provider status;
+- verify only exact final fixtures;
+- persist internal evaluation;
+- keep frozen prediction history immutable.
 
-### 2. New conversation / Data Ops 05
+### 2. Next fixture runway
 
-Start from refreshed sources. Monitor the current four public fixtures and process exact final results. Load/publish the next runway only after fixture-level sanity review.
+- inventory exact upcoming round;
+- dry-run;
+- generate/publish only future scheduled fixtures;
+- preserve idempotence;
+- export only after public prediction completeness.
 
-### 3. UIHISTORY01
+### 3. Small Review Gate UI patch
 
-Small focused UI slice:
+- missing market -> `No disponible`;
+- pre-shadow -> `Sin comparación todavía`;
+- translate provider/alert/risk labels;
+- compact long review presentation if low risk.
 
-- 4 recent results on `/predictions`;
-- `Ver historial completo`;
-- `/predictions/history`;
-- verified finished rows only;
-- server pagination, 12 per page;
-- existing card reuse.
+## Commercial readiness sequence
 
-## Model/data next
+### G04 pricing truth and catalog
+
+P0:
+
+- confirm final price;
+- align COP/USDT/checkout;
+- remove duplicate World Cup Pass presentation;
+- separate active and future products.
+
+### G08 trust and truthful copy
+
+- model calibration closed vs signals refreshable;
+- purchase terms;
+- refund/cancellation expectations;
+- no-betting/no-guarantee consistency.
+
+### G09 frontend commercial readiness
+
+- dynamic home content;
+- Spanish presentation consistency;
+- dashboard role/plan/entitlement clarity;
+- compact admin empty states;
+- responsive pass.
+
+### G12/G13 launch gates
+
+- accessibility/performance;
+- anonymous/free/premium/admin cross-device smoke;
+- payment/export/review routes.
+
+## Data/model next
 
 ### Signal refresh cadence
 
-Trigger after a meaningful result/ranking batch, not after every surprise. Use the new quality-gated source-package workflow.
+Choose a trigger such as:
 
-### Model monitoring
+- official ranking release;
+- completed matchday;
+- meaningful result batch.
 
-Track fair stored metrics. Do not use current-signal recomputations as fair backtests.
+Do not refresh after every surprising result.
 
-### Future xG project
+### Scoreline monitoring
 
-Research structural scoreline compression only after a larger clean sample and a separate experimental plan.
+Continue fair stored metrics. Open a new model experiment only with a larger clean sample and explicit acceptance criteria.
 
-## Launch-week Epic G parallel plan
+## Deferred
 
-### G09 Mobile/responsive polish
-
-Fix layout, overflow, touch targets, cards, navbar, pricing/account/premium/payment presentation.
-
-### G10 PWA installability
-
-Manifest, icons, standalone metadata, Android/iOS installability. No dynamic/payment/auth caching.
-
-### G11 Update/offline safety
-
-Optional follow-up; defer if service worker creates launch risk.
-
-### G12 Accessibility/performance
-
-Lighthouse, keyboard/focus, contrast, responsive performance, CLS/LCP, console cleanup.
-
-### G13 Cross-device smoke
-
-Android Chrome, iOS Safari, desktop Chrome/Edge/Firefox, and anonymous/free/premium/admin/payment flows.
-
-### G14 Ownership
-
-Assign file ownership before work. Parallel UI/PWA branches must not edit canonical docs, model/ingest/results, migrations, Wompi webhook, or entitlement activation.
-
-## Separate follow-ups
-
-- Real Fixture Lab stack overflow cleanup.
-- Venue/stadium metadata.
-- G08 trust/legal final pass.
+- Review Gate AI;
+- reviewed-xG publication;
+- Real Fixture Lab exact-detail;
+- venue metadata;
+- service-worker offline caching;
+- future xG formula work.

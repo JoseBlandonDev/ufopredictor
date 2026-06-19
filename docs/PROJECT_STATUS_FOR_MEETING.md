@@ -1,60 +1,61 @@
 # Project Status for Meeting - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: 2026-06-19 after PR #99._
 
 ## Executive summary
 
-UFO Predictor is live as a public prediction and premium product. The current production baseline includes Wompi payment activation, automatic premium entitlement, premium-active UX, admin payment controls, verified results, internal evaluation, fixture publication queues, and Torneo export.
+UFO Predictor now has the complete early commercial loop:
 
-The model refresh cycle is closed through PR #94.
+- public predictions;
+- premium model detail;
+- Wompi payment;
+- entitlement activation;
+- result verification/evaluation;
+- reproducible signal refresh;
+- prediction review workflow;
+- partner JSON export.
 
-## Model outcome
+## Recent delivery
 
-Accepted:
+- PR #97: reproducible national-team signal snapshot and generator.
+- PR #98: Prediction Review Gate deployed with RLS and API-Football revalidation.
+- PR #99: Matchday 2 completed at 24/24 and exported to Torneo.
+- Final partner file: 24 unique fixtures, production URLs, complete BTTS/O-U.
 
-- SIGNAL04 refreshed national-team signals;
-- DRAW01 conservative draw reconciliation;
-- Cabo Verde alias fix.
+## Model
 
-Rejected:
+Calibration remains closed through PR #94.
 
-- selective team overrides;
-- global anchor band;
-- attack/defense rollback hybrid;
-- rating/form rollback;
-- all three XG01A formula candidates.
+Fair stored baseline:
 
-Expected-goals code remains unchanged.
-
-## Evaluation snapshot
-
-- 28 unique evaluated World Cup fixtures;
 - 1X2 57.1%;
 - exact score 25.0%;
 - BTTS 59.3%;
 - O/U 57.1%;
 - average total-goal error 1.821.
 
-Latest results: Canada 6-0 Qatar and Mexico 1-0 South Korea.
+## Operations
 
-## Product/ops snapshot
+- 5 Matchday 2 fixtures frozen;
+- 9 public versions created;
+- batch idempotence passed;
+- Result/Evaluation/Publish focused queues operational;
+- Real Fixture Lab exact-detail remains isolated.
 
-- Result Review Queue: empty.
-- Evaluation Queue: empty.
-- Four public fixtures upcoming.
-- UIHISTORY01 recognized, not implemented.
-- Real Fixture Lab exact-detail blocker remains isolated by focused queues.
+## Commercial readiness risks
 
-## Launch-week priorities
+1. price label and COP amount are visibly inconsistent;
+2. home content is stale;
+3. transparency copy misstates calibration status;
+4. World Cup Pass catalog presentation is duplicated/ambiguous;
+5. formal cross-role/device smoke remains incomplete;
+6. refund/revocation process remains open.
 
-1. Merge documentation closeout.
-2. Continue exact result monitoring and next-runway publication.
-3. Mobile/responsive polish.
-4. PWA installability without unsafe caching.
-5. Accessibility/performance pass.
-6. Cross-device production smoke.
-7. UI history pagination.
+## Next 7-day focus
 
-## Main risk
-
-The product is operational, but model exact-score quality and blowout calibration remain limited. Public language must remain probabilistic and fixture publication must keep sanity gating.
+- process results and next runway;
+- fix P0 pricing truth;
+- refresh home/transparency;
+- small Review Gate UI patch;
+- G08/G03/refund readiness;
+- responsive/accessibility/cross-device smoke.

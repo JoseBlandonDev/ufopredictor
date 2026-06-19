@@ -1,105 +1,151 @@
 # ChatGPT Project Source - UFO Predictor Current
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 Data Ops 06 / PR #98 Prediction Review Gate / PR #97 reproducible signal refresh (2026-06-19)._
 
 ## Product summary
 
-UFO Predictor is a probabilistic football prediction product. It publishes controlled World Cup predictions, verifies final results, keeps internal evaluation private, and offers premium public-safe model detail. It does not receive bets and does not guarantee outcomes.
+UFO Predictor is a probabilistic football prediction product for the 2026 World Cup. It publishes controlled public predictions, preserves immutable historical predictions, verifies final results, keeps internal evaluation private, and offers premium public-safe model detail.
 
-## Current production state
+It does not receive bets and does not guarantee outcomes.
 
-- `/predictions` publishes launch-safe World Cup predictions and verified result history.
-- `/matches/[slug]` provides public match detail.
-- Premium model detail is available through a protected public-safe projection.
-- Wompi payment flow is operational and verified payments activate premium access automatically.
-- Premium users receive premium-active presentation rather than free-user upgrade prompts.
-- Admin payment and pricing controls exist.
-- `/admin/real-fixture-result-review-queue` is the result verification path.
-- `/admin/real-fixture-evaluation-queue` is the evaluation persistence path.
-- `/admin/real-fixture-publish-queue` is the lightweight publication path.
-- Torneo Mundialista admin export is implemented.
-- Real Fixture Lab exact-detail remains a separate stack-overflow follow-up.
+## Current production baseline
+
+Implemented and operational:
+
+- public prediction list and match detail;
+- bounded recent results and paginated history;
+- public verified final results;
+- protected premium model detail;
+- registered-free probable-score gating;
+- Wompi production checkout and approved-webhook activation;
+- G06 entitlement materialization;
+- premium-active UI;
+- admin pricing controls;
+- Result Review Queue;
+- Evaluation Queue;
+- Real Fixture Publish Queue;
+- Prediction Review Gate;
+- Torneo Mundialista admin export.
+
+Real Fixture Lab exact-detail remains a separate stack-overflow follow-up.
 
 ## Accepted model state
 
-PR #94 merged the current accepted model/data slice:
+PR #94 remains the model closeout:
 
-- SIGNAL04 refreshed national-team FIFA/Elo and reviewed aggregate strength signals.
-- DRAW01 added a conservative draw top-outcome reconciliation.
-- `Cape Verde Islands` alias resolution was fixed.
-- `expected-goals.ts` was deliberately left unchanged after three XG01A candidates failed acceptance guardrails.
+- SIGNAL04 retained;
+- DRAW01 retained;
+- `expected-goals.ts` unchanged;
+- Cabo Verde alias handling retained;
+- rejected signal and xG candidates remain closed.
 
-The model was updated and improved modestly in 1X2/draw handling. Exact-score prediction did not improve, and the model still underestimates some blowouts and compresses some favorites toward close scorelines.
-
-## Evaluation evidence
-
-Fair stored-prediction scope: latest evaluated `internal_lab` + `pre_match_24h` row per unique fixture.
+Fair stored baseline:
 
 - raw evaluation rows: 31;
-- unique launch-safe fixtures: 28;
+- unique fixtures: 28;
 - 1X2: 16/28;
 - exact score: 7/28;
 - BTTS: 16/27;
 - O/U 2.5: 16/28;
 - average total-goal error: 1.821.
 
-A fair DRAW01 overlay on 26 stored fixtures changed 1X2 from 14/26 to 15/26, captured one additional draw, and introduced zero false top draws.
+Current-signal recomputations over finished fixtures are diagnostic only.
 
-Do not present refreshed-signal recomputations over past fixtures as fair backtests.
+## Signal refresh V2
 
-## Latest verified/evaluated results
+PR #97 established the 2026-06-19 reproducible national-team signal snapshot.
 
-- Canada 6-0 Qatar, fixture `1489387`.
-- Mexico 1-0 South Korea, fixture `1489388`.
+The runtime pack is generated deterministically from validated source data and checked for idempotence. It preserves the accepted model formulas and does not import raw source files at runtime.
 
-Both are verified, publicly projected, and internally evaluated. Result Review Queue and Evaluation Queue are empty.
+The signal baseline is operational. The future refresh cadence remains open.
 
-## Current public upcoming runway
+## Prediction Review Gate
 
-Current count: 4.
+PR #98 added:
 
-- United States vs Australia
-- Scotland vs Morocco
-- Brazil vs Haiti
-- Türkiye vs Paraguay
+- production migration with four admin-only review tables;
+- RLS;
+- API-Football temporal revalidation;
+- deterministic shadow predictions;
+- refresh and Elo-coherence alerts;
+- auditable human decisions;
+- immutable reviewed publication lineage.
 
-## Public/premium boundaries
+Validated production example:
 
-Public surfaces may show public-safe 1X2 probabilities, confidence/risk according to viewer policy, and verified final results. Premium detail may include expected goals, top scorelines, BTTS, O/U 2.5, confidence, and risk through the protected projection.
+- Netherlands vs Sweden shadow generated;
+- no material model delta;
+- Elo gap at WATCH level;
+- `KEEP_CURRENT` human decision stored.
 
-Never expose `prediction_results`, raw evaluation payloads, raw Lab payloads, service-role data, provider predictions/odds, payment secrets, or Torneo human picks as model inputs.
+AI is unavailable until a concrete supported provider key is configured. Reviewed-xG is preview-only.
 
-## Signal refresh source workflow
+## Data Ops 06 / Matchday 2
 
-The first SIGNAL04 source package was generated from:
+PR #99 completed Group Stage - 2:
 
-- `Ranking FIFA - Hoja 2.csv`;
-- `ranking ELO.html`;
-- `results.html`.
+- API-Football count: 24;
+- database count: 24 before and after;
+- no ingest required;
+- 5 fixtures frozen;
+- 3 future fixtures regenerated;
+- 10 existing V2-current public predictions reused;
+- 6 V2 internal predictions published;
+- 9 new immutable public versions created;
+- idempotence verified.
 
-It covered 48 World Cup teams but was not fully runtime-safe. It contained invalid/future dates, unresolved aliases, incomplete recent lists, and leakage risk. SIGNAL04 therefore used reviewed safe fields and aggregates, not the raw `last5` arrays.
+## Torneo Mundialista export
 
-Future refreshes require a quality report before Codex implementation. See `SIGNAL_REFRESH_PLAYBOOK.md`.
+TM01 is done and operational.
 
-## UIHISTORY01 state
+Final delivered file:
 
-Recognition complete; no implementation changes exist yet.
+- contract: `torneo-ufo-export-v1`;
+- 24 fixtures;
+- 24 unique fixture IDs;
+- 0 localhost URLs;
+- 0 null BTTS objects;
+- 0 null O/U 2.5 objects;
+- source origin: `https://ufopredictor.com`.
 
-Recommended MVP: 4 recent results on `/predictions`, dedicated `/predictions/history`, server pagination of 12, verified finished rows only, existing card reuse.
+The final Matchday 2 JSON was sent to Torneo Mundialista.
 
-## Launch-parallel Epic G work
+## Payment and Epic G state
 
-Safe parallel launch tasks include:
+- G01 Auth: done.
+- G02 environment/config baseline: done.
+- G03 formal production smoke: partial/open.
+- G04 pricing/catalog MVP: operational, polish open.
+- G05 Wompi production payment: done.
+- G06 entitlement activation: done.
+- G07 premium active experience: done for MVP.
+- G08 trust/legal/truthful copy: partial, final pass open.
+- G09 frontend commercial readiness: planned with concrete findings.
+- G10 PWA installability: planned.
+- G11 offline/update safety: optional/deferred unless safe.
+- G12 accessibility/performance: planned.
+- G13 cross-device production smoke: planned.
+- G14 ownership/coordination: required for parallel work.
 
-- G09 mobile/responsive polish;
-- G10 PWA installability MVP;
-- G11 update/offline safety planning;
-- G12 accessibility/performance pass;
-- G13 cross-device production smoke;
-- G14 ownership/coordination.
+## Frontend findings to carry forward
 
-Parallel frontend/PWA branches must not modify canonical docs, model/ingest/result code, Supabase migrations, Wompi webhook logic, or entitlement activation without explicit assignment.
+Highest priority:
 
-## Next sequence
+- pricing currently shows an inconsistent USDT/COP relationship and must be verified against DB/checkout;
+- home content is stale and still highlights the opening match;
+- transparency copy says calibration is active although model calibration is closed;
+- pricing/catalog duplicates or ambiguously presents World Cup Pass;
+- dashboard copy mixes admin role, free plan, and entitlement state.
 
-Documentation refresh -> update project sources -> new conversation -> result monitoring / next runway publication -> UIHISTORY01 or launch-polish slices under isolated ownership.
+See `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`.
+
+## Immediate next work
+
+1. monitor and process Matchday 2 final results;
+2. prepare the next fixture batch;
+3. execute the small Review Gate UI patch;
+4. fix P0 commercial frontend inconsistencies;
+5. complete G08/G03/refund operations;
+6. define the next signal refresh trigger.
+
+Prefer console for repetitive API reads and batch operations. Use Codex for architecture, implementation, tests, and complex review.

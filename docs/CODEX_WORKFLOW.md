@@ -1,98 +1,132 @@
 # Codex Workflow - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 documentation rebaseline (2026-06-19)._
 
-## Standard task flow
+## Purpose
 
-1. Start from updated `main`.
-2. Confirm clean worktree.
-3. Create a focused branch.
-4. Keep one coherent scope.
-5. Run targeted tests, lint, and build for code changes.
-6. Verify docs-only diff for documentation changes.
-7. Push/PR only when the slice is coherent.
+Use Codex for bounded engineering work with explicit scope, evidence, validation, and clean handoff.
 
-## Model/data evidence rules
+## Standard branch ritual
 
-- Fair performance uses stored pre-match predictions.
-- A fair overlay may apply a new deterministic rule to stored output without later information.
-- Current-signal recomputation over completed fixtures is diagnostic only.
-- Never rewrite historical predictions using known results.
-- Never mix signal refresh, xG changes, draw logic, and publication in one implementation slice.
+```bash
+git switch main
+git pull --ff-only origin main
+git fetch origin --prune
+git status --short --branch
+git switch -c <branch>
+```
 
-## Signal refresh workflow
+Stop if `main` is dirty or the expected baseline PRs are missing.
 
-When ChatGPT receives FIFA CSV, Elo ranking HTML, and Elo results HTML:
+## Recognition first
 
-1. inspect source date/shape;
-2. normalize exactly 48 canonical teams;
-3. validate aliases, duplicates, invalid/future dates, missing rows, and incomplete recent lists;
-4. generate normalized JSON/CSV;
-5. generate source manifest;
-6. generate machine-readable quality report;
-7. stop if verdict is `fail` unless owner approves an exception;
-8. generate Codex recognition prompt;
-9. review recognition;
-10. generate implementation prompt;
-11. update committed static signal modules/tests only;
-12. run fair overlay and diagnostic recompute separately.
+Before editing:
 
-Raw source/normalized packages remain local ignored audit inputs under `codex-inputs/signal-refresh/` and are not runtime dependencies or required tracked repository assets.
+1. inspect branch and status;
+2. inspect relevant docs and code paths;
+3. identify persistence, auth, and temporal boundaries;
+4. list expected files;
+5. state blockers and owner decisions;
+6. confirm what will not be touched.
 
-## Documentation refresh workflow
+Recognition should be read-only unless the prompt explicitly authorizes implementation.
 
-1. ChatGPT updates existing canonical sources, not parallel replacements.
-2. User copies the provided files into `docs/`.
-3. Codex verifies docs-only scope and stale contradictions.
-4. User commits/PRs the coherent docs refresh.
-5. User updates ChatGPT project sources.
+## Token-efficient operations
 
-## Documentation ownership lock
+Prefer console/local scripts for:
 
-Parallel frontend/mobile/PWA branches must not modify `docs/` or canonical project-source documents unless explicitly assigned.
+- API reads;
+- inventories;
+- dry-run repetition;
+- exact fixture checks;
+- export generation;
+- status commands;
+- file copying and hashing.
 
-Protected documents include:
+Use Codex for:
 
-- `START_HERE_FOR_NEW_CONVERSATIONS.md`;
-- `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`;
-- `CURRENT_PROJECT_STATUS.md`;
-- `ROADMAP_AND_BACKLOG.md`;
-- `EPIC_PROGRESS_MATRIX.md`;
-- `MODEL_V01.md`;
-- `CODEX_HANDOFF_CURRENT.md`;
-- `SIGNAL_REFRESH_PLAYBOOK.md`;
-- `MODEL_CALIBRATION_CLOSEOUT_PR94.md`.
+- architecture reasoning;
+- implementation;
+- migration design;
+- focused tests;
+- diff review;
+- complex debugging.
 
-Parallel contributors report documentation impacts in their handoff; the main owner applies them later.
+Do not consume large context windows observing repetitive commands that can be run directly in PowerShell.
 
-## Parallel launch ownership
+## Required safety patterns
 
-Safe by default:
+### Data and fixtures
 
-- visual components;
-- responsive CSS;
-- public layouts;
-- metadata/manifest/icons;
-- UI tests;
-- accessibility/performance.
+- exact fixture or exact round selection;
+- provider revalidation before writes;
+- freeze live/finished/kickoff-passed fixtures;
+- dry-run by default;
+- write mode explicit;
+- idempotence proof after write.
 
-Owner-locked unless explicitly assigned:
+### Model
 
-- prediction engine/signals;
-- API-Football ingest;
-- result review/evaluation;
-- `prediction_results`;
-- Supabase migrations/RLS;
-- Wompi webhook/payment confirmation;
-- entitlement activation;
-- canonical docs.
+- stored pre-match prediction is the fair historical record;
+- no post-result rewriting;
+- signal refresh is not model recalibration;
+- do not combine signal, xG, draw, and publication changes.
 
-Coordinate exact files before work, especially navbar, pricing, account, premium, and checkout presentation.
+### Payments
 
-## Operational note
+- redirect never activates premium;
+- client data never proves payment;
+- no service-role app route;
+- no secret exposure;
+- entitlements, not subscriptions, authorize access.
 
-Use exact fixture workflows and focused admin queues. Do not broad-apply unknown fixtures or use Real Fixture Lab exact-detail as a required path.
+### Public product
 
-## Hard boundaries
+- no internal evaluation payloads;
+- no raw Lab payloads;
+- no provider predictions/odds;
+- no Torneo picks as UFO model input.
 
-No public internal evaluation data, no provider odds/predictions as inputs, no Torneo human picks as inputs, no service-role app routes, no client payment secrets, and no unsafe PWA caching of dynamic/sensitive routes.
+## Validation
+
+Typical code slice:
+
+```bash
+git diff --check
+npx vitest run <focused-tests>
+npm run lint
+npm run build
+git status --short
+```
+
+Signal changes also require:
+
+```bash
+npm run signal:check:national-team-pack
+```
+
+Docs slice:
+
+- docs-only diff;
+- stale-phrase search;
+- cross-document consistency;
+- no secret values;
+- no unsupported production claims.
+
+## Reporting format
+
+Return:
+
+1. branch/status;
+2. files changed;
+3. exact behavior;
+4. tests;
+5. boundaries preserved;
+6. blockers;
+7. final verdict.
+
+## Commit rules
+
+- no commit/push/PR unless explicitly authorized;
+- separate operational code and documentation commits when practical;
+- do not commit generated delivery artifacts unless the repository contract requires it.
