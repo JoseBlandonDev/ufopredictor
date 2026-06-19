@@ -1,135 +1,118 @@
 # Start Here for New Conversations - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 Data Ops 06 and documentation rebaseline (2026-06-19)._
 
-## Current baseline
-
-Start every new task from updated `main`:
+## Start from clean `main`
 
 ```bash
-git checkout main
-git pull origin main
-git status --short
+git switch main
+git pull --ff-only origin main
+git fetch origin --prune
+git status --short --branch
 ```
 
-Expected status: clean.
+Expected:
 
-PR #94 is merged. The accepted model state is:
+```text
+## main
+```
 
-- SIGNAL04 national-team strength refresh: retained.
-- DRAW01 conservative draw top-outcome reconciliation: retained.
-- `expected-goals.ts`: unchanged after XG01A ablation.
-- `Cape Verde Islands` resolves to the canonical Cabo Verde runtime team.
-- Publish Queue remains available in the admin Ops menu.
+## Current merged baseline
 
-The current production baseline also includes Wompi checkout/payment activation, automatic premium entitlement activation, premium-active UX polish, and admin price/payment controls. Dedicated payment and entitlement runbooks remain authoritative for implementation details.
+- PR #94: model closeout.
+- PR #96: public prediction pagination/history.
+- PR #97: reproducible national-team signal refresh.
+- PR #98: Prediction Review Gate.
+- PR #99: complete Matchday 2 export workflow.
 
-## Model closeout
+## Model state
 
-The final fair stored-prediction sample contains 28 unique launch-safe World Cup fixtures, deduped to the latest evaluated `internal_lab` + `pre_match_24h` row per fixture.
+Closed unless a new explicit research epic is approved:
+
+- SIGNAL04 retained;
+- DRAW01 retained;
+- expected-goals unchanged.
+
+Fair stored metrics:
 
 | Metric | Result |
 |---|---:|
-| 1X2 direction | 16/28 (57.1%) |
-| Exact score | 7/28 (25.0%) |
-| BTTS | 16/27 (59.3%) |
-| Over/Under 2.5 | 16/28 (57.1%) |
+| 1X2 | 16/28 |
+| Exact score | 7/28 |
+| BTTS | 16/27 |
+| O/U 2.5 | 16/28 |
 | Average total-goal error | 1.821 |
-| Actual draws | 10 |
-| Stored top-draw predictions | 0 |
 
-Important interpretation:
+Current-signal historical recomputation is diagnostic, not a fair backtest.
 
-- The 28-fixture table is a fair report of stored pre-match predictions.
-- It does not retroactively prove SIGNAL04 or DRAW01 because most stored predictions predate those changes.
-- A fair DRAW01 overlay over 26 stored fixtures improved 1X2 from 14/26 to 15/26, captured one additional real draw, and introduced zero false top draws.
-- Current-model recomputation using refreshed signals is diagnostic only because it contains post-period information.
+## Current production capabilities
 
-See `MODEL_CALIBRATION_CLOSEOUT_PR94.md` for the full evidence and rejected experiments.
+- public predictions/upcoming/history;
+- verified results;
+- premium detail;
+- Wompi payment;
+- entitlement activation;
+- premium-active UI;
+- admin pricing;
+- Result/Evaluation/Publish queues;
+- Prediction Review Gate;
+- Torneo export.
 
-## Latest operational closure
+## Signal refresh state
 
-Result Review Queue: `0` pending.
+The 2026-06-19 source snapshot is tracked and reproducible.
 
-Evaluation Queue: `0` pending.
+Use:
 
-Latest newly verified/evaluated results:
+```bash
+npm run signal:check:national-team-pack
+```
 
-| API-Football fixture | Match | Result |
-|---:|---|---:|
-| 1489387 | Canada vs Qatar | 6-0 |
-| 1489388 | Mexico vs South Korea | 1-0 |
+Do not edit raw sources into runtime.
 
-Current public upcoming runway: 4 fixtures.
+## Review Gate state
 
-- United States vs Australia
-- Scotland vs Morocco
-- Brazil vs Haiti
-- Türkiye vs Paraguay
+Operational:
 
-Use exact-fixture operations only. Do not broad-apply unknown fixtures.
+- provider revalidation;
+- shadow;
+- alerts;
+- human decisions.
 
-## Current product state
+Not operational:
 
-Operational product capabilities include:
+- AI provider;
+- reviewed-xG publication.
 
-- public prediction list and match detail;
-- verified final-result display;
-- protected premium model detail;
-- registered-free probable-score gating;
-- Wompi payment flow and automatic premium activation;
-- premium-active presentation;
-- admin payment/price controls;
-- Result Review Queue;
-- Evaluation Queue;
-- Real Fixture Publish Queue;
-- Torneo Mundialista admin export.
+## Data Ops 06 closure
 
-Real Fixture Lab exact-detail remains a known stack-overflow risk. Focused queues are the preferred operational paths.
+- Group Stage - 2: 24/24;
+- 5 frozen;
+- 9 new public versions;
+- batch idempotent;
+- final partner JSON delivered.
 
-## Signal refresh workflow
+## Immediate next tasks
 
-A future conversation may receive:
+1. Matchday 2 result monitoring/evaluation.
+2. Next fixture runway.
+3. P0 pricing truth.
+4. Home/transparency refresh.
+5. Review Gate UI polish.
+6. G08/G03/refund operations.
+7. G09/G12/G13 launch readiness.
 
-- FIFA ranking CSV;
-- Elo ranking HTML;
-- Elo results HTML.
+## Important frontend findings
 
-It must not edit the runtime immediately. It must first generate and validate a normalized 48-team local source package, source manifest, machine-readable quality report, and Codex recognition/implementation prompts under the ignored `codex-inputs/signal-refresh/` workspace.
+See `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`.
 
-Required future artifacts:
+Do not market aggressively until the visible COP/USDT pricing inconsistency is resolved.
 
-- `ufo-national-team-signal-refresh-<date>-vN.json`
-- `ufo-national-team-signal-refresh-<date>-vN.csv`
-- `ufo-signal-refresh-source-manifest-<date>-vN.json`
-- `ufo-signal-refresh-quality-report-<date>-vN.json`
-- `codex-signal-refresh-recognition-<date>-prompt.txt`
-- `codex-signal-refresh-implementation-<date>-prompt.txt`
+## Work-mode rule
 
-These are local generated audit artifacts, not runtime dependencies and not required tracked repository assets. See `SIGNAL_REFRESH_PLAYBOOK.md`.
-
-## UIHISTORY01
-
-Recognition is complete, implementation is paused.
-
-Recommended scope:
-
-- keep `/predictions` focused on active/upcoming fixtures;
-- show only 4 recent verified results;
-- add `Ver historial completo`;
-- create `/predictions/history` with server-side `?page=` pagination and page size 12;
-- reuse `PublicPredictionCard` for the first MVP;
-- no filters, search, infinite scroll, model changes, migrations, or payment changes.
-
-## Immediate next work
-
-1. Merge this documentation refresh.
-2. Update the ChatGPT project sources with the refreshed files.
-3. Start a new conversation from the refreshed baseline.
-4. Continue exact result monitoring for the four public fixtures.
-5. Load/publish the next approved runway only after sanity review.
-6. Run frontend/mobile/PWA launch work in parallel under the Epic G ownership rules.
+Use console for repetitive API and batch operations.
+Use Codex for architecture, implementation, tests, and complex review.
 
 ## Hard boundaries
 
-Do not expose `prediction_results`, raw Lab/admin/evaluation payloads, provider odds/predictions as model inputs, Torneo human picks as model inputs, service-role keys in app routes, payment secrets in client runtime, or raw source packages as runtime dependencies.
+No post-result prediction rewrite, no provider predictions/odds as model inputs, no Torneo picks as model inputs, no public internal evaluation, no client secrets, and no broad unknown fixture apply.

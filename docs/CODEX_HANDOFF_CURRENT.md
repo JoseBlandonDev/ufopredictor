@@ -1,118 +1,170 @@
 # Codex Handoff Current - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 Data Ops 06 / PR #98 Prediction Review Gate / PR #97 reproducible signal refresh (2026-06-19)._
 
 ## Repo baseline
 
 Start from updated `main`:
 
 ```bash
-git checkout main
-git pull origin main
-git status --short
+git switch main
+git pull --ff-only origin main
+git fetch origin --prune
+git status --short --branch
 ```
 
-Expected status: clean after the documentation refresh PR is merged.
+Expected status: clean.
 
-## Accepted current state
+Latest relevant merged PRs:
 
-PR #94 is merged. Do not reopen model calibration by default.
+- PR #94: model closeout;
+- PR #96: prediction list/history pagination;
+- PR #97: reproducible national-team signal refresh;
+- PR #98: Prediction Review Gate;
+- PR #99: complete Matchday 2 export workflow.
+
+Do not recreate or reuse deleted feature branches.
+
+## Accepted model boundary
+
+Do not reopen calibration by default.
 
 Accepted:
 
-- SIGNAL04 national-team signal refresh;
-- DRAW01 conservative draw reconciliation;
-- Cabo Verde alias fix;
-- Publish Queue Ops navigation;
-- unchanged expected-goals formula.
+- SIGNAL04;
+- DRAW01;
+- unchanged `expected-goals.ts`;
+- generated national-team signal pack from the 2026-06-19 source snapshot.
 
-Production baseline also includes Wompi payment activation, automatic premium entitlement, premium-active UX, admin pricing/payment controls, and Torneo admin export.
+Fair stored metrics remain:
 
-## Final fair stored evaluation
+- 1X2 16/28;
+- exact 7/28;
+- BTTS 16/27;
+- O/U 16/28;
+- average total-goal error 1.821.
 
-Scope: latest evaluated `internal_lab` + `pre_match_24h` prediction per unique fixture.
+Historical current-signal recomputations are diagnostic only.
 
-- raw rows: 31;
-- unique fixtures: 28;
-- 1X2: 16/28;
-- exact: 7/28;
-- BTTS: 16/27;
-- O/U: 16/28;
-- average total-goal error: 1.821.
+## Signal source architecture
 
-Latest closed fixtures:
+Tracked source snapshot:
 
-- Canada 6-0 Qatar;
-- Mexico 1-0 South Korea.
+```text
+data/prediction-engine/national-team-signals/2026-06-19/
+```
 
-Pending result-review rows: 0.
-Pending evaluation rows: 0.
+Generator/check commands:
 
-## Model rules
+```bash
+npm run signal:generate:national-team-pack
+npm run signal:check:national-team-pack
+```
 
-- Stored pre-match metrics are the fair report.
-- Refreshed-signal recomputation over completed fixtures is diagnostic only.
-- Do not regenerate published/stored predictions using known results.
-- Do not combine signal, xG, draw, and publication changes in one slice.
-- Do not retry rejected SIGNAL04B/C/D/E or XG01A candidates without a new evidence plan.
+Runtime consumes the generated static TypeScript pack. Do not import raw HTML/CSV or quality-report files at runtime.
 
-See `MODEL_CALIBRATION_CLOSEOUT_PR94.md`.
+## Review Gate baseline
 
-## Signal refresh input workflow
+Route:
 
-When given FIFA CSV + Elo ranking HTML + Elo results HTML:
+```text
+/admin/prediction-refresh-review
+```
 
-1. inspect and date sources;
-2. normalize exactly 48 canonical teams;
-3. resolve aliases;
-4. generate source manifest and quality report;
-5. stop on invalid/future dates or unresolved canonical teams;
-6. generate Codex recognition prompt;
-7. review before implementation prompt;
-8. update committed static signal sources only when approved;
-9. run fair overlay and diagnostic recompute separately.
+Capabilities:
 
-Use the ignored local workspace under `codex-inputs/signal-refresh/`. Do not treat generated ZIP bundles, raw source files, or quality-report templates as required tracked repository assets. See `SIGNAL_REFRESH_PLAYBOOK.md`.
+- provider revalidation;
+- shadow prediction;
+- model-delta alerts;
+- Elo coherence alerts;
+- human decisions;
+- immutable lineage.
 
-## Current public runway
+AI is not configured. Do not fake AI output.
+Reviewed-xG is preview-only. Do not enable publication without a new approved slice.
 
-Four upcoming public fixtures:
+## Data Ops 06 baseline
 
-- United States vs Australia
-- Scotland vs Morocco
-- Brazil vs Haiti
-- Türkiye vs Paraguay
+Group Stage - 2 is complete:
 
-Use exact-fixture operations only.
+- 24 fixtures;
+- 5 frozen;
+- 9 new public versions;
+- idempotent batch;
+- final export delivered.
 
-## UIHISTORY01
+Relevant code:
 
-Recognition complete, implementation pending.
+- `lib/world-cup-2026/matchday2-ops.ts`;
+- `scripts/world-cup-matchday2-final-export.ts`;
+- `scripts/regenerate-torneo-matchday2-export.ts`;
+- `lib/supabase/torneo-export-core.ts`;
+- `lib/supabase/torneo-export-queries.ts`.
 
-Target:
+Do not rerun write mode unless there is a specific operational reason.
 
-- 4 recent results on `/predictions`;
-- `/predictions/history`;
-- server pagination `?page=`;
-- page size 12;
-- verified finished rows only;
-- reuse `PublicPredictionCard`.
+## Current preferred work modes
 
-## Parallel launch track
+Use local console for:
 
-G09-G14 may run in parallel, but contributors must not touch:
+- API-Football reads;
+- fixture inventories;
+- repeatable dry-runs;
+- export regeneration;
+- simple status checks.
 
-- `docs/`;
-- prediction engine/signal packs;
-- API-Football ingest;
-- result verification/evaluation;
-- `prediction_results`;
-- Supabase migrations/RLS;
-- Wompi webhook/payment confirmation;
-- entitlement activation.
+Use Codex for:
 
-Safe areas include visual components, responsive CSS, public layouts, metadata/manifest/icons, UI tests, accessibility, and performance.
+- architecture inspection;
+- code changes;
+- migrations;
+- tests;
+- diff review;
+- non-trivial debugging.
+
+Do not spend large token windows narrating mechanical command output.
+
+## Current next slices
+
+### Data operations
+
+- monitor Matchday 2;
+- verify/apply final results only after exact provider final status;
+- persist internal evaluation;
+- prepare the next batch.
+
+### Review Gate UI patch
+
+Docs-approved small scope:
+
+- missing markets show `No disponible`;
+- pre-shadow state shows `Sin comparación todavía`;
+- translate provider/status/alert labels;
+- optionally compact filters/sections.
+
+No model or schema changes.
+
+### Frontend commercial readiness
+
+See `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`.
+
+P0 items:
+
+- verify/fix USDT-COP pricing coherence;
+- remove stale home fixture messaging;
+- correct transparency model-status copy;
+- simplify duplicated World Cup Pass catalog presentation.
 
 ## Hard boundaries
 
-No public `prediction_results`, no raw internal payloads, no service-role app routes, no provider odds/predictions as inputs, no Torneo human picks as inputs, no raw refresh package as runtime dependency, and no client-side payment secrets.
+Do not:
+
+- expose internal evaluations or `prediction_results`;
+- use provider odds/predictions as model inputs;
+- use Torneo picks as model inputs;
+- rewrite frozen predictions;
+- mix model, publication, payments, and broad UI work in one slice;
+- expose secrets;
+- modify Wompi or entitlement logic from a frontend polish task;
+- claim AI is connected;
+- claim Real Fixture Lab exact-detail is repaired.

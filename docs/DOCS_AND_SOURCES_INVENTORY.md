@@ -1,87 +1,78 @@
 # Docs and Sources Inventory - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 documentation rebaseline (2026-06-19)._
 
-## Current docs baseline
+## Shared-source rule
 
-This refresh aligns canonical sources to:
+The canonical Markdown files in repository `docs/` and the files uploaded as ChatGPT project sources are the same logical source set.
 
-- PR #94 merged;
-- SIGNAL04 + DRAW01 accepted;
-- expected-goals formula unchanged;
-- 31 raw evaluation rows / 28 unique fair fixtures;
-- Canada 6-0 Qatar and Mexico 1-0 South Korea verified/evaluated;
-- Result Review and Evaluation queues empty;
-- current public runway of 4 fixtures;
-- Wompi payment/premium activation operational;
-- Torneo admin export implemented;
-- UIHISTORY01 recognized, pending;
-- G09-G14 launch tasks defined.
+After a documentation PR is merged:
 
-## Primary project docs
+1. update local `main`;
+2. upload the refreshed canonical files to the ChatGPT project;
+3. remove obsolete prior copies where project storage requires replacement;
+4. do not maintain parallel documents with slightly different names and states.
+
+## Primary onboarding sources
 
 - `START_HERE_FOR_NEW_CONVERSATIONS.md`
 - `CHATGPT_PROJECT_SOURCE_UFO_PREDICTOR_CURRENT.md`
 - `CODEX_HANDOFF_CURRENT.md`
 - `CURRENT_PROJECT_STATUS.md`
 - `PROJECT_CONTEXT_UFO_PREDICTOR.md`
-- `PROJECT_STATUS_FOR_MEETING.md`
-- `ROADMAP_AND_BACKLOG.md`
-- `EPIC_PROGRESS_MATRIX.md`
-- `NEXT_EPICS_PLAN.md`
-- `IMPLEMENTATION_PLAN.md`
-- `OPEN_DECISIONS.md`
 
-## Model/data docs
+## Architecture and planning
 
-- `MODEL_V01.md`
-- `MODEL_CALIBRATION_CLOSEOUT_PR94.md`
-- `SIGNAL_REFRESH_PLAYBOOK.md`
-- `DATA_DICTIONARY.md`
 - `ARCHITECTURE_SUMMARY.md`
-- `TRACK_D_API_FOOTBALL_HANDOFF.md`
-
-## Launch/workflow docs
-
+- `IMPLEMENTATION_PLAN.md`
+- `ROADMAP_AND_BACKLOG.md`
+- `NEXT_EPICS_PLAN.md`
+- `EPIC_PROGRESS_MATRIX.md`
+- `OPEN_DECISIONS.md`
 - `PRODUCTION_READINESS.md`
-- `CODEX_WORKFLOW.md`
+- `PROJECT_STATUS_FOR_MEETING.md`
 
-## Existing SIGNAL04 source/audit workspace
+## Operational runbooks
 
-Normal local audit/Codex-input workspace:
-
-- `codex-inputs/signal-refresh/ufo-national-team-signal-refresh-post-md1-v1.json`
-- `codex-inputs/signal-refresh/ufo-national-team-signal-refresh-post-md1-v1.csv`
-- `codex-inputs/signal-refresh/ufo-signal-refresh-source-manifest-post-md1-v1.json`
-- `codex-inputs/signal-refresh/prompts/codex-signal-refresh-recognition-post-md1-prompt.txt`
-- `codex-inputs/signal-refresh/prompts/codex-signal-refresh-implementation-post-md1-prompt.txt`
-- `codex-inputs/signal-refresh/raw/ranking-fifa-raw.csv`
-- `codex-inputs/signal-refresh/raw/ranking-elo-raw.html`
-- `codex-inputs/signal-refresh/raw/results-elo-raw.html`
-
-Original inputs:
-
-- `Ranking FIFA - Hoja 2.csv`
-- `ranking ELO.html`
-- `results.html`
-
-These are local ignored audit/Codex inputs, not runtime dependencies and not required tracked repository assets.
-
-## Protected/sensitive docs
-
-The following dedicated runbooks may be owned by parallel payment/auth work and were not rewritten by this package:
-
-- `AUTH_SETUP.md`
+- `TRACK_D_API_FOOTBALL_HANDOFF.md`
+- `SIGNAL_REFRESH_PLAYBOOK.md`
 - `G05_WOMPI_INTEGRATION_RUNBOOK.md`
-- `G06_ENTITLEMENT_ACTIVATION_PREFLIGHT.sql`
 - `G06_ENTITLEMENT_ACTIVATION_RUNBOOK.md`
+- `AUTH_SETUP.md`
 
-General status docs may reference their operational outcome, but dedicated implementation details remain authoritative in those files.
+## Frontend and launch readiness
 
-## Future source artifact
+- `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`
+- `PRODUCTION_READINESS.md`
 
-Every future signal refresh must generate:
+## Historical model records
 
-- `ufo-signal-refresh-quality-report-<date>-vN.json`
+Do not rewrite as current-state documents:
 
-A failing report blocks implementation unless explicitly approved. The report is a generated per-refresh artifact, not a static tracked template file.
+- `MODEL_CALIBRATION_CLOSEOUT_PR94.md`
+- `MODEL_V01.md`
+
+These preserve the PR #94 closeout and accepted V0.1 model interpretation.
+
+## Current milestone references
+
+- PR #94: model closeout.
+- PR #96: public prediction pagination/history.
+- PR #97: reproducible signal refresh.
+- PR #98: Prediction Review Gate.
+- PR #99: Data Ops 06 and complete Matchday 2 export.
+
+## Source packages
+
+Signal source packages and raw downloads are audit/implementation inputs. Runtime import is forbidden unless a future approved architecture explicitly changes that boundary.
+
+## Refresh discipline
+
+When updating docs:
+
+- search for stale status phrases globally;
+- keep metrics identical across files;
+- distinguish operational completion from polish;
+- distinguish model calibration from signal refresh;
+- never include secrets;
+- never claim production behavior that was not verified.

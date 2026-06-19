@@ -1,188 +1,144 @@
-# UFO Predictor - Signal Refresh Playbook
+# Signal Refresh Playbook - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #97 implementation and PR #99 operational use (2026-06-19)._
+
+## Status
+
+The reproducible national-team signal baseline is implemented.
+
+Snapshot:
+
+```text
+2026-06-19
+```
+
+Tracked path:
+
+```text
+data/prediction-engine/national-team-signals/2026-06-19/
+```
 
 ## Purpose
 
-Repeatable, auditable process for refreshing national-team ranking/result signals without making Codex parse raw exports directly or silently introduce leakage.
+Refresh source signals without silently changing model formulas or rewriting historical predictions.
 
-## When to use
+Signal refresh is not model recalibration.
 
-Use after a meaningful source change, such as:
+## Source inputs
 
-- a new official FIFA ranking release;
-- a complete World Cup matchday/result batch;
-- a verified multi-fixture result batch;
-- a scheduled model monitoring checkpoint.
+Validated source categories:
 
-Do not refresh after every surprising result.
+- FIFA ranking metadata;
+- Elo rating;
+- recent result aggregates;
+- fixture Elo coherence;
+- Spanish/English display names.
 
-## Accepted input types
+## Runtime scores
 
-- FIFA ranking CSV.
-- World Football Elo ranking HTML with table rows loaded.
-- World Football Elo results HTML with result rows loaded.
+The reconstructed SIGNAL04 builder uses:
 
-Screenshots are visual sanity evidence only, not primary data sources.
+```text
+ratingScore = minmax(eloRating, 1427..2129)
+recentFormScore = round2(recentPointsPerMatch / 3 * 100)
+attackScore = minmax(historicalGoalsForPerMatch, 1.075..2.345)
+defenseScore = inverse_minmax(historicalGoalsAgainstPerMatch, 0.785..1.655)
+```
 
-## Existing SIGNAL04 package
-
-The first package used:
-
-- `Ranking FIFA - Hoja 2.csv`;
-- `ranking ELO.html`;
-- `results.html`.
-
-Generated local workspace artifacts under `codex-inputs/signal-refresh/`:
-
-- `ufo-national-team-signal-refresh-post-md1-v1.json`;
-- `ufo-national-team-signal-refresh-post-md1-v1.csv`;
-- `ufo-signal-refresh-source-manifest-post-md1-v1.json`;
-- `prompts/codex-signal-refresh-recognition-post-md1-prompt.txt`;
-- `prompts/codex-signal-refresh-implementation-post-md1-prompt.txt`;
-- `raw/ranking-fifa-raw.csv`;
-- `raw/ranking-elo-raw.html`;
-- `raw/results-elo-raw.html`.
-
-It covered 48 teams but was not fully runtime-safe. Known defects included invalid dates such as `2026-06-31`, future-dated rows relative to generation time, unresolved canonical aliases, external opponent keys, incomplete recent lists, and retrospective leakage risk.
-
-SIGNAL04 intentionally did not import raw `last5` arrays.
-
-## Required future package
-
-Generate:
-
-- `ufo-national-team-signal-refresh-<date>-vN.json`
-- `ufo-national-team-signal-refresh-<date>-vN.csv`
-- `ufo-signal-refresh-source-manifest-<date>-vN.json`
-- `ufo-signal-refresh-quality-report-<date>-vN.json`
-- `codex-signal-refresh-recognition-<date>-prompt.txt`
-- `codex-signal-refresh-implementation-<date>-prompt.txt`
-- optional local ZIP/export bundle if an owner explicitly wants one for delivery, not as a required tracked repository artifact
+FIFA rank/points are metadata and `fifaScore`; they do not drive the four runtime scores.
 
 ## Quality gates
 
-The quality report must check:
+A source package must prove:
 
-1. exactly 48 canonical World Cup teams;
-2. zero duplicate canonical teams;
-3. zero invalid dates;
-4. zero recent-match dates later than `generatedAt`;
-5. recent matches ordered newest first;
-6. no more than five valid recent matches per team;
-7. all World Cup teams mapped to exact runtime keys;
-8. all World Cup-team opponent aliases resolved;
-9. unresolved external opponents reported separately;
-10. incomplete recent lists counted;
-11. source coverage recorded;
-12. explicit `pass` or `fail` verdict.
+- exactly 48 canonical teams for the current World Cup scope;
+- no duplicate keys;
+- full expected FIFA/Elo coverage;
+- no impossible dates;
+- no results after snapshot time;
+- no unresolved canonical opponent aliases;
+- explicit partial-sample metadata;
+- valid fixture Elo parsing.
 
-Required shape:
-
-```json
-{
-  "schemaVersion": "ufo-signal-refresh-quality-v1",
-  "generatedAt": "...",
-  "canonicalTeamCount": 48,
-  "duplicateTeamCount": 0,
-  "invalidDateCount": 0,
-  "futureDateCount": 0,
-  "unresolvedCanonicalOpponentCount": 0,
-  "unresolvedExternalOpponentCount": 0,
-  "incompleteRecentListCount": 0,
-  "aliasRemaps": [],
-  "sourceCoverage": {},
-  "verdict": "pass"
-}
-```
-
-If verdict is `fail`, do not generate or execute the implementation prompt unless the owner explicitly approves a documented exception.
-
-## Normalization rules
-
-- Normalize only the 48 canonical World Cup teams.
-- Preserve source names separately from canonical runtime keys.
-- Treat rivals outside the 48-team set as external, not silently canonical.
-- Reject impossible dates.
-- Reject future rows relative to package generation time.
-- Deduplicate match rows.
-- Use the newest valid five matches at most.
-- Separate raw recent rows from runtime-safe aggregates.
-
-## Runtime rule
-
-Runtime reads committed TypeScript/static source modules and tests.
-
-Runtime must not import raw CSV/HTML, normalized JSON/CSV, manifests, quality reports, or ZIP bundles.
-
-Source packages are local ignored scratch/audit/Codex inputs, normally stored under `codex-inputs/signal-refresh/`, and should remain uncommitted unless explicitly approved.
-
-## Codex flow
-
-### Recognition
-
-Codex must inspect current static signal architecture, canonical keys, tests, and the normalized/quality artifacts. Recognition is read-only.
-
-### Implementation
-
-Only after recognition review, Codex may update:
-
-- static national-team signal module;
-- tiny snapshot mapping if required;
-- focused prediction-engine tests.
-
-Codex must not update UI, Supabase, migrations/RLS, ingest, publication, payments, Torneo export, result evaluation, or xG/draw calibration unless separately scoped.
-
-## Performance evaluation
-
-Always separate:
-
-### Fair stored baseline
-
-Prediction actually stored before the match.
-
-### Fair overlay
-
-New deterministic logic applied to stored output without later information.
-
-### Diagnostic shadow recompute
-
-Current/refreshed signals recomputed over historical fixtures. Label as diagnostic, never as a fair backtest.
-
-Do not use known final results to rewrite old predictions.
-
-## Forbidden inputs
-
-- betting odds;
-- provider predictions;
-- Torneo human picks;
-- hidden manual fixture outcome overrides;
-- post-match result knowledge in a claimed pre-match test.
-
-## Validation
+## Generator
 
 ```bash
-git diff --check
-npm run test -- lib/prediction-engine/national-team-strength-snapshots.test.ts lib/prediction-engine/real-fixture-adapter.test.ts lib/prediction-engine/generate-prediction.test.ts
-npm run lint
-npm run build
+npm run signal:generate:national-team-pack
+npm run signal:check:national-team-pack
 ```
 
-Also verify:
+The check is line-ending agnostic and must pass on Windows.
 
-- exactly 48 runtime teams;
-- aliases resolve;
-- no raw source import;
-- no invalid/future dates in committed data;
-- fair and diagnostic metrics are labeled separately.
+Runtime consumes generated static TypeScript only.
 
-## Documentation follow-up
+## Change classification
 
-Update:
+Current operational thresholds:
 
-- `MODEL_CALIBRATION_CLOSEOUT_PR94.md` or successor closeout;
-- `MODEL_V01.md`;
-- `CODEX_HANDOFF_CURRENT.md`;
-- `CURRENT_PROJECT_STATUS.md`;
-- `DOCS_AND_SOURCES_INVENTORY.md`;
-- roadmap/open decisions if cadence or model decisions change.
+- `NO_MATERIAL_CHANGE`: max score delta < 2 and total < 5;
+- `MINOR_CHANGE`: max >= 2 or total >= 5;
+- `MATERIAL_CHANGE`: max >= 7 or total >= 14;
+- `CRITICAL_CHANGE`: max >= 15 or total >= 30.
+
+These thresholds support review, not automatic outcome overrides.
+
+## Fixture handling
+
+### Finished/live/kickoff-passed
+
+- freeze;
+- do not regenerate;
+- do not rewrite;
+- preserve original prediction.
+
+### Future scheduled
+
+- revalidate provider;
+- generate deterministic shadow or batch prediction;
+- compare;
+- publish immutable version only through approved flow.
+
+## Elo coherence
+
+Use Elo fixture expectancy as review context only.
+
+Suggested gap levels:
+
+- <=10 percentage points: aligned;
+- >10 to 20: WATCH;
+- >20 to 30: manual review;
+- >30: critical;
+- favorite inversion: critical.
+
+Do not replace UFO 1X2 with Elo.
+
+## Review Gate
+
+Use `/admin/prediction-refresh-review` for selected fixture review.
+
+AI is not connected.
+Reviewed-xG is preview-only.
+
+## Batch operations
+
+For complete matchdays, prefer a controlled script:
+
+- dry-run default;
+- exact round inventory;
+- provider revalidation;
+- freeze protection;
+- immutable writes;
+- idempotence proof;
+- final public export validation.
+
+Use console for repeated reads and dry-runs instead of consuming Codex context.
+
+## Future cadence
+
+Still open.
+
+Do not refresh after every surprising result. Candidate triggers:
+
+- official ranking release;
+- completed matchday;
+- meaningful result batch.

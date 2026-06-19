@@ -1,44 +1,58 @@
 # Project Context - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 documentation rebaseline (2026-06-19)._
 
-## What the product is
+## Product
 
-UFO Predictor publishes probabilistic football predictions with public/free/premium access layers. It separates public product data from internal Lab/evaluation data and does not promise outcomes or provide betting execution.
+UFO Predictor publishes probabilistic World Cup football predictions with public, registered-free, premium, and admin layers.
+
+It does not accept bets and does not guarantee results.
 
 ## Current baseline
 
-- PR #94 model/data refresh is merged.
-- SIGNAL04 and DRAW01 are retained.
-- Expected-goals formula is unchanged.
-- 28 unique World Cup fixtures are fairly evaluated from stored pre-match predictions.
-- Wompi production payment activation and premium entitlement flow are operational.
-- Result Review, Evaluation, Publish Queue, and Torneo export admin paths exist.
-- Four public fixtures remain upcoming.
+- model calibration closed through PR #94;
+- public history pagination through PR #96;
+- reproducible signal refresh through PR #97;
+- Prediction Review Gate through PR #98;
+- complete Matchday 2 export workflow through PR #99;
+- Wompi/G06/G07 production premium loop operational;
+- final 24-fixture JSON delivered to Torneo.
 
-## Model summary
+## Working principles
 
-Fair stored metrics:
+- stored pre-match prediction is immutable historical evidence;
+- signal refresh is not model recalibration;
+- exact provider status gates writes;
+- public and internal data stay separated;
+- payments authorize through entitlements;
+- repetitive API and batch operations belong in console/scripts;
+- Codex handles architecture, implementation, tests, and complex review.
 
-- 1X2 16/28;
-- exact 7/28;
-- BTTS 16/27;
-- O/U 16/28;
-- average total-goal error 1.821.
+## Current parallel tracks
 
-The model improved modestly in 1X2/draw handling but still underestimates blowouts and exact-score tails.
+### Data operations
 
-## Working method
+- Matchday 2 result monitoring;
+- next runway preparation;
+- export regeneration when required.
 
-- Exact-fixture operations only.
-- Verify provider final state before result apply/review/evaluation.
-- Keep public and internal prediction scopes separate.
-- Treat refreshed-signal historical recomputations as diagnostic, not fair backtests.
-- Run model, UI, payments, and docs as separate coherent slices.
+### Epic G frontend/commercial
 
-## Current next work
+- pricing truth;
+- home freshness;
+- transparency copy;
+- catalog simplification;
+- Review Gate polish;
+- role/plan/entitlement clarity;
+- responsive/accessibility/smoke.
 
-1. Merge refreshed project documentation.
-2. Start the next conversation from refreshed sources.
-3. Monitor the four public fixtures and publish the next approved runway.
-4. Implement UIHISTORY01 and mobile/PWA launch tasks in isolated branches.
+## Guardrails
+
+No:
+
+- post-result prediction rewriting;
+- provider predictions/odds as model inputs;
+- Torneo picks as model inputs;
+- public internal evaluation payloads;
+- client secrets;
+- combined model/payment/frontend mega-slices.

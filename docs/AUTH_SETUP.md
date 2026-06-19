@@ -1,6 +1,6 @@
 # Auth Setup - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #99 docs rebaseline / auth boundaries unchanged (2026-06-19)._
 
 ## Current auth baseline
 
@@ -20,11 +20,11 @@ Registered-free users can see public 1X2 probabilities and confidence/risk. They
 
 ## Admin behavior
 
-Admin-only operations now include `/admin/real-fixture-publish-queue` as the current safe publication path. Real Fixture Lab exact-detail remains blocked and should not be the required admin path until fixed.
+Admin-only operations now include `/admin/real-fixture-publish-queue` as the current safe publication path and `/admin/prediction-refresh-review` as the review-gate path. Real Fixture Lab exact-detail remains blocked and should not be the required admin path until fixed.
 
 ## Boundaries
 
 - No service-role use in app routes.
-- Payments/checkout are not implemented here.
-- Entitlement/payment design remains future Epic G work.
-- Wompi payment integration is planned under Epic G05, not implemented in auth.
+- Payments/checkout are not implemented in this auth module.
+- Entitlement/payment design is implemented elsewhere and must not be redefined here.
+- Wompi checkout plus G06 entitlement activation are operational product capabilities, but they are not implemented inside auth.

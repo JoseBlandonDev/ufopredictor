@@ -1,79 +1,93 @@
 # Track D / API-Football Handoff
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 Matchday 2 batch (2026-06-19)._
 
 ## Operating model
 
-Use exact fixture workflow. Avoid broad unknown apply.
+Use exact fixture or exact round workflows.
 
-### Upcoming scheduled fixture
+Avoid broad unknown apply.
 
-1. Read exact provider fixture.
-2. Run exact ingest dry-run.
-3. Confirm one expected fixture and no unintended result write.
-4. Apply exact fixture only.
-5. Save/publish through Publish Queue.
-6. Verify `/predictions` and `/matches/[slug]`.
-7. Run model sanity review before publication/export.
+## Console-first rule
 
-### Finished fixture
+Use local PowerShell/scripts for:
 
-1. Confirm provider final status.
-2. Run exact ingest dry-run.
-3. Apply exact result.
-4. Verify through Result Review Queue.
-5. Persist internal evaluation through Evaluation Queue.
-6. Verify public final-result projection.
-7. Confirm both queues are clear.
+- provider reads;
+- fixture inventories;
+- round counts;
+- dry-runs;
+- repeated status checks;
+- export generation.
 
-## Latest closure
+Use Codex only when implementation, architecture, or complex debugging is required.
 
-| Fixture | Match | Result | State |
-|---:|---|---:|---|
-| 1489387 | Canada vs Qatar | 6-0 | verified / evaluated / public |
-| 1489388 | Mexico vs South Korea | 1-0 | verified / evaluated / public |
+## Exact upcoming fixture
 
-Pending result-review rows: 0.
+1. read provider fixture;
+2. dry-run ingest/generation;
+3. confirm identity, kickoff, status, and scope;
+4. apply exact fixture if missing;
+5. revalidate immediately before write;
+6. generate/publish immutable prediction;
+7. verify public surfaces/export.
 
-Pending evaluation rows: 0.
+## Exact finished fixture
 
-## Current public upcoming runway
+1. confirm provider final status;
+2. dry-run exact result;
+3. apply exact result;
+4. Result Review Queue;
+5. Evaluation Queue;
+6. verify public final result;
+7. confirm no pending queue residue.
 
-Count: 4.
+## Matchday batch
 
-- United States vs Australia
-- Scotland vs Morocco
-- Brazil vs Haiti
-- Türkiye vs Paraguay
+PR #99 proved the round workflow:
+
+- API-Football returned exactly 24 Group Stage - 2 fixtures;
+- database already contained 24;
+- live/finished/kickoff-passed fixtures were frozen;
+- future fixtures were regenerated or reused by provenance;
+- writes were idempotent;
+- export validated to 24 unique fixtures.
+
+## Production configuration
+
+`API_FOOTBALL_KEY` is configured in production for provider revalidation.
+
+Never expose the key in screenshots, logs, docs, or client runtime.
 
 ## Model gating
 
-PR #94 model state is accepted:
+Accepted baseline:
 
-- SIGNAL04;
-- DRAW01;
-- unchanged expected-goals formula.
+- PR #94 model closeout;
+- PR #97 signal snapshot;
+- no expected-goals change.
 
-Before publication, inspect fixture outputs for:
+Inspect future fixtures for:
 
-- implausibly flat favorite probabilities;
-- modal `1-1` against large strength gaps;
-- compressed xG;
-- extreme attack/defense priors;
-- blowout underestimation risk.
+- favorite compression;
+- modal score inconsistency;
+- xG compression;
+- extreme signal priors;
+- Elo favorite inversion.
 
-Do not change the model inside an ingest/publication slice.
+Use Review Gate for selected anomalies. Do not manually rewrite probabilities.
+
+## Frozen fixture rule
+
+Finished, live, halftime, kickoff-passed, or provider-mismatched fixtures are not regenerated or republished.
 
 ## Admin paths
 
 Preferred:
 
+- Prediction Review Gate;
 - Publish Queue;
 - Result Review Queue;
-- Evaluation Queue.
+- Evaluation Queue;
+- Torneo Export.
 
-Real Fixture Lab exact-detail remains a separate blocker and is not required for normal operations.
-
-## Boundaries
-
-No broad apply, no live/unfinal verification, no provider odds/predictions as model inputs, no public evaluation payloads, no `prediction_results` exposure, and no historical prediction rewriting.
+Real Fixture Lab exact-detail is not required for routine operations.

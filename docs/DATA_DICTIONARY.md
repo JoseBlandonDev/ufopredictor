@@ -1,117 +1,165 @@
 # Data Dictionary - UFO Predictor
 
-_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
+_Last refreshed: post PR #99 / Prediction Review Gate schema / Torneo export completion (2026-06-19)._
 
-## Prediction scopes
+## Core fixture and prediction entities
 
-### `public_product`
+### `matches`
 
-Prediction scope used by public/free/premium product surfaces. Public pages must use latest public-safe `public_product` rows only.
+Canonical real fixture row.
 
-### `internal_lab`
+Important concepts:
 
-Internal/admin prediction scope used for evidence, review, and evaluation. It must not be used as public runtime fallback.
+- provider fixture identity;
+- canonical English team identity;
+- kickoff;
+- status;
+- competition/stage;
+- access scope such as `admin_only` or `public`.
 
-### `pre_match_24h`
-
-Evaluation window used for the fair stored-prediction report. The closeout dedupes to the latest evaluated `internal_lab` + `pre_match_24h` row per fixture.
-
-## Core prediction tables/concepts
+Do not rename provider/database identities for presentation. Use display-name mapping.
 
 ### `prediction_versions`
 
-Stores 1X2 probabilities, expected goals, most likely score, scoreline JSON, confidence, risk, run scope, and version metadata.
+Immutable prediction version.
+
+Typical scopes include internal and public products. New reviewed or refreshed publication creates a new row; existing versions are not rewritten.
 
 ### `prediction_markets`
 
-Stores market-style outputs such as BTTS, O/U 2.5, exact score, and match winner.
+Markets belonging to one exact `prediction_version_id`.
+
+Includes public-safe market data such as:
+
+- 1X2;
+- BTTS;
+- O/U 2.5;
+- scoreline distribution or top scorelines where represented.
+
+Exports must join markets to the exact selected prediction version.
+
+### `match_results`
+
+Stored real result and verification state.
 
 ### `prediction_results`
 
-Internal evaluation results. Never expose publicly.
+Internal evaluation/result linkage. Never expose publicly.
 
-### Verified result
+### `model_versions`
 
-Admin-verified final score projected through public-safe fields. May be displayed publicly without exposing evaluation internals.
+Model/version metadata. Signal refresh provenance must not be confused with a new model formula unless explicitly versioned.
 
-### Internal evaluation
+## Prediction Review Gate
 
-Admin-only correctness assessment persisted after verified result.
+### `prediction_review_cases`
 
-## Model concepts
+One review case per match.
 
-### SIGNAL04
+Purpose:
 
-Accepted national-team signal refresh for the 48 World Cup teams. Runtime uses reviewed committed static fields, not raw source exports.
+- identify the fixture under review;
+- preserve review status and match linkage;
+- avoid uncontrolled duplicate cases.
 
-### DRAW01
+### `prediction_review_snapshots`
 
-Conservative 1X2 draw reconciliation. It only promotes draw when a draw-shaped score matrix and close aggregate probabilities satisfy strict bounds. It does not change xG, scoreline probabilities, BTTS, or O/U.
+Immutable review artifacts.
 
-### Fair stored evaluation
+Snapshot kinds may include:
 
-Metrics calculated from the prediction actually stored before the match. This is the primary performance report.
+- current reference;
+- shadow prediction;
+- reviewed-xG preview.
 
-### Fair overlay
+These are not normal public prediction versions.
 
-A deterministic new rule applied to stored pre-match output without injecting post-match information. DRAW01 overlay is reported this way.
+### `prediction_review_ai_executions`
 
-### Diagnostic recomputation
+Structured AI execution audit.
 
-A recomputation using refreshed/current signals over historical fixtures. Useful for debugging, but not a fair backtest when the signals include later information.
+Current production state: no supported AI provider is connected.
 
-## Signal refresh artifacts
+### `prediction_review_decisions`
 
-### Normalized signal package
+Human/admin decision audit.
 
-Audit/Codex input derived from FIFA CSV, Elo ranking HTML, and Elo results HTML. It is not a runtime dependency.
+Supported decision semantics include:
 
-### Source manifest
+- keep current;
+- publish refreshed;
+- hold;
+- reviewed-xG proposal handling.
 
-Machine-readable record of input filenames, source roles, generation time, coverage, and boundaries.
+Publication lineage links the selected review snapshot and any newly created public prediction version.
 
-### Quality report
+## Payments and entitlements
 
-Required future artifact:
+### `wompi_payment_events`
 
-```json
-{
-  "canonicalTeamCount": 48,
-  "duplicateTeamCount": 0,
-  "invalidDateCount": 0,
-  "futureDateCount": 0,
-  "unresolvedCanonicalOpponentCount": 0,
-  "unresolvedExternalOpponentCount": 0,
-  "incompleteRecentListCount": 0,
-  "aliasRemaps": [],
-  "sourceCoverage": {},
-  "verdict": "pass"
-}
+Webhook/event persistence and processing state.
+
+### `entitlement_grants`
+
+Activation ledger and idempotency/audit source.
+
+### `user_entitlements`
+
+Runtime competition/package access.
+
+### `user_match_unlocks`
+
+Runtime match-specific access where supported.
+
+### `subscriptions`
+
+Commercial/status context only. Not a direct authorization source.
+
+## Torneo export contract
+
+Contract:
+
+```text
+torneo-ufo-export-v1
 ```
 
-A failing verdict blocks Codex implementation unless the owner approves a documented exception.
+Public-safe fields include:
 
-## Public/premium concepts
+- fixture ID;
+- kickoff;
+- teams;
+- UFO public URL;
+- 1X2;
+- xG;
+- modal/top scorelines;
+- confidence/risk;
+- BTTS;
+- O/U 2.5;
+- public result state when appropriate.
 
-### `model_detail`
+Excluded:
 
-Protected public-safe premium model detail containing expected goals, top scorelines, BTTS, O/U 2.5, confidence, and risk.
+- `prediction_results`;
+- raw evaluations;
+- review snapshots;
+- private/admin payloads;
+- provider odds/predictions;
+- payment/auth secrets.
 
-### Probable score
+## Signal source artifacts
 
-Most likely scoreline. Premium-sensitive before verification; registered-free behavior follows current gating policy.
+Tracked source snapshot:
 
-### Premium entitlement
+```text
+data/prediction-engine/national-team-signals/2026-06-19/
+```
 
-Server-verified access state activated by the payment/entitlement flow. Dedicated Wompi and entitlement runbooks remain authoritative for payment implementation details.
+Key files:
 
-## Admin queues
+- `source.json`;
+- `source-manifest.json`;
+- `quality-report.json`;
+- `fixture-elo-coherence.json`;
+- `team-display-names-es-en.json`.
 
-- Result Review Queue: verify final results.
-- Evaluation Queue: persist internal evaluation.
-- Publish Queue: save/publish scheduled exact fixtures.
-- Torneo Export: generate public-safe admin export.
-
-## Hard boundaries
-
-No public `prediction_results`, raw Lab/evaluation payloads, raw source package runtime imports, provider predictions/odds as model inputs, Torneo human picks as model inputs, or client-side payment secrets.
+Runtime consumes the generated static TypeScript pack, not these source artifacts directly.
