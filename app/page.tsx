@@ -132,8 +132,8 @@ export default async function HomePage() {
             "Las cuentas gratis añaden contexto completo de confianza y riesgo, además de herramientas de seguimiento con reglas aplicadas server-side.",
           ],
           [
-            "Premium en preparación",
-            "Premium y checkout llegarán más adelante, cuando la cobertura pública base y sus límites de acceso estén validados.",
+            "World Cup Pass",
+            "El acceso premium ya está disponible en Planes y se activa automáticamente cuando Wompi confirma el pago aprobado por webhook.",
           ],
         ].map(([title, description]) => (
           <div key={title} className="panel rounded-lg p-5">

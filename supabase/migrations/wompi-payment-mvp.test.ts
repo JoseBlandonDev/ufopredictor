@@ -36,6 +36,12 @@ const adminPriceUpsertRepairMigrationName = readdirSync(join(process.cwd(), "sup
 const adminPriceUpsertRepairMigration = adminPriceUpsertRepairMigrationName
   ? readFileSync(join(process.cwd(), "supabase/migrations", adminPriceUpsertRepairMigrationName), "utf8")
   : "";
+const securityAdvisorHardeningMigrationName = readdirSync(join(process.cwd(), "supabase/migrations")).find((fileName) =>
+  fileName.endsWith("_harden_wompi_security_advisors.sql"),
+);
+const securityAdvisorHardeningMigration = securityAdvisorHardeningMigrationName
+  ? readFileSync(join(process.cwd(), "supabase/migrations", securityAdvisorHardeningMigrationName), "utf8")
+  : "";
 const webhookRoute = readFileSync(
   join(process.cwd(), "app/api/wompi/webhook/route.ts"),
   "utf8",
@@ -206,6 +212,24 @@ describe("0037 Wompi payment MVP migration", () => {
       "revoke execute on function public.admin_update_wompi_world_cup_pass_price(integer, text, integer, text, timestamptz) from anon",
     );
     expect(adminPriceUpsertRepairMigration).toContain("notify pgrst, 'reload schema'");
+  });
+
+  it("hardens the Wompi advisor surface without changing activation access", () => {
+    expect(securityAdvisorHardeningMigrationName).toBeDefined();
+    expect(securityAdvisorHardeningMigration).toContain(
+      "create index if not exists wompi_payment_events_entitlement_grant_id_idx",
+    );
+    expect(securityAdvisorHardeningMigration).toContain(
+      'create policy "No public access to Wompi payment events"',
+    );
+    expect(securityAdvisorHardeningMigration).toContain("using (false)");
+    expect(securityAdvisorHardeningMigration).toContain("with check (false)");
+    expect(securityAdvisorHardeningMigration).toContain(
+      "comment on function public.activate_verified_wompi_entitlement(jsonb, text)",
+    );
+    expect(securityAdvisorHardeningMigration).toContain("does not accept caller-provided secrets");
+    expect(securityAdvisorHardeningMigration).not.toContain("revoke execute on function public.activate_verified_wompi_entitlement");
+    expect(securityAdvisorHardeningMigration).not.toContain("grant select on public.wompi_payment_events");
   });
 
   it("uses the constrained checkout RPC from the app route", () => {

@@ -87,13 +87,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <li>El acceso se conserva en tus derechos actuales, no depende del redirect del navegador.</li>
           </ul>
         ) : (
-        <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
-          <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
-          <li>Tu cuenta gratis activa el contexto completo de confianza y riesgo en vistas públicas.</li>
-          <li>Los partidos guardados muestran solo fixtures reales publicados para esta etapa de lanzamiento.</li>
-          <li>El seguimiento de partidos y favoritos seguirá ampliándose de forma gradual.</li>
-          <li>Premium y checkout llegarán más adelante.</li>
-        </ul>
+          <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+            <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
+            <li>Tu cuenta gratis activa el contexto completo de confianza y riesgo en vistas públicas.</li>
+            <li>Los partidos guardados muestran solo fixtures reales publicados para esta etapa de lanzamiento.</li>
+            <li>World Cup Pass ya está disponible en Planes y se activa solo con pago aprobado por Wompi.</li>
+          </ul>
         )}
       </section>
 
@@ -119,7 +118,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   <h2 className="mt-2 text-lg font-semibold">Estado de acceso</h2>
                 </div>
                 <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
-                  {roleLabels[summary.role]}
+                  {hasCurrentPaidAccess(summary) ? "Premium activo" : roleLabels[summary.role]}
                 </span>
               </div>
               <p className="mt-4 font-mono text-2xl">
