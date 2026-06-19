@@ -21,7 +21,6 @@ describe("Wompi checkout helpers", () => {
         privateKey: "prv_test_xxx",
         integritySecret: "test_integrity_xxx",
         currency: "COP",
-        worldCupPassAmountCop: 1,
         appUrl: "https://ufopredictor.com",
       },
       reference: "ufo_wc_20260617154512_abcdef123456",

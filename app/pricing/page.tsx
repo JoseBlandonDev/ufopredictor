@@ -1,7 +1,7 @@
 import { PlanCard } from "@/components/plan-card";
 import { WompiCheckoutButton } from "@/components/wompi-checkout-button";
 import { getPublicPlansCatalogData } from "@/lib/supabase/entitlement-queries";
-import { getWorldCupPassDisplayPrice } from "@/lib/wompi/config";
+import { getWompiWorldCupPassPrice } from "@/lib/wompi/pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +45,7 @@ const worldCupPackageRoadmap = [
 
 export default async function PricingPage() {
   const catalog = await getPublicPlansCatalogData();
-  const worldCupPassPrice = getWorldCupPassDisplayPrice();
+  const worldCupPassPrice = await getWompiWorldCupPassPrice();
 
   return (
     <div className="space-y-8">
@@ -88,8 +88,13 @@ export default async function PricingPage() {
             <span className="ufo-pill">Activo</span>
           </div>
           <p className="mt-3 text-sm text-[var(--muted)]">
-            {worldCupPassPrice}
+            {worldCupPassPrice.displayPrice}
           </p>
+          {worldCupPassPrice.isOfferActive && worldCupPassPrice.offerEndsAt ? (
+            <p className="mt-2 text-xs font-medium text-[var(--accent)]">
+              Oferta activa por tiempo limitado.
+            </p>
+          ) : null}
           <p className="mt-3 text-sm text-[var(--muted)]">
             Accede a xG, top scorelines, BTTS, Over/Under y lectura avanzada del modelo.
           </p>

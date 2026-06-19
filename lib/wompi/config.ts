@@ -14,7 +14,6 @@ export type WompiServerConfig = {
   privateKey: string;
   integritySecret: string;
   currency: "COP";
-  worldCupPassAmountCop: number;
   appUrl: string;
 };
 
@@ -86,10 +85,6 @@ export function requireWompiServerConfig(): WompiServerConfig {
     privateKey: requireEnv("WOMPI_PRIVATE_KEY"),
     integritySecret: requireEnv("WOMPI_INTEGRITY_SECRET"),
     currency,
-    worldCupPassAmountCop: parsePositiveInteger(
-      "WOMPI_WORLD_CUP_PASS_AMOUNT_COP",
-      requireEnv("WOMPI_WORLD_CUP_PASS_AMOUNT_COP"),
-    ),
     appUrl: requireEnv("NEXT_PUBLIC_APP_URL"),
   };
 }

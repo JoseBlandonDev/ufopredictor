@@ -18,6 +18,18 @@ const priceMigrationName = readdirSync(join(process.cwd(), "supabase/migrations"
 const priceMigration = priceMigrationName
   ? readFileSync(join(process.cwd(), "supabase/migrations", priceMigrationName), "utf8")
   : "";
+const adminPriceMigrationName = readdirSync(join(process.cwd(), "supabase/migrations")).find((fileName) =>
+  fileName.endsWith("_admin_wompi_price_controls.sql"),
+);
+const adminPriceMigration = adminPriceMigrationName
+  ? readFileSync(join(process.cwd(), "supabase/migrations", adminPriceMigrationName), "utf8")
+  : "";
+const hardenedAdminPriceMigrationName = readdirSync(join(process.cwd(), "supabase/migrations")).find((fileName) =>
+  fileName.endsWith("_harden_admin_wompi_price_controls.sql"),
+);
+const hardenedAdminPriceMigration = hardenedAdminPriceMigrationName
+  ? readFileSync(join(process.cwd(), "supabase/migrations", hardenedAdminPriceMigrationName), "utf8")
+  : "";
 const webhookRoute = readFileSync(
   join(process.cwd(), "app/api/wompi/webhook/route.ts"),
   "utf8",
@@ -146,11 +158,43 @@ describe("0037 Wompi payment MVP migration", () => {
     expect(migration).not.toContain("8700000");
   });
 
+  it("adds admin-controlled Wompi pricing without client-controlled amounts", () => {
+    expect(adminPriceMigrationName).toBeDefined();
+    expect(adminPriceMigration).toContain("create table public.wompi_product_prices");
+    expect(adminPriceMigration).toContain("alter table public.wompi_product_prices enable row level security");
+    expect(adminPriceMigration).toContain("revoke all on public.wompi_product_prices from anon, authenticated");
+    expect(adminPriceMigration).toContain("grant select on public.wompi_product_prices to anon, authenticated");
+    expect(adminPriceMigration).toContain("grant insert, update on public.wompi_product_prices to authenticated");
+    expect(adminPriceMigration).toContain("Anyone may read Wompi product prices");
+    expect(adminPriceMigration).toContain("Admins may update Wompi product prices");
+    expect(adminPriceMigration).toContain("create or replace function public.get_wompi_world_cup_pass_price");
+    expect(adminPriceMigration).toContain("security invoker");
+    expect(adminPriceMigration).toContain("grant execute on function public.get_wompi_world_cup_pass_price() to anon, authenticated");
+    expect(adminPriceMigration).toContain("create or replace function public.admin_update_wompi_world_cup_pass_price");
+    expect(adminPriceMigration).toContain("if not public.is_real_fixture_lab_admin() then");
+    expect(adminPriceMigration).toContain("revoke execute on function public.admin_update_wompi_world_cup_pass_price");
+    expect(adminPriceMigration).toContain("grant execute on function public.admin_update_wompi_world_cup_pass_price");
+    expect(adminPriceMigration).toContain("select price.amount_in_cents");
+    expect(adminPriceMigration).toContain("from public.get_wompi_world_cup_pass_price() price");
+    expect(adminPriceMigration).toContain("v_amount_in_cents");
+    expect(adminPriceMigration).not.toContain("p_amount_in_cents");
+    expect(adminPriceMigration).not.toContain("p_entitlement_mapping_json");
+  });
+
+  it("keeps the applied hardening migration for projects that already ran the first admin price migration", () => {
+    expect(hardenedAdminPriceMigrationName).toBeDefined();
+    expect(hardenedAdminPriceMigration).toContain("security invoker");
+    expect(hardenedAdminPriceMigration).toContain("Anyone may read Wompi product prices");
+    expect(hardenedAdminPriceMigration).toContain("Admins may insert Wompi product prices");
+    expect(hardenedAdminPriceMigration).toContain("Admins may update Wompi product prices");
+    expect(hardenedAdminPriceMigration).toContain("notify pgrst, 'reload schema'");
+  });
+
   it("uses the constrained checkout RPC from the app route", () => {
     expect(checkoutRoute).toContain('supabase.rpc(\n    "create_wompi_world_cup_pass_intent"');
-    expect(checkoutRoute).toContain("configuredAmountInCents !== intent.amount_in_cents");
     expect(checkoutRoute).toContain("amountInCents: intent.amount_in_cents");
     expect(checkoutRoute).toContain("checkoutPayload.currency !== intent.currency");
+    expect(checkoutRoute).not.toContain("WOMPI_WORLD_CUP_PASS_AMOUNT_COP");
     expect(checkoutRoute).not.toContain('.from("wompi_payment_intents").insert');
     expect(checkoutRoute).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
   });
