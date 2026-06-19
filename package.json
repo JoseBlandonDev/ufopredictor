@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
-    "spike:api-football": "npx tsx scripts/api-football-read-spike.ts"
+    "spike:api-football": "npx tsx scripts/api-football-read-spike.ts",
+    "signal:generate:national-team-pack": "node scripts/prediction-engine/generate-national-team-signal-pack.js",
+    "signal:check:national-team-pack": "node scripts/prediction-engine/generate-national-team-signal-pack.js --check"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "ufo-signal-source-quality-report-v2",
+  "generatedAt": "2026-06-19T00:00:00Z",
+  "verdict": "PASS_SOURCE_REFRESH",
+  "checks": {
+    "canonicalTeamCount": 48,
+    "duplicateCanonicalTeamCount": 0,
+    "missingFifaCsvTeams": [],
+    "missingFifaHtmlTeams": [],
+    "missingEloTeams": [],
+    "fifaCsvHtmlMismatchCount": 0,
+    "fifaHtmlParseErrorCount": 0,
+    "eloRankingParseErrorCount": 0,
+    "eloResultParseErrorCount": 0,
+    "eloFixtureParseErrorCount": 0,
+    "impossibleDateCount": 0,
+    "futureResultCountRelativeToSnapshot": 0,
+    "latestIncludedResultDate": "2026-06-18",
+    "externalOpponentRowCount": 78,
+    "distinctExternalOpponentCount": 90,
+    "partialRecentSamples": [
+      {
+        "teamKey": "qatar",
+        "recentMatchCount": 4
+      },
+      {
+        "teamKey": "paraguay",
+        "recentMatchCount": 4
+      },
+      {
+        "teamKey": "ivory-coast",
+        "recentMatchCount": 4
+      },
+      {
+        "teamKey": "japan",
+        "recentMatchCount": 4
+      },
+      {
+        "teamKey": "uruguay",
+        "recentMatchCount": 3
+      },
+      {
+        "teamKey": "austria",
+        "recentMatchCount": 4
+      }
+    ],
+    "worldCupFixtureExpectationRows": 45,
+    "fifaEloRecentCrosscheckSummary": {
+      "EXACT_FIVE_MATCH_AGREEMENT": 3,
+      "PARTIAL_OR_SOURCE_WINDOW_DIFFERENCE": 45
+    }
+  },
+  "v1KnownDefectsRecounted": {
+    "recentRows": 232,
+    "impossibleDates": 50,
+    "futureDatesRelativeToV1GeneratedAt": 63,
+    "nullOpponentKeys": 77
+  },
+  "runtimeIntegrationStopConditions": [
+    "quality verdict is not PASS_SOURCE_REFRESH",
+    "canonical team count is not exactly 48",
+    "any FIFA/Elo canonical team is missing",
+    "any impossible/future result enters recent form",
+    "derived score formula is invented without review",
+    "stored prediction versions would be mutated"
+  ]
+}

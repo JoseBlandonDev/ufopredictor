@@ -1,0 +1,434 @@
+{
+  "schemaVersion": "ufo-team-display-name-map-v1",
+  "generatedAt": "2026-06-19T00:00:00Z",
+  "policy": "Keep DB/provider identity in English; use Spanish only at presentation boundaries.",
+  "teams": [
+    {
+      "teamKey": "mexico",
+      "databaseNameEn": "Mexico",
+      "displayNameEs": "México",
+      "aliases": [
+        "Mexico",
+        "México"
+      ]
+    },
+    {
+      "teamKey": "south-africa",
+      "databaseNameEn": "South Africa",
+      "displayNameEs": "Sudáfrica",
+      "aliases": [
+        "South Africa",
+        "Sudáfrica"
+      ]
+    },
+    {
+      "teamKey": "south-korea",
+      "databaseNameEn": "South Korea",
+      "displayNameEs": "República de Corea",
+      "aliases": [
+        "República de Corea",
+        "South Korea"
+      ]
+    },
+    {
+      "teamKey": "czechia",
+      "databaseNameEn": "Czechia",
+      "displayNameEs": "Chequia",
+      "aliases": [
+        "Chequia",
+        "Czechia"
+      ]
+    },
+    {
+      "teamKey": "canada",
+      "databaseNameEn": "Canada",
+      "displayNameEs": "Canadá",
+      "aliases": [
+        "Canada",
+        "Canadá"
+      ]
+    },
+    {
+      "teamKey": "bosnia-and-herzegovina",
+      "databaseNameEn": "Bosnia and Herzegovina",
+      "displayNameEs": "Bosnia y Herzegovina",
+      "aliases": [
+        "Bosnia and Herzegovina",
+        "Bosnia y Herzegovina"
+      ]
+    },
+    {
+      "teamKey": "qatar",
+      "databaseNameEn": "Qatar",
+      "displayNameEs": "Catar",
+      "aliases": [
+        "Catar",
+        "Qatar"
+      ]
+    },
+    {
+      "teamKey": "switzerland",
+      "databaseNameEn": "Switzerland",
+      "displayNameEs": "Suiza",
+      "aliases": [
+        "Suiza",
+        "Switzerland"
+      ]
+    },
+    {
+      "teamKey": "brazil",
+      "databaseNameEn": "Brazil",
+      "displayNameEs": "Brasil",
+      "aliases": [
+        "Brasil",
+        "Brazil"
+      ]
+    },
+    {
+      "teamKey": "morocco",
+      "databaseNameEn": "Morocco",
+      "displayNameEs": "Marruecos",
+      "aliases": [
+        "Marruecos",
+        "Morocco"
+      ]
+    },
+    {
+      "teamKey": "haiti",
+      "databaseNameEn": "Haiti",
+      "displayNameEs": "Haití",
+      "aliases": [
+        "Haiti",
+        "Haití"
+      ]
+    },
+    {
+      "teamKey": "scotland",
+      "databaseNameEn": "Scotland",
+      "displayNameEs": "Escocia",
+      "aliases": [
+        "Escocia",
+        "Scotland"
+      ]
+    },
+    {
+      "teamKey": "united-states",
+      "databaseNameEn": "USA",
+      "displayNameEs": "EE. UU.",
+      "aliases": [
+        "EE. UU.",
+        "USA",
+        "United States"
+      ]
+    },
+    {
+      "teamKey": "paraguay",
+      "databaseNameEn": "Paraguay",
+      "displayNameEs": "Paraguay",
+      "aliases": [
+        "Paraguay"
+      ]
+    },
+    {
+      "teamKey": "australia",
+      "databaseNameEn": "Australia",
+      "displayNameEs": "Australia",
+      "aliases": [
+        "Australia"
+      ]
+    },
+    {
+      "teamKey": "turkey",
+      "databaseNameEn": "Türkiye",
+      "displayNameEs": "Turquía",
+      "aliases": [
+        "Turkey",
+        "Turquía",
+        "Türkiye"
+      ]
+    },
+    {
+      "teamKey": "germany",
+      "databaseNameEn": "Germany",
+      "displayNameEs": "Alemania",
+      "aliases": [
+        "Alemania",
+        "Germany"
+      ]
+    },
+    {
+      "teamKey": "curacao",
+      "databaseNameEn": "Curaçao",
+      "displayNameEs": "Curazao",
+      "aliases": [
+        "Curacao",
+        "Curazao",
+        "Curaçao"
+      ]
+    },
+    {
+      "teamKey": "ivory-coast",
+      "databaseNameEn": "Ivory Coast",
+      "displayNameEs": "Costa de Marfil",
+      "aliases": [
+        "Costa de Marfil",
+        "Ivory Coast"
+      ]
+    },
+    {
+      "teamKey": "ecuador",
+      "databaseNameEn": "Ecuador",
+      "displayNameEs": "Ecuador",
+      "aliases": [
+        "Ecuador"
+      ]
+    },
+    {
+      "teamKey": "netherlands",
+      "databaseNameEn": "Netherlands",
+      "displayNameEs": "Países Bajos",
+      "aliases": [
+        "Netherlands",
+        "Países Bajos"
+      ]
+    },
+    {
+      "teamKey": "japan",
+      "databaseNameEn": "Japan",
+      "displayNameEs": "Japón",
+      "aliases": [
+        "Japan",
+        "Japón"
+      ]
+    },
+    {
+      "teamKey": "sweden",
+      "databaseNameEn": "Sweden",
+      "displayNameEs": "Suecia",
+      "aliases": [
+        "Suecia",
+        "Sweden"
+      ]
+    },
+    {
+      "teamKey": "tunisia",
+      "databaseNameEn": "Tunisia",
+      "displayNameEs": "Túnez",
+      "aliases": [
+        "Tunisia",
+        "Túnez"
+      ]
+    },
+    {
+      "teamKey": "belgium",
+      "databaseNameEn": "Belgium",
+      "displayNameEs": "Bélgica",
+      "aliases": [
+        "Belgium",
+        "Bélgica"
+      ]
+    },
+    {
+      "teamKey": "egypt",
+      "databaseNameEn": "Egypt",
+      "displayNameEs": "Egipto",
+      "aliases": [
+        "Egipto",
+        "Egypt"
+      ]
+    },
+    {
+      "teamKey": "iran",
+      "databaseNameEn": "Iran",
+      "displayNameEs": "RI de Irán",
+      "aliases": [
+        "Iran",
+        "RI de Irán"
+      ]
+    },
+    {
+      "teamKey": "new-zealand",
+      "databaseNameEn": "New Zealand",
+      "displayNameEs": "Nueva Zelanda",
+      "aliases": [
+        "New Zealand",
+        "Nueva Zelanda"
+      ]
+    },
+    {
+      "teamKey": "spain",
+      "databaseNameEn": "Spain",
+      "displayNameEs": "España",
+      "aliases": [
+        "España",
+        "Spain"
+      ]
+    },
+    {
+      "teamKey": "cape-verde",
+      "databaseNameEn": "Cape Verde Islands",
+      "displayNameEs": "Islas de Cabo Verde",
+      "aliases": [
+        "Cape Verde",
+        "Cape Verde Islands",
+        "Islas de Cabo Verde"
+      ]
+    },
+    {
+      "teamKey": "saudi-arabia",
+      "databaseNameEn": "Saudi Arabia",
+      "displayNameEs": "Arabia Saudí",
+      "aliases": [
+        "Arabia Saudí",
+        "Saudi Arabia"
+      ]
+    },
+    {
+      "teamKey": "uruguay",
+      "databaseNameEn": "Uruguay",
+      "displayNameEs": "Uruguay",
+      "aliases": [
+        "Uruguay"
+      ]
+    },
+    {
+      "teamKey": "france",
+      "databaseNameEn": "France",
+      "displayNameEs": "Francia",
+      "aliases": [
+        "France",
+        "Francia"
+      ]
+    },
+    {
+      "teamKey": "senegal",
+      "databaseNameEn": "Senegal",
+      "displayNameEs": "Senegal",
+      "aliases": [
+        "Senegal"
+      ]
+    },
+    {
+      "teamKey": "iraq",
+      "databaseNameEn": "Iraq",
+      "displayNameEs": "Irak",
+      "aliases": [
+        "Irak",
+        "Iraq"
+      ]
+    },
+    {
+      "teamKey": "norway",
+      "databaseNameEn": "Norway",
+      "displayNameEs": "Noruega",
+      "aliases": [
+        "Noruega",
+        "Norway"
+      ]
+    },
+    {
+      "teamKey": "argentina",
+      "databaseNameEn": "Argentina",
+      "displayNameEs": "Argentina",
+      "aliases": [
+        "Argentina"
+      ]
+    },
+    {
+      "teamKey": "algeria",
+      "databaseNameEn": "Algeria",
+      "displayNameEs": "Argelia",
+      "aliases": [
+        "Algeria",
+        "Argelia"
+      ]
+    },
+    {
+      "teamKey": "austria",
+      "databaseNameEn": "Austria",
+      "displayNameEs": "Austria",
+      "aliases": [
+        "Austria"
+      ]
+    },
+    {
+      "teamKey": "jordan",
+      "databaseNameEn": "Jordan",
+      "displayNameEs": "Jordania",
+      "aliases": [
+        "Jordan",
+        "Jordania"
+      ]
+    },
+    {
+      "teamKey": "portugal",
+      "databaseNameEn": "Portugal",
+      "displayNameEs": "Portugal",
+      "aliases": [
+        "Portugal"
+      ]
+    },
+    {
+      "teamKey": "dr-congo",
+      "databaseNameEn": "Congo DR",
+      "displayNameEs": "RD Congo",
+      "aliases": [
+        "Congo DR",
+        "DR Congo",
+        "RD Congo"
+      ]
+    },
+    {
+      "teamKey": "uzbekistan",
+      "databaseNameEn": "Uzbekistan",
+      "displayNameEs": "Uzbekistán",
+      "aliases": [
+        "Uzbekistan",
+        "Uzbekistán"
+      ]
+    },
+    {
+      "teamKey": "colombia",
+      "databaseNameEn": "Colombia",
+      "displayNameEs": "Colombia",
+      "aliases": [
+        "Colombia"
+      ]
+    },
+    {
+      "teamKey": "england",
+      "databaseNameEn": "England",
+      "displayNameEs": "Inglaterra",
+      "aliases": [
+        "England",
+        "Inglaterra"
+      ]
+    },
+    {
+      "teamKey": "croatia",
+      "databaseNameEn": "Croatia",
+      "displayNameEs": "Croacia",
+      "aliases": [
+        "Croacia",
+        "Croatia"
+      ]
+    },
+    {
+      "teamKey": "ghana",
+      "databaseNameEn": "Ghana",
+      "displayNameEs": "Ghana",
+      "aliases": [
+        "Ghana"
+      ]
+    },
+    {
+      "teamKey": "panama",
+      "databaseNameEn": "Panama",
+      "displayNameEs": "Panamá",
+      "aliases": [
+        "Panama",
+        "Panamá"
+      ]
+    }
+  ]
+}
