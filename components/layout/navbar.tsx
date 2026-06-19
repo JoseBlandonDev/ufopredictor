@@ -13,6 +13,7 @@ const navItems = [
 
 const adminOpsItems = [
   { href: "/admin/payments", label: "Payments" },
+  { href: "/admin/prediction-refresh-review", label: "Revisión de predicciones" },
   { href: "/admin/real-fixture-lab", label: "Real Fixture Lab" },
   { href: "/admin/real-fixture-result-review-queue", label: "Result Review" },
   { href: "/admin/real-fixture-evaluation-queue", label: "Evaluation" },
