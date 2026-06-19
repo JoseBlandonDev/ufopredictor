@@ -1,5 +1,3 @@
-import "server-only";
-
 const WORLD_CUP_2026_SLUG = "world-cup-2026";
 const WORLD_CUP_2026_MATCH_PREFIX = "world-cup-2026-";
 
