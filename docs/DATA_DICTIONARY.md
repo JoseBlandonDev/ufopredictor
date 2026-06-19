@@ -1,127 +1,117 @@
 # Data Dictionary - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
-## Core concepts
+## Prediction scopes
 
 ### `public_product`
 
-Prediction run scope used for public product surfaces. Public pages and premium projection should use latest public-safe `public_product` rows only.
+Prediction scope used by public/free/premium product surfaces. Public pages must use latest public-safe `public_product` rows only.
 
 ### `internal_lab`
 
-Internal/admin prediction run scope. Used for admin evidence and evaluation. Must not be used as runtime fallback for public pages.
+Internal/admin prediction scope used for evidence, review, and evaluation. It must not be used as public runtime fallback.
+
+### `pre_match_24h`
+
+Evaluation window used for the fair stored-prediction report. The closeout dedupes to the latest evaluated `internal_lab` + `pre_match_24h` row per fixture.
+
+## Core prediction tables/concepts
 
 ### `prediction_versions`
 
-Stores prediction output fields such as 1X2 probabilities, expected goals, most likely score, top scorelines JSON, confidence score, and risk level.
+Stores 1X2 probabilities, expected goals, most likely score, scoreline JSON, confidence, risk, run scope, and version metadata.
 
 ### `prediction_markets`
 
-Stores market-style rows such as `btts`, `over_2_5`, `exact_score`, and `match_winner`. RLS/read paths may hide direct counts in some admin summary contexts; premium model detail readiness can still be derived from the protected RPC.
+Stores market-style outputs such as BTTS, O/U 2.5, exact score, and match winner.
 
-### `model_detail`
+### `prediction_results`
 
-Public-safe premium model detail block returned by `get_premium_match_projection`.
-
-Conceptual normalized shape:
-
-```ts
-type PremiumModelDetail = {
-  expectedGoals: { home: number; away: number } | null
-  topScorelines: Array<{ score: string; probability: number }>
-  bothTeamsToScore: { yesProbability: number; noProbability: number } | null
-  totalGoals25: { overProbability: number; underProbability: number } | null
-  confidence: { score: number | null; riskLevel: string | null } | null
-}
-```
-
-### Probable score
-
-The most likely scoreline. It is premium-sensitive before result verification. Registered-free users only fetch/see it after verified result.
-
-### `subscriptions`
-
-Commercial/status record for a user's relationship to a plan. In G06B it can be created or updated by an admin/manual activation, but it is not an authorization source by itself.
-
-### `user_entitlements`
-
-Effective premium authorization for global or resource-scoped access, such as global premium or a competition/world-cup pass. Premium resolvers should use current, unexpired rows here when deciding whether to reveal protected model detail.
-
-### `user_match_unlocks`
-
-Effective premium authorization for a single match. Premium resolvers should use current, unexpired rows here when deciding whether to reveal protected model detail for that match.
-
-### `entitlement_grants`
-
-Audit and idempotency ledger for entitlement activation. G06B uses it for manual admin grants and revocations; future verified payment events should write through the same binding instead of creating a parallel premium system.
-
-### `wompi_payment_intents`
-
-Server-created checkout intent for the Wompi checkout MVP. It stores the unique reference, user, plan, configured COP amount converted to Wompi `amount_in_cents`, checkout payload, entitlement mapping, and status. It must not store card numbers or sensitive payment instrument data.
-
-### `wompi_payment_events`
-
-Verified Wompi webhook ledger. It stores transaction id, reference, event type, normalized status, checksum, raw event JSON, processing timestamps, linked `entitlement_grant_id`, and processing errors. `APPROVED` events activate G06 once; `PENDING`, `DECLINED`, and `ERROR` are recorded without activation.
-
-### `world_cup_2026`
-
-Canonical entitlement resource id for the World Cup 2026 competition pass. Any legacy feature/seed key such as `world-cup-2026` should be normalized to `world_cup_2026` before writing entitlements.
+Internal evaluation results. Never expose publicly.
 
 ### Verified result
 
-Public-safe final score after admin verification. It can be displayed publicly without exposing internal evaluation details.
+Admin-verified final score projected through public-safe fields. May be displayed publicly without exposing evaluation internals.
 
 ### Internal evaluation
 
-Admin-only evaluation of prediction correctness after verified result. It must not be exposed in public product payloads.
+Admin-only correctness assessment persisted after verified result.
 
-### Real fixture publish queue
+## Model concepts
 
-Admin-only operational queue at `/admin/real-fixture-publish-queue`. It reads minimal fixture/prediction status and reuses existing actions to save internal predictions and publish public products. It is not a public data source and must not render raw payloads.
+### SIGNAL04
 
-## Torneo Mundialista export payload - planned
+Accepted national-team signal refresh for the 48 World Cup teams. Runtime uses reviewed committed static fields, not raw source exports.
 
-Planned V0 is a JSON package exported by an admin from UFO Predictor.
+### DRAW01
 
-Conceptual shape:
+Conservative 1X2 draw reconciliation. It only promotes draw when a draw-shaped score matrix and close aggregate probabilities satisfy strict bounds. It does not change xG, scoreline probabilities, BTTS, or O/U.
 
-```ts
-type TorneoUfoExport = {
-  schemaVersion: "torneo-ufo-export-v1"
-  generatedAt: string
-  source: "ufo_predictor"
-  sourceAppUrl: string
-  competition: "world-cup-2026"
-  range: { from: string; to: string }
-  displayGuidance: {
-    defaultTeaser: "show_1x2_probabilities_and_link"
-    exactScoreRecommendedReveal: "after_user_pick_or_pick_deadline"
-    topScorelinesRecommendedReveal: "after_user_pick_or_pick_deadline"
-    postMatchUse: "comparison_and_learning"
-  }
-  fixtures: Array<{
-    externalId: string
-    fixtureId: number
-    slug: string
-    ufoUrl: string
-    kickoffAt: string
-    homeTeam: string
-    awayTeam: string
-    prediction: {
-      homeWinProbability: number
-      drawProbability: number
-      awayWinProbability: number
-      confidenceScore: number | null
-      riskLevel: "low" | "medium" | "high" | null
-      mostLikelyScore: string | null
-      expectedGoals: { home: number; away: number } | null
-      topScorelines: Array<{ score: string; probability: number }>
-      bothTeamsToScore: { yesProbability: number; noProbability: number } | null
-      totalGoals25: { overProbability: number; underProbability: number } | null
-    }
-  }>
+### Fair stored evaluation
+
+Metrics calculated from the prediction actually stored before the match. This is the primary performance report.
+
+### Fair overlay
+
+A deterministic new rule applied to stored pre-match output without injecting post-match information. DRAW01 overlay is reported this way.
+
+### Diagnostic recomputation
+
+A recomputation using refreshed/current signals over historical fixtures. Useful for debugging, but not a fair backtest when the signals include later information.
+
+## Signal refresh artifacts
+
+### Normalized signal package
+
+Audit/Codex input derived from FIFA CSV, Elo ranking HTML, and Elo results HTML. It is not a runtime dependency.
+
+### Source manifest
+
+Machine-readable record of input filenames, source roles, generation time, coverage, and boundaries.
+
+### Quality report
+
+Required future artifact:
+
+```json
+{
+  "canonicalTeamCount": 48,
+  "duplicateTeamCount": 0,
+  "invalidDateCount": 0,
+  "futureDateCount": 0,
+  "unresolvedCanonicalOpponentCount": 0,
+  "unresolvedExternalOpponentCount": 0,
+  "incompleteRecentListCount": 0,
+  "aliasRemaps": [],
+  "sourceCoverage": {},
+  "verdict": "pass"
 }
 ```
 
-This payload must not include `prediction_results`, raw evaluation internals, raw Lab payloads, service-role-only data, odds, provider predictions, payment data, or Torneo human picks as UFO model inputs.
+A failing verdict blocks Codex implementation unless the owner approves a documented exception.
+
+## Public/premium concepts
+
+### `model_detail`
+
+Protected public-safe premium model detail containing expected goals, top scorelines, BTTS, O/U 2.5, confidence, and risk.
+
+### Probable score
+
+Most likely scoreline. Premium-sensitive before verification; registered-free behavior follows current gating policy.
+
+### Premium entitlement
+
+Server-verified access state activated by the payment/entitlement flow. Dedicated Wompi and entitlement runbooks remain authoritative for payment implementation details.
+
+## Admin queues
+
+- Result Review Queue: verify final results.
+- Evaluation Queue: persist internal evaluation.
+- Publish Queue: save/publish scheduled exact fixtures.
+- Torneo Export: generate public-safe admin export.
+
+## Hard boundaries
+
+No public `prediction_results`, raw Lab/evaluation payloads, raw source package runtime imports, provider predictions/odds as model inputs, Torneo human picks as model inputs, or client-side payment secrets.

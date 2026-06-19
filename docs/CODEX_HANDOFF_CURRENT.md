@@ -1,10 +1,10 @@
 # Codex Handoff Current - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
 ## Repo baseline
 
-Start every task from updated `main`:
+Start from updated `main`:
 
 ```bash
 git checkout main
@@ -12,77 +12,107 @@ git pull origin main
 git status --short
 ```
 
-Expected status: clean after PR #81 is merged locally.
+Expected status: clean after the documentation refresh PR is merged.
 
-## Completed since prior handoff
+## Accepted current state
 
-### PR #77 - Premium Prediction Detail MVP + Lab Ops Summary
+PR #94 is merged. Do not reopen model calibration by default.
 
-Completed and merged: premium model detail on `/matches/[slug]`, protected public-safe premium projection RPC, Lab Ops Summary, score gating, and safe public projection boundaries.
+Accepted:
 
-### Data Ops 01 and Data Ops 02
+- SIGNAL04 national-team signal refresh;
+- DRAW01 conservative draw reconciliation;
+- Cabo Verde alias fix;
+- Publish Queue Ops navigation;
+- unchanged expected-goals formula.
 
-Completed operationally:
+Production baseline also includes Wompi payment activation, automatic premium entitlement, premium-active UX, admin pricing/payment controls, and Torneo admin export.
 
-- restored active/upcoming predictions after the prior verified batch;
-- verified/evaluated Spain, Belgium, Saudi Arabia, and Iran results;
-- published a 12-fixture active/upcoming runway.
+## Final fair stored evaluation
 
-Active/upcoming public fixtures:
+Scope: latest evaluated `internal_lab` + `pre_match_24h` prediction per unique fixture.
 
-| API-Football fixture | Match | Kickoff UTC | Status |
-|---:|---|---:|---|
-| 1489383 | France vs Senegal | 2026-06-16 19:00 | public / future ready |
-| 1539016 | Iraq vs Norway | 2026-06-16 22:00 | public / future ready |
-| 1489381 | Argentina vs Algeria | 2026-06-17 01:00 | public / future ready |
-| 1489382 | Austria vs Jordan | 2026-06-17 04:00 | public / future ready |
-| 1539003 | Portugal vs Congo DR | 2026-06-17 17:00 | public / future ready |
-| 1489384 | England vs Croatia | 2026-06-17 20:00 | public / future ready |
-| 1489385 | Ghana vs Panama | 2026-06-17 23:00 | public / future ready |
-| 1489386 | Uzbekistan vs Colombia | 2026-06-18 02:00 | public / future ready |
-| 1539004 | Czechia vs South Africa | 2026-06-18 16:00 | public / future ready |
-| 1539005 | Switzerland vs Bosnia & Herzegovina | 2026-06-18 19:00 | public / future ready |
-| 1489387 | Canada vs Qatar | 2026-06-18 22:00 | public / future ready |
-| 1489388 | Mexico vs South Korea | 2026-06-19 01:00 | public / future ready |
+- raw rows: 31;
+- unique fixtures: 28;
+- 1X2: 16/28;
+- exact: 7/28;
+- BTTS: 16/27;
+- O/U: 16/28;
+- average total-goal error: 1.821.
 
-Latest verified/evaluated fixtures:
+Latest closed fixtures:
 
-| API-Football fixture | Match | Result | Status |
-|---:|---|---:|---|
-| 1489380 | Spain vs Cape Verde Islands | 0-0 | verified / evaluated |
-| 1489377 | Belgium vs Egypt | 1-1 | verified / evaluated |
-| 1489379 | Saudi Arabia vs Uruguay | 1-1 | verified / evaluated |
-| 1489378 | Iran vs New Zealand | 2-2 | verified / evaluated |
+- Canada 6-0 Qatar;
+- Mexico 1-0 South Korea.
 
-### PR #81 - Real Fixture Publish Queue Operational Bypass
+Pending result-review rows: 0.
+Pending evaluation rows: 0.
 
-Merged: `/admin/real-fixture-publish-queue` is now available as the admin-only publication path for scheduled real fixtures. It reuses existing save/publish actions and avoids the unstable Real Fixture Lab exact-detail route.
+## Model rules
 
-## Known blocker
+- Stored pre-match metrics are the fair report.
+- Refreshed-signal recomputation over completed fixtures is diagnostic only.
+- Do not regenerate published/stored predictions using known results.
+- Do not combine signal, xG, draw, and publication changes in one slice.
+- Do not retry rejected SIGNAL04B/C/D/E or XG01A candidates without a new evidence plan.
 
-`/admin/real-fixture-lab` and exact-detail routes still trigger `RangeError: Maximum call stack size exceeded`. Do not use those routes as the primary publication path. Treat Lab cleanup as a separate focused bug.
+See `MODEL_CALIBRATION_CLOSEOUT_PR94.md`.
 
-## Immediate next recommended task
+## Signal refresh input workflow
 
-### TM01 - Admin JSON export for Torneo Mundialista
+When given FIFA CSV + Elo ranking HTML + Elo results HTML:
 
-Goal: export a complete public-safe UFO prediction package for Torneo Mundialista.
+1. inspect and date sources;
+2. normalize exactly 48 canonical teams;
+3. resolve aliases;
+4. generate source manifest and quality report;
+5. stop on invalid/future dates or unresolved canonical teams;
+6. generate Codex recognition prompt;
+7. review before implementation prompt;
+8. update committed static signal sources only when approved;
+9. run fair overlay and diagnostic recompute separately.
 
-Preferred V0: admin-only JSON export with date/range selection, 1X2, confidence/risk, probable score, top scorelines, xG, BTTS, Over/Under, metadata, and UFO links. Torneo decides display/reveal rules. No endpoint by default.
+Use the ignored local workspace under `codex-inputs/signal-refresh/`. Do not treat generated ZIP bundles, raw source files, or quality-report templates as required tracked repository assets. See `SIGNAL_REFRESH_PLAYBOOK.md`.
 
-## Operational follow-up
+## Current public runway
 
-Monitor the 12 active/upcoming fixtures. When provider status is final, process results through the exact result ingest/review/evaluation flow. Do not verify live/unfinal fixtures.
+Four upcoming public fixtures:
 
-## Epic G status
+- United States vs Australia
+- Scotland vs Morocco
+- Brazil vs Haiti
+- Türkiye vs Paraguay
 
-Parallel track:
+Use exact-fixture operations only.
 
-- G01 done.
-- G02 dev/prod environment separation + config readiness done as readiness baseline.
-- G03-G08 pending.
-- G05 is Wompi-focused; Wompi is the intended payment gateway direction, but integration is not implemented.
+## UIHISTORY01
+
+Recognition complete, implementation pending.
+
+Target:
+
+- 4 recent results on `/predictions`;
+- `/predictions/history`;
+- server pagination `?page=`;
+- page size 12;
+- verified finished rows only;
+- reuse `PublicPredictionCard`.
+
+## Parallel launch track
+
+G09-G14 may run in parallel, but contributors must not touch:
+
+- `docs/`;
+- prediction engine/signal packs;
+- API-Football ingest;
+- result verification/evaluation;
+- `prediction_results`;
+- Supabase migrations/RLS;
+- Wompi webhook/payment confirmation;
+- entitlement activation.
+
+Safe areas include visual components, responsive CSS, public layouts, metadata/manifest/icons, UI tests, accessibility, and performance.
 
 ## Hard boundaries
 
-Do not expose `prediction_results`, raw Lab/admin/evaluation payloads, service-role app routes, provider odds/predictions, payment secrets, or hidden human picks from Torneo as model input. No payments/checkout unless explicitly Epic G.
+No public `prediction_results`, no raw internal payloads, no service-role app routes, no provider odds/predictions as inputs, no Torneo human picks as inputs, no raw refresh package as runtime dependency, and no client-side payment secrets.
