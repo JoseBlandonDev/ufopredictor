@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireUser } from "@/lib/auth/session";
+import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
 import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
 import { getSavedMatchesForDashboard } from "@/lib/supabase/saved-matches-queries";
 
@@ -17,19 +18,6 @@ const roleLabels = {
   free_user: "Cuenta gratis",
   premium_user: "Cuenta premium futura",
 };
-
-type ReadyEntitlementSummary = Extract<
-  Awaited<ReturnType<typeof getViewerEntitlementSummary>>,
-  { status: "ready" }
->;
-
-function hasCurrentPaidAccess(summary: ReadyEntitlementSummary) {
-  return (
-    summary.activeSubscriptions.length > 0 ||
-    summary.entitlements.length > 0 ||
-    summary.matchUnlocks.length > 0
-  );
-}
 
 function dateLabel(value: string | null) {
   if (!value) {
@@ -51,7 +39,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const params = await searchParams;
   const summary = await getViewerEntitlementSummary();
   const savedMatches = await getSavedMatchesForDashboard();
-  const paidAccessActive = summary.status === "ready" && hasCurrentPaidAccess(summary);
+  const premiumAccessActive = hasCurrentPremiumAccess(summary);
 
   return (
     <div className="space-y-6">
@@ -74,12 +62,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               Acceso actual
             </p>
             <h2 className="mt-2 text-lg font-semibold">
-              {paidAccessActive ? "World Cup Pass activo" : "Tu cuenta gratis"}
+              {premiumAccessActive ? "World Cup Pass activo" : "Tu cuenta gratis"}
             </h2>
           </div>
-          <span className="ufo-pill">{paidAccessActive ? "Premium activo" : "Activo"}</span>
+          <span className="ufo-pill">{premiumAccessActive ? "Premium activo" : "Activo"}</span>
         </div>
-        {paidAccessActive ? (
+        {premiumAccessActive ? (
           <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
             <li>Tu pago fue confirmado por Wompi y el acceso quedo activado en el servidor.</li>
             <li>World Cup Pass habilita derechos premium para la competencia World Cup 2026.</li>
@@ -118,21 +106,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   <h2 className="mt-2 text-lg font-semibold">Estado de acceso</h2>
                 </div>
                 <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
-                  {hasCurrentPaidAccess(summary) ? "Premium activo" : roleLabels[summary.role]}
+                  {hasCurrentPremiumAccess(summary) ? "Premium activo" : roleLabels[summary.role]}
                 </span>
               </div>
               <p className="mt-4 font-mono text-2xl">
-                {hasCurrentPaidAccess(summary) ? "World Cup Pass activo" : roleLabels[summary.role]}
+                {hasCurrentPremiumAccess(summary) ? "World Cup Pass activo" : roleLabels[summary.role]}
               </p>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                Suscripciones activas: {summary.activeSubscriptions.length}. El rol de perfil por sí
-                solo no desbloquea contenido protegido.
+                {hasCurrentPremiumAccess(summary)
+                  ? `Derechos premium activos: ${summary.entitlements.length + summary.matchUnlocks.length}.`
+                  : `Suscripciones activas: ${summary.activeSubscriptions.length}. El rol de perfil por si solo no desbloquea contenido protegido.`}
               </p>
               <Link
-                href={hasCurrentPaidAccess(summary) ? "/predictions" : "/pricing"}
+                href={hasCurrentPremiumAccess(summary) ? "/predictions" : "/pricing"}
                 className="ufo-btn-primary ufo-focus-ring mt-5"
               >
-                {hasCurrentPaidAccess(summary) ? "Explorar predicciones" : "Ver ruta de planes"}
+                {hasCurrentPremiumAccess(summary) ? "Explorar predicciones" : "Ver ruta de planes"}
               </Link>
             </section>
 
@@ -174,7 +163,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <div className="mt-4 space-y-3">
               {summary.matchUnlocks.length === 0 ? (
                 <p className="text-sm text-[var(--muted)]">
-                  {hasCurrentPaidAccess(summary) ? (
+                  {hasCurrentPremiumAccess(summary) ? (
                     "Tu World Cup Pass aparece en derechos actuales; esta lista solo muestra desbloqueos individuales."
                   ) : (
                     <>
@@ -218,7 +207,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <div className="space-y-3">
                   <p className="text-sm text-[var(--muted)]">Aún no guardaste partidos.</p>
                   <Link href="/predictions" className="ufo-btn-secondary ufo-focus-ring">
-                    Explorar predicciones públicas
+                    {premiumAccessActive ? "Explorar predicciones premium" : "Explorar predicciones publicas"}
                   </Link>
                 </div>
               ) : (

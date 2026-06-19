@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
-import { ConfidenceBadge } from "@/components/confidence-badge";
-import { ProbabilityBar } from "@/components/probability-bar";
-import { RiskBadge } from "@/components/risk-badge";
+import { ConfidenceBadge } from "./confidence-badge";
+import { ProbabilityBar } from "./probability-bar";
+import { RiskBadge } from "./risk-badge";
 import type { PublicPredictionCardView } from "@/lib/supabase/public-prediction-queries";
 
 type PublicPredictionCardProps = {
   prediction: PublicPredictionCardView;
+  premiumAccessActive?: boolean;
 };
 
-export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) {
+export function PublicPredictionCard({ prediction, premiumAccessActive = false }: PublicPredictionCardProps) {
   const date = new Intl.DateTimeFormat("es-CO", {
     month: "short",
     day: "numeric",
@@ -18,6 +19,7 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
     timeZone: "America/Bogota",
   }).format(new Date(prediction.kickoffAt));
   const venueLabel = prediction.venueCity ?? prediction.venueName ?? "Sede por confirmar";
+  const isRegisteredViewer = prediction.viewer === "registered_free";
 
   return (
     <article className="ufo-card rounded-lg p-5">
@@ -41,7 +43,7 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
             </span>
           </div>
         </div>
-        {prediction.viewer === "registered_free" ? (
+        {isRegisteredViewer ? (
           <div className="flex gap-2">
             <ConfidenceBadge score={prediction.confidenceScore} />
             <RiskBadge level={prediction.riskLevel} />
@@ -49,7 +51,7 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
         ) : (
           <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
-              Señal básica
+              Senal basica
             </p>
             <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
           </div>
@@ -74,23 +76,25 @@ export function PublicPredictionCard({ prediction }: PublicPredictionCardProps) 
             {prediction.verifiedResult.awayGoals} {prediction.awayTeamName}
           </p>
           <p className="mt-2 text-xs text-[var(--muted)]">
-            Este resultado final ya fue verificado y la predicción pública se conserva como
-            referencia histórica.
+            Este resultado final ya fue verificado y la prediccion publica se conserva como
+            referencia historica.
           </p>
         </div>
       ) : null}
       <p className="mt-4 text-xs text-[var(--muted)]">
-        {prediction.viewer === "registered_free"
-          ? "Vista registrada gratis: confianza y riesgo completos en el panel público."
-          : "Vista pública básica: 1X2 completo y señal inicial de confianza y riesgo."}
+        {isRegisteredViewer
+          ? premiumAccessActive
+            ? "Vista premium: confianza, riesgo y detalle avanzado disponibles segun la publicacion del partido."
+            : "Vista registrada gratis: confianza y riesgo completos en el panel publico."
+          : "Vista publica basica: 1X2 completo y senal inicial de confianza y riesgo."}
       </p>
       <p className="mt-2 text-xs text-[var(--muted)]">
-        {prediction.viewer === "registered_free"
+        {isRegisteredViewer
           ? "Alta incertidumbre: probabilidades cercanas. Ventaja ligera, no certeza."
           : "Las probabilidades reflejan una lectura del modelo, no una promesa de resultado."}
       </p>
       <Link href={`/matches/${prediction.matchSlug}`} className="ufo-link-action ufo-focus-ring mt-4">
-        Ver detalle público
+        {premiumAccessActive ? "Ver detalle premium" : "Ver detalle publico"}
         <ArrowRight className="h-4 w-4" />
       </Link>
     </article>

@@ -67,7 +67,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
     match.premiumProjection.status === "authorized" ||
     match.premiumProjection.status === "authorized_unavailable";
   const canShowRegisteredFreeProbableScore =
-    match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
+    !hasPremiumAccess && match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
 
   return (
     <div className="space-y-6">
@@ -146,7 +146,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               }}
             />
           </div>
-          {match.prediction.viewer === "registered_free" ? (
+          {!hasPremiumAccess && match.prediction.viewer === "registered_free" ? (
             <div className="mt-5 rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                 Marcador probable
@@ -182,7 +182,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 </>
               )}
             </div>
-          ) : (
+          ) : !hasPremiumAccess ? (
             <div className="mt-5 rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                 Marcador probable
@@ -200,12 +200,14 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 </Link>
               </div>
             </div>
-          )}
+          ) : null}
           <div className="mt-5 space-y-2">
             <p className="text-xs text-[var(--muted)]">
-              {isAuthenticated
-                ? "Vista registrada gratis: contexto completo de confianza y riesgo y lectura pública del partido."
-                : "Vista pública básica: 1X2 completo y señal inicial de confianza y riesgo."}
+              {hasPremiumAccess
+                ? "Vista premium: contexto completo y detalle avanzado disponibles segun la publicacion del partido."
+                : isAuthenticated
+                  ? "Vista registrada gratis: contexto completo de confianza y riesgo y lectura publica del partido."
+                  : "Vista publica basica: 1X2 completo y senal inicial de confianza y riesgo."}
             </p>
             <p className="text-xs text-[var(--muted)]">
               Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.
