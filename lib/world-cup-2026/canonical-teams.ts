@@ -357,7 +357,7 @@ export const WORLD_CUP_2026_TEAMS = [
     fifaCode: "CPV",
     country: "Cabo Verde",
     groupKey: "group-h",
-    aliases: ["CPV", "Cabo Verde", "Cape Verde"],
+    aliases: ["CPV", "Cabo Verde", "Cape Verde", "Cape Verde Islands"],
     apiFootballTeamId: null,
     notes: null,
   },
