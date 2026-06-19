@@ -15,6 +15,7 @@ const adminOpsItems = [
   { href: "/admin/real-fixture-lab", label: "Real Fixture Lab" },
   { href: "/admin/real-fixture-result-review-queue", label: "Result Review" },
   { href: "/admin/real-fixture-evaluation-queue", label: "Evaluation" },
+  { href: "/admin/real-fixture-publish-queue", label: "Publish Queue" },
   { href: "/admin/torneo-export", label: "Torneo Export" },
 ];
 
