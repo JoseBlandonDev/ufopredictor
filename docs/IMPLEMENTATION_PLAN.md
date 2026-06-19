@@ -1,63 +1,77 @@
 # Implementation Plan - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
 ## Completed implementation blocks
 
-### Premium Prediction Detail MVP v1
+- Public prediction MVP.
+- Protected premium prediction detail.
+- Registered-free probable-score gate.
+- Result Review and Evaluation queues.
+- Real Fixture Publish Queue.
+- Torneo Mundialista admin export.
+- Wompi checkout/payment activation.
+- Automatic premium entitlement.
+- Premium-active UX.
+- Admin price/payment controls.
+- SIGNAL04 and DRAW01 through PR #94.
 
-Done via PR #77: protected premium projection RPC, model detail normalization/resolver, match detail premium UI, tests, and migration `0035_premium_match_model_detail_projection.sql`.
+## Current implementation freeze
 
-### Data Ops 01 and Data Ops 02
+Do not reopen model code during the documentation closeout. `expected-goals.ts` remains unchanged. SIGNAL04/DRAW01 are accepted for the current operational cycle.
 
-Done operationally. Public upcoming runway is restored/expanded and recent finished fixtures are verified/evaluated.
+## Next focused implementation candidates
 
-### Real Fixture Publish Queue
+### Data Ops 05
 
-Done via PR #81. `/admin/real-fixture-publish-queue` provides a lightweight admin-only path to save/publish scheduled exact fixtures using existing actions.
+Exact-fixture result processing and next-runway publication. No broad apply.
 
-### Probable score gate
+### UIHISTORY01
 
-Done via PR #77. Registered-free probable score is gated until verified result.
+Likely files:
 
-## Next implementation candidates
+- `app/predictions/page.tsx`;
+- `app/predictions/history/page.tsx`;
+- `lib/supabase/public-prediction-queries.ts`;
+- focused tests.
 
-### TM01 - Admin JSON export for Torneo Mundialista
+No public contract or card redesign required for MVP.
 
-Implementation type: small product/admin tool.
+### G09 Mobile/Responsive
 
-Proposed scope:
+Visual-only and test scope. Coordinate navbar/account/pricing/payment presentation ownership.
 
-- admin-only export action/page;
-- date-range JSON export;
-- full public-safe prediction package;
-- UFO match links;
-- no public endpoint by default;
-- no writes;
-- no service-role app route;
-- no Torneo human-pick signals as UFO model inputs.
+### G10 PWA Installability
 
-### Real Fixture Lab stack overflow cleanup
+Manifest/icons/metadata only for MVP. Avoid service-worker caching of auth, admin, API, Supabase, Wompi, premium, or dynamic predictions.
 
-Implementation type: admin refactor/bug fix.
+### G12 Accessibility/Performance
 
-Goal: resolve `RangeError: Maximum call stack size exceeded` in `/admin/real-fixture-lab` and exact-detail route without regressing the publish queue.
+Audit and targeted fixes without model/payment business logic changes.
 
-Recommended direction: split the Lab into smaller components/routes, keep heavy previews out of page render, and avoid broad summary/detail coupling.
+### G13 Production Smoke
 
-### Premium v2 - Post-match demo unlock
+Role/device matrix including payment and premium activation.
 
-Implementation type: product policy + UI. Decide and implement whether registered-free users should see full premium model detail after verified result.
+### Real Fixture Lab cleanup
 
-## Epic G implementation candidates
+Separate admin bug/refactor. Do not couple to runway publication.
 
-- G03 production smoke test.
-- G04 plans/pricing MVP.
-- G05 Wompi payment integration spike/MVP.
-- G06 entitlement model.
-- G07 premium gate shell/CTA.
-- G08 trust/legal/responsible-use copy.
+## Validation expectations
 
-## Deferred
+Code slices:
 
-Public API endpoint for Torneo, venue metadata, signal refresh automation, full subscription automation, and Real Fixture Lab full rebuild.
+```bash
+git diff --check
+npm run test -- <targeted-tests>
+npm run lint
+npm run build
+git status --short
+```
+
+Docs slices:
+
+- docs-only diff;
+- stale contradiction search;
+- cross-document metric/status consistency;
+- no protected runbook edits unless assigned.

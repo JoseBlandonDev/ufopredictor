@@ -1,29 +1,44 @@
 # Project Context - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
-UFO Predictor is a probabilistic football prediction product focused on controlled public World Cup predictions, result verification, and transparent responsible framing.
+## What the product is
 
-## Current context
+UFO Predictor publishes probabilistic football predictions with public/free/premium access layers. It separates public product data from internal Lab/evaluation data and does not promise outcomes or provide betting execution.
 
-- Public predictions MVP is functional.
-- Premium Prediction Detail MVP v1 is implemented on match detail.
-- Data Ops 01 and Data Ops 02 are complete.
-- `/predictions` has a 12-fixture active/upcoming runway.
-- Recent results are verified/evaluated and visible in public history.
-- `/admin/real-fixture-publish-queue` is the current publication operations path.
-- Real Fixture Lab exact-detail remains blocked by stack overflow and needs separate cleanup.
-- Next product need is TM01 admin JSON export for Torneo Mundialista.
+## Current baseline
 
-## Product principles
+- PR #94 model/data refresh is merged.
+- SIGNAL04 and DRAW01 are retained.
+- Expected-goals formula is unchanged.
+- 28 unique World Cup fixtures are fairly evaluated from stored pre-match predictions.
+- Wompi production payment activation and premium entitlement flow are operational.
+- Result Review, Evaluation, Publish Queue, and Torneo export admin paths exist.
+- Four public fixtures remain upcoming.
 
-- Public pages expose public-safe model outputs only.
-- Internal Lab/evaluation payloads remain private.
-- `prediction_results` is not a public product source.
-- Provider odds/predictions are not hidden inputs.
-- Torneo human picks are not UFO model inputs.
-- Probabilities are readings, not guarantees.
+## Model summary
 
-## Related product
+Fair stored metrics:
 
-Torneo Mundialista is a separate free friends prediction game. It is planned as a discovery surface for UFO Predictor through an export-first integration. UFO may export a complete public-safe JSON prediction package; Torneo controls reveal/display rules.
+- 1X2 16/28;
+- exact 7/28;
+- BTTS 16/27;
+- O/U 16/28;
+- average total-goal error 1.821.
+
+The model improved modestly in 1X2/draw handling but still underestimates blowouts and exact-score tails.
+
+## Working method
+
+- Exact-fixture operations only.
+- Verify provider final state before result apply/review/evaluation.
+- Keep public and internal prediction scopes separate.
+- Treat refreshed-signal historical recomputations as diagnostic, not fair backtests.
+- Run model, UI, payments, and docs as separate coherent slices.
+
+## Current next work
+
+1. Merge refreshed project documentation.
+2. Start the next conversation from refreshed sources.
+3. Monitor the four public fixtures and publish the next approved runway.
+4. Implement UIHISTORY01 and mobile/PWA launch tasks in isolated branches.

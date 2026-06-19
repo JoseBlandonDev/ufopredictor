@@ -1,67 +1,59 @@
 # Open Decisions - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
-## Recently closed decisions
+## Closed decisions
 
-### Premium Prediction Detail MVP v1 scope
+### Model refresh PR #94
 
-Decision: closed. Premium v1 is match-detail only and uses a protected public-safe projection. It includes expected goals, top scorelines, BTTS, Over/Under 2.5, confidence/risk. It does not include payments, checkout, full subscription management, factors/narrative v2, or `/predictions` premium expansion.
+Closed: retain SIGNAL04 and DRAW01. Keep expected-goals formula unchanged. Do not retry rejected candidates without new evidence.
 
-### Free probable score policy
+### Model performance reporting
 
-Decision: closed. Registered-free users do not see or fetch probable score before result verification. After verified result, probable score may be shown as post-match reference. Premium/admin access remains through premium projection.
+Closed: stored pre-match rows are the fair report. Refreshed-signal historical recomputations are diagnostic only.
 
-### Publish queue operational bypass
+### Payment gateway and entitlement
 
-Decision: closed. `/admin/real-fixture-publish-queue` is the current admin-only publication path while Real Fixture Lab exact-detail remains unstable.
+Closed operational baseline: Wompi payment confirmation activates premium access. Dedicated runbooks remain authoritative for implementation/security details.
 
-### Payment gateway direction
+### Torneo export
 
-Decision: Wompi production checkout is enabled for the `world-cup-pass` MVP. Production activation now depends on successful live smoke test and webhook monitoring.
+Closed: admin public-safe export exists. Torneo human picks are not UFO model inputs.
 
-G06B note: entitlement activation has a backend binding layer for admin/manual grants. G05B adds the verified Wompi webhook path into the same ledger/materialization model instead of creating a parallel premium system.
+### Publication operations
+
+Closed: focused Publish/Result Review/Evaluation queues are the normal operational paths while Real Fixture Lab exact-detail remains unstable.
 
 ## Open decisions
 
-### TM01 Torneo Mundialista export schema
+### UIHISTORY01 scheduling
 
-Status: open. Proposed direction: admin-only JSON export from UFO Predictor using public-safe prediction fields.
+Recognition is complete. Decide whether implementation runs before or in parallel with the next runway. It is a small UI slice and should not touch model/payments/migrations.
 
-Questions: final schema version, export date range controls, whether CSV is also needed, where the export button lives, and how Torneo imports the file.
+### Next runway cadence
 
-### Torneo Mundialista reveal policy
+Choose the next approved window after current four fixtures: next 2 days, matchday window, or manual set. Preserve sanity gating.
 
-Status: open. UFO can export a complete public-safe package; Torneo decides display policy.
+### Signal refresh trigger
 
-Open questions: show only 1X2 before user pick, reveal exact score after user pick, reveal top scorelines after pick deadline, and show post-match comparison between user/group/global/UFO.
+Define meaningful trigger threshold: ranking release, complete matchday, or result batch. Do not refresh after every unexpected match.
 
-Recommended default: do not show exact UFO score before a user submits a pick unless intentionally approved for acquisition/marketing.
+### Future xG research
 
-### Real Fixture Lab cleanup
+Open but deferred. Requires larger clean sample, explicit metrics, and isolated experiments.
 
-Status: open. `/admin/real-fixture-lab` and exact-detail routes still hit `RangeError: Maximum call stack size exceeded`. Decide whether to refactor the Lab into smaller modules, keep it read-only, or replace most operations with focused queues.
+### PWA scope
 
-### Post-match premium demo v2
+G10 installability is launch-safe. Decide whether G11 service-worker/offline behavior ships now or later. Default: defer risky caching.
 
-Status: open. Should registered-free users see full premium model detail after a verified result? This could demonstrate premium value without giving pre-match edge.
+### Mobile/PWA ownership
 
-### Next prediction batch cadence
+Assign exact files before parallel work. Canonical docs and sensitive payment/model paths remain owner-locked.
 
-Status: open. Current target should maintain a useful rolling runway, approximately 8-12 active/upcoming fixtures. Decide whether to publish by next 2 days, next 7 days, matchday window, or manual fixture selection.
+### Trust/legal final pass
 
-### Scoreline calibration review
+Verify responsible-use, no-guarantee, and non-betting language across production surfaces.
 
-Status: open. Recent examples show direction can be correct while exact scoreline remains conservative or tail outcomes can be larger than likely scorelines. Decide whether to review scoreline tail/extreme-goal calibration.
+### Venue metadata
 
-### Venue/stadium metadata
-
-Status: open. Provider venue fields are not yet trusted/implemented for public display.
-
-### Signal refresh strategy
-
-Status: open. Cadence and boundaries for refreshing model inputs remain undecided.
-
-### Epic G payment/entitlement decisions
-
-Status: partially narrowed. Wompi checkout and webhook activation exist for `world-cup-pass`; production remains open. `subscriptions` still does not authorize premium access by itself.
+Still open pending provider reliability review.

@@ -1,50 +1,89 @@
 # Production Readiness - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
 ## Current status
 
-G02 completed dev/prod environment separation and production config/readiness audit work as a readiness baseline. That does not mean production smoke testing is complete.
+The product is operational in production with public predictions, premium access, Wompi payment activation, automatic entitlement, admin payment controls, verified results, evaluation, publication queues, and Torneo export.
 
-PR #81 added an admin-only publish queue and should be included in production readiness checks.
+The model refresh is merged and closed for the current cycle.
 
-## Pending Epic G production work
+## Current operational checks
 
-- G03 production smoke test on the real production domain.
-- Verify auth callback/domain behavior in production.
-- Verify Resend/Supabase email confirmation in production.
-- Verify public prediction surfaces.
-- Verify match detail anonymous, registered-free, premium/admin states.
-- Verify premium detail authorized/locked states.
-- Verify `/admin/real-fixture-publish-queue` admin-only access and safe operation.
-- Confirm `/admin/real-fixture-lab` exact-detail blocker is not used as the primary operational path until fixed.
+- Result Review Queue pending: 0.
+- Evaluation Queue pending: 0.
+- Four public fixtures upcoming.
+- Public verified history includes Canada 6-0 Qatar and Mexico 1-0 South Korea.
+- Focused queues avoid dependence on Real Fixture Lab exact-detail.
 
-## Dev/prod environment notes
+## Required launch-week smoke matrix
 
-- Keep development and production environment variables separated.
-- Do not reuse production secrets in local/dev scripts unless explicitly intended and documented.
-- Payment/Wompi secrets must not be added to public/client runtime.
-- Service-role keys must stay limited to approved server/script contexts.
+Devices/browsers:
 
-## Payment readiness
+- Android Chrome;
+- iPhone Safari;
+- desktop Chrome;
+- desktop Edge or Firefox.
 
-G05B adds a Wompi production-enabled MVP for `world-cup-pass`. Before opening payments broadly, verify production Wompi keys, production webhook URL, final COP price, Railway smoke test, and webhook retry monitoring.
+Roles:
 
-The Wompi webhook RPC remains intentionally callable by `anon` because Wompi webhooks are unauthenticated browserless deliveries. It is treated as a public API endpoint: callers do not provide secrets, the checksum is recomputed with the Supabase Vault `wompi_events_secret`, direct event-table access is denied, and only verified `APPROVED` events activate G06 access. Security advisors outside the Wompi payment surface should be handled in their owning epics to avoid changing prediction or Real Fixture Lab behavior during payment rollout.
+- anonymous;
+- registered-free;
+- premium;
+- admin.
 
-Redirect pages are informational only. Verified Wompi webhook processing is the only payment path that activates G06 entitlements.
+Flows:
 
-## Current smoke-test targets
+- home;
+- predictions;
+- match detail;
+- signup/login/email confirmation;
+- pricing;
+- Wompi checkout;
+- payment return/activation;
+- premium-active UI;
+- logout;
+- admin result/evaluation/publish/payment controls;
+- Torneo export.
 
-- `/`
-- `/predictions`
-- `/matches/[slug]` public and authenticated states
-- `/admin/real-fixture-publish-queue`
-- Auth flows and confirmation emails
-- `/pricing` Wompi checkout CTA
-- `/api/wompi/webhook` verified webhook processing
-- No public exposure of internal evaluation or `prediction_results`
+## Mobile/responsive readiness
 
-## Known production risk
+G09 should verify navbar, cards, long text, grids/tables, pricing/account/premium/payment presentation, touch targets, and horizontal overflow.
 
-Real Fixture Lab exact-detail route still has a stack overflow blocker. Treat it as a follow-up bug and avoid making it a required production operation until fixed.
+## PWA readiness
+
+G10 may ship installability metadata and icons. Do not cache:
+
+- Wompi checkout/redirect/callback/webhook;
+- auth;
+- admin;
+- API routes;
+- Supabase responses;
+- premium projections;
+- dynamic prediction/result data.
+
+G11 service-worker/offline behavior may be deferred.
+
+## Model/product communication
+
+- Probabilities are not guarantees.
+- Exact score is a scenario.
+- Fair stored metrics currently show 57.1% 1X2 and 25.0% exact score on 28 fixtures.
+- Continue fixture sanity gating and responsible-use copy.
+
+## Known non-blocking risks
+
+- Real Fixture Lab exact-detail stack overflow.
+- Long `/predictions` history until UIHISTORY01.
+- xG compression and blowout underestimation.
+- Venue metadata gaps.
+
+## Release blockers
+
+- broken payment activation;
+- premium entitlement mismatch;
+- public/internal data leak;
+- mobile navigation or checkout failure;
+- critical accessibility failure in core flows;
+- unsafe PWA caching;
+- unverified fixture/result publication.

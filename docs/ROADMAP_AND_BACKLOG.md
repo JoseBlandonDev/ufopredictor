@@ -1,80 +1,105 @@
 # Roadmap and Backlog - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
-## Completed / Done
+## Completed / operational
 
-### Public prediction MVP
+### Public Prediction MVP
 
-Controlled public World Cup predictions, public prediction list/detail, public verified result display, and internal result verification/evaluation separated from public display.
+Public World Cup prediction list/detail, verified final-result display, and internal evaluation separation.
 
-### Premium Prediction Detail MVP v1
+### Premium Prediction Detail and Free Gate
 
-Status: Done.
+Protected premium model detail and registered-free probable-score gating are operational.
 
-Scope: match detail only, protected premium RPC, expected goals, top 3 scorelines, BTTS, Over/Under 2.5, confidence/risk, no `/predictions` premium expansion, no payments/checkout.
+### Data Ops 01-04
 
-### Data Ops 01 and Data Ops 02
-
-Status: Done.
-
-Outcome: recent finished fixtures verified/evaluated and `/predictions` restored/expanded to a 12-fixture active/upcoming runway.
+Operational fixture publication, result review/evaluation, public runway management, and model/data refresh through PR #94.
 
 ### Real Fixture Publish Queue
 
-Status: Done / operational bypass.
+Admin-only lightweight exact-fixture save/publish path.
 
-Scope: admin-only lightweight queue at `/admin/real-fixture-publish-queue` for saving/publishing scheduled exact fixtures while Real Fixture Lab exact-detail is unstable.
+### Torneo Mundialista Export
 
-### Free probable score gate
+Admin public-safe JSON export implemented.
 
-Status: Done. Registered-free users do not see/fetch probable score before result verification. Post-verified probable score may be shown as reference.
+### Epic G platform/monetization baseline
+
+- G01 auth foundation: done.
+- G02 dev/prod/config readiness: done.
+- G04 plans/pricing/admin pricing baseline: implemented.
+- G05 Wompi checkout/payment integration: operational.
+- G06 entitlement activation: operational.
+- G07 premium-active UX/gate experience: operational.
+
+G08 trust/legal copy still requires final production verification.
+
+### Model refresh PR #94
+
+- SIGNAL04 retained.
+- DRAW01 retained.
+- expected-goals formula unchanged.
+- 28-fixture fair evaluation closeout documented.
 
 ## Immediate backlog
 
-### TM01 - Torneo Mundialista Admin JSON Export
+### Documentation closeout
 
-Priority: Highest product/integration task.
+Merge refreshed canonical docs and update ChatGPT project sources before opening the next fixture/model conversation.
 
-Goal: use Torneo Mundialista as a discovery surface for UFO Predictor by exporting complete public-safe UFO predictions for Torneo to display with its own reveal rules.
+### Data Ops 05 / next runway
 
-Recommended V0: admin-only JSON export, date range selection, full public-safe prediction package, UFO match links, Torneo-owned display/reveal policy, no endpoint by default.
+Monitor current four fixtures, process exact final results, then load/publish the next approved runway after sanity review.
 
-Acceptance:
+### UIHISTORY01
 
-- admin-only export route/action;
-- selected date range or next-window default;
-- includes 1X2, confidence/risk, most likely score, top scorelines, xG, BTTS, O/U 2.5 where available;
-- includes UFO match links;
-- excludes `prediction_results`, raw Lab/admin/evaluation payloads, provider odds/predictions, service-role-only data;
-- no writes.
+Limit `/predictions` to four recent verified results and add paginated `/predictions/history`.
 
-### Real Fixture Lab stack overflow cleanup
+### Real Fixture Lab cleanup
 
-Status: Open / bug.
+Fix exact-detail stack overflow without regressing focused queues.
 
-Goal: fix `/admin/real-fixture-lab` and exact-detail route stack overflow without regressing the publish queue.
+## Model/data backlog
 
-## Planned / Discovery
+### Repeatable signal refresh
 
-### Premium v2 - Post-match demo unlock
+Use the documented FIFA CSV + Elo ranking/results HTML package workflow with a required quality report.
 
-Status: Open. Decide whether registered-free users should see full premium detail after verified result as a post-match demo.
+### Future xG research
+
+Separate later project. Do not reopen current formula from fixture intuition alone.
 
 ### Venue/stadium metadata
 
-Status: Pending. Replace `Sede por confirmar` where provider venue metadata is trustworthy and supported.
+Add only after provider reliability is reviewed.
 
-### Signal refresh strategy
+## Epic G launch-week parallel backlog
 
-Status: Open. Decide cadence and boundaries for refreshing model inputs/signals.
+### G09 Mobile and Responsive Launch Polish
 
-## Epic G parallel track
+Public/account/premium/payment presentation only. No business-logic changes.
 
-Done: G01 auth foundation, G02 dev/prod environment separation + config readiness audit.
+### G10 PWA Installability MVP
 
-Pending: G03 production smoke test, G04 plans/pricing MVP, G05 Wompi payment integration, G06 subscription/entitlement model proposal, G07 premium gate UI shell/CTA, G08 trust/legal/responsible-use copy.
+Manifest, icons, standalone metadata, mobile installability. No aggressive caching.
+
+### G11 PWA Update and Offline Safety
+
+Service-worker version/update plan and public-shell-only offline strategy. May be deferred if risky.
+
+### G12 Accessibility and Performance Launch Pass
+
+Lighthouse, keyboard/focus, contrast, touch targets, LCP/CLS, console errors, heavy routes.
+
+### G13 Cross-Device Production Smoke Test
+
+Android Chrome, iOS Safari, desktop browsers, anonymous/free/premium/admin/payment flows.
+
+### G14 Launch Coordination and Parallel Ownership
+
+Explicit file ownership. Parallel contributors do not edit canonical docs, model, ingest, results, migrations, Wompi webhook, or entitlements without assignment.
 
 ## Non-goals / guardrails
 
-Do not expose `prediction_results`, raw Lab/admin/evaluation payloads, service-role in app routes, provider odds/predictions as hidden inputs, Torneo human picks as UFO model inputs, or payment secrets in client/public runtime.
+No public `prediction_results`, no hidden provider odds/predictions, no Torneo human-pick model input, no raw refresh package runtime import, no client payment secrets, and no combined model/publication mega-slices.

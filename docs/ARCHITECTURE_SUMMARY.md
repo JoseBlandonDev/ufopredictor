@@ -1,77 +1,93 @@
 # Architecture Summary - UFO Predictor
 
-_Last refreshed: post PR #81 real fixture publish queue bypass / Data Ops 02 completion (2026-06-16)._
+_Last refreshed: post PR #94 model closeout / Wompi production premium baseline / 28-fixture evaluation closeout (2026-06-19)._
 
 ## Core architecture
 
-UFO Predictor separates public product data from internal Lab/evaluation data. Public surfaces read public-safe views/projections only. Internal evaluation stays in admin flows.
+UFO Predictor separates:
+
+- public product prediction data;
+- premium public-safe projections;
+- internal Lab/evaluation data;
+- exact fixture ingest/operations;
+- payment/entitlement state.
+
+Public surfaces never read `prediction_results` or raw internal payloads.
 
 ## Public prediction surfaces
 
-- `/predictions` reads public prediction summaries.
-- `/matches/[slug]` reads public match detail and public prediction summary.
-- Verified final results are displayed from public-safe fields.
-- `prediction_results` is not publicly exposed.
+- `/predictions`: public prediction summaries and verified results.
+- `/matches/[slug]`: public match detail.
+- Protected premium projection: expected goals, top scorelines, BTTS, O/U 2.5, confidence/risk.
 
-## Premium match detail
+Verified final scores come from public-safe projections after admin verification.
 
-Premium Prediction Detail MVP v1 is implemented through a protected RPC:
+## Model architecture
 
-```sql
-public.get_premium_match_projection(p_match_id uuid)
+### Static national-team signals
+
+Runtime uses committed TypeScript/static signal sources. Raw FIFA/Elo/results files and normalized Codex inputs are audit artifacts only.
+
+SIGNAL04 is the current accepted pack. It uses reviewed FIFA/Elo and aggregate fields, not raw recent-match arrays.
+
+### Prediction generation
+
+The current expected-goals formula remains unchanged. DRAW01 runs as a conservative post-market reconciliation over 1X2 probabilities and draw-shaped score evidence.
+
+### Evaluation separation
+
+Fair reporting uses stored pre-match prediction rows. Current-signal historical recomputations are diagnostic and must be labeled accordingly.
+
+## Admin operations
+
+Preferred focused paths:
+
+- `/admin/real-fixture-result-review-queue`;
+- `/admin/real-fixture-evaluation-queue`;
+- `/admin/real-fixture-publish-queue`;
+- Torneo export admin route.
+
+Real Fixture Lab exact-detail remains a separate stack-overflow follow-up and is not required for routine publication/result operations.
+
+## API-Football operations
+
+Use exact fixture read -> dry-run -> apply. Result flow runs only after provider final status. Publication remains a separate admin action.
+
+## Payment and premium architecture
+
+The accepted production baseline includes Wompi checkout/payment confirmation, automatic premium entitlement activation, premium-active UX, and admin pricing/payment controls.
+
+Payment details and secrets remain server-side. Dedicated runbooks are authoritative. Frontend/PWA work must not alter webhook, payment confirmation, entitlement activation, or sensitive migrations.
+
+## Torneo Mundialista
+
+Admin export is implemented as a public-safe integration surface. Torneo human picks do not feed the UFO model.
+
+## UIHISTORY01 recognition
+
+Current `/predictions` architecture loads and separates all history in memory. Recommended next slice:
+
+- query-level bounded recent history;
+- 4 cards on `/predictions`;
+- `/predictions/history` with URL pagination, 12 per page;
+- verified finished rows only;
+- no public data contract change for MVP.
+
+## Signal refresh pipeline
+
+```text
+raw FIFA/Elo/results sources
+-> normalized 48-team package
+-> source manifest
+-> quality report
+-> Codex recognition
+-> reviewed implementation
+-> fair overlay + diagnostic recompute
+-> tests
 ```
 
-Migration: `supabase/migrations/0035_premium_match_model_detail_projection.sql`.
-
-Key properties:
-
-- `SECURITY DEFINER`;
-- `set search_path = public, pg_temp`;
-- requires `auth.uid()`;
-- `authenticated` execute grant;
-- no anon execute grant;
-- reads latest `public_product` prediction only;
-- no `prediction_results`;
-- defensive `top_scores_json` parsing;
-- public-safe `model_detail` JSON.
-
-Projected model detail: expected goals, top scorelines, BTTS, Over/Under 2.5, confidence/risk.
-
-## Free-tier probable score gating
-
-`get_authenticated_public_match_probable_score` is only called for registered-free viewers when the result is verified and verified goals are present. Pre-match/live/unverified registered-free users do not fetch probable score.
-
-## Admin fixture operations
-
-### Current publication path
-
-`/admin/real-fixture-publish-queue` is the current lightweight admin-only path for publishing scheduled real fixtures. It lists minimal fixture state and reuses existing server actions:
-
-- `saveRealFixturePredictionAction`
-- `publishRealFixturePredictionAction`
-
-It does not generate heavy previews during render, does not introduce new write logic, and does not expose raw internals.
-
-### Real Fixture Lab
-
-Real Fixture Lab previously served as the main operations dashboard for fixture/result follow-up. Its exact-detail route currently has a known stack overflow blocker and should be fixed separately. Until then, use the publish queue for publication operations and avoid exact-detail routes.
-
-## API-Football ingest/apply
-
-The exact fixture spike/dry-run/apply flow remains unchanged. Apply creates/updates exact operational rows; public publication is controlled through admin actions. Result verification/evaluation remains separate and should only run after provider status is final.
-
-## Torneo Mundialista planned export
-
-Planned architecture is export-first: admin-only JSON export from UFO Predictor, no public endpoint by default, no service-role app route, only public-safe prediction fields, and Torneo controls reveal/display behavior.
-
-## Epic G / payments architecture direction
-
-Epic G remains parallel. G02 covers dev/prod environment separation and config readiness. G05B implements a Wompi production-enabled MVP for `world-cup-pass`. Payment secrets must not enter public/client runtime; only `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` and `NEXT_PUBLIC_APP_URL` are browser-safe.
-
-G06B adds the backend binding layer for entitlement activation without adding checkout. `entitlement_grants` is the audit/idempotency ledger for manual admin grants now and verified payment grants later. Effective premium authorization remains in current, unexpired `user_entitlements` or `user_match_unlocks`, with explicit admin bypass only where protected queries allow it. `subscriptions` records the commercial relationship/status but is not sufficient authorization by itself.
-
-G05B uses `wompi_payment_intents` and `wompi_payment_events` as payment ledgers. Browser redirects never activate premium. The app webhook route only parses the Wompi event and forwards it with `X-Event-Checksum` to `public.activate_verified_wompi_entitlement(...)`. That RPC validates the checksum with the server-controlled Supabase Vault secret named `wompi_events_secret` instead of accepting a caller-provided secret, then materializes `competition_access` for `world_cup_2026` through G06 tables.
+Raw/normalized files remain outside runtime imports.
 
 ## Hard boundaries
 
-No public exposure of `prediction_results`, raw Lab/admin payloads, internal evaluation payloads, provider odds/predictions, service-role app-route data, payment secrets, or Torneo human picks as UFO model inputs.
+No public internal evaluations, service-role app routes, provider predictions/odds as model inputs, Torneo human picks as model inputs, client payment secrets, or broad unknown fixture apply.
