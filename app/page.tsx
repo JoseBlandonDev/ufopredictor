@@ -2,12 +2,45 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/session";
+import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
+import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
+  const viewerSummary = user ? await getViewerEntitlementSummary() : null;
+  const premiumAccessActive = hasCurrentPremiumAccess(viewerSummary);
   const secondaryCta = user
     ? { href: "/dashboard", label: "Abrir panel" }
     : { href: "/register", label: "Crear cuenta gratis" };
+  const featureCards = premiumAccessActive
+    ? [
+        [
+          "Predicciones publicadas",
+          "Consulta probabilidades 1X2 y una lectura publica del riesgo para fixtures reales seleccionados del Mundial 2026.",
+        ],
+        [
+          "World Cup Pass activo",
+          "Tu acceso premium ya esta activo y se valida server-side antes de mostrar el detalle avanzado.",
+        ],
+        [
+          "Detalle premium",
+          "Las secciones avanzadas se muestran automaticamente cuando el partido tiene proyeccion premium publicada.",
+        ],
+      ]
+    : [
+        [
+          "Predicciones públicas",
+          "Consulta probabilidades 1X2 y una lectura pública del riesgo para fixtures reales seleccionados del Mundial 2026.",
+        ],
+        [
+          "Cuenta gratis",
+          "Las cuentas gratis añaden contexto completo de confianza y riesgo, además de herramientas de seguimiento con reglas aplicadas server-side.",
+        ],
+        [
+          "World Cup Pass",
+          "El acceso premium ya está disponible en Planes y se activa automáticamente cuando Wompi confirma el pago aprobado por webhook.",
+        ],
+      ];
 
   return (
     <div className="space-y-12">
@@ -122,20 +155,7 @@ export default async function HomePage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        {[
-          [
-            "Predicciones públicas",
-            "Consulta probabilidades 1X2 y una lectura pública del riesgo para fixtures reales seleccionados del Mundial 2026.",
-          ],
-          [
-            "Cuenta gratis",
-            "Las cuentas gratis añaden contexto completo de confianza y riesgo, además de herramientas de seguimiento con reglas aplicadas server-side.",
-          ],
-          [
-            "World Cup Pass",
-            "El acceso premium ya está disponible en Planes y se activa automáticamente cuando Wompi confirma el pago aprobado por webhook.",
-          ],
-        ].map(([title, description]) => (
+        {featureCards.map(([title, description]) => (
           <div key={title} className="panel rounded-lg p-5">
             <ShieldCheck className="h-5 w-5 text-[var(--accent)]" />
             <h3 className="mt-4 font-semibold">{title}</h3>

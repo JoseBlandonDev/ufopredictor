@@ -1,24 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
 import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
-
-type ReadyEntitlementSummary = Extract<
-  Awaited<ReturnType<typeof getViewerEntitlementSummary>>,
-  { status: "ready" }
->;
-
-function hasCurrentPaidAccess(summary: ReadyEntitlementSummary) {
-  return (
-    summary.activeSubscriptions.length > 0 ||
-    summary.entitlements.length > 0 ||
-    summary.matchUnlocks.length > 0
-  );
-}
 
 export default async function WompiSuccessPage() {
   const summary = await getViewerEntitlementSummary();
 
-  if (summary.status === "ready" && hasCurrentPaidAccess(summary)) {
+  if (hasCurrentPremiumAccess(summary)) {
     redirect("/dashboard");
   }
 
