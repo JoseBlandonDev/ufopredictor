@@ -4,7 +4,7 @@ import vm from "node:vm";
 import { describe, expect, it } from "vitest";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { generatePack, mapSourceTeams, scale } = require("./generate-national-team-signal-pack.js");
+const { generatePack, isGeneratedPackUpToDate, mapSourceTeams, scale } = require("./generate-national-team-signal-pack.js");
 
 type RuntimeSafeInputs = {
   eloRating: number;
@@ -49,6 +49,14 @@ function readJson(relativePath: string) {
 describe("generate-national-team-signal-pack", () => {
   it("renders deterministic output from the tracked source snapshot", () => {
     expect(generatePack()).toBe(generatePack());
+  });
+
+  it("treats CRLF and LF versions of the same generated pack as up to date", () => {
+    const generated = generatePack();
+    const crlfGenerated = generated.replace(/\n/g, "\r\n");
+
+    expect(isGeneratedPackUpToDate(generated, crlfGenerated)).toBe(true);
+    expect(isGeneratedPackUpToDate(crlfGenerated, generated)).toBe(true);
   });
 
   it("reconstructs the proven SIGNAL04 formulas from tracked inputs", () => {

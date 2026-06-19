@@ -20,6 +20,10 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
+function normalizeLineEndings(value) {
+  return value.replace(/\r\n/g, "\n");
+}
+
 function normalizeKey(value) {
   return String(value)
     .trim()
@@ -279,13 +283,17 @@ function generatePack() {
   return buildGeneratedFile({ canonicalTeams, seedsByTeamKey, source, manifest });
 }
 
+function isGeneratedPackUpToDate(currentContent, nextContent) {
+  return normalizeLineEndings(currentContent) === normalizeLineEndings(nextContent);
+}
+
 function main() {
   const args = new Set(process.argv.slice(2));
   const nextContent = generatePack();
   const currentContent = fs.existsSync(OUTPUT_PATH) ? fs.readFileSync(OUTPUT_PATH, "utf8") : "";
 
   if (args.has("--check")) {
-    if (currentContent !== nextContent) {
+    if (!isGeneratedPackUpToDate(currentContent, nextContent)) {
       throw new Error("Generated signal pack is out of date. Run the generator and commit the result.");
     }
     process.stdout.write("National-team signal pack is up to date.\n");
@@ -310,6 +318,8 @@ module.exports = {
   OUTPUT_PATH,
   SOURCE_DIR,
   generatePack,
+  isGeneratedPackUpToDate,
   mapSourceTeams,
+  normalizeLineEndings,
   scale,
 };
