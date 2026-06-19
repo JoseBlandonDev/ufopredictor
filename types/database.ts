@@ -322,6 +322,91 @@ export type PredictionNarrativeRow = {
   created_at: Timestamp;
 };
 
+export type PredictionReviewCaseRow = {
+  id: string;
+  match_id: string;
+  current_prediction_version_id: string | null;
+  source_snapshot_id: string;
+  provider_status: string | null;
+  provider_status_short: string | null;
+  provider_kickoff_at: Timestamp | null;
+  home_team_name_en: string;
+  away_team_name_en: string;
+  home_team_display_name_es: string;
+  away_team_display_name_es: string;
+  model_version_id: string | null;
+  refresh_alerts_json: Json;
+  coherence_alerts_json: Json;
+  retained_fixture_override: boolean;
+  status: "pending" | "kept_current" | "published_refreshed" | "held";
+  latest_shadow_snapshot_id: string | null;
+  latest_reviewed_xg_snapshot_id: string | null;
+  latest_ai_execution_id: string | null;
+  latest_decision_id: string | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type PredictionReviewSnapshotRow = {
+  id: string;
+  review_case_id: string;
+  source_prediction_version_id: string | null;
+  snapshot_kind: "current_reference" | "shadow_refresh" | "reviewed_xg_preview" | "published_output";
+  source_snapshot_id: string;
+  model_version_id: string | null;
+  prediction_type: "pre_match_24h" | "pre_match_6h" | "post_lineup" | "pre_kickoff";
+  review_run_scope: "current_reference" | "shadow_review" | "review_preview" | "published_output";
+  home_win_prob: number;
+  draw_prob: number;
+  away_win_prob: number;
+  expected_home_goals: number;
+  expected_away_goals: number;
+  most_likely_score: string;
+  top_scores_json: Json;
+  btts_yes_prob: number;
+  btts_no_prob: number;
+  over_2_5_over_prob: number;
+  over_2_5_under_prob: number;
+  confidence_score: number;
+  risk_level: "low" | "medium" | "high";
+  bundle_json: Json;
+  created_by: string | null;
+  created_at: Timestamp;
+};
+
+export type PredictionReviewAiExecutionRow = {
+  id: string;
+  review_case_id: string;
+  provider: string;
+  model: string | null;
+  status: "succeeded" | "failed" | "unavailable";
+  request_json: Json;
+  response_json: Json | null;
+  error_message: string | null;
+  created_by: string | null;
+  created_at: Timestamp;
+};
+
+export type PredictionReviewDecisionRow = {
+  id: string;
+  review_case_id: string;
+  ai_execution_id: string | null;
+  selected_snapshot_id: string | null;
+  published_prediction_version_id: string | null;
+  decision: "KEEP_CURRENT" | "PUBLISH_REFRESHED" | "PROPOSE_REVIEWED_XG" | "HOLD";
+  reason: string;
+  rationale: string | null;
+  evidence_used_json: Json;
+  contradictions_json: Json;
+  confidence_label: "low" | "medium" | "high" | null;
+  proposed_home_xg: number | null;
+  proposed_away_xg: number | null;
+  warnings_json: Json;
+  human_approval_required: boolean;
+  created_by: string | null;
+  created_at: Timestamp;
+};
+
 export type PredictionResultRow = {
   id: string;
   prediction_version_id: string;
@@ -399,6 +484,10 @@ export type DatabaseTables = {
   prediction_versions: PredictionVersionRow;
   prediction_markets: PredictionMarketRow;
   prediction_narratives: PredictionNarrativeRow;
+  prediction_review_cases: PredictionReviewCaseRow;
+  prediction_review_snapshots: PredictionReviewSnapshotRow;
+  prediction_review_ai_executions: PredictionReviewAiExecutionRow;
+  prediction_review_decisions: PredictionReviewDecisionRow;
   prediction_results: PredictionResultRow;
   match_results: MatchResultRow;
   worker_runs: WorkerRunRow;
@@ -429,6 +518,10 @@ type DatabaseInserts = {
   prediction_versions: Insert<PredictionVersionRow, "match_id" | "model_version_id" | "prediction_type" | "home_win_prob" | "draw_prob" | "away_win_prob" | "expected_home_goals" | "expected_away_goals" | "most_likely_score" | "confidence_score" | "risk_level">;
   prediction_markets: Insert<PredictionMarketRow, "prediction_version_id" | "market" | "selection" | "probability">;
   prediction_narratives: Insert<PredictionNarrativeRow, "prediction_version_id" | "locale" | "free_summary">;
+  prediction_review_cases: Insert<PredictionReviewCaseRow, "match_id" | "source_snapshot_id" | "home_team_name_en" | "away_team_name_en" | "home_team_display_name_es" | "away_team_display_name_es">;
+  prediction_review_snapshots: Insert<PredictionReviewSnapshotRow, "review_case_id" | "snapshot_kind" | "source_snapshot_id" | "prediction_type" | "review_run_scope" | "home_win_prob" | "draw_prob" | "away_win_prob" | "expected_home_goals" | "expected_away_goals" | "most_likely_score" | "btts_yes_prob" | "btts_no_prob" | "over_2_5_over_prob" | "over_2_5_under_prob" | "confidence_score" | "risk_level" | "bundle_json">;
+  prediction_review_ai_executions: Insert<PredictionReviewAiExecutionRow, "review_case_id" | "provider" | "status" | "request_json">;
+  prediction_review_decisions: Insert<PredictionReviewDecisionRow, "review_case_id" | "decision" | "reason" | "evidence_used_json" | "contradictions_json" | "warnings_json" | "human_approval_required">;
   prediction_results: Insert<PredictionResultRow, "prediction_version_id" | "actual_home_goals" | "actual_away_goals">;
   match_results: Insert<MatchResultRow, "match_id" | "home_goals" | "away_goals">;
   worker_runs: Insert<WorkerRunRow, "worker_name" | "status">;
