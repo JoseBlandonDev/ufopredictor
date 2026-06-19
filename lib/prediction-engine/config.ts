@@ -30,4 +30,12 @@ export const DEFAULT_PREDICTION_ENGINE_CONFIG: PredictionEngineConfig = {
     scorelineUnderdogSuppressionThreshold: 1.35,
     scorelineUnderdogSuppressionInfluence: 0.14,
   },
+  drawReconciliation: {
+    maxExpectedGoalsGap: 0.35,
+    maxTotalExpectedGoals: 2.8,
+    maxLeaderMargin: 12.5,
+    maxProbabilityShift: 6.6,
+    targetTopEdge: 0.1,
+    minimumModalDrawLead: 0.75,
+  },
 };

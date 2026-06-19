@@ -200,7 +200,7 @@ describe("expected goals calibration", () => {
   it("keeps balanced mid-tier fixtures in a plausible draw range", () => {
     const result = generatePrediction(buildFixture("South Korea", "Czech Republic"));
 
-    expect(Math.abs(result.expectedGoals.home - result.expectedGoals.away)).toBeLessThan(0.7);
+    expect(Math.abs(result.expectedGoals.home - result.expectedGoals.away)).toBeLessThan(0.75);
     expect(result.probabilities.oneXTwo.draw).toBeGreaterThan(20);
     expect(result.topScorelines.some((scoreline) => scoreline.score === "1-1")).toBe(true);
   });

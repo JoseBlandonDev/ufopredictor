@@ -1,4 +1,5 @@
 import { round } from "./normalize";
+import type { ExpectedGoalsResult, PredictionEngineConfig } from "./types";
 import type { ScoreMatrixCell, ScorelineProbability } from "./types";
 
 export type CalculatedMarkets = {
@@ -86,4 +87,86 @@ export function selectTopScorelines(matrix: ScoreMatrixCell[], limit: number): S
       score: `${homeGoals}-${awayGoals}`,
       probability: toPercent(probability),
     }));
+}
+
+function isDrawScore(score: string) {
+  const [homeGoals, awayGoals] = score.split("-");
+
+  return homeGoals.length > 0 && homeGoals === awayGoals;
+}
+
+export function reconcileDrawMarket(
+  markets: CalculatedMarkets,
+  expectedGoals: ExpectedGoalsResult,
+  topScorelines: ScorelineProbability[],
+  config: PredictionEngineConfig,
+): CalculatedMarkets {
+  const modalScoreline = topScorelines[0];
+  const nextScoreline = topScorelines[1];
+
+  if (!modalScoreline || !isDrawScore(modalScoreline.score)) {
+    return markets;
+  }
+
+  if (
+    nextScoreline &&
+    modalScoreline.probability - nextScoreline.probability < config.drawReconciliation.minimumModalDrawLead
+  ) {
+    return markets;
+  }
+
+  const expectedGoalsGap = Math.abs(expectedGoals.home - expectedGoals.away);
+  const totalExpectedGoals = expectedGoals.home + expectedGoals.away;
+
+  if (
+    expectedGoalsGap > config.drawReconciliation.maxExpectedGoalsGap ||
+    totalExpectedGoals > config.drawReconciliation.maxTotalExpectedGoals
+  ) {
+    return markets;
+  }
+
+  const outcomes = [
+    { key: "homeWin" as const, probability: markets.oneXTwo.homeWin },
+    { key: "draw" as const, probability: markets.oneXTwo.draw },
+    { key: "awayWin" as const, probability: markets.oneXTwo.awayWin },
+  ].sort((left, right) => right.probability - left.probability);
+
+  const leader = outcomes[0];
+
+  if (!leader || leader.key === "draw") {
+    return markets;
+  }
+
+  const leaderMargin = leader.probability - markets.oneXTwo.draw;
+
+  if (leaderMargin <= 0 || leaderMargin > config.drawReconciliation.maxLeaderMargin) {
+    return markets;
+  }
+
+  const otherNonDrawProbability =
+    leader.key === "homeWin" ? markets.oneXTwo.awayWin : markets.oneXTwo.homeWin;
+  const requiredShiftVsLeader = (leader.probability - markets.oneXTwo.draw + config.drawReconciliation.targetTopEdge) / 2;
+  const requiredShiftVsOtherNonDraw =
+    otherNonDrawProbability - markets.oneXTwo.draw + config.drawReconciliation.targetTopEdge;
+  const requiredShift = Math.max(requiredShiftVsLeader, requiredShiftVsOtherNonDraw);
+
+  if (
+    !Number.isFinite(requiredShift) ||
+    requiredShift <= 0 ||
+    requiredShift > config.drawReconciliation.maxProbabilityShift ||
+    leader.probability - requiredShift < 0
+  ) {
+    return markets;
+  }
+
+  const reconciledOneXTwo = {
+    ...markets.oneXTwo,
+    [leader.key]: round(leader.probability - requiredShift),
+    draw: round(markets.oneXTwo.draw + requiredShift),
+  };
+
+  return {
+    ...markets,
+    oneXTwo: reconciledOneXTwo,
+  };
 }

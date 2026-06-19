@@ -1,7 +1,7 @@
 import { DEFAULT_PREDICTION_ENGINE_CONFIG } from "./config";
 import { buildFactors, calculateConfidenceAndRisk } from "./confidence-risk";
 import { calculateExpectedGoals } from "./expected-goals";
-import { calculateMarkets, selectTopScorelines } from "./markets";
+import { calculateMarkets, reconcileDrawMarket, selectTopScorelines } from "./markets";
 import { normalizeInput } from "./normalize";
 import { buildScoreMatrix } from "./poisson";
 import { calculateTeamPower } from "./team-power";
@@ -18,8 +18,8 @@ export function generatePrediction(
   };
   const expectedGoals = calculateExpectedGoals(normalizedInput, teamPower, config);
   const scoreMatrix = buildScoreMatrix(expectedGoals, config.maxGoalsInMatrix);
-  const probabilities = calculateMarkets(scoreMatrix);
   const topScorelines = selectTopScorelines(scoreMatrix, config.topScorelinesLimit);
+  const probabilities = reconcileDrawMarket(calculateMarkets(scoreMatrix), expectedGoals, topScorelines, config);
   const { confidence, risk, outcomeMargin } = calculateConfidenceAndRisk(normalizedInput, probabilities);
   const factors = buildFactors(normalizedInput, teamPower, expectedGoals, outcomeMargin);
   const mostLikelyScore = topScorelines[0]?.score ?? "0-0";
