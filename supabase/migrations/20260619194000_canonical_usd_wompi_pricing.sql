@@ -58,11 +58,16 @@ alter table public.wompi_product_prices
   add constraint wompi_product_prices_usd_cop_rate_check
     check (usd_cop_rate > 0);
 
+-- Drop the legacy RPCs before removing columns they reference and before
+-- recreating the zero-argument getter with a different TABLE return shape.
+drop function if exists public.admin_update_wompi_world_cup_pass_price(integer, text, integer, text, timestamptz);
+drop function if exists public.get_wompi_world_cup_pass_price();
+
 alter table public.wompi_product_prices
   drop column if exists base_price_label,
   drop column if exists offer_price_label;
 
-create or replace function public.get_wompi_world_cup_pass_price()
+create function public.get_wompi_world_cup_pass_price()
 returns table (
   product_slug text,
   amount_in_cents integer,
@@ -130,9 +135,7 @@ $$;
 revoke all on function public.get_wompi_world_cup_pass_price() from public;
 grant execute on function public.get_wompi_world_cup_pass_price() to anon, authenticated;
 
-drop function if exists public.admin_update_wompi_world_cup_pass_price(integer, text, integer, text, timestamptz);
-
-create or replace function public.admin_update_wompi_world_cup_pass_price(
+create function public.admin_update_wompi_world_cup_pass_price(
   p_base_price_usd_cents integer,
   p_base_amount_cop integer,
   p_offer_price_usd_cents integer default null,
