@@ -3,7 +3,6 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { buildAppUrl } from "../auth/app-url";
 import {
-  DEFAULT_WOMPI_WORLD_CUP_PASS_AMOUNT_COP,
   WOMPI_WORLD_CUP_PASS_PLAN_SLUG,
   WOMPI_WORLD_CUP_PASS_RESOURCE_ID,
   type WompiServerConfig,
@@ -20,10 +19,6 @@ export type WompiCheckoutPayload = {
   integritySignature: string;
   checkoutUrl: string;
 };
-
-export function amountCopToWompiAmountInCents(amountCop: number) {
-  return amountCop * 100;
-}
 
 export function generateWompiReference(now = new Date()) {
   const timestamp = now.toISOString().replace(/\D/g, "").slice(0, 14);
@@ -43,11 +38,10 @@ export function buildWorldCupPassEntitlementMapping() {
 export function buildWompiCheckoutPayload(args: {
   config: WompiServerConfig;
   reference: string;
-  amountInCents?: number;
+  amountInCents: number;
   expirationTime: string;
 }) {
-  const amountInCents =
-    args.amountInCents ?? amountCopToWompiAmountInCents(DEFAULT_WOMPI_WORLD_CUP_PASS_AMOUNT_COP);
+  const amountInCents = args.amountInCents;
   const redirectUrl = buildAppUrl("/payments/wompi/return", args.config.appUrl).toString();
   const integritySignature = generateCheckoutIntegritySignature({
     reference: args.reference,

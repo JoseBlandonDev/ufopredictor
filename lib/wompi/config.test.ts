@@ -11,6 +11,7 @@ function setWompiEnv(overrides: Record<string, string | undefined> = {}) {
   process.env.WOMPI_PRIVATE_KEY = "prv_test_xxx";
   process.env.WOMPI_INTEGRITY_SECRET = "test_integrity_xxx";
   process.env.WOMPI_CURRENCY = "COP";
+  process.env.WOMPI_USD_COP_RATE = "3435";
   process.env.NEXT_PUBLIC_APP_URL = "https://ufopredictor.com";
 
   for (const [key, value] of Object.entries(overrides)) {
@@ -46,8 +47,8 @@ describe("Wompi config", () => {
     });
   });
 
-  it("loads sandbox checkout config without a Railway price env", async () => {
-    setWompiEnv({ WOMPI_WORLD_CUP_PASS_AMOUNT_COP: undefined });
+  it("loads sandbox checkout config with the required USD/COP rate", async () => {
+    setWompiEnv();
 
     const { requireWompiServerConfig } = await import("./config");
 
@@ -55,22 +56,23 @@ describe("Wompi config", () => {
       env: "sandbox",
       currency: "COP",
       publicKey: "pub_test_xxx",
+      usdCopRate: 3435,
     });
   });
 
-  it("keeps the fallback World Cup Pass COP amount configurable for tests/local fallback", async () => {
-    setWompiEnv({ WOMPI_WORLD_CUP_PASS_AMOUNT_COP: "91000" });
+  it("fails when the USD/COP rate is missing", async () => {
+    setWompiEnv({ WOMPI_USD_COP_RATE: undefined });
 
-    const { getConfiguredWorldCupPassAmountCop } = await import("./config");
+    const { requireWompiServerConfig } = await import("./config");
 
-    expect(getConfiguredWorldCupPassAmountCop()).toBe(91000);
+    expect(() => requireWompiServerConfig()).toThrow("Missing WOMPI_USD_COP_RATE");
   });
 
-  it("formats the fallback visible World Cup Pass price from the configured COP amount", async () => {
-    setWompiEnv();
+  it("fails when the USD/COP rate is invalid", async () => {
+    setWompiEnv({ WOMPI_USD_COP_RATE: "0" });
 
-    const { getWorldCupPassDisplayPrice } = await import("./config");
+    const { requireWompiServerConfig } = await import("./config");
 
-    expect(getWorldCupPassDisplayPrice()).toBe("20 USDT · aprox. $69.900 COP");
+    expect(() => requireWompiServerConfig()).toThrow("WOMPI_USD_COP_RATE must be a positive safe integer.");
   });
 });

@@ -124,9 +124,11 @@ export default async function PricingPage() {
                 <span className="ufo-pill">Activo</span>
               </div>
               <p className="mt-3 text-sm text-[var(--muted)]">
-                {worldCupPassPrice.displayPrice}
+                {worldCupPassPrice.status === "available"
+                  ? worldCupPassPrice.displayPrice
+                  : "Precio temporalmente no disponible"}
               </p>
-              {worldCupPassPrice.isOfferActive && worldCupPassPrice.offerEndsAt ? (
+              {worldCupPassPrice.status === "available" && worldCupPassPrice.isOfferActive && worldCupPassPrice.offerEndsAt ? (
                 <p className="mt-2 text-xs font-medium text-[var(--accent)]">
                   Oferta activa por tiempo limitado.
                 </p>
@@ -135,11 +137,25 @@ export default async function PricingPage() {
                 Accede a xG, top scorelines, BTTS, Over/Under y lectura avanzada del modelo.
               </p>
               <p className="mt-3 text-xs text-[var(--muted)]">
-                El redirect no activa premium. La activacion ocurre cuando Wompi confirma el pago por webhook validado.
+                Wompi procesará el pago en pesos colombianos. Tu banco puede aplicar su propia conversión.
               </p>
-              <div className="mt-5">
-                <WompiCheckoutButton />
-              </div>
+              {worldCupPassPrice.status === "available" ? (
+                <>
+                  <p className="mt-2 text-xs text-[var(--muted)]">
+                    Cobro Wompi: {worldCupPassPrice.checkoutDisplay}
+                  </p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">
+                    El redirect no activa premium. La activacion ocurre cuando Wompi confirma el pago por webhook validado.
+                  </p>
+                  <div className="mt-5">
+                    <WompiCheckoutButton />
+                  </div>
+                </>
+              ) : (
+                <p className="mt-3 text-xs text-[var(--warning)]">
+                  {worldCupPassPrice.message}
+                </p>
+              )}
             </article>
           </>
         )}

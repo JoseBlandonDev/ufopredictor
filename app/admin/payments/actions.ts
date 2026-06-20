@@ -4,22 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function parseCopAmount(value: FormDataEntryValue | null) {
-  const normalized = String(value ?? "").replace(/[^\d]/g, "");
-
-  if (!normalized) {
-    return null;
-  }
-
-  const parsed = Number(normalized);
-
-  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
-    return null;
-  }
-
-  return parsed;
-}
+import { requireWompiUsdCopRate } from "@/lib/wompi/config";
+import { convertUsdCentsToCop, parseUsdInputToCents } from "@/lib/wompi/usd-pricing";
 
 function parseOfferMinutes(value: FormDataEntryValue | null) {
   const normalized = String(value ?? "").trim();
@@ -44,33 +30,43 @@ function redirectWithStatus(status: string): never {
 export async function updateWompiWorldCupPassPriceAction(formData: FormData) {
   await requireAdmin("/admin/payments");
 
-  const baseAmountCop = parseCopAmount(formData.get("baseAmountCop"));
-  const basePriceLabel = String(formData.get("basePriceLabel") ?? "").trim();
+  const basePriceUsdCents = parseUsdInputToCents(formData.get("basePriceUsd"));
   const clearOffer = formData.get("clearOffer") === "on";
-  const offerAmountCop = clearOffer ? null : parseCopAmount(formData.get("offerAmountCop"));
-  const offerPriceLabel = clearOffer ? null : String(formData.get("offerPriceLabel") ?? "").trim();
+  const offerPriceUsdCents = clearOffer ? null : parseUsdInputToCents(formData.get("offerPriceUsd"));
   const offerMinutes = clearOffer ? null : parseOfferMinutes(formData.get("offerMinutes"));
 
-  if (!baseAmountCop || baseAmountCop < 1000 || baseAmountCop > 5000000 || !basePriceLabel) {
+  if (!basePriceUsdCents || basePriceUsdCents < 100 || basePriceUsdCents > 5000000) {
     redirectWithStatus("invalid_base");
   }
 
-  if (offerAmountCop && !offerMinutes) {
+  if (offerPriceUsdCents && !offerMinutes) {
     redirectWithStatus("invalid_offer");
   }
 
+  let usdCopRate: number;
+  try {
+    usdCopRate = requireWompiUsdCopRate();
+  } catch {
+    redirectWithStatus("configuration_error");
+  }
+
+  const baseAmountCop = convertUsdCentsToCop(basePriceUsdCents, usdCopRate);
+  const offerAmountCop = offerPriceUsdCents
+    ? convertUsdCentsToCop(offerPriceUsdCents, usdCopRate)
+    : null;
   const offerEndsAt =
-    offerAmountCop && offerMinutes
+    offerPriceUsdCents && offerMinutes
       ? new Date(Date.now() + offerMinutes * 60 * 1000).toISOString()
       : null;
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.rpc("admin_update_wompi_world_cup_pass_price", {
+    p_base_price_usd_cents: basePriceUsdCents,
     p_base_amount_cop: baseAmountCop,
-    p_base_price_label: basePriceLabel,
+    p_offer_price_usd_cents: offerPriceUsdCents,
     p_offer_amount_cop: offerAmountCop,
-    p_offer_price_label: offerPriceLabel || null,
     p_offer_ends_at: offerEndsAt,
+    p_usd_cop_rate: usdCopRate,
   });
 
   if (error) {
