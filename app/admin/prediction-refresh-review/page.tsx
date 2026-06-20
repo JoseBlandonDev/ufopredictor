@@ -24,6 +24,8 @@ type PageProps = {
     action?: string;
     externalId?: string;
     message?: string;
+    severity?: string;
+    cause?: string;
   }>;
 };
 
@@ -37,6 +39,18 @@ function formatKickoff(value: string) {
 
 function formatPct(value: number) {
   return `${value.toFixed(1)}%`;
+}
+
+function formatSeverityLabel(value: string) {
+  return value === "NONE" ? "None" : value === "WATCH" ? "Watch" : value === "REVIEW" ? "Review" : "Critical";
+}
+
+function formatCauseLabel(value: string) {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((chunk) => chunk[0]?.toUpperCase() + chunk.slice(1))
+    .join(" ");
 }
 
 function renderStatusMessage(action?: string, externalId?: string, message?: string) {
@@ -69,9 +83,14 @@ function renderStatusMessage(action?: string, externalId?: string, message?: str
 
 export default async function PredictionRefreshReviewPage({ searchParams }: PageProps) {
   await requireAdmin(PREDICTION_REFRESH_REVIEW_PATH);
-  const { action, externalId, message } = await searchParams;
+  const { action, externalId, message, severity, cause } = await searchParams;
   const pageData = await getPredictionRefreshReviewPageData();
   const statusMessage = renderStatusMessage(action, externalId, message);
+  const filteredAtypicalFixtures = (pageData.atypicalAnalysisReport?.rankedFixtures ?? []).filter((fixture) => {
+    const severityMatches = !severity || severity === "ALL" || fixture.severity === severity;
+    const causeMatches = !cause || cause === "ALL" || fixture.suspectedPrimaryCause?.code === cause;
+    return severityMatches && causeMatches;
+  });
 
   return (
     <div className="space-y-6">
@@ -119,6 +138,126 @@ export default async function PredictionRefreshReviewPage({ searchParams }: Page
           </ul>
         ) : null}
       </section>
+
+      {pageData.atypicalAnalysisReport ? (
+        <section className="panel rounded-lg p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Diagnóstico de fixtures atípicos</h2>
+              <p className="mt-1 max-w-3xl text-sm text-[var(--muted)]">
+                Índice operativo de triage, solo lectura. La causa es sospechada, no probada; Elo es contexto de revisión y no reemplaza la predicción UFO.
+              </p>
+              <p className="mt-2 text-xs text-[var(--muted)]">
+                analysisAsOf: {formatKickoff(pageData.atypicalAnalysisReport.analysisAsOf)}
+              </p>
+            </div>
+            <form className="grid gap-3 sm:grid-cols-2">
+              <label className="space-y-1 text-sm text-[var(--muted)]">
+                <span>Severidad</span>
+                <select name="severity" defaultValue={severity ?? "ALL"} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-white">
+                  <option value="ALL">Todas</option>
+                  <option value="NONE">None</option>
+                  <option value="WATCH">Watch</option>
+                  <option value="REVIEW">Review</option>
+                  <option value="CRITICAL">Critical</option>
+                </select>
+              </label>
+              <label className="space-y-1 text-sm text-[var(--muted)]">
+                <span>Causa sospechada</span>
+                <select name="cause" defaultValue={cause ?? "ALL"} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-white">
+                  <option value="ALL">Todas</option>
+                  {[
+                    "SOURCE_DATA_DEFECT",
+                    "TEAM_IDENTITY_OR_ALIAS_DEFECT",
+                    "SIGNAL_AGGREGATION_DEFECT",
+                    "MODEL_FORMULA_LIMITATION",
+                    "ELO_MODEL_DISAGREEMENT",
+                    "LEGITIMATE_UFO_DISAGREEMENT",
+                    "CONFIDENCE_OR_RISK_PRESENTATION_DEFECT",
+                    "INSUFFICIENT_EVIDENCE",
+                  ].map((option) => (
+                    <option key={option} value={option}>{formatCauseLabel(option)}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="sm:col-span-2">
+                <button type="submit" className={ACCENT_BUTTON_CLASS}>Filtrar diagnóstico</button>
+              </div>
+            </form>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-4">
+            {Object.entries(pageData.atypicalAnalysisReport.countsBySeverity).map(([level, count]) => (
+              <div key={level} className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+                <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">{formatSeverityLabel(level)}</p>
+                <p className="mt-1 text-2xl font-semibold">{count}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {filteredAtypicalFixtures.length === 0 ? (
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[var(--muted)]">
+                No hay fixtures que coincidan con el filtro actual.
+              </div>
+            ) : (
+              filteredAtypicalFixtures.map((fixture) => (
+                <details key={fixture.fixture.matchId} className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                  <summary className="cursor-pointer list-none">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">
+                          {fixture.fixture.homeTeam.displayName} vs {fixture.fixture.awayTeam.displayName}
+                        </h3>
+                        <p className="mt-1 text-sm text-[var(--muted)]">
+                          Score {fixture.anomalyScore} · {formatSeverityLabel(fixture.severity)} · Advisory {fixture.advisoryAction.code}
+                        </p>
+                        <p className="mt-1 text-xs text-[var(--muted)]">
+                          {fixture.suspectedPrimaryCause
+                            ? `${formatCauseLabel(fixture.suspectedPrimaryCause.code)} (${fixture.suspectedPrimaryCause.certainty})`
+                            : "Sin causa sospechada"}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {fixture.orderedFlags.slice(0, 3).map((flag) => (
+                          <span key={`${fixture.fixture.matchId}-${flag.code}`} className="rounded-md border border-[var(--warning)]/35 bg-[var(--warning)]/10 px-2 py-1 text-xs text-[var(--warning)]">
+                            {flag.code}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </summary>
+
+                  <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                    <div className="space-y-2 text-sm text-[var(--muted)]">
+                      <p>1X2: {formatPct(fixture.evidence.oneXtwo.homePct)} / {formatPct(fixture.evidence.oneXtwo.drawPct)} / {formatPct(fixture.evidence.oneXtwo.awayPct)}</p>
+                      <p>xG: {fixture.evidence.expectedGoals.home.toFixed(2)} - {fixture.evidence.expectedGoals.away.toFixed(2)}</p>
+                      <p>Modal: {fixture.evidence.modalScore.homeGoals}-{fixture.evidence.modalScore.awayGoals} ({fixture.evidence.modalScore.outcome})</p>
+                      <p>Elo two-way: {fixture.evidence.elo.homeTwoWayPct ?? "n/a"} / {fixture.evidence.elo.awayTwoWayPct ?? "n/a"}</p>
+                      <p>Coverage: {fixture.coverage.status} · pre-match cutoff {fixture.coverage.preMatchCutoffSatisfied ? "ok" : "violated"}</p>
+                    </div>
+                    <div className="space-y-2 text-sm text-[var(--muted)]">
+                      <p>Confidence/Risk: {fixture.evidence.confidenceRisk.confidenceScore ?? "n/a"} / {fixture.evidence.confidenceRisk.riskLevel ?? "n/a"}</p>
+                      <p>Signal power gap: {fixture.evidence.signals.componentGaps.weightedPower ?? "n/a"}</p>
+                      <p>Source quality: {fixture.evidence.sourceIntegrity.qualityVerdict}</p>
+                      <p>Fingerprint: <span className="font-mono text-xs">{fixture.inputFingerprint}</span></p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    {fixture.orderedFlags.map((flag) => (
+                      <div key={flag.code} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-[var(--muted)]">
+                        <p className="font-medium text-white">{flag.code} · {flag.points} pts</p>
+                        <p className="mt-1">{flag.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              ))
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-4">
         {pageData.cases.length === 0 ? (
