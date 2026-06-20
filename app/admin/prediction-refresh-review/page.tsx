@@ -41,6 +41,10 @@ function formatPct(value: number) {
   return `${value.toFixed(1)}%`;
 }
 
+function formatOptionalPct(value: number | null) {
+  return value === null ? "no disponible" : formatPct(value);
+}
+
 function formatSeverityLabel(value: string) {
   return value === "NONE" ? "None" : value === "WATCH" ? "Watch" : value === "REVIEW" ? "Review" : "Critical";
 }
@@ -143,7 +147,7 @@ export default async function PredictionRefreshReviewPage({ searchParams }: Page
         <section className="panel rounded-lg p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold">Diagnóstico de fixtures atípicos</h2>
+              <h2 className="text-lg font-semibold">Diagnóstico determinístico de fixtures atípicos</h2>
               <p className="mt-1 max-w-3xl text-sm text-[var(--muted)]">
                 Índice operativo de triage, solo lectura. La causa es sospechada, no probada; Elo es contexto de revisión y no reemplaza la predicción UFO.
               </p>
@@ -308,8 +312,8 @@ export default async function PredictionRefreshReviewPage({ searchParams }: Page
                         <p>Marcador modal: {reviewCase.currentPrediction.mostLikelyScore}</p>
                       </div>
                       <div className="space-y-1 text-sm text-[var(--muted)]">
-                        <p>BTTS si: {formatPct(reviewCase.currentPrediction.bttsYesProb)}</p>
-                        <p>O2.5: {formatPct(reviewCase.currentPrediction.over25Prob)}</p>
+                        <p>BTTS si: {formatOptionalPct(reviewCase.currentPrediction.bttsYesProb)}</p>
+                        <p>O2.5: {formatOptionalPct(reviewCase.currentPrediction.over25Prob)}</p>
                         <p>Confianza/Riesgo: {formatPct(reviewCase.currentPrediction.confidenceScore)} / {reviewCase.currentPrediction.riskLevel}</p>
                       </div>
                     </div>
@@ -328,8 +332,8 @@ export default async function PredictionRefreshReviewPage({ searchParams }: Page
                         <p>Marcador modal: {reviewCase.shadowPrediction.mostLikelyScore}</p>
                       </div>
                       <div className="space-y-1 text-sm text-[var(--muted)]">
-                        <p>BTTS si: {formatPct(reviewCase.shadowPrediction.bttsYesProb)}</p>
-                        <p>O2.5: {formatPct(reviewCase.shadowPrediction.over25Prob)}</p>
+                        <p>BTTS si: {formatOptionalPct(reviewCase.shadowPrediction.bttsYesProb)}</p>
+                        <p>O2.5: {formatOptionalPct(reviewCase.shadowPrediction.over25Prob)}</p>
                         <p>Confianza/Riesgo: {formatPct(reviewCase.shadowPrediction.confidenceScore)} / {reviewCase.shadowPrediction.riskLevel}</p>
                       </div>
                     </div>
@@ -341,7 +345,10 @@ export default async function PredictionRefreshReviewPage({ searchParams }: Page
 
               <div className="mt-4 grid gap-4 xl:grid-cols-2">
                 <section className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <h3 className="font-semibold">Alertas</h3>
+                  <h3 className="font-semibold">Alertas legacy del card</h3>
+                  <p className="mt-2 text-xs text-[var(--muted)]">
+                    Estas alertas de refresh/coherencia no equivalen a la severidad del diagnóstico determinístico de arriba.
+                  </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {[...reviewCase.refreshAlerts, ...reviewCase.coherenceAlerts].map((alert) => (
                       <span

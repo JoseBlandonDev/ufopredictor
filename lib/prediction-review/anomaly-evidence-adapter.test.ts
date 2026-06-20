@@ -101,6 +101,7 @@ describe("buildAtypicalFixtureDetectorInput", () => {
       ...BASE_ARGS,
       homeTeamName: "France",
       awayTeamName: "Iraq",
+      exactSourceSnapshotId: "2026-06-19",
     });
 
     expect(result.input.coverage.missingEvidence).not.toContain("markets.predictionVersionId");
@@ -188,11 +189,38 @@ describe("buildAtypicalFixtureDetectorInput", () => {
       ...BASE_ARGS,
       homeTeamName: "France",
       awayTeamName: "Iraq",
+      exactSourceSnapshotId: "2026-06-19",
       markets: BASE_ARGS.markets.filter((market) => market.market !== "exact_score"),
     });
 
     expect(result.input.coverage.missingEvidence).not.toContain("markets.topScorelineProvenance");
     expect(result.input.evidence.sourceIntegrity.centralProvenanceComplete).toBe(true);
+  });
+
+  it("uses exact immutable source snapshot provenance when provided", () => {
+    const result = buildAtypicalFixtureDetectorInput({
+      ...BASE_ARGS,
+      homeTeamName: "France",
+      awayTeamName: "Iraq",
+      exactSourceSnapshotId: "2026-06-11",
+    });
+
+    expect(result.input.prediction.signalSnapshotId).toBe("2026-06-11");
+    expect(result.input.provenance.signalSnapshotId).toBe("2026-06-11");
+    expect(result.input.provenance.qualityReportId).toBe("quality-report:2026-06-11");
+  });
+
+  it("keeps missing provenance explicit when no exact immutable source snapshot is associated", () => {
+    const result = buildAtypicalFixtureDetectorInput({
+      ...BASE_ARGS,
+      homeTeamName: "France",
+      awayTeamName: "Iraq",
+      exactSourceSnapshotId: null,
+    });
+
+    expect(result.input.prediction.signalSnapshotId).toBeNull();
+    expect(result.input.coverage.missingEvidence).toContain("prediction.signalSnapshotId");
+    expect(result.input.evidence.sourceIntegrity.centralProvenanceComplete).toBe(false);
   });
 
   it("keeps duplicate btts rows order-invariant and isolates the degradation to BTTS", () => {

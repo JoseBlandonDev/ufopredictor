@@ -58,10 +58,10 @@ export type PredictionReviewBundle = {
   expectedAwayGoals: number;
   mostLikelyScore: string;
   topScorelines: PredictionEngineOutput["topScorelines"];
-  bttsYesProb: number;
-  bttsNoProb: number;
-  over25Prob: number;
-  under25Prob: number;
+  bttsYesProb: number | null;
+  bttsNoProb: number | null;
+  over25Prob: number | null;
+  under25Prob: number | null;
   confidenceScore: number;
   confidenceBucket: ReviewConfidenceBucket;
   riskLevel: RiskLevel;

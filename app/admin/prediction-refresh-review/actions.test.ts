@@ -386,6 +386,8 @@ describe("prediction refresh review actions", () => {
     expect(requireAdminMock).toHaveBeenCalledWith("/admin/prediction-refresh-review");
     expect(client.reviewCasesBuilder.insert).not.toHaveBeenCalled();
     expect(client.reviewSnapshotsBuilder.insert).toHaveBeenCalledTimes(1);
+    expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
+    expect(client.predictionMarketsBuilder.insert).not.toHaveBeenCalled();
   });
 
   it("does not attempt or store a fake AI response when no provider is configured", async () => {
@@ -422,6 +424,8 @@ describe("prediction refresh review actions", () => {
     );
 
     expect(client.aiExecutionsBuilder.insert).not.toHaveBeenCalled();
+    expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
+    expect(client.predictionMarketsBuilder.insert).not.toHaveBeenCalled();
   });
 
   it("fails closed on provider identity mismatch before writing reviewed xg previews", async () => {

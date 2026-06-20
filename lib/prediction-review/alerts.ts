@@ -36,7 +36,11 @@ function parseScore(value: string) {
   };
 }
 
-function classifyProbabilityPair(yes: number, no: number) {
+function classifyProbabilityPair(yes: number | null, no: number | null) {
+  if (yes === null || no === null) {
+    return null;
+  }
+
   return yes >= no ? "yes" : "no";
 }
 
@@ -159,9 +163,12 @@ export function calculateRefreshDeltaAlerts(args: {
     }
   }
 
+  const currentBttsClassification = classifyProbabilityPair(current.bttsYesProb, current.bttsNoProb);
+  const shadowBttsClassification = classifyProbabilityPair(shadow.bttsYesProb, shadow.bttsNoProb);
   if (
-    classifyProbabilityPair(current.bttsYesProb, current.bttsNoProb) !==
-    classifyProbabilityPair(shadow.bttsYesProb, shadow.bttsNoProb)
+    currentBttsClassification !== null &&
+    shadowBttsClassification !== null &&
+    currentBttsClassification !== shadowBttsClassification
   ) {
     alerts.push(
       buildAlert({
@@ -174,9 +181,12 @@ export function calculateRefreshDeltaAlerts(args: {
     );
   }
 
+  const currentOverUnderClassification = classifyProbabilityPair(current.over25Prob, current.under25Prob);
+  const shadowOverUnderClassification = classifyProbabilityPair(shadow.over25Prob, shadow.under25Prob);
   if (
-    classifyProbabilityPair(current.over25Prob, current.under25Prob) !==
-    classifyProbabilityPair(shadow.over25Prob, shadow.under25Prob)
+    currentOverUnderClassification !== null &&
+    shadowOverUnderClassification !== null &&
+    currentOverUnderClassification !== shadowOverUnderClassification
   ) {
     alerts.push(
       buildAlert({

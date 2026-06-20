@@ -244,10 +244,44 @@ describe("PredictionRefreshReviewPage", () => {
           homeTeamDisplayNameEs: "Estados Unidos",
           awayTeamDisplayNameEs: "Turquía",
           currentPrediction: null,
-          shadowPrediction: null,
+          shadowPrediction: {
+            kind: "shadow_refresh",
+            predictionVersionId: null,
+            modelVersionId: "model-v0",
+            modelVersionLabel: "v0.1-lab",
+            sourceSnapshotId: "2026-06-19",
+            predictionType: "pre_match_24h",
+            runScope: "internal_lab",
+            homeWinProb: 44,
+            drawProb: 28,
+            awayWinProb: 28,
+            expectedHomeGoals: 1.4,
+            expectedAwayGoals: 0.9,
+            mostLikelyScore: "1-0",
+            topScorelines: [{ score: "1-0", probability: 12 }],
+            bttsYesProb: null,
+            bttsNoProb: null,
+            over25Prob: 48,
+            under25Prob: 52,
+            confidenceScore: 61,
+            confidenceBucket: "medium",
+            riskLevel: "low",
+            notes: [],
+            factors: [],
+            provenanceLabel: "Saved shadow prediction",
+          },
           reviewedXgPreview: null,
           coherenceFixture: null,
-          refreshAlerts: [],
+          refreshAlerts: [
+            {
+              type: "favorite_changed",
+              category: "refresh_delta",
+              severity: "manual_review",
+              code: "favorite_changed",
+              label: "Favorite changed",
+              description: "Legacy refresh alert",
+            },
+          ],
           coherenceAlerts: [],
           retainedFixtureOverride: false,
           aiAvailability: {
@@ -268,7 +302,9 @@ describe("PredictionRefreshReviewPage", () => {
     expect(html).toContain("IA no disponible");
     expect(html).toContain("Generar predicción sombra");
     expect(html).toContain("disabled");
-    expect(html).toContain("Diagnóstico de fixtures atípicos");
+    expect(html).toContain("Diagnóstico determinístico de fixtures atípicos");
     expect(html).toContain("CONFIDENCE_SPREAD_CONFLICT");
+    expect(html).toContain("Alertas legacy del card");
+    expect(html).toContain("no disponible");
   });
 });
