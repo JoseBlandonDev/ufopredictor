@@ -103,3 +103,25 @@ export function findPredictionReviewCoherenceFixture(args: {
     }) ?? null
   );
 }
+
+export function orientPredictionReviewCoherenceFixture(args: {
+  coherenceFixture: PredictionReviewCoherenceFixture | null;
+  homeTeamName: string;
+  awayTeamName: string;
+}) {
+  const coherenceFixture = args.coherenceFixture;
+  if (!coherenceFixture) {
+    return null;
+  }
+
+  const homeKey = normalizeKey(args.homeTeamName);
+  const awayKey = normalizeKey(args.awayTeamName);
+  const directMatch =
+    normalizeKey(coherenceFixture.teamAEn) === homeKey &&
+    normalizeKey(coherenceFixture.teamBEn) === awayKey;
+
+  return {
+    homeDisplayNameEs: directMatch ? coherenceFixture.teamADisplayNameEs : coherenceFixture.teamBDisplayNameEs,
+    awayDisplayNameEs: directMatch ? coherenceFixture.teamBDisplayNameEs : coherenceFixture.teamADisplayNameEs,
+  };
+}

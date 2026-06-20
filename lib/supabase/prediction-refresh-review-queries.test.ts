@@ -1,25 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClientMock } = vi.hoisted(() => ({
+const {
+  createSupabaseServerClientMock,
+  buildPredictionReviewBundleFromVersionMock,
+  findPredictionReviewCoherenceFixtureMock,
+  orientPredictionReviewCoherenceFixtureMock,
+  validatePredictionReviewProviderFixtureMock,
+} = vi.hoisted(() => ({
   createSupabaseServerClientMock: vi.fn(),
-}));
-
-vi.mock("server-only", () => ({}));
-
-vi.mock("@/lib/supabase/server", () => ({
-  createSupabaseServerClient: createSupabaseServerClientMock,
-}));
-
-vi.mock("../prediction-review/ai", () => ({
-  discoverPredictionReviewAiAvailability: vi.fn(() => ({
-    status: "unavailable",
-    reason: "test",
-  })),
-}));
-
-vi.mock("../prediction-review/bundle", () => ({
-  buildPredictionReviewBundleFromSnapshot: vi.fn(() => null),
-  buildPredictionReviewBundleFromVersion: vi.fn(() => ({
+  buildPredictionReviewBundleFromVersionMock: vi.fn(() => ({
     kind: "current_reference",
     sourceSnapshotId: "2026-06-19",
     predictionType: "pre_match_24h",
@@ -42,10 +31,35 @@ vi.mock("../prediction-review/bundle", () => ({
     factors: [],
     provenanceLabel: "Current public prediction",
   })),
+  findPredictionReviewCoherenceFixtureMock: vi.fn(() => null),
+  orientPredictionReviewCoherenceFixtureMock: vi.fn(() => null),
+  validatePredictionReviewProviderFixtureMock: vi.fn(() => ({
+    allowed: true,
+    reason: null,
+  })),
+}));
+
+vi.mock("server-only", () => ({}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createSupabaseServerClient: createSupabaseServerClientMock,
+}));
+
+vi.mock("../prediction-review/ai", () => ({
+  discoverPredictionReviewAiAvailability: vi.fn(() => ({
+    status: "unavailable",
+    reason: "test",
+  })),
+}));
+
+vi.mock("../prediction-review/bundle", () => ({
+  buildPredictionReviewBundleFromSnapshot: vi.fn(() => null),
+  buildPredictionReviewBundleFromVersion: buildPredictionReviewBundleFromVersionMock,
 }));
 
 vi.mock("../prediction-review/coherence-source", () => ({
-  findPredictionReviewCoherenceFixture: vi.fn(() => null),
+  findPredictionReviewCoherenceFixture: findPredictionReviewCoherenceFixtureMock,
+  orientPredictionReviewCoherenceFixture: orientPredictionReviewCoherenceFixtureMock,
 }));
 
 vi.mock("../prediction-review/provider", () => ({
@@ -53,10 +67,7 @@ vi.mock("../prediction-review/provider", () => ({
     status: "available",
     fixture: { status: "scheduled", statusShort: "NS" },
   })),
-  validatePredictionReviewProviderFixture: vi.fn(() => ({
-    allowed: true,
-    reason: null,
-  })),
+  validatePredictionReviewProviderFixture: validatePredictionReviewProviderFixtureMock,
 }));
 
 vi.mock("../prediction-review/team-display-names", () => ({
@@ -155,7 +166,17 @@ function buildMarketRows(predictionVersionId: string) {
   ];
 }
 
-function setupClient(args: { matches: unknown[]; competitions: unknown[]; teams: unknown[]; predictions: unknown[]; markets: unknown[] }) {
+function setupClient(args: {
+  matches: unknown[];
+  competitions: unknown[];
+  teams: unknown[];
+  predictions: unknown[];
+  markets: unknown[];
+  reviewCases?: unknown[];
+  reviewSnapshots?: unknown[];
+  aiExecutions?: unknown[];
+  reviewDecisions?: unknown[];
+}) {
   const resolver = (table: string, state: QueryState) => {
     const rows =
       table === "matches" ? args.matches
@@ -163,6 +184,10 @@ function setupClient(args: { matches: unknown[]; competitions: unknown[]; teams:
       : table === "teams" ? args.teams
       : table === "prediction_versions" ? args.predictions
       : table === "prediction_markets" ? args.markets
+      : table === "prediction_review_cases" ? (args.reviewCases ?? [])
+      : table === "prediction_review_snapshots" ? (args.reviewSnapshots ?? [])
+      : table === "prediction_review_ai_executions" ? (args.aiExecutions ?? [])
+      : table === "prediction_review_decisions" ? (args.reviewDecisions ?? [])
       : table === "model_versions" ? [{ id: "model-v1", version: "v1" }]
       : [];
 
@@ -244,5 +269,124 @@ describe("getPredictionRefreshReviewPageData atypical query scope", () => {
     expect(result.atypicalAnalysisReport).not.toBeNull();
     expect(result.atypicalAnalysisReport?.fixtureCount).toBe(0);
     expect(result.atypicalAnalysisReport?.rankedFixtures).toEqual([]);
+  });
+
+  it("passes only the exact selected prediction version markets into the current review bundle", async () => {
+    const match = { id: "eligible", external_id: "api-football:fixture:1", slug: "eligible", competition_id: "wc", home_team_id: "h1", away_team_id: "a1", kickoff_at: "2026-06-20T19:00:00.000Z", stage: "Group Stage - 2", status: "scheduled", access_scope: "public", intake_source: "api_football" };
+    setupClient({
+      matches: [match],
+      competitions: [{ id: "wc", name: "World Cup", slug: "world-cup-2026", usage_scope: "public_product" }],
+      teams: [
+        { id: "h1", name: "Netherlands" },
+        { id: "a1", name: "Sweden" },
+      ],
+      predictions: [
+        buildPrediction("eligible", "prediction-current"),
+        { ...buildPrediction("eligible", "prediction-stale"), created_at: "2026-06-18T12:00:00.000Z" },
+      ],
+      markets: [
+        ...buildMarketRows("prediction-current"),
+        { prediction_version_id: "prediction-stale", market: "btts", selection: "yes", probability: 0 },
+        { prediction_version_id: "prediction-stale", market: "btts", selection: "no", probability: 100 },
+      ],
+    });
+
+    await getPredictionRefreshReviewPageData();
+
+    expect(buildPredictionReviewBundleFromVersionMock).toHaveBeenCalled();
+    expect(buildPredictionReviewBundleFromVersionMock).toHaveBeenCalledWith(expect.objectContaining({
+      predictionVersion: expect.objectContaining({ id: "prediction-current" }),
+      markets: expect.arrayContaining([
+        expect.objectContaining({ prediction_version_id: "prediction-current", market: "btts", selection: "yes", probability: 46 }),
+      ]),
+    }));
+    expect(buildPredictionReviewBundleFromVersionMock).not.toHaveBeenCalledWith(expect.objectContaining({
+      predictionVersion: expect.objectContaining({ id: "prediction-current" }),
+      markets: expect.arrayContaining([
+        expect.objectContaining({ prediction_version_id: "prediction-stale" }),
+      ]),
+    }));
+  });
+
+  it("orients Spanish display names to canonical home and away when coherence data is reversed", async () => {
+    const match = { id: "eligible", external_id: "api-football:fixture:1", slug: "eligible", competition_id: "wc", home_team_id: "h1", away_team_id: "a1", kickoff_at: "2026-06-20T19:00:00.000Z", stage: "Group Stage - 2", status: "scheduled", access_scope: "public", intake_source: "api_football" };
+    findPredictionReviewCoherenceFixtureMock.mockReturnValueOnce({
+      teamAEn: "Curaçao",
+      teamADisplayNameEs: "Curazao",
+      teamBEn: "Ecuador",
+      teamBDisplayNameEs: "Ecuador",
+    });
+    orientPredictionReviewCoherenceFixtureMock.mockReturnValueOnce({
+      homeDisplayNameEs: "Ecuador",
+      awayDisplayNameEs: "Curazao",
+    });
+
+    setupClient({
+      matches: [match],
+      competitions: [{ id: "wc", name: "World Cup", slug: "world-cup-2026", usage_scope: "public_product" }],
+      teams: [
+        { id: "h1", name: "Ecuador" },
+        { id: "a1", name: "Curaçao" },
+      ],
+      predictions: [buildPrediction("eligible", "prediction-current")],
+      markets: buildMarketRows("prediction-current"),
+    });
+
+    const result = await getPredictionRefreshReviewPageData();
+
+    expect(result.cases[0]?.homeTeamDisplayNameEs).toBe("Ecuador");
+    expect(result.cases[0]?.awayTeamDisplayNameEs).toBe("Curazao");
+  });
+
+  it("keeps live or finished fixtures non-actionable in the review cards", async () => {
+    const match = { id: "eligible", external_id: "api-football:fixture:1", slug: "eligible", competition_id: "wc", home_team_id: "h1", away_team_id: "a1", kickoff_at: "2026-06-20T19:00:00.000Z", stage: "Group Stage - 2", status: "scheduled", access_scope: "public", intake_source: "api_football" };
+    validatePredictionReviewProviderFixtureMock.mockReturnValueOnce({
+      allowed: false,
+      reason: "provider_status_not_actionable",
+    });
+
+    setupClient({
+      matches: [match],
+      competitions: [{ id: "wc", name: "World Cup", slug: "world-cup-2026", usage_scope: "public_product" }],
+      teams: [
+        { id: "h1", name: "Netherlands" },
+        { id: "a1", name: "Sweden" },
+      ],
+      predictions: [buildPrediction("eligible", "prediction-current")],
+      markets: buildMarketRows("prediction-current"),
+    });
+
+    const result = await getPredictionRefreshReviewPageData();
+
+    expect(result.cases[0]?.providerStatusAvailable).toBe(false);
+    expect(result.cases[0]?.providerStatusReason).toBe("provider_status_not_actionable");
+  });
+
+  it("resolves exact immutable provenance from the review snapshot linked to the selected prediction version", async () => {
+    const match = { id: "eligible", external_id: "api-football:fixture:1", slug: "eligible", competition_id: "wc", home_team_id: "h1", away_team_id: "a1", kickoff_at: "2026-06-20T19:00:00.000Z", stage: "Group Stage - 2", status: "scheduled", access_scope: "public", intake_source: "api_football" };
+
+    setupClient({
+      matches: [match],
+      competitions: [{ id: "wc", name: "World Cup", slug: "world-cup-2026", usage_scope: "public_product" }],
+      teams: [
+        { id: "h1", name: "Netherlands" },
+        { id: "a1", name: "Sweden" },
+      ],
+      predictions: [buildPrediction("eligible", "prediction-current")],
+      markets: buildMarketRows("prediction-current"),
+      reviewSnapshots: [
+        {
+          id: "snapshot-published",
+          review_case_id: "review-case-1",
+          source_prediction_version_id: "prediction-current",
+          source_snapshot_id: "2026-06-11",
+          created_at: "2026-06-19T12:30:00.000Z",
+        },
+      ],
+    });
+
+    const result = await getPredictionRefreshReviewPageData();
+
+    expect(result.atypicalAnalysisReport?.rankedFixtures[0]?.provenance.signalSnapshotId).toBe("2026-06-11");
   });
 });

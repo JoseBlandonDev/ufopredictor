@@ -7,7 +7,7 @@ import { buildAtypicalFixtureAnalysisReport } from "../prediction-review/anomaly
 import { buildAtypicalFixtureDetectorInput } from "../prediction-review/anomaly-evidence-adapter";
 import { buildPredictionReviewBundleFromSnapshot, buildPredictionReviewBundleFromVersion } from "../prediction-review/bundle";
 import { discoverPredictionReviewAiAvailability } from "../prediction-review/ai";
-import { findPredictionReviewCoherenceFixture } from "../prediction-review/coherence-source";
+import { findPredictionReviewCoherenceFixture, orientPredictionReviewCoherenceFixture } from "../prediction-review/coherence-source";
 import { isRetainedPredictionReviewFixture } from "../prediction-review/fixtures";
 import { readPredictionReviewProviderState, validatePredictionReviewProviderFixture } from "../prediction-review/provider";
 import { resolvePredictionReviewTeamDisplayNameEs } from "../prediction-review/team-display-names";
@@ -214,6 +214,12 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
   const modelVersionById = new Map(((modelVersionData ?? []) as ReviewModelVersionRow[]).map((row) => [row.id, row.version]));
   const reviewCaseByMatchId = toLatestByMatchId(reviewCases.map((row) => ({ ...row, match_id: row.match_id })));
   const snapshotById = new Map(reviewSnapshots.map((row) => [row.id, row]));
+  const sourceSnapshotIdByPredictionVersionId = new Map<string, string>();
+  for (const snapshot of reviewSnapshots) {
+    if (snapshot.source_prediction_version_id && !sourceSnapshotIdByPredictionVersionId.has(snapshot.source_prediction_version_id)) {
+      sourceSnapshotIdByPredictionVersionId.set(snapshot.source_prediction_version_id, snapshot.source_snapshot_id);
+    }
+  }
   const latestAiExecutionByCaseId = toLatestByCaseId(aiExecutions);
   const latestDecisionByCaseId = toLatestByCaseId(reviewDecisions);
 
@@ -239,6 +245,11 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
           : null;
 
         const coherenceFixture = findPredictionReviewCoherenceFixture({
+          homeTeamName,
+          awayTeamName,
+        });
+        const orientedCoherenceFixture = orientPredictionReviewCoherenceFixture({
+          coherenceFixture,
           homeTeamName,
           awayTeamName,
         });
@@ -289,8 +300,8 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
           competitionName: competition?.name ?? "Competition unavailable",
           homeTeamNameEn: homeTeamName,
           awayTeamNameEn: awayTeamName,
-          homeTeamDisplayNameEs: coherenceFixture?.teamADisplayNameEs ?? resolvePredictionReviewTeamDisplayNameEs(homeTeamName),
-          awayTeamDisplayNameEs: coherenceFixture?.teamBDisplayNameEs ?? resolvePredictionReviewTeamDisplayNameEs(awayTeamName),
+          homeTeamDisplayNameEs: orientedCoherenceFixture?.homeDisplayNameEs ?? resolvePredictionReviewTeamDisplayNameEs(homeTeamName),
+          awayTeamDisplayNameEs: orientedCoherenceFixture?.awayDisplayNameEs ?? resolvePredictionReviewTeamDisplayNameEs(awayTeamName),
           currentPrediction,
           shadowPrediction,
           reviewedXgPreview,
@@ -349,6 +360,7 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
         markets: marketsByPredictionId.get(currentPredictionRow.id) ?? [],
         modelVersionName: currentPredictionRow.model_version_id ? modelVersionById.get(currentPredictionRow.model_version_id) ?? null : null,
         analysisAsOf,
+        exactSourceSnapshotId: sourceSnapshotIdByPredictionVersionId.get(currentPredictionRow.id) ?? null,
       });
     })
     .filter((fixture): fixture is NonNullable<typeof fixture> => fixture !== null);

@@ -6,7 +6,6 @@ import { generatePrediction } from "../prediction-engine/generate-prediction";
 import { resolveNationalTeamStrengthSnapshot } from "../prediction-engine/national-team-strength-snapshots";
 import type { MatchPredictionInput, NormalizedTeamInput, TeamSignalKey } from "../prediction-engine/types";
 import { calculateTeamPower } from "../prediction-engine/team-power";
-import { SIGNAL_SOURCE_SNAPSHOT_ID } from "./constants";
 import type { PredictionReviewCoherenceFixture } from "./types";
 import { findPredictionReviewCoherenceFixture } from "./coherence-source";
 import {
@@ -16,7 +15,6 @@ import { resolveOutcomeLeader } from "./anomaly-outcome";
 import type {
   AtypicalFixtureDetectorInput,
 } from "./types";
-import { isPredictionV2Current } from "../world-cup-2026/matchday2-ops";
 import sourceSnapshot from "../../data/prediction-engine/national-team-signals/2026-06-19/source.json";
 import qualityReport from "../../data/prediction-engine/national-team-signals/2026-06-19/quality-report.json";
 
@@ -64,6 +62,7 @@ type AdapterArgs = {
   markets: AdapterPredictionMarket[];
   modelVersionName: string | null;
   analysisAsOf: string;
+  exactSourceSnapshotId?: string | null;
 };
 
 type SourceTeamRecord = (typeof sourceSnapshot.teams)[number];
@@ -667,9 +666,10 @@ export function buildAtypicalFixtureDetectorInput(args: AdapterArgs) {
     mostLikelyScore: args.predictionVersion.most_likely_score,
   });
 
-  const inferredSignalSnapshotId = isPredictionV2Current(args.predictionVersion.created_at)
-    ? SIGNAL_SOURCE_SNAPSHOT_ID
-    : null;
+  const resolvedSignalSnapshotId =
+    typeof args.exactSourceSnapshotId === "string" && args.exactSourceSnapshotId.trim().length > 0
+      ? args.exactSourceSnapshotId.trim()
+      : null;
   const preMatchCutoff = new Date(
     Math.min(Date.parse(args.analysisAsOf), Date.parse(args.match.kickoff_at)),
   ).toISOString();
@@ -698,7 +698,7 @@ export function buildAtypicalFixtureDetectorInput(args: AdapterArgs) {
     : null;
   const missingEvidence = [
     ...marketValidation.missingEvidence,
-    ...(inferredSignalSnapshotId ? [] : ["prediction.signalSnapshotId"]),
+    ...(resolvedSignalSnapshotId ? [] : ["prediction.signalSnapshotId"]),
     "signals.movement.history",
     ...(homeEvidence.aliasResolved ? [] : ["teams.home.aliasResolution"]),
     ...(awayEvidence.aliasResolved ? [] : ["teams.away.aliasResolution"]),
@@ -727,7 +727,7 @@ export function buildAtypicalFixtureDetectorInput(args: AdapterArgs) {
       modelVersionName: args.modelVersionName,
       generatedAt: args.predictionVersion.created_at,
       scope: args.predictionVersion.run_scope,
-      signalSnapshotId: inferredSignalSnapshotId,
+      signalSnapshotId: resolvedSignalSnapshotId,
     },
     coverage: {
       missingEvidence,
@@ -816,7 +816,7 @@ export function buildAtypicalFixtureDetectorInput(args: AdapterArgs) {
         centralProvenanceComplete:
           Boolean(args.predictionVersion.id) &&
           Boolean(args.predictionVersion.model_version_id) &&
-          Boolean(inferredSignalSnapshotId) &&
+          Boolean(resolvedSignalSnapshotId) &&
           marketValidation.complete,
       },
       referenceProjection: {
@@ -840,12 +840,12 @@ export function buildAtypicalFixtureDetectorInput(args: AdapterArgs) {
     provenance: {
       predictionVersionId: args.predictionVersion.id,
       modelVersionId: args.predictionVersion.model_version_id,
-      signalSnapshotId: inferredSignalSnapshotId,
-      signalSnapshotDate: sourceSnapshot.snapshotDate,
-      eloSnapshotId: coherenceFixture ? `fixture-elo-coherence:${SIGNAL_SOURCE_SNAPSHOT_ID}` : null,
-      qualityReportId: `quality-report:${SIGNAL_SOURCE_SNAPSHOT_ID}`,
-      sourceManifestId: `source-manifest:${SIGNAL_SOURCE_SNAPSHOT_ID}`,
-      aliasResolverVersion: `national-team-strength-snapshots:${SIGNAL_SOURCE_SNAPSHOT_ID}`,
+      signalSnapshotId: resolvedSignalSnapshotId,
+      signalSnapshotDate: resolvedSignalSnapshotId,
+      eloSnapshotId: coherenceFixture && resolvedSignalSnapshotId ? `fixture-elo-coherence:${resolvedSignalSnapshotId}` : null,
+      qualityReportId: resolvedSignalSnapshotId ? `quality-report:${resolvedSignalSnapshotId}` : null,
+      sourceManifestId: resolvedSignalSnapshotId ? `source-manifest:${resolvedSignalSnapshotId}` : null,
+      aliasResolverVersion: resolvedSignalSnapshotId ? `national-team-strength-snapshots:${resolvedSignalSnapshotId}` : null,
       referenceProjectionGeneratedInMemory: Boolean(referenceProjection.output),
     },
   };

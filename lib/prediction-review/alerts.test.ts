@@ -95,4 +95,26 @@ describe("prediction review alerts", () => {
     expect(alerts[0]?.type).toBe("elo_inversion");
     expect(alerts[0]?.severity).toBe("critical");
   });
+
+  it("does not fabricate market flip alerts when a bundle is missing BTTS or O/U data", () => {
+    const alerts = calculateRefreshDeltaAlerts({
+      currentPrediction: buildBundle({
+        bttsYesProb: null,
+        bttsNoProb: null,
+        over25Prob: null,
+        under25Prob: null,
+      }),
+      shadowPrediction: buildBundle({
+        bttsYesProb: 55,
+        bttsNoProb: 45,
+        over25Prob: 56,
+        under25Prob: 44,
+      }),
+      homeTeamName: "Germany",
+      awayTeamName: "Ivory Coast",
+    });
+
+    expect(alerts.some((alert) => alert.type === "btts_changed")).toBe(false);
+    expect(alerts.some((alert) => alert.type === "over_under_changed")).toBe(false);
+  });
 });

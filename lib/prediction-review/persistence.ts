@@ -1,6 +1,14 @@
 import type { DatabaseInsert } from "@/types/database";
 import type { PredictionReviewBundle } from "./types";
 
+function requireBundleProbability(value: number | null, label: string) {
+  if (value === null) {
+    throw new Error(`Prediction review bundle is missing required ${label} probability.`);
+  }
+
+  return value;
+}
+
 export function buildPredictionReviewSnapshotInsert(args: {
   reviewCaseId: string;
   snapshotKind: DatabaseInsert<"prediction_review_snapshots">["snapshot_kind"];
@@ -34,10 +42,10 @@ export function buildPredictionReviewSnapshotInsert(args: {
     expected_away_goals: bundle.expectedAwayGoals,
     most_likely_score: bundle.mostLikelyScore,
     top_scores_json: bundle.topScorelines,
-    btts_yes_prob: bundle.bttsYesProb,
-    btts_no_prob: bundle.bttsNoProb,
-    over_2_5_over_prob: bundle.over25Prob,
-    over_2_5_under_prob: bundle.under25Prob,
+    btts_yes_prob: requireBundleProbability(bundle.bttsYesProb, "BTTS yes"),
+    btts_no_prob: requireBundleProbability(bundle.bttsNoProb, "BTTS no"),
+    over_2_5_over_prob: requireBundleProbability(bundle.over25Prob, "over 2.5"),
+    over_2_5_under_prob: requireBundleProbability(bundle.under25Prob, "under 2.5"),
     confidence_score: bundle.confidenceScore,
     risk_level: bundle.riskLevel,
     bundle_json: {
@@ -102,7 +110,7 @@ export function buildPredictionMarketsFromReviewBundle(args: {
       prediction_version_id: args.predictionVersionId,
       market: "btts",
       selection: "yes",
-      probability: args.bundle.bttsYesProb,
+      probability: requireBundleProbability(args.bundle.bttsYesProb, "BTTS yes"),
       confidence: args.bundle.confidenceScore,
       is_premium: false,
     },
@@ -110,7 +118,7 @@ export function buildPredictionMarketsFromReviewBundle(args: {
       prediction_version_id: args.predictionVersionId,
       market: "btts",
       selection: "no",
-      probability: args.bundle.bttsNoProb,
+      probability: requireBundleProbability(args.bundle.bttsNoProb, "BTTS no"),
       confidence: args.bundle.confidenceScore,
       is_premium: false,
     },
@@ -118,7 +126,7 @@ export function buildPredictionMarketsFromReviewBundle(args: {
       prediction_version_id: args.predictionVersionId,
       market: "over_2_5",
       selection: "over",
-      probability: args.bundle.over25Prob,
+      probability: requireBundleProbability(args.bundle.over25Prob, "over 2.5"),
       confidence: args.bundle.confidenceScore,
       is_premium: false,
     },
@@ -126,7 +134,7 @@ export function buildPredictionMarketsFromReviewBundle(args: {
       prediction_version_id: args.predictionVersionId,
       market: "over_2_5",
       selection: "under",
-      probability: args.bundle.under25Prob,
+      probability: requireBundleProbability(args.bundle.under25Prob, "under 2.5"),
       confidence: args.bundle.confidenceScore,
       is_premium: false,
     },
