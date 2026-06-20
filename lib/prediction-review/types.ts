@@ -162,3 +162,293 @@ export type PredictionReviewCaseSummary = {
     summary: string;
   }>;
 };
+
+export type AtypicalFixtureSeverity =
+  | "NONE"
+  | "WATCH"
+  | "REVIEW"
+  | "CRITICAL";
+
+export type AtypicalFixtureAdvisoryAction =
+  | "KEEP_CURRENT"
+  | "REGENERATE_CURRENT_MODEL"
+  | "PROPOSE_REVIEWED_XG"
+  | "HOLD_PUBLICATION"
+  | "MODEL_EXPERIMENT_REQUIRED";
+
+export type AtypicalFixtureFlagFamily =
+  | "SOURCE_INTEGRITY"
+  | "EXTERNAL_COHERENCE"
+  | "SIGNAL_DYNAMICS"
+  | "INTERNAL_COHERENCE"
+  | "PRESENTATION";
+
+export type AtypicalFixtureFlagCode =
+  | "REQUIRED_EVIDENCE_MISSING"
+  | "INVALID_PROBABILITY_BUNDLE"
+  | "INVALID_XG_BUNDLE"
+  | "INVALID_MODAL_SCORE"
+  | "SOURCE_QUALITY_FAILED"
+  | "SOURCE_PROVENANCE_MISSING"
+  | "SOURCE_AFTER_PREMATCH_CUTOFF"
+  | "ALIAS_UNRESOLVED"
+  | "RECENT_SAMPLE_TOO_SMALL"
+  | "ELO_DECISIVE_SHARE_GAP"
+  | "ELO_FAVORITE_INVERSION"
+  | "STRONG_SIGNAL_MOVEMENT"
+  | "SIGNAL_DIRECTION_CONFLICT"
+  | "XG_1X2_DIRECTION_CONFLICT"
+  | "MODAL_1X2_CONFLICT"
+  | "MODAL_DRAW_VS_STRONG_FAVORITE"
+  | "CONFIDENCE_SPREAD_CONFLICT"
+  | "RISK_SPREAD_CONFLICT"
+  | "STRONG_FAVORITE_LOW_XG"
+  | "LARGE_RATING_GAP_BALANCED_1X2"
+  | "BTTS_XG_MISMATCH"
+  | "OVER_UNDER_XG_MISMATCH";
+
+export type SuspectedPrimaryCauseCode =
+  | "SOURCE_DATA_DEFECT"
+  | "TEAM_IDENTITY_OR_ALIAS_DEFECT"
+  | "SIGNAL_AGGREGATION_DEFECT"
+  | "MODEL_FORMULA_LIMITATION"
+  | "ELO_MODEL_DISAGREEMENT"
+  | "LEGITIMATE_UFO_DISAGREEMENT"
+  | "CONFIDENCE_OR_RISK_PRESENTATION_DEFECT"
+  | "INSUFFICIENT_EVIDENCE";
+
+export type ClassificationCertainty = "LOW" | "MEDIUM" | "HIGH";
+
+export interface AtypicalFixtureFlag {
+  code: AtypicalFixtureFlagCode;
+  family: AtypicalFixtureFlagFamily;
+  severity: Exclude<AtypicalFixtureSeverity, "NONE">;
+  points: number;
+  explanation: string;
+  evidenceRefs: string[];
+}
+
+export interface SignalEvidence {
+  ratingScore: number | null;
+  recentFormScore: number | null;
+  attackScore: number | null;
+  defenseScore: number | null;
+  weightedPower: number | null;
+}
+
+export interface SignalGapEvidence {
+  rating: number | null;
+  recentForm: number | null;
+  attack: number | null;
+  defense: number | null;
+  weightedPower: number | null;
+}
+
+export interface SuspectedPrimaryCause {
+  code: SuspectedPrimaryCauseCode;
+  certainty: ClassificationCertainty;
+  rationale: string;
+  supportingFlagCodes: AtypicalFixtureFlagCode[];
+  alternativeCauseCodes: SuspectedPrimaryCauseCode[];
+}
+
+export type OutcomeLeader = "HOME" | "DRAW" | "AWAY" | "TIE";
+export type AtypicalFixtureFavoriteSide = Exclude<OutcomeLeader, "TIE">;
+export type AtypicalFixtureLevelFavorite = "HOME" | "LEVEL" | "AWAY";
+
+export interface AtypicalFixtureDetectorInput {
+  fixture: {
+    matchId: string;
+    providerFixtureId: number | null;
+    competitionKey: string;
+    stage: string | null;
+    kickoffAt: string;
+    status: string;
+    homeTeam: {
+      canonicalKey: string;
+      displayName: string;
+    };
+    awayTeam: {
+      canonicalKey: string;
+      displayName: string;
+    };
+  };
+  prediction: {
+    predictionVersionId: string;
+    modelVersionId: string | null;
+    modelVersionName: string | null;
+    generatedAt: string;
+    scope: string;
+    signalSnapshotId: string | null;
+  };
+  coverage: {
+    missingEvidence: string[];
+    preMatchCutoffSatisfied: boolean;
+  };
+  evidence: {
+    oneXtwo: {
+      homePct: number | null;
+      drawPct: number | null;
+      awayPct: number | null;
+    };
+    expectedGoals: {
+      home: number | null;
+      away: number | null;
+    };
+    modalScore: {
+      homeGoals: number | null;
+      awayGoals: number | null;
+      probabilityPct: number | null;
+    };
+    elo: {
+      available: boolean;
+      homeTwoWayPct: number | null;
+      awayTwoWayPct: number | null;
+      homeRating: number | null;
+      awayRating: number | null;
+      favoriteNeutralMarginPct: number | null;
+      dominantFavoriteThresholdPct: number | null;
+      dominantInversionFavoriteWinThresholdPct: number | null;
+      dominantInversionRawFavoriteMarginPp: number | null;
+    };
+    signals: {
+      home: SignalEvidence;
+      away: SignalEvidence;
+      componentGaps: SignalGapEvidence;
+      movement: {
+        available: boolean;
+        maxAbsoluteDelta: number | null;
+        totalAbsoluteDelta: number | null;
+        changedComponents: string[];
+      };
+    };
+    markets: {
+      bttsYesPct: number | null;
+      over25Pct: number | null;
+    };
+    confidenceRisk: {
+      confidenceScore: number | null;
+      riskLevel: string | null;
+    };
+    sourceIntegrity: {
+      qualityVerdict: "PASS" | "FAIL" | "UNKNOWN";
+      homeAliasResolved: boolean;
+      awayAliasResolved: boolean;
+      homeRecentSampleSize: number | null;
+      awayRecentSampleSize: number | null;
+      latestEvidenceAt: string | null;
+      postCutoffEvidenceCount: number;
+      centralProvenanceComplete: boolean;
+    };
+    referenceProjection: {
+      available: boolean;
+      oneXtwoDeltaMaxPp: number | null;
+      expectedGoalsDeltaMax: number | null;
+      favoriteChanged: boolean | null;
+    };
+  };
+  provenance: {
+    predictionVersionId: string;
+    modelVersionId: string | null;
+    signalSnapshotId: string | null;
+    signalSnapshotDate: string | null;
+    eloSnapshotId: string | null;
+    qualityReportId: string | null;
+    sourceManifestId: string | null;
+    aliasResolverVersion: string | null;
+    referenceProjectionGeneratedInMemory: boolean;
+  };
+}
+
+export interface AtypicalFixtureEvidenceBundleV1 {
+  schemaVersion: "atypical-fixture-evidence-v1";
+  detectorVersion: "model-ops-01-slice-a-v1";
+  analysisAsOf: string;
+  inputFingerprint: string;
+  fixture: AtypicalFixtureDetectorInput["fixture"];
+  prediction: AtypicalFixtureDetectorInput["prediction"];
+  coverage: {
+    status: "COMPLETE" | "PARTIAL";
+    missingEvidence: string[];
+    preMatchCutoffSatisfied: boolean;
+  };
+  severity: AtypicalFixtureSeverity;
+  anomalyScore: number;
+  orderedFlags: AtypicalFixtureFlag[];
+  evidence: {
+    oneXtwo: {
+      homePct: number;
+      drawPct: number;
+      awayPct: number;
+      favorite: OutcomeLeader;
+      topOutcomePct: number;
+      topTwoSpreadPp: number;
+      decisiveHomeSharePct: number;
+    };
+    expectedGoals: {
+      home: number;
+      away: number;
+      total: number;
+      difference: number;
+      favorite: AtypicalFixtureLevelFavorite;
+    };
+    modalScore: {
+      homeGoals: number;
+      awayGoals: number;
+      outcome: AtypicalFixtureFavoriteSide;
+      probabilityPct: number | null;
+    };
+    elo: {
+      available: boolean;
+      homeTwoWayPct: number | null;
+      awayTwoWayPct: number | null;
+      favorite: Exclude<AtypicalFixtureFavoriteSide, "DRAW"> | null;
+      decisiveShareGapPp: number | null;
+      favoriteInversion: boolean | null;
+      homeRating: number | null;
+      awayRating: number | null;
+      ratingGap: number | null;
+    };
+    signals: {
+      home: SignalEvidence;
+      away: SignalEvidence;
+      componentGaps: SignalGapEvidence;
+      movement: AtypicalFixtureDetectorInput["evidence"]["signals"]["movement"];
+    };
+    marketCoherence: {
+      bttsYesPct: number | null;
+      bttsYesFromXgPct: number | null;
+      bttsGapPp: number | null;
+      over25Pct: number | null;
+      over25FromXgPct: number | null;
+      over25GapPp: number | null;
+    };
+    confidenceRisk: {
+      confidenceScore: number | null;
+      riskLevel: string | null;
+      confidenceMinusTopOutcome: number | null;
+    };
+    sourceIntegrity: AtypicalFixtureDetectorInput["evidence"]["sourceIntegrity"];
+  };
+  suspectedPrimaryCause: SuspectedPrimaryCause | null;
+  advisoryAction: {
+    code: AtypicalFixtureAdvisoryAction;
+    rationale: string;
+    supportingFlagCodes: AtypicalFixtureFlagCode[];
+  };
+  provenance: AtypicalFixtureDetectorInput["provenance"];
+}
+
+export interface AtypicalFixtureAnalysisReportV1 {
+  schemaVersion: "atypical-fixture-analysis-report-v1";
+  detectorVersion: "model-ops-01-slice-a-v1";
+  analysisAsOf: string;
+  scope: {
+    competitionKey: string;
+    stage: string;
+    futureOnly: true;
+  };
+  fixtureCount: number;
+  countsBySeverity: Record<AtypicalFixtureSeverity, number>;
+  rankedFixtures: AtypicalFixtureEvidenceBundleV1[];
+}

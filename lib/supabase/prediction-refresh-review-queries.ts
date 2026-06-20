@@ -3,12 +3,15 @@ import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SIGNAL_SOURCE_SNAPSHOT_ID, REVIEW_WINDOW_DAYS } from "../prediction-review/constants";
 import { calculateExternalCoherenceAlerts, calculateRefreshDeltaAlerts } from "../prediction-review/alerts";
+import { buildAtypicalFixtureAnalysisReport } from "../prediction-review/anomaly-detection";
+import { buildAtypicalFixtureDetectorInput } from "../prediction-review/anomaly-evidence-adapter";
 import { buildPredictionReviewBundleFromSnapshot, buildPredictionReviewBundleFromVersion } from "../prediction-review/bundle";
 import { discoverPredictionReviewAiAvailability } from "../prediction-review/ai";
 import { findPredictionReviewCoherenceFixture } from "../prediction-review/coherence-source";
 import { isRetainedPredictionReviewFixture } from "../prediction-review/fixtures";
 import { readPredictionReviewProviderState, validatePredictionReviewProviderFixture } from "../prediction-review/provider";
 import { resolvePredictionReviewTeamDisplayNameEs } from "../prediction-review/team-display-names";
+import { WORLD_CUP_GROUP_STAGE_2_ROUND } from "../world-cup-2026/matchday2-ops";
 import type {
   MatchRow,
   PredictionMarketRow,
@@ -21,16 +24,19 @@ import type {
   CompetitionRow,
   ModelVersionRow,
 } from "@/types/database";
-import type { PredictionReviewCaseSummary } from "../prediction-review/types";
+import type { AtypicalFixtureAnalysisReportV1, PredictionReviewCaseSummary } from "../prediction-review/types";
+
+const WORLD_CUP_COMPETITION_SLUG = "world-cup-2026";
+const ELIGIBLE_MATCHDAY2_MATCH_STATUSES: MatchRow["status"][] = ["scheduled"];
 
 type ReviewMatchRow = Pick<
   MatchRow,
-  "id" | "external_id" | "slug" | "competition_id" | "home_team_id" | "away_team_id" | "kickoff_at" | "status" | "access_scope" | "intake_source"
+  "id" | "external_id" | "slug" | "competition_id" | "home_team_id" | "away_team_id" | "kickoff_at" | "stage" | "status" | "access_scope" | "intake_source"
 > & {
   external_id: string;
 };
 
-type ReviewCompetitionRow = Pick<CompetitionRow, "id" | "name" | "usage_scope">;
+type ReviewCompetitionRow = Pick<CompetitionRow, "id" | "name" | "slug" | "usage_scope">;
 type ReviewTeamRow = Pick<TeamRow, "id" | "name">;
 type ReviewPredictionVersionRow = Pick<
   PredictionVersionRow,
@@ -76,6 +82,7 @@ function toLatestByCaseId<T extends { review_case_id: string }>(rows: T[]) {
 
 export type PredictionRefreshReviewPageData = {
   aiAvailability: ReturnType<typeof discoverPredictionReviewAiAvailability>;
+  atypicalAnalysisReport: AtypicalFixtureAnalysisReportV1 | null;
   cases: PredictionReviewCaseSummary[];
   warnings: string[];
 };
@@ -87,7 +94,7 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
 
   const { data: matchData, error: matchError } = await supabase
     .from("matches")
-    .select("id, external_id, slug, competition_id, home_team_id, away_team_id, kickoff_at, status, access_scope, intake_source")
+    .select("id, external_id, slug, competition_id, home_team_id, away_team_id, kickoff_at, stage, status, access_scope, intake_source")
     .eq("intake_source", "api_football")
     .in("access_scope", ["admin_only", "public"])
     .gte("kickoff_at", new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString())
@@ -102,6 +109,7 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
   if (matches.length === 0) {
     return {
       aiAvailability: discoverPredictionReviewAiAvailability(),
+      atypicalAnalysisReport: null,
       cases: [],
       warnings: [],
     };
@@ -118,7 +126,7 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
     { data: internalPredictionData, error: internalPredictionError },
     reviewTables,
   ] = await Promise.all([
-    supabase.from("competitions").select("id, name, usage_scope").in("id", competitionIds),
+    supabase.from("competitions").select("id, name, slug, usage_scope").in("id", competitionIds),
     supabase.from("teams").select("id, name").in("id", teamIds),
     supabase
       .from("prediction_versions")
@@ -210,6 +218,7 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
   const latestDecisionByCaseId = toLatestByCaseId(reviewDecisions);
 
   const aiAvailability = discoverPredictionReviewAiAvailability();
+  const analysisAsOf = now.toISOString();
   const cases = await Promise.all(
     matches
       .filter((match) => competitionById.get(match.competition_id)?.usage_scope === "public_product")
@@ -313,8 +322,50 @@ export async function getPredictionRefreshReviewPageData(): Promise<PredictionRe
       }),
   );
 
+  const atypicalFixtures = matches
+    .filter((match) => match.kickoff_at > analysisAsOf)
+    .filter((match) => ELIGIBLE_MATCHDAY2_MATCH_STATUSES.includes(match.status))
+    .filter((match) => match.stage === WORLD_CUP_GROUP_STAGE_2_ROUND)
+    .filter((match) => {
+      const competition = competitionById.get(match.competition_id);
+      return competition?.slug === WORLD_CUP_COMPETITION_SLUG;
+    })
+    .map((match) => {
+      const competition = competitionById.get(match.competition_id);
+      const homeTeamName = teamById.get(match.home_team_id);
+      const awayTeamName = teamById.get(match.away_team_id);
+      const currentPredictionRow = publicPredictionByMatchId.get(match.id) ?? internalPredictionByMatchId.get(match.id) ?? null;
+
+      if (!competition || !homeTeamName || !awayTeamName || !currentPredictionRow) {
+        return null;
+      }
+
+      return buildAtypicalFixtureDetectorInput({
+        match,
+        competition,
+        homeTeamName,
+        awayTeamName,
+        predictionVersion: currentPredictionRow,
+        markets: marketsByPredictionId.get(currentPredictionRow.id) ?? [],
+        modelVersionName: currentPredictionRow.model_version_id ? modelVersionById.get(currentPredictionRow.model_version_id) ?? null : null,
+        analysisAsOf,
+      });
+    })
+    .filter((fixture): fixture is NonNullable<typeof fixture> => fixture !== null);
+
+  const atypicalAnalysisReport = buildAtypicalFixtureAnalysisReport({
+    analysisAsOf,
+    scope: {
+      competitionKey: WORLD_CUP_COMPETITION_SLUG,
+      stage: WORLD_CUP_GROUP_STAGE_2_ROUND,
+      futureOnly: true,
+    },
+    fixtures: atypicalFixtures,
+  });
+
   return {
     aiAvailability,
+    atypicalAnalysisReport,
     cases,
     warnings,
   };

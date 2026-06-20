@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   requireAdminMock,
@@ -337,6 +337,8 @@ function buildClient(options?: {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-06-19T12:00:00Z"));
   requireAdminMock.mockResolvedValue({ user: { id: "admin-1" } });
   buildRealFixturePredictionInputMock.mockReturnValue({ matchId: match.id });
   generatePredictionMock.mockReturnValue({ ok: true });
@@ -360,6 +362,10 @@ beforeEach(() => {
       is_premium: false,
     },
   ]);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("prediction refresh review actions", () => {
