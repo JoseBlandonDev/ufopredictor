@@ -1,6 +1,7 @@
 import { Clock3, Save, Tag } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/session";
 import { getWompiWorldCupPassPrice } from "@/lib/wompi/pricing";
+import { formatUsdCents, formatUsdInputValue } from "@/lib/wompi/usd-pricing";
 import { updateWompiWorldCupPassPriceAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -34,15 +35,19 @@ function statusMessage(status?: string) {
   }
 
   if (status === "invalid_base") {
-    return "Revisa el precio base y la etiqueta.";
+    return "Revisa el precio base canonico en USD.";
   }
 
   if (status === "invalid_offer") {
-    return "La oferta necesita precio y duracion en minutos.";
+    return "La oferta necesita precio USD y duracion en minutos.";
   }
 
   if (status === "update_failed") {
     return "No fue posible actualizar el precio.";
+  }
+
+  if (status === "configuration_error") {
+    return "Falta o es invalida la configuracion server-side para convertir USD a COP.";
   }
 
   return null;
@@ -65,13 +70,19 @@ export default async function AdminPaymentsPage({ searchParams }: AdminPaymentsP
         </p>
         <h1 className="text-4xl font-semibold">Precio World Cup Pass</h1>
         <p className="max-w-3xl text-[var(--muted)]">
-          Controla el precio que se muestra en Planes y el monto que Wompi cobra en el checkout.
+          Controla el precio canonico en USD. El servidor convierte ese valor a COP para el checkout de Wompi.
         </p>
       </section>
 
       {message ? (
         <section className="rounded-lg border border-[var(--accent)]/30 bg-[var(--accent)]/10 p-4 text-sm text-[var(--accent)]">
           {message}
+        </section>
+      ) : null}
+
+      {price.status === "configuration_error" ? (
+        <section className="rounded-lg border border-[var(--warning)]/35 bg-[var(--warning)]/10 p-4 text-sm text-[var(--warning)]">
+          {price.message}
         </section>
       ) : null}
 
@@ -82,19 +93,21 @@ export default async function AdminPaymentsPage({ searchParams }: AdminPaymentsP
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
                 Precio activo
               </p>
-              <h2 className="mt-2 text-2xl font-semibold">{price.displayPrice}</h2>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {price.status === "available" ? price.displayPrice : "Configuracion requerida"}
+              </h2>
             </div>
-            <span className="ufo-pill">{price.isOfferActive ? "Oferta" : "Base"}</span>
+            <span className="ufo-pill">{price.status === "available" && price.isOfferActive ? "Oferta" : "Base"}</span>
           </div>
 
           <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
               <dt className="flex items-center gap-2 text-[var(--muted)]">
                 <Tag className="h-4 w-4" />
-                Base
+                Canonico USD
               </dt>
               <dd className="mt-2 font-medium text-white">
-                {price.basePriceLabel} · ${price.baseAmountCop.toLocaleString("es-CO")} COP
+                {price.status === "available" ? formatUsdCents(price.basePriceUsdCents) : "No disponible"}
               </dd>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
@@ -104,6 +117,18 @@ export default async function AdminPaymentsPage({ searchParams }: AdminPaymentsP
               </dt>
               <dd className="mt-2 font-medium text-white">{formatOfferEndsAt(price.offerEndsAt)}</dd>
             </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+              <dt className="text-[var(--muted)]">Tasa USD/COP</dt>
+              <dd className="mt-2 font-medium text-white">
+                {price.usdCopRate ? price.usdCopRate.toLocaleString("es-CO") : "No disponible"}
+              </dd>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+              <dt className="text-[var(--muted)]">Cobro Wompi</dt>
+              <dd className="mt-2 font-medium text-white">
+                {price.status === "available" ? price.checkoutDisplay : "No disponible"}
+              </dd>
+            </div>
           </dl>
         </div>
 
@@ -111,37 +136,34 @@ export default async function AdminPaymentsPage({ searchParams }: AdminPaymentsP
           <div>
             <h2 className="text-lg font-semibold">Actualizar precio</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Escribe valores en pesos colombianos. El sistema convierte a cents para Wompi.
+              Edita solo USD. El servidor aplica la tasa configurada y calcula el cobro COP exacto para Wompi.
             </p>
           </div>
 
           <div className="mt-5 space-y-4">
             <label className="space-y-2">
-              <span className="text-sm font-medium text-white">Precio base COP</span>
+              <span className="text-sm font-medium text-white">Precio base USD</span>
               <input
                 className={INPUT_CLASS}
-                name="baseAmountCop"
-                inputMode="numeric"
-                defaultValue={price.baseAmountCop}
+                name="basePriceUsd"
+                inputMode="decimal"
+                defaultValue={formatUsdInputValue(price.basePriceUsdCents)}
+                placeholder="20.00"
                 required
               />
-            </label>
-
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-white">Etiqueta base</span>
-              <input className={INPUT_CLASS} name="basePriceLabel" defaultValue={price.basePriceLabel} required />
             </label>
 
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
               <p className="text-sm font-medium text-white">Oferta temporal</p>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <label className="space-y-2">
-                  <span className="text-sm text-[var(--muted)]">Precio oferta COP</span>
+                  <span className="text-sm text-[var(--muted)]">Precio oferta USD</span>
                   <input
                     className={INPUT_CLASS}
-                    name="offerAmountCop"
-                    inputMode="numeric"
-                    defaultValue={price.isOfferActive ? (price.offerAmountCop ?? "") : ""}
+                    name="offerPriceUsd"
+                    inputMode="decimal"
+                    defaultValue={price.status === "available" ? formatUsdInputValue(price.offerPriceUsdCents) : ""}
+                    placeholder="14.99"
                   />
                 </label>
                 <label className="space-y-2">
@@ -154,15 +176,6 @@ export default async function AdminPaymentsPage({ searchParams }: AdminPaymentsP
                 Quitar oferta activa
               </label>
             </div>
-
-            <label className="space-y-2">
-              <span className="text-sm font-medium text-white">Etiqueta oferta</span>
-              <input
-                className={INPUT_CLASS}
-                name="offerPriceLabel"
-                defaultValue={price.offerPriceLabel ?? price.basePriceLabel}
-              />
-            </label>
 
             <button className={BUTTON_CLASS} type="submit">
               <Save className="h-4 w-4" />

@@ -233,7 +233,8 @@ describe("0037 Wompi payment MVP migration", () => {
   });
 
   it("uses the constrained checkout RPC from the app route", () => {
-    expect(checkoutRoute).toContain('supabase.rpc(\n    "create_wompi_world_cup_pass_intent"');
+    expect(checkoutRoute).toContain('await supabase.rpc(');
+    expect(checkoutRoute).toContain('"create_wompi_world_cup_pass_intent"');
     expect(checkoutRoute).toContain("amountInCents: intent.amount_in_cents");
     expect(checkoutRoute).toContain("checkoutPayload.currency !== intent.currency");
     expect(checkoutRoute).not.toContain("WOMPI_WORLD_CUP_PASS_AMOUNT_COP");

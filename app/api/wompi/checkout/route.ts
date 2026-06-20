@@ -17,7 +17,16 @@ export async function POST() {
     return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   }
 
-  const config = requireWompiServerConfig();
+  let config: ReturnType<typeof requireWompiServerConfig>;
+  try {
+    config = requireWompiServerConfig();
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Invalid Wompi server configuration." },
+      { status: 500 },
+    );
+  }
+
   const expirationTime = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
   const { data: intentData, error: intentError } = await supabase.rpc(

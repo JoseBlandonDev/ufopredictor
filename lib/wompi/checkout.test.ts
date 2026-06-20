@@ -5,7 +5,7 @@ vi.mock("server-only", () => ({}));
 
 describe("Wompi checkout helpers", () => {
   it("converts configured COP pesos to Wompi amount_in_cents", async () => {
-    const { amountCopToWompiAmountInCents } = await import("./checkout");
+    const { amountCopToWompiAmountInCents } = await import("./usd-pricing");
 
     expect(amountCopToWompiAmountInCents(69900)).toBe(6990000);
   });
@@ -22,6 +22,7 @@ describe("Wompi checkout helpers", () => {
         integritySecret: "test_integrity_xxx",
         currency: "COP",
         appUrl: "https://ufopredictor.com",
+        usdCopRate: 3435,
       },
       reference: "ufo_wc_20260617154512_abcdef123456",
       amountInCents: 6990000,

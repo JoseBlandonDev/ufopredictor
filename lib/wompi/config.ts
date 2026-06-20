@@ -1,9 +1,7 @@
 import "server-only";
 
 export const WOMPI_WORLD_CUP_PASS_PLAN_SLUG = "world-cup-pass";
-export const WOMPI_WORLD_CUP_PASS_PRICE_LABEL = "20 USDT";
 export const WOMPI_WORLD_CUP_PASS_RESOURCE_ID = "world_cup_2026";
-export const DEFAULT_WOMPI_WORLD_CUP_PASS_AMOUNT_COP = 69900;
 
 export type WompiEnvironment = "sandbox" | "production";
 
@@ -15,6 +13,7 @@ export type WompiServerConfig = {
   integritySecret: string;
   currency: "COP";
   appUrl: string;
+  usdCopRate: number;
 };
 
 function requireEnv(name: string) {
@@ -49,26 +48,8 @@ function parsePositiveInteger(name: string, value: string) {
   return parsed;
 }
 
-export function getConfiguredWorldCupPassAmountCop() {
-  const configured = process.env.WOMPI_WORLD_CUP_PASS_AMOUNT_COP;
-
-  if (!configured) {
-    return DEFAULT_WOMPI_WORLD_CUP_PASS_AMOUNT_COP;
-  }
-
-  return parsePositiveInteger("WOMPI_WORLD_CUP_PASS_AMOUNT_COP", configured);
-}
-
-export function formatCopAmount(amountCop: number) {
-  return new Intl.NumberFormat("es-CO", {
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
-  }).format(amountCop);
-}
-
-export function getWorldCupPassDisplayPrice() {
-  const amountCop = getConfiguredWorldCupPassAmountCop();
-  return `${WOMPI_WORLD_CUP_PASS_PRICE_LABEL} · aprox. $${formatCopAmount(amountCop)} COP`;
+export function requireWompiUsdCopRate() {
+  return parsePositiveInteger("WOMPI_USD_COP_RATE", requireEnv("WOMPI_USD_COP_RATE"));
 }
 
 export function requireWompiServerConfig(): WompiServerConfig {
@@ -86,5 +67,6 @@ export function requireWompiServerConfig(): WompiServerConfig {
     integritySecret: requireEnv("WOMPI_INTEGRITY_SECRET"),
     currency,
     appUrl: requireEnv("NEXT_PUBLIC_APP_URL"),
+    usdCopRate: requireWompiUsdCopRate(),
   };
 }
