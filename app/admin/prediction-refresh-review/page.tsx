@@ -6,6 +6,7 @@ import {
   generatePredictionRefreshShadowAction,
   holdPredictionRefreshAction,
   keepCurrentPredictionRefreshAction,
+  publishReviewedXgPredictionReviewAction,
   previewReviewedXgAction,
   publishRefreshedPredictionReviewAction,
 } from "./actions";
@@ -461,7 +462,7 @@ export default async function PredictionRefreshReviewPage({ searchParams }: Page
                   </form>
 
                   <p className="mt-3 text-xs text-[var(--warning)]">
-                    El reviewed xG solo genera y guarda un preview coherente. Su publicacion sigue deshabilitada en este MVP aunque los limites ya esten definidos.
+                    El reviewed xG conserva un preview auditable y solo puede publicarse desde esta pantalla para fixtures publicos, programados y antes del kickoff.
                   </p>
 
                   {reviewCase.reviewedXgPreview ? (
@@ -471,6 +472,19 @@ export default async function PredictionRefreshReviewPage({ searchParams }: Page
                       <p>Preview score: {reviewCase.reviewedXgPreview.mostLikelyScore}</p>
                     </div>
                   ) : null}
+
+                  <form action={publishReviewedXgPredictionReviewAction} className="mt-4 space-y-3">
+                    <input type="hidden" name="matchId" value={reviewCase.matchId} />
+                    <input type="hidden" name="externalId" value={reviewCase.externalId} />
+                    <input
+                      type="text"
+                      name="reason"
+                      required
+                      placeholder="Motivo obligatorio para publicar el reviewed xG"
+                      className="w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-white"
+                    />
+                    <SubmitButton idleLabel="Publicar reviewed xG" pendingLabel="Publicando..." className={EMERALD_BUTTON_CLASS} disabled={!reviewCase.reviewedXgPreview || !reviewCase.providerStatusAvailable || reviewCase.accessScope !== "public"} />
+                  </form>
                 </section>
               </div>
 

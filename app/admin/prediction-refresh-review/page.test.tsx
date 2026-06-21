@@ -20,6 +20,7 @@ vi.mock("./actions", () => ({
   keepCurrentPredictionRefreshAction: vi.fn(),
   holdPredictionRefreshAction: vi.fn(),
   publishRefreshedPredictionReviewAction: vi.fn(),
+  publishReviewedXgPredictionReviewAction: vi.fn(),
   previewReviewedXgAction: vi.fn(),
 }));
 
@@ -306,5 +307,83 @@ describe("PredictionRefreshReviewPage", () => {
     expect(html).toContain("CONFIDENCE_SPREAD_CONFLICT");
     expect(html).toContain("Alertas legacy del card");
     expect(html).toContain("no disponible");
+  });
+
+  it("shows the reviewed xG publication control only for public fixtures with a saved preview", async () => {
+    requireAdminMock.mockResolvedValue({ user: { id: "admin-1" } });
+    getPredictionRefreshReviewPageDataMock.mockResolvedValue({
+      aiAvailability: {
+        status: "unavailable",
+        reason: "No supported AI provider key is configured.",
+      },
+      atypicalAnalysisReport: null,
+      warnings: [],
+      cases: [
+        {
+          matchId: "match-ecu-cur",
+          externalId: "api-football:fixture:1540999",
+          slug: "ecuador-curacao",
+          kickoffAt: "2026-06-20T22:00:00Z",
+          providerStatus: "scheduled",
+          providerStatusShort: "NS",
+          providerStatusLabel: "scheduled",
+          providerStatusAvailable: true,
+          providerStatusReason: null,
+          accessScope: "public",
+          competitionName: "World Cup",
+          homeTeamNameEn: "Ecuador",
+          awayTeamNameEn: "Curacao",
+          homeTeamDisplayNameEs: "Ecuador",
+          awayTeamDisplayNameEs: "Curaçao",
+          currentPrediction: null,
+          shadowPrediction: null,
+          reviewedXgPreview: {
+            kind: "reviewed_xg_preview",
+            predictionVersionId: null,
+            modelVersionId: "model-v0",
+            modelVersionLabel: "v0.1-lab",
+            sourceSnapshotId: "2026-06-19",
+            predictionType: "pre_match_24h",
+            runScope: "review_preview",
+            homeWinProb: 40,
+            drawProb: 25,
+            awayWinProb: 35,
+            expectedHomeGoals: 1.57,
+            expectedAwayGoals: 1.42,
+            mostLikelyScore: "1-1",
+            topScorelines: [{ score: "1-1", probability: 12 }],
+            bttsYesProb: 58,
+            bttsNoProb: 42,
+            over25Prob: 54,
+            under25Prob: 46,
+            confidenceScore: 63,
+            confidenceBucket: "medium",
+            riskLevel: "medium",
+            notes: [],
+            factors: [],
+            provenanceLabel: "Saved reviewed xG preview",
+          },
+          coherenceFixture: null,
+          refreshAlerts: [],
+          coherenceAlerts: [],
+          retainedFixtureOverride: false,
+          aiAvailability: {
+            status: "unavailable",
+            reason: "No supported AI provider key is configured.",
+          },
+          latestAiRecommendation: null,
+          auditHistory: [],
+        },
+      ],
+    });
+
+    const element = await PredictionRefreshReviewPage({
+      searchParams: Promise.resolve({}),
+    });
+    const html = renderToStaticMarkup(element);
+
+    expect(html).toContain("Publicar reviewed xG");
+    expect(html).toContain("reviewed xG");
+    expect(html).not.toContain("Su publicacion sigue deshabilitada");
   });
 });
