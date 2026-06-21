@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
+    "prediction-intelligence-v2:task1": "node --experimental-strip-types scripts/prediction-intelligence-v2/run-task1.ts",
     "spike:api-football": "npx tsx scripts/api-football-read-spike.ts",
     "ops:world-cup-matchday2-final-export": "npx tsx scripts/world-cup-matchday2-final-export.ts",
     "ops:regenerate-torneo-matchday2-export": "npx tsx scripts/regenerate-torneo-matchday2-export.ts",

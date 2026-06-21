@@ -1,0 +1,4 @@
+{
+  "mode": "not_executed",
+  "reason": "Remote writes are intentionally blocked for Task 1 because this branch has not applied the new migration to a safe local/dev database."
+}

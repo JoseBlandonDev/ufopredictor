@@ -1,0 +1,155 @@
+[
+  {
+    "sourceKey": "elo_current",
+    "selectedMode": "normalized_snapshot",
+    "attempts": [
+      {
+        "mode": "web",
+        "ok": true,
+        "note": "Static fetch returned enough content to confirm the source is reachable."
+      },
+      {
+        "mode": "local_fallback",
+        "ok": true,
+        "note": "Local raw fallback file is available."
+      },
+      {
+        "mode": "normalized_snapshot",
+        "ok": true,
+        "note": "Prepared normalized snapshot used for the initial Task 1 seed."
+      }
+    ],
+    "recordCount": 244
+  },
+  {
+    "sourceKey": "elo_start_2026",
+    "selectedMode": "normalized_snapshot",
+    "attempts": [
+      {
+        "mode": "web",
+        "ok": true,
+        "note": "Static fetch returned enough content to confirm the source is reachable."
+      },
+      {
+        "mode": "local_fallback",
+        "ok": true,
+        "note": "Local raw fallback file is available."
+      },
+      {
+        "mode": "normalized_snapshot",
+        "ok": true,
+        "note": "Prepared normalized snapshot used for the initial Task 1 seed."
+      }
+    ],
+    "recordCount": 244
+  },
+  {
+    "sourceKey": "elo_latest_results",
+    "selectedMode": "local_fallback",
+    "attempts": [
+      {
+        "mode": "web",
+        "ok": true,
+        "note": "Static fetch returned enough content to confirm the source is reachable."
+      },
+      {
+        "mode": "local_fallback",
+        "ok": true,
+        "note": "Local raw fallback file is available."
+      }
+    ],
+    "recordCount": 357
+  },
+  {
+    "sourceKey": "elo_results_2025",
+    "selectedMode": "local_fallback",
+    "attempts": [
+      {
+        "mode": "web",
+        "ok": true,
+        "note": "Static fetch returned enough content to confirm the source is reachable."
+      },
+      {
+        "mode": "local_fallback",
+        "ok": true,
+        "note": "Local raw fallback file is available."
+      }
+    ],
+    "recordCount": 1035
+  },
+  {
+    "sourceKey": "elo_fixtures",
+    "selectedMode": "local_fallback",
+    "attempts": [
+      {
+        "mode": "web",
+        "ok": true,
+        "note": "Static fetch returned enough content to confirm the source is reachable."
+      },
+      {
+        "mode": "local_fallback",
+        "ok": true,
+        "note": "Local raw fallback file is available."
+      }
+    ],
+    "recordCount": 407
+  },
+  {
+    "sourceKey": "fifa_men_ranking",
+    "selectedMode": "normalized_snapshot",
+    "attempts": [
+      {
+        "mode": "web",
+        "ok": true,
+        "note": "Static fetch returned enough content to confirm the source is reachable."
+      },
+      {
+        "mode": "local_fallback",
+        "ok": false,
+        "note": "Local raw fallback file exists but is not stable enough for deterministic parsing; using prepared normalized snapshot."
+      },
+      {
+        "mode": "normalized_snapshot",
+        "ok": true,
+        "note": "Prepared normalized snapshot used for the initial Task 1 seed."
+      }
+    ],
+    "recordCount": 211
+  },
+  {
+    "sourceKey": "api_football",
+    "selectedMode": "web",
+    "attempts": [
+      {
+        "mode": "web",
+        "ok": true,
+        "note": "Existing API-Football integration is available through the repository client."
+      }
+    ],
+    "recordCount": 0
+  },
+  {
+    "sourceKey": "fifa_world_cup_schedule_v17",
+    "selectedMode": "normalized_snapshot",
+    "attempts": [
+      {
+        "mode": "normalized_snapshot",
+        "ok": true,
+        "note": "Task 1 uses the prepared official schedule snapshot because the exact source URL is intentionally not blocking implementation."
+      }
+    ],
+    "recordCount": 104
+  },
+  {
+    "sourceKey": "world_cup_venues",
+    "selectedMode": "normalized_snapshot",
+    "attempts": [
+      {
+        "mode": "normalized_snapshot",
+        "ok": true,
+        "note": "Task 1 uses the prepared curated venue catalog."
+      }
+    ],
+    "recordCount": 16
+  }
+]
