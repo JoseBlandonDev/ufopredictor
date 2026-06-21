@@ -11,6 +11,7 @@
     "spike:api-football": "npx tsx scripts/api-football-read-spike.ts",
     "ops:world-cup-matchday2-final-export": "npx tsx scripts/world-cup-matchday2-final-export.ts",
     "ops:regenerate-torneo-matchday2-export": "npx tsx scripts/regenerate-torneo-matchday2-export.ts",
+    "ops:recent-form-challenger-v1": "npx tsx scripts/prediction-engine/recent-form-challenger-v1.ts",
     "signal:generate:national-team-pack": "node scripts/prediction-engine/generate-national-team-signal-pack.js",
     "signal:check:national-team-pack": "node scripts/prediction-engine/generate-national-team-signal-pack.js --check"
   },
