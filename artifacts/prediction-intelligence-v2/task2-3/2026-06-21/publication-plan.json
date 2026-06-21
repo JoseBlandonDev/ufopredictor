@@ -1,0 +1,123 @@
+[
+  {
+    "fixtureId": "2d7bc089-1eda-4f91-b1a0-e596a00dda59",
+    "currentPredictionVersionId": "964d0a11-9cd4-43f7-96af-0fda4b6ed8d0",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "8cb53b3c-56fc-4560-a605-ec75261f3bae",
+    "currentPredictionVersionId": "8f5c606b-f13a-45ab-adcb-de4cb8e44e58",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "26453f76-c60f-468c-8a1d-983559bd98f3",
+    "currentPredictionVersionId": "98659368-ce3d-4853-8a87-ea3a551431bd",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+    "currentPredictionVersionId": "f18fbb65-f85a-428c-8b69-24525f4d3eb4",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+    "currentPredictionVersionId": "5287dc08-e4c1-4599-935a-a90d8ba32b29",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+    "currentPredictionVersionId": "b8ac856d-6d9b-45f1-b024-a04130366edd",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "b8bef336-5c1c-491c-8ba4-075c536234cc",
+    "currentPredictionVersionId": "696ea48d-b30c-481b-a467-e2df1751fe19",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "5e4b5138-a1f2-4edd-96ec-47629baa839f",
+    "currentPredictionVersionId": "f11a35e8-87f0-429e-bc3f-9bd43f5473e4",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "90984bad-656e-466e-9f20-d1ec58c41144",
+    "currentPredictionVersionId": "bb1557a5-e78b-42af-be6e-6363367ecc6b",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+    "currentPredictionVersionId": "0e2a0df2-efe2-474a-9ed3-a1df30d7ed45",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  },
+  {
+    "fixtureId": "0e31f8a1-5e00-4b25-a994-f95c90229aa0",
+    "currentPredictionVersionId": "dec4f19e-9d38-473a-856c-34a0ffb1f587",
+    "proposedCandidate": "gated_v2_probability_v2_analysis",
+    "proposedModelVersion": "v0.2-prelaunch",
+    "proposedCutoff": "2026-06-21T00:00:00Z",
+    "createNewImmutableVersion": true,
+    "preserveOriginalVersion": true,
+    "reviewStatus": "ready",
+    "blockers": []
+  }
+]

@@ -3,20 +3,28 @@ import { describe, expect, it } from "vitest";
 import {
   TASK2_1_CANDIDATES,
   TASK2_2_CANDIDATES,
+  TASK2_3_FROZEN_PRODUCTION_CANDIDATE,
   buildBlockedTimeSeriesFoldManifest,
   buildChallengerPrediction,
   buildExpandedCalibrationManifest,
   buildHistoricalReplayCutoff,
+  buildPublicReleaseExport,
+  buildReleaseCandidateFixture,
   buildMatchFeatureVector,
+  buildPublicationPlanEntry,
   buildProductionV1ParityAudit,
   buildPublicSafeShadowExport,
+  buildStoredActiveV1State,
   buildTrainingValidationHoldoutManifest,
   buildValidationSelectionAudit,
+  classifyStoredRuntimeDrift,
   deriveGateEvidence,
+  evaluateFixtureHumanReview,
   evaluateScenarioRows,
   filterFutureFixturesByCutoff,
   parseOriginalPrediction,
   renderExplanationPreview,
+  selectNotStartedFixtures,
   selectProductionEligibleCandidate,
 } from "./task2";
 import type {
@@ -891,5 +899,490 @@ describe("prediction intelligence v2 task2", () => {
 
     expect(manifest.holdout.rowCount).toBe(1);
     expect(manifest.training.rowCount).toBeGreaterThan(0);
+  });
+
+  it("freezes the selected Task 2.2 production candidate for Task 2.3", () => {
+    expect(TASK2_3_FROZEN_PRODUCTION_CANDIDATE.key).toBe("v1_plus_high_confidence_signals");
+    expect(TASK2_3_FROZEN_PRODUCTION_CANDIDATE.boundedCaps).toEqual({
+      expectedGoalDifferenceDelta: 0.24,
+      expectedTotalGoalsDelta: 0.32,
+      oneXTwoDelta: 0.08,
+    });
+  });
+
+  it("excludes started fixtures and reports finished and live removals separately", () => {
+    const operational = selectNotStartedFixtures({
+      generationCutoff: "2026-06-21T00:00:00Z",
+      productInventory: {
+        competition: { id: "comp-1", slug: "world-cup", usage_scope: "public_product" },
+        teamsById: new Map(),
+        resultsByMatchId: new Map(),
+        originalPredictionByMatchId: new Map(),
+        matches: [
+          {
+            id: "future",
+            external_id: "api-football:fixture:10",
+            slug: "future-match",
+            kickoff_at: "2026-06-22T18:00:00Z",
+            stage: "group",
+            status: "scheduled",
+            competition_id: "comp-1",
+            home_team_id: "home",
+            away_team_id: "away",
+            intake_source: "api_football",
+          },
+          {
+            id: "finished",
+            external_id: "api-football:fixture:11",
+            slug: "finished-match",
+            kickoff_at: "2026-06-21T18:00:00Z",
+            stage: "group",
+            status: "scheduled",
+            competition_id: "comp-1",
+            home_team_id: "home",
+            away_team_id: "away",
+            intake_source: "api_football",
+          },
+          {
+            id: "live",
+            external_id: "api-football:fixture:12",
+            slug: "live-match",
+            kickoff_at: "2026-06-21T19:00:00Z",
+            stage: "group",
+            status: "scheduled",
+            competition_id: "comp-1",
+            home_team_id: "home",
+            away_team_id: "away",
+            intake_source: "api_football",
+          },
+        ],
+      },
+      providerFixtures: [
+        {
+          providerFixtureId: 10,
+          status: "scheduled",
+          statusShort: "NS",
+          goals: { home: null, away: null },
+        },
+        {
+          providerFixtureId: 11,
+          status: "finished",
+          statusShort: "FT",
+          goals: { home: 2, away: 1 },
+        },
+        {
+          providerFixtureId: 12,
+          status: "live",
+          statusShort: "2H",
+          goals: { home: 1, away: 0 },
+        },
+      ] as never,
+    });
+
+    expect(operational.remaining.map((match) => match.id)).toEqual(["future"]);
+    expect(operational.newlyCompletedFixtures.map((match) => match.matchId)).toEqual(["finished"]);
+    expect(operational.removedStartedFixtures.map((match) => match.matchId)).toEqual(["live"]);
+  });
+
+  it("detects reviewed xG overrides in the stored active v1 state", () => {
+    const stored = buildStoredActiveV1State({
+      matchId: "match-1",
+      predictionRow: {
+        id: "prediction-1",
+        match_id: "match-1",
+        model_version_id: "model-1",
+        prediction_type: "pre_match_24h",
+        home_win_prob: 45,
+        draw_prob: 28,
+        away_win_prob: 27,
+        expected_home_goals: 1.4,
+        expected_away_goals: 1.1,
+        most_likely_score: "1-0",
+        top_scores_json: [],
+        confidence_score: 61,
+        risk_level: "medium",
+        run_scope: "public_product",
+        created_at: "2026-06-19T09:00:00Z",
+      },
+      predictionMarkets: [],
+      modelVersion: { id: "model-1", version: "v0.2-prelaunch", is_active: true, created_at: "2026-06-18T00:00:00Z" },
+      reviewCase: {
+        id: "case-1",
+        match_id: "match-1",
+        source_snapshot_id: "snapshot:base",
+        latest_shadow_snapshot_id: "shadow-1",
+        latest_reviewed_xg_snapshot_id: "reviewed-1",
+        latest_decision_id: "decision-1",
+        status: "published",
+        created_at: "2026-06-19T08:00:00Z",
+      },
+      reviewDecisions: [
+        {
+          id: "decision-1",
+          review_case_id: "case-1",
+          decision: "publish",
+          selected_snapshot_id: "reviewed-1",
+          published_prediction_version_id: "prediction-1",
+          created_at: "2026-06-19T08:30:00Z",
+        },
+      ],
+      snapshotsById: new Map([
+        [
+          "reviewed-1",
+          {
+            id: "reviewed-1",
+            review_case_id: "case-1",
+            snapshot_kind: "reviewed_xg",
+            source_snapshot_id: "snapshot:reviewed",
+            source_prediction_version_id: "prediction-1",
+            model_version_id: "model-1",
+            prediction_type: "pre_match_24h",
+            review_run_scope: "public_product",
+            home_win_prob: 45,
+            draw_prob: 28,
+            away_win_prob: 27,
+            expected_home_goals: 1.4,
+            expected_away_goals: 1.1,
+            most_likely_score: "1-0",
+            created_at: "2026-06-19T08:20:00Z",
+          },
+        ],
+        [
+          "shadow-1",
+          {
+            id: "shadow-1",
+            review_case_id: "case-1",
+            snapshot_kind: "shadow",
+            source_snapshot_id: "snapshot:shadow",
+            source_prediction_version_id: "prediction-1",
+            model_version_id: "model-1",
+            prediction_type: "pre_match_24h",
+            review_run_scope: "public_product",
+            home_win_prob: 45,
+            draw_prob: 28,
+            away_win_prob: 27,
+            expected_home_goals: 1.4,
+            expected_away_goals: 1.1,
+            most_likely_score: "1-0",
+            created_at: "2026-06-19T08:10:00Z",
+          },
+        ],
+      ]),
+    });
+
+    expect(stored.reviewedXgOverride).toBe(true);
+    expect(stored.publicationOverride).toBe(true);
+    expect(stored.sourceSnapshotReferences).toEqual(["snapshot:base", "snapshot:reviewed", "snapshot:shadow"]);
+  });
+
+  it("classifies stored/runtime drift with concrete causes before falling back to a defect label", () => {
+    const drift = classifyStoredRuntimeDrift({
+      storedActiveV1: {
+        predictionVersionId: "prediction-1",
+        modelVersionId: "model-1",
+        modelVersionLabel: "v0.2-prelaunch",
+        predictionType: "pre_match_24h",
+        runScope: "public_product",
+        createdAt: "2026-06-19T09:00:00Z",
+        generationCutoff: "2026-06-19T09:00:00Z",
+        probabilities: { homeWin: 0.44, draw: 0.28, awayWin: 0.28 },
+        expectedGoals: { home: 1.2, away: 1.1 },
+        mostLikelyScore: "1-0",
+        sourceSnapshotReferences: ["snapshot:old"],
+        reviewedXgOverride: true,
+        publicationOverride: false,
+      },
+      regeneratedCurrentV1: {
+        generationCutoff: "2026-06-21T00:00:00Z",
+        sourceSnapshotReferences: ["snapshot:new"],
+        probabilities: { homeWin: 0.5, draw: 0.25, awayWin: 0.25 },
+        expectedGoals: { home: 1.6, away: 0.9 },
+        mostLikelyScore: "2-0",
+        prediction: {} as never,
+      },
+      generationCutoff: "2026-06-21T00:00:00Z",
+      currentSourceSnapshotReferences: ["snapshot:new"],
+      providerStatus: "scheduled",
+      venueContextReasonCode: "host_country_match",
+    });
+
+    expect(drift).toEqual([
+      "reviewed_xg_override",
+      "different_generation_cutoff",
+      "older_source_snapshot",
+      "venue_context_difference",
+    ]);
+  });
+
+  it("builds candidate A from current-v1 probabilities and candidate B from gated-v2 probabilities", () => {
+    const features = buildMatchFeatureVector({
+      fixtureId: "germany-vs-curacao",
+      cutoffAt: "2026-06-21T00:00:00Z",
+      homeTeamKey: "germany",
+      awayTeamKey: "curacao",
+      officialMatchNumber: 1,
+      homeSignal: baseHomeSignal,
+      awaySignal: baseAwaySignal,
+      historicalFacts,
+      localizations,
+      eloCurrent: eloRows,
+      eloStart2026: eloStartRows,
+      fifaRanking: fifaRows,
+      scheduleRows,
+    });
+    const analysisPrediction = buildChallengerPrediction({
+      candidate: TASK2_1_CANDIDATES.find((entry) => entry.key === "v1_plus_bounded_signals")!,
+      features,
+    });
+    const comparison = {
+      fixtureId: "match-1",
+      matchSlug: "germany-vs-curacao",
+      officialMatchNumber: 1,
+      fixture: "Germany vs Curacao",
+      kickoffAt: "2026-06-22T18:00:00Z",
+      storedActiveV1: {
+        predictionVersionId: "prediction-1",
+        modelVersionId: "model-1",
+        modelVersionLabel: "v0.2-prelaunch",
+        predictionType: "pre_match_24h" as const,
+        runScope: "public_product" as const,
+        createdAt: "2026-06-19T00:00:00Z",
+        generationCutoff: "2026-06-19T00:00:00Z",
+        probabilities: { homeWin: 0.6, draw: 0.23, awayWin: 0.17 },
+        expectedGoals: { home: 1.8, away: 0.8 },
+        mostLikelyScore: "2-0",
+        sourceSnapshotReferences: ["snapshot:stored"],
+        reviewedXgOverride: false,
+        publicationOverride: false,
+      },
+      regeneratedCurrentV1: {
+        generationCutoff: "2026-06-21T00:00:00Z",
+        sourceSnapshotReferences: ["snapshot:current"],
+        probabilities: { homeWin: 0.58, draw: 0.24, awayWin: 0.18 },
+        expectedGoals: { home: 1.7, away: 0.9 },
+        mostLikelyScore: "2-0",
+        prediction: analysisPrediction,
+      },
+      gatedV2: {
+        generationCutoff: "2026-06-21T00:00:00Z",
+        sourceSnapshotReferences: ["snapshot:current"],
+        probabilities: { homeWin: 0.61, draw: 0.22, awayWin: 0.17 },
+        expectedGoals: { home: 1.9, away: 0.85 },
+        mostLikelyScore: "2-0",
+        prediction: analysisPrediction,
+      },
+      storedVsCurrentV1Delta: {
+        homeWin: -0.02,
+        draw: 0.01,
+        awayWin: 0.01,
+        expectedHomeGoals: -0.1,
+        expectedAwayGoals: 0.1,
+      },
+      currentV1VsGatedV2Delta: {
+        homeWin: 0.03,
+        draw: -0.02,
+        awayWin: -0.01,
+        expectedHomeGoals: 0.2,
+        expectedAwayGoals: -0.05,
+      },
+      driftCauses: [],
+      explained: true,
+      releaseRisk: "low" as const,
+      features,
+      providerStatus: "scheduled",
+      providerShortStatus: "NS",
+      activatedGates: ["current_tournament_form"],
+      coherenceWarnings: [],
+    };
+    const venue = {
+      venue_key: "mexico_city_estadio_azteca",
+      fifa_tournament_name: "Estadio Azteca",
+      common_name: "Azteca",
+      host_city_en: "Mexico City",
+      host_city_es: "Ciudad de Mexico",
+      actual_city: "Mexico City",
+      country_code: "MEX",
+    } as never;
+
+    const candidateA = buildReleaseCandidateFixture({
+      candidateIdentifier: "v1_probability_v2_analysis",
+      comparison,
+      sourceState: comparison.regeneratedCurrentV1,
+      analysisPrediction,
+      sourceSnapshotReferences: comparison.regeneratedCurrentV1.sourceSnapshotReferences,
+      activatedGates: comparison.activatedGates,
+      coherenceWarnings: comparison.coherenceWarnings,
+      venue,
+    });
+    const candidateB = buildReleaseCandidateFixture({
+      candidateIdentifier: "gated_v2_probability_v2_analysis",
+      comparison,
+      sourceState: comparison.gatedV2,
+      analysisPrediction,
+      sourceSnapshotReferences: comparison.gatedV2.sourceSnapshotReferences,
+      activatedGates: comparison.activatedGates,
+      coherenceWarnings: comparison.coherenceWarnings,
+      venue,
+    });
+
+    expect(candidateA.probabilities).toEqual(comparison.regeneratedCurrentV1.probabilities);
+    expect(candidateB.probabilities).toEqual(comparison.gatedV2.probabilities);
+    expect(candidateA.teams.home.nameEs).toBe("Alemania");
+    expect(candidateB.venue.cityEs).toBe("Ciudad de Mexico");
+  });
+
+  it("flags human review when v2 crosses the publication thresholds", () => {
+    const review = evaluateFixtureHumanReview({
+      fixtureLabel: "Germany vs Curacao",
+      currentV1: {
+        generationCutoff: "2026-06-21T00:00:00Z",
+        sourceSnapshotReferences: ["snapshot:current"],
+        probabilities: { homeWin: 0.52, draw: 0.25, awayWin: 0.23 },
+        expectedGoals: { home: 1.1, away: 1.2 },
+        mostLikelyScore: "1-1",
+        prediction: {} as never,
+      },
+      gatedV2: {
+        generationCutoff: "2026-06-21T00:00:00Z",
+        sourceSnapshotReferences: ["snapshot:current"],
+        probabilities: { homeWin: 0.31, draw: 0.24, awayWin: 0.45 },
+        expectedGoals: { home: 1.7, away: 0.95 },
+        mostLikelyScore: "1-0",
+        prediction: {} as never,
+      },
+      features: {
+        derived: { reliabilityAverage: 0.5 },
+      } as never,
+      coherenceWarnings: ["scenario_mismatch"],
+    });
+
+    expect(review.reviewRequired).toBe(true);
+    expect(review.blockers).toContain("probability_delta_above_five_points");
+    expect(review.blockers).toContain("favorite_identity_changed");
+    expect(review.blockers).toContain("expected_goal_difference_changed_sign");
+    expect(review.blockers).toContain("expected_total_changed_above_point_three");
+    expect(review.blockers).toContain("scenario_probability_contradiction");
+    expect(review.blockers).toContain("source_reliability_low");
+  });
+
+  it("keeps publication planning immutable and public-safe", () => {
+    const comparison = {
+      fixtureId: "match-1",
+      storedActiveV1: {
+        predictionVersionId: "prediction-1",
+      },
+    } as never;
+    const plan = buildPublicationPlanEntry({
+      comparison,
+      proposedCandidate: "v1_probability_v2_analysis",
+      proposedModelVersion: "v0.2-prelaunch",
+      proposedCutoff: "2026-06-21T00:00:00Z",
+      blockers: [],
+    });
+    const exportPayload = buildPublicReleaseExport({
+      schemaVersion: "torneo-mundialista-v2-release-candidate",
+      generationCutoff: "2026-06-21T00:00:00Z",
+      candidateIdentifier: "v1_probability_v2_analysis",
+      fixtures: [
+        {
+          fixtureId: "match-1",
+          matchSlug: "germany-vs-curacao",
+          officialMatchNumber: 1,
+          kickoffAt: "2026-06-22T18:00:00Z",
+          predictionIdentifier: "match-1:v1_probability_v2_analysis",
+          currentPredictionVersionId: "prediction-1",
+          candidateIdentifier: "v1_probability_v2_analysis",
+          sourceCutoff: "2026-06-21T00:00:00Z",
+          teams: {
+            home: { canonicalKey: "germany", nameEn: "Germany", nameEs: "Alemania" },
+            away: { canonicalKey: "curacao", nameEn: "Curacao", nameEs: "Curazao" },
+          },
+          venue: {
+            venueKey: "mexico_city_estadio_azteca",
+            venueName: "Estadio Azteca",
+            cityEn: "Mexico City",
+            cityEs: "Ciudad de Mexico",
+            actualCity: "Mexico City",
+            countryCode: "MEX",
+          },
+          probabilities: { homeWin: 0.58, draw: 0.24, awayWin: 0.18 },
+          expectedGoals: { home: 1.7, away: 0.9 },
+          scenarios: [],
+          additionalScorelines: [],
+          publicEvidenceSummary: {
+            sourceSnapshotReferences: ["snapshot:current"],
+            reasonCodes: ["structural_advantage"],
+            contradictingReasonCodes: [],
+            activatedGates: [],
+            coherenceWarnings: [],
+          },
+          explanationPreviews: {
+            en: { locale: "en", summary: "Test", scenarioLines: [], reasonLines: [] },
+            es: { locale: "es", summary: "Prueba", scenarioLines: [], reasonLines: [] },
+          },
+        },
+      ],
+    });
+
+    expect(plan.createNewImmutableVersion).toBe(true);
+    expect(plan.preserveOriginalVersion).toBe(true);
+    expect(plan.reviewStatus).toBe("ready");
+    expect(exportPayload.fixtures[0]?.teams.home.nameEs).toBe("Alemania");
+    expect(JSON.stringify(exportPayload)).not.toContain("internalAudit");
+  });
+
+  it("keeps Task 2.3 public export output deterministic", () => {
+    const fixture = {
+      fixtureId: "match-1",
+      matchSlug: "germany-vs-curacao",
+      officialMatchNumber: 1,
+      kickoffAt: "2026-06-22T18:00:00Z",
+      predictionIdentifier: "match-1:v1_probability_v2_analysis",
+      currentPredictionVersionId: "prediction-1",
+      candidateIdentifier: "v1_probability_v2_analysis",
+      sourceCutoff: "2026-06-21T00:00:00Z",
+      teams: {
+        home: { canonicalKey: "germany", nameEn: "Germany", nameEs: "Alemania" },
+        away: { canonicalKey: "curacao", nameEn: "Curacao", nameEs: "Curazao" },
+      },
+      venue: {
+        venueKey: "mexico_city_estadio_azteca",
+        venueName: "Estadio Azteca",
+        cityEn: "Mexico City",
+        cityEs: "Ciudad de Mexico",
+        actualCity: "Mexico City",
+        countryCode: "MEX",
+      },
+      probabilities: { homeWin: 0.58, draw: 0.24, awayWin: 0.18 },
+      expectedGoals: { home: 1.7, away: 0.9 },
+      scenarios: [],
+      additionalScorelines: [],
+      publicEvidenceSummary: {
+        sourceSnapshotReferences: ["snapshot:current"],
+        reasonCodes: ["structural_advantage"],
+        contradictingReasonCodes: [],
+        activatedGates: [],
+        coherenceWarnings: [],
+      },
+      explanationPreviews: {
+        en: { locale: "en", summary: "Test", scenarioLines: [], reasonLines: [] },
+        es: { locale: "es", summary: "Prueba", scenarioLines: [], reasonLines: [] },
+      },
+    };
+
+    const first = buildPublicReleaseExport({
+      schemaVersion: "torneo-mundialista-v2-release-candidate",
+      generationCutoff: "2026-06-21T00:00:00Z",
+      candidateIdentifier: "v1_probability_v2_analysis",
+      fixtures: [fixture],
+    });
+    const second = buildPublicReleaseExport({
+      schemaVersion: "torneo-mundialista-v2-release-candidate",
+      generationCutoff: "2026-06-21T00:00:00Z",
+      candidateIdentifier: "v1_probability_v2_analysis",
+      fixtures: [fixture],
+    });
+
+    expect(JSON.stringify(first)).toBe(JSON.stringify(second));
   });
 });

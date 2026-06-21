@@ -1,0 +1,1212 @@
+{
+  "generationCutoff": "2026-06-21T00:00:00Z",
+  "newlyCompletedFixtures": [
+    {
+      "matchId": "00ce2fbc-4ac1-4a47-a97e-c345745e31ef",
+      "slug": "world-cup-2026-mexico-vs-south-africa-2026-06-11",
+      "kickoffAt": "2026-06-11T19:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "2-0"
+    },
+    {
+      "matchId": "12ca2711-de82-4e16-b495-9db77ac3b857",
+      "slug": "world-cup-2026-south-korea-vs-czech-republic-2026-06-12",
+      "kickoffAt": "2026-06-12T02:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "2-1"
+    },
+    {
+      "matchId": "ae7f1087-3810-4a8e-9057-aec845572149",
+      "slug": "world-cup-2026-canada-vs-bosnia-herzegovina-2026-06-12",
+      "kickoffAt": "2026-06-12T19:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-1"
+    },
+    {
+      "matchId": "b3758c32-a984-471a-a74a-31495de1ce7e",
+      "slug": "world-cup-2026-usa-vs-paraguay-2026-06-13",
+      "kickoffAt": "2026-06-13T01:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "4-1"
+    },
+    {
+      "matchId": "266c4718-0a1e-4941-a0ee-5846c5529c29",
+      "slug": "world-cup-2026-brazil-vs-morocco-2026-06-13",
+      "kickoffAt": "2026-06-13T22:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-1"
+    },
+    {
+      "matchId": "110bc7d0-df63-41cf-823a-e54312be284a",
+      "slug": "world-cup-2026-haiti-vs-scotland-2026-06-14",
+      "kickoffAt": "2026-06-14T01:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "0-1"
+    },
+    {
+      "matchId": "7b675dfd-ec43-410e-8391-125b471dbddf",
+      "slug": "world-cup-2026-australia-vs-turkiye-2026-06-14",
+      "kickoffAt": "2026-06-14T04:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "2-0"
+    },
+    {
+      "matchId": "512a99a3-d1dd-40df-8350-ea1ed657155d",
+      "slug": "world-cup-2026-argentina-vs-algeria-2026-06-17",
+      "kickoffAt": "2026-06-17T01:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "3-0"
+    },
+    {
+      "matchId": "32fd9e43-607d-47f0-b624-21e8c69e4aed",
+      "slug": "world-cup-2026-austria-vs-jordan-2026-06-17",
+      "kickoffAt": "2026-06-17T04:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "3-1"
+    },
+    {
+      "matchId": "ed5c6f8c-7165-4d9e-b786-3f832a0d8380",
+      "slug": "world-cup-2026-portugal-vs-congo-dr-2026-06-17",
+      "kickoffAt": "2026-06-17T17:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-1"
+    },
+    {
+      "matchId": "4261afb7-5f21-4388-81d4-980bfeec7a64",
+      "slug": "world-cup-2026-ghana-vs-panama-2026-06-17",
+      "kickoffAt": "2026-06-17T23:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-0"
+    },
+    {
+      "matchId": "647fd856-d96b-4e37-8d1a-85090a1b1b0d",
+      "slug": "world-cup-2026-uzbekistan-vs-colombia-2026-06-18",
+      "kickoffAt": "2026-06-18T02:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-3"
+    },
+    {
+      "matchId": "4477a48a-e67c-4b2b-97a2-2ba7d9800e2f",
+      "slug": "world-cup-2026-czechia-vs-south-africa-2026-06-18",
+      "kickoffAt": "2026-06-18T16:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-1"
+    },
+    {
+      "matchId": "d8157fe2-c7d5-4563-99d8-b2ada653559a",
+      "slug": "world-cup-2026-switzerland-vs-bosnia-herzegovina-2026-06-18",
+      "kickoffAt": "2026-06-18T19:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "4-1"
+    },
+    {
+      "matchId": "f412bc85-9507-4bec-be3d-c8608256d076",
+      "slug": "world-cup-2026-canada-vs-qatar-2026-06-18",
+      "kickoffAt": "2026-06-18T22:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "6-0"
+    },
+    {
+      "matchId": "2d7e5d6b-0400-4212-9d82-dad970f08477",
+      "slug": "world-cup-2026-qatar-vs-switzerland-2026-06-13",
+      "kickoffAt": "2026-06-13T19:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-1"
+    },
+    {
+      "matchId": "85d9d70b-9cc9-41fa-9706-31eade6e234a",
+      "slug": "world-cup-2026-germany-vs-curacao-2026-06-14",
+      "kickoffAt": "2026-06-14T17:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "7-1"
+    },
+    {
+      "matchId": "886e07ba-8677-4066-93f6-f8b73448a88c",
+      "slug": "world-cup-2026-netherlands-vs-japan-2026-06-14",
+      "kickoffAt": "2026-06-14T20:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "2-2"
+    },
+    {
+      "matchId": "f44a57be-e6c9-4b39-b823-1a0265262676",
+      "slug": "world-cup-2026-ivory-coast-vs-ecuador-2026-06-14",
+      "kickoffAt": "2026-06-14T23:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-0"
+    },
+    {
+      "matchId": "d306a4d3-dc09-4deb-8628-41e7f5aab339",
+      "slug": "world-cup-2026-sweden-vs-tunisia-2026-06-15",
+      "kickoffAt": "2026-06-15T02:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "5-1"
+    },
+    {
+      "matchId": "2c151a1e-3f22-471d-aa6c-f85874ae271f",
+      "slug": "world-cup-2026-iran-vs-new-zealand-2026-06-16",
+      "kickoffAt": "2026-06-16T01:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "2-2"
+    },
+    {
+      "matchId": "7c52c808-c33d-4d47-8e1a-c7b4fa897094",
+      "slug": "world-cup-2026-spain-vs-cape-verde-islands-2026-06-15",
+      "kickoffAt": "2026-06-15T16:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "0-0"
+    },
+    {
+      "matchId": "2f209469-2a15-46b9-ba16-2e0ab29a4ff1",
+      "slug": "world-cup-2026-belgium-vs-egypt-2026-06-15",
+      "kickoffAt": "2026-06-15T19:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-1"
+    },
+    {
+      "matchId": "c003b130-a4dc-4f8c-ba6a-027f72014fa1",
+      "slug": "world-cup-2026-saudi-arabia-vs-uruguay-2026-06-15",
+      "kickoffAt": "2026-06-15T22:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-1"
+    },
+    {
+      "matchId": "5179657c-4ca3-4d49-8c62-5875df458c54",
+      "slug": "world-cup-2026-france-vs-senegal-2026-06-16",
+      "kickoffAt": "2026-06-16T19:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "3-1"
+    },
+    {
+      "matchId": "62f2f7b0-6baf-41c2-83aa-dd594afa013b",
+      "slug": "world-cup-2026-iraq-vs-norway-2026-06-16",
+      "kickoffAt": "2026-06-16T22:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-4"
+    },
+    {
+      "matchId": "1e9039a3-6d5c-43df-b19b-40c6d849eee3",
+      "slug": "world-cup-2026-england-vs-croatia-2026-06-17",
+      "kickoffAt": "2026-06-17T20:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "4-2"
+    },
+    {
+      "matchId": "e177f830-1b7d-4da7-bb18-8f089d0199be",
+      "slug": "world-cup-2026-mexico-vs-south-korea-2026-06-19",
+      "kickoffAt": "2026-06-19T01:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "1-0"
+    },
+    {
+      "matchId": "fc7ff6cf-6fe6-4ad9-ab30-f53573d57936",
+      "slug": "world-cup-2026-netherlands-vs-sweden-2026-06-20",
+      "kickoffAt": "2026-06-20T17:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "5-1"
+    },
+    {
+      "matchId": "d54a9495-e60f-4864-9e4c-421e6626be0c",
+      "slug": "world-cup-2026-tunisia-vs-japan-2026-06-21",
+      "kickoffAt": "2026-06-21T04:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "0-4"
+    },
+    {
+      "matchId": "aeba6391-bcde-4067-9451-4dac31234c9f",
+      "slug": "world-cup-2026-ecuador-vs-curacao-2026-06-21",
+      "kickoffAt": "2026-06-21T00:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "0-0"
+    },
+    {
+      "matchId": "8a83cb77-3939-4982-9d3d-b4acffc2c84f",
+      "slug": "world-cup-2026-usa-vs-australia-2026-06-19",
+      "kickoffAt": "2026-06-19T19:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "2-0"
+    },
+    {
+      "matchId": "e85a1208-d097-4e02-8177-5c29d395a401",
+      "slug": "world-cup-2026-scotland-vs-morocco-2026-06-19",
+      "kickoffAt": "2026-06-19T22:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "0-1"
+    },
+    {
+      "matchId": "9bb5c5c7-08a5-4232-909a-99708aea8dca",
+      "slug": "world-cup-2026-brazil-vs-haiti-2026-06-20",
+      "kickoffAt": "2026-06-20T00:30:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "3-0"
+    },
+    {
+      "matchId": "25a5f6a0-d6d6-4668-8e26-c9054581d3e8",
+      "slug": "world-cup-2026-turkiye-vs-paraguay-2026-06-20",
+      "kickoffAt": "2026-06-20T03:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "0-1"
+    },
+    {
+      "matchId": "05426ed3-a4a4-4e34-bfcb-30a588df89f0",
+      "slug": "world-cup-2026-germany-vs-ivory-coast-2026-06-20",
+      "kickoffAt": "2026-06-20T20:00:00+00:00",
+      "providerStatus": "finished",
+      "providerShortStatus": "FT",
+      "scoreline": "2-1"
+    }
+  ],
+  "fixturesRemovedFromFutureSet": [
+    {
+      "matchId": "2d05905b-910a-4652-be9b-9ddbf0cede80",
+      "slug": "world-cup-2026-spain-vs-saudi-arabia-2026-06-21",
+      "kickoffAt": "2026-06-21T16:00:00+00:00",
+      "providerStatus": "live",
+      "providerShortStatus": "2H"
+    }
+  ],
+  "remainingFutureFixtureCount": 11,
+  "missingOrConflictingStatuses": [],
+  "frozenBlockedValidation": {
+    "baseline": {
+      "fixtureCount": 553,
+      "oneXTwo": {
+        "multiclassBrier": 0.214034,
+        "logLoss": 1.063263,
+        "outcomeAccuracy": 0.544262,
+        "favoriteAccuracy": 0.544252,
+        "calibrationByBucket": []
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.433826,
+        "goalDifferenceMae": 1.629401,
+        "bttsBrier": 0.254266,
+        "bttsAccuracy": 0.481022,
+        "over25Brier": 0.251118,
+        "over25Accuracy": 0.524461
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.094027,
+        "exactScoreTop3Coverage": 0.287427,
+        "exactScoreTop5Coverage": 0,
+        "actualScoreProbability": 0.0309,
+        "scoreMatrixTailMass": 0.000017
+      }
+    },
+    "frozenCandidate": {
+      "fixtureCount": 553,
+      "oneXTwo": {
+        "multiclassBrier": 0.213941,
+        "logLoss": 1.063273,
+        "outcomeAccuracy": 0.544252,
+        "favoriteAccuracy": 0.544252,
+        "calibrationByBucket": []
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.433866,
+        "goalDifferenceMae": 1.626172,
+        "bttsBrier": 0.253414,
+        "bttsAccuracy": 0.486447,
+        "over25Brier": 0.251136,
+        "over25Accuracy": 0.524461
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.092215,
+        "exactScoreTop3Coverage": 0.289238,
+        "exactScoreTop5Coverage": 0.421249,
+        "actualScoreProbability": 0.054386,
+        "scoreMatrixTailMass": 0.000186
+      }
+    },
+    "nonInferior": true
+  },
+  "refreshPlan": {
+    "completed_fixtures_discovered": 36,
+    "already_known_results": [
+      {
+        "provider_fixture_id": 1489369,
+        "external_id": "api-football:fixture:1489369",
+        "official_match_number": 1,
+        "kickoff_at_utc": "2026-06-11T19:00:00+00:00",
+        "canonical_home_team_key": "mexico",
+        "canonical_away_team_key": "south_africa",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 2,
+          "away": 0
+        },
+        "product_match_id": "00ce2fbc-4ac1-4a47-a97e-c345745e31ef",
+        "known_historical_result": {
+          "scoreline": "2-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "2-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1538999,
+        "external_id": "api-football:fixture:1538999",
+        "official_match_number": 2,
+        "kickoff_at_utc": "2026-06-12T02:00:00+00:00",
+        "canonical_home_team_key": "south_korea",
+        "canonical_away_team_key": "czechia",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 2,
+          "away": 1
+        },
+        "product_match_id": "12ca2711-de82-4e16-b495-9db77ac3b857",
+        "known_historical_result": {
+          "scoreline": "2-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "2-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539000,
+        "external_id": "api-football:fixture:1539000",
+        "official_match_number": 3,
+        "kickoff_at_utc": "2026-06-12T19:00:00+00:00",
+        "canonical_home_team_key": "canada",
+        "canonical_away_team_key": "bosnia_and_herzegovina",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 1
+        },
+        "product_match_id": "ae7f1087-3810-4a8e-9057-aec845572149",
+        "known_historical_result": {
+          "scoreline": "1-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489370,
+        "external_id": "api-football:fixture:1489370",
+        "official_match_number": 4,
+        "kickoff_at_utc": "2026-06-13T01:00:00+00:00",
+        "canonical_home_team_key": "united_states",
+        "canonical_away_team_key": "paraguay",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 4,
+          "away": 1
+        },
+        "product_match_id": "b3758c32-a984-471a-a74a-31495de1ce7e",
+        "known_historical_result": {
+          "scoreline": "4-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "4-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489373,
+        "external_id": "api-football:fixture:1489373",
+        "official_match_number": 8,
+        "kickoff_at_utc": "2026-06-13T19:00:00+00:00",
+        "canonical_home_team_key": "qatar",
+        "canonical_away_team_key": "switzerland",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 1
+        },
+        "product_match_id": "2d7e5d6b-0400-4212-9d82-dad970f08477",
+        "known_historical_result": {
+          "scoreline": "1-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489371,
+        "external_id": "api-football:fixture:1489371",
+        "official_match_number": 7,
+        "kickoff_at_utc": "2026-06-13T22:00:00+00:00",
+        "canonical_home_team_key": "brazil",
+        "canonical_away_team_key": "morocco",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 1
+        },
+        "product_match_id": "266c4718-0a1e-4941-a0ee-5846c5529c29",
+        "known_historical_result": {
+          "scoreline": "1-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489372,
+        "external_id": "api-football:fixture:1489372",
+        "official_match_number": 5,
+        "kickoff_at_utc": "2026-06-14T01:00:00+00:00",
+        "canonical_home_team_key": "haiti",
+        "canonical_away_team_key": "scotland",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 0,
+          "away": 1
+        },
+        "product_match_id": "110bc7d0-df63-41cf-823a-e54312be284a",
+        "known_historical_result": {
+          "scoreline": "0-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "0-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539001,
+        "external_id": "api-football:fixture:1539001",
+        "official_match_number": 6,
+        "kickoff_at_utc": "2026-06-14T04:00:00+00:00",
+        "canonical_home_team_key": "australia",
+        "canonical_away_team_key": "turkiye",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 2,
+          "away": 0
+        },
+        "product_match_id": "7b675dfd-ec43-410e-8391-125b471dbddf",
+        "known_historical_result": {
+          "scoreline": "2-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "2-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489374,
+        "external_id": "api-football:fixture:1489374",
+        "official_match_number": 10,
+        "kickoff_at_utc": "2026-06-14T17:00:00+00:00",
+        "canonical_home_team_key": "germany",
+        "canonical_away_team_key": "curacao",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 7,
+          "away": 1
+        },
+        "product_match_id": "85d9d70b-9cc9-41fa-9706-31eade6e234a",
+        "known_historical_result": {
+          "scoreline": "7-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "7-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489376,
+        "external_id": "api-football:fixture:1489376",
+        "official_match_number": 11,
+        "kickoff_at_utc": "2026-06-14T20:00:00+00:00",
+        "canonical_home_team_key": "netherlands",
+        "canonical_away_team_key": "japan",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 2,
+          "away": 2
+        },
+        "product_match_id": "886e07ba-8677-4066-93f6-f8b73448a88c",
+        "known_historical_result": {
+          "scoreline": "2-2",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "2-2",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489375,
+        "external_id": "api-football:fixture:1489375",
+        "official_match_number": 9,
+        "kickoff_at_utc": "2026-06-14T23:00:00+00:00",
+        "canonical_home_team_key": "ivory_coast",
+        "canonical_away_team_key": "ecuador",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 0
+        },
+        "product_match_id": "f44a57be-e6c9-4b39-b823-1a0265262676",
+        "known_historical_result": {
+          "scoreline": "1-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539002,
+        "external_id": "api-football:fixture:1539002",
+        "official_match_number": 12,
+        "kickoff_at_utc": "2026-06-15T02:00:00+00:00",
+        "canonical_home_team_key": "sweden",
+        "canonical_away_team_key": "tunisia",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 5,
+          "away": 1
+        },
+        "product_match_id": "d306a4d3-dc09-4deb-8628-41e7f5aab339",
+        "known_historical_result": {
+          "scoreline": "5-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "5-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489380,
+        "external_id": "api-football:fixture:1489380",
+        "official_match_number": 14,
+        "kickoff_at_utc": "2026-06-15T16:00:00+00:00",
+        "canonical_home_team_key": "spain",
+        "canonical_away_team_key": "cape_verde",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 0,
+          "away": 0
+        },
+        "product_match_id": "7c52c808-c33d-4d47-8e1a-c7b4fa897094",
+        "known_historical_result": {
+          "scoreline": "0-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "0-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489377,
+        "external_id": "api-football:fixture:1489377",
+        "official_match_number": 16,
+        "kickoff_at_utc": "2026-06-15T19:00:00+00:00",
+        "canonical_home_team_key": "belgium",
+        "canonical_away_team_key": "egypt",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 1
+        },
+        "product_match_id": "2f209469-2a15-46b9-ba16-2e0ab29a4ff1",
+        "known_historical_result": {
+          "scoreline": "1-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489379,
+        "external_id": "api-football:fixture:1489379",
+        "official_match_number": 13,
+        "kickoff_at_utc": "2026-06-15T22:00:00+00:00",
+        "canonical_home_team_key": "saudi_arabia",
+        "canonical_away_team_key": "uruguay",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 1
+        },
+        "product_match_id": "c003b130-a4dc-4f8c-ba6a-027f72014fa1",
+        "known_historical_result": {
+          "scoreline": "1-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489378,
+        "external_id": "api-football:fixture:1489378",
+        "official_match_number": 15,
+        "kickoff_at_utc": "2026-06-16T01:00:00+00:00",
+        "canonical_home_team_key": "iran",
+        "canonical_away_team_key": "new_zealand",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 2,
+          "away": 2
+        },
+        "product_match_id": "2c151a1e-3f22-471d-aa6c-f85874ae271f",
+        "known_historical_result": {
+          "scoreline": "2-2",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "2-2",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489383,
+        "external_id": "api-football:fixture:1489383",
+        "official_match_number": 17,
+        "kickoff_at_utc": "2026-06-16T19:00:00+00:00",
+        "canonical_home_team_key": "france",
+        "canonical_away_team_key": "senegal",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 3,
+          "away": 1
+        },
+        "product_match_id": "5179657c-4ca3-4d49-8c62-5875df458c54",
+        "known_historical_result": {
+          "scoreline": "3-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "3-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539016,
+        "external_id": "api-football:fixture:1539016",
+        "official_match_number": 18,
+        "kickoff_at_utc": "2026-06-16T22:00:00+00:00",
+        "canonical_home_team_key": "iraq",
+        "canonical_away_team_key": "norway",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 4
+        },
+        "product_match_id": "62f2f7b0-6baf-41c2-83aa-dd594afa013b",
+        "known_historical_result": {
+          "scoreline": "1-4",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-4",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489381,
+        "external_id": "api-football:fixture:1489381",
+        "official_match_number": 19,
+        "kickoff_at_utc": "2026-06-17T01:00:00+00:00",
+        "canonical_home_team_key": "argentina",
+        "canonical_away_team_key": "algeria",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 3,
+          "away": 0
+        },
+        "product_match_id": "512a99a3-d1dd-40df-8350-ea1ed657155d",
+        "known_historical_result": {
+          "scoreline": "3-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "3-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489382,
+        "external_id": "api-football:fixture:1489382",
+        "official_match_number": 20,
+        "kickoff_at_utc": "2026-06-17T04:00:00+00:00",
+        "canonical_home_team_key": "austria",
+        "canonical_away_team_key": "jordan",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 3,
+          "away": 1
+        },
+        "product_match_id": "32fd9e43-607d-47f0-b624-21e8c69e4aed",
+        "known_historical_result": {
+          "scoreline": "3-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "3-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539003,
+        "external_id": "api-football:fixture:1539003",
+        "official_match_number": 23,
+        "kickoff_at_utc": "2026-06-17T17:00:00+00:00",
+        "canonical_home_team_key": "portugal",
+        "canonical_away_team_key": "dr_congo",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 1
+        },
+        "product_match_id": "ed5c6f8c-7165-4d9e-b786-3f832a0d8380",
+        "known_historical_result": {
+          "scoreline": "1-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489384,
+        "external_id": "api-football:fixture:1489384",
+        "official_match_number": 22,
+        "kickoff_at_utc": "2026-06-17T20:00:00+00:00",
+        "canonical_home_team_key": "england",
+        "canonical_away_team_key": "croatia",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 4,
+          "away": 2
+        },
+        "product_match_id": "1e9039a3-6d5c-43df-b19b-40c6d849eee3",
+        "known_historical_result": {
+          "scoreline": "4-2",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "4-2",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489385,
+        "external_id": "api-football:fixture:1489385",
+        "official_match_number": 21,
+        "kickoff_at_utc": "2026-06-17T23:00:00+00:00",
+        "canonical_home_team_key": "ghana",
+        "canonical_away_team_key": "panama",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 0
+        },
+        "product_match_id": "4261afb7-5f21-4388-81d4-980bfeec7a64",
+        "known_historical_result": {
+          "scoreline": "1-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489386,
+        "external_id": "api-football:fixture:1489386",
+        "official_match_number": 24,
+        "kickoff_at_utc": "2026-06-18T02:00:00+00:00",
+        "canonical_home_team_key": "uzbekistan",
+        "canonical_away_team_key": "colombia",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 3
+        },
+        "product_match_id": "647fd856-d96b-4e37-8d1a-85090a1b1b0d",
+        "known_historical_result": {
+          "scoreline": "1-3",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-3",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539004,
+        "external_id": "api-football:fixture:1539004",
+        "official_match_number": 25,
+        "kickoff_at_utc": "2026-06-18T16:00:00+00:00",
+        "canonical_home_team_key": "czechia",
+        "canonical_away_team_key": "south_africa",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 1
+        },
+        "product_match_id": "4477a48a-e67c-4b2b-97a2-2ba7d9800e2f",
+        "known_historical_result": {
+          "scoreline": "1-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539005,
+        "external_id": "api-football:fixture:1539005",
+        "official_match_number": 26,
+        "kickoff_at_utc": "2026-06-18T19:00:00+00:00",
+        "canonical_home_team_key": "switzerland",
+        "canonical_away_team_key": "bosnia_and_herzegovina",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 4,
+          "away": 1
+        },
+        "product_match_id": "d8157fe2-c7d5-4563-99d8-b2ada653559a",
+        "known_historical_result": {
+          "scoreline": "4-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "4-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489387,
+        "external_id": "api-football:fixture:1489387",
+        "official_match_number": 27,
+        "kickoff_at_utc": "2026-06-18T22:00:00+00:00",
+        "canonical_home_team_key": "canada",
+        "canonical_away_team_key": "qatar",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 6,
+          "away": 0
+        },
+        "product_match_id": "f412bc85-9507-4bec-be3d-c8608256d076",
+        "known_historical_result": {
+          "scoreline": "6-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "6-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489388,
+        "external_id": "api-football:fixture:1489388",
+        "official_match_number": 28,
+        "kickoff_at_utc": "2026-06-19T01:00:00+00:00",
+        "canonical_home_team_key": "mexico",
+        "canonical_away_team_key": "south_korea",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 1,
+          "away": 0
+        },
+        "product_match_id": "e177f830-1b7d-4da7-bb18-8f089d0199be",
+        "known_historical_result": {
+          "scoreline": "1-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "1-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489391,
+        "external_id": "api-football:fixture:1489391",
+        "official_match_number": 32,
+        "kickoff_at_utc": "2026-06-19T19:00:00+00:00",
+        "canonical_home_team_key": "united_states",
+        "canonical_away_team_key": "australia",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 2,
+          "away": 0
+        },
+        "product_match_id": "8a83cb77-3939-4982-9d3d-b4acffc2c84f",
+        "known_historical_result": {
+          "scoreline": "2-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "2-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489390,
+        "external_id": "api-football:fixture:1489390",
+        "official_match_number": 30,
+        "kickoff_at_utc": "2026-06-19T22:00:00+00:00",
+        "canonical_home_team_key": "scotland",
+        "canonical_away_team_key": "morocco",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 0,
+          "away": 1
+        },
+        "product_match_id": "e85a1208-d097-4e02-8177-5c29d395a401",
+        "known_historical_result": {
+          "scoreline": "0-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "0-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489389,
+        "external_id": "api-football:fixture:1489389",
+        "official_match_number": 29,
+        "kickoff_at_utc": "2026-06-20T00:30:00+00:00",
+        "canonical_home_team_key": "brazil",
+        "canonical_away_team_key": "haiti",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 3,
+          "away": 0
+        },
+        "product_match_id": "9bb5c5c7-08a5-4232-909a-99708aea8dca",
+        "known_historical_result": {
+          "scoreline": "3-0",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "3-0",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539006,
+        "external_id": "api-football:fixture:1539006",
+        "official_match_number": 31,
+        "kickoff_at_utc": "2026-06-20T03:00:00+00:00",
+        "canonical_home_team_key": "turkiye",
+        "canonical_away_team_key": "paraguay",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 0,
+          "away": 1
+        },
+        "product_match_id": "25a5f6a0-d6d6-4668-8e26-c9054581d3e8",
+        "known_historical_result": {
+          "scoreline": "0-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": {
+          "scoreline": "0-1",
+          "verification_status": "verified"
+        },
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1539007,
+        "external_id": "api-football:fixture:1539007",
+        "official_match_number": 35,
+        "kickoff_at_utc": "2026-06-20T17:00:00+00:00",
+        "canonical_home_team_key": "netherlands",
+        "canonical_away_team_key": "sweden",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 5,
+          "away": 1
+        },
+        "product_match_id": "fc7ff6cf-6fe6-4ad9-ab30-f53573d57936",
+        "known_historical_result": {
+          "scoreline": "5-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": null,
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      },
+      {
+        "provider_fixture_id": 1489393,
+        "external_id": "api-football:fixture:1489393",
+        "official_match_number": 33,
+        "kickoff_at_utc": "2026-06-20T20:00:00+00:00",
+        "canonical_home_team_key": "germany",
+        "canonical_away_team_key": "ivory_coast",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 2,
+          "away": 1
+        },
+        "product_match_id": "05426ed3-a4a4-4e34-bfcb-30a588df89f0",
+        "known_historical_result": {
+          "scoreline": "2-1",
+          "source_snapshot_id": "elo-results-recent-2026-06-20"
+        },
+        "product_result": null,
+        "classification": "already_known_result",
+        "note": "historical fact already covers the completed provider fixture."
+      }
+    ],
+    "newly_discovered_results": [
+      {
+        "provider_fixture_id": 1489392,
+        "external_id": "api-football:fixture:1489392",
+        "official_match_number": 34,
+        "kickoff_at_utc": "2026-06-21T00:00:00+00:00",
+        "canonical_home_team_key": "ecuador",
+        "canonical_away_team_key": "curacao",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 0,
+          "away": 0
+        },
+        "product_match_id": "aeba6391-bcde-4067-9451-4dac31234c9f",
+        "known_historical_result": null,
+        "product_result": null,
+        "classification": "newly_discovered_result",
+        "note": "completed provider fixture is missing from the prepared historical fact seed."
+      },
+      {
+        "provider_fixture_id": 1489394,
+        "external_id": "api-football:fixture:1489394",
+        "official_match_number": 36,
+        "kickoff_at_utc": "2026-06-21T04:00:00+00:00",
+        "canonical_home_team_key": "tunisia",
+        "canonical_away_team_key": "japan",
+        "provider_status": "FT",
+        "provider_score": {
+          "home": 0,
+          "away": 4
+        },
+        "product_match_id": "d54a9495-e60f-4864-9e4c-421e6626be0c",
+        "known_historical_result": null,
+        "product_result": null,
+        "classification": "newly_discovered_result",
+        "note": "completed provider fixture is missing from the prepared historical fact seed."
+      }
+    ],
+    "score_or_status_corrections": [],
+    "unresolved_finished_fixtures": []
+  }
+}
