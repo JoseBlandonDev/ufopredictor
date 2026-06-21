@@ -2,17 +2,22 @@ import { describe, expect, it } from "vitest";
 
 import {
   TASK2_1_CANDIDATES,
+  TASK2_2_CANDIDATES,
+  buildBlockedTimeSeriesFoldManifest,
   buildChallengerPrediction,
   buildExpandedCalibrationManifest,
   buildHistoricalReplayCutoff,
   buildMatchFeatureVector,
+  buildProductionV1ParityAudit,
   buildPublicSafeShadowExport,
   buildTrainingValidationHoldoutManifest,
   buildValidationSelectionAudit,
+  deriveGateEvidence,
   evaluateScenarioRows,
   filterFutureFixturesByCutoff,
   parseOriginalPrediction,
   renderExplanationPreview,
+  selectProductionEligibleCandidate,
 } from "./task2";
 import type {
   CanonicalTeamLocalization,
@@ -627,6 +632,193 @@ describe("prediction intelligence v2 task2", () => {
       ],
       "2026-06-21T00:00:00Z",
     ).map((entry) => entry.id)).toEqual(["future"]);
+  });
+
+  it("builds blocked time-series folds without validation leakage", () => {
+    const rows = buildExpandedCalibrationManifest({
+      historicalFacts,
+      holdoutRows: [
+        {
+          fixtureId: "holdout",
+          productMatchId: "match-1",
+          officialMatchNumber: 10,
+          apiFootballFixtureId: 100,
+          kickoffAt: "2026-06-14T17:00:00Z",
+          homeTeamKey: "germany",
+          awayTeamKey: "curacao",
+          homeNameEn: "Germany",
+          awayNameEn: "Curacao",
+          homeNameEs: "Alemania",
+          awayNameEs: "Curazao",
+          sourceSnapshotIds: ["x"],
+          homeSignal: baseHomeSignal,
+          awaySignal: baseAwaySignal,
+          actual: { homeGoals: 7, awayGoals: 1, score: "7-1", outcome: "home" as const },
+          originalPrediction: {} as never,
+          originalMarkets: [],
+        },
+      ],
+      scheduleRows,
+      localizations,
+    });
+    const materialized = [...rows.splitManifest.training.rows, ...rows.splitManifest.validation.rows].map((row) => ({
+      fixtureId: row.fixtureId,
+      cutoffAt: row.cutoffAt,
+      officialMatchNumber: row.officialMatchNumber,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      actual: { homeGoals: 0, awayGoals: 0, score: "0-0", outcome: "draw" as const },
+      features: buildMatchFeatureVector({
+        fixtureId: row.fixtureId,
+        cutoffAt: row.cutoffAt,
+        homeTeamKey: row.homeTeamKey,
+        awayTeamKey: row.awayTeamKey,
+        homeSignal: baseHomeSignal,
+        awaySignal: baseAwaySignal,
+        historicalFacts,
+        localizations,
+        eloCurrent: eloRows,
+        eloStart2026: eloStartRows,
+        fifaRanking: fifaRows,
+        scheduleRows,
+      }),
+    }));
+    const folds = buildBlockedTimeSeriesFoldManifest(materialized);
+
+    expect(folds.length).toBeGreaterThan(0);
+    expect(folds.every((fold) => fold.trainingCutoffEnd <= fold.validationCutoffStart)).toBe(true);
+    expect(folds.every((fold) => fold.validationCount > 0)).toBe(true);
+  });
+
+  it("never promotes a diagnostic candidate when a conservative production candidate is effectively tied", () => {
+    const selected = selectProductionEligibleCandidate([
+      {
+        candidateKey: "recent_only_ablation",
+        candidateClass: "diagnostic_only",
+        foldResults: [],
+        aggregateMetrics: {
+          fixtureCount: 10,
+          oneXTwo: { multiclassBrier: 0.18, logLoss: 0.9, outcomeAccuracy: 0.6, favoriteAccuracy: 0.6, calibrationByBucket: [] },
+          goalsAndMarkets: { totalGoalsMae: 1.4, goalDifferenceMae: 1.1, bttsBrier: 0.2, bttsAccuracy: 0.5, over25Brier: 0.2, over25Accuracy: 0.5 },
+          scoreDistribution: { exactScoreTop1Coverage: 0.1, exactScoreTop3Coverage: 0.2, exactScoreTop5Coverage: 0.3, actualScoreProbability: 0.05, scoreMatrixTailMass: 0.01 },
+        },
+        stability: { multiclassBrierRange: 0.005, logLossRange: 0.02 },
+      },
+      {
+        candidateKey: "v1_plus_high_confidence_signals",
+        candidateClass: "production_eligible",
+        foldResults: [],
+        aggregateMetrics: {
+          fixtureCount: 10,
+          oneXTwo: { multiclassBrier: 0.21394, logLoss: 1.0632, outcomeAccuracy: 0.54, favoriteAccuracy: 0.54, calibrationByBucket: [] },
+          goalsAndMarkets: { totalGoalsMae: 1.43, goalDifferenceMae: 1.62, bttsBrier: 0.25, bttsAccuracy: 0.48, over25Brier: 0.25, over25Accuracy: 0.52 },
+          scoreDistribution: { exactScoreTop1Coverage: 0.09, exactScoreTop3Coverage: 0.29, exactScoreTop5Coverage: 0.42, actualScoreProbability: 0.05, scoreMatrixTailMass: 0.0002 },
+        },
+        stability: { multiclassBrierRange: 0.01305, logLossRange: 0.0549 },
+      },
+      {
+        candidateKey: "v1_plus_high_confidence_signals_conservative",
+        candidateClass: "production_eligible",
+        foldResults: [],
+        aggregateMetrics: {
+          fixtureCount: 10,
+          oneXTwo: { multiclassBrier: 0.21403, logLoss: 1.0633, outcomeAccuracy: 0.54, favoriteAccuracy: 0.54, calibrationByBucket: [] },
+          goalsAndMarkets: { totalGoalsMae: 1.43, goalDifferenceMae: 1.62, bttsBrier: 0.25, bttsAccuracy: 0.48, over25Brier: 0.25, over25Accuracy: 0.52 },
+          scoreDistribution: { exactScoreTop1Coverage: 0.09, exactScoreTop3Coverage: 0.29, exactScoreTop5Coverage: 0.42, actualScoreProbability: 0.05, scoreMatrixTailMass: 0.0002 },
+        },
+        stability: { multiclassBrierRange: 0.01304, logLossRange: 0.0548 },
+      },
+    ]);
+
+    expect(selected.candidateKey).toBe("v1_plus_high_confidence_signals_conservative");
+  });
+
+  it("keeps one-match tournament evidence strongly shrunk until more matches accrue", () => {
+    const features = buildMatchFeatureVector({
+      fixtureId: "argentina-vs-austria",
+      cutoffAt: "2026-06-15T17:00:00Z",
+      homeTeamKey: "argentina",
+      awayTeamKey: "austria",
+      officialMatchNumber: 2,
+      homeSignal: makeSignal({ teamKey: "argentina", en: "Argentina", es: "Argentina", elo: 1940, fifa: 1860 }),
+      awaySignal: makeSignal({ teamKey: "austria", en: "Austria", es: "Austria", elo: 1760, fifa: 1650 }),
+      historicalFacts,
+      localizations,
+      eloCurrent: eloRows,
+      eloStart2026: eloStartRows,
+      fifaRanking: fifaRows,
+      scheduleRows,
+    });
+    const gateEvidence = deriveGateEvidence({
+      ...features,
+      derived: {
+        ...features.derived,
+        tournamentGap: 0.4,
+      },
+      home: {
+        ...features.home,
+        currentWorldCupForm: {
+          ...features.home.currentWorldCupForm,
+          matchesPlayed: 1,
+        },
+      },
+      away: {
+        ...features.away,
+        currentWorldCupForm: {
+          ...features.away.currentWorldCupForm,
+          matchesPlayed: 1,
+        },
+      },
+    });
+
+    expect(gateEvidence.activatedGates).toContain("current_tournament_form");
+    expect(Math.abs(gateEvidence.components.tournamentForm)).toBeLessThan(0.05);
+  });
+
+  it("treats tiny parity deltas within tolerance as exact matches", () => {
+    const parity = buildProductionV1ParityAudit({
+      fixtureId: "fixture-1",
+      storedRow: {
+        id: "p1",
+        match_id: "m1",
+        model_version_id: "v1",
+        prediction_type: "pre_match_24h",
+        home_win_prob: 50,
+        draw_prob: 25,
+        away_win_prob: 25,
+        expected_home_goals: 1.5,
+        expected_away_goals: 1.1,
+        most_likely_score: "1-0",
+        top_scores_json: [],
+        confidence_score: 60,
+        risk_level: "medium",
+        run_scope: "public_product",
+        created_at: "2026-06-01T00:00:00Z",
+      },
+      storedMarkets: [],
+      replay: {
+        prediction: {
+          homeWin: 0.5007,
+          draw: 0.2496,
+          awayWin: 0.2497,
+          expectedHomeGoals: 1.5006,
+          expectedAwayGoals: 1.0995,
+          mostLikelyScore: "1-0",
+          topScorelines: [],
+          bttsYes: null,
+          bttsNo: null,
+          over25: null,
+          under25: null,
+          scoreMatrixTailMass: null,
+          scoreMatrixSource: "reconstructed_from_xg",
+        },
+        challenger: {} as never,
+        expectedGoals: { home: 1.5006, away: 1.0995, total: 2.6001, difference: 0.4011 },
+        rawProjection: {} as never,
+      },
+    });
+
+    expect(parity.parityStatus).toBe("exact_match");
   });
 
   it("builds a public-safe shadow export without internal audit details or weights", () => {
