@@ -152,7 +152,7 @@ export type CorrectedEvidencePreview = {
   away_signal: ReturnType<typeof buildPredictionIntelligenceV2ReplayInput>["awaySignal"];
 };
 
-type ProductReplayInventory = {
+export type ProductReplayInventory = {
   competition: ProductCompetitionRow;
   matches: ProductMatchInventoryRow[];
   teamsById: Map<string, Pick<TeamRow, "id" | "name" | "slug" | "external_id">>;
@@ -617,7 +617,7 @@ export async function validateLiveSources(paths: PreparedPaths): Promise<LiveSou
   return validations;
 }
 
-async function loadProductReplayInventory(): Promise<ProductReplayInventory> {
+export async function loadProductReplayInventory(): Promise<ProductReplayInventory> {
   const supabase = createSupabaseScriptAdminClient();
 
   const { data: competitionData, error: competitionError } = await supabase
@@ -702,6 +702,7 @@ export function buildReplayCoverageManifest(input: {
   scheduleRows: WorldCupScheduleMatch[];
   scheduleLinks: ScheduleFixtureLink[];
   refreshPlan: CompletedFixtureRefreshPlan;
+  aliases: CanonicalTeamAlias[];
   localizations: CanonicalTeamLocalization[];
   historicalFacts: HistoricalMatchFact[];
   eloCurrent: RatingSnapshotRow[];
@@ -744,6 +745,7 @@ export function buildReplayCoverageManifest(input: {
               homeTeamKey: canonicalHomeTeamKey,
               awayTeamKey: canonicalAwayTeamKey,
               historicalFacts: input.historicalFacts,
+              aliases: input.aliases,
               eloCurrent: input.eloCurrent,
               eloStart2026: input.eloStart2026,
               fifaRanking: input.fifaRanking,
@@ -797,6 +799,7 @@ export function buildReplayCoverageManifest(input: {
 export function buildCorrectedEvidencePreviews(input: {
   fixtures: Array<{ home: string; away: string }>;
   scheduleRows: WorldCupScheduleMatch[];
+  aliases: CanonicalTeamAlias[];
   localizations: CanonicalTeamLocalization[];
   historicalFacts: HistoricalMatchFact[];
   eloCurrent: RatingSnapshotRow[];
@@ -824,6 +827,7 @@ export function buildCorrectedEvidencePreviews(input: {
       homeTeamKey: home,
       awayTeamKey: away,
       historicalFacts: input.historicalFacts,
+      aliases: input.aliases,
       eloCurrent: input.eloCurrent,
       eloStart2026: input.eloStart2026,
       fifaRanking: input.fifaRanking,
@@ -909,6 +913,7 @@ export async function runTask1_1(paths: PreparedPaths & { artifactDate: string }
     scheduleRows: datasets.schedule,
     scheduleLinks,
     refreshPlan,
+    aliases: datasets.aliases,
     localizations: datasets.localizations,
     historicalFacts: datasets.historicalFacts,
     eloCurrent: datasets.eloCurrent,
@@ -924,6 +929,7 @@ export async function runTask1_1(paths: PreparedPaths & { artifactDate: string }
       { home: "ecuador", away: "curacao" },
     ],
     scheduleRows: datasets.schedule,
+    aliases: datasets.aliases,
     localizations: datasets.localizations,
     historicalFacts: datasets.historicalFacts,
     eloCurrent: datasets.eloCurrent,

@@ -1,0 +1,326 @@
+[
+  {
+    "fixture": "Mexico vs South Africa",
+    "official_match_number": 1,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1721.78,
+    "away_fifa_at_cutoff": 1418.21,
+    "replay_ready": true
+  },
+  {
+    "fixture": "South Korea vs Czechia",
+    "official_match_number": 2,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1591.75,
+    "away_fifa_at_cutoff": 1481.49,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Canada vs Bosnia and Herzegovina",
+    "official_match_number": 3,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1572.13,
+    "away_fifa_at_cutoff": 1381.18,
+    "replay_ready": true
+  },
+  {
+    "fixture": "United States vs Paraguay",
+    "official_match_number": 4,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1709.59,
+    "away_fifa_at_cutoff": 1517.39,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Brazil vs Morocco",
+    "official_match_number": 7,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1772.01,
+    "away_fifa_at_cutoff": 1769.98,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Haiti vs Scotland",
+    "official_match_number": 5,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1271,
+    "away_fifa_at_cutoff": 1504.41,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Australia vs Türkiye",
+    "official_match_number": 6,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1584.55,
+    "away_fifa_at_cutoff": 1550.13,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Argentina vs Algeria",
+    "official_match_number": 19,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1889.06,
+    "away_fifa_at_cutoff": 1559.24,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Austria vs Jordan",
+    "official_match_number": 20,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1612.86,
+    "away_fifa_at_cutoff": 1372.29,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Portugal vs DR Congo",
+    "official_match_number": 23,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1755.09,
+    "away_fifa_at_cutoff": 1487.18,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Ghana vs Panama",
+    "official_match_number": 21,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1380.71,
+    "away_fifa_at_cutoff": 1505.33,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Uzbekistan vs Colombia",
+    "official_match_number": 24,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1444.48,
+    "away_fifa_at_cutoff": 1712.6,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Czechia vs South Africa",
+    "official_match_number": 25,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1481.49,
+    "away_fifa_at_cutoff": 1418.21,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Switzerland vs Bosnia and Herzegovina",
+    "official_match_number": 26,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1654.94,
+    "away_fifa_at_cutoff": 1381.18,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Canada vs Qatar",
+    "official_match_number": 27,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1572.13,
+    "away_fifa_at_cutoff": 1438.82,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Qatar vs Switzerland",
+    "official_match_number": 8,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1438.82,
+    "away_fifa_at_cutoff": 1654.94,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Germany vs Curaçao",
+    "official_match_number": 10,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1760.46,
+    "away_fifa_at_cutoff": 1299.41,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Netherlands vs Japan",
+    "official_match_number": 11,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1764.4,
+    "away_fifa_at_cutoff": 1665.94,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Ivory Coast vs Ecuador",
+    "official_match_number": 9,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1551.71,
+    "away_fifa_at_cutoff": 1558.35,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Sweden vs Tunisia",
+    "official_match_number": 12,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1517.99,
+    "away_fifa_at_cutoff": 1453,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Iran vs New Zealand",
+    "official_match_number": 15,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1605.12,
+    "away_fifa_at_cutoff": 1290.04,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Spain vs Cape Verde",
+    "official_match_number": 14,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1856.03,
+    "away_fifa_at_cutoff": 1389.79,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Belgium vs Egypt",
+    "official_match_number": 16,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1733.93,
+    "away_fifa_at_cutoff": 1570.67,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Saudi Arabia vs Uruguay",
+    "official_match_number": 13,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1435,
+    "away_fifa_at_cutoff": 1661.95,
+    "replay_ready": true
+  },
+  {
+    "fixture": "France vs Senegal",
+    "official_match_number": 17,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1887.11,
+    "away_fifa_at_cutoff": 1667.66,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Iraq vs Norway",
+    "official_match_number": 18,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1426.53,
+    "away_fifa_at_cutoff": 1577.18,
+    "replay_ready": true
+  },
+  {
+    "fixture": "England vs Croatia",
+    "official_match_number": 22,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1847.68,
+    "away_fifa_at_cutoff": 1695.21,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Mexico vs South Korea",
+    "official_match_number": 28,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1721.78,
+    "away_fifa_at_cutoff": 1591.75,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Netherlands vs Sweden",
+    "official_match_number": 35,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1764.4,
+    "away_fifa_at_cutoff": 1517.99,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Tunisia vs Japan",
+    "official_match_number": 36,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1453,
+    "away_fifa_at_cutoff": 1665.94,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Ecuador vs Curaçao",
+    "official_match_number": 34,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1558.35,
+    "away_fifa_at_cutoff": 1299.41,
+    "replay_ready": true
+  },
+  {
+    "fixture": "United States vs Australia",
+    "official_match_number": 32,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1709.59,
+    "away_fifa_at_cutoff": 1584.55,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Scotland vs Morocco",
+    "official_match_number": 30,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1504.41,
+    "away_fifa_at_cutoff": 1769.98,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Brazil vs Haiti",
+    "official_match_number": 29,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1772.01,
+    "away_fifa_at_cutoff": 1271,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Türkiye vs Paraguay",
+    "official_match_number": 31,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1550.13,
+    "away_fifa_at_cutoff": 1517.39,
+    "replay_ready": true
+  },
+  {
+    "fixture": "Germany vs Ivory Coast",
+    "official_match_number": 33,
+    "home_missing_optional_signals": [],
+    "away_missing_optional_signals": [],
+    "home_fifa_at_cutoff": 1760.46,
+    "away_fifa_at_cutoff": 1551.71,
+    "replay_ready": true
+  }
+]

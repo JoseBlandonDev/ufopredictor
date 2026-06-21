@@ -202,6 +202,12 @@ export type TeamSignalSnapshot = {
   canonical_team_key: string;
   display_name_en: string;
   display_name_es: string;
+  eloAtCutoff: number | null;
+  eloResolutionMethod: "exact_fixture_pre_match" | "latest_prior_post_match" | "start_2026_baseline" | "unavailable";
+  eloSourceSnapshotIds: string[];
+  eloReliability: number;
+  fifaAtCutoff: number | null;
+  missingOptionalSignals: string[];
   sample_sizes: Record<string, number>;
   recent_form: Record<string, number>;
   structural_strength: Record<string, number | null>;
@@ -222,6 +228,34 @@ export type TeamSignalSnapshot = {
     reliability: number;
   };
   source_snapshot_ids: string[];
+};
+
+export type HistoricalEloTimelineEntry = {
+  canonical_team_key: string;
+  opponent_team_key: string | null;
+  natural_match_key: string | null;
+  source_snapshot_ids: string[];
+  effective_at: string;
+  effective_date: string;
+  timePrecision: "exact" | "date";
+  pre_match_elo: number | null;
+  post_match_elo: number | null;
+  elo_change: number | null;
+  reconstruction_method: "start_2026_baseline" | "recorded_pre_match" | "post_minus_change";
+  reliability: number;
+};
+
+export type TeamEloResolution = {
+  canonical_team_key: string;
+  cutoff_at: string;
+  fixture_date: string;
+  eloAtCutoff: number | null;
+  eloResolutionMethod: "exact_fixture_pre_match" | "latest_prior_post_match" | "start_2026_baseline" | "unavailable";
+  eloSourceSnapshotIds: string[];
+  eloReliability: number;
+  timePrecision: "exact" | "date";
+  source_match_natural_key: string | null;
+  note: string;
 };
 
 export type EvidencePreview = {
@@ -758,6 +792,308 @@ export function canonicalizeHistoricalFactForReplay(
   };
 }
 
+function resolveRecordedPreMatchElo(
+  fact: HistoricalMatchFact,
+  perspective: "team_1" | "team_2",
+): { value: number | null; reconstructionMethod: "recorded_pre_match" | "post_minus_change" | "unavailable"; reliability: number } {
+  const recorded =
+    perspective === "team_1"
+      ? fact.pre_match_elo_1
+      : fact.pre_match_elo_2;
+  if (recorded != null) {
+    return {
+      value: recorded,
+      reconstructionMethod: "recorded_pre_match",
+      reliability: 1,
+    };
+  }
+
+  const postMatch = perspective === "team_1" ? fact.post_match_elo_1 : fact.post_match_elo_2;
+  const eloChange = perspective === "team_1" ? fact.elo_change_1 : fact.elo_change_2;
+  if (postMatch != null && eloChange != null) {
+    return {
+      value: postMatch - eloChange,
+      reconstructionMethod: "post_minus_change",
+      reliability: 0.95,
+    };
+  }
+
+  return {
+    value: null,
+    reconstructionMethod: "unavailable",
+    reliability: 0,
+  };
+}
+
+function resolveRecordedPostMatchElo(
+  fact: HistoricalMatchFact,
+  perspective: "team_1" | "team_2",
+): { value: number | null; reliability: number } {
+  const postMatch = perspective === "team_1" ? fact.post_match_elo_1 : fact.post_match_elo_2;
+  return {
+    value: postMatch,
+    reliability: postMatch != null ? 1 : 0,
+  };
+}
+
+function resolveHistoricalFactTimePrecision(
+  fact: HistoricalMatchFact,
+  scheduleRows: WorldCupScheduleMatch[] = [],
+): { effectiveAt: string; effectiveDate: string; timePrecision: "exact" | "date" } {
+  const matched = findOfficialScheduleMatchForFact(fact, scheduleRows);
+  if (matched) {
+    return {
+      effectiveAt: matched.scheduleMatch.scheduled_at_utc,
+      effectiveDate: matched.scheduleMatch.scheduled_date_et,
+      timePrecision: "exact",
+    };
+  }
+
+  return {
+    effectiveAt: `${fact.match_date}T00:00:00Z`,
+    effectiveDate: fact.match_date,
+    timePrecision: "date",
+  };
+}
+
+export function buildHistoricalEloTimeline(input: {
+  historicalFacts: HistoricalMatchFact[];
+  eloStart2026: RatingSnapshotRow[];
+  scheduleRows?: WorldCupScheduleMatch[];
+}): HistoricalEloTimelineEntry[] {
+  const scheduleRows = input.scheduleRows ?? [];
+  const entries: HistoricalEloTimelineEntry[] = [];
+
+  for (const row of input.eloStart2026) {
+    entries.push({
+      canonical_team_key: row.canonical_team_key,
+      opponent_team_key: null,
+      natural_match_key: null,
+      source_snapshot_ids: [row.source_snapshot_id],
+      effective_at: `${row.effective_date}T00:00:00Z`,
+      effective_date: row.effective_date,
+      timePrecision: "exact",
+      pre_match_elo: row.elo_rating ?? null,
+      post_match_elo: row.elo_rating ?? null,
+      elo_change: 0,
+      reconstruction_method: "start_2026_baseline",
+      reliability: row.elo_rating != null ? 1 : 0,
+    });
+  }
+
+  for (const rawFact of input.historicalFacts) {
+    const fact = canonicalizeHistoricalFactForReplay(rawFact, scheduleRows);
+    const timing = resolveHistoricalFactTimePrecision(fact, scheduleRows);
+    const team1Pre = resolveRecordedPreMatchElo(fact, "team_1");
+    const team2Pre = resolveRecordedPreMatchElo(fact, "team_2");
+    const team1Post = resolveRecordedPostMatchElo(fact, "team_1");
+    const team2Post = resolveRecordedPostMatchElo(fact, "team_2");
+
+    entries.push({
+      canonical_team_key: fact.team_1_key,
+      opponent_team_key: fact.team_2_key,
+      natural_match_key: fact.natural_match_key,
+      source_snapshot_ids: [fact.source_snapshot_id],
+      effective_at: timing.effectiveAt,
+      effective_date: timing.effectiveDate,
+      timePrecision: timing.timePrecision,
+      pre_match_elo: team1Pre.value,
+      post_match_elo: team1Post.value,
+      elo_change: fact.elo_change_1,
+      reconstruction_method: team1Pre.reconstructionMethod === "unavailable" ? "post_minus_change" : team1Pre.reconstructionMethod,
+      reliability: Math.min(team1Pre.reliability, team1Post.reliability || 1),
+    });
+
+    entries.push({
+      canonical_team_key: fact.team_2_key,
+      opponent_team_key: fact.team_1_key,
+      natural_match_key: fact.natural_match_key,
+      source_snapshot_ids: [fact.source_snapshot_id],
+      effective_at: timing.effectiveAt,
+      effective_date: timing.effectiveDate,
+      timePrecision: timing.timePrecision,
+      pre_match_elo: team2Pre.value,
+      post_match_elo: team2Post.value,
+      elo_change: fact.elo_change_2,
+      reconstruction_method: team2Pre.reconstructionMethod === "unavailable" ? "post_minus_change" : team2Pre.reconstructionMethod,
+      reliability: Math.min(team2Pre.reliability, team2Post.reliability || 1),
+    });
+  }
+
+  return entries.sort((left, right) => {
+    const dateCompare = left.effective_at.localeCompare(right.effective_at);
+    if (dateCompare !== 0) {
+      return dateCompare;
+    }
+    return left.canonical_team_key.localeCompare(right.canonical_team_key);
+  });
+}
+
+export function resolveTeamEloAtCutoff(input: {
+  canonicalTeamKey: string;
+  cutoffAt: string;
+  fixtureDate: string;
+  historicalFacts: HistoricalMatchFact[];
+  eloStart2026: RatingSnapshotRow[];
+  scheduleRows?: WorldCupScheduleMatch[];
+  exactFixtureTeamPair?: { homeTeamKey: string; awayTeamKey: string } | null;
+}): TeamEloResolution {
+  const scheduleRows = input.scheduleRows ?? [];
+  const canonicalFacts = input.historicalFacts.map((fact) => canonicalizeHistoricalFactForReplay(fact, scheduleRows));
+  const cutoffMs = Date.parse(input.cutoffAt);
+
+  const exactFixtureFact =
+    input.exactFixtureTeamPair == null
+      ? null
+      : canonicalFacts.find((fact) => {
+          const timing = resolveHistoricalFactTimePrecision(fact, scheduleRows);
+          return (
+            timing.effectiveAt === input.cutoffAt &&
+            fact.team_1_key === input.exactFixtureTeamPair?.homeTeamKey &&
+            fact.team_2_key === input.exactFixtureTeamPair?.awayTeamKey
+          );
+        }) ?? null;
+
+  if (exactFixtureFact) {
+    const perspective = exactFixtureFact.team_1_key === input.canonicalTeamKey ? "team_1" : exactFixtureFact.team_2_key === input.canonicalTeamKey ? "team_2" : null;
+    if (perspective) {
+      const preMatch = resolveRecordedPreMatchElo(exactFixtureFact, perspective);
+      if (preMatch.value != null) {
+        return {
+          canonical_team_key: input.canonicalTeamKey,
+          cutoff_at: input.cutoffAt,
+          fixture_date: input.fixtureDate,
+          eloAtCutoff: preMatch.value,
+          eloResolutionMethod: "exact_fixture_pre_match",
+          eloSourceSnapshotIds: [exactFixtureFact.source_snapshot_id],
+          eloReliability: preMatch.reliability,
+          timePrecision: "exact",
+          source_match_natural_key: exactFixtureFact.natural_match_key,
+          note: "Resolved from the replay fixture's reconstructed pre-match Elo.",
+        };
+      }
+    }
+  }
+
+  const priorCandidates = canonicalFacts
+    .filter((fact) => fact.team_1_key === input.canonicalTeamKey || fact.team_2_key === input.canonicalTeamKey)
+    .filter((fact) => fact.natural_match_key !== exactFixtureFact?.natural_match_key)
+    .map((fact) => {
+      const perspective = fact.team_1_key === input.canonicalTeamKey ? "team_1" : "team_2";
+      const timing = resolveHistoricalFactTimePrecision(fact, scheduleRows);
+      const postMatch = resolveRecordedPostMatchElo(fact, perspective);
+      return {
+        fact,
+        perspective,
+        timing,
+        postMatch,
+      };
+    })
+    .filter((candidate) => candidate.postMatch.value != null)
+    .filter((candidate) =>
+      candidate.timing.timePrecision === "exact"
+        ? Date.parse(candidate.timing.effectiveAt) < cutoffMs
+        : candidate.timing.effectiveDate < input.fixtureDate,
+    )
+    .sort((left, right) => {
+      if (left.timing.timePrecision === "exact" && right.timing.timePrecision === "exact") {
+        return left.timing.effectiveAt.localeCompare(right.timing.effectiveAt);
+      }
+      const dateCompare = left.timing.effectiveDate.localeCompare(right.timing.effectiveDate);
+      if (dateCompare !== 0) {
+        return dateCompare;
+      }
+      if (left.timing.timePrecision === right.timing.timePrecision) {
+        return left.fact.natural_match_key.localeCompare(right.fact.natural_match_key);
+      }
+      return left.timing.timePrecision === "date" ? -1 : 1;
+    });
+
+  const latestPrior = priorCandidates[priorCandidates.length - 1];
+  if (latestPrior?.postMatch.value != null) {
+    return {
+      canonical_team_key: input.canonicalTeamKey,
+      cutoff_at: input.cutoffAt,
+      fixture_date: input.fixtureDate,
+      eloAtCutoff: latestPrior.postMatch.value,
+      eloResolutionMethod: "latest_prior_post_match",
+      eloSourceSnapshotIds: [latestPrior.fact.source_snapshot_id],
+      eloReliability: latestPrior.postMatch.reliability,
+      timePrecision: latestPrior.timing.timePrecision,
+      source_match_natural_key: latestPrior.fact.natural_match_key,
+      note:
+        latestPrior.timing.timePrecision === "exact"
+          ? "Resolved from the latest strictly earlier exact-timestamp fixture."
+          : "Resolved from the latest strictly earlier date-only post-match Elo.",
+    };
+  }
+
+  const baseline = input.eloStart2026.find((row) => row.canonical_team_key === input.canonicalTeamKey && row.elo_rating != null);
+  if (baseline?.elo_rating != null) {
+    return {
+      canonical_team_key: input.canonicalTeamKey,
+      cutoff_at: input.cutoffAt,
+      fixture_date: input.fixtureDate,
+      eloAtCutoff: baseline.elo_rating,
+      eloResolutionMethod: "start_2026_baseline",
+      eloSourceSnapshotIds: [baseline.source_snapshot_id],
+      eloReliability: 0.8,
+      timePrecision: "exact",
+      source_match_natural_key: null,
+      note: "Resolved from the start-of-2026 Elo baseline.",
+    };
+  }
+
+  return {
+    canonical_team_key: input.canonicalTeamKey,
+    cutoff_at: input.cutoffAt,
+    fixture_date: input.fixtureDate,
+    eloAtCutoff: null,
+    eloResolutionMethod: "unavailable",
+    eloSourceSnapshotIds: [],
+    eloReliability: 0,
+    timePrecision: "date",
+    source_match_natural_key: null,
+    note: "No reconstructable Elo source was available before kickoff.",
+  };
+}
+
+export function resolveFixturePreMatchElo(input: {
+  cutoffAt: string;
+  fixtureDate: string;
+  homeTeamKey: string;
+  awayTeamKey: string;
+  historicalFacts: HistoricalMatchFact[];
+  eloStart2026: RatingSnapshotRow[];
+  scheduleRows?: WorldCupScheduleMatch[];
+}) {
+  const exactFixtureTeamPair = {
+    homeTeamKey: input.homeTeamKey,
+    awayTeamKey: input.awayTeamKey,
+  };
+
+  return {
+    home: resolveTeamEloAtCutoff({
+      canonicalTeamKey: input.homeTeamKey,
+      cutoffAt: input.cutoffAt,
+      fixtureDate: input.fixtureDate,
+      historicalFacts: input.historicalFacts,
+      eloStart2026: input.eloStart2026,
+      scheduleRows: input.scheduleRows,
+      exactFixtureTeamPair,
+    }),
+    away: resolveTeamEloAtCutoff({
+      canonicalTeamKey: input.awayTeamKey,
+      cutoffAt: input.cutoffAt,
+      fixtureDate: input.fixtureDate,
+      historicalFacts: input.historicalFacts,
+      eloStart2026: input.eloStart2026,
+      scheduleRows: input.scheduleRows,
+      exactFixtureTeamPair,
+    }),
+  };
+}
+
 async function loadSourceAccessResults(paths: PreparedPaths): Promise<SourceAccessResult[]> {
   const registry = loadRegistry(paths.preparedDir);
   const results: SourceAccessResult[] = [];
@@ -1242,6 +1578,7 @@ export function buildTeamSignalSnapshot(
   cutoffAt: string,
   facts: HistoricalMatchFact[],
   localizations: CanonicalTeamLocalization[],
+  aliases: CanonicalTeamAlias[],
   eloCurrent: RatingSnapshotRow[],
   eloStart2026: RatingSnapshotRow[],
   fifaRanking: RatingSnapshotRow[],
@@ -1258,6 +1595,11 @@ export function buildTeamSignalSnapshot(
   const recent10 = teamFacts.slice(-10);
   const recent5 = teamFacts.slice(-5);
   const worldCupFacts = teamFacts.filter((fact) => fact.competition_key === "world_cup");
+  const officialScheduleMatch = scheduleRows.find(
+    (row) =>
+      row.scheduled_at_utc === cutoffAt &&
+      (row.home_team_key === canonicalTeamKey || row.away_team_key === canonicalTeamKey),
+  );
   const localization =
     localizations.find((item) => item.canonical_team_key === canonicalTeamKey) ??
     ({
@@ -1269,6 +1611,20 @@ export function buildTeamSignalSnapshot(
       elo_name_raw: null,
       translation_status: null,
     } satisfies CanonicalTeamLocalization);
+  const normalizedFifaKeys = new Set(
+    [
+      canonicalTeamKey,
+      localization.display_name_en,
+      localization.display_name_es,
+      localization.elo_name_raw,
+      localization.fifa_code,
+      ...aliases
+        .filter((alias) => alias.canonical_team_key === canonicalTeamKey)
+        .map((alias) => alias.alias),
+    ]
+      .filter((value): value is string => Boolean(value))
+      .map((value) => normalizeIdentity(value.replace(/_/g, " "))),
+  );
 
   function summarizeFactWindow(windowFacts: HistoricalMatchFact[]) {
     const summary = {
@@ -1352,9 +1708,36 @@ export function buildTeamSignalSnapshot(
 
   const recentSummary = summarizeFactWindow(recent20);
   const worldCupSummary = summarizeFactWindow(worldCupFacts);
-  const currentElo = eloCurrent.find((row) => row.canonical_team_key === canonicalTeamKey);
   const startingElo = eloStart2026.find((row) => row.canonical_team_key === canonicalTeamKey);
-  const fifa = fifaRanking.find((row) => row.canonical_team_key === canonicalTeamKey);
+  const fifa =
+    fifaRanking.find((row) => row.canonical_team_key === canonicalTeamKey) ??
+    fifaRanking.find((row) => {
+      const candidates = [
+        row.canonical_team_key,
+        typeof row.raw_values.team_name_es_raw === "string" ? row.raw_values.team_name_es_raw : null,
+        typeof row.resolved_name_en === "string" ? row.resolved_name_en : null,
+      ]
+        .filter((value): value is string => Boolean(value))
+        .map((value) => normalizeIdentity(value.replace(/_/g, " ")));
+      return candidates.some((candidate) =>
+        Array.from(normalizedFifaKeys).some((expected) => candidate === expected || candidate.includes(expected) || expected.includes(candidate)),
+      );
+    });
+  const eloResolution = resolveTeamEloAtCutoff({
+    canonicalTeamKey,
+    cutoffAt,
+    fixtureDate: cutoffAt.slice(0, 10),
+    historicalFacts: facts,
+    eloStart2026,
+    scheduleRows,
+    exactFixtureTeamPair:
+      officialScheduleMatch?.home_team_key && officialScheduleMatch?.away_team_key
+        ? {
+            homeTeamKey: officialScheduleMatch.home_team_key,
+            awayTeamKey: officialScheduleMatch.away_team_key,
+          }
+        : null,
+  });
 
   const matches = Math.max(recent20.length, 1);
   const recentFormPointsPerMatch = (recentSummary.wins * 3 + recentSummary.draws) / matches;
@@ -1367,8 +1750,8 @@ export function buildTeamSignalSnapshot(
       ? (recentSummary.actual_score_total - recentSummary.expected_score_total) / recent20.length
       : 0;
   const eloTrend =
-    currentElo?.elo_rating != null && startingElo?.elo_rating != null
-      ? currentElo.elo_rating - startingElo.elo_rating
+    eloResolution.eloAtCutoff != null && startingElo?.elo_rating != null
+      ? eloResolution.eloAtCutoff - startingElo.elo_rating
       : 0;
   const volatility =
     recent20.length > 0
@@ -1386,10 +1769,11 @@ export function buildTeamSignalSnapshot(
       : 0;
   const reliability = clamp(recent20.length / 20, 0, 1);
   const baselineStructuralStrength = clamp(
-    ((currentElo?.elo_rating ?? startingElo?.elo_rating ?? 1500) - 1300) / 700,
+    ((eloResolution.eloAtCutoff ?? startingElo?.elo_rating ?? 1500) - 1300) / 700,
     0,
     1,
   );
+  const missingOptionalSignals = fifa?.fifa_points == null ? ["fifa_points"] : [];
   const attackScore = recent20.length > 0 ? clamp(recentSummary.goals_for / recent20.length / 3, 0, 1) : 0;
   const defenseScore =
     recent20.length > 0 ? clamp(1 - recentSummary.goals_against / recent20.length / 3, 0, 1) : 0;
@@ -1418,6 +1802,12 @@ export function buildTeamSignalSnapshot(
     canonical_team_key: canonicalTeamKey,
     display_name_en: localization.display_name_en,
     display_name_es: localization.display_name_es,
+    eloAtCutoff: eloResolution.eloAtCutoff,
+    eloResolutionMethod: eloResolution.eloResolutionMethod,
+    eloSourceSnapshotIds: eloResolution.eloSourceSnapshotIds,
+    eloReliability: round(eloResolution.eloReliability, 4),
+    fifaAtCutoff: fifa?.fifa_points ?? null,
+    missingOptionalSignals,
     sample_sizes: {
       last_5: recent5.length,
       last_10: recent10.length,
@@ -1436,11 +1826,11 @@ export function buildTeamSignalSnapshot(
       goal_difference_per_match: recent20.length > 0 ? round((recentSummary.goals_for - recentSummary.goals_against) / recent20.length, 4) : 0,
     },
     structural_strength: {
-      current_elo: currentElo?.elo_rating ?? null,
+      current_elo: eloResolution.eloAtCutoff,
       start_2026_elo: startingElo?.elo_rating ?? null,
       fifa_points: fifa?.fifa_points ?? null,
       fifa_rank: fifa?.current_rank ?? null,
-      current_elo_rank: currentElo?.current_rank ?? null,
+      current_elo_rank: null,
       elo_trend_ytd: round(eloTrend, 4),
     },
     tournament_form: {
@@ -1487,7 +1877,7 @@ export function buildTeamSignalSnapshot(
     reliability: {
       sample_reliability: round(reliability, 4),
       world_cup_sample_reliability: round(clamp(worldCupFacts.length / 7, 0, 1), 4),
-      resolved_confederation_support: 0,
+      resolved_confederation_support: fifa?.fifa_points != null ? 1 : 0,
     },
     diagnostic_effective_strength: {
       score: round(diagnosticScore * 100, 2),
@@ -1500,7 +1890,9 @@ export function buildTeamSignalSnapshot(
       performance_vs_expectation: round(expectationScore * 100, 2),
       reliability: round(reliability * 100, 2),
     },
-    source_snapshot_ids: Array.from(new Set(teamFacts.map((fact) => fact.source_snapshot_id))).sort(),
+    source_snapshot_ids: Array.from(
+      new Set([...teamFacts.map((fact) => fact.source_snapshot_id), ...eloResolution.eloSourceSnapshotIds, ...(fifa ? [fifa.source_snapshot_id] : [])]),
+    ).sort(),
   };
 }
 
@@ -1509,6 +1901,7 @@ export function buildSignalSnapshots(
   canonicalTeamKeys: string[],
   facts: HistoricalMatchFact[],
   localizations: CanonicalTeamLocalization[],
+  aliases: CanonicalTeamAlias[],
   eloCurrent: RatingSnapshotRow[],
   eloStart2026: RatingSnapshotRow[],
   fifaRanking: RatingSnapshotRow[],
@@ -1521,6 +1914,7 @@ export function buildSignalSnapshots(
         cutoffAt,
         facts,
         localizations,
+        aliases,
         eloCurrent,
         eloStart2026,
         fifaRanking,
@@ -1534,6 +1928,7 @@ export function buildEvidencePreviews(
   fixtures: Array<{ home: string; away: string }>,
   facts: HistoricalMatchFact[],
   localizations: CanonicalTeamLocalization[],
+  aliases: CanonicalTeamAlias[],
   eloCurrent: RatingSnapshotRow[],
   eloStart2026: RatingSnapshotRow[],
   fifaRanking: RatingSnapshotRow[],
@@ -1564,7 +1959,7 @@ export function buildEvidencePreviews(
 
       const cutoffAt = scheduled.scheduled_at_utc;
       const preMatch = [home, away].map((team) =>
-        buildTeamSignalSnapshot(team, cutoffAt, facts, localizations, eloCurrent, eloStart2026, fifaRanking),
+        buildTeamSignalSnapshot(team, cutoffAt, facts, localizations, aliases, eloCurrent, eloStart2026, fifaRanking),
       );
 
       return {
@@ -1585,7 +1980,7 @@ export function buildEvidencePreviews(
     const canonicalFact = canonicalizeHistoricalFactForReplay(fact, scheduleRows);
     const cutoffAt = officialScheduleMatch?.scheduled_at_utc ?? resolveHistoricalFactComparableKickoffAt(fact, scheduleRows);
     const preMatch = [home, away].map((team) =>
-      buildTeamSignalSnapshot(team, cutoffAt, facts, localizations, eloCurrent, eloStart2026, fifaRanking, scheduleRows),
+      buildTeamSignalSnapshot(team, cutoffAt, facts, localizations, aliases, eloCurrent, eloStart2026, fifaRanking, scheduleRows),
     );
     const winner =
       canonicalFact.score_1 > canonicalFact.score_2
@@ -1616,6 +2011,7 @@ export function buildPredictionIntelligenceV2ReplayInput(input: {
   homeTeamKey: string;
   awayTeamKey: string;
   historicalFacts: HistoricalMatchFact[];
+  aliases: CanonicalTeamAlias[];
   eloCurrent: RatingSnapshotRow[];
   eloStart2026: RatingSnapshotRow[];
   fifaRanking: RatingSnapshotRow[];
@@ -1636,6 +2032,7 @@ export function buildPredictionIntelligenceV2ReplayInput(input: {
       input.cutoffAt,
       input.historicalFacts,
       input.localizations,
+      input.aliases,
       filterEloSnapshots(input.eloCurrent),
       filterEloSnapshots(input.eloStart2026),
       filterFifaSnapshots(input.fifaRanking),
@@ -1646,6 +2043,7 @@ export function buildPredictionIntelligenceV2ReplayInput(input: {
       input.cutoffAt,
       input.historicalFacts,
       input.localizations,
+      input.aliases,
       filterEloSnapshots(input.eloCurrent),
       filterEloSnapshots(input.eloStart2026),
       filterFifaSnapshots(input.fifaRanking),
@@ -1672,12 +2070,13 @@ export function buildTask2ReplayInterfaceArtifact() {
     recommended_entrypoint: {
       function_name: "buildPredictionIntelligenceV2ReplayInput",
       proposed_signature:
-        "buildPredictionIntelligenceV2ReplayInput({ cutoffAt, homeTeamKey, awayTeamKey, historicalFacts, eloCurrent, eloStart2026, fifaRanking, localizations })",
+        "buildPredictionIntelligenceV2ReplayInput({ cutoffAt, homeTeamKey, awayTeamKey, historicalFacts, aliases, eloCurrent, eloStart2026, fifaRanking, localizations, schedule })",
       contract_notes: "Pass official schedule rows so replay facts and cutoffs use canonical home/away and kickoff UTC.",
       contract: {
         cutoffAt: "strict pre-kickoff ISO timestamp",
         homeSignal: "TeamSignalSnapshot",
         awaySignal: "TeamSignalSnapshot",
+        aliases: "CanonicalTeamAlias[]",
         sourceSnapshotIds: "string[]",
       },
     },
@@ -1746,6 +2145,7 @@ export async function runTask1(paths: PreparedPaths) {
     topWorldCupTeamKeys,
     datasets.historicalFacts,
     datasets.localizations,
+    datasets.aliases,
     datasets.eloCurrent,
     datasets.eloStart2026,
     datasets.fifaRanking,
@@ -1762,6 +2162,7 @@ export async function runTask1(paths: PreparedPaths) {
     ],
     datasets.historicalFacts,
     datasets.localizations,
+    datasets.aliases,
     datasets.eloCurrent,
     datasets.eloStart2026,
     datasets.fifaRanking,
