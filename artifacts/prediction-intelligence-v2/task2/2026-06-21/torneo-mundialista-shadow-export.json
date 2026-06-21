@@ -1,0 +1,813 @@
+{
+  "schemaVersion": "torneo-mundialista-shadow-export-v2",
+  "generatedAt": "2026-06-21T09:58:59.718Z",
+  "source": "ufo_predictor_shadow",
+  "fixtures": [
+    {
+      "productMatchId": "d54a9495-e60f-4864-9e4c-421e6626be0c",
+      "apiFootballFixtureId": 1489394,
+      "officialMatchNumber": 36,
+      "kickoffAt": "2026-06-21T04:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "tunisia",
+          "nameEn": "Tunisia",
+          "nameEs": "Túnez"
+        },
+        "away": {
+          "canonicalKey": "japan",
+          "nameEn": "Japan",
+          "nameEs": "Japón"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.220723,
+          "draw": 0.272437,
+          "awayWin": 0.50684
+        },
+        "expectedGoals": {
+          "home": 1.0436,
+          "away": 1.677
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 0,
+              "away": 1
+            },
+            "familyProbability": 0.307558,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.181067,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 2,
+              "away": 3
+            },
+            "familyProbability": 0.129161,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "2d05905b-910a-4652-be9b-9ddbf0cede80",
+      "apiFootballFixtureId": 1489397,
+      "officialMatchNumber": 38,
+      "kickoffAt": "2026-06-21T16:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "spain",
+          "nameEn": "Spain",
+          "nameEs": "España"
+        },
+        "away": {
+          "canonicalKey": "saudi_arabia",
+          "nameEn": "Saudi Arabia",
+          "nameEs": "Arabia Saudita"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.549816,
+          "draw": 0.265421,
+          "awayWin": 0.184763
+        },
+        "expectedGoals": {
+          "home": 1.743,
+          "away": 0.9321
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "favorite_clear_win",
+            "representativeScore": {
+              "home": 3,
+              "away": 0
+            },
+            "familyProbability": 0.143996,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "favorite_narrow_win",
+            "representativeScore": {
+              "home": 2,
+              "away": 1
+            },
+            "familyProbability": 0.097563,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.318933,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "2d7bc089-1eda-4f91-b1a0-e596a00dda59",
+      "apiFootballFixtureId": 1489398,
+      "officialMatchNumber": 37,
+      "kickoffAt": "2026-06-21T22:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "uruguay",
+          "nameEn": "Uruguay",
+          "nameEs": "Uruguay"
+        },
+        "away": {
+          "canonicalKey": "cape_verde",
+          "nameEn": "Cape Verde",
+          "nameEs": "Cabo Verde"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.436062,
+          "draw": 0.289811,
+          "awayWin": 0.274127
+        },
+        "expectedGoals": {
+          "home": 1.4682,
+          "away": 1.1214
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.322437,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.198621,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 3,
+              "away": 2
+            },
+            "familyProbability": 0.110759,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "8cb53b3c-56fc-4560-a605-ec75261f3bae",
+      "apiFootballFixtureId": 1489396,
+      "officialMatchNumber": 40,
+      "kickoffAt": "2026-06-22T01:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "new_zealand",
+          "nameEn": "New Zealand",
+          "nameEs": "Nueva Zelanda"
+        },
+        "away": {
+          "canonicalKey": "egypt",
+          "nameEn": "Egypt",
+          "nameEs": "Egipto"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.278933,
+          "draw": 0.282995,
+          "awayWin": 0.438071
+        },
+        "expectedGoals": {
+          "home": 1.1825,
+          "away": 1.5303
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 0,
+              "away": 1
+            },
+            "familyProbability": 0.304088,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.186425,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 2,
+              "away": 3
+            },
+            "familyProbability": 0.12672,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "26453f76-c60f-468c-8a1d-983559bd98f3",
+      "apiFootballFixtureId": 1489399,
+      "officialMatchNumber": 43,
+      "kickoffAt": "2026-06-22T17:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "argentina",
+          "nameEn": "Argentina",
+          "nameEs": "Argentina"
+        },
+        "away": {
+          "canonicalKey": "austria",
+          "nameEn": "Austria",
+          "nameEs": "Austria"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.444766,
+          "draw": 0.280625,
+          "awayWin": 0.274608
+        },
+        "expectedGoals": {
+          "home": 1.5595,
+          "away": 1.1854
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.299665,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.183046,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 3,
+              "away": 2
+            },
+            "familyProbability": 0.131129,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+      "apiFootballFixtureId": 1489401,
+      "officialMatchNumber": 41,
+      "kickoffAt": "2026-06-23T00:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "norway",
+          "nameEn": "Norway",
+          "nameEs": "Noruega"
+        },
+        "away": {
+          "canonicalKey": "senegal",
+          "nameEn": "Senegal",
+          "nameEs": "Senegal"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.403547,
+          "draw": 0.278555,
+          "awayWin": 0.317898
+        },
+        "expectedGoals": {
+          "home": 1.5247,
+          "away": 1.3338
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.281645,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.174001,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 3,
+              "away": 2
+            },
+            "familyProbability": 0.146261,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+      "apiFootballFixtureId": 1489400,
+      "officialMatchNumber": 44,
+      "kickoffAt": "2026-06-23T03:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "jordan",
+          "nameEn": "Jordan",
+          "nameEs": "Jordania"
+        },
+        "away": {
+          "canonicalKey": "algeria",
+          "nameEn": "Algeria",
+          "nameEs": "Argelia"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.290069,
+          "draw": 0.283905,
+          "awayWin": 0.426025
+        },
+        "expectedGoals": {
+          "home": 1.2107,
+          "away": 1.5077
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 0,
+              "away": 1
+            },
+            "familyProbability": 0.30272,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.186425,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 2,
+              "away": 3
+            },
+            "familyProbability": 0.127296,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+      "apiFootballFixtureId": 1489402,
+      "officialMatchNumber": 45,
+      "kickoffAt": "2026-06-23T20:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "england",
+          "nameEn": "England",
+          "nameEs": "Inglaterra"
+        },
+        "away": {
+          "canonicalKey": "ghana",
+          "nameEn": "Ghana",
+          "nameEs": "Ghana"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.562214,
+          "draw": 0.262245,
+          "awayWin": 0.175541
+        },
+        "expectedGoals": {
+          "home": 1.7702,
+          "away": 0.9078
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "favorite_clear_win",
+            "representativeScore": {
+              "home": 3,
+              "away": 0
+            },
+            "familyProbability": 0.149297,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "favorite_narrow_win",
+            "representativeScore": {
+              "home": 2,
+              "away": 1
+            },
+            "familyProbability": 0.097725,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.319959,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "b8bef336-5c1c-491c-8ba4-075c536234cc",
+      "apiFootballFixtureId": 1489403,
+      "officialMatchNumber": 46,
+      "kickoffAt": "2026-06-23T23:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "panama",
+          "nameEn": "Panama",
+          "nameEs": "Panamá"
+        },
+        "away": {
+          "canonicalKey": "croatia",
+          "nameEn": "Croatia",
+          "nameEs": "Croacia"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.269837,
+          "draw": 0.279653,
+          "awayWin": 0.45051
+        },
+        "expectedGoals": {
+          "home": 1.1765,
+          "away": 1.5744
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 0,
+              "away": 1
+            },
+            "familyProbability": 0.299076,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.182184,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 2,
+              "away": 3
+            },
+            "familyProbability": 0.132038,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "5e4b5138-a1f2-4edd-96ec-47629baa839f",
+      "apiFootballFixtureId": 1489395,
+      "officialMatchNumber": 39,
+      "kickoffAt": "2026-06-21T19:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "belgium",
+          "nameEn": "Belgium",
+          "nameEs": "Bélgica"
+        },
+        "away": {
+          "canonicalKey": "iran",
+          "nameEn": "Iran",
+          "nameEs": "Irán"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.426535,
+          "draw": 0.278184,
+          "awayWin": 0.295281
+        },
+        "expectedGoals": {
+          "home": 1.5618,
+          "away": 1.2699
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.286189,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.175764,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 3,
+              "away": 2
+            },
+            "familyProbability": 0.142773,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "90984bad-656e-466e-9f20-d1ec58c41144",
+      "apiFootballFixtureId": 1539017,
+      "officialMatchNumber": 42,
+      "kickoffAt": "2026-06-22T21:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "france",
+          "nameEn": "France",
+          "nameEs": "Francia"
+        },
+        "away": {
+          "canonicalKey": "iraq",
+          "nameEn": "Iraq",
+          "nameEs": "Irak"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.554121,
+          "draw": 0.260248,
+          "awayWin": 0.185631
+        },
+        "expectedGoals": {
+          "home": 1.7992,
+          "away": 0.9677
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "favorite_clear_win",
+            "representativeScore": {
+              "home": 3,
+              "away": 0
+            },
+            "familyProbability": 0.14752,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "favorite_narrow_win",
+            "representativeScore": {
+              "home": 2,
+              "away": 1
+            },
+            "familyProbability": 0.098462,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.305119,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "apiFootballFixtureId": 1489404,
+      "officialMatchNumber": 47,
+      "kickoffAt": "2026-06-23T17:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "portugal",
+          "nameEn": "Portugal",
+          "nameEs": "Portugal"
+        },
+        "away": {
+          "canonicalKey": "uzbekistan",
+          "nameEn": "Uzbekistan",
+          "nameEs": "Uzbekistán"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.472251,
+          "draw": 0.275807,
+          "awayWin": 0.251942
+        },
+        "expectedGoals": {
+          "home": 1.6294,
+          "away": 1.1411
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.297451,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.17909,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 3,
+              "away": 2
+            },
+            "familyProbability": 0.135127,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    },
+    {
+      "productMatchId": "0e31f8a1-5e00-4b25-a994-f95c90229aa0",
+      "apiFootballFixtureId": 1539008,
+      "officialMatchNumber": 48,
+      "kickoffAt": "2026-06-24T02:00:00+00:00",
+      "teams": {
+        "home": {
+          "canonicalKey": "colombia",
+          "nameEn": "Colombia",
+          "nameEs": "Colombia"
+        },
+        "away": {
+          "canonicalKey": "dr_congo",
+          "nameEn": "DR Congo",
+          "nameEs": "RD del Congo"
+        }
+      },
+      "prediction": {
+        "oneXTwo": {
+          "homeWin": 0.475974,
+          "draw": 0.275594,
+          "awayWin": 0.248432
+        },
+        "expectedGoals": {
+          "home": 1.6338,
+          "away": 1.1297
+        },
+        "scenarios": [
+          {
+            "scenarioType": "main",
+            "familyCode": "controlled_low_total_match",
+            "representativeScore": {
+              "home": 1,
+              "away": 0
+            },
+            "familyProbability": 0.298736,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "supporting",
+            "familyCode": "low_scoring_draw",
+            "representativeScore": {
+              "home": 1,
+              "away": 1
+            },
+            "familyProbability": 0.17949,
+            "riskLevel": "medium"
+          },
+          {
+            "scenarioType": "risk",
+            "familyCode": "open_high_scoring_match",
+            "representativeScore": {
+              "home": 3,
+              "away": 2
+            },
+            "familyProbability": 0.134251,
+            "riskLevel": "high"
+          }
+        ],
+        "sourceCutoff": "2026-06-21T00:00:00Z"
+      }
+    }
+  ]
+}
