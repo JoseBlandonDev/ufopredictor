@@ -1,0 +1,471 @@
+{
+  "totalHistoricalFacts": 1392,
+  "includedTrainingRows": 909,
+  "includedValidationRows": 319,
+  "excludedRows": 164,
+  "reasonCounts": {
+    "insufficient_prior_history": 130,
+    "outside_calibration_window": 34
+  },
+  "reasonCountsBySource": {
+    "elo-results-2025": {
+      "insufficient_prior_history": 126
+    },
+    "elo-results-recent-2026-06-20": {
+      "insufficient_prior_history": 4,
+      "outside_calibration_window": 34
+    }
+  },
+  "excludedExamples": [
+    {
+      "naturalMatchKey": "820baf16dc4d26b3a528a5a9f46132eb3b588b794d0e11a957e26cb3899b98ca",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-01-02",
+      "team1Key": "vietnam",
+      "team2Key": "thailand",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "dd81bccc03d700fe6d3b3042d631ccc48b43094b4e260a48373698d271cdfd22",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-01-04",
+      "team1Key": "bahrain",
+      "team2Key": "oman",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "d5ea6a4279c58097df9e450b3b6d79f05b860ec891c477ce495a1eb0debc0d9f",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-01-18",
+      "team1Key": "united_states",
+      "team2Key": "venezuela",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "036bf69f18b723902ed5b32e11402d0ec3d22011cd153981b27dde85ba230b07",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-01-22",
+      "team1Key": "united_states",
+      "team2Key": "costa_rica",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "5c6d55076af18103d9355229ce5589697b958fa04830ee9b5f838ff79f86af9b",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-01-27",
+      "team1Key": "jordan",
+      "team2Key": "uzbekistan",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "1889be6d767b6a7629185169ffa550c722e007d78422eee2ee5545133373b539",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-02-06",
+      "team1Key": "jamaica",
+      "team2Key": "trinidad_and_tobago",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "5c60c6a2fb09442a8f83eccd7403de6a34006121914a0518a9febd61aa768656",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-02-08",
+      "team1Key": "chile",
+      "team2Key": "panama",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "561b28d7b77ea0b2f85b80daae9ad1d536f5341b4fa76fda505dff9c3e0619eb",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-02-17",
+      "team1Key": "north_korea",
+      "team2Key": "kazakhstan",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "253130105adf8b747b395b03e7cbbaa8fb59db9add5e367772446d8a06b8eb69",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-06",
+      "team1Key": "saint_vincent_and_the_grenadines",
+      "team2Key": "grenada",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "d02a4a64b720ced245d74afde35c661ba279b1bba125d012ee9f29abea85dcfa",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-13",
+      "team1Key": "oman",
+      "team2Key": "sudan",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "84480cbd0af5d647460e1e86024112858725ead587d1cb051e49f36b38071b5a",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-15",
+      "team1Key": "china",
+      "team2Key": "kuwait",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "6f5b9ec44fe0079022dee96631ce5b608f6398d16047b4d8d40991da88508f4f",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-16",
+      "team1Key": "guatemala",
+      "team2Key": "honduras",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "1448c1560b1895636257f0ecf60abc5eccbe2e9f918af22cdbd8a2d50dce374e",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "kazakhstan",
+      "team2Key": "curacao",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "1fc45a718201f3371d4fdf1efe68607359a2ff7637680ac8e6940dd2ef1597b3",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "russia",
+      "team2Key": "grenada",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "2239a24f5a88f304a01896bd60e4b68ce880408e612b738067d922385d708392",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "vietnam",
+      "team2Key": "cambodia",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "a0c12ae22dbe124a6e6cb1cf320e02a33a558fe6eaa09c96816c0a9224f16536",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "india",
+      "team2Key": "maldives",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "a6c7c8c672c6c0745b51666598a41c0c532dd6d092b29707d4aaef60811fb279",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "madagascar",
+      "team2Key": "central_african_republic",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "ab56d30ed226c26d06c35117b0cc9807d8e6ca3baddcc9e2fd3d04b5278ff726",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "hong_kong",
+      "team2Key": "macao",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "bd413f3f23f7a14cc28d0be25287ed195e9764364b027ec00d32ae04cdd9f630",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "liberia",
+      "team2Key": "tunisia",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "cd66931f09978b1c8066bd1cc206edaa94060b5c2ab27a3ca3cec54cc9566369",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-19",
+      "team1Key": "cameroon",
+      "team2Key": "eswatini",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "009ded2de9dedbb16bd2f4d931928f67e26b11d9b630626ac0cfa8821102ca80",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "jordan",
+      "team2Key": "palestine",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "072868e094eea705c44904b07c415a7e32aeed87ac9d61a8940fa4cade6f8d54",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "qatar",
+      "team2Key": "north_korea",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "0e783c56a257909c78bb2a48b8bf17df4c8a75acb75791a7d162483acbdf9540",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "slovakia",
+      "team2Key": "slovenia",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "251ba46e3ef2b801b55db5bfe7bd37269d499bcd1239810e5fb7fd8b8b01b346",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "turkiye",
+      "team2Key": "hungary",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "2b8c4331c6a87907f6a6e78cb12232af8424634c2feeb58430adccf5b071b9db",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "cape_verde",
+      "team2Key": "mauritius",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "2baf8942eced1e765e7339ac1479ec290cec73e0d07c6634a965ab6687756b9c",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "brazil",
+      "team2Key": "colombia",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "2eadca29f6ea943e922cd34d1166a872a1dcdbf216ee3e0a6f98c5a4425d60d5",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "gambia",
+      "team2Key": "kenya",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "333360ecacbcabb6db95d7c45a9653a4aac6af51ab47f3648cb7ca573465880a",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "mozambique",
+      "team2Key": "uganda",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "3b041b6aa078b9c132fe0430914a5c7377e27102788a2745b23e2ab9dd3fd029",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "uzbekistan",
+      "team2Key": "kyrgyzstan",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "442dd5f877108b2e8ea61aba17fa9b4db81fc4cfaa13b8428b53ea5bc2d188b5",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "greece",
+      "team2Key": "scotland",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "46b8a3a4fb09289f20b5b79099643147d3c8031d4a094d15ab46a9a6453e3151",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "italy",
+      "team2Key": "germany",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "4bf66e6c0fc67046144b8e0bfa3e65320c457ba55c43e800b42a4a02996c8e3b",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "croatia",
+      "team2Key": "france",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "4e0fda1d57f48c1cc45b9a6d5ec53ef85878aa7d427899aee3114d3c051cd3ec",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "libya",
+      "team2Key": "angola",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "52153acfd8a909c741e80e5314324f3f7445393af845c530a96bf578c3572380",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "peru",
+      "team2Key": "bolivia",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "57c396343fba7379359a06c39132bc68f3658c88517539da1ce342d0c408b8c4",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "iraq",
+      "team2Key": "kuwait",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "615f3758658ac1f71eb3cc3cd8769547b50016bed020d77cf9de424018280d01",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "laos",
+      "team2Key": "sri_lanka",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "6925cc63930cfcf95bb49efb196d12f160791b44cae1f0f0ff9c68f92af0865e",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "sierra_leone",
+      "team2Key": "guinea_bissau",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "700950bd67a3b97df2e2c9b7b52ccd0208c454a6b12c55afeb3a602d25de67e0",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "gabon",
+      "team2Key": "seychelles",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "99c5aff37ccf4661ba22006058b78a4645ba7a5ff3d87e8337b8568d81daaf83",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "netherlands",
+      "team2Key": "spain",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "9a1111d4a9dda920adedd1e185b8e895e1e460a28f9f8e4612afd6a9dd570cd7",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "kosovo",
+      "team2Key": "iceland",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "9ddc38a5b6152e9e5970f9a8a80cf156bb0685a3fd6a013f5b8cf9a0fae361d2",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "australia",
+      "team2Key": "indonesia",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "9fcaa2db71d172601167e54581bac14089d28e0fb69759921781c16ec8d82c78",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "armenia",
+      "team2Key": "georgia",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "a695ec04a4e3ebbdc06e9df21ff41ce1405cc4606779a415797284ec40630c46",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "saudi_arabia",
+      "team2Key": "china",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "b1e2cc55db96900ccf5392e10cb2e9a0b61a954bf039784099264e80b63bc37d",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "japan",
+      "team2Key": "bahrain",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "b416f5d756df440a338f303d7fd44ce33273607b9eedb845538797cf1a83ee7b",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "mali",
+      "team2Key": "comoros",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "bc65ddd007c8bdcf1f60c53cfbade49297e92e4732cc008c36d66d1fbec2760d",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "lebanon",
+      "team2Key": "east_timor",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "c0ccc0b9721d438e2c35264c62f3d7a7866f281076d1ac383979e18f58666a00",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "paraguay",
+      "team2Key": "chile",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "c2cd252c803fd2e4404d019d4d64d6ff804f1c98846c779e9f003852573b3109",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "iran",
+      "team2Key": "united_arab_emirates",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "e0ca24f4b68ea2c96d986f48f6f63a95e796552acc0f04c8064d513a7225a223",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "tajikistan",
+      "team2Key": "belarus",
+      "reasonCode": "insufficient_prior_history"
+    },
+    {
+      "naturalMatchKey": "e3ad2bbf9e578399a5ba3440b7e3f033a9e811cd6605216428febfaff8372126",
+      "sourceSnapshotId": "elo-results-2025",
+      "sourceFile": "Results 2025.html",
+      "matchDate": "2025-03-20",
+      "team1Key": "south_korea",
+      "team2Key": "oman",
+      "reasonCode": "insufficient_prior_history"
+    }
+  ]
+}
