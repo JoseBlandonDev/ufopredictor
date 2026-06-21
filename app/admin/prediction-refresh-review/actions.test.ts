@@ -82,6 +82,7 @@ vi.mock("next/cache", () => ({
 import {
   analyzePredictionRefreshWithAiAction,
   generatePredictionRefreshShadowAction,
+  publishReviewedXgPredictionReviewAction,
   previewReviewedXgAction,
   publishRefreshedPredictionReviewAction,
 } from "./actions";
@@ -159,6 +160,28 @@ const shadowBundle = {
   homeWinProb: 46,
   expectedHomeGoals: 1.7,
   provenanceLabel: "Shadow refresh prediction",
+};
+
+const reviewedXgBundle = {
+  ...baseBundle,
+  kind: "reviewed_xg_preview" as const,
+  predictionVersionId: null,
+  runScope: "review_preview" as const,
+  homeWinProb: 40,
+  drawProb: 25,
+  awayWinProb: 35,
+  expectedHomeGoals: 1.57,
+  expectedAwayGoals: 1.42,
+  mostLikelyScore: "1-1",
+  topScorelines: [{ score: "1-1", probability: 12 }],
+  bttsYesProb: 58,
+  bttsNoProb: 42,
+  over25Prob: 54,
+  under25Prob: 46,
+  confidenceScore: 63,
+  confidenceBucket: "medium" as const,
+  riskLevel: "medium" as const,
+  provenanceLabel: "Reviewed xG preview",
 };
 
 function buildFormData(values: Record<string, string>) {
@@ -253,6 +276,7 @@ function buildClient(options?: {
         id: "review-case-1",
         match_id: match.id,
         latest_shadow_snapshot_id: "snapshot-shadow-1",
+        latest_reviewed_xg_snapshot_id: null,
       },
       error: null,
     },
@@ -261,6 +285,7 @@ function buildClient(options?: {
         id: "review-case-created",
         match_id: match.id,
         latest_shadow_snapshot_id: null,
+        latest_reviewed_xg_snapshot_id: null,
       },
       error: null,
     },
@@ -270,6 +295,7 @@ function buildClient(options?: {
       data: {
         id: "snapshot-shadow-1",
         review_case_id: "review-case-1",
+        snapshot_kind: "shadow_refresh",
       },
       error: null,
     },
@@ -483,6 +509,159 @@ describe("prediction refresh review actions", () => {
     expect(client.reviewDecisionsBuilder.insert).toHaveBeenCalled();
   });
 
+  it("publishes a reviewed xG snapshot for a public scheduled fixture without overwriting the current prediction", async () => {
+    const client = buildClient({
+      matchOverride: {
+        access_scope: "public",
+      },
+      reviewCaseResponse: {
+        data: {
+          id: "review-case-1",
+          match_id: match.id,
+          latest_shadow_snapshot_id: "snapshot-shadow-1",
+          latest_reviewed_xg_snapshot_id: "snapshot-reviewed-1",
+        },
+        error: null,
+      },
+      snapshotSelectResponse: {
+        data: {
+          id: "snapshot-reviewed-1",
+          review_case_id: "review-case-1",
+          snapshot_kind: "reviewed_xg_preview",
+        },
+        error: null,
+      },
+    });
+    buildPredictionReviewBundleFromSnapshotMock.mockReturnValueOnce(reviewedXgBundle);
+
+    await expect(
+      publishReviewedXgPredictionReviewAction(
+        buildFormData({
+          matchId: match.id,
+          externalId: match.external_id,
+          reason: "Reviewed xG aprobado para Ecuador vs Curaçao.",
+        }),
+      ),
+    ).rejects.toThrow(
+      `REDIRECT:/admin/prediction-refresh-review?externalId=${encodeURIComponent(match.external_id)}&action=published_refreshed`,
+    );
+
+    expect(client.predictionVersionsBuilder.insert).toHaveBeenCalledTimes(1);
+    expect(client.predictionMarketsBuilder.insert).toHaveBeenCalledTimes(1);
+    expect(client.predictionVersionsBuilder.update).not.toHaveBeenCalled();
+    expect(client.rpc).not.toHaveBeenCalled();
+    expect(client.reviewDecisionsBuilder.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        decision: "PUBLISH_REFRESHED",
+        selected_snapshot_id: "snapshot-reviewed-1",
+      }),
+    );
+    expect(client.reviewSnapshotsBuilder.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        snapshotKind: "published_output",
+      }),
+    );
+  });
+
+  it("blocks reviewed xG publication when no reviewed snapshot is available", async () => {
+    const client = buildClient({
+      matchOverride: {
+        access_scope: "public",
+      },
+      reviewCaseResponse: {
+        data: {
+          id: "review-case-1",
+          match_id: match.id,
+          latest_shadow_snapshot_id: "snapshot-shadow-1",
+          latest_reviewed_xg_snapshot_id: null,
+        },
+        error: null,
+      },
+    });
+
+    await expect(
+      publishReviewedXgPredictionReviewAction(
+        buildFormData({
+          matchId: match.id,
+          externalId: match.external_id,
+          reason: "Debe bloquear sin reviewed xG.",
+        }),
+      ),
+    ).rejects.toThrow(/message=no_reviewed_xg_snapshot/);
+
+    expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
+    expect(client.predictionMarketsBuilder.insert).not.toHaveBeenCalled();
+  });
+
+  it("blocks reviewed xG publication after kickoff has passed", async () => {
+    vi.setSystemTime(new Date("2026-06-19T22:00:00Z"));
+    const client = buildClient({
+      matchOverride: {
+        access_scope: "public",
+      },
+      reviewCaseResponse: {
+        data: {
+          id: "review-case-1",
+          match_id: match.id,
+          latest_shadow_snapshot_id: "snapshot-shadow-1",
+          latest_reviewed_xg_snapshot_id: "snapshot-reviewed-1",
+        },
+        error: null,
+      },
+    });
+
+    await expect(
+      publishReviewedXgPredictionReviewAction(
+        buildFormData({
+          matchId: match.id,
+          externalId: match.external_id,
+          reason: "No debe publicar despues del kickoff.",
+        }),
+      ),
+    ).rejects.toThrow(/action=blocked/);
+
+    expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { status: "live", expected: /message=Live\+fixtures\+are\+frozen\+and\+cannot\+be\+regenerated\+or\+reviewed\./ },
+    { status: "finished", expected: /message=Finished\+fixtures\+are\+excluded\+from\+pre-match\+review\./ },
+  ])("blocks reviewed xG publication for $status fixtures", async ({ status, expected }) => {
+    const client = buildClient({
+      matchOverride: {
+        access_scope: "public",
+      },
+      providerState: {
+        status: "available",
+        fixture: {
+          provider: "api-football",
+          providerFixtureId: 1540356,
+          kickoffAt: match.kickoff_at,
+          timezone: "UTC",
+          status,
+          statusShort: status === "live" ? "1H" : "FT",
+          elapsedMinutes: status === "live" ? 8 : null,
+          competition: { providerCompetitionId: 1, name: "World Cup", country: null, season: 2026, round: "GS" },
+          homeTeam: { providerTeamId: 1, name: "USA", winner: null },
+          awayTeam: { providerTeamId: 2, name: "Türkiye", winner: null },
+          goals: { home: status === "live" ? 0 : 1, away: status === "live" ? 0 : 1 },
+        },
+      },
+    });
+
+    await expect(
+      publishReviewedXgPredictionReviewAction(
+        buildFormData({
+          matchId: match.id,
+          externalId: match.external_id,
+          reason: "No debe publicar en vivo o finalizado.",
+        }),
+      ),
+    ).rejects.toThrow(expected);
+
+    expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
+  });
+
   it("blocks duplicate publish submissions before creating another public version", async () => {
     const client = buildClient({
       existingPublishedDecision: {
@@ -505,6 +684,67 @@ describe("prediction refresh review actions", () => {
     ).rejects.toThrow(
       `REDIRECT:/admin/prediction-refresh-review?externalId=${encodeURIComponent(match.external_id)}&action=already_published`,
     );
+
+    expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
+    expect(client.predictionMarketsBuilder.insert).not.toHaveBeenCalled();
+  });
+
+  it("blocks duplicate reviewed xG publication from the same saved snapshot", async () => {
+    const client = buildClient({
+      matchOverride: {
+        access_scope: "public",
+      },
+      reviewCaseResponse: {
+        data: {
+          id: "review-case-1",
+          match_id: match.id,
+          latest_shadow_snapshot_id: "snapshot-shadow-1",
+          latest_reviewed_xg_snapshot_id: "snapshot-reviewed-1",
+        },
+        error: null,
+      },
+      existingPublishedDecision: {
+        data: {
+          id: "decision-reviewed-published",
+          selected_snapshot_id: "snapshot-reviewed-1",
+          published_prediction_version_id: "prediction-reviewed-published",
+        },
+        error: null,
+      },
+    });
+
+    await expect(
+      publishReviewedXgPredictionReviewAction(
+        buildFormData({
+          matchId: match.id,
+          externalId: match.external_id,
+          reason: "No deberia duplicarse desde el mismo reviewed xG.",
+        }),
+      ),
+    ).rejects.toThrow(
+      `REDIRECT:/admin/prediction-refresh-review?externalId=${encodeURIComponent(match.external_id)}&action=already_published`,
+    );
+
+    expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
+    expect(client.predictionMarketsBuilder.insert).not.toHaveBeenCalled();
+  });
+
+  it("keeps the shadow publication path blocked for already-public fixtures", async () => {
+    const client = buildClient({
+      matchOverride: {
+        access_scope: "public",
+      },
+    });
+
+    await expect(
+      publishRefreshedPredictionReviewAction(
+        buildFormData({
+          matchId: match.id,
+          externalId: match.external_id,
+          reason: "La ruta sombra no debe cambiar para fixtures publicos.",
+        }),
+      ),
+    ).rejects.toThrow(/message=publish_requires_admin_only_fixture/);
 
     expect(client.predictionVersionsBuilder.insert).not.toHaveBeenCalled();
     expect(client.predictionMarketsBuilder.insert).not.toHaveBeenCalled();

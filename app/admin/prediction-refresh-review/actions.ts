@@ -406,6 +406,166 @@ async function saveDecision(args: {
   return { context, reviewCase, decision };
 }
 
+async function publishPredictionReviewSnapshot(args: {
+  matchId: string;
+  externalId: string;
+  reason: string;
+  publishSource: "shadow_refresh" | "reviewed_xg_preview";
+}) {
+  const { user } = await requireAdmin(PREDICTION_REFRESH_REVIEW_PATH);
+  const context = await loadMatchContext(args.matchId, args.externalId);
+
+  if (args.publishSource === "shadow_refresh" && context.match.access_scope !== "admin_only") {
+    redirectWithStatus({ externalId: args.externalId, action: "blocked", message: "publish_requires_admin_only_fixture" });
+  }
+
+  if (args.publishSource === "reviewed_xg_preview" && context.match.access_scope !== "public") {
+    redirectWithStatus({ externalId: args.externalId, action: "blocked", message: "reviewed_xg_publish_requires_public_fixture" });
+  }
+
+  if (context.match.status !== "scheduled") {
+    redirectWithStatus({ externalId: args.externalId, action: "blocked", message: "match_not_scheduled" });
+  }
+
+  if (!context.activeModelVersion) {
+    redirectWithStatus({ externalId: args.externalId, action: "blocked", message: "no_active_model" });
+  }
+
+  const { data: reviewCase } = await context.supabase
+    .from("prediction_review_cases")
+    .select("*")
+    .eq("match_id", context.match.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const selectedSnapshotId =
+    args.publishSource === "shadow_refresh"
+      ? reviewCase?.latest_shadow_snapshot_id ?? null
+      : reviewCase?.latest_reviewed_xg_snapshot_id ?? null;
+
+  if (!selectedSnapshotId) {
+    redirectWithStatus({
+      externalId: args.externalId,
+      action: "blocked",
+      message: args.publishSource === "shadow_refresh" ? "no_shadow_snapshot" : "no_reviewed_xg_snapshot",
+    });
+  }
+
+  const existingPublishedDecisionQuery = context.supabase
+    .from("prediction_review_decisions")
+    .select("id, published_prediction_version_id")
+    .eq("review_case_id", reviewCase.id)
+    .eq("decision", "PUBLISH_REFRESHED");
+
+  const { data: existingPublishedDecision } =
+    args.publishSource === "shadow_refresh"
+      ? await existingPublishedDecisionQuery
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : await existingPublishedDecisionQuery
+          .eq("selected_snapshot_id", selectedSnapshotId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+  if (existingPublishedDecision?.published_prediction_version_id) {
+    redirectWithStatus({ externalId: args.externalId, action: "already_published" });
+  }
+
+  const { data: selectedSnapshot } = await context.supabase
+    .from("prediction_review_snapshots")
+    .select("*")
+    .eq("id", selectedSnapshotId)
+    .maybeSingle();
+
+  if (!selectedSnapshot) {
+    redirectWithStatus({
+      externalId: args.externalId,
+      action: "blocked",
+      message: args.publishSource === "shadow_refresh" ? "shadow_snapshot_missing" : "reviewed_xg_snapshot_missing",
+    });
+  }
+
+  if (selectedSnapshot.snapshot_kind !== args.publishSource) {
+    redirectWithStatus({
+      externalId: args.externalId,
+      action: "blocked",
+      message:
+        args.publishSource === "shadow_refresh"
+          ? "shadow_snapshot_kind_invalid"
+          : "reviewed_xg_snapshot_kind_invalid",
+    });
+  }
+
+  const bundle = buildPredictionReviewBundleFromSnapshot({
+    snapshot: selectedSnapshot,
+    provenanceLabel:
+      args.publishSource === "shadow_refresh" ? "Shadow refresh prediction" : "Reviewed xG preview",
+    modelVersionLabel: context.activeModelVersion.version,
+  });
+
+  const { data: insertedPrediction, error: insertedPredictionError } = await context.supabase
+    .from("prediction_versions")
+    .insert(
+      buildPublicPredictionVersionInsertFromReviewBundle({
+        matchId: context.match.id,
+        modelVersionId: context.activeModelVersion.id,
+        bundle,
+      }),
+    )
+    .select("id")
+    .maybeSingle();
+
+  if (insertedPredictionError || !insertedPrediction) {
+    redirectWithStatus({ externalId: args.externalId, action: "error", message: "public_prediction_insert_failed" });
+  }
+
+  await context.supabase.from("prediction_markets").insert(
+    buildPredictionMarketsFromReviewBundle({
+      predictionVersionId: insertedPrediction.id,
+      bundle,
+    }),
+  );
+
+  if (args.publishSource === "shadow_refresh" && context.match.access_scope === "admin_only") {
+    await context.supabase.rpc("publish_real_fixture_match_access_scope", {
+      target_match_id: context.match.id,
+      target_match_slug: context.match.slug,
+    });
+  }
+
+  const { decision } = await saveDecision({
+    matchId: args.matchId,
+    externalId: args.externalId,
+    decision: "PUBLISH_REFRESHED",
+    reason: args.reason,
+    selectedSnapshotId: selectedSnapshot.id,
+    publishedPredictionVersionId: insertedPrediction.id,
+  });
+
+  await context.supabase.from("prediction_review_snapshots").insert(
+    buildPredictionReviewSnapshotInsert({
+      reviewCaseId: reviewCase.id,
+      snapshotKind: "published_output",
+      sourcePredictionVersionId: insertedPrediction.id,
+      sourceSnapshotId: SIGNAL_SOURCE_SNAPSHOT_ID,
+      modelVersionId: context.activeModelVersion.id,
+      bundle,
+      createdBy: user.id,
+    }),
+  );
+
+  await context.supabase.from("prediction_review_cases").update({
+    latest_decision_id: decision.id,
+    status: "published_refreshed",
+  }).eq("id", reviewCase.id);
+
+  revalidatePath(PREDICTION_REFRESH_REVIEW_PATH);
+  redirectWithStatus({ externalId: args.externalId, action: "published_refreshed" });
+}
+
 export async function keepCurrentPredictionRefreshAction(formData: FormData) {
   const input = baseSchema.extend({ reason: z.string().trim().min(1) }).safeParse({
     matchId: formData.get("matchId"),
@@ -570,112 +730,28 @@ export async function publishRefreshedPredictionReviewAction(formData: FormData)
     redirectWithStatus({ action: "invalid" });
   }
 
-  const { user } = await requireAdmin(PREDICTION_REFRESH_REVIEW_PATH);
-  const context = await loadMatchContext(input.data.matchId, input.data.externalId);
-  if (context.match.access_scope !== "admin_only") {
-    redirectWithStatus({ externalId: input.data.externalId, action: "blocked", message: "publish_requires_admin_only_fixture" });
-  }
-  if (!context.activeModelVersion) {
-    redirectWithStatus({ externalId: input.data.externalId, action: "blocked", message: "no_active_model" });
-  }
-
-  const { data: reviewCase } = await context.supabase
-    .from("prediction_review_cases")
-    .select("*")
-    .eq("match_id", context.match.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (!reviewCase?.latest_shadow_snapshot_id) {
-    redirectWithStatus({ externalId: input.data.externalId, action: "blocked", message: "no_shadow_snapshot" });
-  }
-
-  const { data: existingPublishedDecision } = await context.supabase
-    .from("prediction_review_decisions")
-    .select("id, published_prediction_version_id")
-    .eq("review_case_id", reviewCase.id)
-    .eq("decision", "PUBLISH_REFRESHED")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (existingPublishedDecision?.published_prediction_version_id) {
-    redirectWithStatus({ externalId: input.data.externalId, action: "already_published" });
-  }
-
-  const { data: shadowSnapshot } = await context.supabase
-    .from("prediction_review_snapshots")
-    .select("*")
-    .eq("id", reviewCase.latest_shadow_snapshot_id)
-    .maybeSingle();
-
-  if (!shadowSnapshot) {
-    redirectWithStatus({ externalId: input.data.externalId, action: "blocked", message: "shadow_snapshot_missing" });
-  }
-
-  const bundle = buildPredictionReviewBundleFromSnapshot({
-    snapshot: shadowSnapshot,
-    provenanceLabel: "Shadow refresh prediction",
-    modelVersionLabel: context.activeModelVersion.version,
-  });
-
-  const { data: insertedPrediction, error: insertedPredictionError } = await context.supabase
-    .from("prediction_versions")
-    .insert(
-      buildPublicPredictionVersionInsertFromReviewBundle({
-        matchId: context.match.id,
-        modelVersionId: context.activeModelVersion.id,
-        bundle,
-      }),
-    )
-    .select("id")
-    .maybeSingle();
-
-  if (insertedPredictionError || !insertedPrediction) {
-    redirectWithStatus({ externalId: input.data.externalId, action: "error", message: "public_prediction_insert_failed" });
-  }
-
-  await context.supabase.from("prediction_markets").insert(
-    buildPredictionMarketsFromReviewBundle({
-      predictionVersionId: insertedPrediction.id,
-      bundle,
-    }),
-  );
-
-  if (context.match.access_scope === "admin_only") {
-    await context.supabase.rpc("publish_real_fixture_match_access_scope", {
-      target_match_id: context.match.id,
-      target_match_slug: context.match.slug,
-    });
-  }
-
-  const { decision } = await saveDecision({
+  await publishPredictionReviewSnapshot({
     matchId: input.data.matchId,
     externalId: input.data.externalId,
-    decision: "PUBLISH_REFRESHED",
     reason: input.data.reason,
-    selectedSnapshotId: shadowSnapshot.id,
-    publishedPredictionVersionId: insertedPrediction.id,
+    publishSource: "shadow_refresh",
   });
+}
 
-  await context.supabase.from("prediction_review_snapshots").insert(
-    buildPredictionReviewSnapshotInsert({
-      reviewCaseId: reviewCase.id,
-      snapshotKind: "published_output",
-      sourcePredictionVersionId: insertedPrediction.id,
-      sourceSnapshotId: SIGNAL_SOURCE_SNAPSHOT_ID,
-      modelVersionId: context.activeModelVersion.id,
-      bundle,
-      createdBy: user.id,
-    }),
-  );
+export async function publishReviewedXgPredictionReviewAction(formData: FormData) {
+  const input = baseSchema.extend({ reason: z.string().trim().min(1) }).safeParse({
+    matchId: formData.get("matchId"),
+    externalId: formData.get("externalId"),
+    reason: formData.get("reason"),
+  });
+  if (!input.success) {
+    redirectWithStatus({ action: "invalid" });
+  }
 
-  await context.supabase.from("prediction_review_cases").update({
-    latest_decision_id: decision.id,
-    status: "published_refreshed",
-  }).eq("id", reviewCase.id);
-
-  revalidatePath(PREDICTION_REFRESH_REVIEW_PATH);
-  redirectWithStatus({ externalId: input.data.externalId, action: "published_refreshed" });
+  await publishPredictionReviewSnapshot({
+    matchId: input.data.matchId,
+    externalId: input.data.externalId,
+    reason: input.data.reason,
+    publishSource: "reviewed_xg_preview",
+  });
 }
