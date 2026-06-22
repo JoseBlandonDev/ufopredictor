@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PlanCard } from "@/components/plan-card";
 import { WompiCheckoutButton } from "@/components/wompi-checkout-button";
+import { getCurrentUser } from "@/lib/auth/session";
 import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
 import {
   getPublicPlansCatalogData,
@@ -49,9 +50,10 @@ const worldCupPackageRoadmap = [
 ] as const;
 
 export default async function PricingPage() {
-  const [catalog, worldCupPassPrice, viewerSummary] = await Promise.all([
+  const [catalog, worldCupPassPrice, user, viewerSummary] = await Promise.all([
     getPublicPlansCatalogData(),
     getWompiWorldCupPassPrice(),
+    getCurrentUser(),
     getViewerEntitlementSummary(),
   ]);
   const premiumAccessActive = hasCurrentPremiumAccess(viewerSummary);
@@ -148,7 +150,13 @@ export default async function PricingPage() {
                     El redirect no activa premium. La activacion ocurre cuando Wompi confirma el pago por webhook validado.
                   </p>
                   <div className="mt-5">
-                    <WompiCheckoutButton />
+                    {user ? (
+                      <WompiCheckoutButton />
+                    ) : (
+                      <Link href="/login?next=/pricing" className="ufo-btn-primary ufo-focus-ring inline-flex">
+                        Inicia sesión para comprar
+                      </Link>
+                    )}
                   </div>
                 </>
               ) : (
