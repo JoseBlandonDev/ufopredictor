@@ -119,6 +119,24 @@ function unavailable(): PublicPredictionUnavailable {
   };
 }
 
+const UPCOMING_EXCLUDED_STATUSES = new Set([
+  "finished",
+  "cancelled",
+  "postponed",
+  "abandoned",
+]);
+
+function isUpcomingStatus(status: string) {
+  return !UPCOMING_EXCLUDED_STATUSES.has(status);
+}
+
+function isUpcomingPrediction(
+  prediction: Pick<PublicPredictionSummaryRow, "kickoff_at" | "status">,
+  now = new Date(),
+) {
+  return new Date(prediction.kickoff_at).getTime() > now.getTime() && isUpcomingStatus(prediction.status);
+}
+
 function toCardBaseView(prediction: PublicPredictionSummaryRow): PublicPredictionCardBaseView {
   const verifiedResult =
     prediction.result_verification_status === "verified" &&
@@ -236,7 +254,8 @@ function buildPublicPredictionQuery(
 
 async function fetchPublicPredictionRows(args: {
   viewer: PublicPredictionViewer;
-  status: MatchRow["status"];
+  status?: MatchRow["status"];
+  mode: "upcoming" | "history";
   verifiedOnly?: boolean;
   limit?: number;
   page?: number;
@@ -251,7 +270,14 @@ async function fetchPublicPredictionRows(args: {
     return unavailable();
   }
 
-  let query = buildPublicPredictionQuery(supabase).eq("status", args.status);
+  let query = buildPublicPredictionQuery(supabase);
+
+  if (args.mode === "upcoming") {
+    const nowIso = new Date().toISOString();
+    query = query.gt("kickoff_at", nowIso).neq("status", "finished").neq("status", "cancelled").neq("status", "postponed");
+  } else if (args.status) {
+    query = query.eq("status", args.status);
+  }
 
   if (args.verifiedOnly) {
     query = query.eq("result_verification_status", "verified");
@@ -277,7 +303,8 @@ async function fetchPublicPredictionRows(args: {
 
   const filteredPredictions = ((data ?? []) as PublicPredictionSummaryRow[])
     .filter((prediction) =>
-      isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug),
+      isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug) &&
+      (args.mode !== "upcoming" || isUpcomingPrediction(prediction)),
     )
     .map((prediction) => toPredictionCardView(prediction, args.viewer));
 
@@ -312,12 +339,13 @@ export async function getPublicPredictionsData(
   const [scheduledResult, historyResult] = await Promise.all([
     fetchPublicPredictionRows({
       viewer,
-      status: "scheduled",
+      mode: "upcoming",
       ascending: true,
       limit: PREDICTIONS_LANDING_UPCOMING_LIMIT,
     }),
     fetchPublicPredictionRows({
       viewer,
+      mode: "history",
       status: "finished",
       verifiedOnly: true,
       ascending: false,
@@ -345,7 +373,7 @@ export async function getUpcomingPublicPredictionsPage(
 ): Promise<PublicPredictionPaginationResult | PublicPredictionUnavailable> {
   return fetchPublicPredictionRows({
     viewer,
-    status: "scheduled",
+    mode: "upcoming",
     ascending: true,
     page,
     pageSize: PREDICTIONS_PAGE_SIZE,
@@ -358,6 +386,7 @@ export async function getHistoricalPublicPredictionsPage(
 ): Promise<PublicPredictionPaginationResult | PublicPredictionUnavailable> {
   return fetchPublicPredictionRows({
     viewer,
+    mode: "history",
     status: "finished",
     verifiedOnly: true,
     ascending: false,

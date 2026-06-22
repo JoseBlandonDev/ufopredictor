@@ -52,4 +52,18 @@ describe("PredictionsPage", () => {
     expect(html).toContain("Ir al historial");
     expect(html).toContain("href=\"/predictions/history\"");
   });
+
+  it("renders the honest empty state when there are no future or historical public predictions", async () => {
+    getPublicPredictionsDataMock.mockResolvedValue({
+      status: "ready",
+      upcomingPredictions: [],
+      historicalPredictions: [],
+    });
+
+    const element = await PredictionsPage();
+    const html = renderToStaticMarkup(element);
+
+    expect(html).toContain("Aún no hay predicciones públicas");
+    expect(html).toContain("aparecerán aquí cuando haya partidos programados");
+  });
 });
