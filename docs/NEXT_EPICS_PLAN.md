@@ -1,84 +1,58 @@
 # Next Epics Plan - UFO Predictor
 
-_Last refreshed: post PR #99 Data Ops 06 and Torneo delivery (2026-06-19)._
+_Last refreshed: 2026-06-22._
 
-## Immediate operational sequence
+## Immediate sequence
 
-### 1. Matchday 2 result operations
+### 1. Task 3B read-only stage audit
 
-- monitor provider status;
-- verify only exact final fixtures;
-- persist internal evaluation;
-- keep frozen prediction history immutable.
+- compare remote stage schema/migrations with repository;
+- classify missing migrations and drift;
+- verify Auth preservation;
+- produce ordered plan;
+- no writes.
 
-### 2. Next fixture runway
+### 2. Task 3B stage execution
 
-- inventory exact upcoming round;
-- dry-run;
-- generate/publish only future scheduled fixtures;
-- preserve idempotence;
-- export only after public prediction completeness.
+- synchronize schema;
+- apply migration 0038;
+- load normalized data idempotently;
+- persist signals;
+- create development prediction versions;
+- generate development partner export;
+- validate RLS/public/UI.
 
-### 3. Small Review Gate UI patch
+### 3. Prediction Intelligence v2 frontend
 
-- missing market -> `No disponible`;
-- pre-shadow -> `Sin comparación todavía`;
-- translate provider/alert/risk labels;
-- compact long review presentation if low risk.
+- scenario-led premium detail;
+- free/anonymous teaser layers;
+- Spanish localization;
+- source/reliability presentation;
+- venue/city display;
+- post-match interpretation.
 
-## Commercial readiness sequence
+### 4. Production promotion
 
-### G04 pricing truth and catalog
+- stage acceptance;
+- backup/rollback;
+- production migration/import;
+- immutable publication;
+- cross-role smoke;
+- Torneo production export.
 
-P0:
+## Parallel commercial work
 
-- confirm final price;
-- align COP/USDT/checkout;
-- remove duplicate World Cup Pass presentation;
-- separate active and future products.
+- truthful claims: probabilities, not certainty;
+- do not market v2 as a large accuracy jump;
+- explain the value of data aggregation and interpretation;
+- maintain no-betting/no-guarantee language;
+- validate pricing and entitlement flows before paid acquisition.
 
-### G08 trust and truthful copy
+## Later v3
 
-- model calibration closed vs signals refreshable;
-- purchase terms;
-- refund/cancellation expectations;
-- no-betting/no-guarantee consistency.
-
-### G09 frontend commercial readiness
-
-- dynamic home content;
-- Spanish presentation consistency;
-- dashboard role/plan/entitlement clarity;
-- compact admin empty states;
-- responsive pass.
-
-### G12/G13 launch gates
-
-- accessibility/performance;
-- anonymous/free/premium/admin cross-device smoke;
-- payment/export/review routes.
-
-## Data/model next
-
-### Signal refresh cadence
-
-Choose a trigger such as:
-
-- official ranking release;
-- completed matchday;
-- meaningful result batch.
-
-Do not refresh after every surprising result.
-
-### Scoreline monitoring
-
-Continue fair stored metrics. Open a new model experiment only with a larger clean sample and explicit acceptance criteria.
-
-## Deferred
-
-- Review Gate AI;
-- reviewed-xG publication;
-- Real Fixture Lab exact-detail;
-- venue metadata;
-- service-worker offline caching;
-- future xG formula work.
+- stronger round-aware tournament recency;
+- dynamic UFO strength ranking;
+- model learnings from surprising cross-confederation results;
+- finishing/conversion state;
+- event-timeline path scoring;
+- market-value layer with timestamped odds.

@@ -1,115 +1,90 @@
 # Open Decisions - UFO Predictor
 
-_Last refreshed: post PR #99 documentation rebaseline (2026-06-19)._
+_Last refreshed: 2026-06-22._
 
-## Closed decisions
+## Decisions already made
 
-### Model calibration
+- stage and production remain separate Supabase projects;
+- stage users/auth are independent;
+- no Docker dependency for Task 3B;
+- Task 3B begins read-only;
+- production writes remain denied;
+- v2 probability candidate is conservative and near parity;
+- v2 analysis/scenario layer is the main product gain;
+- scenario cards are not three outcome-covering guesses;
+- canonical identity is locale-neutral;
+- Spanish is immediate, English is first-class-ready;
+- official venue data replaces `Por definir` when known.
 
-Closed through PR #94:
+## Task 3B decisions still required
 
-- SIGNAL04 retained;
-- DRAW01 retained;
-- expected-goals unchanged;
-- stored pre-match rows remain the fair report.
+### Migration reconciliation
 
-### Reproducible signal baseline
+After the read-only audit:
 
-Closed through PR #97:
+- apply repository chain as-is;
+- repair migration history metadata;
+- or reconcile manually created stage objects before applying.
 
-- tracked 2026-06-19 source snapshot;
-- deterministic generator;
-- quality gates;
-- runtime static pack.
+No destructive choice without human review.
 
-### Prediction review architecture
+### Stage seed scope
 
-Closed through PR #98:
+Preferred:
 
-- separate review tables;
-- immutable shadow/decision lineage;
-- provider revalidation;
-- no fake AI fallback.
+- teams/competitions/reference data;
+- World Cup schedule/venues;
+- FIFA/Elo/history;
+- development predictions/signals;
+- test profiles/entitlements.
 
-### Matchday 2 and Torneo export
+Do not clone:
 
-Closed through PR #99:
+- production users/sessions;
+- Wompi transactions/webhooks;
+- production subscriptions/entitlements;
+- secrets or personal data.
 
-- 24/24 fixtures;
-- batch idempotence;
-- final `torneo-ufo-export-v1` delivered.
+### Probability release choice
 
-## Open decisions
+Development candidate:
 
-### Final World Cup Pass price
+```text
+gated_v2_probability_v2_analysis
+```
 
-Owner must confirm the intended commercial amount and label.
+Before production, choose between:
 
-Resolve consistency across:
+- v1 probability + v2 analysis;
+- gated v2 probability + v2 analysis.
 
-- DB COP amount;
-- USDT label;
-- public pricing;
-- admin pricing;
-- checkout.
+Decision must be based on stage validation and current fixture review, not marketing preference.
 
-### Signal refresh cadence
+## Frontend decisions
 
-Choose a repeatable trigger and owner.
+### Exact public/free/premium split
 
-Candidate triggers:
+Need final product matrix for:
 
-- official ranking release;
-- completed matchday;
-- meaningful result batch.
+- visible signals;
+- scenario detail;
+- source depth;
+- score distribution;
+- post-match evaluation;
+- CTA placement.
 
-### Review Gate AI provider
+### Narrative rendering
 
-Decide whether to connect one concrete provider. No provider is connected now.
+Choose structured locale templates versus LLM generation. Recommended: deterministic structured base, optional LLM polish with no ability to invent facts.
 
-### Reviewed-xG publication policy
+### Public proprietary boundary
 
-Preview exists. Publication remains disabled.
+Show evidence and UFO-derived metrics, not weights, gates, source secrets, or admin diagnostics.
 
-Decide later:
+## Future research decisions
 
-- whether publication is allowed;
-- bounds by competition;
-- required human reason and audit;
-- whether AI may only propose, never decide.
-
-### Refund/revocation operations
-
-Define:
-
-- support workflow;
-- entitlement revocation;
-- refund/cancellation policy;
-- audit expectations;
-- future automation threshold.
-
-### Home content strategy
-
-Choose dynamic source for:
-
-- featured match;
-- active coverage count;
-- current tournament stage.
-
-Avoid hardcoded opening-match messaging.
-
-### Public language strategy
-
-Choose Spanish display names and translated operational labels while keeping provider/database identities in English.
-
-### Venue metadata
-
-Open pending provider quality review.
-
-### Real Fixture Lab exact-detail
-
-Decide whether to fix, replace, or retire it after focused queues have proven sufficient.
-
-### PWA offline scope
-
-Default remains no dynamic/auth/payment/admin caching. Decide whether any service worker ships after smoke testing.
+- v3 minimum sample and acceptance criteria;
+- tournament-round weighting schedule;
+- UFO strength ranking formula;
+- market-odds provider and legal/commercial wording;
+- 2024 historical expansion if 2025-26 sample proves insufficient.

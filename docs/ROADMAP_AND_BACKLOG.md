@@ -1,107 +1,96 @@
 # Roadmap and Backlog - UFO Predictor
 
-_Last refreshed: post PR #99 Data Ops 06 and frontend visual audit (2026-06-19)._
+_Last refreshed: 2026-06-22._
 
-## Completed
+## Now - Task 3B
 
-### Public and premium product
+### P0 Stage schema/data synchronization
 
-- public prediction list/detail;
-- verified results;
-- bounded recent results;
-- paginated history/upcoming routes;
-- premium xG, scorelines, BTTS, O/U, confidence/risk;
-- registered-free score gate.
+- read-only migration parity audit;
+- preserve stage Auth user;
+- apply missing migrations and 0038;
+- import non-sensitive datasets idempotently;
+- validate RLS/counts/links/localizations/venues;
+- persist signals;
+- create immutable development predictions;
+- generate Torneo development export.
 
-### Operations
+### P0 Safety
 
-- Result Review Queue;
-- Evaluation Queue;
-- Real Fixture Publish Queue;
-- exact API-Football workflow;
-- Matchday 2 batch and idempotence.
+- production target hard denial;
+- no secrets in artifacts/logs;
+- reject started fixtures;
+- second-run idempotency;
+- no overwrite of original versions.
 
-### Model/data
+## Next - user-facing Prediction Intelligence v2
 
-- PR #94 model closeout;
-- PR #97 reproducible signal refresh;
-- 2026-06-19 source snapshot and generator.
+### Premium detail
 
-### Review and partner integration
+- overall statistical reading;
+- main advantage/risk;
+- three scenario families;
+- exact and family probabilities;
+- evidence and contradictions;
+- recent form and opponent quality;
+- attack/defense/conversion;
+- FIFA/Elo;
+- sample reliability and source cutoff;
+- additional scorelines.
 
-- PR #98 Prediction Review Gate;
-- TM01 admin export;
-- PR #99 final 24-fixture Matchday 2 JSON;
-- JSON delivered to Torneo.
+### Access segmentation
 
-### Monetization
+- anonymous: teaser and registration CTA;
+- registered free: basic 1X2/context;
+- premium: full scenarios/evidence;
+- admin: diagnostics/provenance/review.
 
-- Wompi production payment;
-- G06 entitlement activation;
-- G07 premium active experience;
-- admin pricing controls.
+### Localization
 
-## Immediate backlog
+- Spanish display names immediately;
+- English supported by same data model;
+- later Portuguese/other locales;
+- structured narrative keys, not one-language stored prose.
 
-### Data operations
+### Venue truth
 
-- Matchday 2 final-result monitoring;
-- evaluation persistence;
-- next fixture runway.
+- official known venues/cities displayed;
+- no `Por definir` where schedule data exists.
 
-### G04 pricing/catalog P0
+## Production readiness backlog
 
-Acceptance:
+- stage-to-production migration plan;
+- stage smoke across roles;
+- payment/entitlement regression;
+- public prediction query validation;
+- premium projection validation;
+- responsive/accessibility pass;
+- export contract validation;
+- rollback/backup plan.
 
-- owner-confirmed final price;
-- consistent COP and USDT;
-- checkout matches DB;
-- no duplicate World Cup Pass;
-- clear active vs future products.
+## Model/data operations backlog
 
-### G08 trust/truthful copy
+- refresh after completed result batches, not every surprise;
+- update only affected teams/signals;
+- preserve snapshot lineage;
+- maintain fair stored metrics;
+- distinguish current prediction from historical replay;
+- monitor gate/cap activation and drift.
 
-Acceptance:
+## Future v3 research
 
-- model calibration closed;
-- signals can refresh;
-- no-betting/no-guarantee;
-- purchase/refund expectations;
-- consistent pricing/footer/return/transparency copy.
+- UFO own strength ranking;
+- stronger tournament-round recency;
+- overvalued/undervalued detection;
+- confederation results learned from evidence, not manual continent bonuses;
+- finishing/conversion persistence;
+- match-path evaluation;
+- market odds with margin removal and timestamped pre/live separation.
 
-### G09 frontend commercial readiness
+## Deferred or separate
 
-See dedicated plan.
-
-Key items:
-
-- dynamic home;
-- Spanish display consistency;
-- dashboard access clarity;
-- Review Gate polish;
-- compact admin empty states;
-- responsive pass.
-
-### G03/G13 production smoke
-
-Formal device/role/flow matrix.
-
-### Refund/revocation operations
-
-Document and test manual support path.
-
-## Planned/deferred
-
-- G10 PWA installability.
-- G11 safe update/offline strategy.
-- G12 accessibility/performance.
-- Review Gate AI.
-- reviewed-xG publication.
-- Real Fixture Lab exact-detail.
-- venue metadata.
-- future xG research.
-- signal refresh scheduling.
-
-## Guardrails
-
-No public `prediction_results`, no provider odds/predictions as hidden model inputs, no Torneo human-pick input, no post-result rewrites, no client payment secrets, and no unreviewed broad fixture writes.
+- AI provider in Review Gate;
+- Real Fixture Lab exact-detail refactor;
+- offline service worker;
+- broad payment redesign;
+- production user-data cloning into stage.

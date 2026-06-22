@@ -1,0 +1,755 @@
+[
+  {
+    "fixture": "Brazil vs Morocco",
+    "fixtureEs": "Brasil vs Marruecos",
+    "actualResult": "1-1",
+    "structuralReading": {
+      "homeBaselineStrength": 0.8663,
+      "awayBaselineStrength": 0.7059,
+      "favoriteSide": "home"
+    },
+    "recentAndTournamentAdjustment": {
+      "recentGap": -0.1184,
+      "tournamentGap": 0.1604,
+      "expectationGap": -0.0836
+    },
+    "model2": {
+      "expectedGoals": {
+        "home": 1.4301,
+        "away": 1.2982,
+        "total": 2.7284,
+        "difference": 0.1319
+      },
+      "oneXTwo": {
+        "homeWin": 0.387236,
+        "draw": 0.285988,
+        "awayWin": 0.326776
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.093431,
+          "familyProbability": 0.300107,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "away_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.093431
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.084814
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.066808
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.055053
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "low_scoring_draw",
+          "representativeScore": {
+            "home": 1,
+            "away": 1
+          },
+          "exactScoreProbability": 0.121293,
+          "familyProbability": 0.186625,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "away_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "suppressed_chance_quality",
+            "defensive_resistance"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 1,
+              "probability": 0.121293
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "probability": 0.065332
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "open_high_scoring_match",
+          "representativeScore": {
+            "home": 3,
+            "away": 2
+          },
+          "exactScoreProbability": 0.026837,
+          "familyProbability": 0.128242,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "away_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "open_transitions",
+            "high_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 2,
+              "probability": 0.026837
+            },
+            {
+              "home": 2,
+              "away": 3,
+              "probability": 0.024361
+            },
+            {
+              "home": 4,
+              "away": 1,
+              "probability": 0.014782
+            },
+            {
+              "home": 1,
+              "away": 4,
+              "probability": 0.011057
+            }
+          ]
+        }
+      ]
+    },
+    "actualScenarioFamily": "low_scoring_draw",
+    "matchedScenarioFamily": true,
+    "understoodDirectionButMissedVolume": false,
+    "surpriseLevel": "featured_scenario"
+  },
+  {
+    "fixture": "Germany vs Curaçao",
+    "fixtureEs": "Alemania vs Curazao",
+    "actualResult": "7-1",
+    "structuralReading": {
+      "homeBaselineStrength": 0.8049,
+      "awayBaselineStrength": 0.2685,
+      "favoriteSide": "home"
+    },
+    "recentAndTournamentAdjustment": {
+      "recentGap": 0.2166,
+      "tournamentGap": 0.5364,
+      "expectationGap": -0.0345
+    },
+    "model2": {
+      "expectedGoals": {
+        "home": 1.7582,
+        "away": 0.9325,
+        "total": 2.6907,
+        "difference": 0.8256
+      },
+      "oneXTwo": {
+        "homeWin": 0.55328,
+        "draw": 0.263868,
+        "awayWin": 0.182852
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 3,
+            "away": 0
+          },
+          "exactScoreProbability": 0.061452,
+          "familyProbability": 0.145768,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.7875,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 0,
+              "probability": 0.061452
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "probability": 0.057304
+            },
+            {
+              "home": 4,
+              "away": 0,
+              "probability": 0.027011
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 2,
+            "away": 1
+          },
+          "exactScoreProbability": 0.097778,
+          "familyProbability": 0.097778,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.7875,
+          "relatedScorelines": [
+            {
+              "home": 2,
+              "away": 1,
+              "probability": 0.097778
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.119276,
+          "familyProbability": 0.316887,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.7875,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.119276
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.104855
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.063261
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.029495
+            }
+          ]
+        }
+      ]
+    },
+    "actualScenarioFamily": "open_high_scoring_match",
+    "matchedScenarioFamily": false,
+    "understoodDirectionButMissedVolume": true,
+    "surpriseLevel": "extreme_surprise"
+  },
+  {
+    "fixture": "Spain vs Cape Verde",
+    "fixtureEs": "España vs Cabo Verde",
+    "actualResult": "0-0",
+    "structuralReading": {
+      "homeBaselineStrength": 1,
+      "awayBaselineStrength": 0.4256,
+      "favoriteSide": "home"
+    },
+    "recentAndTournamentAdjustment": {
+      "recentGap": 0.0503,
+      "tournamentGap": 0.5744,
+      "expectationGap": -0.1713
+    },
+    "model2": {
+      "expectedGoals": {
+        "home": 1.7685,
+        "away": 0.9363,
+        "total": 2.7048,
+        "difference": 0.8323
+      },
+      "oneXTwo": {
+        "homeWin": 0.554742,
+        "draw": 0.26287,
+        "awayWin": 0.182388
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 3,
+            "away": 0
+          },
+          "exactScoreProbability": 0.061663,
+          "familyProbability": 0.146661,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.7263,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 0,
+              "probability": 0.061663
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "probability": 0.057735
+            },
+            {
+              "home": 4,
+              "away": 0,
+              "probability": 0.027263
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 2,
+            "away": 1
+          },
+          "exactScoreProbability": 0.097939,
+          "familyProbability": 0.097939,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.7263,
+          "relatedScorelines": [
+            {
+              "home": 2,
+              "away": 1,
+              "probability": 0.097939
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.118295,
+          "familyProbability": 0.314847,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.7263,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.118295
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.104603
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.062629
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.02932
+            }
+          ]
+        }
+      ]
+    },
+    "actualScenarioFamily": "low_scoring_draw",
+    "matchedScenarioFamily": false,
+    "understoodDirectionButMissedVolume": false,
+    "surpriseLevel": "extreme_surprise"
+  },
+  {
+    "fixture": "Germany vs Ivory Coast",
+    "fixtureEs": "Alemania vs Costa de Marfil",
+    "actualResult": "2-1",
+    "structuralReading": {
+      "homeBaselineStrength": 0.8109,
+      "awayBaselineStrength": 0.5816,
+      "favoriteSide": "home"
+    },
+    "recentAndTournamentAdjustment": {
+      "recentGap": -0.0078,
+      "tournamentGap": 0.1087,
+      "expectationGap": -0.1338
+    },
+    "model2": {
+      "expectedGoals": {
+        "home": 1.5076,
+        "away": 1.2501,
+        "total": 2.7577,
+        "difference": 0.2574
+      },
+      "oneXTwo": {
+        "homeWin": 0.417304,
+        "draw": 0.282631,
+        "awayWin": 0.300065
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.095642,
+          "familyProbability": 0.296613,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [
+            "balanced_recent_form"
+          ],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.095642
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.079306
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.072095
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.04957
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "low_scoring_draw",
+          "representativeScore": {
+            "home": 1,
+            "away": 1
+          },
+          "exactScoreProbability": 0.119562,
+          "familyProbability": 0.183002,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [
+            "balanced_recent_form"
+          ],
+          "requiredMatchScriptCodes": [
+            "suppressed_chance_quality",
+            "defensive_resistance"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 1,
+              "probability": 0.119562
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "probability": 0.06344
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "open_high_scoring_match",
+          "representativeScore": {
+            "home": 3,
+            "away": 2
+          },
+          "exactScoreProbability": 0.028309,
+          "familyProbability": 0.13247,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [
+            "balanced_recent_form"
+          ],
+          "requiredMatchScriptCodes": [
+            "open_transitions",
+            "high_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 2,
+              "probability": 0.028309
+            },
+            {
+              "home": 2,
+              "away": 3,
+              "probability": 0.023474
+            },
+            {
+              "home": 4,
+              "away": 1,
+              "probability": 0.01707
+            },
+            {
+              "home": 4,
+              "away": 2,
+              "probability": 0.01067
+            }
+          ]
+        }
+      ]
+    },
+    "actualScenarioFamily": "favorite_narrow_win",
+    "matchedScenarioFamily": false,
+    "understoodDirectionButMissedVolume": false,
+    "surpriseLevel": "extreme_surprise"
+  },
+  {
+    "fixture": "Ecuador vs Curaçao",
+    "fixtureEs": "Ecuador vs Curazao",
+    "actualResult": "0-0",
+    "structuralReading": {
+      "homeBaselineStrength": 0.8421,
+      "awayBaselineStrength": 0.286,
+      "favoriteSide": "home"
+    },
+    "recentAndTournamentAdjustment": {
+      "recentGap": 0.1227,
+      "tournamentGap": 0.3649,
+      "expectationGap": -0.0682
+    },
+    "model2": {
+      "expectedGoals": {
+        "home": 1.6847,
+        "away": 0.9153,
+        "total": 2.6,
+        "difference": 0.7695
+      },
+      "oneXTwo": {
+        "homeWin": 0.540111,
+        "draw": 0.271312,
+        "awayWin": 0.188577
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 3,
+            "away": 0
+          },
+          "exactScoreProbability": 0.059194,
+          "familyProbability": 0.138306,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 0,
+              "probability": 0.059194
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "probability": 0.054181
+            },
+            {
+              "home": 4,
+              "away": 0,
+              "probability": 0.024931
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 2,
+            "away": 1
+          },
+          "exactScoreProbability": 0.096481,
+          "familyProbability": 0.096481,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 2,
+              "away": 1,
+              "probability": 0.096481
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.125137,
+          "familyProbability": 0.329648,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.125137
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.105409
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.067987
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.031114
+            }
+          ]
+        }
+      ]
+    },
+    "actualScenarioFamily": "low_scoring_draw",
+    "matchedScenarioFamily": false,
+    "understoodDirectionButMissedVolume": false,
+    "surpriseLevel": "extreme_surprise"
+  }
+]

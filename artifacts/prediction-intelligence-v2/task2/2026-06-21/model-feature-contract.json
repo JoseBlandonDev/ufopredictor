@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "prediction-intelligence-v2-model-feature-contract-v1",
+  "modelVersion": "prediction-intelligence-v2-model-2.0-challenger",
+  "teamFeatureFields": {
+    "structuralStrength": [
+      "eloAtCutoff",
+      "eloPercentile",
+      "eloRank",
+      "fifaPoints",
+      "fifaRank",
+      "start2026Elo",
+      "ytdEloMovement",
+      "fifaEloAgreement",
+      "fifaEloDisagreement"
+    ],
+    "recentForm": [
+      "last5",
+      "last10",
+      "last20",
+      "goalsForPerMatch",
+      "goalsAgainstPerMatch",
+      "scoringMatchRate",
+      "failedToScoreRate",
+      "cleanSheetRate",
+      "bttsRate",
+      "over25Rate",
+      "under25Rate",
+      "twoPlusScoredRate",
+      "twoPlusConcededRate",
+      "volatility",
+      "recencyWeightedForm"
+    ],
+    "opponentAdjustment": [
+      "averageOpponentPreMatchElo",
+      "strengthOfSchedule",
+      "performanceVsEloExpectation",
+      "qualityWins",
+      "badLosses",
+      "officialMatchRate",
+      "friendlyMatchRate",
+      "neutralMatchRate",
+      "homeMatchRate",
+      "awayMatchRate",
+      "crossConfederationPerformance"
+    ],
+    "currentWorldCupForm": [
+      "matchesPlayed",
+      "wins",
+      "draws",
+      "losses",
+      "goalsFor",
+      "goalsAgainst",
+      "scoringRate",
+      "cleanSheetRate",
+      "failedToScoreRate",
+      "averageOpponentElo",
+      "performanceVsExpectation",
+      "tournamentOverperformance",
+      "reliabilityShrink"
+    ],
+    "reliability": [
+      "sampleSize",
+      "sourceCoverage",
+      "eloResolutionReliability",
+      "fifaAvailability",
+      "datePrecision",
+      "contradictionFlags"
+    ],
+    "subScores": [
+      "baselineStrength",
+      "recentForm",
+      "tournamentForm",
+      "attack",
+      "defense",
+      "performanceVsExpectation",
+      "reliability"
+    ]
+  }
+}

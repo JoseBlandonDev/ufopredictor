@@ -1,0 +1,171 @@
+{
+  "future": [
+    {
+      "fixtureId": "2d7bc089-1eda-4f91-b1a0-e596a00dda59",
+      "fixture": "Uruguay vs Cape Verde",
+      "storedVsCurrentV1Delta": {
+        "homeWin": -0.000192,
+        "draw": 0.000022,
+        "awayWin": 0.00017,
+        "expectedHomeGoals": -0.0002,
+        "expectedAwayGoals": 0.0005
+      },
+      "driftCauses": [],
+      "explained": true,
+      "releaseRisk": "low"
+    },
+    {
+      "fixtureId": "8cb53b3c-56fc-4560-a605-ec75261f3bae",
+      "fixture": "New Zealand vs Egypt",
+      "storedVsCurrentV1Delta": {
+        "homeWin": 0.000065,
+        "draw": -0.000005,
+        "awayWin": -0.00006,
+        "expectedHomeGoals": 0.0005,
+        "expectedAwayGoals": 0.0003
+      },
+      "driftCauses": [],
+      "explained": true,
+      "releaseRisk": "low"
+    },
+    {
+      "fixtureId": "26453f76-c60f-468c-8a1d-983559bd98f3",
+      "fixture": "Argentina vs Austria",
+      "storedVsCurrentV1Delta": {
+        "homeWin": 0.000266,
+        "draw": -0.000148,
+        "awayWin": -0.000119,
+        "expectedHomeGoals": 0.0021,
+        "expectedAwayGoals": 0.0001
+      },
+      "driftCauses": [
+        "different_generation_cutoff",
+        "older_source_snapshot"
+      ],
+      "explained": true,
+      "releaseRisk": "medium"
+    },
+    {
+      "fixtureId": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+      "fixture": "Norway vs Senegal",
+      "storedVsCurrentV1Delta": {
+        "homeWin": -0.000162,
+        "draw": -0.000119,
+        "awayWin": 0.000281,
+        "expectedHomeGoals": 0,
+        "expectedAwayGoals": 0.0011
+      },
+      "driftCauses": [
+        "different_generation_cutoff",
+        "older_source_snapshot"
+      ],
+      "explained": true,
+      "releaseRisk": "medium"
+    },
+    {
+      "fixtureId": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+      "fixture": "Jordan vs Algeria",
+      "storedVsCurrentV1Delta": {
+        "homeWin": 0.000113,
+        "draw": 0.000023,
+        "awayWin": -0.000136,
+        "expectedHomeGoals": 0.0004,
+        "expectedAwayGoals": -0.0001
+      },
+      "driftCauses": [],
+      "explained": true,
+      "releaseRisk": "low"
+    },
+    {
+      "fixtureId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+      "fixture": "England vs Ghana",
+      "storedVsCurrentV1Delta": {
+        "homeWin": 0.000079,
+        "draw": -0.000055,
+        "awayWin": -0.000024,
+        "expectedHomeGoals": 0.0009,
+        "expectedAwayGoals": 0.0001
+      },
+      "driftCauses": [],
+      "explained": true,
+      "releaseRisk": "low"
+    },
+    {
+      "fixtureId": "b8bef336-5c1c-491c-8ba4-075c536234cc",
+      "fixture": "Panama vs Croatia",
+      "storedVsCurrentV1Delta": {
+        "homeWin": -0.000079,
+        "draw": -0.000154,
+        "awayWin": 0.000233,
+        "expectedHomeGoals": 0.0001,
+        "expectedAwayGoals": 0.0019
+      },
+      "driftCauses": [
+        "different_generation_cutoff",
+        "older_source_snapshot"
+      ],
+      "explained": true,
+      "releaseRisk": "medium"
+    },
+    {
+      "fixtureId": "5e4b5138-a1f2-4edd-96ec-47629baa839f",
+      "fixture": "Belgium vs Iran",
+      "storedVsCurrentV1Delta": {
+        "homeWin": -0.000365,
+        "draw": -0.000309,
+        "awayWin": 0.000674,
+        "expectedHomeGoals": -0.0007,
+        "expectedAwayGoals": 0.003
+      },
+      "driftCauses": [
+        "different_generation_cutoff",
+        "older_source_snapshot"
+      ],
+      "explained": true,
+      "releaseRisk": "medium"
+    },
+    {
+      "fixtureId": "90984bad-656e-466e-9f20-d1ec58c41144",
+      "fixture": "France vs Iraq",
+      "storedVsCurrentV1Delta": {
+        "homeWin": -0.000059,
+        "draw": -0.000035,
+        "awayWin": 0.000093,
+        "expectedHomeGoals": 0.0002,
+        "expectedAwayGoals": 0.0005
+      },
+      "driftCauses": [],
+      "explained": true,
+      "releaseRisk": "low"
+    },
+    {
+      "fixtureId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "fixture": "Portugal vs Uzbekistan",
+      "storedVsCurrentV1Delta": {
+        "homeWin": -0.000293,
+        "draw": 0.00003,
+        "awayWin": 0.000263,
+        "expectedHomeGoals": -0.0004,
+        "expectedAwayGoals": 0.0008
+      },
+      "driftCauses": [],
+      "explained": true,
+      "releaseRisk": "low"
+    },
+    {
+      "fixtureId": "0e31f8a1-5e00-4b25-a994-f95c90229aa0",
+      "fixture": "Colombia vs DR Congo",
+      "storedVsCurrentV1Delta": {
+        "homeWin": -0.000155,
+        "draw": -0.000051,
+        "awayWin": 0.000206,
+        "expectedHomeGoals": 0,
+        "expectedAwayGoals": 0.0007
+      },
+      "driftCauses": [],
+      "explained": true,
+      "releaseRisk": "low"
+    }
+  ],
+  "historicalHoldoutNote": "Historical holdout stored-row drift remains a reproducibility limitation tied to earlier runtime state and is not treated as a current-future release defect."
+}

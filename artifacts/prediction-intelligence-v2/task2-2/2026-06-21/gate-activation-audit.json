@@ -1,0 +1,329 @@
+{
+  "rates": {
+    "repeatedOverOrUnderperformance": 0.615385,
+    "currentTournamentForm": 1,
+    "scoringConversionDeterioration": 0.153846,
+    "defensiveOverperformance": 0.846154,
+    "structuralVsCurrentDisagreement": 0.615385
+  },
+  "entries": [
+    {
+      "fixtureId": "d54a9495-e60f-4864-9e4c-421e6626be0c",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": -0.028185,
+      "rawTotalProposal": -0.018006,
+      "reliabilityScale": 0.541438,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.007703,
+        "draw": 0.009087,
+        "awayWin": -0.001384
+      }
+    },
+    {
+      "fixtureId": "2d05905b-910a-4652-be9b-9ddbf0cede80",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": 0.034818,
+      "rawTotalProposal": -0.013802,
+      "reliabilityScale": 0.527375,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.001705,
+        "draw": 0.008514,
+        "awayWin": -0.006809
+      }
+    },
+    {
+      "fixtureId": "2d7bc089-1eda-4f91-b1a0-e596a00dda59",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "scoring_conversion_deterioration",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "consecutive_failed_to_score_style_signal",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": -0.04733,
+      "rawTotalProposal": -0.030015,
+      "reliabilityScale": 0.453938,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.011793,
+        "draw": 0.01152,
+        "awayWin": 0.000273
+      }
+    },
+    {
+      "fixtureId": "8cb53b3c-56fc-4560-a605-ec75261f3bae",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "scoring_conversion_deterioration",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "consecutive_failed_to_score_style_signal",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": -0.051745,
+      "rawTotalProposal": -0.04308,
+      "reliabilityScale": 0.527375,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.008686,
+        "draw": 0.008253,
+        "awayWin": 0.000434
+      }
+    },
+    {
+      "fixtureId": "26453f76-c60f-468c-8a1d-983559bd98f3",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": 0.040537,
+      "rawTotalProposal": -0.015071,
+      "reliabilityScale": 0.478125,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.002064,
+        "draw": 0.008904,
+        "awayWin": -0.00684
+      }
+    },
+    {
+      "fixtureId": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": -0.005486,
+      "rawTotalProposal": -0.014296,
+      "reliabilityScale": 0.513313,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.005535,
+        "draw": 0.009842,
+        "awayWin": -0.004307
+      }
+    },
+    {
+      "fixtureId": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": -0.036667,
+      "rawTotalProposal": -0.015792,
+      "reliabilityScale": 0.5625,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.008417,
+        "draw": 0.008418,
+        "awayWin": -0.000001
+      }
+    },
+    {
+      "fixtureId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": 0.017771,
+      "rawTotalProposal": -0.012955,
+      "reliabilityScale": 0.492188,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.026064,
+        "draw": 0.020277,
+        "awayWin": 0.005787
+      }
+    },
+    {
+      "fixtureId": "b8bef336-5c1c-491c-8ba4-075c536234cc",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "current_tournament_form"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "one_match_tournament_shrink_applied"
+      ],
+      "rawDiffProposal": 0.017425,
+      "rawTotalProposal": -0.000393,
+      "reliabilityScale": 0.527375,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.004092,
+        "draw": 0.010926,
+        "awayWin": -0.006834
+      }
+    },
+    {
+      "fixtureId": "5e4b5138-a1f2-4edd-96ec-47629baa839f",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": 0.004584,
+      "rawTotalProposal": 0.002283,
+      "reliabilityScale": 0.50625,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.004609,
+        "draw": 0.010304,
+        "awayWin": -0.005695
+      }
+    },
+    {
+      "fixtureId": "90984bad-656e-466e-9f20-d1ec58c41144",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "current_tournament_form"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "one_match_tournament_shrink_applied"
+      ],
+      "rawDiffProposal": -0.002253,
+      "rawTotalProposal": 0.000945,
+      "reliabilityScale": 0.520312,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.0053,
+        "draw": 0.010029,
+        "awayWin": -0.00473
+      }
+    },
+    {
+      "fixtureId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "structural_vs_current_disagreement",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "elo_fifa_anchor_with_recent_correction",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": -0.052756,
+      "rawTotalProposal": -0.015978,
+      "reliabilityScale": 0.513313,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.011695,
+        "draw": 0.011103,
+        "awayWin": 0.000592
+      }
+    },
+    {
+      "fixtureId": "0e31f8a1-5e00-4b25-a994-f95c90229aa0",
+      "candidateKey": "v1_plus_high_confidence_signals",
+      "activatedGates": [
+        "repeated_over_or_underperformance",
+        "current_tournament_form",
+        "defensive_overperformance"
+      ],
+      "evidence": [
+        "multi_match_opponent_adjusted_performance",
+        "one_match_tournament_shrink_applied",
+        "repeated_clean_sheet_or_suppressed_concession_signal"
+      ],
+      "rawDiffProposal": -0.051391,
+      "rawTotalProposal": -0.012901,
+      "reliabilityScale": 0.520312,
+      "contradictionPenalty": 1,
+      "capsApplied": [],
+      "probabilityDeltasFromExactV1": {
+        "homeWin": -0.011813,
+        "draw": 0.01018,
+        "awayWin": 0.001633
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "module": "lib/prediction-intelligence-v2/task1.ts",
+  "exported_function": "buildPredictionIntelligenceV2ReplayInput",
+  "recommended_entrypoint": {
+    "function_name": "buildPredictionIntelligenceV2ReplayInput",
+    "proposed_signature": "buildPredictionIntelligenceV2ReplayInput({ cutoffAt, homeTeamKey, awayTeamKey, historicalFacts, eloCurrent, eloStart2026, fifaRanking, localizations })",
+    "contract": {
+      "cutoffAt": "strict pre-kickoff ISO timestamp",
+      "homeSignal": "TeamSignalSnapshot",
+      "awaySignal": "TeamSignalSnapshot",
+      "sourceSnapshotIds": "string[]"
+    }
+  }
+}

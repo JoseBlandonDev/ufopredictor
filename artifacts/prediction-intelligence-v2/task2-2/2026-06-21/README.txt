@@ -1,0 +1,10 @@
+Prediction Intelligence v2 Task 2.2 artifacts
+artifact_date=2026-06-21
+generation_cutoff=2026-06-21T00:00:00Z
+training_rows=909
+validation_rows=319
+holdout_rows=36
+selected_candidate=v1_plus_high_confidence_signals
+probability_engine_verdict=promote_gated_v2
+analysis_layer_verdict=promote_v2_analysis
+future_shadow_predictions=13

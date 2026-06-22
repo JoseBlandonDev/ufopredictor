@@ -210,6 +210,182 @@ export type VenueRow = {
   updated_at: Timestamp;
 };
 
+export type SourceSnapshotRow = {
+  id: string;
+  source_key: string;
+  snapshot_id: string;
+  data_kind: string;
+  source_url: string | null;
+  local_fallback_path: string | null;
+  normalized_snapshot_path: string | null;
+  effective_at: Timestamp | null;
+  captured_at: Timestamp | null;
+  payload_hash: string;
+  row_count: number;
+  metadata_json: Json;
+  created_at: Timestamp;
+};
+
+export type CanonicalTeamAliasRow = {
+  id: string;
+  canonical_team_key: string;
+  alias_raw: string;
+  alias_normalized: string;
+  source_scope: string;
+  resolution_status: "resolved" | "pending" | "blocked";
+  source_snapshot_id: string | null;
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type CanonicalTeamLocalizationRow = {
+  id: string;
+  canonical_team_key: string;
+  locale: string;
+  display_name: string;
+  fifa_code: string | null;
+  iso_alpha3: string | null;
+  source_snapshot_id: string | null;
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type CanonicalTeamLinkRow = {
+  id: string;
+  canonical_team_key: string;
+  team_id: string | null;
+  api_football_team_id: number | null;
+  runtime_team_slug: string | null;
+  link_status: "linked" | "candidate" | "unresolved";
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type TeamRatingSnapshotRow = {
+  id: string;
+  source_key: "elo" | "fifa" | "ufo";
+  effective_at: Timestamp;
+  captured_at: Timestamp | null;
+  canonical_team_key: string;
+  rank: number | null;
+  rating_or_points: number | null;
+  source_snapshot_id: string;
+  raw_values: Json;
+  created_at: Timestamp;
+};
+
+export type HistoricalMatchFactRow = {
+  id: string;
+  natural_match_key: string;
+  match_date: DateValue;
+  team_1_key: string;
+  team_2_key: string;
+  competition_key: string;
+  venue_context_key: string | null;
+  neutral: boolean | null;
+  score_1: number;
+  score_2: number;
+  pre_match_elo_1: number | null;
+  pre_match_elo_2: number | null;
+  post_match_elo_1: number | null;
+  post_match_elo_2: number | null;
+  source_snapshot_id: string;
+  correction_of_id: string | null;
+  raw_values: Json;
+  created_at: Timestamp;
+};
+
+export type HistoricalMatchFactLinkRow = {
+  id: string;
+  historical_match_fact_id: string;
+  match_id: string | null;
+  api_football_fixture_id: number | null;
+  link_status: "linked" | "candidate" | "unresolved";
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type ScheduleSnapshotRow = {
+  id: string;
+  tournament_key: string;
+  snapshot_id: string;
+  source_snapshot_id: string | null;
+  version_label: string | null;
+  published_timezone: string | null;
+  created_at: Timestamp;
+};
+
+export type WorldCupVenueCatalogRow = {
+  id: string;
+  venue_key: string;
+  venue_id: string | null;
+  host_city_key: string;
+  host_city_name_es: string;
+  host_city_name_en: string;
+  common_name: string;
+  fifa_tournament_name: string;
+  actual_city: string;
+  country_code: string;
+  timezone: string;
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type OfficialScheduleMatchRow = {
+  id: string;
+  schedule_snapshot_id: string;
+  tournament_key: string;
+  official_match_number: number;
+  stage_key: string;
+  group_key: string | null;
+  home_slot: string;
+  away_slot: string;
+  home_team_key: string | null;
+  away_team_key: string | null;
+  scheduled_at_utc: Timestamp;
+  published_time: string;
+  published_timezone: string;
+  venue_key: string;
+  source_snapshot_id: string;
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type OfficialScheduleMatchLinkRow = {
+  id: string;
+  official_schedule_match_id: string;
+  match_id: string | null;
+  api_football_fixture_id: number | null;
+  link_status: "linked" | "candidate" | "unresolved";
+  metadata_json: Json;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type SignalSnapshotRow = {
+  id: string;
+  signal_version: string;
+  cutoff_at: Timestamp;
+  canonical_team_key: string;
+  sample_sizes: Json;
+  structural_strength: Json;
+  recent_form: Json;
+  opponent_adjusted_form: Json;
+  tournament_form: Json;
+  attack: Json;
+  defense: Json;
+  performance_vs_expectation: Json;
+  reliability: Json;
+  source_snapshot_ids: Json;
+  created_at: Timestamp;
+};
+
 export type MatchRow = {
   id: string;
   external_id: string | null;
@@ -476,6 +652,18 @@ export type DatabaseTables = {
   teams: TeamRow;
   players: PlayerRow;
   venues: VenueRow;
+  source_snapshots: SourceSnapshotRow;
+  canonical_team_aliases: CanonicalTeamAliasRow;
+  canonical_team_localizations: CanonicalTeamLocalizationRow;
+  canonical_team_links: CanonicalTeamLinkRow;
+  team_rating_snapshots: TeamRatingSnapshotRow;
+  historical_match_facts: HistoricalMatchFactRow;
+  historical_match_fact_links: HistoricalMatchFactLinkRow;
+  schedule_snapshots: ScheduleSnapshotRow;
+  world_cup_venue_catalog: WorldCupVenueCatalogRow;
+  official_schedule_matches: OfficialScheduleMatchRow;
+  official_schedule_match_links: OfficialScheduleMatchLinkRow;
+  signal_snapshots: SignalSnapshotRow;
   matches: MatchRow;
   team_form_snapshots: TeamFormSnapshotRow;
   lineups: LineupRow;
@@ -510,6 +698,18 @@ type DatabaseInserts = {
   teams: Insert<TeamRow, "name" | "slug">;
   players: Insert<PlayerRow, "name">;
   venues: Insert<VenueRow, "name">;
+  source_snapshots: Insert<SourceSnapshotRow, "source_key" | "snapshot_id" | "data_kind" | "payload_hash">;
+  canonical_team_aliases: Insert<CanonicalTeamAliasRow, "canonical_team_key" | "alias_raw" | "alias_normalized" | "source_scope" | "resolution_status">;
+  canonical_team_localizations: Insert<CanonicalTeamLocalizationRow, "canonical_team_key" | "locale" | "display_name">;
+  canonical_team_links: Insert<CanonicalTeamLinkRow, "canonical_team_key">;
+  team_rating_snapshots: Insert<TeamRatingSnapshotRow, "source_key" | "effective_at" | "canonical_team_key" | "source_snapshot_id">;
+  historical_match_facts: Insert<HistoricalMatchFactRow, "natural_match_key" | "match_date" | "team_1_key" | "team_2_key" | "competition_key" | "score_1" | "score_2" | "source_snapshot_id">;
+  historical_match_fact_links: Insert<HistoricalMatchFactLinkRow, "historical_match_fact_id">;
+  schedule_snapshots: Insert<ScheduleSnapshotRow, "tournament_key" | "snapshot_id">;
+  world_cup_venue_catalog: Insert<WorldCupVenueCatalogRow, "venue_key" | "host_city_key" | "host_city_name_es" | "host_city_name_en" | "common_name" | "fifa_tournament_name" | "actual_city" | "country_code" | "timezone">;
+  official_schedule_matches: Insert<OfficialScheduleMatchRow, "schedule_snapshot_id" | "tournament_key" | "official_match_number" | "stage_key" | "home_slot" | "away_slot" | "scheduled_at_utc" | "published_time" | "published_timezone" | "venue_key" | "source_snapshot_id">;
+  official_schedule_match_links: Insert<OfficialScheduleMatchLinkRow, "official_schedule_match_id">;
+  signal_snapshots: Insert<SignalSnapshotRow, "signal_version" | "cutoff_at" | "canonical_team_key">;
   matches: Insert<MatchRow, "slug" | "competition_id" | "season_id" | "home_team_id" | "away_team_id" | "kickoff_at">;
   team_form_snapshots: Insert<TeamFormSnapshotRow, "team_id" | "snapshot_date" | "last_matches_count">;
   lineups: Insert<LineupRow, "match_id" | "team_id">;

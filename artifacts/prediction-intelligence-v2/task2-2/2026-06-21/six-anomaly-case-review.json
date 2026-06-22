@@ -1,0 +1,358 @@
+[
+  {
+    "fixture": "Spain vs Saudi Arabia",
+    "exactV1": {
+      "homeWin": 0.773886,
+      "draw": 0.1541,
+      "awayWin": 0.072014,
+      "expectedHomeGoals": 2.3491,
+      "expectedAwayGoals": 0.5664,
+      "mostLikelyScore": "2-0",
+      "topScorelines": [
+        {
+          "score": "2-0",
+          "probability": 0.149487
+        },
+        {
+          "score": "1-0",
+          "probability": 0.127272
+        },
+        {
+          "score": "3-0",
+          "probability": 0.117053
+        }
+      ],
+      "bttsYes": 0.391155,
+      "bttsNo": 0.608845,
+      "over25": 0.557599,
+      "under25": 0.442401,
+      "scoreMatrixTailMass": 0.00003559,
+      "scoreMatrixSource": "reconstructed_from_xg"
+    },
+    "gatedV2": {
+      "homeWin": 0.772181,
+      "draw": 0.162614,
+      "awayWin": 0.065205
+    },
+    "probabilityDeltas": {
+      "homeWinDelta": -0.001705,
+      "drawDelta": 0.008514,
+      "awayWinDelta": -0.006809,
+      "expectedHomeGoalsDelta": 0.0092,
+      "expectedAwayGoalsDelta": -0.0088
+    },
+    "xgDeltas": {
+      "home": 0.0092,
+      "away": -0.0088
+    },
+    "activatedGates": [
+      "repeated_over_or_underperformance",
+      "current_tournament_form",
+      "defensive_overperformance"
+    ],
+    "evidence": [
+      "multi_match_opponent_adjusted_performance",
+      "one_match_tournament_shrink_applied",
+      "repeated_clean_sheet_or_suppressed_concession_signal"
+    ],
+    "capsApplied": [],
+    "explainedOrAnomalous": "explained"
+  },
+  {
+    "fixture": "Argentina vs Austria",
+    "exactV1": {
+      "homeWin": 0.773195,
+      "draw": 0.136519,
+      "awayWin": 0.090286,
+      "expectedHomeGoals": 2.8303,
+      "expectedAwayGoals": 0.8928,
+      "mostLikelyScore": "2-0",
+      "topScorelines": [
+        {
+          "score": "2-0",
+          "probability": 0.096781
+        },
+        {
+          "score": "3-0",
+          "probability": 0.091307
+        },
+        {
+          "score": "2-1",
+          "probability": 0.086406
+        }
+      ],
+      "bttsYes": 0.55565,
+      "bttsNo": 0.44435,
+      "over25": 0.718405,
+      "under25": 0.281595,
+      "scoreMatrixTailMass": 0.00017937,
+      "scoreMatrixSource": "reconstructed_from_xg"
+    },
+    "gatedV2": {
+      "homeWin": 0.771131,
+      "draw": 0.145423,
+      "awayWin": 0.083446
+    },
+    "probabilityDeltas": {
+      "homeWinDelta": -0.002064,
+      "drawDelta": 0.008904,
+      "awayWinDelta": -0.00684,
+      "expectedHomeGoalsDelta": 0.0106,
+      "expectedAwayGoalsDelta": -0.0103
+    },
+    "xgDeltas": {
+      "home": 0.0106,
+      "away": -0.0103
+    },
+    "activatedGates": [
+      "current_tournament_form",
+      "defensive_overperformance"
+    ],
+    "evidence": [
+      "one_match_tournament_shrink_applied",
+      "repeated_clean_sheet_or_suppressed_concession_signal"
+    ],
+    "capsApplied": [],
+    "explainedOrAnomalous": "explained"
+  },
+  {
+    "fixture": "Norway vs Senegal",
+    "exactV1": {
+      "homeWin": 0.221927,
+      "draw": 0.255859,
+      "awayWin": 0.522214,
+      "expectedHomeGoals": 0.9117,
+      "expectedAwayGoals": 1.5486,
+      "mostLikelyScore": "0-1",
+      "topScorelines": [
+        {
+          "score": "0-1",
+          "probability": 0.132265
+        },
+        {
+          "score": "1-1",
+          "probability": 0.120586
+        },
+        {
+          "score": "0-2",
+          "probability": 0.102413
+        }
+      ],
+      "bttsYes": 0.471023,
+      "bttsNo": 0.528977,
+      "over25": 0.445963,
+      "under25": 0.554037,
+      "scoreMatrixTailMass": 7.5e-7,
+      "scoreMatrixSource": "reconstructed_from_xg"
+    },
+    "gatedV2": {
+      "homeWin": 0.216392,
+      "draw": 0.265701,
+      "awayWin": 0.517907
+    },
+    "probabilityDeltas": {
+      "homeWinDelta": -0.005535,
+      "drawDelta": 0.009842,
+      "awayWinDelta": -0.004307,
+      "expectedHomeGoalsDelta": -0.0012,
+      "expectedAwayGoalsDelta": 0.0016
+    },
+    "xgDeltas": {
+      "home": -0.0012,
+      "away": 0.0016
+    },
+    "activatedGates": [
+      "structural_vs_current_disagreement",
+      "repeated_over_or_underperformance",
+      "current_tournament_form",
+      "defensive_overperformance"
+    ],
+    "evidence": [
+      "elo_fifa_anchor_with_recent_correction",
+      "multi_match_opponent_adjusted_performance",
+      "one_match_tournament_shrink_applied",
+      "repeated_clean_sheet_or_suppressed_concession_signal"
+    ],
+    "capsApplied": [],
+    "explainedOrAnomalous": "explained"
+  },
+  {
+    "fixture": "England vs Ghana",
+    "exactV1": {
+      "homeWin": 0.840818,
+      "draw": 0.108237,
+      "awayWin": 0.050945,
+      "expectedHomeGoals": 2.9632,
+      "expectedAwayGoals": 0.6271,
+      "mostLikelyScore": "2-0",
+      "topScorelines": [
+        {
+          "score": "2-0",
+          "probability": 0.12116
+        },
+        {
+          "score": "3-0",
+          "probability": 0.119674
+        },
+        {
+          "score": "4-0",
+          "probability": 0.088654
+        }
+      ],
+      "bttsYes": 0.441792,
+      "bttsNo": 0.558208,
+      "over25": 0.695452,
+      "under25": 0.304548,
+      "scoreMatrixTailMass": 0.00026377,
+      "scoreMatrixSource": "reconstructed_from_xg"
+    },
+    "gatedV2": {
+      "homeWin": 0.814754,
+      "draw": 0.128514,
+      "awayWin": 0.056732
+    },
+    "probabilityDeltas": {
+      "homeWinDelta": -0.026064,
+      "drawDelta": 0.020277,
+      "awayWinDelta": 0.005787,
+      "expectedHomeGoalsDelta": -0.0679,
+      "expectedAwayGoalsDelta": 0.0682
+    },
+    "xgDeltas": {
+      "home": -0.0679,
+      "away": 0.0682
+    },
+    "activatedGates": [
+      "structural_vs_current_disagreement",
+      "repeated_over_or_underperformance",
+      "current_tournament_form",
+      "defensive_overperformance"
+    ],
+    "evidence": [
+      "elo_fifa_anchor_with_recent_correction",
+      "multi_match_opponent_adjusted_performance",
+      "one_match_tournament_shrink_applied",
+      "repeated_clean_sheet_or_suppressed_concession_signal"
+    ],
+    "capsApplied": [],
+    "explainedOrAnomalous": "explained"
+  },
+  {
+    "fixture": "Panama vs Croatia",
+    "exactV1": {
+      "homeWin": 0.062374,
+      "draw": 0.13374,
+      "awayWin": 0.803886,
+      "expectedHomeGoals": 0.5866,
+      "expectedAwayGoals": 2.5894,
+      "mostLikelyScore": "0-2",
+      "topScorelines": [
+        {
+          "score": "0-2",
+          "probability": 0.139986
+        },
+        {
+          "score": "0-3",
+          "probability": 0.120827
+        },
+        {
+          "score": "0-1",
+          "probability": 0.108123
+        }
+      ],
+      "bttsYes": 0.410469,
+      "bttsNo": 0.589531,
+      "over25": 0.615033,
+      "under25": 0.384967,
+      "scoreMatrixTailMass": 0.0000837,
+      "scoreMatrixSource": "reconstructed_from_xg"
+    },
+    "gatedV2": {
+      "homeWin": 0.058282,
+      "draw": 0.144666,
+      "awayWin": 0.797052
+    },
+    "probabilityDeltas": {
+      "homeWinDelta": -0.004092,
+      "drawDelta": 0.010926,
+      "awayWinDelta": -0.006834,
+      "expectedHomeGoalsDelta": 0.0045,
+      "expectedAwayGoalsDelta": -0.0045
+    },
+    "xgDeltas": {
+      "home": 0.0045,
+      "away": -0.0045
+    },
+    "activatedGates": [
+      "structural_vs_current_disagreement",
+      "current_tournament_form"
+    ],
+    "evidence": [
+      "elo_fifa_anchor_with_recent_correction",
+      "one_match_tournament_shrink_applied"
+    ],
+    "capsApplied": [],
+    "explainedOrAnomalous": "explained"
+  },
+  {
+    "fixture": "Belgium vs Iran",
+    "exactV1": {
+      "homeWin": 0.116281,
+      "draw": 0.171092,
+      "awayWin": 0.712627,
+      "expectedHomeGoals": 0.8468,
+      "expectedAwayGoals": 2.3703,
+      "mostLikelyScore": "0-2",
+      "topScorelines": [
+        {
+          "score": "0-2",
+          "probability": 0.112571
+        },
+        {
+          "score": "1-2",
+          "probability": 0.095325
+        },
+        {
+          "score": "0-1",
+          "probability": 0.094984
+        }
+      ],
+      "bttsYes": 0.517832,
+      "bttsNo": 0.482168,
+      "over25": 0.623639,
+      "under25": 0.376361,
+      "scoreMatrixTailMass": 0.00003855,
+      "scoreMatrixSource": "reconstructed_from_xg"
+    },
+    "gatedV2": {
+      "homeWin": 0.111672,
+      "draw": 0.181396,
+      "awayWin": 0.706932
+    },
+    "probabilityDeltas": {
+      "homeWinDelta": -0.004609,
+      "drawDelta": 0.010304,
+      "awayWinDelta": -0.005695,
+      "expectedHomeGoalsDelta": 0.0012,
+      "expectedAwayGoalsDelta": -0.0012
+    },
+    "xgDeltas": {
+      "home": 0.0012,
+      "away": -0.0012
+    },
+    "activatedGates": [
+      "structural_vs_current_disagreement",
+      "repeated_over_or_underperformance",
+      "current_tournament_form",
+      "defensive_overperformance"
+    ],
+    "evidence": [
+      "elo_fifa_anchor_with_recent_correction",
+      "multi_match_opponent_adjusted_performance",
+      "one_match_tournament_shrink_applied",
+      "repeated_clean_sheet_or_suppressed_concession_signal"
+    ],
+    "capsApplied": [],
+    "explainedOrAnomalous": "explained"
+  }
+]

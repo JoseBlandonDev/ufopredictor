@@ -1,151 +1,196 @@
 # ChatGPT Project Source - UFO Predictor Current
 
-_Last refreshed: post PR #99 Data Ops 06 / PR #98 Prediction Review Gate / PR #97 reproducible signal refresh (2026-06-19)._
+_Last refreshed: 2026-06-22, Prediction Intelligence v2 Task 3A handoff._
 
-## Product summary
+## Purpose
 
-UFO Predictor is a probabilistic football prediction product for the 2026 World Cup. It publishes controlled public predictions, preserves immutable historical predictions, verifies final results, keeps internal evaluation private, and offers premium public-safe model detail.
+This is the compact canonical source for new ChatGPT conversations. It summarizes the product, architecture, implemented v2 work, environment state, accepted model interpretation, and exact next task.
 
-It does not receive bets and does not guarantee outcomes.
+## Product
 
-## Current production baseline
+UFO Predictor is a football intelligence product for probabilistic World Cup analysis. It does not accept bets and does not guarantee results.
 
-Implemented and operational:
+Core principle:
 
-- public prediction list and match detail;
-- bounded recent results and paginated history;
-- public verified final results;
-- protected premium model detail;
-- registered-free probable-score gating;
-- Wompi production checkout and approved-webhook activation;
-- G06 entitlement materialization;
-- premium-active UI;
-- admin pricing controls;
-- Result Review Queue;
-- Evaluation Queue;
-- Real Fixture Publish Queue;
-- Prediction Review Gate;
-- Torneo Mundialista admin export.
+```text
+El modelo estadístico calcula.
+La IA explica.
+```
 
-Real Fixture Lab exact-detail remains a separate stack-overflow follow-up.
+The value is not that FIFA, Elo, fixtures, and results are impossible to find. The value is that UFO collects, normalizes, links, calculates, simulates, and explains them in one pre-match product.
 
-## Accepted model state
+## Production baseline
 
-PR #94 remains the model closeout:
+Production already supports:
 
-- SIGNAL04 retained;
-- DRAW01 retained;
-- `expected-goals.ts` unchanged;
-- Cabo Verde alias handling retained;
-- rejected signal and xG candidates remain closed.
+- public predictions and verified history;
+- registered-free and premium access layers;
+- Wompi payment and approved-webhook activation;
+- entitlement-based authorization;
+- admin pricing and operational queues;
+- prediction review/publication workflows;
+- Torneo Mundialista export.
 
-Fair stored baseline:
+Prediction Intelligence v2 is not yet live in production.
 
-- raw evaluation rows: 31;
-- unique fixtures: 28;
-- 1X2: 16/28;
-- exact score: 7/28;
-- BTTS: 16/27;
-- O/U 2.5: 16/28;
-- average total-goal error: 1.821.
+## Current branch
 
-Current-signal recomputations over finished fixtures are diagnostic only.
+```text
+feature/prediction-intelligence-v2-data-foundation
+```
 
-## Signal refresh V2
+Latest Task 3A commit:
 
-PR #97 established the 2026-06-19 reproducible national-team signal snapshot.
+```text
+6967fd6b22a49e23ab9963345f1a1437b1d6b668
+```
 
-The runtime pack is generated deterministically from validated source data and checked for idempotence. It preserves the accepted model formulas and does not import raw source files at runtime.
+## Prediction Intelligence v2 architecture
 
-The signal baseline is operational. The future refresh cadence remains open.
+### Durable data
 
-## Prediction Review Gate
+- source snapshots;
+- canonical aliases and localization;
+- FIFA and Elo rating snapshots;
+- historical match facts;
+- correction lineage;
+- official schedule and venue catalog;
+- links to product/API-Football identities;
+- signal snapshots;
+- immutable provenance.
 
-PR #98 added:
+### Coverage
 
-- production migration with four admin-only review tables;
-- RLS;
-- API-Football temporal revalidation;
-- deterministic shadow predictions;
-- refresh and Elo-coherence alerts;
-- auditable human decisions;
-- immutable reviewed publication lineage.
+| Asset | Count |
+|---|---:|
+| Historical match facts | 1,392 |
+| Elo timeline entries | 3,028 |
+| Elo teams | 244 |
+| FIFA rows | 211 |
+| Official World Cup matches | 104 |
+| Group-stage links | 72/72 |
+| Knockout placeholders | 32 |
+| Venues | 16/16 |
+| World Cup runtime teams | 48/48 |
+| Replay-ready fixtures | 36/36 |
 
-Validated production example:
+### Core signal groups
 
-- Netherlands vs Sweden shadow generated;
-- no material model delta;
-- Elo gap at WATCH level;
-- `KEEP_CURRENT` human decision stored.
+- current and start-of-year Elo;
+- FIFA rank/points snapshot;
+- recent form windows;
+- attack/defense/conversion;
+- failed-to-score and clean-sheet rates;
+- BTTS and total-goal tendencies;
+- opponent quality/strength of schedule;
+- performance relative to Elo expectation;
+- official/friendly and neutral/home/away context;
+- tournament-current form;
+- source/sample reliability;
+- structural vs current-form disagreement.
 
-AI is unavailable until a concrete supported provider key is configured. Reviewed-xG is preview-only.
+All pre-match calculations use strict pre-kickoff evidence cutoffs.
 
-## Data Ops 06 / Matchday 2
+## Model 2.0 result
 
-PR #99 completed Group Stage - 2:
+The first broad challenger regressed and was not promoted. Subsequent work corrected neutral context, replay parity, selection logic, bounded movement, and scenario evaluation.
 
-- API-Football count: 24;
-- database count: 24 before and after;
-- no ingest required;
-- 5 fixtures frozen;
-- 3 future fixtures regenerated;
-- 10 existing V2-current public predictions reused;
-- 6 V2 internal predictions published;
-- 9 new immutable public versions created;
-- idempotence verified.
+Selected candidates:
 
-## Torneo Mundialista export
+```text
+Probability: v1_plus_high_confidence_signals
+Release:     gated_v2_probability_v2_analysis
+```
 
-TM01 is done and operational.
+The gated v2 probability engine is effectively near parity with v1. It is a conservative development candidate, not proof of materially higher accuracy.
 
-Final delivered file:
+The v2 analysis layer is approved for development because it adds traceable and useful information even where probabilities remain similar.
 
-- contract: `torneo-ufo-export-v1`;
-- 24 fixtures;
-- 24 unique fixture IDs;
-- 0 localhost URLs;
-- 0 null BTTS objects;
-- 0 null O/U 2.5 objects;
-- source origin: `https://ufopredictor.com`.
+## Scenario philosophy
 
-The final Matchday 2 JSON was sent to Torneo Mundialista.
+The UI must not present three scorelines as three prophecies.
 
-## Payment and Epic G state
+Use:
 
-- G01 Auth: done.
-- G02 environment/config baseline: done.
-- G03 formal production smoke: partial/open.
-- G04 pricing/catalog MVP: operational, polish open.
-- G05 Wompi production payment: done.
-- G06 entitlement activation: done.
-- G07 premium active experience: done for MVP.
-- G08 trust/legal/truthful copy: partial, final pass open.
-- G09 frontend commercial readiness: planned with concrete findings.
-- G10 PWA installability: planned.
-- G11 offline/update safety: optional/deferred unless safe.
-- G12 accessibility/performance: planned.
-- G13 cross-device production smoke: planned.
-- G14 ownership/coordination: required for parallel work.
+1. principal scenario;
+2. principal risk/coverage scenario;
+3. alternate scenario.
 
-## Frontend findings to carry forward
+Each scenario should contain representative score, exact and family probabilities, evidence for/against, match script, reliability, and source cutoff. Additional plausible scores should reveal that UFO models a full distribution.
 
-Highest priority:
+Post-match evaluation distinguishes:
 
-- pricing currently shows an inconsistent USDT/COP relationship and must be verified against DB/checkout;
-- home content is stale and still highlights the opening match;
-- transparency copy says calibration is active although model calibration is closed;
-- pricing/catalog duplicates or ambiguously presents World Cup Pass;
-- dashboard copy mixes admin role, free plan, and entitlement state.
+- exact score;
+- 1X2 family;
+- winning margin;
+- total-goal range;
+- BTTS/O-U;
+- match path and late-goal sensitivity;
+- model error versus normal variance.
 
-See `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`.
+Preferred post-match wording:
 
-## Immediate next work
+```text
+Se materializó uno de los escenarios contemplados.
+```
 
-1. monitor and process Matchday 2 final results;
-2. prepare the next fixture batch;
-3. execute the small Review Gate UI patch;
-4. fix P0 commercial frontend inconsistencies;
-5. complete G08/G03/refund operations;
-6. define the next signal refresh trigger.
+Do not claim clairvoyance.
 
-Prefer console for repetitive API reads and batch operations. Use Codex for architecture, implementation, tests, and complex review.
+## Case-study lessons
+
+- Germany-Curaçao 7-1: direction correct, extreme goal volume underestimated.
+- Spain-Cape Verde 0-0: structural favorite failed to convert; low-scoring draw was a meaningful risk family.
+- Brazil-Morocco 1-1: low-scoring draw family was plausible and represented.
+- Germany-Ivory Coast 2-1: narrow favorite win after long 1-1 state; path analysis matters.
+- Ecuador-Curaçao 0-0: structural gap remained, but conversion/draw risk materialized.
+
+Individual results do not validate a calibration by themselves.
+
+## Environment state
+
+```text
+Production: ufopredictor.com       + production Supabase
+Stage:      stage.ufopredictor.com + separate Supabase stage
+```
+
+Stage registration/login works. Its user identity is intentionally independent. Stage predictions are unavailable because the schema/data are not yet synchronized.
+
+Task 3B must receive credentials through a local Git-ignored file. Its presence and structure are operator-local facts and must be revalidated before execution. Never expose it.
+
+## Task 3A
+
+Task 3A provides a safe dry-run operational layer:
+
+- target guard;
+- migration/import/signal/publication plans;
+- Torneo export preview;
+- production denial;
+- tests.
+
+No physical remote write has occurred.
+
+## Exact next task
+
+Task 3B:
+
+1. read-only stage migration/schema parity audit;
+2. human approval;
+3. stage migration synchronization;
+4. migration 0038;
+5. non-sensitive idempotent import;
+6. signal persistence;
+7. immutable development prediction versions;
+8. Torneo development export;
+9. RLS/public/localization/venue/UI validation;
+10. production remains untouched.
+
+## Near-term product roadmap
+
+After Task 3B:
+
+- premium scenario/evidence UI;
+- anonymous/free/premium segmentation;
+- Spanish team names now, English via the same localization structure;
+- eliminate known `Por definir` venue placeholders;
+- controlled stage-to-production promotion;
+- future v3 tournament-form/UFO-strength research.

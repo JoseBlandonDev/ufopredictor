@@ -1,6 +1,6 @@
 # Post G05/G06/G07 Production Changelog - UFO Predictor
 
-_Last refreshed: 2026-06-19._
+_Last refreshed: 2026-06-22. Historical production behavior retained; Prediction Intelligence v2 does not change this runbook._
 
 ## G05/G06/G07 production baseline
 
@@ -64,3 +64,6 @@ public predictions
 -> signal refresh/review gate
 -> partner export
 ```
+## Prediction Intelligence v2 follow-on
+
+The current unmerged feature branch adds the v2 data/scenario foundation through Task 3A. It does not replace or invalidate the production G05/G06/G07 loop. Task 3B stage validation is pending.

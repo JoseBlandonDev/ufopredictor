@@ -1,0 +1,346 @@
+[
+  {
+    "candidate": {
+      "key": "structural_only_ablation",
+      "label": "Structural-only ablation",
+      "calibrationVersion": "task2-calibration-v1",
+      "effectiveStrengthWeights": {
+        "structural": 0.72,
+        "recentForm": 0.08,
+        "tournamentForm": 0.04,
+        "attack": 0.06,
+        "defense": 0.05,
+        "expectation": 0.03,
+        "reliability": 0.02
+      },
+      "expectedGoalDifference": {
+        "structuralGap": 1.35,
+        "recentGap": 0.15,
+        "tournamentGap": 0.08,
+        "attackDefenseGap": 0.22,
+        "expectationGap": 0.15,
+        "reliabilityTilt": 0.08
+      },
+      "expectedTotalGoals": {
+        "base": 2.28,
+        "combinedAttack": 0.38,
+        "combinedDefense": 0.18,
+        "combinedOpenPlay": 0.22,
+        "combinedTournamentOpenPlay": 0.08,
+        "favoriteControl": -0.16,
+        "reliabilityDrag": -0.1
+      },
+      "drawLift": 0.03,
+      "maxGoals": 8
+    },
+    "validationMetrics": {
+      "fixtureCount": 55,
+      "oneXTwo": {
+        "multiclassBrier": 0.205757,
+        "logLoss": 1.026834,
+        "outcomeAccuracy": 0.509091,
+        "favoriteAccuracy": 0.509091,
+        "calibrationByBucket": [
+          {
+            "bucket": "0.00-0.39",
+            "fixtureCount": 22,
+            "averagePredicted": 0.376226,
+            "actualHitRate": 0.409091
+          },
+          {
+            "bucket": "0.40-0.49",
+            "fixtureCount": 30,
+            "averagePredicted": 0.441834,
+            "actualHitRate": 0.6
+          },
+          {
+            "bucket": "0.50-0.59",
+            "fixtureCount": 3,
+            "averagePredicted": 0.548026,
+            "actualHitRate": 0.333333
+          },
+          {
+            "bucket": "0.60+",
+            "fixtureCount": 0,
+            "averagePredicted": null,
+            "actualHitRate": null
+          }
+        ]
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.490773,
+        "goalDifferenceMae": 1.332936,
+        "bttsBrier": 0.246487,
+        "bttsAccuracy": 0.545455,
+        "over25Brier": 0.250113,
+        "over25Accuracy": 0.527273
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.163636,
+        "exactScoreTop3Coverage": 0.4,
+        "exactScoreTop5Coverage": 0.581818,
+        "actualScoreProbability": 0.065944,
+        "scoreMatrixTailMass": 0.000034
+      }
+    },
+    "score": 0.786066
+  },
+  {
+    "candidate": {
+      "key": "baseline_compatible_v2",
+      "label": "Baseline-compatible v2",
+      "calibrationVersion": "task2-calibration-v1",
+      "effectiveStrengthWeights": {
+        "structural": 0.4,
+        "recentForm": 0.2,
+        "tournamentForm": 0.1,
+        "attack": 0.1,
+        "defense": 0.1,
+        "expectation": 0.05,
+        "reliability": 0.05
+      },
+      "expectedGoalDifference": {
+        "structuralGap": 1.2,
+        "recentGap": 0.5,
+        "tournamentGap": 0.28,
+        "attackDefenseGap": 0.45,
+        "expectationGap": 0.32,
+        "reliabilityTilt": 0.18
+      },
+      "expectedTotalGoals": {
+        "base": 2.35,
+        "combinedAttack": 0.55,
+        "combinedDefense": 0.22,
+        "combinedOpenPlay": 0.42,
+        "combinedTournamentOpenPlay": 0.18,
+        "favoriteControl": -0.12,
+        "reliabilityDrag": -0.12
+      },
+      "drawLift": 0.02,
+      "maxGoals": 8
+    },
+    "validationMetrics": {
+      "fixtureCount": 55,
+      "oneXTwo": {
+        "multiclassBrier": 0.20553,
+        "logLoss": 1.026819,
+        "outcomeAccuracy": 0.527273,
+        "favoriteAccuracy": 0.527273,
+        "calibrationByBucket": [
+          {
+            "bucket": "0.00-0.39",
+            "fixtureCount": 12,
+            "averagePredicted": 0.383514,
+            "actualHitRate": 0.416667
+          },
+          {
+            "bucket": "0.40-0.49",
+            "fixtureCount": 33,
+            "averagePredicted": 0.439161,
+            "actualHitRate": 0.575758
+          },
+          {
+            "bucket": "0.50-0.59",
+            "fixtureCount": 9,
+            "averagePredicted": 0.529794,
+            "actualHitRate": 0.444444
+          },
+          {
+            "bucket": "0.60+",
+            "fixtureCount": 1,
+            "averagePredicted": 0.608664,
+            "actualHitRate": 1
+          }
+        ]
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.530016,
+        "goalDifferenceMae": 1.338507,
+        "bttsBrier": 0.246683,
+        "bttsAccuracy": 0.563636,
+        "over25Brier": 0.261384,
+        "over25Accuracy": 0.472727
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.163636,
+        "exactScoreTop3Coverage": 0.418182,
+        "exactScoreTop5Coverage": 0.545455,
+        "actualScoreProbability": 0.057306,
+        "scoreMatrixTailMass": 0.000091
+      }
+    },
+    "score": 0.790607
+  },
+  {
+    "candidate": {
+      "key": "model_2_full",
+      "label": "Model 2.0 full",
+      "calibrationVersion": "task2-calibration-v1",
+      "effectiveStrengthWeights": {
+        "structural": 0.3,
+        "recentForm": 0.2,
+        "tournamentForm": 0.15,
+        "attack": 0.12,
+        "defense": 0.1,
+        "expectation": 0.08,
+        "reliability": 0.05
+      },
+      "expectedGoalDifference": {
+        "structuralGap": 1,
+        "recentGap": 0.62,
+        "tournamentGap": 0.4,
+        "attackDefenseGap": 0.58,
+        "expectationGap": 0.42,
+        "reliabilityTilt": 0.15
+      },
+      "expectedTotalGoals": {
+        "base": 2.38,
+        "combinedAttack": 0.62,
+        "combinedDefense": 0.16,
+        "combinedOpenPlay": 0.52,
+        "combinedTournamentOpenPlay": 0.22,
+        "favoriteControl": -0.1,
+        "reliabilityDrag": -0.14
+      },
+      "drawLift": 0.015,
+      "maxGoals": 8
+    },
+    "validationMetrics": {
+      "fixtureCount": 55,
+      "oneXTwo": {
+        "multiclassBrier": 0.206375,
+        "logLoss": 1.030783,
+        "outcomeAccuracy": 0.527273,
+        "favoriteAccuracy": 0.527273,
+        "calibrationByBucket": [
+          {
+            "bucket": "0.00-0.39",
+            "fixtureCount": 9,
+            "averagePredicted": 0.386748,
+            "actualHitRate": 0.555556
+          },
+          {
+            "bucket": "0.40-0.49",
+            "fixtureCount": 36,
+            "averagePredicted": 0.443211,
+            "actualHitRate": 0.527778
+          },
+          {
+            "bucket": "0.50-0.59",
+            "fixtureCount": 9,
+            "averagePredicted": 0.5385,
+            "actualHitRate": 0.444444
+          },
+          {
+            "bucket": "0.60+",
+            "fixtureCount": 1,
+            "averagePredicted": 0.625013,
+            "actualHitRate": 1
+          }
+        ]
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.575164,
+        "goalDifferenceMae": 1.348476,
+        "bttsBrier": 0.248236,
+        "bttsAccuracy": 0.563636,
+        "over25Brier": 0.267698,
+        "over25Accuracy": 0.472727
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.145455,
+        "exactScoreTop3Coverage": 0.363636,
+        "exactScoreTop5Coverage": 0.545455,
+        "actualScoreProbability": 0.053632,
+        "scoreMatrixTailMass": 0.000121
+      }
+    },
+    "score": 0.799861
+  },
+  {
+    "candidate": {
+      "key": "recent_tournament_emphasis",
+      "label": "Recent+tournament emphasis",
+      "calibrationVersion": "task2-calibration-v1",
+      "effectiveStrengthWeights": {
+        "structural": 0.24,
+        "recentForm": 0.24,
+        "tournamentForm": 0.18,
+        "attack": 0.12,
+        "defense": 0.1,
+        "expectation": 0.08,
+        "reliability": 0.04
+      },
+      "expectedGoalDifference": {
+        "structuralGap": 0.85,
+        "recentGap": 0.72,
+        "tournamentGap": 0.46,
+        "attackDefenseGap": 0.58,
+        "expectationGap": 0.44,
+        "reliabilityTilt": 0.14
+      },
+      "expectedTotalGoals": {
+        "base": 2.42,
+        "combinedAttack": 0.66,
+        "combinedDefense": 0.15,
+        "combinedOpenPlay": 0.58,
+        "combinedTournamentOpenPlay": 0.28,
+        "favoriteControl": -0.08,
+        "reliabilityDrag": -0.14
+      },
+      "drawLift": 0.01,
+      "maxGoals": 8
+    },
+    "validationMetrics": {
+      "fixtureCount": 55,
+      "oneXTwo": {
+        "multiclassBrier": 0.20735,
+        "logLoss": 1.035992,
+        "outcomeAccuracy": 0.527273,
+        "favoriteAccuracy": 0.527273,
+        "calibrationByBucket": [
+          {
+            "bucket": "0.00-0.39",
+            "fixtureCount": 6,
+            "averagePredicted": 0.388018,
+            "actualHitRate": 0.666667
+          },
+          {
+            "bucket": "0.40-0.49",
+            "fixtureCount": 39,
+            "averagePredicted": 0.442566,
+            "actualHitRate": 0.512821
+          },
+          {
+            "bucket": "0.50-0.59",
+            "fixtureCount": 9,
+            "averagePredicted": 0.537878,
+            "actualHitRate": 0.444444
+          },
+          {
+            "bucket": "0.60+",
+            "fixtureCount": 1,
+            "averagePredicted": 0.622788,
+            "actualHitRate": 1
+          }
+        ]
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.629345,
+        "goalDifferenceMae": 1.352389,
+        "bttsBrier": 0.250759,
+        "bttsAccuracy": 0.563636,
+        "over25Brier": 0.275378,
+        "over25Accuracy": 0.472727
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.145455,
+        "exactScoreTop3Coverage": 0.345455,
+        "exactScoreTop5Coverage": 0.509091,
+        "actualScoreProbability": 0.051494,
+        "scoreMatrixTailMass": 0.000156
+      }
+    },
+    "score": 0.810283
+  }
+]

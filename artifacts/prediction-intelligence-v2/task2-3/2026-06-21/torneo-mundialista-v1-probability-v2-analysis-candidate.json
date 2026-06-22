@@ -1,0 +1,2657 @@
+{
+  "schemaVersion": "torneo-mundialista-v2-release-candidate",
+  "generationCutoff": "2026-06-21T00:00:00Z",
+  "candidateIdentifier": "v1_probability_v2_analysis",
+  "fixtures": [
+    {
+      "fixtureId": "2d7bc089-1eda-4f91-b1a0-e596a00dda59",
+      "matchSlug": "world-cup-2026-uruguay-vs-cape-verde-islands-2026-06-21",
+      "officialMatchNumber": 37,
+      "kickoffAt": "2026-06-21T22:00:00+00:00",
+      "predictionIdentifier": "2d7bc089-1eda-4f91-b1a0-e596a00dda59:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "964d0a11-9cd4-43f7-96af-0fda4b6ed8d0",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "uruguay",
+          "nameEn": "Uruguay",
+          "nameEs": "Uruguay"
+        },
+        "away": {
+          "canonicalKey": "cape_verde",
+          "nameEn": "Cape Verde",
+          "nameEs": "Cabo Verde"
+        }
+      },
+      "venue": {
+        "venueKey": "miami",
+        "venueName": "Miami Stadium",
+        "cityEn": "Miami",
+        "cityEs": "Miami",
+        "actualCity": "Miami Gardens",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.522868,
+        "draw": 0.283991,
+        "awayWin": 0.193141
+      },
+      "expectedGoals": {
+        "home": 1.3391,
+        "away": 0.6925
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.17391,
+          "familyProbability": 0.414283,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "away_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.7263,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.17391
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.115407
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.092393
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.032573
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "low_scoring_draw",
+          "representativeScore": {
+            "home": 0,
+            "away": 0
+          },
+          "exactScoreProbability": 0.131035,
+          "familyProbability": 0.253659,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "away_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "suppressed_chance_quality",
+            "defensive_resistance"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.7263,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 0,
+              "probability": 0.131035
+            },
+            {
+              "home": 1,
+              "away": 1,
+              "probability": 0.122624
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 3,
+            "away": 0
+          },
+          "exactScoreProbability": 0.051056,
+          "familyProbability": 0.103996,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "away_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.7263,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 0,
+              "probability": 0.051056
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "probability": 0.036
+            },
+            {
+              "home": 4,
+              "away": 0,
+              "probability": 0.01694
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "1-1",
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "probability": 0.122624
+        },
+        {
+          "score": "2-0",
+          "homeGoals": 2,
+          "awayGoals": 0,
+          "probability": 0.115407
+        },
+        {
+          "score": "0-1",
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "probability": 0.092393
+        },
+        {
+          "score": "2-1",
+          "homeGoals": 2,
+          "awayGoals": 1,
+          "probability": 0.081373
+        },
+        {
+          "score": "1-2",
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "probability": 0.043231
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_structural_edge",
+          "away_recent_form_edge",
+          "home_tournament_surge",
+          "low_total_profile"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "repeated_over_or_underperformance",
+          "scoring_conversion_deterioration"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Uruguay vs Cape Verde: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "controlled low-total match (41.4%): representative score 1-0.",
+            "low-scoring draw (25.4%): representative score 0-0.",
+            "favorite clear win (10.4%): representative score 3-0."
+          ],
+          "reasonLines": [
+            "Home side carries the stronger structural rating profile.",
+            "Away side arrives in the better recent form window.",
+            "Home side has the stronger current-tournament evidence.",
+            "The evidence leans toward a suppressed total-goals script."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Uruguay vs Cabo Verde: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "partido controlado y de pocos goles (41.4%): marcador representativo 1-0.",
+            "empate de pocos goles (25.4%): marcador representativo 0-0.",
+            "victoria clara del favorito (10.4%): marcador representativo 3-0."
+          ],
+          "reasonLines": [
+            "El local trae un perfil estructural de rating mas fuerte.",
+            "El visitante llega con mejor forma reciente.",
+            "El local trae mejor evidencia del torneo actual.",
+            "La evidencia empuja a un guion de pocos goles."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "8cb53b3c-56fc-4560-a605-ec75261f3bae",
+      "matchSlug": "world-cup-2026-new-zealand-vs-egypt-2026-06-22",
+      "officialMatchNumber": 40,
+      "kickoffAt": "2026-06-22T01:00:00+00:00",
+      "predictionIdentifier": "8cb53b3c-56fc-4560-a605-ec75261f3bae:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "8f5c606b-f13a-45ab-adcb-de4cb8e44e58",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "new_zealand",
+          "nameEn": "New Zealand",
+          "nameEs": "Nueva Zelanda"
+        },
+        "away": {
+          "canonicalKey": "egypt",
+          "nameEn": "Egypt",
+          "nameEs": "Egipto"
+        }
+      },
+      "venue": {
+        "venueKey": "vancouver",
+        "venueName": "BC Place Vancouver",
+        "cityEn": "Vancouver",
+        "cityEs": "Vancouver",
+        "actualCity": "Vancouver",
+        "countryCode": "CA"
+      },
+      "probabilities": {
+        "homeWin": 0.144887,
+        "draw": 0.18814,
+        "awayWin": 0.666972
+      },
+      "expectedGoals": {
+        "home": 0.9373,
+        "away": 2.2324
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 0,
+            "away": 3
+          },
+          "exactScoreProbability": 0.079336,
+          "familyProbability": 0.197228,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_recent_form_edge",
+            "away_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8438,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 3,
+              "probability": 0.079336
+            },
+            {
+              "home": 1,
+              "away": 3,
+              "probability": 0.073338
+            },
+            {
+              "home": 0,
+              "away": 4,
+              "probability": 0.044553
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 1,
+            "away": 2
+          },
+          "exactScoreProbability": 0.097945,
+          "familyProbability": 0.097945,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_recent_form_edge",
+            "away_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8438,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 2,
+              "probability": 0.097945
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 0,
+            "away": 2
+          },
+          "exactScoreProbability": 0.105956,
+          "familyProbability": 0.257059,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_recent_form_edge",
+            "away_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.8438,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.105956
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.094338
+            },
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.038822
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.017944
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "0-1",
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "probability": 0.094338
+        },
+        {
+          "score": "1-1",
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "probability": 0.087206
+        },
+        {
+          "score": "1-3",
+          "homeGoals": 1,
+          "awayGoals": 3,
+          "probability": 0.073338
+        },
+        {
+          "score": "2-2",
+          "homeGoals": 2,
+          "awayGoals": 2,
+          "probability": 0.04527
+        },
+        {
+          "score": "0-4",
+          "homeGoals": 0,
+          "awayGoals": 4,
+          "probability": 0.044553
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "away_structural_edge",
+          "away_recent_form_edge",
+          "away_tournament_surge",
+          "low_total_profile"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "repeated_over_or_underperformance",
+          "scoring_conversion_deterioration"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "New Zealand vs Egypt: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "favorite clear win (19.7%): representative score 0-3.",
+            "favorite narrow win (9.8%): representative score 1-2.",
+            "controlled low-total match (25.7%): representative score 0-2."
+          ],
+          "reasonLines": [
+            "Away side carries the stronger structural rating profile.",
+            "Away side arrives in the better recent form window.",
+            "Away side has the stronger current-tournament evidence.",
+            "The evidence leans toward a suppressed total-goals script."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Nueva Zelanda vs Egipto: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "victoria clara del favorito (19.7%): marcador representativo 0-3.",
+            "victoria corta del favorito (9.8%): marcador representativo 1-2.",
+            "partido controlado y de pocos goles (25.7%): marcador representativo 0-2."
+          ],
+          "reasonLines": [
+            "El visitante trae un perfil estructural de rating mas fuerte.",
+            "El visitante llega con mejor forma reciente.",
+            "El visitante trae mejor evidencia del torneo actual.",
+            "La evidencia empuja a un guion de pocos goles."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "26453f76-c60f-468c-8a1d-983559bd98f3",
+      "matchSlug": "world-cup-2026-argentina-vs-austria-2026-06-22",
+      "officialMatchNumber": 43,
+      "kickoffAt": "2026-06-22T17:00:00+00:00",
+      "predictionIdentifier": "26453f76-c60f-468c-8a1d-983559bd98f3:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "98659368-ce3d-4853-8a87-ea3a551431bd",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "argentina",
+          "nameEn": "Argentina",
+          "nameEs": "Argentina"
+        },
+        "away": {
+          "canonicalKey": "austria",
+          "nameEn": "Austria",
+          "nameEs": "Austria"
+        }
+      },
+      "venue": {
+        "venueKey": "dallas",
+        "venueName": "Dallas Stadium",
+        "cityEn": "Dallas",
+        "cityEs": "Dallas",
+        "actualCity": "Arlington",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.773195,
+        "draw": 0.136519,
+        "awayWin": 0.090286
+      },
+      "expectedGoals": {
+        "home": 2.8303,
+        "away": 0.8928
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 3,
+            "away": 0
+          },
+          "exactScoreProbability": 0.09254,
+          "familyProbability": 0.23993,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "low",
+          "reliability": 0.765,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 0,
+              "probability": 0.09254
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "probability": 0.081666
+            },
+            {
+              "home": 4,
+              "away": 0,
+              "probability": 0.065724
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 2,
+            "away": 1
+          },
+          "exactScoreProbability": 0.08624,
+          "familyProbability": 0.08624,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.765,
+          "relatedScorelines": [
+            {
+              "home": 2,
+              "away": 1,
+              "probability": 0.08624
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "open_high_scoring_match",
+          "representativeScore": {
+            "home": 4,
+            "away": 1
+          },
+          "exactScoreProbability": 0.058001,
+          "familyProbability": 0.303031,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "open_transitions",
+            "high_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.765,
+          "relatedScorelines": [
+            {
+              "home": 4,
+              "away": 1,
+              "probability": 0.058001
+            },
+            {
+              "home": 5,
+              "away": 0,
+              "probability": 0.037343
+            },
+            {
+              "home": 3,
+              "away": 2,
+              "probability": 0.036035
+            },
+            {
+              "home": 5,
+              "away": 1,
+              "probability": 0.032955
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "2-0",
+          "homeGoals": 2,
+          "awayGoals": 0,
+          "probability": 0.097722
+        },
+        {
+          "score": "3-1",
+          "homeGoals": 3,
+          "awayGoals": 1,
+          "probability": 0.081666
+        },
+        {
+          "score": "1-0",
+          "homeGoals": 1,
+          "awayGoals": 0,
+          "probability": 0.068797
+        },
+        {
+          "score": "4-0",
+          "homeGoals": 4,
+          "awayGoals": 0,
+          "probability": 0.065724
+        },
+        {
+          "score": "1-1",
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "probability": 0.060713
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_structural_edge",
+          "home_recent_form_edge",
+          "home_tournament_surge",
+          "low_total_profile"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Argentina vs Austria: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "favorite clear win (24%): representative score 3-0.",
+            "favorite narrow win (8.6%): representative score 2-1.",
+            "open high-scoring match (30.3%): representative score 4-1."
+          ],
+          "reasonLines": [
+            "Home side carries the stronger structural rating profile.",
+            "Home side arrives in the better recent form window.",
+            "Home side has the stronger current-tournament evidence.",
+            "The evidence leans toward a suppressed total-goals script."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Argentina vs Austria: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "victoria clara del favorito (24%): marcador representativo 3-0.",
+            "victoria corta del favorito (8.6%): marcador representativo 2-1.",
+            "partido abierto y de muchos goles (30.3%): marcador representativo 4-1."
+          ],
+          "reasonLines": [
+            "El local trae un perfil estructural de rating mas fuerte.",
+            "El local llega con mejor forma reciente.",
+            "El local trae mejor evidencia del torneo actual.",
+            "La evidencia empuja a un guion de pocos goles."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+      "matchSlug": "world-cup-2026-norway-vs-senegal-2026-06-23",
+      "officialMatchNumber": 41,
+      "kickoffAt": "2026-06-23T00:00:00+00:00",
+      "predictionIdentifier": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "f18fbb65-f85a-428c-8b69-24525f4d3eb4",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "norway",
+          "nameEn": "Norway",
+          "nameEs": "Noruega"
+        },
+        "away": {
+          "canonicalKey": "senegal",
+          "nameEn": "Senegal",
+          "nameEs": "Senegal"
+        }
+      },
+      "venue": {
+        "venueKey": "new_york_new_jersey",
+        "venueName": "New York New Jersey Stadium",
+        "cityEn": "New York/New Jersey",
+        "cityEs": "Nueva York/Nueva Jersey",
+        "actualCity": "East Rutherford",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.221927,
+        "draw": 0.255859,
+        "awayWin": 0.522214
+      },
+      "expectedGoals": {
+        "home": 0.9117,
+        "away": 1.5486
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 0,
+            "away": 1
+          },
+          "exactScoreProbability": 0.132353,
+          "familyProbability": 0.348067,
+          "supportingReasonCodes": [
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8213,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.132353
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.102587
+            },
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.077737
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.03539
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "low_scoring_draw",
+          "representativeScore": {
+            "home": 1,
+            "away": 1
+          },
+          "exactScoreProbability": 0.120508,
+          "familyProbability": 0.205886,
+          "supportingReasonCodes": [
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "suppressed_chance_quality",
+            "defensive_resistance"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8213,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 1,
+              "probability": 0.120508
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "probability": 0.085378
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "underdog_clear_win",
+          "representativeScore": {
+            "home": 0,
+            "away": 3
+          },
+          "exactScoreProbability": 0.05301,
+          "familyProbability": 0.12182,
+          "supportingReasonCodes": [
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "underdog_surge",
+            "favorite_collapse"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.8213,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 3,
+              "probability": 0.05301
+            },
+            {
+              "home": 1,
+              "away": 3,
+              "probability": 0.048266
+            },
+            {
+              "home": 0,
+              "away": 4,
+              "probability": 0.020544
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "0-2",
+          "homeGoals": 0,
+          "awayGoals": 2,
+          "probability": 0.102587
+        },
+        {
+          "score": "1-2",
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "probability": 0.093406
+        },
+        {
+          "score": "0-0",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "probability": 0.085378
+        },
+        {
+          "score": "1-0",
+          "homeGoals": 1,
+          "awayGoals": 0,
+          "probability": 0.077737
+        },
+        {
+          "score": "2-1",
+          "homeGoals": 2,
+          "awayGoals": 1,
+          "probability": 0.054861
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_recent_form_edge",
+          "home_tournament_surge"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "repeated_over_or_underperformance",
+          "structural_vs_current_disagreement"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Norway vs Senegal: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "controlled low-total match (34.8%): representative score 0-1.",
+            "low-scoring draw (20.6%): representative score 1-1.",
+            "underdog clear win (12.2%): representative score 0-3."
+          ],
+          "reasonLines": [
+            "Home side arrives in the better recent form window.",
+            "Home side has the stronger current-tournament evidence."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Noruega vs Senegal: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "partido controlado y de pocos goles (34.8%): marcador representativo 0-1.",
+            "empate de pocos goles (20.6%): marcador representativo 1-1.",
+            "victoria clara del no favorito (12.2%): marcador representativo 0-3."
+          ],
+          "reasonLines": [
+            "El local llega con mejor forma reciente.",
+            "El local trae mejor evidencia del torneo actual."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+      "matchSlug": "world-cup-2026-jordan-vs-algeria-2026-06-23",
+      "officialMatchNumber": 44,
+      "kickoffAt": "2026-06-23T03:00:00+00:00",
+      "predictionIdentifier": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "5287dc08-e4c1-4599-935a-a90d8ba32b29",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "jordan",
+          "nameEn": "Jordan",
+          "nameEs": "Jordania"
+        },
+        "away": {
+          "canonicalKey": "algeria",
+          "nameEn": "Algeria",
+          "nameEs": "Argelia"
+        }
+      },
+      "venue": {
+        "venueKey": "san_francisco_bay_area",
+        "venueName": "San Francisco Bay Area Stadium",
+        "cityEn": "San Francisco Bay Area",
+        "cityEs": "Área de la Bahía de San Francisco",
+        "actualCity": "Santa Clara",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.149688,
+        "draw": 0.253052,
+        "awayWin": 0.59726
+      },
+      "expectedGoals": {
+        "home": 0.6309,
+        "away": 1.5532
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 0,
+            "away": 3
+          },
+          "exactScoreProbability": 0.071605,
+          "familyProbability": 0.144092,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_recent_form_edge",
+            "away_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.9,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 3,
+              "probability": 0.071605
+            },
+            {
+              "home": 1,
+              "away": 3,
+              "probability": 0.04451
+            },
+            {
+              "home": 0,
+              "away": 4,
+              "probability": 0.027978
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 1,
+            "away": 2
+          },
+          "exactScoreProbability": 0.085437,
+          "familyProbability": 0.085437,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_recent_form_edge",
+            "away_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.9,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 2,
+              "probability": 0.085437
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 0,
+            "away": 1
+          },
+          "exactScoreProbability": 0.175886,
+          "familyProbability": 0.405028,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_recent_form_edge",
+            "away_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.9,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.175886
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.137446
+            },
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.069954
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.021742
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "0-2",
+          "homeGoals": 0,
+          "awayGoals": 2,
+          "probability": 0.137446
+        },
+        {
+          "score": "0-0",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "probability": 0.112538
+        },
+        {
+          "score": "1-1",
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "probability": 0.109331
+        },
+        {
+          "score": "1-0",
+          "homeGoals": 1,
+          "awayGoals": 0,
+          "probability": 0.069954
+        },
+        {
+          "score": "1-3",
+          "homeGoals": 1,
+          "awayGoals": 3,
+          "probability": 0.04451
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "away_structural_edge",
+          "away_recent_form_edge",
+          "away_tournament_surge"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "repeated_over_or_underperformance",
+          "structural_vs_current_disagreement"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Jordan vs Algeria: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "favorite clear win (14.4%): representative score 0-3.",
+            "favorite narrow win (8.5%): representative score 1-2.",
+            "controlled low-total match (40.5%): representative score 0-1."
+          ],
+          "reasonLines": [
+            "Away side carries the stronger structural rating profile.",
+            "Away side arrives in the better recent form window.",
+            "Away side has the stronger current-tournament evidence."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Jordania vs Argelia: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "victoria clara del favorito (14.4%): marcador representativo 0-3.",
+            "victoria corta del favorito (8.5%): marcador representativo 1-2.",
+            "partido controlado y de pocos goles (40.5%): marcador representativo 0-1."
+          ],
+          "reasonLines": [
+            "El visitante trae un perfil estructural de rating mas fuerte.",
+            "El visitante llega con mejor forma reciente.",
+            "El visitante trae mejor evidencia del torneo actual."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+      "matchSlug": "world-cup-2026-england-vs-ghana-2026-06-23",
+      "officialMatchNumber": 45,
+      "kickoffAt": "2026-06-23T20:00:00+00:00",
+      "predictionIdentifier": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "b8ac856d-6d9b-45f1-b024-a04130366edd",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "england",
+          "nameEn": "England",
+          "nameEs": "Inglaterra"
+        },
+        "away": {
+          "canonicalKey": "ghana",
+          "nameEn": "Ghana",
+          "nameEs": "Ghana"
+        }
+      },
+      "venue": {
+        "venueKey": "boston",
+        "venueName": "Boston Stadium",
+        "cityEn": "Boston",
+        "cityEs": "Boston",
+        "actualCity": "Foxborough",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.840818,
+        "draw": 0.108237,
+        "awayWin": 0.050945
+      },
+      "expectedGoals": {
+        "home": 2.9632,
+        "away": 0.6271
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 3,
+            "away": 0
+          },
+          "exactScoreProbability": 0.11191,
+          "familyProbability": 0.270724,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "low",
+          "reliability": 0.7875,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 0,
+              "probability": 0.11191
+            },
+            {
+              "home": 4,
+              "away": 0,
+              "probability": 0.081003
+            },
+            {
+              "home": 3,
+              "away": 1,
+              "probability": 0.077811
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 2,
+            "away": 1
+          },
+          "exactScoreProbability": 0.080625,
+          "familyProbability": 0.080625,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.7875,
+          "relatedScorelines": [
+            {
+              "home": 2,
+              "away": 1,
+              "probability": 0.080625
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "open_high_scoring_match",
+          "representativeScore": {
+            "home": 4,
+            "away": 1
+          },
+          "exactScoreProbability": 0.056321,
+          "familyProbability": 0.28249,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge",
+            "low_total_profile"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "open_transitions",
+            "high_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.7875,
+          "relatedScorelines": [
+            {
+              "home": 4,
+              "away": 1,
+              "probability": 0.056321
+            },
+            {
+              "home": 5,
+              "away": 0,
+              "probability": 0.046906
+            },
+            {
+              "home": 5,
+              "away": 1,
+              "probability": 0.032613
+            },
+            {
+              "home": 3,
+              "away": 2,
+              "probability": 0.027051
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "2-0",
+          "homeGoals": 2,
+          "awayGoals": 0,
+          "probability": 0.115957
+        },
+        {
+          "score": "4-0",
+          "homeGoals": 4,
+          "awayGoals": 0,
+          "probability": 0.081003
+        },
+        {
+          "score": "1-0",
+          "homeGoals": 1,
+          "awayGoals": 0,
+          "probability": 0.0801
+        },
+        {
+          "score": "3-1",
+          "homeGoals": 3,
+          "awayGoals": 1,
+          "probability": 0.077811
+        },
+        {
+          "score": "1-1",
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "probability": 0.055693
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_structural_edge",
+          "home_recent_form_edge",
+          "home_tournament_surge",
+          "low_total_profile"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "repeated_over_or_underperformance",
+          "structural_vs_current_disagreement"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "England vs Ghana: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "favorite clear win (27.1%): representative score 3-0.",
+            "favorite narrow win (8.1%): representative score 2-1.",
+            "open high-scoring match (28.2%): representative score 4-1."
+          ],
+          "reasonLines": [
+            "Home side carries the stronger structural rating profile.",
+            "Home side arrives in the better recent form window.",
+            "Home side has the stronger current-tournament evidence.",
+            "The evidence leans toward a suppressed total-goals script."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Inglaterra vs Ghana: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "victoria clara del favorito (27.1%): marcador representativo 3-0.",
+            "victoria corta del favorito (8.1%): marcador representativo 2-1.",
+            "partido abierto y de muchos goles (28.2%): marcador representativo 4-1."
+          ],
+          "reasonLines": [
+            "El local trae un perfil estructural de rating mas fuerte.",
+            "El local llega con mejor forma reciente.",
+            "El local trae mejor evidencia del torneo actual.",
+            "La evidencia empuja a un guion de pocos goles."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "b8bef336-5c1c-491c-8ba4-075c536234cc",
+      "matchSlug": "world-cup-2026-panama-vs-croatia-2026-06-23",
+      "officialMatchNumber": 46,
+      "kickoffAt": "2026-06-23T23:00:00+00:00",
+      "predictionIdentifier": "b8bef336-5c1c-491c-8ba4-075c536234cc:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "696ea48d-b30c-481b-a467-e2df1751fe19",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "panama",
+          "nameEn": "Panama",
+          "nameEs": "Panamá"
+        },
+        "away": {
+          "canonicalKey": "croatia",
+          "nameEn": "Croatia",
+          "nameEs": "Croacia"
+        }
+      },
+      "venue": {
+        "venueKey": "toronto",
+        "venueName": "Toronto Stadium",
+        "cityEn": "Toronto",
+        "cityEs": "Toronto",
+        "actualCity": "Toronto",
+        "countryCode": "CA"
+      },
+      "probabilities": {
+        "homeWin": 0.062374,
+        "draw": 0.13374,
+        "awayWin": 0.803886
+      },
+      "expectedGoals": {
+        "home": 0.5866,
+        "away": 2.5894
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 0,
+            "away": 3
+          },
+          "exactScoreProbability": 0.12036,
+          "familyProbability": 0.269284,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "low",
+          "reliability": 0.8438,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 3,
+              "probability": 0.12036
+            },
+            {
+              "home": 0,
+              "away": 4,
+              "probability": 0.07778
+            },
+            {
+              "home": 1,
+              "away": 3,
+              "probability": 0.071145
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 1,
+            "away": 2
+          },
+          "exactScoreProbability": 0.08257,
+          "familyProbability": 0.08257,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8438,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 2,
+              "probability": 0.08257
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 0,
+            "away": 2
+          },
+          "exactScoreProbability": 0.139688,
+          "familyProbability": 0.279788,
+          "supportingReasonCodes": [
+            "away_structural_edge",
+            "away_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.8438,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.139688
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.10808
+            },
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.024715
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.007305
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "0-1",
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "probability": 0.10808
+        },
+        {
+          "score": "0-4",
+          "homeGoals": 0,
+          "awayGoals": 4,
+          "probability": 0.07778
+        },
+        {
+          "score": "1-3",
+          "homeGoals": 1,
+          "awayGoals": 3,
+          "probability": 0.071145
+        },
+        {
+          "score": "1-1",
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "probability": 0.063886
+        },
+        {
+          "score": "1-4",
+          "homeGoals": 1,
+          "awayGoals": 4,
+          "probability": 0.045976
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "away_structural_edge",
+          "away_tournament_surge"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "structural_vs_current_disagreement"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Panama vs Croatia: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "favorite clear win (26.9%): representative score 0-3.",
+            "favorite narrow win (8.3%): representative score 1-2.",
+            "controlled low-total match (28%): representative score 0-2."
+          ],
+          "reasonLines": [
+            "Away side carries the stronger structural rating profile.",
+            "Away side has the stronger current-tournament evidence."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Panamá vs Croacia: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "victoria clara del favorito (26.9%): marcador representativo 0-3.",
+            "victoria corta del favorito (8.3%): marcador representativo 1-2.",
+            "partido controlado y de pocos goles (28%): marcador representativo 0-2."
+          ],
+          "reasonLines": [
+            "El visitante trae un perfil estructural de rating mas fuerte.",
+            "El visitante trae mejor evidencia del torneo actual."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "5e4b5138-a1f2-4edd-96ec-47629baa839f",
+      "matchSlug": "world-cup-2026-belgium-vs-iran-2026-06-21",
+      "officialMatchNumber": 39,
+      "kickoffAt": "2026-06-21T19:00:00+00:00",
+      "predictionIdentifier": "5e4b5138-a1f2-4edd-96ec-47629baa839f:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "f11a35e8-87f0-429e-bc3f-9bd43f5473e4",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "belgium",
+          "nameEn": "Belgium",
+          "nameEs": "Bélgica"
+        },
+        "away": {
+          "canonicalKey": "iran",
+          "nameEn": "Iran",
+          "nameEs": "Irán"
+        }
+      },
+      "venue": {
+        "venueKey": "los_angeles",
+        "venueName": "Los Angeles Stadium",
+        "cityEn": "Los Angeles",
+        "cityEs": "Los Ángeles",
+        "actualCity": "Inglewood",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.116281,
+        "draw": 0.171092,
+        "awayWin": 0.712627
+      },
+      "expectedGoals": {
+        "home": 0.8468,
+        "away": 2.3703
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 0,
+            "away": 2
+          },
+          "exactScoreProbability": 0.112541,
+          "familyProbability": 0.255974,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "low",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.112541
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.095007
+            },
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.034007
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.014419
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "underdog_clear_win",
+          "representativeScore": {
+            "home": 0,
+            "away": 3
+          },
+          "exactScoreProbability": 0.088874,
+          "familyProbability": 0.216876,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "underdog_surge",
+            "favorite_collapse"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 0,
+              "away": 3,
+              "probability": 0.088874
+            },
+            {
+              "home": 1,
+              "away": 3,
+              "probability": 0.075365
+            },
+            {
+              "home": 0,
+              "away": 4,
+              "probability": 0.052638
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "open_high_scoring_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 4
+          },
+          "exactScoreProbability": 0.044637,
+          "familyProbability": 0.211563,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "open_transitions",
+            "high_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.81,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 4,
+              "probability": 0.044637
+            },
+            {
+              "home": 2,
+              "away": 3,
+              "probability": 0.031955
+            },
+            {
+              "home": 0,
+              "away": 5,
+              "probability": 0.024941
+            },
+            {
+              "home": 1,
+              "away": 5,
+              "probability": 0.02115
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "1-2",
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "probability": 0.095435
+        },
+        {
+          "score": "0-1",
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "probability": 0.095007
+        },
+        {
+          "score": "1-1",
+          "homeGoals": 1,
+          "awayGoals": 1,
+          "probability": 0.080566
+        },
+        {
+          "score": "1-3",
+          "homeGoals": 1,
+          "awayGoals": 3,
+          "probability": 0.075365
+        },
+        {
+          "score": "0-4",
+          "homeGoals": 0,
+          "awayGoals": 4,
+          "probability": 0.052638
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_structural_edge",
+          "home_recent_form_edge",
+          "home_tournament_surge"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "repeated_over_or_underperformance",
+          "structural_vs_current_disagreement"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Belgium vs Iran: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "controlled low-total match (25.6%): representative score 0-2.",
+            "underdog clear win (21.7%): representative score 0-3.",
+            "open high-scoring match (21.2%): representative score 1-4."
+          ],
+          "reasonLines": [
+            "Home side carries the stronger structural rating profile.",
+            "Home side arrives in the better recent form window.",
+            "Home side has the stronger current-tournament evidence."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Bélgica vs Irán: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "partido controlado y de pocos goles (25.6%): marcador representativo 0-2.",
+            "victoria clara del no favorito (21.7%): marcador representativo 0-3.",
+            "partido abierto y de muchos goles (21.2%): marcador representativo 1-4."
+          ],
+          "reasonLines": [
+            "El local trae un perfil estructural de rating mas fuerte.",
+            "El local llega con mejor forma reciente.",
+            "El local trae mejor evidencia del torneo actual."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "90984bad-656e-466e-9f20-d1ec58c41144",
+      "matchSlug": "world-cup-2026-france-vs-iraq-2026-06-22",
+      "officialMatchNumber": 42,
+      "kickoffAt": "2026-06-22T21:00:00+00:00",
+      "predictionIdentifier": "90984bad-656e-466e-9f20-d1ec58c41144:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "bb1557a5-e78b-42af-be6e-6363367ecc6b",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "france",
+          "nameEn": "France",
+          "nameEs": "Francia"
+        },
+        "away": {
+          "canonicalKey": "iraq",
+          "nameEn": "Iraq",
+          "nameEs": "Irak"
+        }
+      },
+      "venue": {
+        "venueKey": "philadelphia",
+        "venueName": "Philadelphia Stadium",
+        "cityEn": "Philadelphia",
+        "cityEs": "Filadelfia",
+        "actualCity": "Philadelphia",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.428024,
+        "draw": 0.261006,
+        "awayWin": 0.31097
+      },
+      "expectedGoals": {
+        "home": 1.4292,
+        "away": 1.1784
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.105306,
+          "familyProbability": 0.318666,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.105306
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.086908
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.07522
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.051232
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "low_scoring_draw",
+          "representativeScore": {
+            "home": 1,
+            "away": 1
+          },
+          "exactScoreProbability": 0.124156,
+          "familyProbability": 0.197869,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "suppressed_chance_quality",
+            "defensive_resistance"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 1,
+              "probability": 0.124156
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "probability": 0.073713
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "open_high_scoring_match",
+          "representativeScore": {
+            "home": 3,
+            "away": 2
+          },
+          "exactScoreProbability": 0.024896,
+          "familyProbability": 0.112746,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "open_transitions",
+            "high_total_script"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 2,
+              "probability": 0.024896
+            },
+            {
+              "home": 2,
+              "away": 3,
+              "probability": 0.020546
+            },
+            {
+              "home": 4,
+              "away": 1,
+              "probability": 0.015083
+            },
+            {
+              "home": 4,
+              "away": 2,
+              "probability": 0.008891
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "2-1",
+          "homeGoals": 2,
+          "awayGoals": 1,
+          "probability": 0.088685
+        },
+        {
+          "score": "0-1",
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "probability": 0.086908
+        },
+        {
+          "score": "2-0",
+          "homeGoals": 2,
+          "awayGoals": 0,
+          "probability": 0.07522
+        },
+        {
+          "score": "0-0",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "probability": 0.073713
+        },
+        {
+          "score": "1-2",
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "probability": 0.07319
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_structural_edge",
+          "home_recent_form_edge",
+          "home_tournament_surge"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "structural_vs_current_disagreement"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "France vs Iraq: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "controlled low-total match (31.9%): representative score 1-0.",
+            "low-scoring draw (19.8%): representative score 1-1.",
+            "open high-scoring match (11.3%): representative score 3-2."
+          ],
+          "reasonLines": [
+            "Home side carries the stronger structural rating profile.",
+            "Home side arrives in the better recent form window.",
+            "Home side has the stronger current-tournament evidence."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Francia vs Irak: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "partido controlado y de pocos goles (31.9%): marcador representativo 1-0.",
+            "empate de pocos goles (19.8%): marcador representativo 1-1.",
+            "partido abierto y de muchos goles (11.3%): marcador representativo 3-2."
+          ],
+          "reasonLines": [
+            "El local trae un perfil estructural de rating mas fuerte.",
+            "El local llega con mejor forma reciente.",
+            "El local trae mejor evidencia del torneo actual."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "matchSlug": "world-cup-2026-portugal-vs-uzbekistan-2026-06-23",
+      "officialMatchNumber": 47,
+      "kickoffAt": "2026-06-23T17:00:00+00:00",
+      "predictionIdentifier": "b6bf39f7-8448-4249-b0b5-e0d031de15bb:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "0e2a0df2-efe2-474a-9ed3-a1df30d7ed45",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "portugal",
+          "nameEn": "Portugal",
+          "nameEs": "Portugal"
+        },
+        "away": {
+          "canonicalKey": "uzbekistan",
+          "nameEn": "Uzbekistan",
+          "nameEs": "Uzbekistán"
+        }
+      },
+      "venue": {
+        "venueKey": "houston",
+        "venueName": "Houston Stadium",
+        "cityEn": "Houston",
+        "cityEs": "Houston",
+        "actualCity": "Houston",
+        "countryCode": "US"
+      },
+      "probabilities": {
+        "homeWin": 0.50217,
+        "draw": 0.251134,
+        "awayWin": 0.246696
+      },
+      "expectedGoals": {
+        "home": 1.5853,
+        "away": 1.0314
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.114776,
+          "familyProbability": 0.321185,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8213,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.114776
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.090208
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.076318
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.039884
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "low_scoring_draw",
+          "representativeScore": {
+            "home": 1,
+            "away": 1
+          },
+          "exactScoreProbability": 0.119964,
+          "familyProbability": 0.192981,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "suppressed_chance_quality",
+            "defensive_resistance"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8213,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 1,
+              "probability": 0.119964
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "probability": 0.073017
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "favorite_clear_win",
+          "representativeScore": {
+            "home": 3,
+            "away": 1
+          },
+          "exactScoreProbability": 0.049402,
+          "familyProbability": 0.115243,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_recent_form_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "conversion_edge"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.8213,
+          "relatedScorelines": [
+            {
+              "home": 3,
+              "away": 1,
+              "probability": 0.049402
+            },
+            {
+              "home": 3,
+              "away": 0,
+              "probability": 0.047266
+            },
+            {
+              "home": 4,
+              "away": 0,
+              "probability": 0.018574
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "2-1",
+          "homeGoals": 2,
+          "awayGoals": 1,
+          "probability": 0.094286
+        },
+        {
+          "score": "2-0",
+          "homeGoals": 2,
+          "awayGoals": 0,
+          "probability": 0.090208
+        },
+        {
+          "score": "0-1",
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "probability": 0.076318
+        },
+        {
+          "score": "0-0",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "probability": 0.073017
+        },
+        {
+          "score": "1-2",
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "probability": 0.062693
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_structural_edge",
+          "home_recent_form_edge",
+          "home_tournament_surge"
+        ],
+        "contradictingReasonCodes": [],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "structural_vs_current_disagreement"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Portugal vs Uzbekistan: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "controlled low-total match (32.1%): representative score 1-0.",
+            "low-scoring draw (19.3%): representative score 1-1.",
+            "favorite clear win (11.5%): representative score 3-1."
+          ],
+          "reasonLines": [
+            "Home side carries the stronger structural rating profile.",
+            "Home side arrives in the better recent form window.",
+            "Home side has the stronger current-tournament evidence."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Portugal vs Uzbekistán: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "partido controlado y de pocos goles (32.1%): marcador representativo 1-0.",
+            "empate de pocos goles (19.3%): marcador representativo 1-1.",
+            "victoria clara del favorito (11.5%): marcador representativo 3-1."
+          ],
+          "reasonLines": [
+            "El local trae un perfil estructural de rating mas fuerte.",
+            "El local llega con mejor forma reciente.",
+            "El local trae mejor evidencia del torneo actual."
+          ]
+        }
+      }
+    },
+    {
+      "fixtureId": "0e31f8a1-5e00-4b25-a994-f95c90229aa0",
+      "matchSlug": "world-cup-2026-colombia-vs-congo-dr-2026-06-24",
+      "officialMatchNumber": 48,
+      "kickoffAt": "2026-06-24T02:00:00+00:00",
+      "predictionIdentifier": "0e31f8a1-5e00-4b25-a994-f95c90229aa0:v1_probability_v2_analysis",
+      "currentPredictionVersionId": "dec4f19e-9d38-473a-856c-34a0ffb1f587",
+      "candidateIdentifier": "v1_probability_v2_analysis",
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "teams": {
+        "home": {
+          "canonicalKey": "colombia",
+          "nameEn": "Colombia",
+          "nameEs": "Colombia"
+        },
+        "away": {
+          "canonicalKey": "dr_congo",
+          "nameEn": "DR Congo",
+          "nameEs": "RD del Congo"
+        }
+      },
+      "venue": {
+        "venueKey": "guadalajara",
+        "venueName": "Estadio Guadalajara",
+        "cityEn": "Guadalajara",
+        "cityEs": "Guadalajara",
+        "actualCity": "Zapopan",
+        "countryCode": "MX"
+      },
+      "probabilities": {
+        "homeWin": 0.375908,
+        "draw": 0.294471,
+        "awayWin": 0.329622
+      },
+      "expectedGoals": {
+        "home": 1.1235,
+        "away": 1.0323
+      },
+      "scenarios": [
+        {
+          "scenarioType": "main",
+          "familyCode": "controlled_low_total_match",
+          "representativeScore": {
+            "home": 1,
+            "away": 0
+          },
+          "exactScoreProbability": 0.128558,
+          "familyProbability": 0.384301,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [
+            "balanced_recent_form"
+          ],
+          "requiredMatchScriptCodes": [
+            "few_big_chances",
+            "low_total_script"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 0,
+              "probability": 0.128558
+            },
+            {
+              "home": 0,
+              "away": 1,
+              "probability": 0.121067
+            },
+            {
+              "home": 2,
+              "away": 0,
+              "probability": 0.071375
+            },
+            {
+              "home": 0,
+              "away": 2,
+              "probability": 0.0633
+            }
+          ]
+        },
+        {
+          "scenarioType": "supporting",
+          "familyCode": "low_scoring_draw",
+          "representativeScore": {
+            "home": 1,
+            "away": 1
+          },
+          "exactScoreProbability": 0.134433,
+          "familyProbability": 0.250209,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [
+            "balanced_recent_form"
+          ],
+          "requiredMatchScriptCodes": [
+            "suppressed_chance_quality",
+            "defensive_resistance"
+          ],
+          "riskLevel": "medium",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 1,
+              "away": 1,
+              "probability": 0.134433
+            },
+            {
+              "home": 0,
+              "away": 0,
+              "probability": 0.115776
+            }
+          ]
+        },
+        {
+          "scenarioType": "risk",
+          "familyCode": "favorite_narrow_win",
+          "representativeScore": {
+            "home": 2,
+            "away": 1
+          },
+          "exactScoreProbability": 0.074637,
+          "familyProbability": 0.074637,
+          "supportingReasonCodes": [
+            "home_structural_edge",
+            "home_tournament_surge"
+          ],
+          "contradictingReasonCodes": [
+            "balanced_recent_form"
+          ],
+          "requiredMatchScriptCodes": [
+            "favorite_control",
+            "limited_margin"
+          ],
+          "riskLevel": "high",
+          "reliability": 0.8325,
+          "relatedScorelines": [
+            {
+              "home": 2,
+              "away": 1,
+              "probability": 0.074637
+            }
+          ]
+        }
+      ],
+      "additionalScorelines": [
+        {
+          "score": "0-1",
+          "homeGoals": 0,
+          "awayGoals": 1,
+          "probability": 0.121067
+        },
+        {
+          "score": "0-0",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "probability": 0.115776
+        },
+        {
+          "score": "2-0",
+          "homeGoals": 2,
+          "awayGoals": 0,
+          "probability": 0.071375
+        },
+        {
+          "score": "1-2",
+          "homeGoals": 1,
+          "awayGoals": 2,
+          "probability": 0.070288
+        },
+        {
+          "score": "0-2",
+          "homeGoals": 0,
+          "awayGoals": 2,
+          "probability": 0.0633
+        }
+      ],
+      "publicEvidenceSummary": {
+        "sourceSnapshotReferences": [
+          "elo-current-2026-06-20",
+          "elo-results-2025",
+          "elo-results-recent-2026-06-20",
+          "elo-start-2026",
+          "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+        ],
+        "reasonCodes": [
+          "home_structural_edge",
+          "home_tournament_surge"
+        ],
+        "contradictingReasonCodes": [
+          "balanced_recent_form"
+        ],
+        "activatedGates": [
+          "current_tournament_form",
+          "defensive_overperformance",
+          "repeated_over_or_underperformance"
+        ],
+        "coherenceWarnings": []
+      },
+      "explanationPreviews": {
+        "en": {
+          "locale": "en",
+          "summary": "Colombia vs DR Congo: pre-match read with three auditable match paths.",
+          "scenarioLines": [
+            "controlled low-total match (38.4%): representative score 1-0.",
+            "low-scoring draw (25%): representative score 1-1.",
+            "favorite narrow win (7.5%): representative score 2-1."
+          ],
+          "reasonLines": [
+            "Home side carries the stronger structural rating profile.",
+            "Home side has the stronger current-tournament evidence.",
+            "Recent form is fairly balanced."
+          ]
+        },
+        "es": {
+          "locale": "es",
+          "summary": "Colombia vs RD del Congo: lectura previa con tres rutas de partido y razones auditables.",
+          "scenarioLines": [
+            "partido controlado y de pocos goles (38.4%): marcador representativo 1-0.",
+            "empate de pocos goles (25%): marcador representativo 1-1.",
+            "victoria corta del favorito (7.5%): marcador representativo 2-1."
+          ],
+          "reasonLines": [
+            "El local trae un perfil estructural de rating mas fuerte.",
+            "El local trae mejor evidencia del torneo actual.",
+            "La forma reciente esta bastante equilibrada."
+          ]
+        }
+      }
+    }
+  ]
+}

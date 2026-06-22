@@ -1,0 +1,932 @@
+[
+  {
+    "fixture": "Germany vs Curaçao",
+    "official_match_number": 10,
+    "cutoff_at_utc": "2026-06-14T17:00:00Z",
+    "canonical_home_team_key": "germany",
+    "canonical_away_team_key": "curacao",
+    "actual_result": {
+      "scoreline": "7-1",
+      "winner": "Germany",
+      "source": "historical_fact"
+    },
+    "home_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-14T17:00:00Z",
+      "canonical_team_key": "germany",
+      "display_name_en": "Germany",
+      "display_name_es": "Alemania",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 14,
+        "world_cup_current": 0
+      },
+      "recent_form": {
+        "last_5_points_per_match": 3,
+        "last_10_points_per_match": 2.7,
+        "last_20_points_per_match": 2.2143,
+        "last_20_wins": 10,
+        "last_20_draws": 1,
+        "last_20_losses": 3,
+        "goals_for_per_match": 2.4286,
+        "goals_against_per_match": 1.1429,
+        "goal_difference_per_match": 1.2857
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 1910,
+        "fifa_points": 1760.46,
+        "fifa_rank": 8,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 0,
+        "goals_against": 0,
+        "scoring_rate": 0,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 0,
+        "over_under_performance": 0
+      },
+      "attack": {
+        "scoring_match_rate": 0.8571,
+        "failed_to_score_rate": 0.1429,
+        "two_plus_scored_rate": 0.7143,
+        "btts_rate": 0.5,
+        "over_2_5_rate": 0.7143
+      },
+      "defense": {
+        "clean_sheet_rate": 0.3571,
+        "under_2_5_rate": 0.2857,
+        "two_plus_conceded_rate": 0.3571,
+        "official_matches": 10,
+        "friendly_matches": 4,
+        "home_matches": 8,
+        "away_matches": 5,
+        "neutral_matches": 1
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1707.6429,
+        "strength_of_schedule": 1707.6429,
+        "result_vs_elo_expectation": 0.0149,
+        "volatility": 0.2808
+      },
+      "reliability": {
+        "sample_reliability": 0.7,
+        "world_cup_sample_reliability": 0,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 63.79,
+        "baseline_structural_strength": 87.14,
+        "recent_opponent_adjusted_form": 64.13,
+        "tournament_current_form": 0,
+        "attack": 80.95,
+        "defense": 61.9,
+        "conversion_and_failed_to_score_risk": 85.71,
+        "performance_vs_expectation": 50.99,
+        "reliability": 70
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    },
+    "away_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-14T17:00:00Z",
+      "canonical_team_key": "curacao",
+      "display_name_en": "Curaçao",
+      "display_name_es": "Curazao",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 16,
+        "world_cup_current": 0
+      },
+      "recent_form": {
+        "last_5_points_per_match": 0.8,
+        "last_10_points_per_match": 1.5,
+        "last_20_points_per_match": 1.4375,
+        "last_20_wins": 6,
+        "last_20_draws": 5,
+        "last_20_losses": 5,
+        "goals_for_per_match": 1.875,
+        "goals_against_per_match": 1.25,
+        "goal_difference_per_match": 0.625
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 1466,
+        "fifa_points": 1299.41,
+        "fifa_rank": 81,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 0,
+        "goals_against": 0,
+        "scoring_rate": 0,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 0,
+        "over_under_performance": 0
+      },
+      "attack": {
+        "scoring_match_rate": 0.6875,
+        "failed_to_score_rate": 0.3125,
+        "two_plus_scored_rate": 0.375,
+        "btts_rate": 0.4375,
+        "over_2_5_rate": 0.5
+      },
+      "defense": {
+        "clean_sheet_rate": 0.4375,
+        "under_2_5_rate": 0.5,
+        "two_plus_conceded_rate": 0.375,
+        "official_matches": 13,
+        "friendly_matches": 3,
+        "home_matches": 5,
+        "away_matches": 5,
+        "neutral_matches": 6
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1431.4375,
+        "strength_of_schedule": 1431.4375,
+        "result_vs_elo_expectation": 0.0666,
+        "volatility": 0.2605
+      },
+      "reliability": {
+        "sample_reliability": 0.8,
+        "world_cup_sample_reliability": 0,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 39.12,
+        "baseline_structural_strength": 23.71,
+        "recent_opponent_adjusted_form": 33.54,
+        "tournament_current_form": 0,
+        "attack": 62.5,
+        "defense": 58.33,
+        "conversion_and_failed_to_score_risk": 68.75,
+        "performance_vs_expectation": 54.44,
+        "reliability": 80
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    }
+  },
+  {
+    "fixture": "Spain vs Cape Verde",
+    "official_match_number": 14,
+    "cutoff_at_utc": "2026-06-15T16:00:00Z",
+    "canonical_home_team_key": "spain",
+    "canonical_away_team_key": "cape_verde",
+    "actual_result": {
+      "scoreline": "0-0",
+      "winner": "Draw",
+      "source": "historical_fact"
+    },
+    "home_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-15T16:00:00Z",
+      "canonical_team_key": "spain",
+      "display_name_en": "Spain",
+      "display_name_es": "España",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 14,
+        "world_cup_current": 0
+      },
+      "recent_form": {
+        "last_5_points_per_match": 1.8,
+        "last_10_points_per_match": 2.4,
+        "last_20_points_per_match": 2.1429,
+        "last_20_wins": 8,
+        "last_20_draws": 6,
+        "last_20_losses": 0,
+        "goals_for_per_match": 2.8571,
+        "goals_against_per_match": 1.0714,
+        "goal_difference_per_match": 1.7857
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 2172,
+        "fifa_points": 1856.03,
+        "fifa_rank": 3,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 0,
+        "goals_against": 0,
+        "scoring_rate": 0,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 0,
+        "over_under_performance": 0
+      },
+      "attack": {
+        "scoring_match_rate": 0.9286,
+        "failed_to_score_rate": 0.0714,
+        "two_plus_scored_rate": 0.8571,
+        "btts_rate": 0.5,
+        "over_2_5_rate": 0.7857
+      },
+      "defense": {
+        "clean_sheet_rate": 0.5,
+        "under_2_5_rate": 0.2143,
+        "two_plus_conceded_rate": 0.3571,
+        "official_matches": 10,
+        "friendly_matches": 4,
+        "home_matches": 7,
+        "away_matches": 3,
+        "neutral_matches": 4
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1762.7857,
+        "strength_of_schedule": 1762.7857,
+        "result_vs_elo_expectation": -0.0906,
+        "volatility": 0.2025
+      },
+      "reliability": {
+        "sample_reliability": 0.7,
+        "world_cup_sample_reliability": 0,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 69.42,
+        "baseline_structural_strength": 100,
+        "recent_opponent_adjusted_form": 65.77,
+        "tournament_current_form": 0,
+        "attack": 95.24,
+        "defense": 64.29,
+        "conversion_and_failed_to_score_risk": 92.86,
+        "performance_vs_expectation": 43.96,
+        "reliability": 70
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    },
+    "away_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-15T16:00:00Z",
+      "canonical_team_key": "cape_verde",
+      "display_name_en": "Cape Verde",
+      "display_name_es": "Cabo Verde",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 15,
+        "world_cup_current": 0
+      },
+      "recent_form": {
+        "last_5_points_per_match": 1.6,
+        "last_10_points_per_match": 1.9,
+        "last_20_points_per_match": 2,
+        "last_20_wins": 8,
+        "last_20_draws": 6,
+        "last_20_losses": 1,
+        "goals_for_per_match": 1.8,
+        "goals_against_per_match": 0.8,
+        "goal_difference_per_match": 1
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 1561,
+        "fifa_points": null,
+        "fifa_rank": null,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 0,
+        "goals_against": 0,
+        "scoring_rate": 0,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 0,
+        "over_under_performance": 0
+      },
+      "attack": {
+        "scoring_match_rate": 0.9333,
+        "failed_to_score_rate": 0.0667,
+        "two_plus_scored_rate": 0.5333,
+        "btts_rate": 0.4667,
+        "over_2_5_rate": 0.4667
+      },
+      "defense": {
+        "clean_sheet_rate": 0.5333,
+        "under_2_5_rate": 0.5333,
+        "two_plus_conceded_rate": 0.1333,
+        "official_matches": 10,
+        "friendly_matches": 5,
+        "home_matches": 3,
+        "away_matches": 6,
+        "neutral_matches": 6
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1450.2667,
+        "strength_of_schedule": 1450.2667,
+        "result_vs_elo_expectation": 0.1663,
+        "volatility": 0.2657
+      },
+      "reliability": {
+        "sample_reliability": 0.75,
+        "world_cup_sample_reliability": 0,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 48.55,
+        "baseline_structural_strength": 37.29,
+        "recent_opponent_adjusted_form": 46.67,
+        "tournament_current_form": 0,
+        "attack": 60,
+        "defense": 73.33,
+        "conversion_and_failed_to_score_risk": 93.33,
+        "performance_vs_expectation": 61.09,
+        "reliability": 75
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    }
+  },
+  {
+    "fixture": "Brazil vs Morocco",
+    "official_match_number": 7,
+    "cutoff_at_utc": "2026-06-13T22:00:00Z",
+    "canonical_home_team_key": "brazil",
+    "canonical_away_team_key": "morocco",
+    "actual_result": {
+      "scoreline": "1-1",
+      "winner": "Draw",
+      "source": "historical_fact"
+    },
+    "home_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-13T22:00:00Z",
+      "canonical_team_key": "brazil",
+      "display_name_en": "Brazil",
+      "display_name_es": "Brasil",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 14,
+        "world_cup_current": 0
+      },
+      "recent_form": {
+        "last_5_points_per_match": 2,
+        "last_10_points_per_match": 1.9,
+        "last_20_points_per_match": 1.8571,
+        "last_20_wins": 8,
+        "last_20_draws": 2,
+        "last_20_losses": 4,
+        "goals_for_per_match": 2.0714,
+        "goals_against_per_match": 1.1429,
+        "goal_difference_per_match": 0.9286
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 1978,
+        "fifa_points": 1772.01,
+        "fifa_rank": 5,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 0,
+        "goals_against": 0,
+        "scoring_rate": 0,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 0,
+        "over_under_performance": 0
+      },
+      "attack": {
+        "scoring_match_rate": 0.8571,
+        "failed_to_score_rate": 0.1429,
+        "two_plus_scored_rate": 0.5714,
+        "btts_rate": 0.5714,
+        "over_2_5_rate": 0.6429
+      },
+      "defense": {
+        "clean_sheet_rate": 0.3571,
+        "under_2_5_rate": 0.3571,
+        "two_plus_conceded_rate": 0.2857,
+        "official_matches": 6,
+        "friendly_matches": 8,
+        "home_matches": 4,
+        "away_matches": 5,
+        "neutral_matches": 5
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1837,
+        "strength_of_schedule": 1837,
+        "result_vs_elo_expectation": -0.0391,
+        "volatility": 0.3575
+      },
+      "reliability": {
+        "sample_reliability": 0.7,
+        "world_cup_sample_reliability": 0,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 64.4,
+        "baseline_structural_strength": 96.86,
+        "recent_opponent_adjusted_form": 63.55,
+        "tournament_current_form": 0,
+        "attack": 69.05,
+        "defense": 61.9,
+        "conversion_and_failed_to_score_risk": 85.71,
+        "performance_vs_expectation": 47.39,
+        "reliability": 70
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    },
+    "away_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-13T22:00:00Z",
+      "canonical_team_key": "morocco",
+      "display_name_en": "Morocco",
+      "display_name_es": "Marruecos",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 20,
+        "world_cup_current": 0
+      },
+      "recent_form": {
+        "last_5_points_per_match": 2.2,
+        "last_10_points_per_match": 2.4,
+        "last_20_points_per_match": 2.6,
+        "last_20_wins": 16,
+        "last_20_draws": 4,
+        "last_20_losses": 0,
+        "goals_for_per_match": 2.2,
+        "goals_against_per_match": 0.35,
+        "goal_difference_per_match": 1.85
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 1840,
+        "fifa_points": 1769.98,
+        "fifa_rank": 6,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 0,
+        "goals_against": 0,
+        "scoring_rate": 0,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 0,
+        "over_under_performance": 0
+      },
+      "attack": {
+        "scoring_match_rate": 0.95,
+        "failed_to_score_rate": 0.05,
+        "two_plus_scored_rate": 0.55,
+        "btts_rate": 0.3,
+        "over_2_5_rate": 0.45
+      },
+      "defense": {
+        "clean_sheet_rate": 0.7,
+        "under_2_5_rate": 0.55,
+        "two_plus_conceded_rate": 0.05,
+        "official_matches": 12,
+        "friendly_matches": 8,
+        "home_matches": 10,
+        "away_matches": 1,
+        "neutral_matches": 9
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1505,
+        "strength_of_schedule": 1505,
+        "result_vs_elo_expectation": 0.0863,
+        "volatility": 0.1575
+      },
+      "reliability": {
+        "sample_reliability": 1,
+        "world_cup_sample_reliability": 0,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 65.5,
+        "baseline_structural_strength": 77.14,
+        "recent_opponent_adjusted_form": 60.97,
+        "tournament_current_form": 0,
+        "attack": 73.33,
+        "defense": 88.33,
+        "conversion_and_failed_to_score_risk": 95,
+        "performance_vs_expectation": 55.75,
+        "reliability": 100
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    }
+  },
+  {
+    "fixture": "Germany vs Ivory Coast",
+    "official_match_number": 33,
+    "cutoff_at_utc": "2026-06-20T20:00:00Z",
+    "canonical_home_team_key": "germany",
+    "canonical_away_team_key": "ivory_coast",
+    "actual_result": {
+      "scoreline": "2-1",
+      "winner": "Germany",
+      "source": "historical_fact"
+    },
+    "home_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-20T20:00:00Z",
+      "canonical_team_key": "germany",
+      "display_name_en": "Germany",
+      "display_name_es": "Alemania",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 15,
+        "world_cup_current": 1
+      },
+      "recent_form": {
+        "last_5_points_per_match": 3,
+        "last_10_points_per_match": 3,
+        "last_20_points_per_match": 2.2667,
+        "last_20_wins": 11,
+        "last_20_draws": 1,
+        "last_20_losses": 3,
+        "goals_for_per_match": 2.7333,
+        "goals_against_per_match": 1.1333,
+        "goal_difference_per_match": 1.6
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 1910,
+        "fifa_points": 1760.46,
+        "fifa_rank": 8,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 1,
+        "wins": 1,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 7,
+        "goals_against": 1,
+        "scoring_rate": 1,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 1434,
+        "over_under_performance": 0.0538
+      },
+      "attack": {
+        "scoring_match_rate": 0.8667,
+        "failed_to_score_rate": 0.1333,
+        "two_plus_scored_rate": 0.7333,
+        "btts_rate": 0.5333,
+        "over_2_5_rate": 0.7333
+      },
+      "defense": {
+        "clean_sheet_rate": 0.3333,
+        "under_2_5_rate": 0.2667,
+        "two_plus_conceded_rate": 0.3333,
+        "official_matches": 11,
+        "friendly_matches": 4,
+        "home_matches": 8,
+        "away_matches": 5,
+        "neutral_matches": 2
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1689.4,
+        "strength_of_schedule": 1689.4,
+        "result_vs_elo_expectation": 0.0175,
+        "volatility": 0.2657
+      },
+      "reliability": {
+        "sample_reliability": 0.75,
+        "world_cup_sample_reliability": 0.1429,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 79.41,
+        "baseline_structural_strength": 87.14,
+        "recent_opponent_adjusted_form": 64.25,
+        "tournament_current_form": 100,
+        "attack": 91.11,
+        "defense": 62.22,
+        "conversion_and_failed_to_score_risk": 86.67,
+        "performance_vs_expectation": 51.17,
+        "reliability": 75
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    },
+    "away_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-20T20:00:00Z",
+      "canonical_team_key": "ivory_coast",
+      "display_name_en": "Ivory Coast",
+      "display_name_es": "Costa de Marfil",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 17,
+        "world_cup_current": 1
+      },
+      "recent_form": {
+        "last_5_points_per_match": 3,
+        "last_10_points_per_match": 2.5,
+        "last_20_points_per_match": 2.2941,
+        "last_20_wins": 12,
+        "last_20_draws": 3,
+        "last_20_losses": 2,
+        "goals_for_per_match": 1.6471,
+        "goals_against_per_match": 0.3529,
+        "goal_difference_per_match": 1.2941
+      },
+      "structural_strength": {
+        "current_elo": null,
+        "start_2026_elo": 1627,
+        "fifa_points": 1551.71,
+        "fifa_rank": 31,
+        "current_elo_rank": null,
+        "elo_trend_ytd": 0
+      },
+      "tournament_form": {
+        "matches": 1,
+        "wins": 1,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 1,
+        "goals_against": 0,
+        "scoring_rate": 1,
+        "clean_sheet_rate": 1,
+        "average_opponent_pre_match_elo": 1938,
+        "over_under_performance": 0.802
+      },
+      "attack": {
+        "scoring_match_rate": 0.7647,
+        "failed_to_score_rate": 0.2353,
+        "two_plus_scored_rate": 0.3529,
+        "btts_rate": 0.1765,
+        "over_2_5_rate": 0.2941
+      },
+      "defense": {
+        "clean_sheet_rate": 0.7059,
+        "under_2_5_rate": 0.7059,
+        "two_plus_conceded_rate": 0.0588,
+        "official_matches": 12,
+        "friendly_matches": 5,
+        "home_matches": 3,
+        "away_matches": 5,
+        "neutral_matches": 9
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1533.1765,
+        "strength_of_schedule": 1533.1765,
+        "result_vs_elo_expectation": 0.2183,
+        "volatility": 0.3653
+      },
+      "reliability": {
+        "sample_reliability": 0.85,
+        "world_cup_sample_reliability": 0.1429,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 67.09,
+        "baseline_structural_strength": 46.71,
+        "recent_opponent_adjusted_form": 55.52,
+        "tournament_current_form": 100,
+        "attack": 54.9,
+        "defense": 88.24,
+        "conversion_and_failed_to_score_risk": 76.47,
+        "performance_vs_expectation": 64.56,
+        "reliability": 85
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    }
+  },
+  {
+    "fixture": "Ecuador vs Curaçao",
+    "official_match_number": 34,
+    "cutoff_at_utc": "2026-06-21T00:00:00Z",
+    "canonical_home_team_key": "ecuador",
+    "canonical_away_team_key": "curacao",
+    "actual_result": {
+      "scoreline": "0-0",
+      "winner": "Draw",
+      "source": "api_football_refresh"
+    },
+    "home_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-21T00:00:00Z",
+      "canonical_team_key": "ecuador",
+      "display_name_en": "Ecuador",
+      "display_name_es": "Ecuador",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 15,
+        "world_cup_current": 1
+      },
+      "recent_form": {
+        "last_5_points_per_match": 1.6,
+        "last_10_points_per_match": 1.7,
+        "last_20_points_per_match": 1.6,
+        "last_20_wins": 5,
+        "last_20_draws": 9,
+        "last_20_losses": 1,
+        "goals_for_per_match": 0.9333,
+        "goals_against_per_match": 0.4667,
+        "goal_difference_per_match": 0.4667
+      },
+      "structural_strength": {
+        "current_elo": 1890,
+        "start_2026_elo": 1933,
+        "fifa_points": 1558.35,
+        "fifa_rank": 30,
+        "current_elo_rank": 13,
+        "elo_trend_ytd": -43
+      },
+      "tournament_form": {
+        "matches": 1,
+        "wins": 0,
+        "draws": 0,
+        "losses": 1,
+        "goals_for": 0,
+        "goals_against": 1,
+        "scoring_rate": 0,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 1695,
+        "over_under_performance": -0.802
+      },
+      "attack": {
+        "scoring_match_rate": 0.6,
+        "failed_to_score_rate": 0.4,
+        "two_plus_scored_rate": 0.2667,
+        "btts_rate": 0.4,
+        "over_2_5_rate": 0.2
+      },
+      "defense": {
+        "clean_sheet_rate": 0.5333,
+        "under_2_5_rate": 0.8,
+        "two_plus_conceded_rate": 0,
+        "official_matches": 7,
+        "friendly_matches": 8,
+        "home_matches": 3,
+        "away_matches": 5,
+        "neutral_matches": 7
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1773.8,
+        "strength_of_schedule": 1773.8,
+        "result_vs_elo_expectation": -0.0428,
+        "volatility": 0.2478
+      },
+      "reliability": {
+        "sample_reliability": 0.75,
+        "world_cup_sample_reliability": 0.1429,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 55.75,
+        "baseline_structural_strength": 84.29,
+        "recent_opponent_adjusted_form": 53.76,
+        "tournament_current_form": 0,
+        "attack": 31.11,
+        "defense": 84.44,
+        "conversion_and_failed_to_score_risk": 60,
+        "performance_vs_expectation": 47.15,
+        "reliability": 75
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    },
+    "away_signal": {
+      "signal_version": "prediction-intelligence-v2-task1",
+      "cutoff_at": "2026-06-21T00:00:00Z",
+      "canonical_team_key": "curacao",
+      "display_name_en": "Curaçao",
+      "display_name_es": "Curazao",
+      "sample_sizes": {
+        "last_5": 5,
+        "last_10": 10,
+        "last_20": 17,
+        "world_cup_current": 1
+      },
+      "recent_form": {
+        "last_5_points_per_match": 0.6,
+        "last_10_points_per_match": 1.4,
+        "last_20_points_per_match": 1.3529,
+        "last_20_wins": 6,
+        "last_20_draws": 5,
+        "last_20_losses": 6,
+        "goals_for_per_match": 1.8235,
+        "goals_against_per_match": 1.5882,
+        "goal_difference_per_match": 0.2353
+      },
+      "structural_strength": {
+        "current_elo": 1427,
+        "start_2026_elo": 1466,
+        "fifa_points": 1299.41,
+        "fifa_rank": 81,
+        "current_elo_rank": 94,
+        "elo_trend_ytd": -39
+      },
+      "tournament_form": {
+        "matches": 1,
+        "wins": 0,
+        "draws": 0,
+        "losses": 1,
+        "goals_for": 1,
+        "goals_against": 7,
+        "scoring_rate": 1,
+        "clean_sheet_rate": 0,
+        "average_opponent_pre_match_elo": 1932,
+        "over_under_performance": -0.0538
+      },
+      "attack": {
+        "scoring_match_rate": 0.7059,
+        "failed_to_score_rate": 0.2941,
+        "two_plus_scored_rate": 0.3529,
+        "btts_rate": 0.4706,
+        "over_2_5_rate": 0.5294
+      },
+      "defense": {
+        "clean_sheet_rate": 0.4118,
+        "under_2_5_rate": 0.4706,
+        "two_plus_conceded_rate": 0.4118,
+        "official_matches": 14,
+        "friendly_matches": 3,
+        "home_matches": 5,
+        "away_matches": 5,
+        "neutral_matches": 7
+      },
+      "performance_vs_expectation": {
+        "average_opponent_pre_match_elo": 1460.8824,
+        "strength_of_schedule": 1460.8824,
+        "result_vs_elo_expectation": 0.0595,
+        "volatility": 0.2483
+      },
+      "reliability": {
+        "sample_reliability": 0.85,
+        "world_cup_sample_reliability": 0.1429,
+        "resolved_confederation_support": 0
+      },
+      "diagnostic_effective_strength": {
+        "score": 36.2,
+        "baseline_structural_strength": 18.14,
+        "recent_opponent_adjusted_form": 31.57,
+        "tournament_current_form": 0,
+        "attack": 60.78,
+        "defense": 47.06,
+        "conversion_and_failed_to_score_risk": 70.59,
+        "performance_vs_expectation": 53.96,
+        "reliability": 85
+      },
+      "source_snapshot_ids": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20"
+      ]
+    }
+  }
+]

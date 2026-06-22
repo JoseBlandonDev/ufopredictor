@@ -1,162 +1,130 @@
 # G09 Frontend Commercial Readiness Plan - UFO Predictor
 
-_Created from the production visual audit on 2026-06-19._
+_Last refreshed: Prediction Intelligence v2 product handoff (2026-06-22)._
 
 ## Goal
 
-Make the current production product commercially coherent without altering model, payment, entitlement, or data-operation logic.
+Turn UFO's new data and analysis foundation into a truthful, differentiated, conversion-oriented experience without presenting the product as a fortune teller or exposing proprietary weights.
 
-## P0 — before paid acquisition
+## Dependency
 
-### G09.1 Pricing truth
+Do not begin broad v2 frontend implementation until Task 3B validates stage schema, data, signals, and immutable development predictions.
 
-Observed:
+## P0 - Prediction Intelligence presentation
 
-- public/admin UI displayed `20 USDT` with approximately `2.000 COP`;
-- the admin COP input also showed `2000`.
+### General statistical reading
 
-Required:
+Before exact scores, show:
 
-- owner confirms intended commercial price;
-- DB COP amount, label, public pricing, admin pricing, and Wompi checkout agree;
-- tests cover the exact amount passed to checkout;
-- remove stale hardcoded documentation examples.
+- statistical advantage;
+- main uncertainty/risk;
+- source cutoff;
+- overall reliability.
 
-### G09.2 Home freshness
+### Scenario cards
 
-Observed:
+Use three representative scenario families:
 
-- home highlights Mexico vs South Africa;
-- copy still says initial coverage and more fixtures will be enabled later.
+1. principal;
+2. risk/coverage;
+3. alternate.
 
-Required:
+A scenario includes:
 
-- dynamic or current featured fixture;
-- current coverage language;
-- avoid hardcoded opening-match copy;
-- current CTA to predictions/upcoming.
+- representative exact score;
+- exact-score probability;
+- family probability;
+- evidence supporting it;
+- evidence against it;
+- required match script;
+- reliability/sample warning.
 
-### G09.3 Truthful transparency copy
+Do not mechanically force one local, one draw, and one visitor scenario. Strong-favorite evidence may justify multiple favorite-win scenarios.
 
-Observed:
+### Full-distribution honesty
+
+Show additional plausible scores below the featured scenarios so users understand the model evaluates a matrix, not three guesses.
+
+## P0 - access segmentation
+
+### Anonymous
+
+- basic teaser;
+- limited fixture/reading;
+- registration CTA;
+- no premium evidence payload.
+
+### Registered free
+
+- basic 1X2;
+- confidence/risk;
+- limited current-form context;
+- premium CTA.
+
+### Premium
+
+- full scenarios;
+- evidence and contradictions;
+- FIFA/Elo/current form;
+- attack/defense/conversion;
+- opponent quality;
+- reliability and cutoff;
+- more score distribution;
+- post-match scenario evaluation.
+
+### Admin
+
+- provenance/source IDs;
+- gate/cap diagnostics;
+- review and publication controls;
+- internal-only alerts.
+
+## P0 - localization and venue truth
+
+- Spanish team/country names in public UI;
+- canonical identities remain locale-neutral;
+- English supported from same localization table;
+- future Portuguese requires rows/templates, not schema redesign;
+- confirmed official venue/city must never render `Por definir`.
+
+## P0 - truthful marketing
+
+Allowed:
+
+- probabilities, not certainties;
+- scenarios and evidence;
+- data aggregation and interpretation;
+- source/reliability transparency.
+
+Avoid:
+
+- guaranteed result;
+- “the highest percentage is the pick”;
+- “we predicted it” after any covered scenario;
+- material-accuracy claims not supported by metrics.
+
+Preferred post-match wording:
 
 ```text
-beta con calibración activa
+Se materializó uno de los escenarios contemplados.
 ```
 
-Required:
+## Existing commercial backlog retained
 
-- model calibration V0.1 is closed;
-- product remains in operational beta;
-- signals and data can be refreshed through versioned processes;
-- do not imply continuous formula tuning.
-
-### G09.4 Pricing/catalog simplification
-
-Observed:
-
-- active World Cup Pass;
-- future World Cup Full Pass;
-- a second World Cup Pass catalog card;
-- active and future states are visually mixed.
-
-Required:
-
-- one clear active product;
-- future catalog visibly secondary;
-- no duplicate naming;
-- exact entitlement and duration explained.
-
-## P1 — commercial clarity
-
-### G09.5 Spanish presentation consistency
-
-Translate display labels while preserving internal English identities:
-
-- team display names;
-- provider status;
-- alert labels;
-- risk labels;
-- scoreline/total-goals headings;
-- admin empty states;
-- export date labels.
-
-### G09.6 Dashboard access-state clarity
-
-Separate:
-
-- system role;
-- commercial plan;
-- admin bypass;
-- active entitlements;
-- match unlocks.
-
-Do not imply that an admin role equals premium purchase.
-
-### G09.7 Review Gate UI polish
-
-Required:
-
-- missing markets -> `No disponible`;
-- before shadow -> `Sin comparación todavía`;
-- translated alerts/status;
-- compact filters or collapsible sections;
-- clear decided/held/pending state.
-
-No model, schema, or generation changes.
-
-### G09.8 Admin empty states
-
-Result/Evaluation/Publish queues:
-
-- translate;
-- compact vertical space;
-- preserve clear success/empty status;
-- add direct navigation where useful.
-
-## P2 — quality pass
-
-### G09.9 Responsive/mobile
-
-Check:
-
-- navbar;
-- pricing grids;
-- prediction cards;
-- premium detail;
-- long admin review page;
-- tables;
-- horizontal overflow;
-- touch targets.
-
-### G09.10 Accessibility/performance handoff
-
-Coordinate with G12:
-
-- focus visibility;
-- keyboard navigation;
-- contrast;
-- heading hierarchy;
-- image dimensions;
-- LCP/CLS;
-- console errors.
+- pricing truth across DB/UI/Wompi;
+- home freshness;
+- catalog simplification;
+- role/plan/entitlement clarity;
+- Review Gate translation/empty states;
+- responsive/accessibility/performance;
+- cross-role/device smoke.
 
 ## Acceptance
 
-- pricing is commercially true;
-- home reflects current coverage;
-- transparency does not misstate calibration;
-- active product is unambiguous;
-- public UI is consistently Spanish;
-- admin role/plan/entitlement are distinguishable;
-- no payment, model, or data-operation regression.
-
-## Out of scope
-
-- model recalibration;
-- AI connection;
-- reviewed-xG publication;
-- Wompi architecture changes;
-- entitlement schema changes;
-- Real Fixture Lab refactor;
-- venue-data sourcing.
+- scenario/family distinction is understandable;
+- premium value is obvious without exposing weights;
+- anonymous/free/premium payloads are distinct server-side;
+- Spanish names/venues are correct;
+- no stale `Por definir` where official data exists;
+- no production/payment/access regression;
+- no claim that gated v2 materially beats v1.

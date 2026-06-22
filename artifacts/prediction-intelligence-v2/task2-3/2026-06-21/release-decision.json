@@ -1,0 +1,12 @@
+{
+  "analysisLayer": "release",
+  "probabilityEngine": "release_gated_v2",
+  "rationale": [
+    "operational_future_set_refreshed",
+    "no_fixture_level_human_review_required",
+    "all_future_runtime_drifts_explained",
+    "frozen_candidate_non_inferior_under_blocked_validation",
+    "venue_metadata_complete"
+  ],
+  "fixturesRequiringHumanReview": []
+}

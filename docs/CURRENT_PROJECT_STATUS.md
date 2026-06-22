@@ -1,118 +1,148 @@
 # Current Project Status - UFO Predictor
 
-_Last refreshed: post PR #99 Data Ops 06 / PR #98 Prediction Review Gate / PR #97 reproducible signal refresh (2026-06-19)._
+_Last refreshed: 2026-06-22, after Prediction Intelligence v2 Task 3A and stage environment separation._
 
 ## Executive status
 
-UFO Predictor is operational in production as a public prediction, premium analysis, payment, and partner-export product.
+UFO Predictor is live in production with the v1 product loop: public predictions, premium access, Wompi payment, entitlement activation, result operations, review tooling, and Torneo Mundialista export.
 
-The current baseline includes:
+A separate unmerged feature branch now contains Prediction Intelligence v2. It adds a durable football-intelligence data foundation and a richer analysis/scenario product layer. Its probability engine is a conservative gated challenger near statistical parity with v1, not a proven large accuracy jump.
 
-- public predictions and verified history;
-- premium model detail;
-- Wompi production checkout;
-- approved-webhook entitlement activation;
-- admin pricing controls;
-- focused fixture/result/evaluation queues;
-- reproducible national-team signals;
-- Prediction Review Gate;
-- complete Matchday 2 coverage;
-- Torneo Mundialista JSON delivery.
+## Branch and implementation state
 
-## Recent completed milestones
+Current feature branch:
 
-### PR #97 — reproducible signal refresh
+```text
+feature/prediction-intelligence-v2-data-foundation
+```
 
-- tracked 2026-06-19 source snapshot;
-- deterministic SIGNAL04 builder reconstruction;
-- generator and idempotence check;
-- validated FIFA/Elo/recent-form inputs;
-- no change to expected-goals, DRAW01, Poisson, or model weights.
+Latest Task 3A commit:
 
-### PR #98 — Prediction Review Gate
+```text
+6967fd6b22a49e23ab9963345f1a1437b1d6b668
+```
 
-- production migration applied;
-- four review tables with RLS;
-- API-Football revalidation;
-- shadow prediction generation;
-- refresh and Elo alerts;
-- human decision audit;
-- immutable publication lineage.
+The branch is pushed and clean at handoff.
 
-AI is not connected. Reviewed-xG remains preview-only.
+## Completed Prediction Intelligence v2 milestones
 
-### PR #99 — Data Ops 06 / Matchday 2
+| Milestone | Commit | Status |
+|---|---|---|
+| Task 1 data foundation | `bac8a287` | Complete |
+| Task 1.1 operational refresh/link correction | `dad82a50` | Complete |
+| Task 1.2 Elo timeline/replay readiness | `ebd7bdfe` | Complete |
+| Task 2 initial challenger evaluation | `7cd2ea25` | Complete, not promoted |
+| Task 2.1 candidate/neutral-context correction | `f0af755a` | Complete |
+| Task 2.2 gated high-confidence candidate | `cf28875f` | Complete, development candidate |
+| Task 2.3 current release review/export planning | `5d4bcade` | Complete |
+| Task 3A safe dry-run operational layer | `6967fd6b` | Complete |
 
-- 24/24 Group Stage - 2 fixtures;
-- 5 fixtures frozen;
-- 3 future fixtures regenerated;
-- 6 V2 internal predictions published;
-- 9 new immutable public versions;
-- idempotence passed;
-- final JSON delivered to Torneo.
+## Data foundation coverage
 
-## Torneo export state
+- 1,392 historical match facts;
+- 3,028 historical Elo timeline entries;
+- 244 Elo teams;
+- 211 FIFA ranking rows;
+- 104 official World Cup matches;
+- 72/72 group-stage links;
+- 32 knockout placeholders;
+- 16/16 venues;
+- 48/48 World Cup runtime teams resolved;
+- 36/36 completed product fixtures replay-ready.
 
-Final Matchday 2 artifact:
+## Model 2.0 result
 
-- `torneo-ufo-export-v1`;
-- 24 fixtures;
-- 24 unique IDs;
-- production URLs only;
-- complete BTTS and O/U 2.5;
-- no private/admin payloads.
+Selected bounded probability candidate:
 
-TM01 is done and operational.
+```text
+v1_plus_high_confidence_signals
+```
 
-## Model status
+Selected release candidate:
 
-Model calibration remains closed through PR #94.
+```text
+gated_v2_probability_v2_analysis
+```
 
-Fair stored metrics:
+Holdout comparison from Task 2.2:
 
-- 1X2: 16/28;
-- exact: 7/28;
-- BTTS: 16/27;
-- O/U 2.5: 16/28;
-- average total-goal error: 1.821.
+| Metric | Exact v1 | Gated v2 |
+|---|---:|---:|
+| Multiclass Brier | 0.188394 | 0.188427 |
+| Log loss | 0.952495 | 0.951756 |
+| Outcome accuracy | 0.611111 | 0.583333 |
+| Favorite accuracy | 0.583333 | 0.583333 |
+| Total-goals MAE | 1.495881 | 1.497097 |
+| Goal-difference MAE | 1.445492 | 1.468792 |
 
-The V2 signal refresh updated reproducible inputs, not model formulas.
+Interpretation: near parity. The log-loss movement is slightly favorable, while Brier, outcome accuracy, and goal-error metrics do not establish superiority. The probability candidate is suitable for controlled development testing, not for marketing as a breakthrough.
 
-## Epic G status
+## Scenario and analysis state
 
-- G01 Auth: done.
-- G02 config readiness: done.
-- G03 production smoke: partial/open.
-- G04 pricing/catalog: operational MVP, polish open.
-- G05 Wompi: production live.
-- G06 entitlements: done.
-- G07 premium active experience: done for MVP.
-- G08 trust/legal/truthful copy: partial/open.
-- G09 frontend commercial readiness: planned with P0 findings.
-- G10 PWA installability: planned.
-- G11 offline/update safety: optional/deferred.
-- G12 accessibility/performance: planned.
-- G13 cross-device smoke: planned.
-- G14 ownership coordination: required.
+The v2 analysis layer is the strongest product improvement. It supports:
 
-## Current risks and gaps
+- evidence-backed statistical reading;
+- representative scenario families;
+- full score-distribution context;
+- current-form and opponent-quality signals;
+- source provenance and cutoff;
+- supporting/contradicting facts;
+- post-match family/path evaluation;
+- Spanish/English localization architecture;
+- official venue/city metadata.
 
-1. Production pricing presentation shows an inconsistent USDT/COP relationship and needs owner confirmation.
-2. Home content is stale relative to current coverage.
-3. Transparency copy still says calibration is active.
-4. Pricing/catalog duplicates or ambiguously presents World Cup Pass.
-5. Dashboard copy mixes role, plan, and entitlement state.
-6. Review Gate has translation and empty/pre-shadow state issues.
-7. Real Fixture Lab exact-detail remains unstable.
-8. Signal refresh cadence is not defined.
-9. Refund/revocation operations remain incomplete.
+Three scorelines must not be framed as prophecy. They are representative terminal states of different match scripts.
 
-## Immediate next actions
+## Environment state
 
-1. monitor and process Matchday 2 results;
-2. prepare the next fixture runway;
-3. fix P0 pricing truth and home/transparency copy;
-4. execute the small Review Gate UI patch;
-5. complete G08/G03/refund operations;
-6. run responsive/accessibility/cross-device passes;
-7. define the next signal refresh trigger.
+### Production
+
+- `ufopredictor.com`;
+- production Supabase;
+- current live v1 baseline;
+- v2 branch not merged or published.
+
+### Development/stage
+
+- `stage.ufopredictor.com`;
+- separate Supabase `stage` project;
+- Auth registration/login verified;
+- development user intentionally separate from production;
+- public prediction queries unavailable until schema/data synchronization;
+- Task 3B requires a Git-ignored local credential input whose presence and structure must be validated in the active operator environment before execution;
+- stage is not yet schema-compatible with production/current code.
+
+## Task 3A result
+
+Task 3A implements dry-run tooling and blocks all unproven writes.
+
+Latest documented state:
+
+- candidate: `gated_v2_probability_v2_analysis`;
+- future release set: 8;
+- migration: `not_executed_no_safe_target`;
+- seed write: `not_executed_no_safe_target`;
+- physical validation: `pending_safe_development_target`.
+
+## Immediate next action
+
+Task 3B:
+
+1. remote read-only stage migration/schema audit;
+2. human review of synchronization plan;
+3. stage migration-chain synchronization;
+4. migration 0038;
+5. non-sensitive idempotent import;
+6. signals and immutable development predictions;
+7. Torneo development export;
+8. RLS/public/localization/venue/UI validation.
+
+## Current product gaps after Task 3B
+
+- premium scenario UI implementation;
+- anonymous/free/premium information segmentation;
+- public Spanish naming consistency;
+- English internationalization activation;
+- production promotion plan;
+- ongoing World Cup signal refresh cadence;
+- future v3 tournament-form/UFO-strength research.

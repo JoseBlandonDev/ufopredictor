@@ -1,58 +1,74 @@
 # Project Context - UFO Predictor
 
-_Last refreshed: post PR #99 documentation rebaseline (2026-06-19)._
+_Last refreshed: 2026-06-22._
 
 ## Product
 
-UFO Predictor publishes probabilistic World Cup football predictions with public, registered-free, premium, and admin layers.
+UFO Predictor is a football intelligence product that combines public football data, historical results, ratings, probabilistic modeling, scenario analysis, and natural-language explanation.
 
-It does not accept bets and does not guarantee results.
+It is not a sportsbook, does not accept bets, and does not guarantee outcomes.
 
-## Current baseline
+## Current technical state
 
-- model calibration closed through PR #94;
-- public history pagination through PR #96;
-- reproducible signal refresh through PR #97;
-- Prediction Review Gate through PR #98;
-- complete Matchday 2 export workflow through PR #99;
-- Wompi/G06/G07 production premium loop operational;
-- final 24-fixture JSON delivered to Torneo.
+Production runs the established v1 product loop.
 
-## Working principles
+The current feature branch contains Prediction Intelligence v2 through Task 3A:
 
-- stored pre-match prediction is immutable historical evidence;
-- signal refresh is not model recalibration;
-- exact provider status gates writes;
-- public and internal data stay separated;
-- payments authorize through entitlements;
-- repetitive API and batch operations belong in console/scripts;
-- Codex handles architecture, implementation, tests, and complex review.
+- normalized FIFA/Elo/results/schedule sources;
+- durable analytical schema;
+- historical replay;
+- conservative gated probability candidate;
+- v2 scenario/evidence layer;
+- immutable release/export planning;
+- production-safe dry-run tooling.
 
-## Current parallel tracks
+Task 3B stage synchronization is next.
 
-### Data operations
+## Core product shift
 
-- Matchday 2 result monitoring;
-- next runway preparation;
-- export regeneration when required.
+Old presentation risk:
 
-### Epic G frontend/commercial
+```text
+three exact scores that look like guesses or prophecies
+```
 
-- pricing truth;
-- home freshness;
-- transparency copy;
-- catalog simplification;
-- Review Gate polish;
-- role/plan/entitlement clarity;
-- responsive/accessibility/smoke.
+Target presentation:
 
-## Guardrails
+```text
+statistical reading
++ principal scenario
++ risk/coverage scenario
++ alternate scenario
++ evidence, contradictions, reliability, and source cutoff
+```
 
-No:
+The user should understand why a favorite is favored, why a draw is plausible, and what an underdog path would require.
 
-- post-result prediction rewriting;
-- provider predictions/odds as model inputs;
-- Torneo picks as model inputs;
-- public internal evaluation payloads;
-- client secrets;
-- combined model/payment/frontend mega-slices.
+## Data strategy
+
+Build and maintain UFO's own durable database of:
+
+- canonical teams and localizations;
+- FIFA/Elo snapshots;
+- historical match facts;
+- current tournament results;
+- opponent quality;
+- attack/defense/conversion;
+- official schedule/venues;
+- signal snapshots and provenance.
+
+New results append or correct history; they do not trigger full-history redownloads. Recompute only affected teams/signals when practical.
+
+## Current model truth
+
+The gated v2 probability engine is near parity with v1. The main approved improvement is the analysis layer. Future v3 research may increase tournament-current weighting after a larger clean sample.
+
+## Environments
+
+- production: live user/payment data;
+- stage: separate Auth/database for migration, data, prediction, export, and UI validation;
+- no production user/payment cloning into stage.
+
+## Immediate next task
+
+Task 3B read-only stage parity audit, followed by authorized synchronization and validation after human review.
