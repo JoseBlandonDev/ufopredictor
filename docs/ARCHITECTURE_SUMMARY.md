@@ -1,152 +1,190 @@
 # Architecture Summary - UFO Predictor
 
-_Last refreshed: post PR #99 Data Ops 06 / PR #98 Prediction Review Gate / PR #97 reproducible signal refresh (2026-06-19)._
+_Last refreshed: Prediction Intelligence v2 Task 3A handoff (2026-06-22)._
 
-## System boundaries
-
-UFO Predictor separates five concerns:
-
-1. public prediction products;
-2. premium public-safe projections;
-3. internal/admin review and evaluation;
-4. exact fixture ingest and publication operations;
-5. payment and entitlement state.
-
-Public surfaces must never expose `prediction_results`, raw Lab payloads, internal evaluations, service-role data, payment secrets, provider predictions/odds, or Torneo user picks.
-
-## Public product surfaces
-
-- `/`: public landing page.
-- `/predictions`: active/upcoming predictions plus a bounded recent-results section.
-- `/predictions/upcoming`: expanded upcoming view.
-- `/predictions/history`: paginated verified history.
-- `/matches/[slug]`: public match detail.
-- Protected premium detail: xG, top scorelines, BTTS, O/U 2.5, confidence, and risk.
-
-UIHISTORY01 is implemented through PR #96. The prediction list no longer depends on loading unlimited history into the main page.
-
-## Model architecture
-
-### Closed model baseline
-
-PR #94 remains the accepted model closeout:
-
-- SIGNAL04 retained;
-- DRAW01 retained;
-- `expected-goals.ts` unchanged;
-- rejected XG01A and signal rollback candidates remain rejected.
-
-The 2026-06-19 signal refresh did not reopen model calibration.
-
-### Reproducible signal layer
-
-PR #97 introduced a tracked source snapshot under:
+## System overview
 
 ```text
-data/prediction-engine/national-team-signals/2026-06-19/
+Public/registered/premium/admin UI
+        |
+Next.js server routes and protected projections
+        |
+Supabase Auth + Postgres + RLS
+        |
+Operational football data + Prediction Intelligence v2 analytical layer
+        |
+API-Football / FIFA / World Football Elo / official schedule snapshots
 ```
 
-Runtime continues to consume the generated static TypeScript signal pack only.
-
-The source layer includes:
-
-- validated FIFA metadata;
-- Elo ratings;
-- recent-result aggregates;
-- fixture Elo coherence data;
-- Spanish/English display-name metadata;
-- source manifest and quality report;
-- deterministic generator and idempotence check.
-
-Raw HTML/CSV are source/audit inputs, not runtime dependencies.
-
-## Prediction Review Gate
-
-PR #98 added `/admin/prediction-refresh-review`.
-
-Review artifacts are isolated from normal public prediction versions:
-
-- `prediction_review_cases`;
-- `prediction_review_snapshots`;
-- `prediction_review_ai_executions`;
-- `prediction_review_decisions`.
-
-The gate supports:
-
-- provider revalidation through API-Football;
-- deterministic shadow prediction generation;
-- refresh-delta alerts;
-- Elo coherence alerts;
-- auditable human decisions;
-- immutable publication lineage.
-
-AI is not connected. Reviewed-xG remains preview-only.
-
-## Data Ops 06 and batch publication
-
-PR #99 added a controlled Matchday 2 workflow with dry-run/write behavior and idempotence.
-
-Final Group Stage - 2 state:
-
-- 24 unique fixtures;
-- 5 frozen because they were finished, live, or kickoff-passed;
-- 3 future fixtures regenerated with V2 signals;
-- 6 existing V2 internal predictions promoted through safe publication;
-- 9 immutable public versions created;
-- post-write rerun produced no additional writes.
-
-## Torneo Mundialista integration
-
-TM01 is operational.
-
-The admin export and batch export use contract:
+## Environment separation
 
 ```text
-torneo-ufo-export-v1
+ufopredictor.com       -> Railway production  -> production Supabase
+stage.ufopredictor.com -> Railway desarrollo  -> Supabase stage
 ```
 
-The delivered Matchday 2 file contains:
+Production and stage are separate Auth and database universes. Users, sessions, profiles, and entitlements do not automatically copy between them.
 
-- 24 unique fixtures;
-- production UFO links;
-- 1X2;
-- xG;
-- modal and top scorelines;
-- confidence/risk;
-- BTTS;
-- O/U 2.5;
-- no private review or evaluation payloads.
+## Existing product architecture
 
-Torneo human picks do not enter the UFO model.
+### Auth and access
 
-## API-Football operations
+- Supabase Auth;
+- public, registered-free, premium, and admin projection layers;
+- entitlements authorize premium access;
+- subscriptions/payment rows alone do not reveal protected content;
+- admin bypass is explicit and server-side.
 
-Preferred approach:
+### Payments
 
-- use console for repetitive reads, inventories, and dry-runs;
-- use exact fixture or exact round selection;
-- revalidate provider state before writes;
-- freeze live, finished, or kickoff-passed fixtures;
-- never broad-apply unknown fixtures.
+- Wompi checkout;
+- approved webhook validation;
+- entitlement activation ledger;
+- idempotent grants;
+- redirect is informational only.
 
-## Payment and entitlement architecture
+### Prediction publication
 
-G05/G06/G07 production baseline:
+- predictions are immutable historical records;
+- new publication creates a new version and predecessor lineage;
+- live/finished/kickoff-passed fixtures are frozen;
+- public-safe projections stay separate from internal evaluation/review payloads.
+
+## Prediction Intelligence v2 data foundation
+
+Migration:
 
 ```text
-Wompi APPROVED webhook
--> validated event
--> entitlement_grant
--> user_entitlement or user_match_unlock
--> premium-active presentation
+0038_prediction_intelligence_v2_data_foundation.sql
 ```
 
-Redirects and client assertions do not activate premium. `subscriptions` is commercial context, not authorization.
+Analytical tables:
 
-## Known architectural follow-ups
+- `source_snapshots`;
+- `canonical_team_aliases`;
+- `canonical_team_localizations`;
+- `canonical_team_links`;
+- `team_rating_snapshots`;
+- `historical_match_facts`;
+- `historical_match_fact_links`;
+- `schedule_snapshots`;
+- `world_cup_venue_catalog`;
+- `official_schedule_matches`;
+- `official_schedule_match_links`;
+- `signal_snapshots`.
 
-- Real Fixture Lab exact-detail stack overflow remains isolated.
-- Review Gate UI needs compactness and translation polish.
-- Signal refresh cadence is not yet scheduled.
-- Venue metadata remains untrusted.
-- No AI provider is connected.
+### Identity rules
+
+Canonical team identity is locale-neutral. Display names live in localization rows.
+
+Historical match identity does not include score. Natural identity is based on date/kickoff, canonical home/away teams, competition bucket, and venue/neutral context. Corrections preserve lineage rather than creating fake new matches.
+
+### Provenance rules
+
+Every imported fact or rating is linked to a source snapshot. Signal snapshots record:
+
+- exact cutoff;
+- source snapshot IDs;
+- model/feature version;
+- missing optional signals;
+- reliability metadata.
+
+### Temporal safety
+
+Pre-match features must satisfy:
+
+```text
+observed_at < fixture kickoff
+```
+
+The current fixture and all later facts are excluded. Same-day earlier facts may be included only when exact timestamps prove they occurred before kickoff.
+
+## Source layer
+
+Primary source families:
+
+- API-Football for operational fixture identity/status/results;
+- World Football Elo for current/start-year ratings, results, fixture expectancy;
+- FIFA ranking snapshots;
+- official FIFA World Cup schedule PDF for match numbers, cities, venues, and kickoff times;
+- prepared deterministic source snapshots when live pages are not reliably machine-readable.
+
+Raw source files remain outside runtime. Runtime consumes normalized database rows or deterministic generated artifacts.
+
+## Signal layer
+
+Signal families include:
+
+- structural strength;
+- recent form;
+- tournament-current form;
+- scoring and defensive form;
+- conversion deterioration;
+- opponent quality;
+- Elo over/underperformance;
+- venue/neutral context;
+- reliability and sample quality;
+- source disagreement diagnostics.
+
+Future v3 may promote a continuously updated UFO Effective Strength/ranking with stronger tournament-round weighting. V2 keeps changes bounded.
+
+## Probability engine
+
+Selected development candidate:
+
+```text
+v1_plus_high_confidence_signals
+```
+
+Architecture:
+
+```text
+v1-compatible baseline xG
++ zero-centered reliability-shrunk residuals
++ high-confidence gates
++ movement caps
+-> score matrix
+-> 1X2 / BTTS / O-U / score distribution
+```
+
+The engine is near parity with v1 and must not be described as decisively more accurate.
+
+## Analysis/scenario engine
+
+The analysis layer converts structured features and the score matrix into public-safe explanations.
+
+Featured scenarios are representative families, not arbitrary exact scores:
+
+- principal;
+- risk/coverage;
+- alternate.
+
+Each stores evidence keys, contradiction keys, reliability, source IDs, and cutoff. Natural-language output should be rendered from locale-aware templates rather than stored as one canonical Spanish paragraph.
+
+## Operational Task 3A/3B flow
+
+```text
+refresh current statuses
+-> determine not-started release set
+-> authorize target
+-> plan migration/import/signals/publication/export
+-> dry-run
+-> stage audit
+-> human approval
+-> stage write
+-> idempotency and RLS validation
+-> development review
+-> later production promotion
+```
+
+Task 3A is implemented. Task 3B stage execution is pending.
+
+## Security boundaries
+
+- no service-role key in web runtime;
+- no unqualified production credentials in Task 3B;
+- no secrets in artifacts/docs/logs;
+- RLS enabled on analytical tables;
+- internal-only tables are not public API surfaces;
+- production writes fail closed;
+- immutable publication rejects started fixtures.

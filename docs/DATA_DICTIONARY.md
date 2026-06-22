@@ -1,165 +1,192 @@
 # Data Dictionary - UFO Predictor
 
-_Last refreshed: post PR #99 / Prediction Review Gate schema / Torneo export completion (2026-06-19)._
+_Last refreshed: Prediction Intelligence v2 foundation (2026-06-22)._
 
-## Core fixture and prediction entities
+## Existing operational entities
 
-### `matches`
+### `teams`
 
-Canonical real fixture row.
+Product/runtime team identity used by fixtures and public prediction flows.
 
-Important concepts:
+### `competitions`, `seasons`, `matches`, `match_results`
 
-- provider fixture identity;
-- canonical English team identity;
-- kickoff;
+Operational competition, season, fixture, and verified-result records. API-Football remains the preferred provider identity for current operational fixtures.
+
+### `predictions` and prediction versions
+
+Immutable pre-match prediction records. A refresh creates a new version with lineage; it does not rewrite history.
+
+### Access/payment entities
+
+- `profiles`;
+- `subscriptions`;
+- `user_entitlements`;
+- `user_match_unlocks`;
+- `entitlement_grants`;
+- Wompi payment/event tables.
+
+Entitlements authorize protected content.
+
+## Prediction Intelligence v2 entities
+
+### `source_snapshots`
+
+Metadata for one captured source state.
+
+Important fields/concepts:
+
+- provider/source type;
+- source URL or external identifier;
+- captured/effective timestamps;
+- content hash;
+- parser/version;
+- access mode (`live`, `local_fallback`, `prepared_seed`);
+- provenance metadata.
+
+No secret values belong here.
+
+### `canonical_team_aliases`
+
+Maps source-specific names to a canonical locale-neutral team key.
+
+Examples of alias problems:
+
+- Cape Verde / Cabo Verde / Islas de Cabo Verde;
+- Ivory Coast / Côte d'Ivoire / Costa de Marfil;
+- DR Congo / Congo DR;
+- Curaçao / Curacao.
+
+### `canonical_team_localizations`
+
+Localized team display names.
+
+Conceptual key:
+
+```text
+canonical_team_key + locale
+```
+
+Initial locales:
+
+- `es` required;
+- `en` prepared;
+- future `pt` and others without changing canonical identities.
+
+### `canonical_team_links`
+
+Links canonical analytical teams to product `teams` and provider identities.
+
+### `team_rating_snapshots`
+
+Dated FIFA/Elo observations.
+
+Typical fields:
+
+- canonical team key;
+- rating system;
+- rank;
+- rating/points;
+- observed/effective timestamp;
+- source snapshot ID;
+- optional movement/trend fields.
+
+### `historical_match_facts`
+
+Durable national-team result facts.
+
+Identity excludes score. Typical dimensions:
+
+- canonical home/away teams;
+- kickoff/date;
+- competition bucket;
+- official/friendly;
+- neutral/home/away context;
+- goals;
 - status;
-- competition/stage;
-- access scope such as `admin_only` or `public`.
+- source snapshot;
+- correction lineage.
 
-Do not rename provider/database identities for presentation. Use display-name mapping.
+### `historical_match_fact_links`
 
-### `prediction_versions`
+Links analytical history to API-Football/product matches where identity can be proven.
 
-Immutable prediction version.
+### `schedule_snapshots`
 
-Typical scopes include internal and public products. New reviewed or refreshed publication creates a new row; existing versions are not rewritten.
+One captured official schedule state.
 
-### `prediction_markets`
+### `world_cup_venue_catalog`
 
-Markets belonging to one exact `prediction_version_id`.
+Canonical stadium/city/country metadata. A confirmed venue should never render as `Por definir`.
 
-Includes public-safe market data such as:
+### `official_schedule_matches`
 
-- 1X2;
-- BTTS;
-- O/U 2.5;
-- scoreline distribution or top scorelines where represented.
+Official World Cup match numbers 1-104, kickoff, stage/group, teams/placeholders, city, and venue.
 
-Exports must join markets to the exact selected prediction version.
+### `official_schedule_match_links`
 
-### `match_results`
+Links official schedule rows to API-Football/product fixtures.
 
-Stored real result and verification state.
+### `signal_snapshots`
 
-### `prediction_results`
+Team feature snapshots at an exact pre-match cutoff.
 
-Internal evaluation/result linkage. Never expose publicly.
+Conceptual fields:
 
-### `model_versions`
+- team/cutoff;
+- feature/model version;
+- current Elo/FIFA;
+- recent windows;
+- attack/defense/conversion;
+- opponent quality;
+- tournament form;
+- venue context;
+- reliability/sample flags;
+- source snapshot IDs.
 
-Model/version metadata. Signal refresh provenance must not be confused with a new model formula unless explicitly versioned.
+## Derived signal definitions
 
-## Prediction Review Gate
+### Recent form
 
-### `prediction_review_cases`
+Windowed W/D/L, GF/GA, scoring, clean-sheet, failed-to-score, BTTS, totals, and goal-difference features using only pre-cutoff matches.
 
-One review case per match.
+### Opponent quality
 
-Purpose:
+Average opponent pre-match Elo and performance relative to Elo expectation. Prevents treating a result against a weak opponent as equivalent to the same result against an elite opponent.
 
-- identify the fixture under review;
-- preserve review status and match linkage;
-- avoid uncontrolled duplicate cases.
+### Structural strength
 
-### `prediction_review_snapshots`
+Longer-horizon FIFA/Elo anchor. It must not erase current tournament evidence.
 
-Immutable review artifacts.
+### Tournament-current form
 
-Snapshot kinds may include:
+Current World Cup group-stage evidence. V2 uses bounded influence; v3 may increase round-sensitive weight.
 
-- current reference;
-- shadow prediction;
-- reviewed-xG preview.
+### Reliability
 
-These are not normal public prediction versions.
+A function of sample size, source completeness, exact timestamp availability, alias confidence, and source agreement.
 
-### `prediction_review_ai_executions`
+## Public prediction concepts
 
-Structured AI execution audit.
+### 1X2
 
-Current production state: no supported AI provider is connected.
+Home/local, draw, away/visitor probabilities from the full score matrix.
 
-### `prediction_review_decisions`
+### Exact score probability
 
-Human/admin decision audit.
+Probability of one matrix cell. It is not the same as the probability that a favorite wins.
 
-Supported decision semantics include:
+### Scenario family
 
-- keep current;
-- publish refreshed;
-- hold;
-- reviewed-xG proposal handling.
+A grouped match script represented by one exact score plus a broader family probability. Roles:
 
-Publication lineage links the selected review snapshot and any newly created public prediction version.
+- principal;
+- risk/coverage;
+- alternate.
 
-## Payments and entitlements
+### Evidence keys
 
-### `wompi_payment_events`
+Structured facts used to render explanations. Keep `signals_used` separate from `context_only`.
 
-Webhook/event persistence and processing state.
+## Temporal rule
 
-### `entitlement_grants`
-
-Activation ledger and idempotency/audit source.
-
-### `user_entitlements`
-
-Runtime competition/package access.
-
-### `user_match_unlocks`
-
-Runtime match-specific access where supported.
-
-### `subscriptions`
-
-Commercial/status context only. Not a direct authorization source.
-
-## Torneo export contract
-
-Contract:
-
-```text
-torneo-ufo-export-v1
-```
-
-Public-safe fields include:
-
-- fixture ID;
-- kickoff;
-- teams;
-- UFO public URL;
-- 1X2;
-- xG;
-- modal/top scorelines;
-- confidence/risk;
-- BTTS;
-- O/U 2.5;
-- public result state when appropriate.
-
-Excluded:
-
-- `prediction_results`;
-- raw evaluations;
-- review snapshots;
-- private/admin payloads;
-- provider odds/predictions;
-- payment/auth secrets.
-
-## Signal source artifacts
-
-Tracked source snapshot:
-
-```text
-data/prediction-engine/national-team-signals/2026-06-19/
-```
-
-Key files:
-
-- `source.json`;
-- `source-manifest.json`;
-- `quality-report.json`;
-- `fixture-elo-coherence.json`;
-- `team-display-names-es-en.json`.
-
-Runtime consumes the generated static TypeScript pack, not these source artifacts directly.
+No row observed at or after kickoff may enter a pre-match prediction. Post-match event timelines are evaluation data only.

@@ -1,118 +1,154 @@
 # Start Here for New Conversations - UFO Predictor
 
-_Last refreshed: post PR #99 Data Ops 06 and documentation rebaseline (2026-06-19)._
+_Last refreshed: Prediction Intelligence v2 Task 3A handoff (2026-06-22)._
 
-## Start from clean `main`
+## Read this first
 
-```bash
-git switch main
-git pull --ff-only origin main
-git fetch origin --prune
-git status --short --branch
-```
-
-Expected:
+The current work is not on production `main`. It is on:
 
 ```text
-## main
+feature/prediction-intelligence-v2-data-foundation
 ```
 
-## Current merged baseline
+Latest implemented Task 3A commit:
 
-- PR #94: model closeout.
-- PR #96: public prediction pagination/history.
-- PR #97: reproducible national-team signal refresh.
-- PR #98: Prediction Review Gate.
-- PR #99: complete Matchday 2 export workflow.
+```text
+6967fd6b22a49e23ab9963345f1a1437b1d6b668
+```
 
-## Model state
+The branch is pushed to origin. Do not switch branches, rebase, merge, push, or open a PR unless the task explicitly requires it.
 
-Closed unless a new explicit research epic is approved:
+## Current truth in one paragraph
 
-- SIGNAL04 retained;
-- DRAW01 retained;
-- expected-goals unchanged.
+UFO Predictor has a production v1 baseline and an unmerged Prediction Intelligence v2 branch. The v2 branch now contains a durable football-data foundation, historical replay coverage, a conservative gated probability candidate, a richer analysis/scenario layer, immutable publication planning, and a dry-run operational release flow. The probability engine is near statistical parity with v1 rather than a decisive improvement. The main gain is better evidence, recency, provenance, scenarios, localization, venues, and explainability. The next task is Task 3B: audit and synchronize the remote Supabase `stage` environment, load non-sensitive data idempotently, persist signals, and create development-only immutable prediction versions. Production must remain untouched.
 
-Fair stored metrics:
+## Confirmed environment map
 
-| Metric | Result |
+```text
+Railway production  -> ufopredictor.com       -> production Supabase
+Railway desarrollo  -> stage.ufopredictor.com -> Supabase stage
+```
+
+Authentication against Supabase `stage` has been verified with an independent development user. Public predictions are currently unavailable in stage because its application schema and data have not yet been synchronized.
+
+Task 3B requires a local Git-ignored administrative credential file when an operator runs it:
+
+```text
+.env.task3b.development.local
+```
+
+Its presence and structure are local operator state, not repository state, and must be revalidated before every execution. Never print, commit, paste, or document its values.
+
+## Prediction Intelligence v2 completed work
+
+### Task 1 / 1.1 / 1.2 - data foundation and replay readiness
+
+- durable source snapshots;
+- canonical aliases and localizations;
+- FIFA and Elo rating snapshots;
+- historical match facts and correction lineage;
+- official World Cup schedule and venues;
+- score-independent match identity;
+- API-Football/product linking;
+- strict pre-kickoff cutoffs;
+- 36/36 completed product fixtures replay-ready.
+
+Stable coverage:
+
+| Coverage | Count |
 |---|---:|
-| 1X2 | 16/28 |
-| Exact score | 7/28 |
-| BTTS | 16/27 |
-| O/U 2.5 | 16/28 |
-| Average total-goal error | 1.821 |
+| Historical match facts | 1,392 |
+| Historical Elo timeline entries | 3,028 |
+| Elo teams | 244 |
+| FIFA ranking rows | 211 |
+| Official World Cup matches | 104 |
+| Group-stage links | 72/72 |
+| Knockout placeholders | 32 |
+| Venues | 16/16 |
+| World Cup runtime teams | 48/48 |
+| Completed replay fixtures ready | 36/36 |
 
-Current-signal historical recomputation is diagnostic, not a fair backtest.
+### Task 2 / 2.1 / 2.2 / 2.3 - Model 2.0 research and release candidate
 
-## Current production capabilities
+- first unrestricted challengers did not beat v1;
+- neutral-site handling and replay parity were corrected;
+- candidate selection and scenario evaluation were corrected;
+- selected bounded probability candidate: `v1_plus_high_confidence_signals`;
+- selected release candidate: `gated_v2_probability_v2_analysis`;
+- v2 analysis layer approved for development release;
+- gated v2 probability layer approved only as a conservative development candidate.
 
-- public predictions/upcoming/history;
-- verified results;
-- premium detail;
-- Wompi payment;
-- entitlement activation;
-- premium-active UI;
-- admin pricing;
-- Result/Evaluation/Publish queues;
-- Prediction Review Gate;
-- Torneo export.
+Do not claim a material accuracy breakthrough. Exact-v1 and gated-v2 holdout results were effectively near parity.
 
-## Signal refresh state
+### Task 3A - dry-run operational layer
 
-The 2026-06-19 source snapshot is tracked and reproducible.
+Implemented:
 
-Use:
+- environment authorization guard;
+- migration planner;
+- idempotent import planner;
+- signal-persistence planner;
+- immutable publication planner;
+- Torneo Mundialista export dry-run;
+- production-write denial;
+- focused tests.
 
-```bash
-npm run signal:check:national-team-pack
-```
+Not yet executed:
 
-Do not edit raw sources into runtime.
+- remote migration;
+- remote seed/import;
+- physical database validation;
+- persisted stage signals;
+- development prediction-version creation.
 
-## Review Gate state
+Latest documented Task 3A release set: 8 future fixtures at its recorded cutoff.
 
-Operational:
+## Exact next task: Task 3B
 
-- provider revalidation;
-- shadow;
-- alerts;
-- human decisions.
+Task 3B begins with a read-only remote audit of Supabase `stage`:
 
-Not operational:
+1. compare stage schema/migration history with `supabase/migrations`;
+2. identify missing migrations, drift, and manually created objects;
+3. confirm the existing Auth user is not endangered;
+4. generate an ordered synchronization plan;
+5. keep production denied.
 
-- AI provider;
-- reviewed-xG publication.
+Only after human review:
 
-## Data Ops 06 closure
+1. synchronize stage with the canonical migration chain;
+2. apply `0038_prediction_intelligence_v2_data_foundation.sql`;
+3. load non-sensitive reference/history data idempotently;
+4. rerun the import and prove zero duplicates;
+5. persist signal snapshots;
+6. create immutable development prediction versions only for not-started fixtures;
+7. generate the Torneo Mundialista development export;
+8. validate RLS, public views, localization, venues, and stage UI.
 
-- Group Stage - 2: 24/24;
-- 5 frozen;
-- 9 new public versions;
-- batch idempotent;
-- final partner JSON delivered.
+## Product interpretation
 
-## Immediate next tasks
+UFO is not a fortune teller. Three scorelines are representative terminal states of scenario families, not three guesses designed to claim an accidental hit.
 
-1. Matchday 2 result monitoring/evaluation.
-2. Next fixture runway.
-3. P0 pricing truth.
-4. Home/transparency refresh.
-5. Review Gate UI polish.
-6. G08/G03/refund operations.
-7. G09/G12/G13 launch readiness.
+Premium-oriented output should show:
 
-## Important frontend findings
-
-See `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`.
-
-Do not market aggressively until the visible COP/USDT pricing inconsistency is resolved.
-
-## Work-mode rule
-
-Use console for repetitive API and batch operations.
-Use Codex for architecture, implementation, tests, and complex review.
+- general statistical reading;
+- structural advantage and main risk;
+- principal, risk/coverage, and alternate scenarios;
+- exact-score probability and family probability;
+- supporting and contradicting evidence;
+- current form and opponent quality;
+- attack, defense, conversion, FIFA, and Elo;
+- reliability/sample warnings;
+- source provenance and cutoff;
+- additional plausible scores from the full distribution.
 
 ## Hard boundaries
 
-No post-result prediction rewrite, no provider predictions/odds as model inputs, no Torneo picks as model inputs, no public internal evaluation, no client secrets, and no broad unknown fixture apply.
+- no post-result prediction rewrite;
+- no post-kickoff evidence in pre-match predictions;
+- no production writes from Task 3B;
+- no provider odds/predictions as hidden model truth;
+- no Torneo user picks as model input;
+- no service-role key in browser/runtime;
+- no secrets in docs, artifacts, screenshots, logs, or prompts;
+- no claim that v2 is already live in production;
+- no claim that stage is already schema-compatible.

@@ -1,6 +1,6 @@
 # G06 Entitlement Activation Binding Runbook
 
-_Last refreshed: post G05/G06 production activation baseline (2026-06-19)._
+_Last refreshed: 2026-06-22. Historical production behavior retained; Prediction Intelligence v2 does not change this runbook._
 
 ## Scope
 
@@ -137,3 +137,6 @@ The Wompi activation path must not create a parallel premium table, set `profile
 6. Run `revoke_entitlement_grant`.
 7. Confirm access stops because the linked entitlement or unlock is expired.
 8. Confirm `prediction_results` and other internal tables remain inaccessible from public/product reads.
+## Stage/Task 3B boundary
+
+Task 3B may create clearly labeled development-only test access only when required for premium projection validation. Do not copy production subscriptions, entitlements, grants, users, or Wompi events into stage.

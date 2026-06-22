@@ -1,6 +1,6 @@
 # G05 Wompi Integration Runbook - UFO Predictor
 
-_Last refreshed: post production launch and post-PR99 documentation rebaseline (2026-06-19)._
+_Last refreshed: 2026-06-22. Historical production behavior retained; Prediction Intelligence v2 does not change this runbook._
 
 ## Status
 
@@ -120,3 +120,6 @@ After rotation:
 3. redeploy;
 4. verify webhook configuration;
 5. run a controlled payment smoke.
+## Prediction Intelligence v2 boundary
+
+Task 3B and the v2 frontend must not alter Wompi approval, webhook, pricing, or entitlement activation logic. Stage may use explicit test entitlements; do not clone production payment data.

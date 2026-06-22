@@ -1,170 +1,197 @@
 # Codex Handoff Current - UFO Predictor
 
-_Last refreshed: post PR #99 Data Ops 06 / PR #98 Prediction Review Gate / PR #97 reproducible signal refresh (2026-06-19)._
+_Last refreshed: 2026-06-22, Task 3B stage-sync handoff._
 
-## Repo baseline
+## Repo state
 
-Start from updated `main`:
-
-```bash
-git switch main
-git pull --ff-only origin main
-git fetch origin --prune
-git status --short --branch
-```
-
-Expected status: clean.
-
-Latest relevant merged PRs:
-
-- PR #94: model closeout;
-- PR #96: prediction list/history pagination;
-- PR #97: reproducible national-team signal refresh;
-- PR #98: Prediction Review Gate;
-- PR #99: complete Matchday 2 export workflow.
-
-Do not recreate or reuse deleted feature branches.
-
-## Accepted model boundary
-
-Do not reopen calibration by default.
-
-Accepted:
-
-- SIGNAL04;
-- DRAW01;
-- unchanged `expected-goals.ts`;
-- generated national-team signal pack from the 2026-06-19 source snapshot.
-
-Fair stored metrics remain:
-
-- 1X2 16/28;
-- exact 7/28;
-- BTTS 16/27;
-- O/U 16/28;
-- average total-goal error 1.821.
-
-Historical current-signal recomputations are diagnostic only.
-
-## Signal source architecture
-
-Tracked source snapshot:
+Repository:
 
 ```text
-data/prediction-engine/national-team-signals/2026-06-19/
+C:\Users\jonat\Documents\ufo-predictor
 ```
 
-Generator/check commands:
-
-```bash
-npm run signal:generate:national-team-pack
-npm run signal:check:national-team-pack
-```
-
-Runtime consumes the generated static TypeScript pack. Do not import raw HTML/CSV or quality-report files at runtime.
-
-## Review Gate baseline
-
-Route:
+Branch:
 
 ```text
-/admin/prediction-refresh-review
+feature/prediction-intelligence-v2-data-foundation
 ```
 
-Capabilities:
+Latest Task 3A commit:
 
-- provider revalidation;
-- shadow prediction;
-- model-delta alerts;
-- Elo coherence alerts;
-- human decisions;
-- immutable lineage.
+```text
+6967fd6b22a49e23ab9963345f1a1437b1d6b668
+```
 
-AI is not configured. Do not fake AI output.
-Reviewed-xG is preview-only. Do not enable publication without a new approved slice.
+The branch is pushed to origin. Stay on this branch. Do not switch to `main`, merge, rebase, push, or open a PR unless explicitly requested.
 
-## Data Ops 06 baseline
+## Current environment contract
 
-Group Stage - 2 is complete:
+```text
+Railway production  -> ufopredictor.com       -> production Supabase
+Railway desarrollo  -> stage.ufopredictor.com -> Supabase stage
+```
 
-- 24 fixtures;
-- 5 frozen;
-- 9 new public versions;
-- idempotent batch;
-- final export delivered.
+Stage Auth has been verified with an independent test user.
 
-Relevant code:
+Task 3B expects a local ignored credential file when supplied by the active operator:
 
-- `lib/world-cup-2026/matchday2-ops.ts`;
-- `scripts/world-cup-matchday2-final-export.ts`;
-- `scripts/regenerate-torneo-matchday2-export.ts`;
-- `lib/supabase/torneo-export-core.ts`;
-- `lib/supabase/torneo-export-queries.ts`.
+```text
+.env.task3b.development.local
+```
 
-Do not rerun write mode unless there is a specific operational reason.
+Do not infer that it exists from repository state. Validate its presence and structure immediately before execution. Never print its values. Never use unqualified production variables for writes.
 
-## Current preferred work modes
+Docker local is out of scope for this phase.
 
-Use local console for:
+## Implemented v2 modules
 
-- API-Football reads;
-- fixture inventories;
-- repeatable dry-runs;
-- export regeneration;
-- simple status checks.
+Primary area:
 
-Use Codex for:
+```text
+lib/prediction-intelligence-v2/
+```
 
-- architecture inspection;
-- code changes;
-- migrations;
-- tests;
-- diff review;
-- non-trivial debugging.
+Operational scripts:
 
-Do not spend large token windows narrating mechanical command output.
+```text
+scripts/prediction-intelligence-v2/
+```
 
-## Current next slices
+Foundation migration:
 
-### Data operations
+```text
+supabase/migrations/0038_prediction_intelligence_v2_data_foundation.sql
+```
 
-- monitor Matchday 2;
-- verify/apply final results only after exact provider final status;
-- persist internal evaluation;
-- prepare the next batch.
+Task 2 release candidate:
 
-### Review Gate UI patch
+```text
+gated_v2_probability_v2_analysis
+```
 
-Docs-approved small scope:
+Probability candidate:
 
-- missing markets show `No disponible`;
-- pre-shadow state shows `Sin comparación todavía`;
-- translate provider/status/alert labels;
-- optionally compact filters/sections.
+```text
+v1_plus_high_confidence_signals
+```
 
-No model or schema changes.
+Replay entrypoint:
 
-### Frontend commercial readiness
+```ts
+buildPredictionIntelligenceV2ReplayInput({
+  cutoffAt,
+  homeTeamKey,
+  awayTeamKey,
+  historicalFacts,
+  aliases,
+  eloCurrent,
+  eloStart2026,
+  fifaRanking,
+  localizations,
+  schedule,
+})
+```
 
-See `G09_FRONTEND_COMMERCIAL_READINESS_PLAN.md`.
+## Stable data coverage
 
-P0 items:
+- historical facts: 1,392;
+- Elo timeline: 3,028;
+- Elo teams: 244;
+- FIFA rows: 211;
+- schedule: 104;
+- group links: 72/72;
+- knockout placeholders: 32;
+- venues: 16/16;
+- World Cup teams: 48/48;
+- replay-ready completed fixtures: 36/36.
 
-- verify/fix USDT-COP pricing coherence;
-- remove stale home fixture messaging;
-- correct transparency model-status copy;
-- simplify duplicated World Cup Pass catalog presentation.
+## Honest model verdict
+
+The gated v2 engine is near parity with exact v1. It is not a demonstrated material predictive improvement.
+
+Promotable in development:
+
+- richer analysis layer;
+- evidence and provenance;
+- controlled high-confidence residuals;
+- scenario families;
+- current-form signals;
+- localization and venues;
+- immutable publication.
+
+Not allowed:
+
+- claims of decisive outperformance;
+- uncontrolled probability shifts;
+- production promotion without stage validation.
+
+## Task 3A baseline
+
+Implemented:
+
+- safe-target guard;
+- migration/import/signal/publication plans;
+- Torneo export dry-run;
+- production denial;
+- focused tests.
+
+Not executed:
+
+- remote DDL;
+- remote seed/import;
+- stage validation;
+- persisted signals;
+- development prediction versions.
+
+## Exact next task: Task 3B
+
+### Phase 1 - read-only audit
+
+- load `.env.task3b.development.local` without printing values;
+- verify stage host/ref and authorization flags;
+- inspect remote migration history/schema only;
+- compare against `supabase/migrations`;
+- classify missing migrations, drift, and manual objects;
+- assess impact on the existing Auth user;
+- produce an ordered execution plan;
+- no file edits, no writes, no commit.
+
+### Phase 2 - authorized stage write, only after human approval
+
+- synchronize canonical migrations;
+- apply 0038;
+- import non-sensitive reference/history data;
+- rerun and prove idempotency;
+- persist signal snapshots;
+- create immutable development prediction versions only for not-started fixtures;
+- generate Torneo development export;
+- validate RLS/public queries/localization/venues/UI;
+- keep production denied.
+
+## Product contract for scenarios
+
+Each featured scenario needs:
+
+- family/role: principal, risk/coverage, alternate;
+- representative exact score;
+- exact-score probability;
+- family probability;
+- supporting evidence;
+- contradicting evidence;
+- required match script;
+- reliability/sample warning;
+- source IDs and cutoff.
+
+Do not mechanically force local/draw/away representation. A strong favorite may occupy two or three featured scenarios. Draw/underdog scenarios require concrete evidence.
 
 ## Hard boundaries
 
-Do not:
-
-- expose internal evaluations or `prediction_results`;
-- use provider odds/predictions as model inputs;
-- use Torneo picks as model inputs;
-- rewrite frozen predictions;
-- mix model, publication, payments, and broad UI work in one slice;
-- expose secrets;
-- modify Wompi or entitlement logic from a frontend polish task;
-- claim AI is connected;
-- claim Real Fixture Lab exact-detail is repaired.
+- no broad repo rediscovery;
+- no recalibration in Task 3B;
+- no frontend changes in Task 3B;
+- no production writes;
+- no secrets in logs/artifacts/docs;
+- no post-kickoff leakage;
+- no overwrite of historical prediction versions;
+- reject started/live/completed fixtures;
+- no claim that v2 is already live.

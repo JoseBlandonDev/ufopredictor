@@ -1,144 +1,121 @@
 # Signal Refresh Playbook - UFO Predictor
 
-_Last refreshed: post PR #97 implementation and PR #99 operational use (2026-06-19)._
-
-## Status
-
-The reproducible national-team signal baseline is implemented.
-
-Snapshot:
-
-```text
-2026-06-19
-```
-
-Tracked path:
-
-```text
-data/prediction-engine/national-team-signals/2026-06-19/
-```
+_Last refreshed: Prediction Intelligence v2 foundation (2026-06-22)._
 
 ## Purpose
 
-Refresh source signals without silently changing model formulas or rewriting historical predictions.
+Maintain current, reproducible football signals without rewriting historical predictions or reprocessing the entire universe after every result.
 
-Signal refresh is not model recalibration.
+## Source families
 
-## Source inputs
+- API-Football: fixture identity/status/results;
+- World Football Elo: current/start-year ratings, results, expectancy;
+- FIFA ranking snapshots;
+- official World Cup schedule/venues;
+- normalized prepared snapshots where live extraction is unreliable.
 
-Validated source categories:
+## Refresh triggers
 
-- FIFA ranking metadata;
-- Elo rating;
-- recent result aggregates;
-- fixture Elo coherence;
-- Spanish/English display names.
+Use bounded operational triggers:
 
-## Runtime scores
+- completed World Cup result batch;
+- official FIFA ranking release;
+- meaningful Elo snapshot refresh;
+- next round/fixture runway;
+- source correction.
 
-The reconstructed SIGNAL04 builder uses:
+Do not refresh merely because one result was surprising.
+
+## Incremental strategy
+
+### Historical results
+
+- import new finished matches;
+- update only proven corrections;
+- preserve source/correction lineage;
+- never include score in match identity;
+- avoid full-history replacement.
+
+### Ratings
+
+- store dated snapshots;
+- current rating is an observation, not an in-place eternal truth;
+- use the latest valid pre-kickoff snapshot;
+- preserve official effective date and capture date.
+
+### Signals
+
+Recompute only affected teams and dependent fixture analyses where practical.
+
+Affected signals may include:
+
+- recent W/D/L and goals;
+- failed-to-score/clean-sheet;
+- BTTS/totals;
+- conversion trend;
+- opponent quality;
+- Elo over/underperformance;
+- current tournament form;
+- UFO effective strength preview;
+- sample reliability.
+
+## Strict cutoff
+
+For a fixture at `kickoff_at`:
 
 ```text
-ratingScore = minmax(eloRating, 1427..2129)
-recentFormScore = round2(recentPointsPerMatch / 3 * 100)
-attackScore = minmax(historicalGoalsForPerMatch, 1.075..2.345)
-defenseScore = inverse_minmax(historicalGoalsAgainstPerMatch, 0.785..1.655)
+include evidence only when evidence_timestamp < kickoff_at
 ```
 
-FIFA rank/points are metadata and `fifaScore`; they do not drive the four runtime scores.
+Exclude:
+
+- current fixture;
+- later same-day facts;
+- live odds/events;
+- final result;
+- post-match Elo changes not known before kickoff.
+
+## Snapshot/version requirements
+
+Each persisted signal snapshot records:
+
+- team;
+- cutoff;
+- feature version;
+- source snapshot IDs;
+- resolution methods;
+- missing optional signals;
+- reliability/sample metadata.
 
 ## Quality gates
 
-A source package must prove:
+- alias coverage;
+- impossible dates;
+- duplicate natural identities;
+- orientation mismatch;
+- source contradiction;
+- Elo/FIFA availability;
+- provider link coverage;
+- stage/competition/neutral context;
+- exact timestamp reliability.
 
-- exactly 48 canonical teams for the current World Cup scope;
-- no duplicate keys;
-- full expected FIFA/Elo coverage;
-- no impossible dates;
-- no results after snapshot time;
-- no unresolved canonical opponent aliases;
-- explicit partial-sample metadata;
-- valid fixture Elo parsing.
+## Current v2 policy
 
-## Generator
+The gated candidate permits bounded probability movement only when high-confidence gates activate. Signal refresh does not automatically authorize recalibration or production publication.
 
-```bash
-npm run signal:generate:national-team-pack
-npm run signal:check:national-team-pack
+## Operational sequence
+
+```text
+provider/status refresh
+-> normalize new facts/ratings
+-> resolve aliases/links
+-> determine affected teams
+-> rebuild signal snapshots
+-> review candidate deltas/scenarios
+-> immutable publish only for not-started fixtures
+-> export after completeness validation
 ```
 
-The check is line-ending agnostic and must pass on Windows.
+## V3 note
 
-Runtime consumes generated static TypeScript only.
-
-## Change classification
-
-Current operational thresholds:
-
-- `NO_MATERIAL_CHANGE`: max score delta < 2 and total < 5;
-- `MINOR_CHANGE`: max >= 2 or total >= 5;
-- `MATERIAL_CHANGE`: max >= 7 or total >= 14;
-- `CRITICAL_CHANGE`: max >= 15 or total >= 30.
-
-These thresholds support review, not automatic outcome overrides.
-
-## Fixture handling
-
-### Finished/live/kickoff-passed
-
-- freeze;
-- do not regenerate;
-- do not rewrite;
-- preserve original prediction.
-
-### Future scheduled
-
-- revalidate provider;
-- generate deterministic shadow or batch prediction;
-- compare;
-- publish immutable version only through approved flow.
-
-## Elo coherence
-
-Use Elo fixture expectancy as review context only.
-
-Suggested gap levels:
-
-- <=10 percentage points: aligned;
-- >10 to 20: WATCH;
-- >20 to 30: manual review;
-- >30: critical;
-- favorite inversion: critical.
-
-Do not replace UFO 1X2 with Elo.
-
-## Review Gate
-
-Use `/admin/prediction-refresh-review` for selected fixture review.
-
-AI is not connected.
-Reviewed-xG is preview-only.
-
-## Batch operations
-
-For complete matchdays, prefer a controlled script:
-
-- dry-run default;
-- exact round inventory;
-- provider revalidation;
-- freeze protection;
-- immutable writes;
-- idempotence proof;
-- final public export validation.
-
-Use console for repeated reads and dry-runs instead of consuming Codex context.
-
-## Future cadence
-
-Still open.
-
-Do not refresh after every surprising result. Candidate triggers:
-
-- official ranking release;
-- completed matchday;
-- meaningful result batch.
+A future v3 may use stronger round-aware tournament weighting and an official UFO strength ranking. That is research, not part of routine refresh.

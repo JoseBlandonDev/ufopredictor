@@ -1,61 +1,73 @@
 # Project Status for Meeting - UFO Predictor
 
-_Last refreshed: 2026-06-19 after PR #99._
+_Last refreshed: 2026-06-22._
 
 ## Executive summary
 
-UFO Predictor now has the complete early commercial loop:
+UFO Predictor's production commercial loop is operational. A new Prediction Intelligence v2 branch now adds a durable historical/rating/schedule database, strict replay, richer scenarios and explanations, and a conservative gated probability candidate.
 
-- public predictions;
-- premium model detail;
-- Wompi payment;
-- entitlement activation;
-- result verification/evaluation;
-- reproducible signal refresh;
-- prediction review workflow;
-- partner JSON export.
+The important honest conclusion: v2 has not demonstrated a major accuracy jump over v1. Its strongest current value is better data, recency, provenance, scenario interpretation, localization, venues, and premium explainability.
 
-## Recent delivery
+## Delivered on the v2 branch
 
-- PR #97: reproducible national-team signal snapshot and generator.
-- PR #98: Prediction Review Gate deployed with RLS and API-Football revalidation.
-- PR #99: Matchday 2 completed at 24/24 and exported to Torneo.
-- Final partner file: 24 unique fixtures, production URLs, complete BTTS/O-U.
+- 1,392 historical facts;
+- 3,028 Elo timeline entries;
+- 244 Elo teams;
+- 211 FIFA rows;
+- complete 104-match official schedule;
+- 16 venues;
+- 48/48 World Cup teams;
+- 36/36 historical replay readiness;
+- bounded high-confidence probability candidate;
+- scenario/evidence contract;
+- Task 3A dry-run migration/import/signal/publication/export tooling.
 
-## Model
+## Model result
 
-Calibration remains closed through PR #94.
+Selected release candidate:
 
-Fair stored baseline:
+```text
+gated_v2_probability_v2_analysis
+```
 
-- 1X2 57.1%;
-- exact score 25.0%;
-- BTTS 59.3%;
-- O/U 57.1%;
-- average total-goal error 1.821.
+Exact v1 and gated v2 are near parity on holdout. The candidate is appropriate for stage testing, not a claim of superior predictive power.
 
-## Operations
+## Environment readiness
 
-- 5 Matchday 2 fixtures frozen;
-- 9 public versions created;
-- batch idempotence passed;
-- Result/Evaluation/Publish focused queues operational;
-- Real Fixture Lab exact-detail remains isolated.
+- production and stage use separate Supabase projects;
+- stage domain and Auth work;
+- stage schema/data are not yet synchronized;
+- no v2 database write or publication has occurred;
+- production remains untouched.
 
-## Commercial readiness risks
+## Immediate next milestone
 
-1. price label and COP amount are visibly inconsistent;
-2. home content is stale;
-3. transparency copy misstates calibration status;
-4. World Cup Pass catalog presentation is duplicated/ambiguous;
-5. formal cross-role/device smoke remains incomplete;
-6. refund/revocation process remains open.
+Task 3B:
 
-## Next 7-day focus
+- read-only stage schema/migration audit;
+- approved synchronization;
+- migration 0038;
+- idempotent data load;
+- signals and immutable development predictions;
+- Torneo development export;
+- RLS/public/localization/venue/UI validation.
 
-- process results and next runway;
-- fix P0 pricing truth;
-- refresh home/transparency;
-- small Review Gate UI patch;
-- G08/G03/refund readiness;
-- responsive/accessibility/cross-device smoke.
+## Following milestone
+
+Premium/public UI:
+
+- evidence-backed scenarios;
+- recent form/opponent quality;
+- FIFA/Elo/attack/defense/conversion;
+- source cutoff/reliability;
+- anonymous/free/premium segmentation;
+- Spanish names and official venues;
+- English-ready architecture.
+
+## Main risks
+
+1. stage migration drift may require reconciliation;
+2. development data must not clone production personal/payment data;
+3. gated v2 must not be marketed as materially more accurate;
+4. production promotion requires rollback and cross-role smoke;
+5. current source refresh still depends on deterministic prepared snapshots where live extraction is unreliable.

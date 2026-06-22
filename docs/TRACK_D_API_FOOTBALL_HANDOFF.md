@@ -1,6 +1,6 @@
 # Track D / API-Football Handoff
 
-_Last refreshed: post PR #99 Matchday 2 batch (2026-06-19)._
+_Last refreshed: 2026-06-22. Historical production behavior retained; Prediction Intelligence v2 does not change this runbook._
 
 ## Operating model
 
@@ -91,3 +91,6 @@ Preferred:
 - Torneo Export.
 
 Real Fixture Lab exact-detail is not required for routine operations.
+## Prediction Intelligence v2 integration
+
+API-Football remains the operational fixture/status identity source. V2 adds historical/rating/schedule facts around it. Exact provider final status gates result ingestion; not-started status gates immutable publication.
