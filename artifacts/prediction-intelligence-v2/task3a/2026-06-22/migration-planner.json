@@ -1,0 +1,16 @@
+{
+  "migrationFile": "supabase/migrations/0038_prediction_intelligence_v2_data_foundation.sql",
+  "migrationExecution": "not_executed_no_safe_target",
+  "developmentSeedWrite": "not_executed_no_safe_target",
+  "physicalDatabaseValidation": "pending_safe_development_target",
+  "localSupabaseConfigured": true,
+  "localSupabaseRunnable": false,
+  "safeWriteTargetAvailable": false,
+  "commands": {
+    "startLocalSupabase": "npx supabase start",
+    "checkMigrationStatus": "npx supabase migration list --local",
+    "applyMigrationLocally": "npx supabase db reset",
+    "runTask3ADryRun": "npm run prediction-intelligence-v2:task3a",
+    "runTask3AWriteModeAgainstProvenDevelopmentTarget": "$env:PREDICTION_INTELLIGENCE_V2_ENABLE_WRITES='true'; $env:PREDICTION_INTELLIGENCE_V2_TARGET_ENV='development'; $env:PREDICTION_INTELLIGENCE_V2_CONFIRMED_SAFE_SUPABASE_HOST='<confirmed-dev-host>'; npm run prediction-intelligence-v2:task3a -- --write"
+  }
+}

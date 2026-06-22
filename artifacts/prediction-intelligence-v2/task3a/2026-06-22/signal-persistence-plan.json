@@ -1,0 +1,349 @@
+{
+  "generationCutoff": "2026-06-22T02:09:07.444Z",
+  "recomputeTeamKeys": [
+    "belgium",
+    "cape_verde",
+    "curacao",
+    "ecuador",
+    "iran",
+    "japan",
+    "saudi_arabia",
+    "spain",
+    "tunisia",
+    "uruguay"
+  ],
+  "futureReleaseTeamKeys": [
+    "algeria",
+    "argentina",
+    "austria",
+    "colombia",
+    "croatia",
+    "dr_congo",
+    "england",
+    "france",
+    "ghana",
+    "iraq",
+    "jordan",
+    "norway",
+    "panama",
+    "portugal",
+    "senegal",
+    "uzbekistan"
+  ],
+  "persistenceTeamKeys": [
+    "algeria",
+    "argentina",
+    "austria",
+    "belgium",
+    "cape_verde",
+    "colombia",
+    "croatia",
+    "curacao",
+    "dr_congo",
+    "ecuador",
+    "england",
+    "france",
+    "ghana",
+    "iran",
+    "iraq",
+    "japan",
+    "jordan",
+    "norway",
+    "panama",
+    "portugal",
+    "saudi_arabia",
+    "senegal",
+    "spain",
+    "tunisia",
+    "uruguay",
+    "uzbekistan"
+  ],
+  "plannedSignalRows": [
+    {
+      "canonicalTeamKey": "argentina",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:argentina"
+    },
+    {
+      "canonicalTeamKey": "england",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:england"
+    },
+    {
+      "canonicalTeamKey": "norway",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:norway"
+    },
+    {
+      "canonicalTeamKey": "france",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:france"
+    },
+    {
+      "canonicalTeamKey": "colombia",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:colombia"
+    },
+    {
+      "canonicalTeamKey": "austria",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:austria"
+    },
+    {
+      "canonicalTeamKey": "spain",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:spain"
+    },
+    {
+      "canonicalTeamKey": "portugal",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:portugal"
+    },
+    {
+      "canonicalTeamKey": "belgium",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:belgium"
+    },
+    {
+      "canonicalTeamKey": "japan",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:japan"
+    },
+    {
+      "canonicalTeamKey": "croatia",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:croatia"
+    },
+    {
+      "canonicalTeamKey": "senegal",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:senegal"
+    },
+    {
+      "canonicalTeamKey": "dr_congo",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:dr_congo"
+    },
+    {
+      "canonicalTeamKey": "algeria",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:algeria"
+    },
+    {
+      "canonicalTeamKey": "ghana",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:ghana"
+    },
+    {
+      "canonicalTeamKey": "iran",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:iran"
+    },
+    {
+      "canonicalTeamKey": "ecuador",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:ecuador"
+    },
+    {
+      "canonicalTeamKey": "uruguay",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:uruguay"
+    },
+    {
+      "canonicalTeamKey": "cape_verde",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:cape_verde"
+    },
+    {
+      "canonicalTeamKey": "panama",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:panama"
+    },
+    {
+      "canonicalTeamKey": "uzbekistan",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:uzbekistan"
+    },
+    {
+      "canonicalTeamKey": "saudi_arabia",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:saudi_arabia"
+    },
+    {
+      "canonicalTeamKey": "tunisia",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:tunisia"
+    },
+    {
+      "canonicalTeamKey": "jordan",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:jordan"
+    },
+    {
+      "canonicalTeamKey": "iraq",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:iraq"
+    },
+    {
+      "canonicalTeamKey": "curacao",
+      "signalVersion": "prediction-intelligence-v2-task1",
+      "cutoffAt": "2026-06-22T02:09:07.444Z",
+      "sourceSnapshotIds": [
+        "elo-results-2025",
+        "elo-results-recent-2026-06-20",
+        "fifa-men-ranking-2026-06-11-captured-2026-06-20"
+      ],
+      "idempotencyKey": "prediction-intelligence-v2-task1:2026-06-22T02:09:07.444Z:curacao"
+    }
+  ]
+}

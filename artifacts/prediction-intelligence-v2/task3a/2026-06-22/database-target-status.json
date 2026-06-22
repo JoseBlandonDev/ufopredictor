@@ -1,0 +1,5 @@
+{
+  "migrationExecution": "not_executed_no_safe_target",
+  "developmentSeedWrite": "not_executed_no_safe_target",
+  "physicalDatabaseValidation": "pending_safe_development_target"
+}

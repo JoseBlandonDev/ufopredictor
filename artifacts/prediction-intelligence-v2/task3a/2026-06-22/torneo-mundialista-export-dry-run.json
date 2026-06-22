@@ -1,0 +1,527 @@
+{
+  "schemaVersion": "torneo-ufo-export-v1",
+  "exportExecution": "not_executed_no_safe_target",
+  "payload": {
+    "schemaVersion": "torneo-ufo-export-v1",
+    "generatedAt": "2026-06-22T02:09:07.444Z",
+    "source": "ufo_predictor",
+    "sourceAppUrl": "https://ufopredictor.com",
+    "competition": "world-cup-2026",
+    "range": {
+      "from": "2026-06-22",
+      "to": "2026-06-22"
+    },
+    "displayGuidance": {
+      "defaultTeaser": "show_1x2_probabilities_and_link",
+      "exactScoreRecommendedReveal": "after_user_pick_or_pick_deadline",
+      "topScorelinesRecommendedReveal": "after_user_pick_or_pick_deadline",
+      "postMatchUse": "comparison_and_learning"
+    },
+    "fixtures": [
+      {
+        "externalId": "api-football:fixture:1489399",
+        "fixtureId": 1489399,
+        "slug": "world-cup-2026-argentina-vs-austria-2026-06-22",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-argentina-vs-austria-2026-06-22",
+        "kickoffAt": "2026-06-22T17:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "Argentina",
+        "awayTeam": "Austria",
+        "prediction": {
+          "homeWinProbability": 0.771131,
+          "drawProbability": 0.145423,
+          "awayWinProbability": 0.083446,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "2-0",
+          "expectedGoals": {
+            "home": 2.8409,
+            "away": 0.8825
+          },
+          "topScorelines": [
+            {
+              "score": "2-0",
+              "homeGoals": 2,
+              "awayGoals": 0,
+              "probability": 0.097722
+            },
+            {
+              "score": "3-0",
+              "homeGoals": 3,
+              "awayGoals": 0,
+              "probability": 0.09254
+            },
+            {
+              "score": "2-1",
+              "homeGoals": 2,
+              "awayGoals": 1,
+              "probability": 0.08624
+            },
+            {
+              "score": "3-1",
+              "homeGoals": 3,
+              "awayGoals": 1,
+              "probability": 0.081666
+            },
+            {
+              "score": "1-0",
+              "homeGoals": 1,
+              "awayGoals": 0,
+              "probability": 0.068797
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.551939,
+            "noProbability": 0.448061
+          },
+          "totalGoals25": {
+            "overProbability": 0.717751,
+            "underProbability": 0.282249
+          }
+        }
+      },
+      {
+        "externalId": "api-football:fixture:1489401",
+        "fixtureId": 1489401,
+        "slug": "world-cup-2026-norway-vs-senegal-2026-06-23",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-norway-vs-senegal-2026-06-23",
+        "kickoffAt": "2026-06-23T00:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "Norway",
+        "awayTeam": "Senegal",
+        "prediction": {
+          "homeWinProbability": 0.216392,
+          "drawProbability": 0.265701,
+          "awayWinProbability": 0.517907,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "0-1",
+          "expectedGoals": {
+            "home": 0.9105,
+            "away": 1.5502
+          },
+          "topScorelines": [
+            {
+              "score": "0-1",
+              "homeGoals": 0,
+              "awayGoals": 1,
+              "probability": 0.132353
+            },
+            {
+              "score": "1-1",
+              "homeGoals": 1,
+              "awayGoals": 1,
+              "probability": 0.120508
+            },
+            {
+              "score": "0-2",
+              "homeGoals": 0,
+              "awayGoals": 2,
+              "probability": 0.102587
+            },
+            {
+              "score": "1-2",
+              "homeGoals": 1,
+              "awayGoals": 2,
+              "probability": 0.093406
+            },
+            {
+              "score": "0-0",
+              "homeGoals": 0,
+              "awayGoals": 0,
+              "probability": 0.085378
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.470842,
+            "noProbability": 0.529158
+          },
+          "totalGoals25": {
+            "overProbability": 0.446047,
+            "underProbability": 0.553953
+          }
+        }
+      },
+      {
+        "externalId": "api-football:fixture:1489400",
+        "fixtureId": 1489400,
+        "slug": "world-cup-2026-jordan-vs-algeria-2026-06-23",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-jordan-vs-algeria-2026-06-23",
+        "kickoffAt": "2026-06-23T03:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "Jordan",
+        "awayTeam": "Algeria",
+        "prediction": {
+          "homeWinProbability": 0.141271,
+          "drawProbability": 0.26147,
+          "awayWinProbability": 0.597259,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "0-1",
+          "expectedGoals": {
+            "home": 0.6216,
+            "away": 1.5629
+          },
+          "topScorelines": [
+            {
+              "score": "0-1",
+              "homeGoals": 0,
+              "awayGoals": 1,
+              "probability": 0.175886
+            },
+            {
+              "score": "0-2",
+              "homeGoals": 0,
+              "awayGoals": 2,
+              "probability": 0.137446
+            },
+            {
+              "score": "0-0",
+              "homeGoals": 0,
+              "awayGoals": 0,
+              "probability": 0.112538
+            },
+            {
+              "score": "1-1",
+              "homeGoals": 1,
+              "awayGoals": 1,
+              "probability": 0.109331
+            },
+            {
+              "score": "1-2",
+              "homeGoals": 1,
+              "awayGoals": 2,
+              "probability": 0.085437
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.365918,
+            "noProbability": 0.634082
+          },
+          "totalGoals25": {
+            "overProbability": 0.373103,
+            "underProbability": 0.626897
+          }
+        }
+      },
+      {
+        "externalId": "api-football:fixture:1489402",
+        "fixtureId": 1489402,
+        "slug": "world-cup-2026-england-vs-ghana-2026-06-23",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-england-vs-ghana-2026-06-23",
+        "kickoffAt": "2026-06-23T20:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "England",
+        "awayTeam": "Ghana",
+        "prediction": {
+          "homeWinProbability": 0.814754,
+          "drawProbability": 0.128514,
+          "awayWinProbability": 0.056732,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "2-0",
+          "expectedGoals": {
+            "home": 2.8953,
+            "away": 0.6953
+          },
+          "topScorelines": [
+            {
+              "score": "2-0",
+              "homeGoals": 2,
+              "awayGoals": 0,
+              "probability": 0.115957
+            },
+            {
+              "score": "3-0",
+              "homeGoals": 3,
+              "awayGoals": 0,
+              "probability": 0.11191
+            },
+            {
+              "score": "4-0",
+              "homeGoals": 4,
+              "awayGoals": 0,
+              "probability": 0.081003
+            },
+            {
+              "score": "2-1",
+              "homeGoals": 2,
+              "awayGoals": 1,
+              "probability": 0.080625
+            },
+            {
+              "score": "1-0",
+              "homeGoals": 1,
+              "awayGoals": 0,
+              "probability": 0.0801
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.47329,
+            "noProbability": 0.52671
+          },
+          "totalGoals25": {
+            "overProbability": 0.694661,
+            "underProbability": 0.305339
+          }
+        }
+      },
+      {
+        "externalId": "api-football:fixture:1489403",
+        "fixtureId": 1489403,
+        "slug": "world-cup-2026-panama-vs-croatia-2026-06-23",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-panama-vs-croatia-2026-06-23",
+        "kickoffAt": "2026-06-23T23:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "Panama",
+        "awayTeam": "Croatia",
+        "prediction": {
+          "homeWinProbability": 0.058282,
+          "drawProbability": 0.144666,
+          "awayWinProbability": 0.797052,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "0-2",
+          "expectedGoals": {
+            "home": 0.5911,
+            "away": 2.5849
+          },
+          "topScorelines": [
+            {
+              "score": "0-2",
+              "homeGoals": 0,
+              "awayGoals": 2,
+              "probability": 0.139688
+            },
+            {
+              "score": "0-3",
+              "homeGoals": 0,
+              "awayGoals": 3,
+              "probability": 0.12036
+            },
+            {
+              "score": "0-1",
+              "homeGoals": 0,
+              "awayGoals": 1,
+              "probability": 0.10808
+            },
+            {
+              "score": "1-2",
+              "homeGoals": 1,
+              "awayGoals": 2,
+              "probability": 0.08257
+            },
+            {
+              "score": "0-4",
+              "homeGoals": 0,
+              "awayGoals": 4,
+              "probability": 0.07778
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.412583,
+            "noProbability": 0.587417
+          },
+          "totalGoals25": {
+            "overProbability": 0.614514,
+            "underProbability": 0.385486
+          }
+        }
+      },
+      {
+        "externalId": "api-football:fixture:1539017",
+        "fixtureId": 1539017,
+        "slug": "world-cup-2026-france-vs-iraq-2026-06-22",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-france-vs-iraq-2026-06-22",
+        "kickoffAt": "2026-06-22T21:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "France",
+        "awayTeam": "Iraq",
+        "prediction": {
+          "homeWinProbability": 0.422724,
+          "drawProbability": 0.271035,
+          "awayWinProbability": 0.30624,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "1-1",
+          "expectedGoals": {
+            "home": 1.4286,
+            "away": 1.179
+          },
+          "topScorelines": [
+            {
+              "score": "1-1",
+              "homeGoals": 1,
+              "awayGoals": 1,
+              "probability": 0.124156
+            },
+            {
+              "score": "1-0",
+              "homeGoals": 1,
+              "awayGoals": 0,
+              "probability": 0.105306
+            },
+            {
+              "score": "2-1",
+              "homeGoals": 2,
+              "awayGoals": 1,
+              "probability": 0.088685
+            },
+            {
+              "score": "0-1",
+              "homeGoals": 0,
+              "awayGoals": 1,
+              "probability": 0.086908
+            },
+            {
+              "score": "2-0",
+              "homeGoals": 2,
+              "awayGoals": 0,
+              "probability": 0.07522
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.526477,
+            "noProbability": 0.473523
+          },
+          "totalGoals25": {
+            "overProbability": 0.483465,
+            "underProbability": 0.516535
+          }
+        }
+      },
+      {
+        "externalId": "api-football:fixture:1489404",
+        "fixtureId": 1489404,
+        "slug": "world-cup-2026-portugal-vs-uzbekistan-2026-06-23",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-portugal-vs-uzbekistan-2026-06-23",
+        "kickoffAt": "2026-06-23T17:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "Portugal",
+        "awayTeam": "Uzbekistan",
+        "prediction": {
+          "homeWinProbability": 0.490475,
+          "drawProbability": 0.262237,
+          "awayWinProbability": 0.247288,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "1-1",
+          "expectedGoals": {
+            "home": 1.5719,
+            "away": 1.0452
+          },
+          "topScorelines": [
+            {
+              "score": "1-1",
+              "homeGoals": 1,
+              "awayGoals": 1,
+              "probability": 0.119964
+            },
+            {
+              "score": "1-0",
+              "homeGoals": 1,
+              "awayGoals": 0,
+              "probability": 0.114776
+            },
+            {
+              "score": "2-1",
+              "homeGoals": 2,
+              "awayGoals": 1,
+              "probability": 0.094286
+            },
+            {
+              "score": "2-0",
+              "homeGoals": 2,
+              "awayGoals": 0,
+              "probability": 0.090208
+            },
+            {
+              "score": "0-1",
+              "homeGoals": 0,
+              "awayGoals": 1,
+              "probability": 0.076318
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.513737,
+            "noProbability": 0.486263
+          },
+          "totalGoals25": {
+            "overProbability": 0.485834,
+            "underProbability": 0.514166
+          }
+        }
+      },
+      {
+        "externalId": "api-football:fixture:1539008",
+        "fixtureId": 1539008,
+        "slug": "world-cup-2026-colombia-vs-congo-dr-2026-06-24",
+        "ufoUrl": "https://ufopredictor.com/matches/world-cup-2026-colombia-vs-congo-dr-2026-06-24",
+        "kickoffAt": "2026-06-24T02:00:00+00:00",
+        "stage": "Group Stage - 2",
+        "status": "scheduled",
+        "homeTeam": "Colombia",
+        "awayTeam": "DR Congo",
+        "prediction": {
+          "homeWinProbability": 0.364095,
+          "drawProbability": 0.304651,
+          "awayWinProbability": 0.331255,
+          "confidenceScore": null,
+          "riskLevel": null,
+          "mostLikelyScore": "1-1",
+          "expectedGoals": {
+            "home": 1.1104,
+            "away": 1.0457
+          },
+          "topScorelines": [
+            {
+              "score": "1-1",
+              "homeGoals": 1,
+              "awayGoals": 1,
+              "probability": 0.134433
+            },
+            {
+              "score": "1-0",
+              "homeGoals": 1,
+              "awayGoals": 0,
+              "probability": 0.128558
+            },
+            {
+              "score": "0-1",
+              "homeGoals": 0,
+              "awayGoals": 1,
+              "probability": 0.121067
+            },
+            {
+              "score": "0-0",
+              "homeGoals": 0,
+              "awayGoals": 0,
+              "probability": 0.115776
+            },
+            {
+              "score": "2-1",
+              "homeGoals": 2,
+              "awayGoals": 1,
+              "probability": 0.074637
+            }
+          ],
+          "bothTeamsToScore": {
+            "yesProbability": 0.434902,
+            "noProbability": 0.565098
+          },
+          "totalGoals25": {
+            "overProbability": 0.36549,
+            "underProbability": 0.63451
+          }
+        }
+      }
+    ]
+  }
+}

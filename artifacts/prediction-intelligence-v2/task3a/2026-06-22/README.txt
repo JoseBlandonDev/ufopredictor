@@ -1,0 +1,8 @@
+Prediction Intelligence v2 Task 3A artifacts
+artifact_date=2026-06-22
+generation_cutoff=2026-06-22T02:09:07.444Z
+migration_execution=not_executed_no_safe_target
+development_seed_write=not_executed_no_safe_target
+physical_database_validation=pending_safe_development_target
+future_release_fixtures=8
+chosen_candidate=gated_v2_probability_v2_analysis
