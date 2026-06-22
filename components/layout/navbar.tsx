@@ -6,18 +6,18 @@ import { getCurrentProfile, getCurrentUser } from "@/lib/auth/session";
 
 const navItems = [
   { href: "/predictions", label: "Predicciones", icon: Gauge },
-  { href: "/pricing", label: "Planes", icon: RadioTower },
+  { href: "/pricing", label: "Pase Mundial", icon: RadioTower },
   { href: "/transparency", label: "Transparencia", icon: BarChart3 },
   { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
 ];
 
 const adminOpsItems = [
-  { href: "/admin/payments", label: "Payments" },
+  { href: "/admin/payments", label: "Pagos" },
   { href: "/admin/prediction-refresh-review", label: "Revisión de predicciones" },
-  { href: "/admin/real-fixture-lab", label: "Real Fixture Lab" },
-  { href: "/admin/real-fixture-result-review-queue", label: "Result Review" },
-  { href: "/admin/real-fixture-evaluation-queue", label: "Evaluation" },
-  { href: "/admin/real-fixture-publish-queue", label: "Publish Queue" },
+  { href: "/admin/real-fixture-lab", label: "Laboratorio de partidos" },
+  { href: "/admin/real-fixture-result-review-queue", label: "Revisión de resultados" },
+  { href: "/admin/real-fixture-evaluation-queue", label: "Evaluación" },
+  { href: "/admin/real-fixture-publish-queue", label: "Cola de publicación" },
   { href: "/admin/torneo-export", label: "Torneo Export" },
 ];
 
@@ -68,7 +68,7 @@ export async function Navbar() {
                   </summary>
                   <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-52 overflow-hidden rounded-lg border border-[var(--accent)]/20 bg-[#08121f]/98 shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
                     <div className="border-b border-white/8 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                      Admin ops
+                      Operaciones
                     </div>
                     <div className="p-2">
                       {adminOpsItems.map((item) => (

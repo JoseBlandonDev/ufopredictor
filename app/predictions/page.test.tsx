@@ -47,9 +47,9 @@ describe("PredictionsPage", () => {
     const element = await PredictionsPage();
     const html = renderToStaticMarkup(element);
 
-    expect(html).toContain("Ver todos los proximos");
+    expect(html).toContain("Ver todos los próximos");
     expect(html).toContain("href=\"/predictions/upcoming\"");
-    expect(html).toContain("Ver historial completo");
+    expect(html).toContain("Ir al historial");
     expect(html).toContain("href=\"/predictions/history\"");
   });
 });

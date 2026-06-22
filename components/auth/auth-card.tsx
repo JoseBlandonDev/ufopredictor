@@ -28,10 +28,10 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
         </span>
         <p className="font-mono text-xs uppercase tracking-[0.2em]">{isLogin ? "Acceso" : "Registro"}</p>
       </div>
-      <h1 className="mt-5 text-3xl font-semibold">{isLogin ? "Inicia sesion" : "Crea tu cuenta"}</h1>
+      <h1 className="mt-5 text-3xl font-semibold">{isLogin ? "Inicia sesión" : "Crea tu cuenta"}</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
         {isLogin
-          ? "Accede a tu panel y a las senales habilitadas para tu perfil."
+          ? "Accede a tu panel y a las señales habilitadas para tu perfil."
           : "Crea tu perfil de observador para acceder al panel de UFO Predictor."}
       </p>
 
@@ -72,7 +72,7 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
           </label>
         ) : null}
         <label className="block space-y-2 text-sm">
-          <span className="text-[var(--muted)]">Correo electronico</span>
+          <span className="text-[var(--muted)]">Correo electrónico</span>
           <input
             name="email"
             type="email"
@@ -82,7 +82,7 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
           />
         </label>
         <label className="block space-y-2 text-sm">
-          <span className="text-[var(--muted)]">Contrasena</span>
+          <span className="text-[var(--muted)]">Contraseña</span>
           <input
             name="password"
             type="password"
@@ -103,15 +103,15 @@ export function AuthCard({ mode, action, nextPath, error, message }: AuthCardPro
       {isLogin ? (
         <p className="mt-4 text-sm text-[var(--muted)]">
           <Link href={checkEmailHref} className="text-[var(--accent)] hover:text-white">
-            Reenviar confirmacion de correo
+            Reenviar confirmación
           </Link>
         </p>
       ) : null}
 
       <p className="mt-6 text-sm text-[var(--muted)]">
-        {isLogin ? "Aun no tienes cuenta? " : "Ya tienes cuenta? "}
+        {isLogin ? "Aún no tienes cuenta? " : "Ya tienes cuenta? "}
         <Link href={alternateHrefWithNext} className="text-[var(--accent)] hover:text-white">
-          {isLogin ? "Registrate" : "Inicia sesion"}
+          {isLogin ? "Regístrate" : "Inicia sesión"}
         </Link>
       </p>
     </section>

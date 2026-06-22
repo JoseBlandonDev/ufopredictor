@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PublicPredictionCard } from "@/components/public-prediction-card";
+import { getWorldCupProductName } from "../../lib/presentation/public-display";
 import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
 import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
 import type { PublicPredictionCardView, PublicPredictionViewer } from "@/lib/supabase/public-prediction-queries";
@@ -34,26 +35,26 @@ export function renderPredictionsAccountCallout(args: {
     <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5">
       <h2 className="text-lg font-semibold">
         {premiumAccessActive
-          ? "World Cup Pass activo"
+          ? `${getWorldCupProductName()} activo`
           : isAuthenticated
-            ? "Tu cuenta gratis esta activa"
+            ? "Tu cuenta gratis está activa"
             : "Cuenta gratis disponible"}
       </h2>
       <p className="mt-2 text-sm text-[var(--muted)]">
         {premiumAccessActive
-          ? "Tu acceso premium ya esta activo. Entra al detalle de cada partido para ver las secciones avanzadas que esten publicadas."
+          ? "Tu acceso premium ya está activo. Entra al detalle de cada partido para ver las secciones avanzadas que estén publicadas."
           : isAuthenticated
-            ? "Ya ves el contexto completo de confianza y riesgo en las predicciones publicas publicadas y puedes seguir el detalle del partido."
-            : "Crea una cuenta gratis para desbloquear el contexto completo de confianza y riesgo y seguir las predicciones publicas publicadas con mas claridad."}
+            ? "Ya ves el contexto completo de confianza y riesgo en las predicciones públicas publicadas y puedes seguir cada partido con más claridad."
+            : "Crea una cuenta gratis para desbloquear el contexto completo de confianza y riesgo en las predicciones públicas."}
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         {premiumAccessActive ? (
           <>
             <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
-              Abrir panel premium
+              Abrir panel
             </Link>
             <Link href="/pricing" className="ufo-btn-secondary ufo-focus-ring">
-              Revisar World Cup Pass
+              Revisar {getWorldCupProductName()}
             </Link>
           </>
         ) : isAuthenticated ? (
@@ -66,7 +67,7 @@ export function renderPredictionsAccountCallout(args: {
               Crear cuenta gratis
             </Link>
             <Link href="/login?next=/predictions" className="ufo-btn-secondary ufo-focus-ring">
-              Iniciar sesion
+              Iniciar sesión
             </Link>
           </>
         )}
@@ -128,7 +129,7 @@ export function renderPredictionPagination(args: {
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-      <span className="text-sm text-[var(--muted)]">Pagina {args.page}</span>
+      <span className="text-sm text-[var(--muted)]">Página {args.page}</span>
       <div className="flex gap-3">
         {args.hasPreviousPage ? (
           <Link

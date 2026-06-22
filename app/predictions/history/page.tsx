@@ -36,10 +36,10 @@ export default async function PredictionHistoryPage({
           <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">
             Historial
           </p>
-          <h1 className="mt-3 text-4xl font-semibold">Historial publico verificado</h1>
+          <h1 className="mt-3 text-4xl font-semibold">Historial público verificado</h1>
           <p className="mt-3 max-w-2xl text-[var(--muted)]">
-            Esta vista conserva solo resultados finales verificados y publicados de forma segura,
-            sin exponer evaluaciones internas ni payloads administrativos.
+            Esta vista conserva resultados finales verificados como referencia histórica del
+            producto público.
           </p>
         </div>
       </section>
@@ -53,9 +53,9 @@ export default async function PredictionHistoryPage({
         </section>
       ) : data.predictions.length === 0 ? (
         <section className="ufo-card rounded-lg p-6">
-          <h2 className="text-lg font-semibold">No hay resultados verificados en esta pagina</h2>
+          <h2 className="text-lg font-semibold">No hay resultados verificados en esta página</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Prueba con otra pagina o vuelve a la vista principal de predicciones.
+            Prueba con otra página o vuelve a la vista principal de predicciones.
           </p>
         </section>
       ) : (

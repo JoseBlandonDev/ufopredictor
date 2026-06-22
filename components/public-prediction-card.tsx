@@ -1,5 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
+import {
+  formatMatchKickoffLabel,
+  formatVenueLabel,
+  getWorldCupProductName,
+  resolveCompetitionDisplayName,
+  resolveStageDisplayName,
+  resolveTeamDisplayName,
+} from "../lib/presentation/public-display";
 import { ConfidenceBadge } from "./confidence-badge";
 import { ProbabilityBar } from "./probability-bar";
 import { RiskBadge } from "./risk-badge";
@@ -11,31 +19,31 @@ type PublicPredictionCardProps = {
 };
 
 export function PublicPredictionCard({ prediction, premiumAccessActive = false }: PublicPredictionCardProps) {
-  const date = new Intl.DateTimeFormat("es-CO", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "America/Bogota",
-  }).format(new Date(prediction.kickoffAt));
-  const venueLabel = prediction.venueCity ?? prediction.venueName ?? "Sede por confirmar";
+  const date = formatMatchKickoffLabel(prediction.kickoffAt);
+  const venueLabel = formatVenueLabel({
+    venueName: prediction.venueName,
+    venueCity: prediction.venueCity,
+  });
   const isRegisteredViewer = prediction.viewer === "registered_free";
+  const competitionLabel = resolveCompetitionDisplayName(prediction.competitionName);
+  const stageLabel = resolveStageDisplayName(prediction.stage);
+  const homeTeamName = resolveTeamDisplayName(prediction.homeTeamName);
+  const awayTeamName = resolveTeamDisplayName(prediction.awayTeamName);
 
   return (
     <article className="ufo-card rounded-lg p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-            {prediction.competitionName} {prediction.stage ? `- ${prediction.stage}` : ""}
+            {competitionLabel} {stageLabel ? `- ${stageLabel}` : ""}
           </p>
-          <h2 className="mt-2 text-xl font-semibold">
-            {prediction.homeTeamName} <span className="text-[var(--muted)]">vs</span>{" "}
-            {prediction.awayTeamName}
+          <h2 className="mt-2 text-xl font-semibold break-words">
+            {homeTeamName} <span className="text-[var(--muted)]">vs</span> {awayTeamName}
           </h2>
           <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--muted)]">
             <span className="flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5" />
-              {date} COT
+              {date}
             </span>
             <span className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5" />
@@ -51,7 +59,7 @@ export function PublicPredictionCard({ prediction, premiumAccessActive = false }
         ) : (
           <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
-              Senal basica
+              Señal base
             </p>
             <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
           </div>
@@ -72,21 +80,21 @@ export function PublicPredictionCard({ prediction, premiumAccessActive = false }
             Resultado final verificado
           </p>
           <p className="mt-2 text-lg font-semibold text-white">
-            {prediction.homeTeamName} {prediction.verifiedResult.homeGoals} -{" "}
-            {prediction.verifiedResult.awayGoals} {prediction.awayTeamName}
+            {homeTeamName} {prediction.verifiedResult.homeGoals} - {prediction.verifiedResult.awayGoals}{" "}
+            {awayTeamName}
           </p>
           <p className="mt-2 text-xs text-[var(--muted)]">
-            Este resultado final ya fue verificado y la prediccion publica se conserva como
-            referencia historica.
+            Este resultado final ya fue verificado y la predicción pública se conserva como
+            referencia histórica.
           </p>
         </div>
       ) : null}
       <p className="mt-4 text-xs text-[var(--muted)]">
         {isRegisteredViewer
           ? premiumAccessActive
-            ? "Vista premium: confianza, riesgo y detalle avanzado disponibles segun la publicacion del partido."
-            : "Vista registrada gratis: confianza y riesgo completos en el panel publico."
-          : "Vista publica basica: 1X2 completo y senal inicial de confianza y riesgo."}
+            ? `Vista premium: el ${getWorldCupProductName()} habilita confianza, riesgo y detalle avanzado cuando ese partido ya está publicado.`
+            : "Vista con cuenta gratis: confianza y riesgo completos en el panel público."
+          : "Vista pública base: 1X2 completo y señal inicial de confianza y riesgo."}
       </p>
       <p className="mt-2 text-xs text-[var(--muted)]">
         {isRegisteredViewer
@@ -94,7 +102,7 @@ export function PublicPredictionCard({ prediction, premiumAccessActive = false }
           : "Las probabilidades reflejan una lectura del modelo, no una promesa de resultado."}
       </p>
       <Link href={`/matches/${prediction.matchSlug}`} className="ufo-link-action ufo-focus-ring mt-4">
-        {premiumAccessActive ? "Ver detalle premium" : "Ver detalle publico"}
+        {premiumAccessActive ? "Ver detalle premium" : "Ver detalle público"}
         <ArrowRight className="h-4 w-4" />
       </Link>
     </article>

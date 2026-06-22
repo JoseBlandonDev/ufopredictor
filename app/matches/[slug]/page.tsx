@@ -1,28 +1,29 @@
 import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
+import { buildRepresentativeScenario } from "../../../lib/presentation/premium-scenarios";
+import {
+  formatMatchDateTimeLabel,
+  formatProbability,
+  formatVenueLabel,
+  getMarketGlossary,
+  resolvePremiumMarketLabel,
+  resolvePremiumMarketSelection,
+  getWorldCupProductName,
+  resolveCompetitionDisplayName,
+  resolveMatchStatusLabel,
+  resolveStageDisplayName,
+  resolveTeamDisplayName,
+} from "../../../lib/presentation/public-display";
 import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ProbabilityBar } from "@/components/probability-bar";
 import { RiskBadge } from "@/components/risk-badge";
 import { getPublicMatchDetailData } from "@/lib/supabase/public-match-detail-queries";
 import { getSavedMatchStateBySlug } from "@/lib/supabase/saved-matches-queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { MatchRow } from "@/types/database";
 import { removeSavedMatchAction, saveMatchAction } from "./actions";
 
 export const dynamic = "force-dynamic";
-
-const statusLabels: Record<MatchRow["status"], string> = {
-  scheduled: "Programado",
-  live: "En vivo",
-  finished: "Finalizado",
-  postponed: "Aplazado",
-  cancelled: "Cancelado",
-};
-
-function formatProbability(value: number) {
-  return `${value.toFixed(1)}%`;
-}
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -49,12 +50,11 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   }
 
   const { match } = data;
-  const kickoff = new Intl.DateTimeFormat("es-CO", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "America/Bogota",
-  }).format(new Date(match.kickoffAt));
-  const venue = [match.venueName, match.venueCity].filter(Boolean).join(", ") || "Sede por confirmar";
+  const kickoff = formatMatchDateTimeLabel(match.kickoffAt);
+  const venue = formatVenueLabel({
+    venueName: match.venueName,
+    venueCity: match.venueCity,
+  });
   const saveAction = saveMatchAction.bind(null, match.matchSlug);
   const removeAction = removeSavedMatchAction.bind(null, match.matchSlug);
   const hasPremiumModelDetail =
@@ -68,28 +68,52 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
     match.premiumProjection.status === "authorized_unavailable";
   const canShowRegisteredFreeProbableScore =
     !hasPremiumAccess && match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
+  const homeTeamName = resolveTeamDisplayName(match.homeTeamName);
+  const awayTeamName = resolveTeamDisplayName(match.awayTeamName);
+  const competitionLabel = resolveCompetitionDisplayName(match.competitionName);
+  const stageLabel = resolveStageDisplayName(match.stage);
+  const glossary = getMarketGlossary();
+  const premiumPayload =
+    match.premiumProjection.status === "authorized" ? match.premiumProjection.payload : null;
+  const premiumModelDetail = premiumPayload?.modelDetail ?? null;
+  const representativeScenarios =
+    premiumModelDetail
+      ? premiumModelDetail.topScorelines.map((scoreline) =>
+          buildRepresentativeScenario({
+            score: scoreline.score,
+            probability: scoreline.probability,
+            homeTeamName: match.homeTeamName,
+            awayTeamName: match.awayTeamName,
+            homeWinProb: match.prediction?.homeWinProb ?? 0,
+            drawProb: match.prediction?.drawProb ?? 0,
+            awayWinProb: match.prediction?.awayWinProb ?? 0,
+            expectedGoals: premiumModelDetail.expectedGoals,
+            btts: premiumModelDetail.bothTeamsToScore,
+            totalGoals25: premiumModelDetail.totalGoals25,
+          }),
+        )
+      : [];
 
   return (
     <div className="space-y-6">
       <section className="ufo-card rounded-lg p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-              {match.competitionName} {match.stage ? `- ${match.stage}` : ""}
+              {competitionLabel} {stageLabel ? `- ${stageLabel}` : ""}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
-              {match.homeTeamName} <span className="text-[var(--muted)]">vs</span>{" "}
-              {match.awayTeamName}
+            <h1 className="mt-3 text-3xl font-semibold break-words sm:text-4xl">
+              {homeTeamName} <span className="text-[var(--muted)]">vs</span> {awayTeamName}
             </h1>
           </div>
           <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
-            {statusLabels[match.status]}
+            {resolveMatchStatusLabel(match.status)}
           </span>
         </div>
         <div className="mt-5 flex flex-wrap gap-4 text-sm text-[var(--muted)]">
           <span className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            {kickoff} COT
+            {kickoff}
           </span>
           <span className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
@@ -104,12 +128,11 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             Resultado final verificado
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
-            {match.homeTeamName} {match.verifiedResult.homeGoals} - {match.verifiedResult.awayGoals}{" "}
-            {match.awayTeamName}
+            {homeTeamName} {match.verifiedResult.homeGoals} - {match.verifiedResult.awayGoals} {awayTeamName}
           </h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Este partido ya tiene marcador final verificado. La prediccion publica se mantiene abajo
-            como referencia historica, sin exponer evaluacion interna del modelo.
+            Este partido ya tiene marcador final verificado. La predicción pública se mantiene abajo
+            como referencia histórica del producto.
           </p>
         </section>
       ) : null}
@@ -129,12 +152,12 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 <RiskBadge level={match.prediction.riskLevel} />
               </div>
             ) : (
-              <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
-                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
-                  Señal básica
-                </p>
-                <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
-              </div>
+            <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
+                Señal base
+              </p>
+              <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
+            </div>
             )}
           </div>
           <div className="mt-6 max-w-2xl">
@@ -155,29 +178,25 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 <>
                   <p className="mt-2 text-2xl font-semibold text-white">{match.prediction.probableScore}</p>
                   <p className="mt-2 text-sm text-[var(--muted)]">
-                    Este es el escenario de marcador m&aacute;s probable seg&uacute;n el modelo, no una
-                    garant&iacute;a de resultado final.
+                    Este es el marcador más probable según el modelo, no una garantía de resultado final.
                   </p>
                 </>
               ) : canShowRegisteredFreeProbableScore ? (
                 <>
                   <p className="mt-2 text-sm text-[var(--muted)]">
-                    El marcador probable no est&aacute; disponible para este partido en este momento.
+                    El marcador probable no está disponible para este partido en este momento.
                   </p>
                   <p className="mt-2 text-xs text-[var(--muted)]">
-                    Despu&eacute;s del resultado verificado, este detalle puede mostrarse como referencia
-                    post-partido.
+                    Después del resultado verificado, este detalle puede mostrarse como referencia post-partido.
                   </p>
                 </>
               ) : (
                 <>
                   <p className="mt-2 text-sm text-[var(--muted)]">
-                    El marcador probable y los escenarios avanzados est&aacute;n reservados para el
-                    detalle premium antes del partido.
+                    El marcador probable y los escenarios avanzados están reservados para el detalle premium antes del partido.
                   </p>
                   <p className="mt-2 text-xs text-[var(--muted)]">
-                    Despu&eacute;s del resultado verificado, este detalle puede mostrarse como referencia
-                    post-partido.
+                    Después del resultado verificado, este detalle puede mostrarse como referencia post-partido.
                   </p>
                 </>
               )}
@@ -196,7 +215,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                   Crear cuenta gratis
                 </Link>
                 <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
-                  Iniciar sesi&oacute;n
+                  Iniciar sesión
                 </Link>
               </div>
             </div>
@@ -204,10 +223,10 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
           <div className="mt-5 space-y-2">
             <p className="text-xs text-[var(--muted)]">
               {hasPremiumAccess
-                ? "Vista premium: contexto completo y detalle avanzado disponibles segun la publicacion del partido."
+                ? `Vista premium: tu ${getWorldCupProductName()} habilita el detalle avanzado cuando este partido ya tiene contenido premium publicado.`
                 : isAuthenticated
-                  ? "Vista registrada gratis: contexto completo de confianza y riesgo y lectura publica del partido."
-                  : "Vista publica basica: 1X2 completo y senal inicial de confianza y riesgo."}
+                  ? "Vista con cuenta gratis: contexto completo de confianza y riesgo y lectura pública del partido."
+                  : "Vista pública base: 1X2 completo y señal inicial de confianza y riesgo."}
             </p>
             <p className="text-xs text-[var(--muted)]">
               Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.
@@ -229,7 +248,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
 
       <section className="ufo-card rounded-lg border border-white/15 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          Proyección premium
+          Detalle premium
         </p>
         {match.premiumProjection.status === "locked" ? (
           <>
@@ -239,13 +258,13 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             </p>
             <div className="mt-4">
               <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
-                Ver World Cup Pass
+                Ver {getWorldCupProductName()}
               </Link>
             </div>
           </>
         ) : match.premiumProjection.status === "unavailable" ? (
           <>
-            <h2 className="mt-2 text-lg font-semibold">Proyección premium no disponible</h2>
+            <h2 className="mt-2 text-lg font-semibold">Detalle premium no disponible</h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
               No fue posible preparar el contexto premium de este partido en este momento.
             </p>
@@ -254,7 +273,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
           <>
             <h2 className="mt-2 text-lg font-semibold">Contenido premium temporalmente no disponible</h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              Tu acceso está activo, pero la proyección premium todavía no está lista para mostrarse.
+              Tu acceso está activo, pero el contenido premium todavía no está listo para mostrarse.
             </p>
           </>
         ) : (
@@ -269,12 +288,12 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                     {match.premiumProjection.payload.modelDetail.expectedGoals.away.toFixed(2)}
                   </p>
                   <p className="mt-2 text-xs text-[var(--muted)]">
-                    Proyeccion de gol esperada para local y visitante segun el modelo actual.
+                    Promedio estimado de gol para local y visitante según la lectura actual del modelo.
                   </p>
                 </article>
 
                 <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-sm font-medium">Confianza premium</p>
+                  <p className="text-sm font-medium">Confianza y riesgo</p>
                   {match.premiumProjection.payload.modelDetail.confidence ? (
                     <div className="mt-3 flex flex-wrap gap-2">
                       <ConfidenceBadge
@@ -298,27 +317,44 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                       No hay contexto adicional de confianza disponible para este partido.
                     </p>
                   )}
+                  <p className="mt-3 text-xs text-[var(--muted)]">
+                    La confianza resume la estabilidad de la lectura actual. El riesgo expresa cuánta
+                    incertidumbre todavía puede desviar el partido del escenario central.
+                  </p>
                 </article>
 
                 <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4 lg:col-span-2">
-                  <p className="text-sm font-medium">Top 3 scorelines probables</p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                    {match.premiumProjection.payload.modelDetail.topScorelines.map((scoreline) => (
-                      <div
-                        key={`${scoreline.score}:${scoreline.probability}`}
-                        className="rounded-lg border border-white/10 bg-[#050b14]/60 p-3"
+                  <p className="text-sm font-medium">Escenarios representativos del partido</p>
+                  <div className="mt-3 grid gap-3 xl:grid-cols-3">
+                    {representativeScenarios.map((scenario) => (
+                      <article
+                        key={`${scenario.title}:${scenario.scoreline}`}
+                        className="rounded-lg border border-white/10 bg-[#050b14]/60 p-4"
                       >
-                        <p className="font-mono text-2xl">{scoreline.score}</p>
-                        <p className="mt-2 text-sm text-[var(--muted)]">
-                          {formatProbability(scoreline.probability)}
+                        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+                          {scenario.title}
                         </p>
-                      </div>
+                        <p className="mt-3 font-mono text-3xl">{scenario.scoreline}</p>
+                        <p className="mt-2 text-sm text-[var(--muted)]">{scenario.probabilityLabel}</p>
+                        <p className="mt-3 text-sm text-[var(--muted)]">{scenario.explanation}</p>
+                        {scenario.supportSignals.length > 0 ? (
+                          <div className="mt-3 space-y-1 text-xs text-[var(--muted)]">
+                            {scenario.supportSignals.map((signal) => (
+                              <p key={signal}>{signal}</p>
+                            ))}
+                          </div>
+                        ) : null}
+                        <p className="mt-3 text-xs text-[var(--muted)]">
+                          Puede perder fuerza si: {scenario.weakeningCondition}
+                        </p>
+                        <p className="mt-3 text-xs text-[var(--muted)]">{scenario.disclaimer}</p>
+                      </article>
                     ))}
                   </div>
                 </article>
 
                 <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-sm font-medium">BTTS</p>
+                  <p className="text-sm font-medium">Ambos equipos marcan (BTTS)</p>
                   <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
                     <p>
                       Si:{" "}
@@ -340,10 +376,10 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 </article>
 
                 <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-sm font-medium">Total goals 2.5</p>
+                  <p className="text-sm font-medium">Más / Menos de 2,5 goles</p>
                   <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
                     <p>
-                      Over:{" "}
+                      Más de 2,5:{" "}
                       <span className="font-medium text-white">
                         {formatProbability(
                           match.premiumProjection.payload.modelDetail.totalGoals25.overProbability,
@@ -351,7 +387,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                       </span>
                     </p>
                     <p>
-                      Under:{" "}
+                      Menos de 2,5:{" "}
                       <span className="font-medium text-white">
                         {formatProbability(
                           match.premiumProjection.payload.modelDetail.totalGoals25.underProbability,
@@ -364,14 +400,14 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             ) : (
               <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
                 <p className="text-sm text-[var(--muted)]">
-                  El detalle premium del modelo no esta disponible para este partido en este momento.
+                  El detalle premium del modelo no está disponible para este partido en este momento.
                 </p>
               </div>
             )}
 
             {hasLegacyPremiumMarkets || !hasPremiumModelDetail ? (
               <>
-                <h3 className="text-base font-semibold">Mercados premium autorizados</h3>
+                <h3 className="text-base font-semibold">Lecturas complementarias</h3>
                 {match.premiumProjection.payload.markets.length === 0 ? (
                   <p className="text-sm text-[var(--muted)]">
                     No hay mercados premium publicados para este partido.
@@ -383,9 +419,11 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                         key={`${market.marketKey}:${market.selection}`}
                         className="rounded-lg border border-white/10 bg-white/[0.03] p-3"
                       >
-                        <p className="text-sm font-medium">{market.label}</p>
+                        <p className="text-sm font-medium">
+                          {resolvePremiumMarketLabel(market.marketKey)}
+                        </p>
                         <p className="mt-1 text-sm text-[var(--muted)]">
-                          {market.selection} - {market.probability}%
+                          {resolvePremiumMarketSelection(market.selection)} - {market.probability}%
                         </p>
                       </article>
                     ))}
@@ -395,12 +433,24 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             ) : null}
             {match.premiumProjection.payload.narrative ? (
               <article className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-sm font-medium">Narrativa premium</p>
+                <p className="text-sm font-medium">Lectura adicional</p>
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   {match.premiumProjection.payload.narrative.premiumAnalysis}
                 </p>
               </article>
             ) : null}
+
+            <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm font-medium">Glosario rápido del partido</p>
+              <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                {glossary.map((item) => (
+                  <div key={item.key} className="rounded-lg border border-white/10 bg-[#050b14]/60 p-3">
+                    <p className="text-sm font-medium">{item.title}</p>
+                    <p className="mt-2 text-xs text-[var(--muted)]">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
           </div>
         )}
       </section>
@@ -408,13 +458,13 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
       {hasPremiumAccess ? (
         <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-            World Cup Pass activo
+            {getWorldCupProductName()} activo
           </p>
           <h2 className="mt-2 text-lg font-semibold">
-            Tu acceso premium ya valida el detalle avanzado disponible para este partido.
+            Tu acceso premium está activo y fue validado en el servidor.
           </h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            El contenido premium se muestra arriba cuando existe una proyeccion publicada para este partido.
+            El contenido premium se muestra arriba cuando existe una publicación avanzada disponible para este partido.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
@@ -473,8 +523,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             : "Crea una cuenta gratis para ver el contexto completo de confianza y riesgo en este partido publicado."}
         </h2>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          El análisis premium llegará más adelante. Esta página mantiene la lectura pública básica
-          separada del contenido premium y del Lab interno.
+          Esta página mantiene la lectura pública base separada del detalle premium disponible con el pase activo.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           {isAuthenticated ? (
@@ -497,9 +546,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
 
       <section className="ufo-card rounded-lg p-5">
         <p className="text-sm text-[var(--muted)]">
-          Esta página solo expone metadata pública básica del partido y probabilidades del modelo
-          cuando están disponibles. No muestra resultados internos, evaluaciones internas ni
-          automatización de publicación.
+          Esta página muestra solo información pública del partido y probabilidades publicadas del
+          modelo cuando están disponibles.
         </p>
       </section>
     </div>

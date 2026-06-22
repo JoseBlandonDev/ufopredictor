@@ -309,12 +309,7 @@ async function fetchPublicPredictionRows(args: {
 export async function getPublicPredictionsData(
   viewer: PublicPredictionViewer,
 ): Promise<PublicPredictionsData> {
-  const [liveResult, scheduledResult, historyResult] = await Promise.all([
-    fetchPublicPredictionRows({
-      viewer,
-      status: "live",
-      ascending: true,
-    }),
+  const [scheduledResult, historyResult] = await Promise.all([
     fetchPublicPredictionRows({
       viewer,
       status: "scheduled",
@@ -331,7 +326,6 @@ export async function getPublicPredictionsData(
   ]);
 
   if (
-    liveResult.status === "unavailable" ||
     scheduledResult.status === "unavailable" ||
     historyResult.status === "unavailable"
   ) {
@@ -340,10 +334,7 @@ export async function getPublicPredictionsData(
 
   return {
     status: "ready",
-    upcomingPredictions: [
-      ...sortUpcomingPredictions(liveResult.predictions),
-      ...scheduledResult.predictions,
-    ],
+    upcomingPredictions: sortUpcomingPredictions(scheduledResult.predictions),
     historicalPredictions: historyResult.predictions,
   };
 }

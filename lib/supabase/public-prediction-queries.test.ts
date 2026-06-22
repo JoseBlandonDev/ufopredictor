@@ -146,18 +146,8 @@ describe("public prediction queries", () => {
     );
   });
 
-  it("limits landing sections at query level and preserves live, scheduled, and verified history ordering", async () => {
+  it("limits landing sections at query level and preserves scheduled and verified history ordering", async () => {
     const rows = [
-      buildRow({
-        match_slug: "world-cup-2026-live-a-vs-b-2026-06-19",
-        kickoff_at: "2026-06-19T18:00:00Z",
-        status: "live",
-      }),
-      buildRow({
-        match_slug: "world-cup-2026-live-c-vs-d-2026-06-19",
-        kickoff_at: "2026-06-19T19:00:00Z",
-        status: "live",
-      }),
       ...Array.from({ length: 10 }, (_, index) =>
         buildRow({
           match_slug: `world-cup-2026-upcoming-${index + 1}`,
@@ -200,9 +190,9 @@ describe("public prediction queries", () => {
     expect(result.status).toBe("ready");
     if (result.status !== "ready") return;
 
-    expect(result.upcomingPredictions).toHaveLength(2 + PREDICTIONS_LANDING_UPCOMING_LIMIT);
-    expect(result.upcomingPredictions[0]?.matchSlug).toBe("world-cup-2026-live-a-vs-b-2026-06-19");
-    expect(result.upcomingPredictions[1]?.matchSlug).toBe("world-cup-2026-live-c-vs-d-2026-06-19");
+    expect(result.upcomingPredictions).toHaveLength(PREDICTIONS_LANDING_UPCOMING_LIMIT);
+    expect(result.upcomingPredictions[0]?.matchSlug).toBe("world-cup-2026-upcoming-1");
+    expect(result.upcomingPredictions[1]?.matchSlug).toBe("world-cup-2026-upcoming-2");
     expect(result.upcomingPredictions.at(-1)?.matchSlug).toBe("world-cup-2026-upcoming-8");
     expect(result.historicalPredictions).toHaveLength(PREDICTIONS_LANDING_HISTORY_LIMIT);
     expect(result.historicalPredictions[0]?.matchSlug).toBe("world-cup-2026-history-6");

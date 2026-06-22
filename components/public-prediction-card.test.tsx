@@ -44,7 +44,13 @@ describe("PublicPredictionCard", () => {
   it("keeps registered-free copy for registered viewers without premium access", () => {
     const html = renderToStaticMarkup(<PublicPredictionCard prediction={registeredPrediction} />);
 
-    expect(html).toContain("Vista registrada gratis");
-    expect(html).toContain("Ver detalle publico");
+    expect(html).toContain("Vista con cuenta gratis");
+    expect(html).toContain("Ver detalle público");
+  });
+
+  it("prioritizes the stadium over the city when both are present", () => {
+    const html = renderToStaticMarkup(<PublicPredictionCard prediction={registeredPrediction} />);
+
+    expect(html).toContain("Azteca, Mexico City");
   });
 });
