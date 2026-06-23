@@ -81,7 +81,9 @@ export type ExistingMatchSnapshot = {
   id: string;
   external_id: string | null;
   slug: string;
+  competition_id: string;
   access_scope: MatchRow["access_scope"];
+  intake_source: MatchRow["intake_source"];
 };
 
 export type ExistingMatchResultSnapshot = {
@@ -134,6 +136,9 @@ export type MatchWritePlan = {
   seasonYear: number;
   accessScope: MatchRow["access_scope"];
   intakeSource: "api_football";
+  existingCompetitionId: string | null;
+  existingIntakeSource: MatchRow["intake_source"] | null;
+  targetCompetitionId: string | null;
   sourceNote: string;
   venueId: null;
   mode: "create" | "update";
@@ -344,6 +349,41 @@ export function assertSingleWorldCupApplyPlan(
     if (plan.matchResultPlans.length !== 0) {
       assertApplyError(
         "World Cup apply requires zero planned match_results for the selected fixture.",
+      );
+    }
+
+    return;
+  }
+
+  if (matchPlan.status === "live") {
+    if (plan.matchResultPlans.length !== 0) {
+      assertApplyError(
+        "Live World Cup apply requires zero planned match_results for the selected fixture.",
+      );
+    }
+
+    if (matchPlan.mode !== "update" || !matchPlan.preserveExistingSlug) {
+      assertApplyError(
+        "Live World Cup apply requires an existing exact public API-Football match row.",
+      );
+    }
+
+    if (matchPlan.accessScope !== "public") {
+      assertApplyError("Live World Cup apply requires public match access scope.");
+    }
+
+    if (matchPlan.existingIntakeSource !== "api_football") {
+      assertApplyError(
+        "Live World Cup apply requires api_football intake source on the existing match.",
+      );
+    }
+
+    if (
+      !matchPlan.targetCompetitionId ||
+      matchPlan.existingCompetitionId !== matchPlan.targetCompetitionId
+    ) {
+      assertApplyError(
+        "Live World Cup apply requires the existing match to belong to the expected World Cup competition.",
       );
     }
 
@@ -707,6 +747,9 @@ export function planControlledFixtureWrite(
       seasonYear: target.season,
       accessScope: preservedAccessScope,
       intakeSource: "api_football",
+      existingCompetitionId: existingMatch?.competition_id ?? null,
+      existingIntakeSource: existingMatch?.intake_source ?? null,
+      targetCompetitionId: existingCompetition?.id ?? null,
       sourceNote,
       venueId: null,
       mode: existingMatch ? "update" : "create",
