@@ -13,9 +13,17 @@ const DEFAULT_MAX_PREDICTION_PAGE = 100;
 
 export const PREDICTIONS_LANDING_UPCOMING_LIMIT = 8;
 export const PREDICTIONS_LANDING_HISTORY_LIMIT = 4;
+export const PREDICTIONS_LANDING_LIVE_LIMIT = 4;
 export const PREDICTIONS_PAGE_SIZE = 12;
 
 export type PublicPredictionViewer = "anonymous" | "registered_free";
+export type PublicPredictionCollectionMode = "live_or_interrupted" | "upcoming" | "history";
+export type PublicLiveMatchStateLabel =
+  | "En vivo"
+  | "Entretiempo"
+  | "Partido interrumpido"
+  | "Partido suspendido"
+  | "Esperando actualización oficial";
 
 type PublicPredictionSummaryRow = {
   match_slug: string;
@@ -58,6 +66,8 @@ type PublicPredictionCardBaseView = {
   kickoffAt: string;
   stage: string | null;
   status: MatchRow["status"];
+  collectionMode: PublicPredictionCollectionMode;
+  liveStateLabel: PublicLiveMatchStateLabel | null;
   competitionName: string;
   competitionSlug: string;
   homeTeamName: string;
@@ -93,6 +103,7 @@ export type PublicPredictionCardView =
 export type PublicPredictionsData =
   | {
       status: "ready";
+      livePredictions: PublicPredictionCardView[];
       upcomingPredictions: PublicPredictionCardView[];
       historicalPredictions: PublicPredictionCardView[];
     }
@@ -119,14 +130,65 @@ function unavailable(): PublicPredictionUnavailable {
   };
 }
 
-function toCardBaseView(prediction: PublicPredictionSummaryRow): PublicPredictionCardBaseView {
-  const verifiedResult =
+const LIVE_OR_INTERRUPTED_STATUSES = new Set(["live", "cancelled", "postponed"]);
+
+function hasVerifiedFinalResult(prediction: Pick<
+  PublicPredictionSummaryRow,
+  "result_verification_status" | "verified_home_goals" | "verified_away_goals"
+>) {
+  return (
     prediction.result_verification_status === "verified" &&
     prediction.verified_home_goals !== null &&
     prediction.verified_away_goals !== null
+  );
+}
+
+function isUpcomingPrediction(
+  prediction: Pick<PublicPredictionSummaryRow, "kickoff_at" | "status">,
+  now = new Date(),
+) {
+  return (
+    new Date(prediction.kickoff_at).getTime() > now.getTime() &&
+    prediction.status === "scheduled"
+  );
+}
+
+function isLiveOrInterruptedPrediction(
+  prediction: Pick<
+    PublicPredictionSummaryRow,
+    "kickoff_at" | "status" | "result_verification_status" | "verified_home_goals" | "verified_away_goals"
+  >,
+  now = new Date(),
+) {
+  return (
+    new Date(prediction.kickoff_at).getTime() <= now.getTime() &&
+    !hasVerifiedFinalResult(prediction) &&
+    LIVE_OR_INTERRUPTED_STATUSES.has(prediction.status)
+  );
+}
+
+function getLiveStateLabel(status: MatchRow["status"]): PublicLiveMatchStateLabel {
+  switch (status) {
+    case "live":
+      return "En vivo";
+    case "cancelled":
+      return "Partido interrumpido";
+    case "postponed":
+      return "Partido suspendido";
+    default:
+      return "Esperando actualización oficial";
+  }
+}
+
+function toCardBaseView(
+  prediction: PublicPredictionSummaryRow,
+  collectionMode: PublicPredictionCollectionMode,
+): PublicPredictionCardBaseView {
+  const verifiedResult =
+    hasVerifiedFinalResult(prediction)
       ? {
-          homeGoals: prediction.verified_home_goals,
-          awayGoals: prediction.verified_away_goals,
+          homeGoals: prediction.verified_home_goals!,
+          awayGoals: prediction.verified_away_goals!,
           verificationStatus: "verified" as const,
         }
       : null;
@@ -138,6 +200,9 @@ function toCardBaseView(prediction: PublicPredictionSummaryRow): PublicPredictio
     kickoffAt: prediction.kickoff_at,
     stage: prediction.stage,
     status: prediction.status,
+    collectionMode,
+    liveStateLabel:
+      collectionMode === "live_or_interrupted" ? getLiveStateLabel(prediction.status) : null,
     competitionName: prediction.competition_name,
     competitionSlug: prediction.competition_slug,
     homeTeamName: prediction.home_team_name,
@@ -157,11 +222,33 @@ function toCardBaseView(prediction: PublicPredictionSummaryRow): PublicPredictio
   };
 }
 
-function getUpcomingPriority(status: MatchRow["status"]) {
+function getLivePriority(status: MatchRow["status"]) {
   switch (status) {
     case "live":
       return 0;
+    case "cancelled":
+      return 1;
+    case "postponed":
+      return 2;
+    default:
+      return 3;
+  }
+}
+
+export function sortLivePredictions(predictions: PublicPredictionCardView[]) {
+  return [...predictions].sort((left, right) => {
+    const statusDelta = getLivePriority(left.status) - getLivePriority(right.status);
+    if (statusDelta !== 0) return statusDelta;
+
+    return new Date(left.kickoffAt).getTime() - new Date(right.kickoffAt).getTime();
+  });
+}
+
+function getUpcomingPriority(status: MatchRow["status"]) {
+  switch (status) {
     case "scheduled":
+      return 0;
+    case "live":
       return 1;
     case "postponed":
       return 2;
@@ -192,8 +279,9 @@ export function sortHistoricalPredictions(predictions: PublicPredictionCardView[
 export function toPredictionCardView(
   prediction: PublicPredictionSummaryRow,
   viewer: PublicPredictionViewer,
+  collectionMode: PublicPredictionCollectionMode,
 ): PublicPredictionCardView {
-  const base = toCardBaseView(prediction);
+  const base = toCardBaseView(prediction, collectionMode);
 
   if (viewer === "registered_free") {
     return {
@@ -236,7 +324,8 @@ function buildPublicPredictionQuery(
 
 async function fetchPublicPredictionRows(args: {
   viewer: PublicPredictionViewer;
-  status: MatchRow["status"];
+  status?: MatchRow["status"];
+  mode: PublicPredictionCollectionMode;
   verifiedOnly?: boolean;
   limit?: number;
   page?: number;
@@ -251,7 +340,19 @@ async function fetchPublicPredictionRows(args: {
     return unavailable();
   }
 
-  let query = buildPublicPredictionQuery(supabase).eq("status", args.status);
+  let query = buildPublicPredictionQuery(supabase);
+
+  if (args.mode === "upcoming") {
+    const nowIso = new Date().toISOString();
+    query = query.gt("kickoff_at", nowIso).eq("status", "scheduled");
+  } else if (args.mode === "live_or_interrupted") {
+    const nowIso = new Date().toISOString();
+    query = query
+      .lte("kickoff_at", nowIso)
+      .in("status", ["live", "cancelled", "postponed"]);
+  } else if (args.status) {
+    query = query.eq("status", args.status);
+  }
 
   if (args.verifiedOnly) {
     query = query.eq("result_verification_status", "verified");
@@ -277,9 +378,14 @@ async function fetchPublicPredictionRows(args: {
 
   const filteredPredictions = ((data ?? []) as PublicPredictionSummaryRow[])
     .filter((prediction) =>
-      isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug),
+      isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug) &&
+      (args.mode === "upcoming"
+        ? isUpcomingPrediction(prediction)
+        : args.mode === "live_or_interrupted"
+          ? isLiveOrInterruptedPrediction(prediction)
+          : true),
     )
-    .map((prediction) => toPredictionCardView(prediction, args.viewer));
+    .map((prediction) => toPredictionCardView(prediction, args.viewer, args.mode));
 
   if (typeof args.limit === "number") {
     return {
@@ -312,17 +418,19 @@ export async function getPublicPredictionsData(
   const [liveResult, scheduledResult, historyResult] = await Promise.all([
     fetchPublicPredictionRows({
       viewer,
-      status: "live",
+      mode: "live_or_interrupted",
       ascending: true,
+      limit: PREDICTIONS_LANDING_LIVE_LIMIT,
     }),
     fetchPublicPredictionRows({
       viewer,
-      status: "scheduled",
+      mode: "upcoming",
       ascending: true,
       limit: PREDICTIONS_LANDING_UPCOMING_LIMIT,
     }),
     fetchPublicPredictionRows({
       viewer,
+      mode: "history",
       status: "finished",
       verifiedOnly: true,
       ascending: false,
@@ -340,10 +448,8 @@ export async function getPublicPredictionsData(
 
   return {
     status: "ready",
-    upcomingPredictions: [
-      ...sortUpcomingPredictions(liveResult.predictions),
-      ...scheduledResult.predictions,
-    ],
+    livePredictions: sortLivePredictions(liveResult.predictions),
+    upcomingPredictions: sortUpcomingPredictions(scheduledResult.predictions),
     historicalPredictions: historyResult.predictions,
   };
 }
@@ -354,7 +460,7 @@ export async function getUpcomingPublicPredictionsPage(
 ): Promise<PublicPredictionPaginationResult | PublicPredictionUnavailable> {
   return fetchPublicPredictionRows({
     viewer,
-    status: "scheduled",
+    mode: "upcoming",
     ascending: true,
     page,
     pageSize: PREDICTIONS_PAGE_SIZE,
@@ -367,6 +473,7 @@ export async function getHistoricalPublicPredictionsPage(
 ): Promise<PublicPredictionPaginationResult | PublicPredictionUnavailable> {
   return fetchPublicPredictionRows({
     viewer,
+    mode: "history",
     status: "finished",
     verifiedOnly: true,
     ascending: false,

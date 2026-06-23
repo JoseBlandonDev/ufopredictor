@@ -36,9 +36,9 @@ export default async function UpcomingPredictionsPage({
           <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">
             Predicciones
           </p>
-          <h1 className="mt-3 text-4xl font-semibold">Todos los proximos fixtures publicados</h1>
+          <h1 className="mt-3 text-4xl font-semibold">Todos los próximos partidos publicados</h1>
           <p className="mt-3 max-w-2xl text-[var(--muted)]">
-            Esta vista lista fixtures World Cup 2026 programados y publicados, con paginacion del
+            Esta vista lista partidos programados y publicados del Mundial 2026, con paginación del
             lado del servidor para mantener la lectura ligera y ordenada.
           </p>
         </div>
@@ -53,16 +53,18 @@ export default async function UpcomingPredictionsPage({
         </section>
       ) : data.predictions.length === 0 ? (
         <section className="ufo-card rounded-lg p-6">
-          <h2 className="text-lg font-semibold">No hay proximos fixtures en esta pagina</h2>
+          <h2 className="text-lg font-semibold">No hay próximos partidos en esta página</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Prueba con otra pagina o vuelve a la vista principal de predicciones.
+            Prueba con otra página o vuelve a la vista principal de predicciones.
           </p>
         </section>
       ) : (
         <section className="space-y-4">
           {renderPredictionCards({
             predictions: data.predictions,
+            viewer,
             premiumAccessActive,
+            boundedAnonymousAfter: 2,
           })}
           {renderPredictionPagination({
             pathname: "/predictions/upcoming",

@@ -62,7 +62,7 @@ describe("UpcomingPredictionsPage", () => {
 
     expect(parsePredictionPageMock).toHaveBeenCalledWith("invalid");
     expect(getUpcomingPublicPredictionsPageMock).toHaveBeenCalledWith("anonymous", 1);
-    expect(html).toContain("Todos los proximos fixtures publicados");
+    expect(html).toContain("Todos los próximos partidos publicados");
     expect(html).toContain("Volver a predicciones");
     expect(html).toContain("pagination");
   });

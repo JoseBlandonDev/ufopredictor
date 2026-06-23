@@ -14,7 +14,8 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   const nextPath = params.next ? getSafeRedirectPath(params.next) : undefined;
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center py-8">
+    <div className="relative flex min-h-[70vh] items-center justify-center overflow-hidden py-8">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,215,255,0.12),transparent_42%)]" />
       <AuthCard mode="register" action={registerAction} nextPath={nextPath} error={params.error} />
     </div>
   );

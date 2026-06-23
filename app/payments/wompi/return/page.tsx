@@ -8,7 +8,7 @@ function statusCopy(status: string | null) {
     case "APPROVED":
       return {
         eyebrow: "Pago aprobado",
-        title: "Activando tu World Cup Pass",
+        title: "Activando tu Pase Mundial 2026",
         body: "Tu pago fue aprobado. Estamos actualizando tu acceso automaticamente; esta pantalla se refresca sola.",
         refresh: true,
       };
@@ -24,7 +24,7 @@ function statusCopy(status: string | null) {
       return {
         eyebrow: "Pago en curso",
         title: "Actualizando estado automaticamente",
-        body: "Apenas Wompi confirme el pago, tu World Cup Pass aparecera activo en el panel.",
+        body: "Apenas Wompi confirme el pago, tu Pase Mundial 2026 aparecera activo en el panel.",
         refresh: true,
       };
   }

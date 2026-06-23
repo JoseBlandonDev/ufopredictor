@@ -1,6 +1,12 @@
 import Link from "next/link";
-import { LogoutButton } from "@/components/auth/logout-button";
 import { requireUser } from "@/lib/auth/session";
+import {
+  formatMatchDateTimeLabel,
+  formatVenueLabel,
+  getWorldCupProductName,
+  resolveCompetitionDisplayName,
+  resolveTeamDisplayName,
+} from "../../lib/presentation/public-display";
 import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
 import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
 import { getSavedMatchesForDashboard } from "@/lib/supabase/saved-matches-queries";
@@ -13,12 +19,6 @@ type DashboardPageProps = {
   }>;
 };
 
-const roleLabels = {
-  admin: "Administrador",
-  free_user: "Cuenta gratis",
-  premium_user: "Cuenta premium futura",
-};
-
 function dateLabel(value: string | null) {
   if (!value) {
     return "Sin vencimiento";
@@ -27,60 +27,80 @@ function dateLabel(value: string | null) {
   return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" }).format(new Date(value));
 }
 
-function dateTimeLabel(value: string) {
-  return new Intl.DateTimeFormat("es-CO", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const user = await requireUser("/dashboard");
   const params = await searchParams;
   const summary = await getViewerEntitlementSummary();
   const savedMatches = await getSavedMatchesForDashboard();
   const premiumAccessActive = hasCurrentPremiumAccess(summary);
+  const isAdmin = summary.status === "ready" && summary.role === "admin";
+  const shouldShowUnlocks =
+    summary.status === "ready" && summary.matchUnlocks.length > 0 && !premiumAccessActive;
 
   return (
     <div className="space-y-6">
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-sm uppercase tracking-[0.24em] text-[var(--accent)]">Panel</p>
-          <h1 className="mt-3 text-4xl font-semibold">Panel de observador</h1>
+          <h1 className="mt-3 text-4xl font-semibold">Tu panel</h1>
           <p className="mt-3 max-w-2xl text-[var(--muted)]">
-            Sesión activa para <span className="text-white">{user.email}</span>. El estado de acceso
-            se valida server-side y los payloads premium permanecen fuera de esta fase.
+            Sesión activa para <span className="text-white">{user.email}</span>.
           </p>
         </div>
-        <LogoutButton />
       </section>
 
-      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
+      <section className="ufo-card rounded-2xl border border-[var(--accent)]/30 p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-              Acceso actual
-            </p>
-            <h2 className="mt-2 text-lg font-semibold">
-              {premiumAccessActive ? "World Cup Pass activo" : "Tu cuenta gratis"}
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">Acceso actual</p>
+            <h2 className="mt-2 text-xl font-semibold">
+              {isAdmin ? "Estado de administrador" : premiumAccessActive ? `${getWorldCupProductName()} activo` : "Tu cuenta gratis"}
             </h2>
           </div>
-          <span className="ufo-pill">{premiumAccessActive ? "Premium activo" : "Activo"}</span>
+          <span className="ufo-pill">{isAdmin ? "Administrador" : premiumAccessActive ? "Premium activo" : "Gratis activo"}</span>
         </div>
-        {premiumAccessActive ? (
-          <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
-            <li>Tu pago fue confirmado por Wompi y el acceso quedo activado en el servidor.</li>
-            <li>World Cup Pass habilita derechos premium para la competencia World Cup 2026.</li>
-            <li>El contenido premium se muestra cuando el partido tiene proyeccion premium publicada.</li>
-            <li>El acceso se conserva en tus derechos actuales, no depende del redirect del navegador.</li>
-          </ul>
+        {isAdmin ? (
+          <>
+            <p className="mt-4 text-sm text-[var(--muted)]">
+              Tu perfil conserva acceso a las operaciones administrativas disponibles y mantiene la experiencia comercial separada del trabajo operativo.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+              <li>Usa el menú de Ops en la barra superior para entrar a las herramientas operativas.</li>
+              <li>Este panel evita mezclar tu rol de administración con promesas de acceso premium comercial.</li>
+            </ul>
+          </>
+        ) : premiumAccessActive ? (
+          <>
+            <p className="mt-4 text-sm text-[var(--muted)]">
+              Tu acceso premium está activo y fue validado en el servidor.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+              <li>{getWorldCupProductName()} habilita el detalle premium para los partidos publicados del Mundial 2026.</li>
+              <li>No necesitas comprar de nuevo mientras tu acceso siga activo.</li>
+            </ul>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href="/predictions" className="ufo-btn-primary ufo-focus-ring">
+                Explorar predicciones
+              </Link>
+              <Link href="/dashboard" className="ufo-btn-secondary ufo-focus-ring">
+                Ver guardados
+              </Link>
+            </div>
+          </>
         ) : (
-          <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
-            <li>Las predicciones públicas y el detalle público de partidos ya están disponibles.</li>
-            <li>Tu cuenta gratis activa el contexto completo de confianza y riesgo en vistas públicas.</li>
-            <li>Los partidos guardados muestran solo fixtures reales publicados para esta etapa de lanzamiento.</li>
-            <li>World Cup Pass ya está disponible en Planes y se activa solo con pago aprobado por Wompi.</li>
-          </ul>
+          <>
+            <p className="mt-4 text-sm text-[var(--muted)]">
+              Tu cuenta gratis ya puede consultar las predicciones públicas, el contexto completo de confianza y riesgo y el historial verificado elegible.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href="/predictions" className="ufo-btn-primary ufo-focus-ring">
+                Ver predicciones
+              </Link>
+              <Link href="/pricing" className="ufo-btn-secondary ufo-focus-ring">
+                Ver {getWorldCupProductName()}
+              </Link>
+            </div>
+          </>
         )}
       </section>
 
@@ -96,109 +116,43 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </section>
       ) : (
         <>
-          <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-            <section className="ufo-card rounded-lg p-5 sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-                    Resumen de acceso
-                  </p>
-                  <h2 className="mt-2 text-lg font-semibold">Estado de acceso</h2>
-                </div>
-                <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
-                  {hasCurrentPremiumAccess(summary) ? "Premium activo" : roleLabels[summary.role]}
-                </span>
-              </div>
-              <p className="mt-4 font-mono text-2xl">
-                {hasCurrentPremiumAccess(summary) ? "World Cup Pass activo" : roleLabels[summary.role]}
-              </p>
-              <p className="mt-2 text-sm text-[var(--muted)]">
-                {hasCurrentPremiumAccess(summary)
-                  ? `Derechos premium activos: ${summary.entitlements.length + summary.matchUnlocks.length}.`
-                  : `Suscripciones activas: ${summary.activeSubscriptions.length}. El rol de perfil por si solo no desbloquea contenido protegido.`}
-              </p>
-              <Link
-                href={hasCurrentPremiumAccess(summary) ? "/predictions" : "/pricing"}
-                className="ufo-btn-primary ufo-focus-ring mt-5"
-              >
-                {hasCurrentPremiumAccess(summary) ? "Explorar predicciones" : "Ver ruta de planes"}
-              </Link>
-            </section>
-
-            <section className="ufo-card rounded-lg p-5 sm:p-6">
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-                Derechos disponibles
-              </p>
-              <h2 className="mt-2 text-lg font-semibold">Derechos actuales</h2>
+          {summary.activeSubscriptions.length > 0 ? (
+            <section className="ufo-card rounded-2xl p-5 sm:p-6">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">Suscripciones activas</p>
               <div className="mt-4 space-y-3">
-                {summary.entitlements.length === 0 ? (
-                  <p className="text-sm text-[var(--muted)]">
-                    Aún no tienes derechos adicionales. El acceso público básico sigue disponible.
-                  </p>
-                ) : (
-                  summary.entitlements.map((entitlement) => (
-                    <div
-                      key={entitlement.id}
-                      className="rounded-lg border border-white/10 bg-white/[0.03] p-4"
-                    >
-                      <p className="font-medium">{entitlement.entitlement_type}</p>
-                      <p className="mt-1 text-sm text-[var(--muted)]">
-                        {entitlement.resource_type}: {entitlement.resource_id}
-                      </p>
-                      <p className="mt-1 text-xs text-[var(--muted)]">
-                        Vigencia: {dateLabel(entitlement.ends_at)}
-                      </p>
-                    </div>
-                  ))
-                )}
+                {summary.activeSubscriptions.map((subscription) => (
+                  <div key={subscription.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                    <p className="font-medium">{subscription.planName ?? getWorldCupProductName()}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">Estado: {subscription.status}</p>
+                    <p className="mt-1 text-xs text-[var(--muted)]">Vigencia: {dateLabel(subscription.endsAt)}</p>
+                  </div>
+                ))}
               </div>
             </section>
-          </div>
+          ) : null}
 
-          <section className="ufo-card rounded-lg p-5 sm:p-6">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-              Acceso premium
-            </p>
-            <h2 className="mt-2 text-lg font-semibold">Desbloqueos por partido</h2>
-            <div className="mt-4 space-y-3">
-              {summary.matchUnlocks.length === 0 ? (
-                <p className="text-sm text-[var(--muted)]">
-                  {hasCurrentPremiumAccess(summary) ? (
-                    "Tu World Cup Pass aparece en derechos actuales; esta lista solo muestra desbloqueos individuales."
-                  ) : (
-                    <>
-                  Aún no tienes partidos desbloqueados. El detalle premium todavía no está habilitado.
-                    </>
-                  )}
-                </p>
-              ) : (
-                summary.matchUnlocks.map((unlock) => (
-                  <div
-                    key={unlock.id}
-                    className="rounded-lg border border-white/10 bg-white/[0.03] p-4"
-                  >
-                    <p className="font-medium">Acceso a partido</p>
-                    <p className="mt-1 text-sm text-[var(--muted)]">ID: {unlock.match_id}</p>
-                    <p className="mt-1 text-xs text-[var(--muted)]">
-                      Vigencia: {dateLabel(unlock.expires_at)}
-                    </p>
+          {shouldShowUnlocks ? (
+            <section className="ufo-card rounded-2xl p-5 sm:p-6">
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">Acceso adicional</p>
+              <h2 className="mt-2 text-lg font-semibold">Partidos desbloqueados individualmente</h2>
+              <div className="mt-4 space-y-3">
+                {summary.matchUnlocks.map((unlock) => (
+                  <div key={unlock.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                    <p className="font-medium">Acceso individual activo</p>
+                    <p className="mt-1 text-xs text-[var(--muted)]">Vigencia: {dateLabel(unlock.expires_at)}</p>
                   </div>
-                ))
-              )}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
-          <section className="ufo-card rounded-lg p-5 sm:p-6">
+          <section className="ufo-card rounded-2xl p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-                  Seguimiento
-                </p>
+                <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">Seguimiento</p>
                 <h2 className="mt-2 text-lg font-semibold">Partidos guardados</h2>
               </div>
-              <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">
-                Watchlist
-              </span>
+              <span className="ufo-pill border-white/10 bg-white/[0.03] text-[var(--muted)]">Lista guardada</span>
             </div>
             <div className="mt-4 space-y-3">
               {savedMatches.status === "unavailable" ? (
@@ -207,24 +161,23 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <div className="space-y-3">
                   <p className="text-sm text-[var(--muted)]">Aún no guardaste partidos.</p>
                   <Link href="/predictions" className="ufo-btn-secondary ufo-focus-ring">
-                    {premiumAccessActive ? "Explorar predicciones premium" : "Explorar predicciones publicas"}
+                    {premiumAccessActive ? "Explorar predicciones premium" : "Explorar predicciones públicas"}
                   </Link>
                 </div>
               ) : (
                 savedMatches.matches.map((savedMatch) => (
-                  <article
-                    key={savedMatch.matchId}
-                    className="rounded-lg border border-white/10 bg-white/[0.03] p-4"
-                  >
-                    <p className="text-sm text-[var(--muted)]">{savedMatch.competitionName}</p>
-                    <h3 className="mt-1 font-medium">
-                      {savedMatch.homeTeamName} vs {savedMatch.awayTeamName}
+                  <article key={savedMatch.matchId} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                    <p className="text-sm text-[var(--muted)]">{resolveCompetitionDisplayName(savedMatch.competitionName)}</p>
+                    <h3 className="mt-1 font-medium break-words">
+                      {resolveTeamDisplayName(savedMatch.homeTeamName)} vs {resolveTeamDisplayName(savedMatch.awayTeamName)}
                     </h3>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      Kickoff: {dateTimeLabel(savedMatch.kickoffAt)}
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      Guardado: {dateTimeLabel(savedMatch.savedAt)}
+                    <p className="mt-1 text-sm text-[var(--muted)]">Partido: {formatMatchDateTimeLabel(savedMatch.kickoffAt)}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">Guardado: {formatMatchDateTimeLabel(savedMatch.savedAt)}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)] break-words">
+                      {formatVenueLabel({
+                        venueName: savedMatch.venueName,
+                        venueCity: savedMatch.venueCity,
+                      })}
                     </p>
                     <Link href={`/matches/${savedMatch.matchSlug}`} className="ufo-link-action ufo-focus-ring mt-3">
                       Ver detalle del partido
@@ -234,19 +187,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               )}
             </div>
           </section>
+
+          {!isAdmin && !premiumAccessActive ? (
+            <section className="ufo-card rounded-2xl border border-[var(--accent)]/25 p-5 sm:p-6">
+              <h2 className="text-lg font-semibold">Siguiente paso recomendado</h2>
+              <p className="mt-2 text-sm text-[var(--muted)]">
+                El {getWorldCupProductName()} desbloquea escenarios, xG y la lectura completa antes del inicio de cada partido publicado.
+              </p>
+              <div className="mt-4">
+                <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
+                  Ver {getWorldCupProductName()}
+                </Link>
+              </div>
+            </section>
+          ) : null}
         </>
       )}
-
-      <section className="ufo-card rounded-lg p-5 sm:p-6">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          Acceso actual
-        </p>
-        <h2 className="mt-2 text-lg font-semibold">Estado de la etapa actual</h2>
-        <p className="mt-3 text-sm text-[var(--muted)]">
-          El backend ya distingue acceso público, derechos actuales y bypass administrativo explícito.
-          Los pagos confirmados por Wompi activan derechos premium sin depender del redirect del navegador.
-        </p>
-      </section>
     </div>
   );
 }

@@ -353,4 +353,178 @@ describe("public match detail queries", () => {
     expect(result.match.prediction.probableScore).toBeNull();
     expect(rpcCalls).toHaveLength(1);
   });
+
+  it("authorizes historical preview for eligible registered free viewers only after verifying pre-kickoff publication", async () => {
+    const { client } = createFakeSupabaseClient({
+      matchData: {
+        match_slug: "match-slug",
+        match_id: "match-1",
+        kickoff_at: "2026-06-12T19:00:00Z",
+        stage: "Group A",
+        status: "finished",
+        competition_name: "World Cup 2026",
+        competition_slug: "world-cup-2026",
+        competition_access_key: "world_cup_2026",
+        competition_id: "competition-1",
+        home_team_name: "Canada",
+        home_team_slug: "canada",
+        home_team_logo_url: null,
+        home_team_flag_url: null,
+        home_team_id: "team-1",
+        away_team_name: "Bosnia & Herzegovina",
+        away_team_slug: "bosnia-herzegovina",
+        away_team_logo_url: null,
+        away_team_flag_url: null,
+        away_team_id: "team-2",
+        venue_name: "Venue",
+        venue_city: "City",
+        verified_home_goals: 1,
+        verified_away_goals: 0,
+        result_verification_status: "verified",
+      },
+      predictionData: {
+        prediction_created_at: "2026-06-11T12:00:00Z",
+        home_win_prob: 44,
+        draw_prob: 27,
+        away_win_prob: 29,
+        confidence_score: 58,
+        risk_level: "medium",
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue(client);
+    resolvePremiumProjectionForMatchMock.mockResolvedValue({
+      status: "authorized",
+      payload: {
+        markets: [],
+        narrative: null,
+        modelDetail: null,
+        confidenceContext: null,
+      },
+    });
+
+    const result = await getPublicMatchDetailData("match-slug", "registered_free");
+
+    expect(resolvePremiumProjectionForMatchMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        premiumAccess: { status: "authorized" },
+      }),
+    );
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") return;
+    expect(result.match.premiumAccess).toEqual({
+      status: "authorized",
+      mode: "historical_preview",
+    });
+  });
+
+  it("keeps historical premium locked when publication before kickoff cannot be proven", async () => {
+    const { client } = createFakeSupabaseClient({
+      matchData: {
+        match_slug: "match-slug",
+        match_id: "match-1",
+        kickoff_at: "2026-06-12T19:00:00Z",
+        stage: "Group A",
+        status: "finished",
+        competition_name: "World Cup 2026",
+        competition_slug: "world-cup-2026",
+        competition_access_key: "world_cup_2026",
+        competition_id: "competition-1",
+        home_team_name: "Canada",
+        home_team_slug: "canada",
+        home_team_logo_url: null,
+        home_team_flag_url: null,
+        home_team_id: "team-1",
+        away_team_name: "Bosnia & Herzegovina",
+        away_team_slug: "bosnia-herzegovina",
+        away_team_logo_url: null,
+        away_team_flag_url: null,
+        away_team_id: "team-2",
+        venue_name: "Venue",
+        venue_city: "City",
+        verified_home_goals: 1,
+        verified_away_goals: 0,
+        result_verification_status: "verified",
+      },
+      predictionData: {
+        prediction_created_at: "2026-06-12T20:00:00Z",
+        home_win_prob: 44,
+        draw_prob: 27,
+        away_win_prob: 29,
+        confidence_score: 58,
+        risk_level: "medium",
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue(client);
+
+    const result = await getPublicMatchDetailData("match-slug", "registered_free");
+
+    expect(resolvePremiumProjectionForMatchMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        premiumAccess: { status: "locked", reason: "no_entitlement" },
+      }),
+    );
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") return;
+    expect(result.match.premiumAccess).toEqual({
+      status: "locked",
+      reason: "no_entitlement",
+    });
+  });
+
+  it("keeps historical premium locked when the premium payload is absent", async () => {
+    const { client } = createFakeSupabaseClient({
+      matchData: {
+        match_slug: "match-slug",
+        match_id: "match-1",
+        kickoff_at: "2026-06-12T19:00:00Z",
+        stage: "Group A",
+        status: "finished",
+        competition_name: "World Cup 2026",
+        competition_slug: "world-cup-2026",
+        competition_access_key: "world_cup_2026",
+        competition_id: "competition-1",
+        home_team_name: "Canada",
+        home_team_slug: "canada",
+        home_team_logo_url: null,
+        home_team_flag_url: null,
+        home_team_id: "team-1",
+        away_team_name: "Bosnia & Herzegovina",
+        away_team_slug: "bosnia-herzegovina",
+        away_team_logo_url: null,
+        away_team_flag_url: null,
+        away_team_id: "team-2",
+        venue_name: "Venue",
+        venue_city: "City",
+        verified_home_goals: 1,
+        verified_away_goals: 0,
+        result_verification_status: "verified",
+      },
+      predictionData: {
+        prediction_created_at: "2026-06-11T12:00:00Z",
+        home_win_prob: 44,
+        draw_prob: 27,
+        away_win_prob: 29,
+        confidence_score: 58,
+        risk_level: "medium",
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue(client);
+    resolvePremiumProjectionForMatchMock.mockResolvedValue({
+      status: "authorized_unavailable",
+      reason: "missing_authorized_payload",
+    });
+
+    const result = await getPublicMatchDetailData("match-slug", "registered_free");
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") return;
+    expect(result.match.premiumAccess).toEqual({
+      status: "locked",
+      reason: "no_entitlement",
+    });
+    expect(result.match.premiumProjection).toEqual({
+      status: "locked",
+      reason: "no_entitlement",
+    });
+  });
 });

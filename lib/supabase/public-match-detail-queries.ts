@@ -83,6 +83,7 @@ export type PublicMatchDetailView = {
 export type PublicMatchPremiumAccess =
   | {
       status: "authorized";
+      mode: "premium_entitlement" | "historical_preview";
     }
   | {
       status: "locked";
@@ -189,6 +190,34 @@ function hasVerifiedPublicResult(match: PublicMatchDetailRow) {
   );
 }
 
+function isPredictionPublishedBeforeKickoff(
+  prediction: PublicMatchPredictionRow | null,
+  match: Pick<PublicMatchDetailRow, "kickoff_at">,
+) {
+  if (!prediction?.prediction_created_at) {
+    return false;
+  }
+
+  return new Date(prediction.prediction_created_at).getTime() < new Date(match.kickoff_at).getTime();
+}
+
+function isEligibleHistoricalPreview(args: {
+  viewer: PublicPredictionViewer;
+  match: PublicMatchDetailRow;
+  prediction: PublicMatchPredictionRow | null;
+  premiumAccess: PublicMatchPremiumAccess;
+}) {
+  const { viewer, match, prediction, premiumAccess } = args;
+
+  return (
+    viewer === "registered_free" &&
+    premiumAccess.status === "locked" &&
+    match.status === "finished" &&
+    hasVerifiedPublicResult(match) &&
+    isPredictionPublishedBeforeKickoff(prediction, match)
+  );
+}
+
 function toVerifiedPublicResult(
   match: PublicMatchDetailRow,
 ): PublicMatchDetailView["verifiedResult"] {
@@ -290,14 +319,24 @@ export async function getPublicMatchDetailData(
     if (accessDecision.status === "unavailable") {
       premiumAccess = toUnavailablePremiumAccess("access_decision_unavailable");
     } else if (accessDecision.access.canAccess) {
-      premiumAccess = { status: "authorized" };
+      premiumAccess = { status: "authorized", mode: "premium_entitlement" };
     } else {
       premiumAccess = toLockedPremiumAccess();
     }
   }
 
-  const premiumProjection = await resolvePremiumProjectionForMatch({
+  const historicalPreviewEligible = isEligibleHistoricalPreview({
+    viewer,
+    match,
+    prediction,
     premiumAccess,
+  });
+
+  let premiumProjection = await resolvePremiumProjectionForMatch({
+    premiumAccess:
+      premiumAccess.status === "authorized" || historicalPreviewEligible
+        ? { status: "authorized" as const }
+        : premiumAccess,
     matchId: match.match_id,
     fetchProjection: async (matchId) => {
       const { data, error } = await supabase.rpc("get_premium_match_projection", {
@@ -309,6 +348,19 @@ export async function getPublicMatchDetailData(
       };
     },
   });
+
+  if (
+    historicalPreviewEligible &&
+    premiumProjection.status === "authorized" &&
+    premiumAccess.status === "locked"
+  ) {
+    premiumAccess = { status: "authorized", mode: "historical_preview" };
+  } else if (historicalPreviewEligible && premiumAccess.status === "locked") {
+    premiumProjection = {
+      status: "locked",
+      reason: "no_entitlement",
+    };
+  }
 
   const verifiedResult = toVerifiedPublicResult(match);
 

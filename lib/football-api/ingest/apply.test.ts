@@ -36,6 +36,9 @@ const worldCupTarget: TargetCompetition = {
   useCase: "core_world_cup",
 };
 
+const WORLD_CUP_EXTERNAL_ID = "api-football:league:1";
+const WORLD_CUP_COMPETITION_ID = "competition-world-cup";
+
 function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture {
   return {
     provider: "api-football",
@@ -271,6 +274,8 @@ describe("controlled apply rules", () => {
       status: "scheduled",
       accessScope: "admin_only",
       intakeSource: "api_football",
+      existingCompetitionId: null,
+      existingIntakeSource: null,
     });
     expect(plan.matchResultPlans).toHaveLength(0);
     expect(() =>
@@ -311,6 +316,17 @@ describe("controlled apply rules", () => {
         limit: 1,
       },
       {
+        competitionByExternalId: new Map([
+          [
+            WORLD_CUP_EXTERNAL_ID,
+            {
+              id: WORLD_CUP_COMPETITION_ID,
+              external_id: WORLD_CUP_EXTERNAL_ID,
+              slug: "world-cup-2026",
+              usage_scope: "public_product",
+            },
+          ],
+        ]),
         matchByExternalId: new Map([
           [
             "api-football:fixture:1489369",
@@ -318,7 +334,9 @@ describe("controlled apply rules", () => {
               id: "match-1",
               external_id: "api-football:fixture:1489369",
               slug: "world-cup-2026-mexico-vs-south-africa-2026-06-11",
+              competition_id: WORLD_CUP_COMPETITION_ID,
               access_scope: "public",
+              intake_source: "api_football",
             },
           ],
         ]),
@@ -330,6 +348,9 @@ describe("controlled apply rules", () => {
       status: "finished",
       accessScope: "public",
       intakeSource: "api_football",
+      existingCompetitionId: WORLD_CUP_COMPETITION_ID,
+      existingIntakeSource: "api_football",
+      targetCompetitionId: WORLD_CUP_COMPETITION_ID,
     });
     expect(finishedPlan.matchResultPlans).toEqual([
       {
@@ -938,7 +959,9 @@ describe("controlled apply rules", () => {
               id: "match-1",
               external_id: "api-football:fixture:9001",
               slug: "existing-safe-slug",
+              competition_id: "competition-1",
               access_scope: "admin_only",
+              intake_source: "api_football",
             },
           ],
         ]),
@@ -989,7 +1012,9 @@ describe("controlled apply rules", () => {
               id: "match-1",
               external_id: "api-football:fixture:9001",
               slug: "existing-safe-slug",
+              competition_id: "competition-1",
               access_scope: "admin_only",
+              intake_source: "api_football",
             },
           ],
         ]),
@@ -1099,7 +1124,9 @@ describe("controlled apply rules", () => {
               id: "match-1",
               external_id: "api-football:fixture:9001",
               slug: "already-public-match",
+              competition_id: "competition-1",
               access_scope: "public",
+              intake_source: "api_football",
             },
           ],
         ]),
@@ -1112,6 +1139,235 @@ describe("controlled apply rules", () => {
       mode: "update",
     });
     expect(plan.warnings.some((warning) => warning.includes("preserves existing public access_scope"))).toBe(true);
+  });
+
+  it("allows exact live world cup apply for an existing public API-Football match and preserves slug/access", () => {
+    const livePlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1539017,
+          kickoffAt: "2026-06-22T16:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 2",
+          },
+          status: "live",
+          statusShort: "2H",
+          homeTeam: {
+            providerTeamId: 85,
+            name: "France",
+            winner: null,
+          },
+          awayTeam: {
+            providerTeamId: 1025,
+            name: "Iraq",
+            winner: null,
+          },
+          goals: { home: 2, away: 0 },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1539017,
+        from: "2026-06-22",
+        to: "2026-06-22",
+        limit: 1,
+      },
+      {
+        competitionByExternalId: new Map([
+          [
+            WORLD_CUP_EXTERNAL_ID,
+            {
+              id: WORLD_CUP_COMPETITION_ID,
+              external_id: WORLD_CUP_EXTERNAL_ID,
+              slug: "world-cup-2026",
+              usage_scope: "public_product",
+            },
+          ],
+        ]),
+        matchByExternalId: new Map([
+          [
+            "api-football:fixture:1539017",
+            {
+              id: "match-live-1",
+              external_id: "api-football:fixture:1539017",
+              slug: "world-cup-2026-france-vs-iraq-2026-06-22",
+              competition_id: WORLD_CUP_COMPETITION_ID,
+              access_scope: "public",
+              intake_source: "api_football",
+            },
+          ],
+        ]),
+      },
+    );
+
+    expect(livePlan.matchPlans[0]).toMatchObject({
+      fixtureId: 1539017,
+      status: "live",
+      mode: "update",
+      slug: "world-cup-2026-france-vs-iraq-2026-06-22",
+      accessScope: "public",
+      existingCompetitionId: WORLD_CUP_COMPETITION_ID,
+      existingIntakeSource: "api_football",
+      targetCompetitionId: WORLD_CUP_COMPETITION_ID,
+      preserveExistingSlug: true,
+    });
+    expect(livePlan.matchResultPlans).toEqual([]);
+    expect(() =>
+      assertSingleWorldCupApplyPlan(livePlan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1539017,
+        from: "2026-06-22",
+        to: "2026-06-22",
+        limit: 1,
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects exact live world cup apply when the existing public fixture is absent", () => {
+    const livePlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1539017,
+          kickoffAt: "2026-06-22T16:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 2",
+          },
+          status: "live",
+          statusShort: "2H",
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1539017,
+        from: "2026-06-22",
+        to: "2026-06-22",
+        limit: 1,
+      },
+      {
+        competitionByExternalId: new Map([
+          [
+            WORLD_CUP_EXTERNAL_ID,
+            {
+              id: WORLD_CUP_COMPETITION_ID,
+              external_id: WORLD_CUP_EXTERNAL_ID,
+              slug: "world-cup-2026",
+              usage_scope: "public_product",
+            },
+          ],
+        ]),
+      },
+    );
+
+    expect(livePlan.matchPlans[0]).toMatchObject({
+      mode: "create",
+      preserveExistingSlug: false,
+    });
+    expect(() =>
+      assertSingleWorldCupApplyPlan(livePlan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1539017,
+        from: "2026-06-22",
+        to: "2026-06-22",
+        limit: 1,
+      }),
+    ).toThrow(/existing exact public api-football match row/i);
+  });
+
+  it("rejects exact live world cup apply for admin_only fixtures", () => {
+    const livePlan = planControlledFixtureWrite(
+      [
+        buildFixture({
+          providerFixtureId: 1489401,
+          kickoffAt: "2026-06-22T18:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 2",
+          },
+          status: "live",
+          statusShort: "1H",
+          homeTeam: {
+            providerTeamId: 900,
+            name: "Norway",
+            winner: null,
+          },
+          awayTeam: {
+            providerTeamId: 901,
+            name: "Senegal",
+            winner: null,
+          },
+        }),
+      ],
+      worldCupTarget,
+      {
+        competitionKey: "world-cup",
+        fixtureId: 1489401,
+        from: "2026-06-22",
+        to: "2026-06-22",
+        limit: 1,
+      },
+      {
+        competitionByExternalId: new Map([
+          [
+            WORLD_CUP_EXTERNAL_ID,
+            {
+              id: WORLD_CUP_COMPETITION_ID,
+              external_id: WORLD_CUP_EXTERNAL_ID,
+              slug: "world-cup-2026",
+              usage_scope: "public_product",
+            },
+          ],
+        ]),
+        matchByExternalId: new Map([
+          [
+            "api-football:fixture:1489401",
+            {
+              id: "match-live-2",
+              external_id: "api-football:fixture:1489401",
+              slug: "world-cup-2026-norway-vs-senegal-2026-06-22",
+              competition_id: WORLD_CUP_COMPETITION_ID,
+              access_scope: "admin_only",
+              intake_source: "api_football",
+            },
+          ],
+        ]),
+      },
+    );
+
+    expect(() =>
+      assertSingleWorldCupApplyPlan(livePlan, worldCupTarget, {
+        competitionKey: "world-cup",
+        fixtureId: 1489401,
+        from: "2026-06-22",
+        to: "2026-06-22",
+        limit: 1,
+      }),
+    ).toThrow(/public match access scope/i);
+  });
+
+  it("keeps live world cup apply blocked without exact fixture/date/limit guards", () => {
+    expect(() =>
+      resolveApplyConfig({
+        apply: true,
+        competition: "world-cup",
+        fixtureId: 1539017,
+        from: "2026-06-22",
+        to: "2026-06-22",
+        limit: 2,
+      }),
+    ).toThrow(/world cup apply requires explicit --fixtureId, --from, --to, and --limit 1/i);
   });
 
   it("dedupes team plans by external_id within a run", () => {
