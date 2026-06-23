@@ -16,7 +16,7 @@ export default async function WompiSuccessPage() {
       <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-300">
         Pago recibido
       </p>
-      <h1 className="mt-2 text-3xl font-semibold">Activando tu World Cup Pass</h1>
+      <h1 className="mt-2 text-3xl font-semibold">Activando tu Pase Mundial 2026</h1>
       <p className="mt-3 max-w-2xl text-sm text-[var(--muted)]">
         Tu pago fue recibido. El acceso se actualiza automaticamente y te llevaremos al panel cuando quede activo.
       </p>

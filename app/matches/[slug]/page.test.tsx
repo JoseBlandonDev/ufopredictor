@@ -257,4 +257,26 @@ describe("MatchDetailPage", () => {
     expect(html).toContain("Desbloquea el análisis completo del partido");
     expect(html).not.toContain("Análisis premium publicado antes del partido");
   });
+
+  it("uses lista wording for saved-match public copy", async () => {
+    getSavedMatchStateBySlugMock.mockResolvedValue({
+      status: "ready",
+      isAuthenticated: true,
+      isSaved: false,
+    });
+    getPublicMatchDetailDataMock.mockResolvedValue({
+      status: "ready",
+      match: buildMatch(),
+    });
+
+    const html = renderToStaticMarkup(
+      await MatchDetailPage({
+        params: Promise.resolve({ slug: "world-cup-2026-germany-vs-saudi-arabia-2026-06-22" }),
+      }),
+    );
+
+    expect(html).toContain("Guardar partido en tu lista");
+    expect(html).toContain("Guarda este partido en tu lista para seguirlo más tarde desde tu cuenta.");
+    expect(html).not.toContain("watchlist");
+  });
 });

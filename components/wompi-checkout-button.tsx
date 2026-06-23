@@ -40,7 +40,7 @@ export function WompiCheckoutButton() {
         disabled={status === "loading"}
       >
         <CreditCard className="h-4 w-4" />
-        {status === "loading" ? "Preparando checkout" : "Comprar World Cup Pass"}
+        {status === "loading" ? "Preparando checkout" : "Comprar Pase Mundial 2026"}
       </button>
       {status === "error" ? (
         <p className="text-xs text-[var(--warning)]">

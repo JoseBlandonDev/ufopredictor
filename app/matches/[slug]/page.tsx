@@ -543,10 +543,10 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         {savedState.status === "ready" && savedState.isAuthenticated ? (
           <>
             <h2 className="mt-2 text-lg font-semibold">
-              {savedState.isSaved ? "Partido guardado en tu watchlist" : "Guardar partido en tu watchlist"}
+              {savedState.isSaved ? "Partido guardado en tu lista" : "Guardar partido en tu lista"}
             </h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              {savedState.isSaved ? "Puedes quitar este partido en cualquier momento." : "Guarda este partido para seguirlo más tarde desde tu cuenta."}
+              {savedState.isSaved ? "Puedes quitar este partido en cualquier momento." : "Guarda este partido en tu lista para seguirlo más tarde desde tu cuenta."}
             </p>
             <form action={savedState.isSaved ? removeAction : saveAction} className="mt-4">
               <button type="submit" className="ufo-btn-primary ufo-focus-ring">
@@ -558,7 +558,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
           <>
             <h2 className="mt-2 text-lg font-semibold">Guarda este partido con una cuenta gratis</h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              Crea una cuenta o inicia sesión para guardar este partido en tu watchlist.
+              Crea una cuenta o inicia sesión para guardar este partido en tu lista.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
