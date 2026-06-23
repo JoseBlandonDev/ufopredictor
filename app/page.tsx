@@ -19,10 +19,12 @@ export default async function HomePage() {
   const publicPredictionsData = await getPublicPredictionsData(viewer);
   const livePredictions =
     publicPredictionsData.status === "ready" ? publicPredictionsData.livePredictions : [];
+  const awaitingUpdatePredictions =
+    publicPredictionsData.status === "ready" ? publicPredictionsData.awaitingUpdatePredictions : [];
   const upcomingPredictions =
     publicPredictionsData.status === "ready" ? publicPredictionsData.upcomingPredictions : [];
   const featuredPrediction = livePredictions[0] ?? upcomingPredictions[0] ?? null;
-  const isFeaturedPredictionLive = featuredPrediction?.collectionMode === "live_or_interrupted";
+  const isFeaturedPredictionLive = featuredPrediction?.collectionMode === "in_progress";
   const additionalPredictions =
     livePredictions.length > 0 ? upcomingPredictions.slice(0, 3) : upcomingPredictions.slice(1, 4);
   const featureCards = premiumAccessActive
@@ -239,6 +241,33 @@ export default async function HomePage() {
                 prediction={prediction}
                 detailMode={viewer === "anonymous" ? "preview" : "full"}
                 premiumAccessActive={premiumAccessActive}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {awaitingUpdatePredictions.length > 0 ? (
+        <section className="space-y-4">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+              Sincronización pendiente
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold">Pendientes de actualización</h2>
+            <p className="mt-2 max-w-3xl text-sm text-[var(--muted)]">
+              Estos partidos ya salieron de la ventana normal en curso o recibieron un estado oficial
+              no programado. La predicción publicada sigue visible mientras se sincroniza y verifica
+              el resultado oficial.
+            </p>
+          </div>
+          <div className="grid gap-4 xl:grid-cols-3">
+            {awaitingUpdatePredictions.map((prediction) => (
+              <PublicPredictionCard
+                key={prediction.matchSlug}
+                prediction={prediction}
+                detailMode={viewer === "anonymous" ? "preview" : "full"}
+                premiumAccessActive={premiumAccessActive}
+                showLiveState
               />
             ))}
           </div>

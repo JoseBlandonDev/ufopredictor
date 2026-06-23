@@ -37,6 +37,7 @@ export default async function PredictionsPage() {
         </section>
       ) :
         data.livePredictions.length === 0 &&
+        data.awaitingUpdatePredictions.length === 0 &&
         data.upcomingPredictions.length === 0 &&
         data.historicalPredictions.length === 0 ? (
         <section className="ufo-card rounded-lg p-6">
@@ -65,6 +66,28 @@ export default async function PredictionsPage() {
                 premiumAccessActive,
                 showLiveState: true,
                 showPreMatchDisclaimer: true,
+                boundedAnonymousAfter: 1,
+              })}
+            </section>
+          ) : null}
+
+          {data.awaitingUpdatePredictions.length > 0 ? (
+            <section className="space-y-4">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <h2 className="text-2xl font-semibold">Pendientes de actualización</h2>
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    Estos partidos siguen visibles mientras se sincroniza el resultado oficial o se
+                    confirma su estado público definitivo. No mostramos un marcador final sin
+                    verificación.
+                  </p>
+                </div>
+              </div>
+              {renderPredictionCards({
+                predictions: data.awaitingUpdatePredictions,
+                viewer,
+                premiumAccessActive,
+                showLiveState: true,
                 boundedAnonymousAfter: 1,
               })}
             </section>

@@ -14,16 +14,31 @@ const DEFAULT_MAX_PREDICTION_PAGE = 100;
 export const PREDICTIONS_LANDING_UPCOMING_LIMIT = 8;
 export const PREDICTIONS_LANDING_HISTORY_LIMIT = 4;
 export const PREDICTIONS_LANDING_LIVE_LIMIT = 4;
+export const PREDICTIONS_LANDING_AWAITING_LIMIT = 4;
 export const PREDICTIONS_PAGE_SIZE = 12;
 
+// Three hours is a conservative public window: it keeps a just-started or stoppage-heavy match
+// visible as in progress, but prevents a stale status from looking live indefinitely.
+export const PUBLIC_ACTIVE_MATCH_WINDOW_MS = 3 * 60 * 60 * 1000;
+
 export type PublicPredictionViewer = "anonymous" | "registered_free";
-export type PublicPredictionCollectionMode = "live_or_interrupted" | "upcoming" | "history";
-export type PublicLiveMatchStateLabel =
+export type PublicPredictionCollectionMode =
+  | "in_progress"
+  | "awaiting_result_update"
+  | "upcoming"
+  | "history";
+export type PublicLifecycleStateLabel =
   | "En vivo"
-  | "Entretiempo"
-  | "Partido interrumpido"
   | "Partido suspendido"
-  | "Esperando actualización oficial";
+  | "Partido cancelado"
+  | "Esperando resultado oficial";
+export type PublicPredictionLifecycle =
+  | "upcoming"
+  | "in_progress"
+  | "awaiting_result_update"
+  | "cancelled"
+  | "postponed"
+  | "history";
 
 type PublicPredictionSummaryRow = {
   match_slug: string;
@@ -67,7 +82,7 @@ type PublicPredictionCardBaseView = {
   stage: string | null;
   status: MatchRow["status"];
   collectionMode: PublicPredictionCollectionMode;
-  liveStateLabel: PublicLiveMatchStateLabel | null;
+  liveStateLabel: PublicLifecycleStateLabel | null;
   competitionName: string;
   competitionSlug: string;
   homeTeamName: string;
@@ -104,6 +119,7 @@ export type PublicPredictionsData =
   | {
       status: "ready";
       livePredictions: PublicPredictionCardView[];
+      awaitingUpdatePredictions: PublicPredictionCardView[];
       upcomingPredictions: PublicPredictionCardView[];
       historicalPredictions: PublicPredictionCardView[];
     }
@@ -130,8 +146,6 @@ function unavailable(): PublicPredictionUnavailable {
   };
 }
 
-const LIVE_OR_INTERRUPTED_STATUSES = new Set(["live", "cancelled", "postponed"]);
-
 function hasVerifiedFinalResult(prediction: Pick<
   PublicPredictionSummaryRow,
   "result_verification_status" | "verified_home_goals" | "verified_away_goals"
@@ -143,46 +157,110 @@ function hasVerifiedFinalResult(prediction: Pick<
   );
 }
 
-function isUpcomingPrediction(
-  prediction: Pick<PublicPredictionSummaryRow, "kickoff_at" | "status">,
+export function derivePublicPredictionLifecycle(
+  prediction: Pick<
+    PublicPredictionSummaryRow,
+    "kickoff_at" | "status" | "result_verification_status" | "verified_home_goals" | "verified_away_goals"
+  >,
   now = new Date(),
-) {
-  return (
-    new Date(prediction.kickoff_at).getTime() > now.getTime() &&
-    prediction.status === "scheduled"
-  );
+): PublicPredictionLifecycle {
+  if (hasVerifiedFinalResult(prediction)) {
+    return "history";
+  }
+
+  if (prediction.status === "postponed") {
+    return "postponed";
+  }
+
+  if (prediction.status === "cancelled") {
+    return "cancelled";
+  }
+
+  if (prediction.status === "finished") {
+    return "awaiting_result_update";
+  }
+
+  const kickoffTime = new Date(prediction.kickoff_at).getTime();
+  const nowTime = now.getTime();
+
+  if (kickoffTime > nowTime) {
+    return "upcoming";
+  }
+
+  if (nowTime < kickoffTime + PUBLIC_ACTIVE_MATCH_WINDOW_MS) {
+    return "in_progress";
+  }
+
+  return "awaiting_result_update";
 }
 
-function isLiveOrInterruptedPrediction(
+function isUpcomingPrediction(
   prediction: Pick<
     PublicPredictionSummaryRow,
     "kickoff_at" | "status" | "result_verification_status" | "verified_home_goals" | "verified_away_goals"
   >,
   now = new Date(),
 ) {
+  return derivePublicPredictionLifecycle(prediction, now) === "upcoming";
+}
+
+function isInProgressPrediction(
+  prediction: Pick<
+    PublicPredictionSummaryRow,
+    "kickoff_at" | "status" | "result_verification_status" | "verified_home_goals" | "verified_away_goals"
+  >,
+  now = new Date(),
+) {
+  return derivePublicPredictionLifecycle(prediction, now) === "in_progress";
+}
+
+function isAwaitingUpdatePrediction(
+  prediction: Pick<
+    PublicPredictionSummaryRow,
+    "kickoff_at" | "status" | "result_verification_status" | "verified_home_goals" | "verified_away_goals"
+  >,
+  now = new Date(),
+) {
+  const lifecycle = derivePublicPredictionLifecycle(prediction, now);
   return (
-    new Date(prediction.kickoff_at).getTime() <= now.getTime() &&
-    !hasVerifiedFinalResult(prediction) &&
-    LIVE_OR_INTERRUPTED_STATUSES.has(prediction.status)
+    lifecycle === "awaiting_result_update" ||
+    lifecycle === "cancelled" ||
+    lifecycle === "postponed"
   );
 }
 
-function getLiveStateLabel(status: MatchRow["status"]): PublicLiveMatchStateLabel {
-  switch (status) {
-    case "live":
+function getLifecycleStateLabel(
+  prediction: Pick<
+    PublicPredictionSummaryRow,
+    "kickoff_at" | "status" | "result_verification_status" | "verified_home_goals" | "verified_away_goals"
+  >,
+  collectionMode: PublicPredictionCollectionMode,
+  now = new Date(),
+): PublicLifecycleStateLabel | null {
+  if (collectionMode === "upcoming" || collectionMode === "history") {
+    return null;
+  }
+
+  const lifecycle = derivePublicPredictionLifecycle(prediction, now);
+
+  switch (lifecycle) {
+    case "in_progress":
       return "En vivo";
-    case "cancelled":
-      return "Partido interrumpido";
     case "postponed":
       return "Partido suspendido";
+    case "cancelled":
+      return "Partido cancelado";
+    case "awaiting_result_update":
+      return "Esperando resultado oficial";
     default:
-      return "Esperando actualización oficial";
+      return null;
   }
 }
 
 function toCardBaseView(
   prediction: PublicPredictionSummaryRow,
   collectionMode: PublicPredictionCollectionMode,
+  now = new Date(),
 ): PublicPredictionCardBaseView {
   const verifiedResult =
     hasVerifiedFinalResult(prediction)
@@ -201,8 +279,7 @@ function toCardBaseView(
     stage: prediction.stage,
     status: prediction.status,
     collectionMode,
-    liveStateLabel:
-      collectionMode === "live_or_interrupted" ? getLiveStateLabel(prediction.status) : null,
+    liveStateLabel: getLifecycleStateLabel(prediction, collectionMode, now),
     competitionName: prediction.competition_name,
     competitionSlug: prediction.competition_slug,
     homeTeamName: prediction.home_team_name,
@@ -222,52 +299,40 @@ function toCardBaseView(
   };
 }
 
-function getLivePriority(status: MatchRow["status"]) {
+function getAwaitingPriority(status: MatchRow["status"]) {
   switch (status) {
-    case "live":
+    case "postponed":
       return 0;
     case "cancelled":
       return 1;
-    case "postponed":
-      return 2;
     default:
-      return 3;
+      return 2;
   }
 }
 
-export function sortLivePredictions(predictions: PublicPredictionCardView[]) {
+export function sortInProgressPredictions(predictions: PublicPredictionCardView[]) {
+  return [...predictions].sort(
+    (left, right) => new Date(left.kickoffAt).getTime() - new Date(right.kickoffAt).getTime(),
+  );
+}
+
+export function sortAwaitingUpdatePredictions(predictions: PublicPredictionCardView[]) {
   return [...predictions].sort((left, right) => {
-    const statusDelta = getLivePriority(left.status) - getLivePriority(right.status);
-    if (statusDelta !== 0) return statusDelta;
+    const leftPriority = getAwaitingPriority(left.status);
+    const rightPriority = getAwaitingPriority(right.status);
 
-    return new Date(left.kickoffAt).getTime() - new Date(right.kickoffAt).getTime();
+    if (leftPriority !== rightPriority) {
+      return leftPriority - rightPriority;
+    }
+
+    return new Date(right.kickoffAt).getTime() - new Date(left.kickoffAt).getTime();
   });
-}
-
-function getUpcomingPriority(status: MatchRow["status"]) {
-  switch (status) {
-    case "scheduled":
-      return 0;
-    case "live":
-      return 1;
-    case "postponed":
-      return 2;
-    case "cancelled":
-      return 3;
-    case "finished":
-      return 4;
-    default:
-      return 5;
-  }
 }
 
 export function sortUpcomingPredictions(predictions: PublicPredictionCardView[]) {
-  return [...predictions].sort((left, right) => {
-    const statusDelta = getUpcomingPriority(left.status) - getUpcomingPriority(right.status);
-    if (statusDelta !== 0) return statusDelta;
-
-    return new Date(left.kickoffAt).getTime() - new Date(right.kickoffAt).getTime();
-  });
+  return [...predictions].sort(
+    (left, right) => new Date(left.kickoffAt).getTime() - new Date(right.kickoffAt).getTime(),
+  );
 }
 
 export function sortHistoricalPredictions(predictions: PublicPredictionCardView[]) {
@@ -280,8 +345,9 @@ export function toPredictionCardView(
   prediction: PublicPredictionSummaryRow,
   viewer: PublicPredictionViewer,
   collectionMode: PublicPredictionCollectionMode,
+  now = new Date(),
 ): PublicPredictionCardView {
-  const base = toCardBaseView(prediction, collectionMode);
+  const base = toCardBaseView(prediction, collectionMode, now);
 
   if (viewer === "registered_free") {
     return {
@@ -319,19 +385,12 @@ function buildPublicPredictionQuery(
     .from("public_prediction_summaries")
     .select(PUBLIC_PREDICTION_SUMMARY_SELECT)
     .eq("competition_slug", WORLD_CUP_2026_SLUG)
-    .like("match_slug", WORLD_CUP_2026_MATCH_PREFIX);
+    .like("match_slug", WORLD_CUP_2026_MATCH_PREFIX)
+    .order("kickoff_at", { ascending: true })
+    .order("match_slug", { ascending: true });
 }
 
-async function fetchPublicPredictionRows(args: {
-  viewer: PublicPredictionViewer;
-  status?: MatchRow["status"];
-  mode: PublicPredictionCollectionMode;
-  verifiedOnly?: boolean;
-  limit?: number;
-  page?: number;
-  pageSize?: number;
-  ascending: boolean;
-}): Promise<PublicPredictionPaginationResult | PublicPredictionUnavailable> {
+async function fetchAllPublicPredictionRows() {
   let supabase;
 
   try {
@@ -340,57 +399,67 @@ async function fetchPublicPredictionRows(args: {
     return unavailable();
   }
 
-  let query = buildPublicPredictionQuery(supabase);
-
-  if (args.mode === "upcoming") {
-    const nowIso = new Date().toISOString();
-    query = query.gt("kickoff_at", nowIso).eq("status", "scheduled");
-  } else if (args.mode === "live_or_interrupted") {
-    const nowIso = new Date().toISOString();
-    query = query
-      .lte("kickoff_at", nowIso)
-      .in("status", ["live", "cancelled", "postponed"]);
-  } else if (args.status) {
-    query = query.eq("status", args.status);
-  }
-
-  if (args.verifiedOnly) {
-    query = query.eq("result_verification_status", "verified");
-  }
-
-  query = query
-    .order("kickoff_at", { ascending: args.ascending })
-    .order("match_slug", { ascending: true });
-
-  if (typeof args.limit === "number") {
-    query = query.limit(args.limit);
-  } else if (typeof args.page === "number" && typeof args.pageSize === "number") {
-    const start = (args.page - 1) * args.pageSize;
-    const end = start + args.pageSize;
-    query = query.range(start, end);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await buildPublicPredictionQuery(supabase);
 
   if (error) {
     return unavailable();
   }
 
-  const filteredPredictions = ((data ?? []) as PublicPredictionSummaryRow[])
-    .filter((prediction) =>
-      isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug) &&
-      (args.mode === "upcoming"
-        ? isUpcomingPrediction(prediction)
-        : args.mode === "live_or_interrupted"
-          ? isLiveOrInterruptedPrediction(prediction)
-          : true),
-    )
-    .map((prediction) => toPredictionCardView(prediction, args.viewer, args.mode));
+  return {
+    status: "ready" as const,
+    rows: ((data ?? []) as PublicPredictionSummaryRow[]).filter((prediction) =>
+      isLaunchSafePublicMatch(prediction.match_slug, prediction.competition_slug),
+    ),
+  };
+}
 
+function selectPredictionRowsForMode(args: {
+  rows: PublicPredictionSummaryRow[];
+  viewer: PublicPredictionViewer;
+  mode: PublicPredictionCollectionMode;
+  now?: Date;
+}) {
+  const now = args.now ?? new Date();
+
+  const filteredRows = args.rows.filter((prediction) => {
+    switch (args.mode) {
+      case "upcoming":
+        return isUpcomingPrediction(prediction, now);
+      case "in_progress":
+        return isInProgressPrediction(prediction, now);
+      case "awaiting_result_update":
+        return isAwaitingUpdatePrediction(prediction, now);
+      case "history":
+        return derivePublicPredictionLifecycle(prediction, now) === "history";
+    }
+  });
+
+  const mappedRows = filteredRows.map((prediction) =>
+    toPredictionCardView(prediction, args.viewer, args.mode, now),
+  );
+
+  switch (args.mode) {
+    case "in_progress":
+      return sortInProgressPredictions(mappedRows);
+    case "awaiting_result_update":
+      return sortAwaitingUpdatePredictions(mappedRows);
+    case "upcoming":
+      return sortUpcomingPredictions(mappedRows);
+    case "history":
+      return sortHistoricalPredictions(mappedRows);
+  }
+}
+
+function toPaginationResult(args: {
+  predictions: PublicPredictionCardView[];
+  page?: number;
+  pageSize?: number;
+  limit?: number;
+}): PublicPredictionPaginationResult {
   if (typeof args.limit === "number") {
     return {
       status: "ready",
-      predictions: filteredPredictions,
+      predictions: args.predictions.slice(0, args.limit),
       page: 1,
       pageSize: args.limit,
       hasPreviousPage: false,
@@ -400,46 +469,78 @@ async function fetchPublicPredictionRows(args: {
 
   const page = args.page ?? 1;
   const pageSize = args.pageSize ?? PREDICTIONS_PAGE_SIZE;
-  const hasNextPage = filteredPredictions.length > pageSize;
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  const pagePredictions = args.predictions.slice(start, end);
 
   return {
     status: "ready",
-    predictions: filteredPredictions.slice(0, pageSize),
+    predictions: pagePredictions,
     page,
     pageSize,
     hasPreviousPage: page > 1,
-    hasNextPage,
+    hasNextPage: end < args.predictions.length,
   };
+}
+
+async function fetchPublicPredictionRows(args: {
+  viewer: PublicPredictionViewer;
+  mode: PublicPredictionCollectionMode;
+  limit?: number;
+  page?: number;
+  pageSize?: number;
+  now?: Date;
+}): Promise<PublicPredictionPaginationResult | PublicPredictionUnavailable> {
+  const allRowsResult = await fetchAllPublicPredictionRows();
+
+  if (allRowsResult.status === "unavailable") {
+    return allRowsResult;
+  }
+
+  const predictions = selectPredictionRowsForMode({
+    rows: allRowsResult.rows,
+    viewer: args.viewer,
+    mode: args.mode,
+    now: args.now,
+  });
+
+  return toPaginationResult({
+    predictions,
+    page: args.page,
+    pageSize: args.pageSize,
+    limit: args.limit,
+  });
 }
 
 export async function getPublicPredictionsData(
   viewer: PublicPredictionViewer,
 ): Promise<PublicPredictionsData> {
-  const [liveResult, scheduledResult, historyResult] = await Promise.all([
+  const [liveResult, awaitingResult, scheduledResult, historyResult] = await Promise.all([
     fetchPublicPredictionRows({
       viewer,
-      mode: "live_or_interrupted",
-      ascending: true,
+      mode: "in_progress",
       limit: PREDICTIONS_LANDING_LIVE_LIMIT,
     }),
     fetchPublicPredictionRows({
       viewer,
+      mode: "awaiting_result_update",
+      limit: PREDICTIONS_LANDING_AWAITING_LIMIT,
+    }),
+    fetchPublicPredictionRows({
+      viewer,
       mode: "upcoming",
-      ascending: true,
       limit: PREDICTIONS_LANDING_UPCOMING_LIMIT,
     }),
     fetchPublicPredictionRows({
       viewer,
       mode: "history",
-      status: "finished",
-      verifiedOnly: true,
-      ascending: false,
       limit: PREDICTIONS_LANDING_HISTORY_LIMIT,
     }),
   ]);
 
   if (
     liveResult.status === "unavailable" ||
+    awaitingResult.status === "unavailable" ||
     scheduledResult.status === "unavailable" ||
     historyResult.status === "unavailable"
   ) {
@@ -448,8 +549,9 @@ export async function getPublicPredictionsData(
 
   return {
     status: "ready",
-    livePredictions: sortLivePredictions(liveResult.predictions),
-    upcomingPredictions: sortUpcomingPredictions(scheduledResult.predictions),
+    livePredictions: liveResult.predictions,
+    awaitingUpdatePredictions: awaitingResult.predictions,
+    upcomingPredictions: scheduledResult.predictions,
     historicalPredictions: historyResult.predictions,
   };
 }
@@ -461,7 +563,6 @@ export async function getUpcomingPublicPredictionsPage(
   return fetchPublicPredictionRows({
     viewer,
     mode: "upcoming",
-    ascending: true,
     page,
     pageSize: PREDICTIONS_PAGE_SIZE,
   });
@@ -474,9 +575,6 @@ export async function getHistoricalPublicPredictionsPage(
   return fetchPublicPredictionRows({
     viewer,
     mode: "history",
-    status: "finished",
-    verifiedOnly: true,
-    ascending: false,
     page,
     pageSize: PREDICTIONS_PAGE_SIZE,
   });

@@ -49,6 +49,7 @@ describe("PredictionsPage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [{ matchSlug: "fixture-a" }],
       historicalPredictions: [{ matchSlug: "fixture-b" }],
     });
@@ -71,6 +72,7 @@ describe("PredictionsPage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [{ matchSlug: "fixture-a" }, { matchSlug: "fixture-b" }],
       historicalPredictions: [],
     });
@@ -91,6 +93,7 @@ describe("PredictionsPage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [],
       historicalPredictions: [],
     });
@@ -106,6 +109,7 @@ describe("PredictionsPage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [{ matchSlug: "fixture-live" }],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [{ matchSlug: "fixture-upcoming" }],
       historicalPredictions: [],
     });
@@ -126,6 +130,7 @@ describe("PredictionsPage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [{ matchSlug: "fixture-upcoming" }],
       historicalPredictions: [],
     });
@@ -145,6 +150,7 @@ describe("PredictionsPage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [{ matchSlug: "fixture-a" }],
       historicalPredictions: [{ matchSlug: "fixture-b" }],
     });
@@ -161,5 +167,20 @@ describe("PredictionsPage", () => {
 
     const premiumHtml = renderToStaticMarkup(await PredictionsPage());
     expect(premiumHtml).not.toContain("upgrade-cta");
+  });
+
+  it("renders awaiting-update only when needed and avoids empty headings", async () => {
+    getPublicPredictionsDataMock.mockResolvedValue({
+      status: "ready",
+      livePredictions: [],
+      awaitingUpdatePredictions: [{ matchSlug: "fixture-awaiting" }],
+      upcomingPredictions: [],
+      historicalPredictions: [],
+    });
+
+    const html = renderToStaticMarkup(await PredictionsPage());
+
+    expect(html).toContain("Pendientes de actualización");
+    expect(html).not.toContain("Partidos en curso");
   });
 });
