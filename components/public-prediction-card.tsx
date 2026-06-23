@@ -16,9 +16,16 @@ import type { PublicPredictionCardView } from "@/lib/supabase/public-prediction-
 type PublicPredictionCardProps = {
   prediction: PublicPredictionCardView;
   premiumAccessActive?: boolean;
+  showLiveState?: boolean;
+  showPreMatchDisclaimer?: boolean;
 };
 
-export function PublicPredictionCard({ prediction, premiumAccessActive = false }: PublicPredictionCardProps) {
+export function PublicPredictionCard({
+  prediction,
+  premiumAccessActive = false,
+  showLiveState = false,
+  showPreMatchDisclaimer = false,
+}: PublicPredictionCardProps) {
   const date = formatMatchKickoffLabel(prediction.kickoffAt);
   const venueLabel = formatVenueLabel({
     venueName: prediction.venueName,
@@ -65,6 +72,13 @@ export function PublicPredictionCard({ prediction, premiumAccessActive = false }
           </div>
         )}
       </div>
+      {showLiveState && prediction.liveStateLabel ? (
+        <div className="mt-4 inline-flex rounded-md border border-amber-300/30 bg-amber-400/10 px-3 py-2">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-amber-200">
+            {prediction.liveStateLabel}
+          </p>
+        </div>
+      ) : null}
       <div className="mt-5">
         <ProbabilityBar
           probabilities={{
@@ -86,6 +100,13 @@ export function PublicPredictionCard({ prediction, premiumAccessActive = false }
           <p className="mt-2 text-xs text-[var(--muted)]">
             Este resultado final ya fue verificado y la predicción pública se conserva como
             referencia histórica.
+          </p>
+        </div>
+      ) : null}
+      {showPreMatchDisclaimer ? (
+        <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs text-[var(--muted)]">
+            Esta predicción fue publicada antes del inicio del partido y no se actualiza en vivo.
           </p>
         </div>
       ) : null}

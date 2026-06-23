@@ -33,7 +33,10 @@ export default async function PredictionsPage() {
           <h2 className="text-lg font-semibold">Predicciones temporalmente no disponibles</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">{data.message}</p>
         </section>
-      ) : data.upcomingPredictions.length === 0 && data.historicalPredictions.length === 0 ? (
+      ) :
+        data.livePredictions.length === 0 &&
+        data.upcomingPredictions.length === 0 &&
+        data.historicalPredictions.length === 0 ? (
         <section className="ufo-card rounded-lg p-6">
           <h2 className="text-lg font-semibold">Aún no hay predicciones públicas</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
@@ -43,6 +46,26 @@ export default async function PredictionsPage() {
         </section>
       ) : (
         <>
+          {data.livePredictions.length > 0 ? (
+            <section className="space-y-4">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <h2 className="text-2xl font-semibold">En vivo y partidos interrumpidos</h2>
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    Esta predicción fue publicada antes del inicio del partido y no se actualiza en
+                    vivo.
+                  </p>
+                </div>
+              </div>
+              {renderPredictionCards({
+                predictions: data.livePredictions,
+                premiumAccessActive,
+                showLiveState: true,
+                showPreMatchDisclaimer: true,
+              })}
+            </section>
+          ) : null}
+
           {data.upcomingPredictions.length > 0 ? (
             <section className="space-y-4">
               <div className="flex flex-wrap items-end justify-between gap-3">

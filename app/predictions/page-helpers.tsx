@@ -79,6 +79,8 @@ export function renderPredictionsAccountCallout(args: {
 export function renderPredictionCards(args: {
   predictions: PublicPredictionCardView[];
   premiumAccessActive: boolean;
+  showLiveState?: boolean;
+  showPreMatchDisclaimer?: boolean;
 }) {
   return (
     <div className="grid gap-4 xl:grid-cols-2">
@@ -87,6 +89,8 @@ export function renderPredictionCards(args: {
           key={prediction.matchSlug}
           prediction={prediction}
           premiumAccessActive={args.premiumAccessActive}
+          showLiveState={args.showLiveState}
+          showPreMatchDisclaimer={args.showPreMatchDisclaimer}
         />
       ))}
     </div>

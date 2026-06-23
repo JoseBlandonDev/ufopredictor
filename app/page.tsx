@@ -9,18 +9,22 @@ import {
 } from "../lib/presentation/public-display";
 import { hasCurrentPremiumAccess } from "@/lib/permissions/current-premium-access";
 import { getViewerEntitlementSummary } from "@/lib/supabase/entitlement-queries";
-import { getUpcomingPublicPredictionsPage } from "@/lib/supabase/public-prediction-queries";
+import { getPublicPredictionsData } from "@/lib/supabase/public-prediction-queries";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
   const viewerSummary = user ? await getViewerEntitlementSummary() : null;
   const premiumAccessActive = hasCurrentPremiumAccess(viewerSummary);
   const viewer = user ? "registered_free" : "anonymous";
-  const upcomingData = await getUpcomingPublicPredictionsPage(viewer, 1);
+  const publicPredictionsData = await getPublicPredictionsData(viewer);
+  const livePredictions =
+    publicPredictionsData.status === "ready" ? publicPredictionsData.livePredictions : [];
   const upcomingPredictions =
-    upcomingData.status === "ready" ? upcomingData.predictions.slice(0, 4) : [];
-  const featuredPrediction = upcomingPredictions[0] ?? null;
-  const additionalPredictions = upcomingPredictions.slice(1, 4);
+    publicPredictionsData.status === "ready" ? publicPredictionsData.upcomingPredictions : [];
+  const featuredPrediction = livePredictions[0] ?? upcomingPredictions[0] ?? null;
+  const isFeaturedPredictionLive = featuredPrediction?.collectionMode === "live_or_interrupted";
+  const additionalPredictions =
+    livePredictions.length > 0 ? upcomingPredictions.slice(0, 3) : upcomingPredictions.slice(1, 4);
   const featureCards = premiumAccessActive
     ? [
         [
@@ -139,20 +143,25 @@ export default async function HomePage() {
         {featuredPrediction ? (
           <div className="panel rounded-lg p-6">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-              Próximo partido destacado
+              {isFeaturedPredictionLive
+                ? "Partido en vivo o interrumpido destacado"
+                : "Próximo partido destacado"}
             </p>
             <h3 className="mt-3 text-2xl font-semibold break-words">
               {resolveTeamDisplayName(featuredPrediction.homeTeamName)} vs{" "}
               {resolveTeamDisplayName(featuredPrediction.awayTeamName)}
             </h3>
             <p className="mt-3 max-w-2xl text-sm text-[var(--muted)]">
-              Consulta la predicción pública más cercana, revisa sus probabilidades 1X2 y entra al
-              detalle para entender el contexto de riesgo de ese partido.
+              {isFeaturedPredictionLive
+                ? "Consulta la predicción publicada antes del inicio del partido, conserva sus probabilidades 1X2 y revisa el detalle sin tratarla como una actualización en vivo."
+                : "Consulta la predicción pública más cercana, revisa sus probabilidades 1X2 y entra al detalle para entender el contexto de riesgo de ese partido."}
             </p>
             <div className="mt-5">
               <PublicPredictionCard
                 prediction={featuredPrediction}
                 premiumAccessActive={premiumAccessActive}
+                showLiveState={isFeaturedPredictionLive}
+                showPreMatchDisclaimer={isFeaturedPredictionLive}
               />
             </div>
             <div className="mt-5 flex flex-wrap gap-3">

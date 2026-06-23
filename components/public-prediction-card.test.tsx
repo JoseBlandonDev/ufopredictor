@@ -10,6 +10,8 @@ const registeredPrediction: PublicPredictionCardView = {
   kickoffAt: "2026-06-11T19:00:00.000Z",
   stage: "Group stage",
   status: "scheduled",
+  collectionMode: "upcoming",
+  liveStateLabel: null,
   competitionName: "World Cup 2026",
   competitionSlug: "world-cup-2026",
   homeTeamName: "Mexico",
@@ -52,5 +54,25 @@ describe("PublicPredictionCard", () => {
     const html = renderToStaticMarkup(<PublicPredictionCard prediction={registeredPrediction} />);
 
     expect(html).toContain("Azteca, Mexico City");
+  });
+
+  it("renders the live disclaimer and friendly state label when requested", () => {
+    const html = renderToStaticMarkup(
+      <PublicPredictionCard
+        prediction={{
+          ...registeredPrediction,
+          status: "live",
+          collectionMode: "live_or_interrupted",
+          liveStateLabel: "En vivo",
+        }}
+        showLiveState
+        showPreMatchDisclaimer
+      />,
+    );
+
+    expect(html).toContain("En vivo");
+    expect(html).toContain(
+      "Esta predicción fue publicada antes del inicio del partido y no se actualiza en vivo.",
+    );
   });
 });

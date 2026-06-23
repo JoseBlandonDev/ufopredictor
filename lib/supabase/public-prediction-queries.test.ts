@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  PREDICTIONS_LANDING_LIVE_LIMIT,
   PREDICTIONS_LANDING_HISTORY_LIMIT,
   PREDICTIONS_LANDING_UPCOMING_LIMIT,
   PREDICTIONS_PAGE_SIZE,
@@ -9,6 +10,7 @@ import {
   getUpcomingPublicPredictionsPage,
   parsePredictionPage,
   sortHistoricalPredictions,
+  sortLivePredictions,
   sortUpcomingPredictions,
   toPredictionCardView,
 } from "./public-prediction-queries";
@@ -68,9 +70,9 @@ function createFakeSupabaseClient(data: SummaryRow[]) {
       return {
         select() {
           const filters: Array<{
-            type: "eq" | "like" | "gt" | "neq";
+            type: "eq" | "like" | "gt" | "neq" | "lte" | "in";
             column: string;
-            value: string;
+            value: string | string[];
           }> = [];
           const orders: Array<{ column: string; ascending: boolean }> = [];
           let limit: number | null = null;
@@ -89,8 +91,16 @@ function createFakeSupabaseClient(data: SummaryRow[]) {
               filters.push({ type: "gt", column, value });
               return builder;
             },
+            lte(column: string, value: string) {
+              filters.push({ type: "lte", column, value });
+              return builder;
+            },
             neq(column: string, value: string) {
               filters.push({ type: "neq", column, value });
+              return builder;
+            },
+            in(column: string, value: string[]) {
+              filters.push({ type: "in", column, value });
               return builder;
             },
             order(column: string, options?: { ascending?: boolean }) {
@@ -124,7 +134,17 @@ function createFakeSupabaseClient(data: SummaryRow[]) {
                   continue;
                 }
 
-                const prefix = filter.value.replace(/%$/, "");
+                if (filter.type === "lte") {
+                  rows = rows.filter((row) => String(row[filter.column] ?? "") <= filter.value);
+                  continue;
+                }
+
+                if (filter.type === "in") {
+                  rows = rows.filter((row) => (filter.value as string[]).includes(String(row[filter.column] ?? "")));
+                  continue;
+                }
+
+                const prefix = String(filter.value).replace(/%$/, "");
                 rows = rows.filter((row) => String(row[filter.column] ?? "").startsWith(prefix));
               }
 
@@ -174,8 +194,15 @@ describe("public prediction queries", () => {
     vi.useRealTimers();
   });
 
-  it("limits landing sections at query level and preserves scheduled and verified history ordering", async () => {
+  it("limits landing sections at query level and preserves live, scheduled, and verified history ordering", async () => {
     const rows = [
+      ...Array.from({ length: 5 }, (_, index) =>
+        buildRow({
+          match_slug: `world-cup-2026-live-${index + 1}`,
+          kickoff_at: `2026-06-22T${String(index + 7).padStart(2, "0")}:00:00Z`,
+          status: index === 4 ? "cancelled" : "live",
+        }),
+      ),
       ...Array.from({ length: 10 }, (_, index) =>
         buildRow({
           match_slug: `world-cup-2026-upcoming-${index + 1}`,
@@ -218,6 +245,9 @@ describe("public prediction queries", () => {
     expect(result.status).toBe("ready");
     if (result.status !== "ready") return;
 
+    expect(result.livePredictions).toHaveLength(PREDICTIONS_LANDING_LIVE_LIMIT);
+    expect(result.livePredictions[0]?.matchSlug).toBe("world-cup-2026-live-1");
+    expect(result.livePredictions.at(-1)?.matchSlug).toBe("world-cup-2026-live-4");
     expect(result.upcomingPredictions).toHaveLength(PREDICTIONS_LANDING_UPCOMING_LIMIT);
     expect(result.upcomingPredictions[0]?.matchSlug).toBe("world-cup-2026-upcoming-1");
     expect(result.upcomingPredictions[1]?.matchSlug).toBe("world-cup-2026-upcoming-2");
@@ -288,6 +318,75 @@ describe("public prediction queries", () => {
       awayGoals: 0,
       verificationStatus: "verified",
     });
+  });
+
+  it("keeps live fixtures publicly visible while excluding them from upcoming", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-live-visible",
+        kickoff_at: "2026-06-22T10:30:00Z",
+        status: "live",
+      }),
+      buildRow({
+        match_slug: "world-cup-2026-future-scheduled",
+        kickoff_at: "2026-06-22T13:30:00Z",
+        status: "scheduled",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const landing = await getPublicPredictionsData("anonymous");
+    const upcoming = await getUpcomingPublicPredictionsPage("anonymous", 1);
+
+    expect(landing.status).toBe("ready");
+    if (landing.status === "ready") {
+      expect(landing.livePredictions.map((prediction) => prediction.matchSlug)).toEqual([
+        "world-cup-2026-live-visible",
+      ]);
+      expect(landing.livePredictions[0]?.liveStateLabel).toBe("En vivo");
+      expect(landing.upcomingPredictions.map((prediction) => prediction.matchSlug)).toEqual([
+        "world-cup-2026-future-scheduled",
+      ]);
+    }
+
+    expect(upcoming.status).toBe("ready");
+    if (upcoming.status !== "ready") return;
+    expect(upcoming.predictions.map((prediction) => prediction.matchSlug)).toEqual([
+      "world-cup-2026-future-scheduled",
+    ]);
+  });
+
+  it("keeps interrupted fixtures publicly visible without rendering an unverified final result", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-interrupted-visible",
+        kickoff_at: "2026-06-22T09:30:00Z",
+        status: "cancelled",
+        verified_home_goals: 2,
+        verified_away_goals: 0,
+        result_verification_status: null,
+      }),
+      buildRow({
+        match_slug: "world-cup-2026-suspended-visible",
+        kickoff_at: "2026-06-22T09:45:00Z",
+        status: "postponed",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const result = await getPublicPredictionsData("anonymous");
+
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") return;
+
+    expect(result.livePredictions.map((prediction) => prediction.matchSlug)).toEqual([
+      "world-cup-2026-interrupted-visible",
+      "world-cup-2026-suspended-visible",
+    ]);
+    expect(result.livePredictions[0]?.liveStateLabel).toBe("Partido interrumpido");
+    expect(result.livePredictions[1]?.liveStateLabel).toBe("Partido suspendido");
+    expect(result.livePredictions[0]?.verifiedResult).toBeNull();
+    expect(result.historicalPredictions).toEqual([]);
   });
 
   it("returns paginated scheduled fixtures with deterministic ascending ordering and next-page detection", async () => {
@@ -367,6 +466,7 @@ describe("public prediction queries", () => {
         result_verification_status: "verified",
       }),
       "anonymous",
+      "history",
     );
     const liveNow = toPredictionCardView(
       buildRow({
@@ -375,6 +475,7 @@ describe("public prediction queries", () => {
         status: "live",
       }),
       "anonymous",
+      "live_or_interrupted",
     );
     const scheduledNext = toPredictionCardView(
       buildRow({
@@ -383,11 +484,24 @@ describe("public prediction queries", () => {
         status: "scheduled",
       }),
       "anonymous",
+      "upcoming",
+    );
+    const interruptedNow = toPredictionCardView(
+      buildRow({
+        match_slug: "interrupted-now",
+        kickoff_at: "2026-06-13T19:00:00Z",
+        status: "cancelled",
+      }),
+      "anonymous",
+      "live_or_interrupted",
     );
 
     expect(
-      sortUpcomingPredictions([scheduledNext, liveNow]).map((prediction) => prediction.matchSlug),
-    ).toEqual(["live-now", "future-next"]);
+      sortLivePredictions([interruptedNow, liveNow]).map((prediction) => prediction.matchSlug),
+    ).toEqual(["live-now", "interrupted-now"]);
+    expect(
+      sortUpcomingPredictions([scheduledNext]).map((prediction) => prediction.matchSlug),
+    ).toEqual(["future-next"]);
     expect(
       sortHistoricalPredictions([finishedOld]).map((prediction) => prediction.matchSlug),
     ).toEqual(["finished-old"]);
