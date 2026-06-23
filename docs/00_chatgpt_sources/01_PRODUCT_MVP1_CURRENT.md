@@ -48,7 +48,7 @@ The redirect after payment is informational. Premium activation is granted only 
 - admin status is separate from commercial premium access;
 - may receive approved server-side bypasses for administrative work only.
 
-## Public experience delivered by PR #108
+## MVP1 features completed
 
 - dynamic World Cup homepage;
 - Spanish public presentation;
@@ -57,19 +57,11 @@ The redirect after payment is informational. Premium activation is granted only 
 - Pase Mundial 2026 commercial page;
 - clearer dashboard, transparency, and match-detail surfaces;
 - anonymous pricing CTA routed through Auth;
-- final terminology cleanup.
+- verified result history and exact scenario-hit highlighting;
+- kickoff-derived public lifecycle classification;
+- production Wompi purchase, webhook activation, entitlement persistence, and premium access proof.
 
-## Match lifecycle delivered by PR #109
-
-The public UI derives lifecycle from kickoff time plus verified-result truth instead of trusting stored status alone.
-
-This prevents:
-
-- kicked-off `scheduled` fixtures disappearing;
-- stale `live` rows staying live indefinitely;
-- finished-but-unverified fixtures falling into an invisible gap.
-
-## Verified-result and historical product behavior
+## Verified-result and historical behavior
 
 A verified final result is shown as historical truth while the original pre-match prediction remains immutable.
 
@@ -80,34 +72,54 @@ For eligible premium historical details:
 - when no scenario matches exactly, the UI says so honestly;
 - the product must never rewrite old scenarios after the result.
 
-## Commercial proof already completed
+## MVP1 closeout meaning
 
-A controlled production purchase flow has already been tested through premium activation and persistence. It should not be repeated merely to satisfy documentation work.
+MVP1 is commercially usable. Its closeout does not mean the product stops changing.
 
-## Current launch-safe caveats
+Allowed post-closeout work includes:
 
-- venue enrichment can remain deferred where provider/official mapping is not yet available;
-- some frontend polish can continue after MVP1;
-- result refresh and evaluation persistence are still manual operations;
-- dedicated legal/terms/privacy decisions remain an owner-level follow-up;
-- secondary payment methods are not part of MVP1.
+- remaining fixture/result operations;
+- bounded UI/UX, accessibility, mobile, and conversion improvements;
+- venue enrichment when trusted;
+- operational automation that preserves human verification;
+- documentation maintenance.
 
-## Secondary payment roadmap
+These are incremental releases, not reasons to reopen the entire MVP1 architecture.
 
-Potential future additions:
+## Production continuity while v2 is developed
+
+- continue publishing fixtures with the current production model;
+- discover and store the remaining group-stage fixture IDs early;
+- verify results once or twice per day according to match density;
+- persist evaluations in batches after verification;
+- only generate a replacement v2 prediction for a not-started fixture;
+- preserve every previously published prediction version and cutoff.
+
+## Commercial roadmap boundaries
+
+Potential later additions:
 
 - PayPal Business as a direct secondary checkout option;
-- another regional gateway only if it offers clean webhook and entitlement integration;
-- Hotmart only if the product strategy intentionally shifts toward marketplace/course-style distribution.
+- another regional gateway only if it offers clean webhook, refund, and reconciliation behavior;
+- Hotmart only if product strategy intentionally shifts toward marketplace/course-style distribution.
 
-No second provider should be added before defining:
+No second provider is part of the immediate MVP2 critical path. Before adding one, define:
 
 - canonical product and pricing source;
-- webhook truth;
-- idempotency and duplicate-purchase rules;
+- provider-neutral checkout/payment contract;
+- webhook authority and idempotency;
+- duplicate-purchase rules;
 - refund/revocation behavior;
 - reconciliation and support ownership.
 
+## Internationalization
+
+- Spanish remains the production language;
+- English is the first planned expansion language;
+- internationalization begins after the v2 data/model path is stable and merged;
+- Portuguese is optional and later;
+- canonical entities and internal contracts must remain locale-neutral now.
+
 ## MVP1 verdict
 
-The product is commercially usable now. Remaining work should be treated as operational hardening, incremental UX improvement, automation, and the separate v2 intelligence rollout, not as a reason to reopen the entire MVP1.
+The product is commercially usable now. Remaining work should be treated as production continuity, operational hardening, incremental UX improvement, automation, and the separate v2 intelligence rollout.

@@ -1,115 +1,103 @@
-# Workflow, Guardrails, and Documentation Policy
+# Workflow Guardrails and Documentation Policy
 
 _Last refreshed: 2026-06-23._
 
-## Branch ritual
+## Source hierarchy
 
-Before implementation:
+### ChatGPT shared core
 
-```text
-git fetch origin
-confirm branch and clean status
-confirm the intended base SHA
-create one bounded branch from updated origin/main or the explicit feature branch
-```
+Upload only the 10 files in `docs/00_chatgpt_sources/` to the primary engineering project.
 
-Do not mix MVP1 production fixes into Prediction Intelligence v2.
+After each approved docs refresh:
 
-## Recognition rule
+1. remove superseded uploaded copies;
+2. upload the exact current 10-file set;
+3. do not keep old/new canonical truth together.
 
-Codex should inspect repository truth before changing files:
+### Codex runbooks
 
-- current branch and status;
-- recent commits and relevant PRs;
-- canonical docs;
-- exact code paths;
-- schema/migration state;
-- environment boundaries.
+Detailed execution guidance belongs in `docs/10_codex_runbooks/`.
 
-## Safety rules
+### Project management
 
-- production writes require explicit production-scoped authorization;
-- Task 3B production writes are forbidden;
-- secrets remain in Git-ignored local/runtime stores;
-- no secret values in prompts or reports;
-- no destructive stage reset;
-- no post-result prediction rewrite;
-- no started-fixture republish;
-- no broad refactor during bounded operational fixes.
+MVP2 scope/backlog tracking belongs in `docs/30_project_management/` and is not required as a ChatGPT project source.
 
-## Validation baseline
+### Archive
 
-For code changes:
+Legacy source snapshots remain under `docs/90_archive/` and are historical evidence, not current truth.
 
-- focused tests;
-- lint;
-- production build;
-- `git diff --check`;
-- exact changed-file and behavior report;
-- manual smoke where the behavior depends on production services.
+## Branch discipline
 
-## Documentation structure
+- `main` is the production baseline;
+- production fixes/microreleases branch from current `main`;
+- v2 integration branches from current `main`, not the stale v2 branch;
+- old v2 branch/PR #106 remain read-only reference until superseded;
+- documentation-only branches must not change app code, migrations, environments, or secrets;
+- use worktrees for parallel tracks rather than repeatedly switching a dirty directory.
 
-### `docs/00_chatgpt_sources/`
+## Change reporting
 
-Core shared canonical files. These are the only default files to upload to the ChatGPT project.
+Every Codex implementation should report:
 
-### `docs/10_codex_runbooks/`
+- starting branch/status and base SHA;
+- files inspected/changed;
+- exact behavior before/after;
+- tests/lint/build/diff-check;
+- environment/write scope;
+- commit SHA;
+- concrete blockers;
+- final verdict.
 
-Detailed operational steps, implementation checklists, and repo-specific handoffs for Codex.
+## Prediction immutability
 
-### `docs/20_optional_project_sources/`
+- no post-result probability rewrite;
+- no post-kickoff evidence in a pre-match version;
+- every replacement prediction needs a new immutable version and cutoff;
+- verified results and evaluations reference the original version.
 
-Specialized material that should not pollute the main engineering ChatGPT context unless needed.
+## Data/source governance
 
-### `docs/90_archive/`
+- retain source snapshot manifests, provenance, and checksums;
+- raw external source workspaces may remain ignored/outside Git;
+- register their path and committed equivalents in documentation;
+- do not delete raw/prepared snapshots until stage import and idempotency are proven;
+- do not commit secrets, credentials, personal data, or raw payment payloads.
 
-Read-only historical snapshots and superseded documents. Archive preserves information but is not current truth.
+## Environment safety
 
-## Source limit policy
+- `ufopredictor.com` and production Supabase are production;
+- `stage.ufopredictor.com` and separate Supabase stage are development;
+- Task 3B may write only to confirmed stage after read-only audit and approval;
+- no new stage/Docker environment;
+- no production data cloning for users/payments/entitlements.
 
-Keep the ChatGPT core under 15 files when possible and always under 25.
+## Operations automation governance
 
-A source belongs in the core only when it is:
+Initial automation may:
 
-- current;
-- cross-cutting;
-- repeatedly useful in conversations;
-- not already fully represented by another core document.
+- discover fixtures;
+- synchronize bounded status metadata;
+- ingest terminal provider scores into pending review;
+- generate reports/notifications;
+- assist batch evaluation after verification.
 
-Detailed one-task runbooks belong in Codex-only docs.
+Initial automation may not:
 
-The primary engineering ChatGPT project should contain one current copy of each core source. Superseded uploaded copies must be removed after a reviewed documentation refresh so stale context does not compete with current truth.
+- auto-verify final scores without an approved governance decision;
+- rewrite predictions;
+- create post-kickoff prediction versions;
+- run broad unguarded production writes.
 
-## Refresh policy
+## Documentation update triggers
 
-After a meaningful production or v2 milestone:
+Refresh canonical docs after:
 
-1. update `00_START_HERE_CURRENT.md`;
-2. update the relevant domain source;
-3. update roadmap/decisions;
-4. update Codex handoff/runbook if execution state changed;
-5. archive, do not silently erase, superseded truth;
-6. record date, PR/commit, and explicit deferred items;
-7. after the docs PR is merged, replace obsolete uploaded ChatGPT project sources with the exact current core set instead of keeping old and new copies together.
+- production merge affecting product behavior;
+- migration/schema or environment change;
+- model candidate/release decision;
+- payment/entitlement authority change;
+- automation governance change;
+- branch/PR supersession;
+- source snapshot/import milestone.
 
-## Current source families
-
-- repository code and migrations;
-- GitHub PR/commit state;
-- production/stage operator evidence;
-- API-Football operational data;
-- World Football Elo;
-- FIFA ranking snapshots;
-- official World Cup schedule/venue material;
-- deterministic prepared snapshots.
-
-## Documentation truth hierarchy
-
-1. current repository/code/schema;
-2. current environment evidence;
-3. current shared canonical docs;
-4. Codex runbooks;
-5. archived historical docs.
-
-When sources disagree, report the discrepancy instead of blending them into a comforting fiction.
+Do not let a successful PR turn the docs into archaeological fiction by the following morning.

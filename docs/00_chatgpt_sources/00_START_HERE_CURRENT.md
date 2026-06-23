@@ -1,6 +1,6 @@
 # Start Here - UFO Predictor Current
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-23 after MVP1 closeout planning and MVP2 branch analysis._
 
 ## Current truth
 
@@ -17,17 +17,24 @@ Production currently supports:
 
 The current production probability layer remains the v1-compatible baseline. Prediction Intelligence v2 is not live and must not be described as live.
 
-## Current repository state
+## Repository baselines
 
-Production baseline after the latest MVP1 lifecycle merge:
+Production baseline after the MVP1 lifecycle merge:
 
 ```text
-main: e0191607d46484d13d0771b4508da3b05722dcb5
+origin/main: e0191607d46484d13d0771b4508da3b05722dcb5
 PR #108: merged - polished freemium MVP1 experience
 PR #109: merged - public match lifecycle classification
 ```
 
-Prediction Intelligence v2:
+Documentation reorganization work currently exists on:
+
+```text
+branch: docs/adopt-2026-06-23-project-source-refresh
+commit: 43fb1dc3957afd0b8356edd4766396f7338e9afb
+```
+
+Prediction Intelligence v2 currently exists on the older branch:
 
 ```text
 branch: feature/prediction-intelligence-v2-data-foundation
@@ -35,7 +42,27 @@ Draft PR: #106
 head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
-PR #106 must remain Draft until Task 3B stage synchronization and validation pass.
+PR #106 must remain Draft. It is a preservation/reference branch until the v2 work is normalized onto current `main`.
+
+## Branch divergence decision
+
+As audited on 2026-06-23, `main` and the old v2 branch are materially diverged:
+
+- `main` has 12 commits not present on the v2 branch;
+- the v2 branch has 9 commits not present on `main`;
+- their merge base is `1dca9bf91000c089927452941a009117b622103f`.
+
+Do not continue feature work directly on the stale branch and do not blanket-merge or blanket-cherry-pick all nine commits.
+
+The approved normalization strategy is:
+
+1. preserve the old v2 branch and Draft PR #106 as evidence/reference;
+2. merge the documentation refresh first;
+3. create `integration/prediction-intelligence-v2` from the then-current `origin/main`;
+4. audit and selectively port the nine v2 commits by concern;
+5. validate the current MVP1 build/tests after each bounded import;
+6. open a replacement Draft PR from the integration branch;
+7. mark PR #106 superseded only after parity/preservation proof.
 
 ## Environment map
 
@@ -48,41 +75,85 @@ Stage already exists. Do not create another Railway service, Supabase project, o
 
 ## MVP1 operational state
 
-The latest result cycle verified and published final results including:
+Recent verified/public results include:
 
 - France 3-0 Iraq;
 - Argentina 2-0 Austria;
 - Norway 3-2 Senegal;
 - Jordan 1-2 Algeria.
 
-The internal evaluation queue was also cleared for the reviewed fixtures. Result refresh and evaluation are still operator-driven and should be automated later.
+The associated evaluation queue was cleared in the latest operator pass.
 
-Public match lifecycle no longer depends only on stale stored status:
+Public lifecycle behavior is kickoff-derived with verified-result precedence:
 
 - future kickoff -> upcoming;
 - kickoff passed and inside a conservative three-hour window -> in progress;
 - outside the window without verified final result -> awaiting official update;
 - verified final result -> results/history only.
 
-## Routine admin workflow boundaries
+Fixture refresh, result verification, and evaluation persistence are still operator-driven.
 
-Preferred operational surfaces are:
+## Immediate product priority
 
-- Prediction Review Gate for selected anomalies and human review decisions;
-- Real Fixture Publish Queue for exact publication work;
-- Result Review Queue for provider results awaiting verification;
-- Evaluation Queue for post-match persistence;
-- Torneo Export for the partner-facing public-safe payload.
+Do not wait for v2 before maintaining World Cup coverage.
 
-Real Fixture Lab exact-detail is not required for routine operations. It remains a deeper diagnostic surface, not a prerequisite for normal publication, result verification, or evaluation.
+The immediate production sequence is:
 
-## Exact next sequence
+1. discover and store the remaining group-stage fixture IDs and official schedule links;
+2. publish upcoming predictions with the current production model where needed;
+3. keep result verification and evaluation current once or twice per day;
+4. allow later immutable replacement/versioning only for not-started fixtures after v2 is approved;
+5. never rewrite a prediction after kickoff.
 
-1. Keep MVP1 production operations healthy: upcoming publication, exact fixture/status refresh, result verification, evaluation persistence, and public-history checks.
-2. Automate fixture/result synchronization incrementally without weakening exact guards, human verification, or immutable-prediction rules.
-3. Resume Prediction Intelligence v2 through Task 3B, beginning with a read-only audit of the existing Supabase stage environment.
-4. After human review, apply migration 0038 and idempotent non-sensitive data synchronization in stage only.
-5. Validate v2 data, signals, immutable predictions, RLS, localization, venues, and UI before deciding any production promotion.
+## Parallel workstreams
+
+### Track A - MVP1 production continuity
+
+Runs from `main` in short branches:
+
+- fixture publication and result refresh;
+- operational safeguards;
+- small UI/UX, accessibility, copy, and mobile improvements;
+- non-v2 admin ergonomics.
+
+### Track B - Prediction Intelligence v2 integration
+
+Runs from `integration/prediction-intelligence-v2`:
+
+- branch/data recovery;
+- migration 0038 and stage synchronization;
+- normalized source persistence;
+- signal snapshots;
+- immutable development predictions;
+- v1/v2 stage comparison and promotion decision.
+
+### Track C - operations automation
+
+May proceed independently where it uses stable MVP1 contracts:
+
+- batch fixture discovery and storage;
+- scheduled relevant-fixture status refresh;
+- terminal-score ingest into `pending_review`;
+- admin notifications and run logs;
+- idempotent batch evaluation assistance.
+
+The first automation release must not auto-verify results or rewrite predictions.
+
+### Track D - later internationalization
+
+English is the first future language. Internationalization starts after the v2 data/model path is stable and merged to `main`. Portuguese remains optional and later.
+
+## Local source snapshot truth
+
+The original prepared v2 source workspace has not been lost. It exists outside the repo at:
+
+```text
+D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
+```
+
+The repo also contains committed equivalents under `data/`, `artifacts/prediction-intelligence-v2/`, `lib/prediction-intelligence-v2/`, and `scripts/prediction-intelligence-v2/`.
+
+Keep the external workspace until stage import, idempotency, lineage, and checksum validation are complete. Do not commit raw local source material merely to make Codex see it.
 
 ## Product truth
 
@@ -101,6 +172,8 @@ The gated v2 probability candidate is near statistical parity with exact v1. The
 - no post-kickoff evidence in pre-match calculations;
 - no secrets in docs, prompts, screenshots, logs, or artifacts;
 - no service-role key in browser/runtime;
-- no merge of Draft PR #106 before stage exit gates pass;
+- no merge of Draft PR #106;
+- no blanket merge of the stale v2 branch;
 - no claim that v2 is already a material accuracy breakthrough;
-- no unnecessary reopening of Docker/local-container work.
+- no unnecessary reopening of Docker/local-container work;
+- no full internationalization or second payment provider before the v2 production path is stable.

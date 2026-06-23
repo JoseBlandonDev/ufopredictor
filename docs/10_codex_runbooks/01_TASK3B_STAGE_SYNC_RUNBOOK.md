@@ -2,79 +2,73 @@
 
 _Last refreshed: 2026-06-23._
 
-## Objective
+## Prerequisite: normalized branch
 
-Synchronize the existing Supabase stage environment with repository migrations and Prediction Intelligence v2 without touching production.
+Do not execute Task 3B from `feature/prediction-intelligence-v2-data-foundation`.
 
-## Preconditions
-
-- branch: `feature/prediction-intelligence-v2-data-foundation`;
-- Draft PR #106 remains open;
-- stage target is positively identified;
-- Git-ignored administrative stage credentials are available locally;
-- values are never printed;
-- worktree state understood;
-- no production credential accepted.
-
-## Phase 1 - read-only audit
-
-1. Validate credential presence/shape without outputting secrets.
-2. Query remote stage migration history.
-3. Inventory public schema objects, functions, views, policies, extensions, and dependencies.
-4. Compare against canonical repository migrations.
-5. Detect missing migrations, history drift, manually created objects, and conflicts.
-6. Confirm existing `auth.users` stage account is safe.
-7. Produce ordered migration reconciliation options.
-8. Produce proposed non-sensitive seed/import scope.
-9. Produce rollback/stop conditions.
-10. Stop.
-
-Required status:
+Required branch:
 
 ```text
-READ_ONLY_AUDIT_COMPLETE_AWAITING_HUMAN_REVIEW
+integration/prediction-intelligence-v2
 ```
 
-## Human review gate
+It must be based on current `origin/main` and contain a reviewed selective port of the nine old v2 commits.
 
-Choose one only after evidence:
+## Stage target
 
-- apply repository chain as-is;
-- repair migration-history metadata;
-- reconcile manual objects first;
-- create a bounded compatibility migration.
+```text
+stage.ufopredictor.com -> Railway development -> separate Supabase stage
+```
 
-No destructive reset.
+Production writes are forbidden.
 
-## Phase 2 - authorized write
+## Phase A - read-only target audit
 
-1. Revalidate target and production denial.
-2. Apply approved migration reconciliation.
+1. Confirm clean branch/worktree and expected integration SHA.
+2. Validate ignored environment variables without printing values.
+3. Resolve Supabase project identity and prove it is stage.
+4. Inspect migration history/schema/RLS/functions/views/indexes.
+5. Compare against repository migrations.
+6. Identify drift/manual objects/dependencies.
+7. Confirm stage Auth users will be preserved.
+8. Resolve the prepared-v2 source workspace or committed equivalents.
+9. Verify manifests/checksums/cutoffs.
+10. Generate a non-destructive ordered plan.
+11. Stop for human approval.
+
+## Phase B - authorized writes
+
+1. Snapshot pre-write counts/schema/migrations.
+2. Reconcile approved missing canonical migrations.
 3. Apply migration 0038.
-4. Import reference/history/schedule/venue data idempotently.
-5. Rerun import and prove zero duplicates.
-6. Persist signal snapshots with cutoff and provenance.
-7. Create development-only immutable predictions for not-started fixtures.
-8. Generate development Torneo export.
-9. Validate RLS/public/admin projections.
-10. Validate aliases/localization/venues/UI.
-11. Capture counts, checksums, and evidence.
+4. Run idempotent non-sensitive imports.
+5. Validate row counts, FK/link integrity, indexes, and RLS.
+6. Rerun import and prove zero duplicates.
+7. Persist signal snapshots with source/cutoff.
+8. Refresh the not-started fixture manifest.
+9. Create immutable development prediction versions only before kickoff.
+10. Generate development Torneo export.
+11. Validate stage public/admin projections and UI.
+12. Capture post-write evidence and rollback notes.
 
-## Stop conditions
+## Seed exclusions
 
-- target cannot be proven to be stage;
-- production credential detected;
-- destructive schema action required but not approved;
-- migration conflict could affect Auth;
-- idempotency fails;
-- started fixture would be rewritten;
-- public projection leaks internal fields;
-- source cutoff/provenance missing.
+Never clone:
 
-## Exit verdict
+- production users/sessions;
+- Wompi transactions/webhook payloads;
+- production entitlements/subscriptions;
+- secrets/personal data.
 
-```text
-TASK3B_STAGE_EXIT_GATE_PASS
-```
+## Exit gate
 
-Only after this may PR #106 be considered for non-Draft review.
+- current-main-based integration branch;
+- old v2 preservation proof;
+- stage migration chain synchronized;
+- migration 0038 applied in stage;
+- idempotent import proven;
+- signals and immutable predictions persisted;
+- RLS/localization/venue/public UI validated;
+- v1/v2 comparison captured;
+- no production write;
+- owner approval for any later promotion.

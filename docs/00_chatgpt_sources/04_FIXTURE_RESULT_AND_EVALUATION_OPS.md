@@ -4,11 +4,11 @@ _Last refreshed: 2026-06-23._
 
 ## Operating model
 
-API-Football is the operational source for fixture identity, kickoff, status, and final score. The current flow is intentionally operator-driven and proven across many fixtures.
+API-Football is the operational source for fixture identity, kickoff, status, and final score. Official FIFA schedule data provides the canonical tournament schedule/venue reference where available.
 
-The application does not require one-by-one surgical processing when a verified batch can be handled safely.
+The current flow is operator-driven and proven. MVP2 should reduce repetitive work without weakening exact-fixture guards, verified-result truth, or immutable prediction history.
 
-## Fixture lifecycle shown publicly
+## Public lifecycle
 
 Public classification uses kickoff and verified-result truth:
 
@@ -18,55 +18,98 @@ Public classification uses kickoff and verified-result truth:
 4. After the three-hour active window, an unverified fixture appears as awaiting official update.
 5. Explicit postponed/cancelled states remain visible with honest labels.
 
-This protects the public UX from stale stored statuses.
-
-## Current public labels
-
-- `En vivo` for in-progress classification;
-- `Esperando resultado oficial` after the active window without verification;
-- `Partido suspendido` for postponed;
-- `Partido cancelado` for cancelled;
-- verified final score only after admin verification.
-
 The displayed probabilities are always the pre-match publication and are not live-updated.
 
-## Admin workflow boundaries
+## Routine admin surfaces
 
-Use the smallest safe admin surface for each job:
-
-- Prediction Review Gate for selected model/signal anomalies and recorded human decisions;
+- Prediction Review Gate for selected signal/model anomalies;
 - Real Fixture Publish Queue for exact fixture publication;
-- Result Review Queue for pending provider final results;
+- Result Review Queue for pending provider finals;
 - Evaluation Queue for post-match persistence;
-- Torneo Export for the public-safe partner payload.
+- Torneo Export for public-safe partner payloads.
 
-Real Fixture Lab exact-detail is not required for routine operations. Do not make normal fixture publication, result verification, or evaluation depend on opening the heavier diagnostic page.
+Real Fixture Lab exact-detail remains optional deeper diagnostics, not a routine dependency.
 
-## Result refresh flow
-
-Typical operator sequence:
+## Current operator sequence
 
 ```text
-1. Read API-Football fixture/league status.
+1. Read API-Football fixture or league status.
 2. Run exact ingest/apply for finished fixtures.
-3. Open the result review queue.
-4. Verify the final result.
+3. Review pending result rows.
+4. Verify final results.
 5. Confirm public recent results/history.
-6. Persist the internal evaluation.
+6. Persist internal evaluations.
 ```
 
 Live exact apply is allowed only for an already-existing public API-Football World Cup row and does not create a result row.
 
-## Result verification
+## Immediate coverage objective
 
-Verification converts a pending provider final score into trusted product truth.
+Before waiting for v2 model promotion:
 
-It must not:
+- discover all remaining group-stage API-Football fixture IDs;
+- reconcile them with the official schedule;
+- persist canonical match/provider links in the application database;
+- publish near-term fixtures using the current production model;
+- keep an explicit manifest of not-started fixtures eligible for future v2 versions.
 
-- overwrite the old prediction;
-- expose an unverified score as final;
-- invent a result from screenshots when provider truth is available;
-- silently change historical publication timestamps.
+This prevents last-minute one-by-one ID discovery and avoids losing tournament coverage while model work continues.
+
+## MVP2 batch operations target
+
+### Fixture discovery batch
+
+Input:
+
+- competition/season/date or official schedule manifest.
+
+Output:
+
+- fixture ID;
+- canonical teams;
+- kickoff UTC;
+- competition/stage/group;
+- provider status;
+- official schedule link;
+- DB match/publication state;
+- prediction eligibility.
+
+### Status/result refresh batch
+
+Run once or twice per day, with extra runs around dense kickoff windows:
+
+- poll only relevant stored fixtures;
+- update status/kickoff metadata idempotently;
+- ingest terminal scores into `pending_review`;
+- produce a concise run report;
+- notify the admin when review is required.
+
+### Verification and evaluation batch
+
+Initially:
+
+- human verification remains mandatory;
+- verified rows may be selected and persisted in a bounded batch;
+- no automatic final-score trust solely from a polling job;
+- no automatic rewriting of predictions or scenarios.
+
+Later, automation governance may allow trusted-provider auto-verification only after explicit owner approval and reconciliation safeguards.
+
+## Required run logging
+
+Every batch run should record:
+
+- run ID and UTC cutoff;
+- environment and target project;
+- requested fixture scope;
+- provider response timestamp;
+- created/updated/skipped counts;
+- terminal results discovered;
+- verification/evaluation pending counts;
+- failures and retryability;
+- idempotency evidence.
+
+Do not log credentials or raw sensitive payloads.
 
 ## Evaluation persistence
 
@@ -74,7 +117,7 @@ It must not:
 
 It supports:
 
-- model calibration and diagnostics;
+- calibration and diagnostics;
 - exact-score/scenario-family review;
 - 1X2, goals, BTTS, margin, and surprise analysis;
 - future challenger research;
@@ -82,7 +125,7 @@ It supports:
 
 It is an internal model-operations step, not a second public verification.
 
-## Latest operational refresh captured here
+## Latest captured results
 
 Recently verified/public results include:
 
@@ -93,18 +136,14 @@ Recently verified/public results include:
 
 The associated pending evaluation queue was cleared in the latest operator pass.
 
-## Current limitation
+## Automation guardrails
 
-Fixture status refresh, final-result ingestion, review, and evaluation persistence remain manual. This is acceptable for MVP1 but should become an automation epic.
-
-## Automation target
-
-A later safe scheduler should:
-
-- poll only relevant published/target fixtures;
-- update stored status without broad unsafe writes;
-- ingest terminal scores into `pending_review`;
-- notify admins when review is required;
-- never auto-verify or auto-persist evaluation without the chosen governance rule;
-- record provider timestamps and failure diagnostics;
-- stay idempotent.
+- exact competition/season/fixture scope;
+- stage/production target guard;
+- idempotent writes;
+- immutable prediction versions;
+- no post-kickoff generation;
+- no unverified public final score;
+- human-readable dry-run/report mode;
+- bounded retries and observable failures;
+- no broad silent apply.

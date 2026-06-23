@@ -2,65 +2,62 @@
 
 _Last refreshed: 2026-06-23._
 
-## Scope discipline
+## Every task
 
-- define one bounded objective;
-- inspect exact code/data paths;
-- avoid unrelated refactors;
-- keep production and v2 branches separate;
-- document deferred work explicitly.
+- start from the declared base branch/SHA;
+- prove worktree status;
+- declare environment/write scope;
+- keep changes bounded to the requested concern;
+- add focused tests;
+- run lint/build/diff-check when applicable;
+- report exact behavior and commit SHA.
 
-## Code validation
+## MVP1 microrelease
 
-- focused tests for changed behavior;
-- affected page/query/component tests;
-- lint;
-- production build;
-- `git diff --check`;
-- restore generated files not meant for commit;
-- confirm `.env*` remains ignored.
+- branch from current `main`;
+- no migration 0038 dependency;
+- no regression to Auth/Wompi/entitlements/public history;
+- mobile/basic accessibility smoke;
+- production deploy only after PR validation.
 
-## Data/operations validation
+## V2 branch normalization
 
-- target environment proven;
-- exact fixture IDs/date bounds;
-- dry-run reviewed before apply;
-- idempotency checked;
-- public/internal projections checked;
-- verification/evaluation queues checked;
-- no secrets in output.
+- preserve old v2 branch and PR #106;
+- create integration branch from current main;
+- audit nine commits;
+- port by bounded concern;
+- exclude stale frontend/docs unless manually reconciled;
+- run current MVP1 tests after each port group;
+- capture preservation matrix;
+- open replacement Draft PR.
 
-## MVP1 regression gates
+## Task 3B
 
-- anonymous/free/premium/admin segmentation;
-- Auth safe redirect;
-- pricing/checkout for authenticated user;
-- webhook-driven entitlement;
-- public upcoming/in-progress/awaiting/results lifecycle;
-- immutable historical prediction;
-- admin route protection;
-- mobile/basic usability.
+- read-only stage audit first;
+- human-approved sync plan;
+- stage-only migration/import;
+- zero production writes;
+- idempotency proof;
+- RLS/localization/venue/public UI validation;
+- immutable not-started development predictions;
+- v1/v2 comparison.
 
-## V2 stage gates
+## Ops automation
 
-- migration/schema audit;
-- migration 0038 stage-only;
-- data counts and duplicate-free rerun;
-- cutoff/provenance;
-- signal snapshots;
-- immutable development predictions;
-- RLS/localization/venue/UI;
-- probability regression and scenario review.
+- dry-run/report mode;
+- exact target/fixture scope;
+- run logging;
+- idempotent retries;
+- terminal scores only to pending review;
+- human verification retained;
+- no prediction rewrite.
 
-## PR report format
+## Production promotion
 
-1. branch/base/status;
-2. root cause/objective;
-3. files changed;
-4. exact behavior before/after;
-5. tests and results;
-6. lint/build/diff-check;
-7. environment/data safety confirmation;
-8. commit SHA;
-9. concrete blockers;
-10. final verdict.
+- accepted stage state;
+- selected probability mode;
+- current-fixture cutoff audit;
+- rollback plan;
+- regression suite for commercial/public/admin flows;
+- owner approval;
+- docs refresh after merge.
