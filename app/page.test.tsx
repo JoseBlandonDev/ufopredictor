@@ -59,6 +59,7 @@ describe("HomePage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [
         {
           viewer: "anonymous",
@@ -107,6 +108,7 @@ describe("HomePage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [],
       historicalPredictions: [],
     });
@@ -132,7 +134,7 @@ describe("HomePage", () => {
           kickoffAt: "2026-06-22T16:00:00Z",
           stage: "Group A",
           status: "live",
-          collectionMode: "live_or_interrupted",
+          collectionMode: "in_progress",
           liveStateLabel: "En vivo",
           competitionName: "World Cup 2026",
           competitionSlug: "world-cup-2026",
@@ -152,6 +154,7 @@ describe("HomePage", () => {
           awayWinProb: 18,
         },
       ],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [
         {
           viewer: "anonymous",
@@ -201,6 +204,7 @@ describe("HomePage", () => {
     getPublicPredictionsDataMock.mockResolvedValue({
       status: "ready",
       livePredictions: [],
+      awaitingUpdatePredictions: [],
       upcomingPredictions: [],
       historicalPredictions: [],
     });
@@ -212,5 +216,79 @@ describe("HomePage", () => {
     expect(html).toContain("Abrir panel");
     expect(html).not.toContain("Desbloquear análisis premium");
     expect(html).not.toContain("Crear cuenta gratis");
+  });
+
+  it("ignores awaiting-update fixtures as live featured matches and falls back to the nearest future fixture", async () => {
+    getCurrentUserMock.mockResolvedValue(null);
+    getViewerEntitlementSummaryMock.mockResolvedValue(null);
+    hasCurrentPremiumAccessMock.mockReturnValue(false);
+    getPublicPredictionsDataMock.mockResolvedValue({
+      status: "ready",
+      livePredictions: [],
+      awaitingUpdatePredictions: [
+        {
+          viewer: "anonymous",
+          predictionCreatedAt: "2026-06-22T06:00:00Z",
+          matchSlug: "world-cup-2026-norway-vs-senegal-2026-06-22",
+          kickoffAt: "2026-06-22T08:00:00Z",
+          stage: "Group A",
+          status: "live",
+          collectionMode: "awaiting_result_update",
+          liveStateLabel: "Esperando resultado oficial",
+          competitionName: "World Cup 2026",
+          competitionSlug: "world-cup-2026",
+          homeTeamName: "Norway",
+          homeTeamSlug: "norway",
+          homeTeamLogoUrl: null,
+          homeTeamFlagUrl: null,
+          awayTeamName: "Senegal",
+          awayTeamSlug: "senegal",
+          awayTeamLogoUrl: null,
+          awayTeamFlagUrl: null,
+          venueName: "Stadium",
+          venueCity: "City",
+          verifiedResult: null,
+          homeWinProb: 40,
+          drawProb: 30,
+          awayWinProb: 30,
+        },
+      ],
+      upcomingPredictions: [
+        {
+          viewer: "anonymous",
+          predictionCreatedAt: "2026-06-22T12:00:00Z",
+          matchSlug: "world-cup-2026-germany-vs-saudi-arabia-2026-06-23",
+          kickoffAt: "2026-06-23T21:00:00Z",
+          stage: "Group A",
+          status: "scheduled",
+          collectionMode: "upcoming",
+          liveStateLabel: null,
+          competitionName: "World Cup 2026",
+          competitionSlug: "world-cup-2026",
+          homeTeamName: "Germany",
+          homeTeamSlug: "germany",
+          homeTeamLogoUrl: null,
+          homeTeamFlagUrl: null,
+          awayTeamName: "Saudi Arabia",
+          awayTeamSlug: "saudi-arabia",
+          awayTeamLogoUrl: null,
+          awayTeamFlagUrl: null,
+          venueName: "Estadio Azteca",
+          venueCity: "Ciudad de México",
+          verifiedResult: null,
+          homeWinProb: 54,
+          drawProb: 24,
+          awayWinProb: 22,
+        },
+      ],
+      historicalPredictions: [],
+    });
+
+    const html = renderToStaticMarkup(await HomePage());
+
+    expect(html).toContain("Próximo partido destacado");
+    expect(html).not.toContain("Partido en curso destacado");
+    expect(html).toContain("Pendientes de actualización");
+    expect(html).toContain("Esperando resultado oficial");
   });
 });

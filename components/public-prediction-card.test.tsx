@@ -75,6 +75,23 @@ describe("PublicPredictionCard", () => {
     );
   });
 
+  it("renders awaiting-update labels without inventing a final result", () => {
+    const html = renderToStaticMarkup(
+      <PublicPredictionCard
+        prediction={{
+          ...registeredPrediction,
+          status: "live",
+          collectionMode: "awaiting_result_update",
+          liveStateLabel: "Esperando resultado oficial",
+        }}
+        showLiveState
+      />,
+    );
+
+    expect(html).toContain("Esperando resultado oficial");
+    expect(html).not.toContain("Resultado final verificado");
+  });
+
   it("shows a bounded preview CTA for anonymous preview cards", () => {
     const html = renderToStaticMarkup(
       <PublicPredictionCard

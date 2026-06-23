@@ -1,16 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  PREDICTIONS_LANDING_LIVE_LIMIT,
+  PUBLIC_ACTIVE_MATCH_WINDOW_MS,
+  PREDICTIONS_LANDING_AWAITING_LIMIT,
   PREDICTIONS_LANDING_HISTORY_LIMIT,
   PREDICTIONS_LANDING_UPCOMING_LIMIT,
   PREDICTIONS_PAGE_SIZE,
+  derivePublicPredictionLifecycle,
   getHistoricalPublicPredictionsPage,
   getPublicPredictionsData,
   getUpcomingPublicPredictionsPage,
   parsePredictionPage,
+  sortAwaitingUpdatePredictions,
   sortHistoricalPredictions,
-  sortLivePredictions,
+  sortInProgressPredictions,
   sortUpcomingPredictions,
   toPredictionCardView,
 } from "./public-prediction-queries";
@@ -70,13 +73,11 @@ function createFakeSupabaseClient(data: SummaryRow[]) {
       return {
         select() {
           const filters: Array<{
-            type: "eq" | "like" | "gt" | "neq" | "lte" | "in";
+            type: "eq" | "like";
             column: string;
-            value: string | string[];
+            value: string;
           }> = [];
           const orders: Array<{ column: string; ascending: boolean }> = [];
-          let limit: number | null = null;
-          let range: { start: number; end: number } | null = null;
 
           const builder = {
             eq(column: string, value: string) {
@@ -87,32 +88,8 @@ function createFakeSupabaseClient(data: SummaryRow[]) {
               filters.push({ type: "like", column, value });
               return builder;
             },
-            gt(column: string, value: string) {
-              filters.push({ type: "gt", column, value });
-              return builder;
-            },
-            lte(column: string, value: string) {
-              filters.push({ type: "lte", column, value });
-              return builder;
-            },
-            neq(column: string, value: string) {
-              filters.push({ type: "neq", column, value });
-              return builder;
-            },
-            in(column: string, value: string[]) {
-              filters.push({ type: "in", column, value });
-              return builder;
-            },
             order(column: string, options?: { ascending?: boolean }) {
               orders.push({ column, ascending: options?.ascending ?? true });
-              return builder;
-            },
-            limit(value: number) {
-              limit = value;
-              return builder;
-            },
-            range(start: number, end: number) {
-              range = { start, end };
               return builder;
             },
             then(resolve: (value: { data: SummaryRow[]; error: null }) => unknown) {
@@ -121,26 +98,6 @@ function createFakeSupabaseClient(data: SummaryRow[]) {
               for (const filter of filters) {
                 if (filter.type === "eq") {
                   rows = rows.filter((row) => row[filter.column] === filter.value);
-                  continue;
-                }
-
-                if (filter.type === "neq") {
-                  rows = rows.filter((row) => row[filter.column] !== filter.value);
-                  continue;
-                }
-
-                if (filter.type === "gt") {
-                  rows = rows.filter((row) => String(row[filter.column] ?? "") > filter.value);
-                  continue;
-                }
-
-                if (filter.type === "lte") {
-                  rows = rows.filter((row) => String(row[filter.column] ?? "") <= filter.value);
-                  continue;
-                }
-
-                if (filter.type === "in") {
-                  rows = rows.filter((row) => (filter.value as string[]).includes(String(row[filter.column] ?? "")));
                   continue;
                 }
 
@@ -160,12 +117,6 @@ function createFakeSupabaseClient(data: SummaryRow[]) {
 
                 return 0;
               });
-
-              if (range) {
-                rows = rows.slice(range.start, range.end + 1);
-              } else if (typeof limit === "number") {
-                rows = rows.slice(0, limit);
-              }
 
               return Promise.resolve(resolve({ data: rows, error: null }));
             },
@@ -194,13 +145,24 @@ describe("public prediction queries", () => {
     vi.useRealTimers();
   });
 
-  it("limits landing sections at query level and preserves live, scheduled, and verified history ordering", async () => {
+  it("uses a conservative shared active match window", () => {
+    expect(PUBLIC_ACTIVE_MATCH_WINDOW_MS).toBe(3 * 60 * 60 * 1000);
+  });
+
+  it("limits landing sections and separates in-progress, awaiting-update, upcoming, and verified history", async () => {
     const rows = [
       ...Array.from({ length: 5 }, (_, index) =>
         buildRow({
           match_slug: `world-cup-2026-live-${index + 1}`,
-          kickoff_at: `2026-06-22T${String(index + 7).padStart(2, "0")}:00:00Z`,
-          status: index === 4 ? "cancelled" : "live",
+          kickoff_at: `2026-06-22T${String(index + 9).padStart(2, "0")}:00:00Z`,
+          status: "live",
+        }),
+      ),
+      ...Array.from({ length: 5 }, (_, index) =>
+        buildRow({
+          match_slug: `world-cup-2026-awaiting-${index + 1}`,
+          kickoff_at: `2026-06-22T0${index}:00:00Z`,
+          status: "live",
         }),
       ),
       ...Array.from({ length: 10 }, (_, index) =>
@@ -221,14 +183,6 @@ describe("public prediction queries", () => {
         }),
       ),
       buildRow({
-        match_slug: "world-cup-2026-unverified-finished",
-        kickoff_at: "2026-06-18T18:00:00Z",
-        status: "finished",
-        verified_home_goals: 1,
-        verified_away_goals: 1,
-        result_verification_status: null,
-      }),
-      buildRow({
         match_slug: "friendly-not-launch-safe",
         competition_slug: "friendlies-2026",
         kickoff_at: "2026-06-22T18:00:00Z",
@@ -245,88 +199,18 @@ describe("public prediction queries", () => {
     expect(result.status).toBe("ready");
     if (result.status !== "ready") return;
 
-    expect(result.livePredictions).toHaveLength(PREDICTIONS_LANDING_LIVE_LIMIT);
-    expect(result.livePredictions[0]?.matchSlug).toBe("world-cup-2026-live-1");
-    expect(result.livePredictions.at(-1)?.matchSlug).toBe("world-cup-2026-live-4");
+    expect(result.livePredictions).toHaveLength(3);
+    expect(result.awaitingUpdatePredictions).toHaveLength(PREDICTIONS_LANDING_AWAITING_LIMIT);
     expect(result.upcomingPredictions).toHaveLength(PREDICTIONS_LANDING_UPCOMING_LIMIT);
-    expect(result.upcomingPredictions[0]?.matchSlug).toBe("world-cup-2026-upcoming-1");
-    expect(result.upcomingPredictions[1]?.matchSlug).toBe("world-cup-2026-upcoming-2");
-    expect(result.upcomingPredictions.at(-1)?.matchSlug).toBe("world-cup-2026-upcoming-8");
     expect(result.historicalPredictions).toHaveLength(PREDICTIONS_LANDING_HISTORY_LIMIT);
+    expect(result.livePredictions[0]?.matchSlug).toBe("world-cup-2026-live-2");
+    expect(result.awaitingUpdatePredictions[0]?.matchSlug).toBe("world-cup-2026-live-1");
+    expect(result.upcomingPredictions[0]?.matchSlug).toBe("world-cup-2026-live-5");
     expect(result.historicalPredictions[0]?.matchSlug).toBe("world-cup-2026-history-6");
-    expect(result.historicalPredictions.at(-1)?.matchSlug).toBe("world-cup-2026-history-3");
   });
 
-  it("excludes a past fixture even when its stored status is still scheduled", async () => {
+  it("classifies a future scheduled fixture as upcoming only", async () => {
     const rows = [
-      buildRow({
-        match_slug: "world-cup-2026-past-stale-scheduled",
-        kickoff_at: "2026-06-22T11:00:00Z",
-        status: "scheduled",
-      }),
-      buildRow({
-        match_slug: "world-cup-2026-future-scheduled",
-        kickoff_at: "2026-06-22T13:30:00Z",
-        status: "scheduled",
-      }),
-    ];
-    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
-
-    const result = await getUpcomingPublicPredictionsPage("anonymous", 1);
-
-    expect(result.status).toBe("ready");
-    if (result.status !== "ready") return;
-
-    expect(result.predictions.map((prediction) => prediction.matchSlug)).toEqual([
-      "world-cup-2026-future-scheduled",
-    ]);
-  });
-
-  it("keeps verified finished fixtures in history while excluding a past abandoned fixture from upcoming", async () => {
-    const rows = [
-      buildRow({
-        match_slug: "world-cup-2026-past-abandoned",
-        kickoff_at: "2026-06-22T10:30:00Z",
-        status: "abandoned",
-      }),
-      buildRow({
-        match_slug: "world-cup-2026-finished-verified",
-        kickoff_at: "2026-06-21T18:00:00Z",
-        status: "finished",
-        verified_home_goals: 2,
-        verified_away_goals: 0,
-        result_verification_status: "verified",
-      }),
-    ];
-    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
-
-    const upcoming = await getUpcomingPublicPredictionsPage("anonymous", 1);
-    const history = await getHistoricalPublicPredictionsPage("anonymous", 1);
-
-    expect(upcoming.status).toBe("ready");
-    if (upcoming.status === "ready") {
-      expect(upcoming.predictions).toEqual([]);
-    }
-
-    expect(history.status).toBe("ready");
-    if (history.status !== "ready") return;
-
-    expect(history.predictions).toHaveLength(1);
-    expect(history.predictions[0]?.matchSlug).toBe("world-cup-2026-finished-verified");
-    expect(history.predictions[0]?.verifiedResult).toEqual({
-      homeGoals: 2,
-      awayGoals: 0,
-      verificationStatus: "verified",
-    });
-  });
-
-  it("keeps live fixtures publicly visible while excluding them from upcoming", async () => {
-    const rows = [
-      buildRow({
-        match_slug: "world-cup-2026-live-visible",
-        kickoff_at: "2026-06-22T10:30:00Z",
-        status: "live",
-      }),
       buildRow({
         match_slug: "world-cup-2026-future-scheduled",
         kickoff_at: "2026-06-22T13:30:00Z",
@@ -340,10 +224,8 @@ describe("public prediction queries", () => {
 
     expect(landing.status).toBe("ready");
     if (landing.status === "ready") {
-      expect(landing.livePredictions.map((prediction) => prediction.matchSlug)).toEqual([
-        "world-cup-2026-live-visible",
-      ]);
-      expect(landing.livePredictions[0]?.liveStateLabel).toBe("En vivo");
+      expect(landing.livePredictions).toEqual([]);
+      expect(landing.awaitingUpdatePredictions).toEqual([]);
       expect(landing.upcomingPredictions.map((prediction) => prediction.matchSlug)).toEqual([
         "world-cup-2026-future-scheduled",
       ]);
@@ -356,40 +238,165 @@ describe("public prediction queries", () => {
     ]);
   });
 
-  it("keeps interrupted fixtures publicly visible without rendering an unverified final result", async () => {
+  it("classifies a past stale scheduled fixture inside the active window as in progress", async () => {
     const rows = [
       buildRow({
-        match_slug: "world-cup-2026-interrupted-visible",
-        kickoff_at: "2026-06-22T09:30:00Z",
+        match_slug: "world-cup-2026-past-stale-scheduled",
+        kickoff_at: "2026-06-22T11:00:00Z",
+        status: "scheduled",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const landing = await getPublicPredictionsData("anonymous");
+    const upcoming = await getUpcomingPublicPredictionsPage("anonymous", 1);
+
+    expect(landing.status).toBe("ready");
+    if (landing.status === "ready") {
+      expect(landing.livePredictions.map((prediction) => prediction.matchSlug)).toEqual([
+        "world-cup-2026-past-stale-scheduled",
+      ]);
+      expect(landing.livePredictions[0]?.liveStateLabel).toBe("En vivo");
+      expect(landing.awaitingUpdatePredictions).toEqual([]);
+      expect(landing.upcomingPredictions).toEqual([]);
+    }
+
+    expect(upcoming.status).toBe("ready");
+    if (upcoming.status === "ready") {
+      expect(upcoming.predictions).toEqual([]);
+    }
+  });
+
+  it("keeps a past stored live fixture inside the active window as in progress", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-live-visible",
+        kickoff_at: "2026-06-22T10:30:00Z",
+        status: "live",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const landing = await getPublicPredictionsData("anonymous");
+
+    expect(landing.status).toBe("ready");
+    if (landing.status !== "ready") return;
+    expect(landing.livePredictions.map((prediction) => prediction.matchSlug)).toEqual([
+      "world-cup-2026-live-visible",
+    ]);
+    expect(landing.livePredictions[0]?.liveStateLabel).toBe("En vivo");
+  });
+
+  it("moves stale live fixtures beyond the active window into awaiting official update", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-stale-live",
+        kickoff_at: "2026-06-22T08:30:00Z",
+        status: "live",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const landing = await getPublicPredictionsData("anonymous");
+
+    expect(landing.status).toBe("ready");
+    if (landing.status !== "ready") return;
+    expect(landing.livePredictions).toEqual([]);
+    expect(landing.awaitingUpdatePredictions.map((prediction) => prediction.matchSlug)).toEqual([
+      "world-cup-2026-stale-live",
+    ]);
+    expect(landing.awaitingUpdatePredictions[0]?.liveStateLabel).toBe("Esperando resultado oficial");
+  });
+
+  it("moves stale scheduled fixtures beyond the active window into awaiting official update", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-stale-scheduled",
+        kickoff_at: "2026-06-22T08:30:00Z",
+        status: "scheduled",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const landing = await getPublicPredictionsData("anonymous");
+
+    expect(landing.status).toBe("ready");
+    if (landing.status !== "ready") return;
+    expect(landing.livePredictions).toEqual([]);
+    expect(landing.awaitingUpdatePredictions.map((prediction) => prediction.matchSlug)).toEqual([
+      "world-cup-2026-stale-scheduled",
+    ]);
+  });
+
+  it("keeps verified finished fixtures in history only", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-finished-verified",
+        kickoff_at: "2026-06-21T18:00:00Z",
+        status: "finished",
+        verified_home_goals: 2,
+        verified_away_goals: 0,
+        result_verification_status: "verified",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const landing = await getPublicPredictionsData("anonymous");
+    const history = await getHistoricalPublicPredictionsPage("anonymous", 1);
+
+    expect(landing.status).toBe("ready");
+    if (landing.status === "ready") {
+      expect(landing.livePredictions).toEqual([]);
+      expect(landing.awaitingUpdatePredictions).toEqual([]);
+      expect(landing.upcomingPredictions).toEqual([]);
+      expect(landing.historicalPredictions.map((prediction) => prediction.matchSlug)).toEqual([
+        "world-cup-2026-finished-verified",
+      ]);
+    }
+
+    expect(history.status).toBe("ready");
+    if (history.status !== "ready") return;
+    expect(history.predictions[0]?.verifiedResult).toEqual({
+      homeGoals: 2,
+      awayGoals: 0,
+      verificationStatus: "verified",
+    });
+  });
+
+  it("keeps explicit postponed and cancelled states visible with honest labels and no verified final result", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-cancelled-visible",
+        kickoff_at: "2026-06-22T15:30:00Z",
         status: "cancelled",
         verified_home_goals: 2,
         verified_away_goals: 0,
         result_verification_status: null,
       }),
       buildRow({
-        match_slug: "world-cup-2026-suspended-visible",
-        kickoff_at: "2026-06-22T09:45:00Z",
+        match_slug: "world-cup-2026-postponed-visible",
+        kickoff_at: "2026-06-22T17:30:00Z",
         status: "postponed",
       }),
     ];
     createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
 
-    const result = await getPublicPredictionsData("anonymous");
+    const landing = await getPublicPredictionsData("anonymous");
 
-    expect(result.status).toBe("ready");
-    if (result.status !== "ready") return;
-
-    expect(result.livePredictions.map((prediction) => prediction.matchSlug)).toEqual([
-      "world-cup-2026-interrupted-visible",
-      "world-cup-2026-suspended-visible",
+    expect(landing.status).toBe("ready");
+    if (landing.status !== "ready") return;
+    expect(landing.awaitingUpdatePredictions.map((prediction) => prediction.matchSlug)).toEqual([
+      "world-cup-2026-postponed-visible",
+      "world-cup-2026-cancelled-visible",
     ]);
-    expect(result.livePredictions[0]?.liveStateLabel).toBe("Partido interrumpido");
-    expect(result.livePredictions[1]?.liveStateLabel).toBe("Partido suspendido");
-    expect(result.livePredictions[0]?.verifiedResult).toBeNull();
-    expect(result.historicalPredictions).toEqual([]);
+    expect(landing.awaitingUpdatePredictions[0]?.liveStateLabel).toBe("Partido suspendido");
+    expect(landing.awaitingUpdatePredictions[1]?.liveStateLabel).toBe("Partido cancelado");
+    expect(landing.awaitingUpdatePredictions[1]?.verifiedResult).toBeNull();
+    expect(landing.livePredictions).toEqual([]);
+    expect(landing.historicalPredictions).toEqual([]);
   });
 
-  it("returns paginated scheduled fixtures with deterministic ascending ordering and next-page detection", async () => {
+  it("paginates upcoming fixtures with deterministic ascending ordering and next-page detection", async () => {
     const rows = Array.from({ length: 13 }, (_, index) =>
       buildRow({
         match_slug: `world-cup-2026-upcoming-${String(index + 1).padStart(2, "0")}`,
@@ -411,7 +418,7 @@ describe("public prediction queries", () => {
     expect(result.hasNextPage).toBe(true);
   });
 
-  it("returns paginated verified history only with descending ordering", async () => {
+  it("paginates verified history only with descending ordering", async () => {
     const rows = [
       ...Array.from({ length: 14 }, (_, index) =>
         buildRow({
@@ -455,7 +462,7 @@ describe("public prediction queries", () => {
     expect(parsePredictionPage("999999")).toBe(100);
   });
 
-  it("keeps pure sorting helpers bounded and deterministic", () => {
+  it("keeps sorting helpers bounded and deterministic", () => {
     const finishedOld = toPredictionCardView(
       buildRow({
         match_slug: "finished-old",
@@ -471,39 +478,68 @@ describe("public prediction queries", () => {
     const liveNow = toPredictionCardView(
       buildRow({
         match_slug: "live-now",
-        kickoff_at: "2026-06-13T18:00:00Z",
+        kickoff_at: "2026-06-22T11:00:00Z",
         status: "live",
       }),
       "anonymous",
-      "live_or_interrupted",
+      "in_progress",
     );
     const scheduledNext = toPredictionCardView(
       buildRow({
         match_slug: "future-next",
-        kickoff_at: "2026-06-14T18:00:00Z",
+        kickoff_at: "2026-06-23T18:00:00Z",
         status: "scheduled",
       }),
       "anonymous",
       "upcoming",
     );
-    const interruptedNow = toPredictionCardView(
+    const awaiting = toPredictionCardView(
       buildRow({
-        match_slug: "interrupted-now",
-        kickoff_at: "2026-06-13T19:00:00Z",
+        match_slug: "awaiting-old",
+        kickoff_at: "2026-06-22T08:00:00Z",
+        status: "live",
+      }),
+      "anonymous",
+      "awaiting_result_update",
+    );
+    const cancelled = toPredictionCardView(
+      buildRow({
+        match_slug: "cancelled-now",
+        kickoff_at: "2026-06-22T15:00:00Z",
         status: "cancelled",
       }),
       "anonymous",
-      "live_or_interrupted",
+      "awaiting_result_update",
     );
 
     expect(
-      sortLivePredictions([interruptedNow, liveNow]).map((prediction) => prediction.matchSlug),
-    ).toEqual(["live-now", "interrupted-now"]);
+      sortInProgressPredictions([liveNow]).map((prediction) => prediction.matchSlug),
+    ).toEqual(["live-now"]);
     expect(
-      sortUpcomingPredictions([scheduledNext]).map((prediction) => prediction.matchSlug),
-    ).toEqual(["future-next"]);
+      sortAwaitingUpdatePredictions([awaiting, cancelled]).map((prediction) => prediction.matchSlug),
+    ).toEqual(["cancelled-now", "awaiting-old"]);
+    expect(sortUpcomingPredictions([scheduledNext]).map((prediction) => prediction.matchSlug)).toEqual([
+      "future-next",
+    ]);
+    expect(sortHistoricalPredictions([finishedOld]).map((prediction) => prediction.matchSlug)).toEqual([
+      "finished-old",
+    ]);
+  });
+
+  it("derives lifecycle with verified results taking precedence over stale status", () => {
+    const now = new Date("2026-06-22T12:00:00Z");
+
     expect(
-      sortHistoricalPredictions([finishedOld]).map((prediction) => prediction.matchSlug),
-    ).toEqual(["finished-old"]);
+      derivePublicPredictionLifecycle(
+        {
+          kickoff_at: "2026-06-22T08:00:00Z",
+          status: "live",
+          verified_home_goals: 1,
+          verified_away_goals: 0,
+          result_verification_status: "verified",
+        },
+        now,
+      ),
+    ).toBe("history");
   });
 });
