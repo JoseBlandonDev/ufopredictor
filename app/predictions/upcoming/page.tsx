@@ -62,7 +62,9 @@ export default async function UpcomingPredictionsPage({
         <section className="space-y-4">
           {renderPredictionCards({
             predictions: data.predictions,
+            viewer,
             premiumAccessActive,
+            boundedAnonymousAfter: 2,
           })}
           {renderPredictionPagination({
             pathname: "/predictions/upcoming",

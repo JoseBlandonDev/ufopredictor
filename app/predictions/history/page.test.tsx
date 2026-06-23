@@ -62,7 +62,7 @@ describe("PredictionHistoryPage", () => {
 
     expect(parsePredictionPageMock).toHaveBeenCalledWith("-1");
     expect(getHistoricalPublicPredictionsPageMock).toHaveBeenCalledWith("registered_free", 1);
-    expect(html).toContain("Historial publico verificado");
+    expect(html).toContain("Historial público verificado");
     expect(html).toContain("Volver a predicciones");
     expect(html).toContain("pagination");
   });

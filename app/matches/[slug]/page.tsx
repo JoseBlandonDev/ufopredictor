@@ -7,11 +7,11 @@ import {
   formatProbability,
   formatVenueLabel,
   getMarketGlossary,
-  resolvePremiumMarketLabel,
-  resolvePremiumMarketSelection,
   getWorldCupProductName,
   resolveCompetitionDisplayName,
   resolveMatchStatusLabel,
+  resolvePremiumMarketLabel,
+  resolvePremiumMarketSelection,
   resolveStageDisplayName,
   resolveTeamDisplayName,
 } from "../../../lib/presentation/public-display";
@@ -24,6 +24,26 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { removeSavedMatchAction, saveMatchAction } from "./actions";
 
 export const dynamic = "force-dynamic";
+
+function wasPublishedBeforeKickoff(predictionCreatedAt: string | null | undefined, kickoffAt: string) {
+  if (!predictionCreatedAt) {
+    return false;
+  }
+
+  return new Date(predictionCreatedAt).getTime() < new Date(kickoffAt).getTime();
+}
+
+function parseScoreline(scoreline: string) {
+  const match = scoreline.match(/^(\d+)\s*-\s*(\d+)$/);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    homeGoals: Number.parseInt(match[1], 10),
+    awayGoals: Number.parseInt(match[2], 10),
+  };
+}
 
 export default async function MatchDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -57,17 +77,6 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   });
   const saveAction = saveMatchAction.bind(null, match.matchSlug);
   const removeAction = removeSavedMatchAction.bind(null, match.matchSlug);
-  const hasPremiumModelDetail =
-    match.premiumProjection.status === "authorized" &&
-    match.premiumProjection.payload.modelDetail !== null;
-  const hasLegacyPremiumMarkets =
-    match.premiumProjection.status === "authorized" &&
-    match.premiumProjection.payload.markets.length > 0;
-  const hasPremiumAccess =
-    match.premiumProjection.status === "authorized" ||
-    match.premiumProjection.status === "authorized_unavailable";
-  const canShowRegisteredFreeProbableScore =
-    !hasPremiumAccess && match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
   const homeTeamName = resolveTeamDisplayName(match.homeTeamName);
   const awayTeamName = resolveTeamDisplayName(match.awayTeamName);
   const competitionLabel = resolveCompetitionDisplayName(match.competitionName);
@@ -76,6 +85,24 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
   const premiumPayload =
     match.premiumProjection.status === "authorized" ? match.premiumProjection.payload : null;
   const premiumModelDetail = premiumPayload?.modelDetail ?? null;
+  const hasPremiumAccess =
+    match.premiumProjection.status === "authorized" ||
+    match.premiumProjection.status === "authorized_unavailable";
+  const isHistoricalPreview =
+    match.premiumAccess.status === "authorized" && match.premiumAccess.mode === "historical_preview";
+  const isPremiumEntitlement =
+    match.premiumAccess.status === "authorized" && match.premiumAccess.mode === "premium_entitlement";
+  const predictionPublishedBeforeKickoff = wasPublishedBeforeKickoff(
+    match.prediction?.createdAt,
+    match.kickoffAt,
+  );
+  const publicationLabel =
+    match.prediction?.createdAt && predictionPublishedBeforeKickoff
+      ? formatMatchDateTimeLabel(match.prediction.createdAt)
+      : null;
+  const canShowRegisteredFreeProbableScore =
+    !hasPremiumAccess && match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
+
   const representativeScenarios =
     premiumModelDetail
       ? premiumModelDetail.topScorelines.map((scoreline) =>
@@ -94,9 +121,25 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         )
       : [];
 
+  const scenarioMatches = representativeScenarios.map((scenario) => {
+    const parsed = parseScoreline(scenario.scoreline);
+    const fulfilled =
+      parsed !== null &&
+      match.verifiedResult !== null &&
+      match.verifiedResult.verificationStatus === "verified" &&
+      parsed.homeGoals === match.verifiedResult.homeGoals &&
+      parsed.awayGoals === match.verifiedResult.awayGoals;
+
+    return {
+      scenario,
+      fulfilled,
+    };
+  });
+  const anyExactScenarioMatch = scenarioMatches.some((entry) => entry.fulfilled);
+
   return (
     <div className="space-y-6">
-      <section className="ufo-card rounded-lg p-5 sm:p-6">
+      <section className="ufo-card rounded-2xl p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -123,7 +166,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
       </section>
 
       {match.verifiedResult ? (
-        <section className="ufo-card rounded-lg border border-emerald-400/25 bg-emerald-500/8 p-5 sm:p-6">
+        <section className="ufo-card rounded-2xl border border-emerald-400/25 bg-emerald-500/8 p-5 sm:p-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-300">
             Resultado final verificado
           </p>
@@ -131,14 +174,19 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             {homeTeamName} {match.verifiedResult.homeGoals} - {match.verifiedResult.awayGoals} {awayTeamName}
           </h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Este partido ya tiene marcador final verificado. La predicción pública se mantiene abajo
-            como referencia histórica del producto.
+            Este partido ya tiene marcador final verificado. La predicción pública se conserva como
+            referencia histórica del producto.
           </p>
+          {predictionPublishedBeforeKickoff ? (
+            <p className="mt-3 text-xs text-[var(--muted)]">
+              Predicción publicada antes del partido{publicationLabel ? `: ${publicationLabel}.` : "."}
+            </p>
+          ) : null}
         </section>
       ) : null}
 
       {match.prediction ? (
-        <section className="ufo-card rounded-lg p-5 sm:p-6">
+        <section className="ufo-card rounded-2xl p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -152,12 +200,12 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                 <RiskBadge level={match.prediction.riskLevel} />
               </div>
             ) : (
-            <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
-              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
-                Señal base
-              </p>
-              <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
-            </div>
+              <div className="ufo-pill rounded-md border-[var(--accent)]/35 bg-[var(--accent)]/10 px-3 py-2 text-right">
+                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
+                  Señal base
+                </p>
+                <p className="mt-1 text-xs text-[var(--muted)]">Confianza y riesgo completos con cuenta gratis</p>
+              </div>
             )}
           </div>
           <div className="mt-6 max-w-2xl">
@@ -169,8 +217,12 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               }}
             />
           </div>
+          <div className="mt-5 space-y-2 text-sm text-[var(--muted)]">
+            <p>Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.</p>
+            <p>Alta incertidumbre: probabilidades cercanas. Una ventaja ligera no implica certeza.</p>
+          </div>
           {!hasPremiumAccess && match.prediction.viewer === "registered_free" ? (
-            <div className="mt-5 rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
+            <div className="mt-5 rounded-xl border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                 Marcador probable
               </p>
@@ -182,281 +234,277 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                   </p>
                 </>
               ) : canShowRegisteredFreeProbableScore ? (
-                <>
-                  <p className="mt-2 text-sm text-[var(--muted)]">
-                    El marcador probable no está disponible para este partido en este momento.
-                  </p>
-                  <p className="mt-2 text-xs text-[var(--muted)]">
-                    Después del resultado verificado, este detalle puede mostrarse como referencia post-partido.
-                  </p>
-                </>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  El marcador probable no está disponible para este partido en este momento.
+                </p>
               ) : (
-                <>
-                  <p className="mt-2 text-sm text-[var(--muted)]">
-                    El marcador probable y los escenarios avanzados están reservados para el detalle premium antes del partido.
-                  </p>
-                  <p className="mt-2 text-xs text-[var(--muted)]">
-                    Después del resultado verificado, este detalle puede mostrarse como referencia post-partido.
-                  </p>
-                </>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  El marcador probable y los escenarios avanzados permanecen reservados para el detalle premium previo al partido.
+                </p>
               )}
             </div>
-          ) : !hasPremiumAccess ? (
-            <div className="mt-5 rounded-lg border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
-                Marcador probable
-              </p>
-              <p className="mt-2 text-sm text-[var(--muted)]">
-                Crea una cuenta gratis para desbloquear el marcador probable del modelo para este
-                partido.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
-                  Crear cuenta gratis
-                </Link>
-                <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
-                  Iniciar sesión
-                </Link>
-              </div>
-            </div>
           ) : null}
-          <div className="mt-5 space-y-2">
-            <p className="text-xs text-[var(--muted)]">
-              {hasPremiumAccess
-                ? `Vista premium: tu ${getWorldCupProductName()} habilita el detalle avanzado cuando este partido ya tiene contenido premium publicado.`
-                : isAuthenticated
-                  ? "Vista con cuenta gratis: contexto completo de confianza y riesgo y lectura pública del partido."
-                  : "Vista pública base: 1X2 completo y señal inicial de confianza y riesgo."}
-            </p>
-            <p className="text-xs text-[var(--muted)]">
-              Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.
-            </p>
-            <p className="text-xs text-[var(--muted)]">
-              Alta incertidumbre: probabilidades cercanas. Una ventaja ligera no implica certeza.
-            </p>
-          </div>
         </section>
       ) : (
         <section className="ufo-card rounded-lg p-6">
           <h2 className="text-lg font-semibold">Predicción aún no publicada</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            El partido está disponible públicamente, pero todavía no existe una predicción básica
-            publicada.
+            El partido está disponible públicamente, pero todavía no existe una predicción básica publicada.
           </p>
         </section>
       )}
 
-      <section className="ufo-card rounded-lg border border-white/15 p-5 sm:p-6">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          Detalle premium
-        </p>
-        {match.premiumProjection.status === "locked" ? (
-          <>
-            <h2 className="mt-2 text-lg font-semibold">Acceso premium bloqueado</h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Esta cuenta todavía no tiene derechos premium para este partido.
+      {match.premiumProjection.status === "locked" ? (
+        viewer === "anonymous" ? (
+          <section className="ufo-card rounded-2xl border border-[var(--accent)]/25 p-5 sm:p-6">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+              {match.verifiedResult ? "Historial premium" : "Cuenta gratis"}
             </p>
-            <div className="mt-4">
-              <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
-                Ver {getWorldCupProductName()}
+            <h2 className="mt-2 text-lg font-semibold">
+              {match.verifiedResult ? "Revisa cómo fue el análisis completo" : "Continúa con una cuenta gratis"}
+            </h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              {match.verifiedResult
+                ? "Crea una cuenta gratis para consultar los escenarios, señales y explicación que fueron publicados antes de este partido."
+                : "Regístrate para consultar las probabilidades 1X2 completas, el contexto de confianza y riesgo, y guardar este partido."}
+            </p>
+            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="font-medium text-white">Vista premium disponible para usuarios autorizados</p>
+              <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+                <li>Escenarios representativos explicados</li>
+                <li>Goles esperados</li>
+                <li>Ambos equipos marcan</li>
+                <li>Más/Menos de 2,5</li>
+                <li>Interpretación completa del partido</li>
+              </ul>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
+                Crear cuenta gratis
+              </Link>
+              <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
+                Iniciar sesión
               </Link>
             </div>
-          </>
-        ) : match.premiumProjection.status === "unavailable" ? (
-          <>
-            <h2 className="mt-2 text-lg font-semibold">Detalle premium no disponible</h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              No fue posible preparar el contexto premium de este partido en este momento.
-            </p>
-          </>
-        ) : match.premiumProjection.status === "authorized_unavailable" ? (
-          <>
-            <h2 className="mt-2 text-lg font-semibold">Contenido premium temporalmente no disponible</h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Tu acceso está activo, pero el contenido premium todavía no está listo para mostrarse.
-            </p>
-          </>
+          </section>
         ) : (
-          <div className="mt-3 space-y-4">
-            <h2 className="text-lg font-semibold">Detalle premium del modelo</h2>
-            {match.premiumProjection.payload.modelDetail ? (
-              <div className="grid gap-4 lg:grid-cols-2">
-                <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-sm font-medium">Goles esperados</p>
-                  <p className="mt-2 font-mono text-3xl">
-                    {match.premiumProjection.payload.modelDetail.expectedGoals.home.toFixed(2)} -{" "}
-                    {match.premiumProjection.payload.modelDetail.expectedGoals.away.toFixed(2)}
-                  </p>
-                  <p className="mt-2 text-xs text-[var(--muted)]">
-                    Promedio estimado de gol para local y visitante según la lectura actual del modelo.
-                  </p>
-                </article>
+          <section className="ufo-card rounded-2xl border border-[var(--accent)]/25 p-5 sm:p-6">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+              Vista premium bloqueada
+            </p>
+            <h2 className="mt-2 text-lg font-semibold">Desbloquea el análisis completo del partido</h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
+              El {getWorldCupProductName()} habilita el detalle avanzado antes del inicio de cada encuentro publicado.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
+              <li>Tres escenarios representativos explicados</li>
+              <li>Goles esperados</li>
+              <li>Ambos equipos marcan</li>
+              <li>Más/Menos de 2,5</li>
+              <li>Lectura completa de confianza y riesgo</li>
+            </ul>
+            <div className="mt-4">
+              <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
+                Obtener {getWorldCupProductName()}
+              </Link>
+            </div>
+          </section>
+        )
+      ) : match.premiumProjection.status === "unavailable" ? (
+        <section className="ufo-card rounded-2xl border border-white/15 p-5 sm:p-6">
+          <h2 className="text-lg font-semibold">Detalle premium no disponible</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            No fue posible preparar el contexto premium de este partido en este momento.
+          </p>
+        </section>
+      ) : match.premiumProjection.status === "authorized_unavailable" ? (
+        <section className="ufo-card rounded-2xl border border-white/15 p-5 sm:p-6">
+          <h2 className="text-lg font-semibold">Contenido premium temporalmente no disponible</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Tu acceso está activo, pero el contenido premium todavía no está listo para mostrarse.
+          </p>
+        </section>
+      ) : (
+        <section className="ufo-card rounded-2xl border border-white/15 p-5 sm:p-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+            {isHistoricalPreview ? "Historial premium verificado" : "Detalle premium"}
+          </p>
+          <h2 className="mt-2 text-xl font-semibold">
+            {isHistoricalPreview ? "Análisis premium publicado antes del partido" : "Detalle premium del modelo"}
+          </h2>
 
-                <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-sm font-medium">Confianza y riesgo</p>
-                  {match.premiumProjection.payload.modelDetail.confidence ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <ConfidenceBadge
-                        score={match.premiumProjection.payload.modelDetail.confidence.score}
-                      />
-                      <RiskBadge
-                        level={match.premiumProjection.payload.modelDetail.confidence.riskLevel}
-                      />
-                    </div>
-                  ) : match.premiumProjection.payload.confidenceContext ? (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <ConfidenceBadge
-                        score={match.premiumProjection.payload.confidenceContext.confidenceScore}
-                      />
-                      <RiskBadge
-                        level={match.premiumProjection.payload.confidenceContext.riskLevel}
-                      />
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-sm text-[var(--muted)]">
-                      No hay contexto adicional de confianza disponible para este partido.
-                    </p>
-                  )}
-                  <p className="mt-3 text-xs text-[var(--muted)]">
-                    La confianza resume la estabilidad de la lectura actual. El riesgo expresa cuánta
-                    incertidumbre todavía puede desviar el partido del escenario central.
-                  </p>
-                </article>
+          {isHistoricalPreview ? (
+            <div className="mt-4 rounded-xl border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4 text-sm text-[var(--muted)]">
+              <p>
+                Este análisis fue publicado antes del partido. Los usuarios del Pase Mundial pudieron consultarlo antes del inicio; ahora está disponible como parte del historial verificado.
+              </p>
+              {publicationLabel ? (
+                <p className="mt-2 text-xs">Publicado: {publicationLabel}.</p>
+              ) : null}
+            </div>
+          ) : null}
 
-                <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4 lg:col-span-2">
-                  <p className="text-sm font-medium">Escenarios representativos del partido</p>
-                  <div className="mt-3 grid gap-3 xl:grid-cols-3">
-                    {representativeScenarios.map((scenario) => (
-                      <article
-                        key={`${scenario.title}:${scenario.scoreline}`}
-                        className="rounded-lg border border-white/10 bg-[#050b14]/60 p-4"
-                      >
+          {premiumModelDetail ? (
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-sm font-medium">Goles esperados (xG)</p>
+                <p className="mt-2 font-mono text-3xl">
+                  {premiumModelDetail.expectedGoals.home.toFixed(2)} - {premiumModelDetail.expectedGoals.away.toFixed(2)}
+                </p>
+                <p className="mt-2 text-xs text-[var(--muted)]">
+                  Promedio estimado de gol para local y visitante según la lectura actual del modelo.
+                </p>
+              </article>
+
+              <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-sm font-medium">Confianza y riesgo</p>
+                {premiumModelDetail.confidence ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <ConfidenceBadge score={premiumModelDetail.confidence.score} />
+                    <RiskBadge level={premiumModelDetail.confidence.riskLevel} />
+                  </div>
+                ) : premiumPayload?.confidenceContext ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <ConfidenceBadge score={premiumPayload.confidenceContext.confidenceScore} />
+                    <RiskBadge level={premiumPayload.confidenceContext.riskLevel} />
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    No hay contexto adicional de confianza disponible para este partido.
+                  </p>
+                )}
+                <p className="mt-3 text-xs text-[var(--muted)]">
+                  La confianza resume la estabilidad de la lectura actual. El riesgo expresa cuánta incertidumbre todavía puede desviar el partido del escenario central.
+                </p>
+              </article>
+
+              <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4 lg:col-span-2">
+                <p className="text-sm font-medium">Escenarios representativos del partido</p>
+                <div className="mt-3 grid gap-3 xl:grid-cols-3">
+                  {scenarioMatches.map(({ scenario, fulfilled }, index) => (
+                    <article
+                      key={`${scenario.title}:${scenario.scoreline}`}
+                      className={
+                        fulfilled
+                          ? "rounded-xl border border-emerald-400/40 bg-emerald-500/8 p-4"
+                          : index === 0
+                            ? "rounded-xl border border-[var(--accent)]/25 bg-[#050b14]/75 p-4"
+                            : "rounded-xl border border-white/10 bg-[#050b14]/60 p-4"
+                      }
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
                         <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                           {scenario.title}
                         </p>
-                        <p className="mt-3 font-mono text-3xl">{scenario.scoreline}</p>
-                        <p className="mt-2 text-sm text-[var(--muted)]">{scenario.probabilityLabel}</p>
-                        <p className="mt-3 text-sm text-[var(--muted)]">{scenario.explanation}</p>
-                        {scenario.supportSignals.length > 0 ? (
-                          <div className="mt-3 space-y-1 text-xs text-[var(--muted)]">
-                            {scenario.supportSignals.map((signal) => (
-                              <p key={signal}>{signal}</p>
-                            ))}
-                          </div>
+                        {fulfilled ? (
+                          <span className="ufo-pill border-emerald-400/35 bg-emerald-500/12 text-emerald-200">
+                            Escenario cumplido
+                          </span>
                         ) : null}
-                        <p className="mt-3 text-xs text-[var(--muted)]">
-                          Puede perder fuerza si: {scenario.weakeningCondition}
+                      </div>
+                      <p className="mt-3 font-mono text-3xl">{scenario.scoreline}</p>
+                      <p className="mt-2 text-sm text-[var(--muted)]">{scenario.probabilityLabel}</p>
+                      {fulfilled ? (
+                        <p className="mt-3 text-sm text-emerald-100">
+                          Este escenario coincidió exactamente con el resultado final verificado.
                         </p>
-                        <p className="mt-3 text-xs text-[var(--muted)]">{scenario.disclaimer}</p>
-                      </article>
-                    ))}
-                  </div>
-                </article>
-
-                <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-sm font-medium">Ambos equipos marcan (BTTS)</p>
-                  <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
-                    <p>
-                      Si:{" "}
-                      <span className="font-medium text-white">
-                        {formatProbability(
-                          match.premiumProjection.payload.modelDetail.bothTeamsToScore.yesProbability,
-                        )}
-                      </span>
-                    </p>
-                    <p>
-                      No:{" "}
-                      <span className="font-medium text-white">
-                        {formatProbability(
-                          match.premiumProjection.payload.modelDetail.bothTeamsToScore.noProbability,
-                        )}
-                      </span>
-                    </p>
-                  </div>
-                </article>
-
-                <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-sm font-medium">Más / Menos de 2,5 goles</p>
-                  <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
-                    <p>
-                      Más de 2,5:{" "}
-                      <span className="font-medium text-white">
-                        {formatProbability(
-                          match.premiumProjection.payload.modelDetail.totalGoals25.overProbability,
-                        )}
-                      </span>
-                    </p>
-                    <p>
-                      Menos de 2,5:{" "}
-                      <span className="font-medium text-white">
-                        {formatProbability(
-                          match.premiumProjection.payload.modelDetail.totalGoals25.underProbability,
-                        )}
-                      </span>
-                    </p>
-                  </div>
-                </article>
-              </div>
-            ) : (
-              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm text-[var(--muted)]">
-                  El detalle premium del modelo no está disponible para este partido en este momento.
-                </p>
-              </div>
-            )}
-
-            {hasLegacyPremiumMarkets || !hasPremiumModelDetail ? (
-              <>
-                <h3 className="text-base font-semibold">Lecturas complementarias</h3>
-                {match.premiumProjection.payload.markets.length === 0 ? (
-                  <p className="text-sm text-[var(--muted)]">
-                    No hay mercados premium publicados para este partido.
+                      ) : null}
+                      <p className="mt-3 text-sm text-[var(--muted)]">{scenario.explanation}</p>
+                      {scenario.supportSignals.length > 0 ? (
+                        <div className="mt-3 space-y-1 text-xs text-[var(--muted)]">
+                          {scenario.supportSignals.map((signal) => (
+                            <p key={signal}>{signal}</p>
+                          ))}
+                        </div>
+                      ) : null}
+                      <p className="mt-3 text-xs text-[var(--muted)]">
+                        Puede perder fuerza si: {scenario.weakeningCondition}
+                      </p>
+                      <p className="mt-3 text-xs text-[var(--muted)]">{scenario.disclaimer}</p>
+                    </article>
+                  ))}
+                </div>
+                {match.verifiedResult && !anyExactScenarioMatch ? (
+                  <p className="mt-4 text-sm text-[var(--muted)]">
+                    Ninguno de los tres escenarios representativos coincidió exactamente con el marcador final.
                   </p>
-                ) : (
-                  <div className="space-y-2">
-                    {match.premiumProjection.payload.markets.map((market) => (
-                      <article
-                        key={`${market.marketKey}:${market.selection}`}
-                        className="rounded-lg border border-white/10 bg-white/[0.03] p-3"
-                      >
-                        <p className="text-sm font-medium">
-                          {resolvePremiumMarketLabel(market.marketKey)}
-                        </p>
-                        <p className="mt-1 text-sm text-[var(--muted)]">
-                          {resolvePremiumMarketSelection(market.selection)} - {market.probability}%
-                        </p>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : null}
-            {match.premiumProjection.payload.narrative ? (
-              <article className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-sm font-medium">Lectura adicional</p>
-                <p className="mt-1 text-sm text-[var(--muted)]">
-                  {match.premiumProjection.payload.narrative.premiumAnalysis}
-                </p>
+                ) : null}
               </article>
-            ) : null}
 
-            <article className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-sm font-medium">Glosario rápido del partido</p>
-              <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                {glossary.map((item) => (
-                  <div key={item.key} className="rounded-lg border border-white/10 bg-[#050b14]/60 p-3">
-                    <p className="text-sm font-medium">{item.title}</p>
-                    <p className="mt-2 text-xs text-[var(--muted)]">{item.description}</p>
-                  </div>
-                ))}
-              </div>
+              <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-sm font-medium">Ambos equipos marcan (BTTS)</p>
+                <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+                  <p>
+                    Sí: <span className="font-medium text-white">{formatProbability(premiumModelDetail.bothTeamsToScore.yesProbability)}</span>
+                  </p>
+                  <p>
+                    No: <span className="font-medium text-white">{formatProbability(premiumModelDetail.bothTeamsToScore.noProbability)}</span>
+                  </p>
+                </div>
+              </article>
+
+              <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-sm font-medium">Más / Menos de 2,5 goles</p>
+                <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+                  <p>
+                    Más de 2,5: <span className="font-medium text-white">{formatProbability(premiumModelDetail.totalGoals25.overProbability)}</span>
+                  </p>
+                  <p>
+                    Menos de 2,5: <span className="font-medium text-white">{formatProbability(premiumModelDetail.totalGoals25.underProbability)}</span>
+                  </p>
+                </div>
+              </article>
+            </div>
+          ) : (
+            <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm text-[var(--muted)]">
+                El detalle premium del modelo no está disponible para este partido en este momento.
+              </p>
+            </div>
+          )}
+
+          {premiumPayload?.markets.length ? (
+            <div className="mt-5 space-y-2">
+              <h3 className="text-base font-semibold">Lecturas complementarias</h3>
+              {premiumPayload.markets.map((market) => (
+                <article
+                  key={`${market.marketKey}:${market.selection}`}
+                  className="rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                >
+                  <p className="text-sm font-medium">{resolvePremiumMarketLabel(market.marketKey)}</p>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    {resolvePremiumMarketSelection(market.selection)} - {formatProbability(market.probability)}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ) : null}
+
+          {premiumPayload?.narrative ? (
+            <article className="mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm font-medium">Lectura adicional</p>
+              <p className="mt-2 text-sm text-[var(--muted)]">{premiumPayload.narrative.premiumAnalysis}</p>
             </article>
-          </div>
-        )}
-      </section>
+          ) : null}
 
-      {hasPremiumAccess ? (
-        <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
+          <details className="mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <summary className="cursor-pointer list-none text-sm font-medium text-white">
+              Glosario rápido del partido
+            </summary>
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
+              {glossary.map((item) => (
+                <div key={item.key} className="rounded-xl border border-white/10 bg-[#050b14]/60 p-3">
+                  <p className="text-sm font-medium">{item.title}</p>
+                  <p className="mt-2 text-xs text-[var(--muted)]">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </details>
+        </section>
+      )}
+
+      {isPremiumEntitlement ? (
+        <section className="ufo-card rounded-2xl border border-[var(--accent)]/30 p-5 sm:p-6">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
             {getWorldCupProductName()} activo
           </p>
@@ -474,7 +522,21 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         </section>
       ) : null}
 
-      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
+      {isHistoricalPreview ? (
+        <section className="ufo-card rounded-2xl border border-[var(--accent)]/30 p-5 sm:p-6">
+          <h2 className="text-lg font-semibold">Consulta este nivel de análisis antes del próximo partido</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            El {getWorldCupProductName()} desbloquea los escenarios, goles esperados y señales avanzadas antes del inicio de cada encuentro publicado.
+          </p>
+          <div className="mt-4">
+            <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
+              Obtener {getWorldCupProductName()}
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="ufo-card rounded-2xl border border-[var(--accent)]/30 p-5 sm:p-6">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
           Partidos guardados
         </p>
@@ -484,9 +546,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               {savedState.isSaved ? "Partido guardado en tu watchlist" : "Guardar partido en tu watchlist"}
             </h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              {savedState.isSaved
-                ? "Puedes quitar este partido en cualquier momento."
-                : "Guarda este partido para seguirlo más tarde desde tu cuenta."}
+              {savedState.isSaved ? "Puedes quitar este partido en cualquier momento." : "Guarda este partido para seguirlo más tarde desde tu cuenta."}
             </p>
             <form action={savedState.isSaved ? removeAction : saveAction} className="mt-4">
               <button type="submit" className="ufo-btn-primary ufo-focus-ring">
@@ -512,42 +572,41 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
         )}
       </section>
 
-      {!hasPremiumAccess ? (
-      <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5 sm:p-6">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-          {isAuthenticated ? "Tu cuenta gratis está activa" : "Cuenta gratis disponible"}
-        </p>
-        <h2 className="mt-2 text-lg font-semibold">
-          {isAuthenticated
-            ? "Tu cuenta gratis ya desbloquea el contexto ampliado de confianza y riesgo para este partido publicado."
-            : "Crea una cuenta gratis para ver el contexto completo de confianza y riesgo en este partido publicado."}
-        </h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          Esta página mantiene la lectura pública base separada del detalle premium disponible con el pase activo.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          {isAuthenticated ? (
-            <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
-              Abrir panel
-            </Link>
-          ) : (
-            <>
-              <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
-                Crear cuenta gratis
+      {!hasPremiumAccess && !isHistoricalPreview ? (
+        <section className="ufo-card rounded-2xl border border-[var(--accent)]/30 p-5 sm:p-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+            {isAuthenticated ? "Tu cuenta gratis está activa" : "Cuenta gratis disponible"}
+          </p>
+          <h2 className="mt-2 text-lg font-semibold">
+            {isAuthenticated
+              ? "Tu cuenta gratis ya desbloquea el contexto ampliado de confianza y riesgo para este partido publicado."
+              : "Crea una cuenta gratis para ver el contexto completo de confianza y riesgo en este partido publicado."}
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Esta página mantiene la lectura pública base separada del detalle premium disponible con el pase activo.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {isAuthenticated ? (
+              <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
+                Abrir panel
               </Link>
-              <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
-                Iniciar sesión
-              </Link>
-            </>
-          )}
-        </div>
-      </section>
+            ) : (
+              <>
+                <Link href={`/register?next=/matches/${match.matchSlug}`} className="ufo-btn-primary ufo-focus-ring">
+                  Crear cuenta gratis
+                </Link>
+                <Link href={`/login?next=/matches/${match.matchSlug}`} className="ufo-btn-secondary ufo-focus-ring">
+                  Iniciar sesión
+                </Link>
+              </>
+            )}
+          </div>
+        </section>
       ) : null}
 
-      <section className="ufo-card rounded-lg p-5">
+      <section className="ufo-card rounded-2xl p-5">
         <p className="text-sm text-[var(--muted)]">
-          Esta página muestra solo información pública del partido y probabilidades publicadas del
-          modelo cuando están disponibles.
+          Esta página muestra solo información pública del partido y probabilidades publicadas del modelo cuando están disponibles.
         </p>
       </section>
     </div>

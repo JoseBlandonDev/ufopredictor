@@ -57,8 +57,9 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-12">
-      <section className="grid min-h-[72vh] items-center gap-8 py-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <div>
+      <section className="relative grid items-center gap-8 overflow-hidden py-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-10">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgba(0,215,255,0.15),transparent_48%),radial-gradient(circle_at_top_right,rgba(0,153,204,0.12),transparent_40%)]" />
+        <div className="relative">
           <p className="font-mono text-sm uppercase tracking-[0.28em] text-[var(--accent)]">
             Predicciones del Mundial 2026
           </p>
@@ -66,25 +67,44 @@ export default async function HomePage() {
             UFO Predictor
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-[var(--muted)]">
-            Sigue el Mundial 2026 con probabilidades 1X2, contexto de riesgo y detalles premium
-            listos para compra en un flujo comercial ya operativo.
+            Sigue el Mundial 2026 con probabilidades 1X2 publicadas, contexto de confianza y riesgo,
+            y un detalle premium pensado para leer cada partido sin convertir la incertidumbre en falsa certeza.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/predictions"
-              className="flex items-center gap-2 rounded-md bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent-contrast)] shadow-[0_0_24px_rgba(0,215,255,0.24)] transition hover:bg-white"
-            >
-              Ver predicciones <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/pricing"
-              className="rounded-md border border-[var(--accent)]/35 bg-[#0a1a2b]/55 px-5 py-3 text-sm font-semibold text-white transition hover:border-[var(--accent)] hover:bg-[var(--accent)]/10"
-            >
-              Ver {getWorldCupProductName()}
-            </Link>
+            {premiumAccessActive ? (
+              <>
+                <Link href="/predictions" className="ufo-btn-primary ufo-focus-ring">
+                  Ver análisis premium <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/dashboard" className="ufo-btn-secondary ufo-focus-ring">
+                  Abrir panel
+                </Link>
+              </>
+            ) : viewer === "registered_free" ? (
+              <>
+                <Link href="/predictions" className="ufo-btn-primary ufo-focus-ring">
+                  Ver predicciones <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/pricing" className="ufo-btn-secondary ufo-focus-ring">
+                  Desbloquear análisis premium
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/register?next=/predictions" className="ufo-btn-primary ufo-focus-ring">
+                  Crear cuenta gratis <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/predictions" className="ufo-btn-secondary ufo-focus-ring">
+                  Ver predicciones
+                </Link>
+                <Link href="/pricing" className="ufo-link-action ufo-focus-ring">
+                  Ver {getWorldCupProductName()}
+                </Link>
+              </>
+            )}
           </div>
         </div>
-        <div className="panel relative overflow-hidden rounded-lg p-5">
+        <div className="panel relative overflow-hidden rounded-2xl p-5 sm:p-6">
           <div className="pointer-events-none absolute -right-20 -top-24 h-56 w-56 rounded-full bg-[var(--accent)]/10 blur-3xl" />
           <div className="relative mx-auto mb-5 aspect-square w-full max-w-[260px] sm:max-w-[320px]">
             <Image
@@ -98,7 +118,7 @@ export default async function HomePage() {
           </div>
           <div className="flex items-center justify-between">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-              Cobertura gradual
+              Antes y después del partido
             </p>
             <Sparkles className="h-4 w-4 text-[var(--accent)]" />
           </div>
@@ -107,7 +127,7 @@ export default async function HomePage() {
               <p className="text-sm">Probabilidades 1X2</p>
               <p className="mt-1 text-xl text-[var(--accent)]">Local, empate y visitante</p>
               <p className="mt-2 text-xs text-[var(--muted)]">
-                Lectura pública del partido con probabilidades base y acceso claro al detalle.
+                Lectura pública del partido con una vista útil para visitantes, cuentas gratis y acceso premium.
               </p>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
@@ -121,7 +141,7 @@ export default async function HomePage() {
               <p className="text-sm">Cobertura gradual</p>
               <p className="mt-1 text-xl text-[var(--accent)]">Partidos publicados</p>
               <p className="mt-2 text-xs text-[var(--muted)]">
-                Nuevos partidos publicados se irán habilitando a medida que el producto prepare cada detalle.
+                Los partidos terminados con resultado verificado permanecen disponibles como historial público.
               </p>
             </div>
           </div>
@@ -144,7 +164,7 @@ export default async function HomePage() {
           <div className="panel rounded-lg p-6">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
               {isFeaturedPredictionLive
-                ? "Partido en vivo o interrumpido destacado"
+                ? "Partido en curso destacado"
                 : "Próximo partido destacado"}
             </p>
             <h3 className="mt-3 text-2xl font-semibold break-words">
@@ -159,6 +179,7 @@ export default async function HomePage() {
             <div className="mt-5">
               <PublicPredictionCard
                 prediction={featuredPrediction}
+                detailMode="full"
                 premiumAccessActive={premiumAccessActive}
                 showLiveState={isFeaturedPredictionLive}
                 showPreMatchDisclaimer={isFeaturedPredictionLive}
@@ -169,11 +190,16 @@ export default async function HomePage() {
                 href={`/matches/${featuredPrediction.matchSlug}`}
                 className="ufo-btn-primary ufo-focus-ring"
               >
-                Ver detalle del partido
+                {premiumAccessActive ? "Ver análisis completo" : "Ver detalle del partido"}
               </Link>
               <Link href="/predictions" className="ufo-btn-secondary ufo-focus-ring">
                 Ver todas las predicciones
               </Link>
+              {!premiumAccessActive && viewer === "anonymous" ? (
+                <Link href="/pricing" className="ufo-link-action ufo-focus-ring">
+                  Ver {getWorldCupProductName()}
+                </Link>
+              ) : null}
             </div>
           </div>
         ) : (
@@ -211,6 +237,7 @@ export default async function HomePage() {
               <PublicPredictionCard
                 key={prediction.matchSlug}
                 prediction={prediction}
+                detailMode={viewer === "anonymous" ? "preview" : "full"}
                 premiumAccessActive={premiumAccessActive}
               />
             ))}

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import {
   getPredictionsViewerContext,
+  renderAnonymousRegistrationModule,
   renderPredictionCards,
+  renderPremiumUpgradeModule,
   renderPredictionsAccountCallout,
 } from "./page-helpers";
 import { getWorldCupProductName } from "../../lib/presentation/public-display";
@@ -59,9 +61,11 @@ export default async function PredictionsPage() {
               </div>
               {renderPredictionCards({
                 predictions: data.livePredictions,
+                viewer,
                 premiumAccessActive,
                 showLiveState: true,
                 showPreMatchDisclaimer: true,
+                boundedAnonymousAfter: 1,
               })}
             </section>
           ) : null}
@@ -82,10 +86,14 @@ export default async function PredictionsPage() {
               </div>
               {renderPredictionCards({
                 predictions: data.upcomingPredictions,
+                viewer,
                 premiumAccessActive,
+                boundedAnonymousAfter: 2,
               })}
             </section>
           ) : null}
+
+          {!isAuthenticated ? renderAnonymousRegistrationModule({ nextPath: "/predictions" }) : null}
 
           {data.historicalPredictions.length > 0 ? (
             <section className="space-y-4">
@@ -103,13 +111,27 @@ export default async function PredictionsPage() {
               </div>
               {renderPredictionCards({
                 predictions: data.historicalPredictions,
+                viewer,
                 premiumAccessActive,
+                boundedAnonymousAfter: 1,
               })}
             </section>
           ) : null}
 
+          {isAuthenticated && !premiumAccessActive ? renderPremiumUpgradeModule() : null}
+
           <section className="ufo-card rounded-lg border border-white/15 p-5">
-            <h2 className="text-lg font-semibold">Cómo leer esta vista</h2>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold">Cómo leer esta vista</h2>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  Reunimos aquí la explicación común para no repetirla dentro de cada tarjeta.
+                </p>
+              </div>
+              <Link href="/predictions/history" className="ufo-link-action ufo-focus-ring">
+                Historial
+              </Link>
+            </div>
             <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
               <p>Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.</p>
               <p>Alta incertidumbre: probabilidades cercanas. Ventaja ligera, no certeza.</p>

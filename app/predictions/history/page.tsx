@@ -62,7 +62,9 @@ export default async function PredictionHistoryPage({
         <section className="space-y-4">
           {renderPredictionCards({
             predictions: data.predictions,
+            viewer,
             premiumAccessActive,
+            boundedAnonymousAfter: 1,
           })}
           {renderPredictionPagination({
             pathname: "/predictions/history",

@@ -52,7 +52,7 @@ vi.mock("../components/public-prediction-card", () => ({
 import HomePage from "./page";
 
 describe("HomePage", () => {
-  it("uses the nearest upcoming fixture and avoids the old hardcoded opener", async () => {
+  it("shows anonymous registration CTA and a meaningful upcoming preview", async () => {
     getCurrentUserMock.mockResolvedValue(null);
     getViewerEntitlementSummaryMock.mockResolvedValue(null);
     hasCurrentPremiumAccessMock.mockReturnValue(false);
@@ -96,8 +96,8 @@ describe("HomePage", () => {
     expect(html).toContain("Alemania");
     expect(html).toContain("Arabia Saudita");
     expect(html).toContain("Próximo partido destacado");
-    expect(html).not.toContain("Mexico vs South Africa");
-    expect(html).not.toContain("/matches/world-cup-2026-mexico-vs-south-africa-2026-06-11");
+    expect(html).toContain("Crear cuenta gratis");
+    expect(html).toContain("Ver Pase Mundial 2026");
   });
 
   it("shows an honest empty state when there is no upcoming published fixture", async () => {
@@ -186,11 +186,31 @@ describe("HomePage", () => {
     const element = await HomePage();
     const html = renderToStaticMarkup(element);
 
-    expect(html).toContain("Partido en vivo o interrumpido destacado");
+    expect(html).toContain("Partido en curso destacado");
     expect(html).toContain("Francia");
     expect(html).toContain("Irak");
     expect(html).toContain("En vivo");
     expect(html).toContain("Esta predicción fue publicada antes del inicio del partido y no se actualiza en vivo.");
     expect(html).not.toContain("Próximo partido destacado");
+  });
+
+  it("avoids purchase prompts for active premium users", async () => {
+    getCurrentUserMock.mockResolvedValue({ id: "user-1" });
+    getViewerEntitlementSummaryMock.mockResolvedValue({ role: "premium_user" });
+    hasCurrentPremiumAccessMock.mockReturnValue(true);
+    getPublicPredictionsDataMock.mockResolvedValue({
+      status: "ready",
+      livePredictions: [],
+      upcomingPredictions: [],
+      historicalPredictions: [],
+    });
+
+    const element = await HomePage();
+    const html = renderToStaticMarkup(element);
+
+    expect(html).toContain("Ver análisis premium");
+    expect(html).toContain("Abrir panel");
+    expect(html).not.toContain("Desbloquear análisis premium");
+    expect(html).not.toContain("Crear cuenta gratis");
   });
 });

@@ -32,20 +32,20 @@ export function renderPredictionsAccountCallout(args: {
   const { isAuthenticated, premiumAccessActive } = args;
 
   return (
-    <section className="ufo-card rounded-lg border border-[var(--accent)]/30 p-5">
+    <section className="ufo-card rounded-2xl border border-[var(--accent)]/25 p-5 sm:p-6">
       <h2 className="text-lg font-semibold">
         {premiumAccessActive
           ? `${getWorldCupProductName()} activo`
           : isAuthenticated
-            ? "Tu cuenta gratis está activa"
-            : "Cuenta gratis disponible"}
+            ? "Tu cuenta gratis ya está activa"
+            : "Sigue todos los partidos con una cuenta gratis"}
       </h2>
       <p className="mt-2 text-sm text-[var(--muted)]">
         {premiumAccessActive
-          ? "Tu acceso premium ya está activo. Entra al detalle de cada partido para ver las secciones avanzadas que estén publicadas."
+          ? "Tu acceso premium ya está activo. Entra al detalle de cada partido para ver el análisis completo cuando esté publicado."
           : isAuthenticated
-            ? "Ya ves el contexto completo de confianza y riesgo en las predicciones públicas publicadas y puedes seguir cada partido con más claridad."
-            : "Crea una cuenta gratis para desbloquear el contexto completo de confianza y riesgo en las predicciones públicas."}
+            ? "Ya ves las probabilidades 1X2 completas, el contexto de confianza y riesgo, y el historial verificado cuando corresponde."
+            : "Crea tu cuenta para consultar las probabilidades 1X2 publicadas, el contexto de confianza y riesgo, y guardar partidos para revisarlos después."}
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         {premiumAccessActive ? (
@@ -53,14 +53,19 @@ export function renderPredictionsAccountCallout(args: {
             <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
               Abrir panel
             </Link>
-            <Link href="/pricing" className="ufo-btn-secondary ufo-focus-ring">
-              Revisar {getWorldCupProductName()}
+            <Link href="/predictions" className="ufo-btn-secondary ufo-focus-ring">
+              Explorar predicciones
             </Link>
           </>
         ) : isAuthenticated ? (
-          <Link href="/dashboard" className="ufo-btn-primary ufo-focus-ring">
-            Abrir tu panel
-          </Link>
+          <>
+            <Link href="/predictions" className="ufo-btn-primary ufo-focus-ring">
+              Ver predicciones
+            </Link>
+            <Link href="/pricing" className="ufo-btn-secondary ufo-focus-ring">
+              Ver {getWorldCupProductName()}
+            </Link>
+          </>
         ) : (
           <>
             <Link href="/register?next=/predictions" className="ufo-btn-primary ufo-focus-ring">
@@ -78,22 +83,64 @@ export function renderPredictionsAccountCallout(args: {
 
 export function renderPredictionCards(args: {
   predictions: PublicPredictionCardView[];
+  viewer: PublicPredictionViewer;
   premiumAccessActive: boolean;
   showLiveState?: boolean;
   showPreMatchDisclaimer?: boolean;
+  boundedAnonymousAfter?: number;
 }) {
+  const previewCutoff = args.viewer === "anonymous" ? (args.boundedAnonymousAfter ?? 1) : Number.MAX_SAFE_INTEGER;
+
   return (
     <div className="grid gap-4 xl:grid-cols-2">
-      {args.predictions.map((prediction) => (
+      {args.predictions.map((prediction, index) => (
         <PublicPredictionCard
           key={prediction.matchSlug}
           prediction={prediction}
+          detailMode={index < previewCutoff ? "full" : "preview"}
           premiumAccessActive={args.premiumAccessActive}
           showLiveState={args.showLiveState}
           showPreMatchDisclaimer={args.showPreMatchDisclaimer}
         />
       ))}
     </div>
+  );
+}
+
+export function renderAnonymousRegistrationModule(args: { nextPath: string }) {
+  return (
+    <section className="ufo-card rounded-2xl border border-[var(--accent)]/25 p-5 sm:p-6">
+      <h2 className="text-xl font-semibold">Sigue todos los partidos con una cuenta gratis</h2>
+      <p className="mt-3 max-w-2xl text-sm text-[var(--muted)]">
+        Crea tu cuenta para consultar las probabilidades 1X2 publicadas, el contexto de confianza y
+        riesgo, y guardar partidos para revisarlos después.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Link href={`/register?next=${encodeURIComponent(args.nextPath)}`} className="ufo-btn-primary ufo-focus-ring">
+          Crear cuenta gratis
+        </Link>
+        <Link href={`/login?next=${encodeURIComponent(args.nextPath)}`} className="ufo-btn-secondary ufo-focus-ring">
+          Iniciar sesión
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+export function renderPremiumUpgradeModule() {
+  return (
+    <section className="ufo-card rounded-2xl border border-[var(--accent)]/30 p-5 sm:p-6">
+      <h2 className="text-xl font-semibold">Ve más allá del 1X2</h2>
+      <p className="mt-3 max-w-2xl text-sm text-[var(--muted)]">
+        El {getWorldCupProductName()} desbloquea escenarios representativos, goles esperados, Ambos
+        equipos marcan, Más/Menos de 2,5 y una explicación completa de cada partido.
+      </p>
+      <div className="mt-5">
+        <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
+          Ver {getWorldCupProductName()}
+        </Link>
+      </div>
+    </section>
   );
 }
 

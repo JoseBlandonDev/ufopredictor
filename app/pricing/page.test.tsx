@@ -36,7 +36,7 @@ vi.mock("@/components/wompi-checkout-button", () => ({
 import PricingPage from "./page";
 
 describe("PricingPage", () => {
-  it("shows anonymous login CTA instead of actionable checkout while preserving price visibility", async () => {
+  it("shows anonymous create-account CTA instead of actionable checkout while preserving price visibility", async () => {
     getCurrentUserMock.mockResolvedValue(null);
     getViewerEntitlementSummaryMock.mockResolvedValue({ role: "free_user" });
     hasCurrentPremiumAccessMock.mockReturnValue(false);
@@ -64,7 +64,8 @@ describe("PricingPage", () => {
     expect(html).toContain("Wompi procesará el pago en pesos colombianos. Tu banco puede aplicar su propia conversión.");
     expect(html).toContain("Cobro Wompi: COP 68.700");
     expect(html).toContain("Pase Mundial 2026");
-    expect(html).toContain("Inicia sesión para comprar");
+    expect(html).toContain("Crear cuenta para comprar");
+    expect(html).toContain('href="/register?next=/pricing"');
     expect(html).toContain('href="/login?next=/pricing"');
     expect(html).not.toContain("WOMPI_CHECKOUT_BUTTON");
     expect(html).not.toContain("10 Match Pack");
@@ -125,7 +126,7 @@ describe("PricingPage", () => {
 
     expect(html).toContain("Pase Mundial 2026 activo");
     expect(html).not.toContain("WOMPI_CHECKOUT_BUTTON");
-    expect(html).not.toContain("Inicia sesión para comprar");
+    expect(html).not.toContain("Crear cuenta para comprar");
   });
 
   it("fails safely in the public view when canonical pricing is unavailable", async () => {
@@ -146,7 +147,8 @@ describe("PricingPage", () => {
     const element = await PricingPage();
     const html = renderToStaticMarkup(element);
 
-    expect(html).toContain("Precio temporalmente no disponible");
+    expect(html).toContain("La compra está temporalmente no disponible. Inténtalo nuevamente más tarde.");
     expect(html).not.toContain("WOMPI_CHECKOUT_BUTTON");
+    expect(html).not.toContain("Missing WOMPI_USD_COP_RATE");
   });
 });

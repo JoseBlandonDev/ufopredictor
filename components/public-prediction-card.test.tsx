@@ -38,15 +38,14 @@ describe("PublicPredictionCard", () => {
       <PublicPredictionCard prediction={registeredPrediction} premiumAccessActive />,
     );
 
-    expect(html).toContain("Vista premium");
-    expect(html).toContain("Ver detalle premium");
-    expect(html).not.toContain("Vista registrada gratis");
+    expect(html).toContain("Pase Mundial 2026");
+    expect(html).toContain("Ver análisis completo");
   });
 
   it("keeps registered-free copy for registered viewers without premium access", () => {
     const html = renderToStaticMarkup(<PublicPredictionCard prediction={registeredPrediction} />);
 
-    expect(html).toContain("Vista con cuenta gratis");
+    expect(html).toContain("Incluye contexto completo de confianza y riesgo.");
     expect(html).toContain("Ver detalle público");
   });
 
@@ -74,5 +73,17 @@ describe("PublicPredictionCard", () => {
     expect(html).toContain(
       "Esta predicción fue publicada antes del inicio del partido y no se actualiza en vivo.",
     );
+  });
+
+  it("shows a bounded preview CTA for anonymous preview cards", () => {
+    const html = renderToStaticMarkup(
+      <PublicPredictionCard
+        prediction={{ ...registeredPrediction, viewer: "anonymous" }}
+        detailMode="preview"
+      />,
+    );
+
+    expect(html).toContain("Vista previa limitada");
+    expect(html).toContain("Crear cuenta para ver más");
   });
 });

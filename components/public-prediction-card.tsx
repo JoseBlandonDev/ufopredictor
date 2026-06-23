@@ -15,6 +15,7 @@ import type { PublicPredictionCardView } from "@/lib/supabase/public-prediction-
 
 type PublicPredictionCardProps = {
   prediction: PublicPredictionCardView;
+  detailMode?: "full" | "preview";
   premiumAccessActive?: boolean;
   showLiveState?: boolean;
   showPreMatchDisclaimer?: boolean;
@@ -22,6 +23,7 @@ type PublicPredictionCardProps = {
 
 export function PublicPredictionCard({
   prediction,
+  detailMode = "full",
   premiumAccessActive = false,
   showLiveState = false,
   showPreMatchDisclaimer = false,
@@ -32,13 +34,27 @@ export function PublicPredictionCard({
     venueCity: prediction.venueCity,
   });
   const isRegisteredViewer = prediction.viewer === "registered_free";
+  const isPreviewMode = detailMode === "preview";
   const competitionLabel = resolveCompetitionDisplayName(prediction.competitionName);
   const stageLabel = resolveStageDisplayName(prediction.stage);
   const homeTeamName = resolveTeamDisplayName(prediction.homeTeamName);
   const awayTeamName = resolveTeamDisplayName(prediction.awayTeamName);
+  const topProbability = [
+    { label: homeTeamName, value: prediction.homeWinProb },
+    { label: "Empate", value: prediction.drawProb },
+    { label: awayTeamName, value: prediction.awayWinProb },
+  ].sort((left, right) => right.value - left.value)[0];
+  const detailHref = `/matches/${prediction.matchSlug}`;
+  const detailLabel = isRegisteredViewer
+    ? premiumAccessActive
+      ? "Ver análisis completo"
+      : "Ver detalle público"
+    : isPreviewMode
+      ? "Crear cuenta para ver más"
+      : "Ver vista previa";
 
   return (
-    <article className="ufo-card rounded-lg p-5">
+    <article className="ufo-card rounded-2xl p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
@@ -79,15 +95,29 @@ export function PublicPredictionCard({
           </p>
         </div>
       ) : null}
-      <div className="mt-5">
-        <ProbabilityBar
-          probabilities={{
-            homeWin: prediction.homeWinProb,
-            draw: prediction.drawProb,
-            awayWin: prediction.awayWinProb,
-          }}
-        />
-      </div>
+      {isPreviewMode ? (
+        <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--accent)]">
+            Vista previa limitada
+          </p>
+          <p className="mt-2 text-sm text-white">
+            Señal principal: <span className="font-semibold">{topProbability?.label}</span>
+          </p>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Regístrate para ver las probabilidades 1X2 completas y el contexto de confianza y riesgo.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-5">
+          <ProbabilityBar
+            probabilities={{
+              homeWin: prediction.homeWinProb,
+              draw: prediction.drawProb,
+              awayWin: prediction.awayWinProb,
+            }}
+          />
+        </div>
+      )}
       {prediction.verifiedResult ? (
         <div className="mt-5 rounded-lg border border-emerald-400/25 bg-emerald-500/8 p-4">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-emerald-300">
@@ -110,20 +140,15 @@ export function PublicPredictionCard({
           </p>
         </div>
       ) : null}
-      <p className="mt-4 text-xs text-[var(--muted)]">
-        {isRegisteredViewer
-          ? premiumAccessActive
-            ? `Vista premium: el ${getWorldCupProductName()} habilita confianza, riesgo y detalle avanzado cuando ese partido ya está publicado.`
-            : "Vista con cuenta gratis: confianza y riesgo completos en el panel público."
-          : "Vista pública base: 1X2 completo y señal inicial de confianza y riesgo."}
-      </p>
-      <p className="mt-2 text-xs text-[var(--muted)]">
-        {isRegisteredViewer
-          ? "Alta incertidumbre: probabilidades cercanas. Ventaja ligera, no certeza."
-          : "Las probabilidades reflejan una lectura del modelo, no una promesa de resultado."}
-      </p>
-      <Link href={`/matches/${prediction.matchSlug}`} className="ufo-link-action ufo-focus-ring mt-4">
-        {premiumAccessActive ? "Ver detalle premium" : "Ver detalle público"}
+      <div className="mt-4 flex flex-wrap gap-2 text-xs text-[var(--muted)]">
+        {isRegisteredViewer ? (
+          <span>{premiumAccessActive ? `Tu ${getWorldCupProductName()} está activo.` : "Incluye contexto completo de confianza y riesgo."}</span>
+        ) : (
+          <span>Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.</span>
+        )}
+      </div>
+      <Link href={detailHref} className="ufo-link-action ufo-focus-ring mt-4">
+        {detailLabel}
         <ArrowRight className="h-4 w-4" />
       </Link>
     </article>

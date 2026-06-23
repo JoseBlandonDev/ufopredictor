@@ -66,5 +66,31 @@ describe("DashboardPage", () => {
     expect(html).not.toContain("LOGOUT_BUTTON");
     expect(html).toContain("Tu acceso premium está activo y fue validado en el servidor.");
     expect(html).not.toContain("Tu pago fue confirmado por Wompi");
+    expect(html).not.toContain("Resumen de acceso");
+  });
+
+  it("shows a useful upgrade path for free users and hides inactive unlock sections", async () => {
+    requireUserMock.mockResolvedValue({ email: "free@example.com" });
+    getViewerEntitlementSummaryMock.mockResolvedValue({
+      status: "ready",
+      role: "free_user",
+      activeSubscriptions: [],
+      entitlements: [],
+      matchUnlocks: [],
+    });
+    getSavedMatchesForDashboardMock.mockResolvedValue({
+      status: "ready",
+      matches: [],
+    });
+    hasCurrentPremiumAccessMock.mockReturnValue(false);
+
+    const html = renderToStaticMarkup(
+      await DashboardPage({
+        searchParams: Promise.resolve({}),
+      }),
+    );
+
+    expect(html).toContain("Ver Pase Mundial 2026");
+    expect(html).not.toContain("Partidos desbloqueados individualmente");
   });
 });
