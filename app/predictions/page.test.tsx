@@ -80,11 +80,11 @@ describe("PredictionsPage", () => {
     const element = await PredictionsPage();
     const html = renderToStaticMarkup(element);
 
-    expect(html).toContain("En vivo y partidos interrumpidos");
+    expect(html).toContain("Partidos en curso");
     expect(html).toContain(
-      "Esta predicción fue publicada antes del inicio del partido y no se actualiza en vivo.",
+      "Estos partidos ya comenzaron. Las probabilidades mostradas fueron publicadas antes del inicio y no se actualizan en tiempo real.",
     );
-    expect(html.indexOf("En vivo y partidos interrumpidos")).toBeLessThan(
+    expect(html.indexOf("Partidos en curso")).toBeLessThan(
       html.indexOf("Próximos partidos"),
     );
   });
@@ -100,6 +100,6 @@ describe("PredictionsPage", () => {
     const element = await PredictionsPage();
     const html = renderToStaticMarkup(element);
 
-    expect(html).not.toContain("En vivo y partidos interrumpidos");
+    expect(html).not.toContain("Partidos en curso");
   });
 });

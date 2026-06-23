@@ -50,10 +50,10 @@ export default async function PredictionsPage() {
             <section className="space-y-4">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-semibold">En vivo y partidos interrumpidos</h2>
+                  <h2 className="text-2xl font-semibold">Partidos en curso</h2>
                   <p className="mt-2 text-sm text-[var(--muted)]">
-                    Esta predicción fue publicada antes del inicio del partido y no se actualiza en
-                    vivo.
+                    Estos partidos ya comenzaron. Las probabilidades mostradas fueron publicadas
+                    antes del inicio y no se actualizan en tiempo real.
                   </p>
                 </div>
               </div>
