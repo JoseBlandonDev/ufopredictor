@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-23T23:34:47.825Z",
+  "selection": {
+    "matchday": null,
+    "from": "2026-06-23",
+    "to": "2026-06-24"
+  },
+  "allowlist": {
+    "canonicalFixtureIds": [
+      "wc2026-match-041",
+      "wc2026-match-044",
+      "wc2026-match-047",
+      "wc2026-match-045",
+      "wc2026-match-046",
+      "wc2026-match-048",
+      "wc2026-match-051",
+      "wc2026-match-052",
+      "wc2026-match-049",
+      "wc2026-match-050"
+    ],
+    "apiFootballFixtureIds": [
+      1489401,
+      1489400,
+      1489404,
+      1489402,
+      1489403,
+      1539008,
+      1489408,
+      1539009,
+      1489406,
+      1489405
+    ]
+  }
+}
