@@ -1,6 +1,6 @@
 # Documentation Refresh Manifest
 
-_Last refreshed: 2026-06-24 after PR #111, PR #112, Matchday 3 publication, Torneo export validation, and MVP2 scope decisions._
+_Last refreshed: 2026-06-24 after PR #111, PR #112, Matchday 3 publication, Torneo export validation, MVP2 scope decisions, and active-backlog consistency review._
 
 ## Canonical structure
 
@@ -101,6 +101,7 @@ PDF is not required.
 - `03_SIGNAL_REFRESH_AND_MODEL_OPS_RUNBOOK.md`
 - `08_V2_BRANCH_ENVIRONMENT_NORMALIZATION_RUNBOOK.md`
 - `09_MVP2_PARALLEL_DELIVERY_AND_AUTOMATION_RUNBOOK.md`
+- `06_FRONTEND_COMMERCIAL_BACKLOG.md`
 
 ### Updated derived project-management Markdown
 
