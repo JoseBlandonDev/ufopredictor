@@ -1,32 +1,41 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-24._
 
 ## Goal
 
-Rebuild the Prediction Intelligence v2 work on top of the current production baseline without losing the nine completed v2 commits and without rolling back MVP1 product changes.
+Rebuild Prediction Intelligence v2 on top of the current production baseline without losing the nine v2-only commits or rolling back MVP1 product and operations changes.
 
-## Known state
+## Live-state source
+
+Before work, read and verify:
 
 ```text
-main: e0191607d46484d13d0771b4508da3b05722dcb5
+docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
+docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
+```
+
+Do not trust hardcoded SHAs or divergence counts from an old prompt. Recompute them read-only.
+
+Stable references:
+
+```text
 old v2 branch: feature/prediction-intelligence-v2-data-foundation
-old v2 head: eefcff709e80209215b25b90fb870aa5c080d735
-merge base: 1dca9bf91000c089927452941a009117b622103f
-main-only commits: 12
-v2-only commits: 9
+Draft PR: #106
+known old v2 head at last refresh: eefcff709e80209215b25b90fb870aa5c080d735
+known merge base: 1dca9bf91000c089927452941a009117b622103f
 ```
 
 ## Required strategy
 
-1. Preserve the old branch and PR #106 unchanged.
-2. Start only after the docs refresh is merged and `origin/main` is current.
+1. Verify clean current `main` and `origin/main`.
+2. Preserve the old branch and PR #106 unchanged.
 3. Create `integration/prediction-intelligence-v2` from current `origin/main`.
 4. Produce a nine-commit/file preservation matrix.
 5. Port changes in this order:
    - migration/types/contracts;
    - source data/manifests/parsers;
-   - model/replay/calibration libraries;
+   - model/replay/calibration;
    - scripts/artifact generation;
    - tests;
    - Task 3A/3B runbooks.
@@ -44,15 +53,27 @@ D:\Projects\ufo-predictor-v2
 D:\Projects\ufo-predictor-ui
 ```
 
+Additional worktrees are optional. Do not create duplicate source snapshots merely to run parallel conversations.
+
 ## Validation after each group
 
 - focused imported tests;
 - current public query/lifecycle tests;
-- Auth/pricing/entitlement tests if shared code was touched;
+- result/fixture operation tests if shared code is touched;
+- Auth/pricing/entitlement tests if shared code is touched;
 - lint;
-- build;
+- production build;
 - diff-check;
 - no production write.
+
+## Current production concerns that must survive
+
+- PR #111 fixture registry behavior;
+- PR #112 trusted result refresh behavior;
+- immutable v1 Matchday 3 publications;
+- Torneo `torneo-ufo-export-v1` compatibility;
+- Wompi/Auth/entitlement behavior;
+- public lifecycle and history.
 
 ## Required output
 
@@ -61,4 +82,5 @@ D:\Projects\ufo-predictor-ui
 - conflicts and resolutions;
 - tests/build evidence;
 - replacement Draft PR URL;
-- explicit confirmation PR #106 remained Draft/unchanged.
+- confirmation PR #106 remained Draft/unchanged;
+- confirmation no production write occurred.

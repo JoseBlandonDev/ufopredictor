@@ -1,149 +1,235 @@
 # Fixture, Result, and Evaluation Operations
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-24 after PR #111 and PR #112 production operations._
 
 ## Operating model
 
-API-Football is the operational source for fixture identity, kickoff, status, and final score. Official FIFA schedule data provides the canonical tournament schedule/venue reference where available.
+API-Football is the operational source for fixture identity, kickoff, status, and final score.
 
-The current flow is operator-driven and proven. MVP2 should reduce repetitive work without weakening exact-fixture guards, verified-result truth, or immutable prediction history.
+Official World Cup schedule data provides canonical tournament schedule and venue reference where available.
+
+The production path now combines:
+
+- exact bounded fixture registration;
+- current-model publication;
+- trusted result auto-verification;
+- idempotent evaluation persistence;
+- exception-oriented review;
+- public-safe partner export.
 
 ## Public lifecycle
 
 Public classification uses kickoff and verified-result truth:
 
-1. Verified final result always wins and appears only in recent results/history.
+1. Verified final result wins and appears in recent results/history.
 2. Future kickoff without verified result appears in upcoming.
-3. Kickoff passed and within three hours appears in progress.
-4. After the three-hour active window, an unverified fixture appears as awaiting official update.
-5. Explicit postponed/cancelled states remain visible with honest labels.
+3. Kickoff passed and inside the conservative active window appears in progress.
+4. Outside the active window without verified final result appears as awaiting official update.
+5. Explicit postponed/cancelled states remain honestly labeled.
 
-The displayed probabilities are always the pre-match publication and are not live-updated.
+Displayed probabilities remain the immutable pre-match publication and are not live-updated.
 
 ## Routine admin surfaces
 
 - Prediction Review Gate for selected signal/model anomalies;
 - Real Fixture Publish Queue for exact fixture publication;
-- Result Review Queue for pending provider finals;
-- Evaluation Queue for post-match persistence;
+- Result Review Queue for exceptions/reconciliation;
+- Evaluation Queue for exceptional or manual persistence paths;
 - Torneo Export for public-safe partner payloads.
 
-Real Fixture Lab exact-detail remains optional deeper diagnostics, not a routine dependency.
+Real Fixture Lab exact detail remains deeper diagnostics, not a routine dependency.
 
-## Current operator sequence
+## Fixture registry command
 
 ```text
-1. Read API-Football fixture or league status.
-2. Run exact ingest/apply for finished fixtures.
-3. Review pending result rows.
-4. Verify final results.
-5. Confirm public recent results/history.
-6. Persist internal evaluations.
+npm run ops:world-cup-group-stage-fixture-registry
 ```
 
-Live exact apply is allowed only for an already-existing public API-Football World Cup row and does not create a result row.
+Behavior:
 
-## Immediate coverage objective
+- dry-run by default;
+- bounded selection by matchday or date;
+- exact allowlist manifest for apply;
+- canonical/provider link reporting;
+- create/update/already-stored counts;
+- no prediction, result, or evaluation creation;
+- idempotent second apply.
 
-Before waiting for v2 model promotion:
+Matchday 3 result:
 
-- discover all remaining group-stage API-Football fixture IDs;
-- reconcile them with the official schedule;
-- persist canonical match/provider links in the application database;
-- publish near-term fixtures using the current production model;
-- keep an explicit manifest of not-started fixtures eligible for future v2 versions.
+- 24/24 fixtures stored;
+- 20 new fixtures created in four exact five-fixture batches;
+- 4 already stored;
+- 0 Matchday 3 conflicts;
+- all four batches proved idempotent.
 
-This prevents last-minute one-by-one ID discovery and avoids losing tournament coverage while model work continues.
+## Prediction publication state
 
-## MVP2 batch operations target
+Matchday 3:
 
-### Fixture discovery batch
+- 24/24 v1 internal predictions saved;
+- 24/24 public products published;
+- publish queue empty;
+- original v1 publications remain immutable.
 
-Input:
+A later v2 publication may be created only before kickoff as a new version.
 
-- competition/season/date or official schedule manifest.
+## Trusted result refresh command
 
-Output:
+```text
+npm run ops:world-cup-result-refresh
+```
 
-- fixture ID;
-- canonical teams;
-- kickoff UTC;
-- competition/stage/group;
-- provider status;
-- official schedule link;
-- DB match/publication state;
-- prediction eligibility.
+Behavior:
 
-### Status/result refresh batch
+- dry-run by default;
+- bounded selection by exact identifiers, manifest, date range, or matchday;
+- apply requires an exact allowlist;
+- touches only stored World Cup fixtures;
+- never creates fixtures;
+- never generates or mutates predictions;
+- auto-verifies supported trusted-provider finals;
+- persists eligible evaluations idempotently;
+- reports exceptions separately.
 
-Run once or twice per day, with extra runs around dense kickoff windows:
+## Trusted auto-verification policy
 
-- poll only relevant stored fixtures;
-- update status/kickoff metadata idempotently;
-- ingest terminal scores into `pending_review`;
-- produce a concise run report;
-- notify the admin when review is required.
+API-Football `FT` may be auto-verified when:
 
-### Verification and evaluation batch
+- provider linkage matches the stored fixture;
+- home and away identity match;
+- both scores are present;
+- terminal status is supported;
+- no duplicate, linkage, identity, or stored-score conflict exists.
 
-Initially:
+Normal flow:
 
-- human verification remains mandatory;
-- verified rows may be selected and persisted in a bounded batch;
-- no automatic final-score trust solely from a polling job;
-- no automatic rewriting of predictions or scenarios.
+```text
+provider FT
+-> status sync if needed
+-> verified result create/already-identical
+-> evaluation create/already-stored
+```
 
-Later, automation governance may allow trusted-provider auto-verification only after explicit owner approval and reconciliation safeguards.
+The owner has approved trusted-provider automatic verification. Human review is no longer mandatory for normal valid finals.
+
+## Exception policy
+
+The Result Review Queue is now exception-oriented.
+
+Examples:
+
+- provider fixture not found;
+- unsupported or incomplete state;
+- missing score;
+- identity/link mismatch;
+- incompatible duplicate;
+- stored verified score differs from provider;
+- evaluation persistence failure.
+
+A changed previously verified score must never be silently overwritten.
+
+`provider_fixture_not_found` may be transient and is not automatically a data conflict.
+
+## Real production result-refresh evidence
+
+Successful exact Matchday 2 apply:
+
+- selected fixtures: 15;
+- provider terminal results: 15;
+- results already identical: 14;
+- results created: 1;
+- results verified in apply: Colombia 1-0 Congo DR;
+- evaluations already stored: 14;
+- evaluations created: 1;
+- conflicts/exceptions in successful apply: 0.
+
+Second apply produced:
+
+- results created: 0;
+- results updated: 0;
+- evaluations created: 0;
+- evaluations updated: 0.
+
+Provider availability varied between repeated calls. Existing verified rows remained safe and unchanged.
+
+## Current run cadence
+
+Routine production refresh should focus on:
+
+- fixtures whose kickoff recently passed;
+- stored rows without verified final result;
+- scheduled/started rows needing status update;
+- unresolved recent exceptions;
+- a bounded recent correction window.
+
+Do not routinely poll entire completed historical matchdays merely to reconfirm identical data.
+
+## Next automation increments
+
+Still pending:
+
+- automatic selection of recent pending fixtures;
+- retry/backoff for transient provider absence;
+- scheduler once/twice daily and around dense kickoff windows;
+- run summaries and notifications;
+- persistent reconciliation workflow for changed official scores;
+- operational metrics for provider failures.
 
 ## Required run logging
 
-Every batch run should record:
+Every batch should capture:
 
 - run ID and UTC cutoff;
-- environment and target project;
-- requested fixture scope;
-- provider response timestamp;
-- created/updated/skipped counts;
-- terminal results discovered;
-- verification/evaluation pending counts;
-- failures and retryability;
+- environment and target;
+- exact requested fixture scope;
+- provider response timestamp where available;
+- create/update/already-identical/skip counts;
+- verification/evaluation counts;
+- exceptions and retryability;
 - idempotency evidence.
 
 Do not log credentials or raw sensitive payloads.
 
 ## Evaluation persistence
 
-`Persist evaluation` stores the post-match comparison between the immutable prediction and verified outcome.
+Evaluation compares an immutable prediction with the verified outcome.
 
 It supports:
 
 - calibration and diagnostics;
-- exact-score/scenario-family review;
+- exact-score and scenario-family review;
 - 1X2, goals, BTTS, margin, and surprise analysis;
 - future challenger research;
 - auditable learning without rewriting history.
 
-It is an internal model-operations step, not a second public verification.
+## Torneo Mundialista export
 
-## Latest captured results
+Current partner artifact:
 
-Recently verified/public results include:
+```text
+schemaVersion: torneo-ufo-export-v1
+```
 
-- France 3-0 Iraq;
-- Argentina 2-0 Austria;
-- Norway 3-2 Senegal;
-- Jordan 1-2 Algeria.
+Validated Matchday 3 export:
 
-The associated pending evaluation queue was cleared in the latest operator pass.
+- range: 2026-06-24 to 2026-06-30;
+- fixtures: 24;
+- unique fixture IDs: 24;
+- duplicates: 0;
+- public-safe URLs and prediction fields;
+- JSON approved as the delivery artifact;
+- PDF not required.
 
 ## Automation guardrails
 
-- exact competition/season/fixture scope;
+- exact competition/fixture scope;
 - stage/production target guard;
+- dry-run before apply;
+- exact allowlist for production apply;
 - idempotent writes;
 - immutable prediction versions;
-- no post-kickoff generation;
-- no unverified public final score;
-- human-readable dry-run/report mode;
-- bounded retries and observable failures;
+- no post-kickoff prediction generation;
+- no silent score correction;
+- observable exceptions;
 - no broad silent apply.

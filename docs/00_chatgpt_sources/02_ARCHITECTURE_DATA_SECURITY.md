@@ -1,6 +1,6 @@
 # Architecture, Data, and Security - UFO Predictor
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-24._
 
 ## System overview
 
@@ -11,7 +11,9 @@ Next.js server routes and protected projections
         |
 Supabase Auth + Postgres + RLS
         |
-Operational football data + analytical/model layers
+Operational fixture/result/publication layer
+        |
+Prediction/model/evaluation layers
         |
 API-Football / FIFA / World Football Elo / official schedule snapshots
 ```
@@ -23,7 +25,9 @@ production: ufopredictor.com       -> production Supabase
 stage:      stage.ufopredictor.com -> separate Supabase stage
 ```
 
-Production and stage have separate users, sessions, profiles, roles, entitlements, data, and secrets. Do not clone production Auth or payment history into stage.
+Production and stage have separate users, sessions, profiles, roles, entitlements, data, and secrets.
+
+Do not clone production Auth, payment history, webhook payloads, or entitlements into stage.
 
 ## Existing production architecture
 
@@ -49,7 +53,53 @@ Production and stage have separate users, sessions, profiles, roles, entitlement
 - published predictions are immutable historical records;
 - new publications create version/predecessor lineage;
 - started or finished fixtures cannot be silently rewritten;
-- public projections remain separate from internal review/evaluation payloads.
+- public projections remain separate from internal review/evaluation payloads;
+- future v2 publications must include explicit model, feature, cutoff, and purpose metadata.
+
+### Fixture registry
+
+PR #111 added a bounded World Cup group-stage registry flow:
+
+```text
+npm run ops:world-cup-group-stage-fixture-registry
+```
+
+Properties:
+
+- dry-run by default;
+- selection by matchday/date range;
+- exact allowlist-gated apply;
+- canonical/provider reconciliation;
+- no result or prediction creation;
+- conflict/duplicate reporting;
+- idempotent rerun behavior.
+
+### Trusted result refresh
+
+PR #112 added:
+
+```text
+npm run ops:world-cup-result-refresh
+```
+
+Properties:
+
+- dry-run by default;
+- bounded by match IDs, external IDs, provider fixture IDs, manifest, date, or matchday;
+- apply requires an exact allowlist;
+- operates only on stored World Cup fixtures;
+- normal valid API-Football `FT` scores may be auto-verified;
+- existing predictions are never mutated;
+- evaluation persistence is idempotent;
+- exceptions remain visible for reconciliation.
+
+Current schema limitations:
+
+- no dedicated `verification_method` column;
+- no dedicated provider-response timestamp column on `match_results`;
+- trusted-provider provenance is stored in `source_note`;
+- `reviewed_at` is used as the verification timestamp;
+- unsupported states such as abandoned/suspended remain exception paths rather than lossy status writes.
 
 ## Operational entities
 
@@ -65,6 +115,30 @@ Core production entities include:
 - entitlements and activation/revocation records;
 - saved matches/watchlist;
 - internal evaluations.
+
+## Partner export architecture
+
+The Torneo Mundialista export is an admin-generated, public-safe JSON projection.
+
+Current contract:
+
+```text
+torneo-ufo-export-v1
+```
+
+The projection exposes only approved fields such as:
+
+- stable fixture/provider identity;
+- public URL;
+- kickoff/stage/status;
+- 1X2 probabilities;
+- confidence/risk;
+- score/xG summaries;
+- display guidance.
+
+It must not expose internal review payloads, secrets, raw sources, private evaluations, or proprietary calculation internals.
+
+Future prediction version fields should be added compatibly rather than breaking the v1 contract.
 
 ## Prediction Intelligence v2 foundation
 
@@ -89,13 +163,29 @@ Analytical entities include:
 - `official_schedule_match_links`;
 - `signal_snapshots`.
 
-## Identity rules
+## Identity and localization rules
 
 - canonical team identity is locale-neutral;
-- Spanish/English names live in localization rows;
+- ES/EN/PT labels live outside canonical identity;
 - historical match identity does not include score;
 - corrections preserve lineage instead of inventing a new match;
-- API-Football/product links remain explicit and auditable.
+- API-Football/product links remain explicit and auditable;
+- partner integrations join by stable IDs, not translated names.
+
+## Prediction version contract
+
+Every future advanced prediction version should carry:
+
+- model version;
+- feature version;
+- calculation timestamp;
+- evidence cutoff;
+- purpose, such as production candidate or `historical_replay`;
+- publication status;
+- source/provenance references;
+- predecessor/supersession relationship.
+
+Finished fixtures may receive fair historical replay versions, but the original publication remains the historical product record.
 
 ## Provenance and temporal safety
 
@@ -115,7 +205,7 @@ Pre-match evidence must satisfy:
 observed_at < fixture kickoff
 ```
 
-No result or later fact may leak into a pre-match prediction.
+No result or later fact may leak into a pre-match prediction or replay.
 
 ## Source families
 
@@ -123,7 +213,7 @@ No result or later fact may leak into a pre-match prediction.
 - World Football Elo: ratings, timeline, historical results, expectancy;
 - FIFA ranking snapshots;
 - official World Cup schedule/venue data;
-- deterministic prepared source snapshots when live pages are not reliably machine-readable.
+- deterministic prepared snapshots when live sources are not reliably machine-readable.
 
 ## Security boundaries
 
@@ -134,4 +224,7 @@ No result or later fact may leak into a pre-match prediction.
 - Task 3B accepts only explicit stage credentials;
 - public views expose only product-safe fields;
 - payment webhook validation is server-side;
-- started-fixture publication remains immutable.
+- started-fixture publication remains immutable;
+- broad production apply is forbidden;
+- trusted auto-verification never authorizes prediction mutation;
+- a changed previously verified score must become a reconciliation event, not a silent overwrite.

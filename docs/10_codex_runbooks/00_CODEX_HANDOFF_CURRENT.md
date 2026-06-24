@@ -1,57 +1,67 @@
 # Codex Handoff Current
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-24._
 
-## Baselines
+## Canonical-source rule
+
+Before implementation, read:
 
 ```text
-Production main:
-e0191607d46484d13d0771b4508da3b05722dcb5
+docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
+docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
+docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
+```
 
-Documentation refresh branch:
-docs/adopt-2026-06-23-project-source-refresh
-commit: 43fb1dc3957afd0b8356edd4766396f7338e9afb
+Those files own live product, branch, roadmap, and workflow truth.
 
-Old Prediction Intelligence v2 branch:
+This handoff contains the current immediate sequence and hard execution boundaries. Verify live SHAs rather than assuming this snapshot remains current.
+
+## Reference baseline at this refresh
+
+```text
+main: 130ffc8b6728ccccfdb9f29ecc4244ec1cd019b6
+PR #111: merged
+PR #112: merged
+
+old v2 branch:
 feature/prediction-intelligence-v2-data-foundation
+
 Draft PR #106 head:
 eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
-PR #106 must remain Draft and should not receive new implementation work.
+PR #106 remains Draft and must not receive new implementation work.
 
-## Branch divergence
+## Immediate next sequence
 
-Latest audited comparison:
-
-- `main` has 12 commits missing from the old v2 branch;
-- old v2 has 9 commits missing from `main`;
-- merge base: `1dca9bf91000c089927452941a009117b622103f`.
-
-## Exact next sequence
-
-1. Finish/review/merge the updated documentation branch.
-2. From current clean `origin/main`, create `integration/prediction-intelligence-v2`.
+1. Start from clean current `origin/main`.
+2. Create `integration/prediction-intelligence-v2`.
 3. Preserve the old branch and PR #106 unchanged.
-4. Audit the nine v2 commits by file/concern.
-5. Selectively port valid data/model/migration/test work.
-6. Exclude stale frontend/docs/shared-runtime changes.
-7. Validate current MVP1 tests/lint/build throughout.
+4. Audit the nine v2-only commits by file and concern.
+5. Selectively port valid data, migration, model, replay, script, artifact, and test work.
+6. Exclude stale frontend, docs, and shared-runtime changes.
+7. Validate MVP1 tests, lint, build, and diff-check after bounded groups.
 8. Open a replacement Draft PR.
 9. Perform Task 3B read-only stage audit.
-10. Stop for human approval before stage writes.
+10. Stop for owner approval before stage writes.
 
-## Parallel production work
+## Current production continuity
 
-Short branches from current `main` may continue for:
+Already delivered:
 
-- fixture/result operations;
-- remaining group-stage fixture discovery/publication;
-- bounded UI/UX/accessibility improvements;
-- stable-contract ops automation;
-- admin workflow ergonomics.
+- 24/24 Matchday 3 fixtures stored;
+- 24/24 v1 predictions published;
+- trusted World Cup result refresh;
+- automatic valid `FT` verification/evaluation;
+- validated 24-fixture Torneo JSON export.
 
-Do not make these depend on migration 0038.
+Parallel production work should now focus on:
+
+- relevant recent result/status polling;
+- retry/backoff and scheduler hardening;
+- bounded product fixes;
+- independent UI/UX improvements;
+- no re-opening of completed Matchday 3 registry/publication work.
 
 ## Source workspace
 
@@ -76,14 +86,16 @@ Do not create another environment. Do not require Docker.
 
 ## Hard boundaries
 
-- no production writes during v2 normalization/Task 3B;
+- no production writes during v2 normalization or Task 3B;
 - no merge of PR #106;
 - no blanket merge/cherry-pick of all nine old commits;
 - no production migration 0038;
 - no production user/payment/entitlement cloning;
 - no secrets in output;
 - no post-kickoff prediction generation;
-- no reopening completed MVP1 commercial work.
+- no reopening completed MVP1 commercial work;
+- no rewriting original v1 Matchday 3 publications;
+- no claim that v2 is already more accurate.
 
 ## Reporting contract
 
@@ -97,4 +109,4 @@ Return:
 - environment/write scope;
 - blockers only when concrete;
 - final verdict;
-- commit SHA when changes are committed.
+- commit SHA when committed.

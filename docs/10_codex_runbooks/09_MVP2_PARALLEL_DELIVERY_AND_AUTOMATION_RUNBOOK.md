@@ -1,21 +1,28 @@
 # MVP2 Parallel Delivery and Operations Automation Runbook
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-24._
 
 ## Purpose
 
-Allow the product, model, and operations tracks to advance simultaneously without forcing production to wait for v2.
+Allow production, model, operations, and bounded product work to advance simultaneously without forcing production to wait for v2.
+
+Live epic status belongs in:
+
+```text
+docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
+```
 
 ## Track ownership
 
 ### Production continuity track
 
-Base: `main`
+Base: current `main`
 
-- upcoming fixture coverage;
-- result verification/evaluation;
-- bounded production fixes;
-- current-model publications.
+- relevant fixture/result operations;
+- current-model publications;
+- trusted result refresh;
+- partner export continuity;
+- bounded production fixes.
 
 ### V2 integration track
 
@@ -23,6 +30,7 @@ Base: `integration/prediction-intelligence-v2`
 
 - normalized data/schema;
 - model/replay/calibration;
+- tournament-context signals;
 - stage sync;
 - development predictions;
 - release decision.
@@ -35,57 +43,93 @@ Base: current `main`
 - no migration 0038 dependency;
 - no v2 table consumption until approved.
 
-### Ops automation track
+### Operations automation track
 
-Base: current `main` unless a task specifically requires v2 schema.
+Base: current `main` unless a task requires v2 schema.
 
-- fixture discovery/storage;
+- recent-pending selection;
 - status/result polling;
-- pending-review creation;
+- trusted auto-verification;
 - run logs/notifications;
-- batch evaluation assistance.
+- retry/backoff;
+- reconciliation alerts.
 
-## MVP2 automation increments
+## Automation increments
 
 ### Increment 1 - fixture registry
 
-- obtain all remaining group-stage fixture IDs;
-- reconcile official/provider schedule;
-- store canonical links;
-- report missing/duplicate/conflicting rows.
+Status: `Delivered in PR #111`
 
-### Increment 2 - bounded refresh command
+- canonical/provider discovery;
+- exact allowlist apply;
+- conflict reporting;
+- idempotency;
+- Matchday 3 24/24 coverage.
 
-- accept competition/date/fixture manifest;
-- refresh statuses and terminal scores;
-- dry-run/report/apply modes;
-- exact target guards;
-- idempotency.
+### Increment 2 - trusted bounded result refresh
 
-### Increment 3 - scheduled polling
+Status: `Delivered in PR #112`
 
-- run once/twice daily;
-- poll only relevant fixtures;
-- create pending-review rows;
-- notify operator;
-- no auto-verification.
+- exact stored-fixture selection;
+- dry-run/report/apply;
+- exact allowlist requirement;
+- trusted valid `FT` auto-verification;
+- idempotent evaluation;
+- exception path;
+- no prediction mutation.
 
-### Increment 4 - review/evaluation assistance
+### Increment 3 - scheduled relevant polling
 
-- select verified result rows;
-- batch persist evaluations;
-- produce summary/errors;
-- retain human control.
+Status: `Pending`
+
+- automatically select recent relevant fixtures;
+- run once/twice daily and around kickoff blocks;
+- retry transient provider absence with backoff;
+- avoid historical completed batches;
+- emit concise operator notification.
+
+### Increment 4 - reconciliation and observability
+
+Status: `Pending`
+
+- changed-score reconciliation;
+- persistent exception classification;
+- provider-failure metrics;
+- retry history;
+- evaluation failure reporting;
+- audit-safe operator actions.
 
 ### Increment 5 - recurring signal refresh
 
-After v2 stage stabilization:
+Status: `After v2 stage stabilization`
 
-- refresh current signals before approved cutoffs;
-- persist source/provenance/reliability;
+- refresh current structural/recent/tournament signals;
+- persist provenance/reliability;
 - generate only not-started immutable versions;
+- create labeled historical replay where approved;
 - compare v1/v2.
+
+## Torneo Mundialista continuity
+
+Current production partner contract:
+
+```text
+torneo-ufo-export-v1
+```
+
+- JSON is the delivery artifact;
+- 24 Matchday 3 fixtures were validated;
+- future v2 fields must be added compatibly;
+- partner identity uses stable IDs.
+
+## Internationalization track
+
+- canonical contracts prepare ES/EN/PT now;
+- full public translation rollout follows stable v2 contracts;
+- do not block v2 data/model integration on complete UI translation.
 
 ## Release discipline
 
-Each increment must be deployable and useful independently. Do not bundle worker infrastructure, new model, internationalization, payment providers, and frontend redesign into one PR, because that is how a roadmap becomes a hostage situation.
+Each increment must be independently deployable and useful.
+
+Do not bundle worker infrastructure, new model, internationalization, payment providers, and frontend redesign into one PR.
