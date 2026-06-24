@@ -1,89 +1,164 @@
 # API-Football Fixture and Result Operations Runbook
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-24._
 
 ## Purpose
 
-Maintain public World Cup coverage and verified results without requiring one-off manual discovery for every fixture.
+Maintain World Cup fixture coverage, trusted official results, evaluations, and partner exports with bounded, observable, idempotent operations.
 
-## Immediate operational objective
+For live status and current completed milestones, read:
 
-Discover and store all remaining group-stage fixture IDs and official-schedule links before their prediction windows become urgent.
+```text
+docs/00_chatgpt_sources/04_FIXTURE_RESULT_AND_EVALUATION_OPS.md
+```
 
-The current production model may publish them while v2 remains under stage validation.
+## Fixture registry
 
-## Safe batch phases
+Command:
 
-### 1. Discovery/read
+```text
+npm run ops:world-cup-group-stage-fixture-registry
+```
 
-- query exact competition/season/date ranges;
-- output fixture IDs, teams, kickoff, provider status, stage/group;
-- reconcile canonical aliases and official schedule rows;
-- report DB/publication/prediction state;
-- perform no writes.
+### Discovery/read
 
-### 2. Exact/bounded fixture apply
+- select by matchday or date range;
+- reconcile canonical and API-Football fixture identity;
+- report stored/create/update/conflict/eligibility state;
+- perform no writes by default.
 
-- use explicit competition, season/date, fixture IDs, and limits;
-- preserve public slug/access scope for existing rows;
-- allow live status sync only under existing exact guards;
-- do not create result rows for live fixtures;
-- capture a report.
+### Apply
 
-### 3. Terminal-result ingest
+- use an exact allowlist manifest;
+- confirm environment and target;
+- create/update only the selected stored-fixture metadata;
+- never create predictions, results, or evaluations;
+- repeat the exact apply to prove idempotency;
+- retain external run artifacts outside the repo.
 
-- poll relevant stored fixtures;
-- ingest finished scores to `pending_review`;
-- never present them publicly as final until verified;
-- no probability rewrite.
+## Prediction publication
 
-### 4. Human verification
+After fixture registration:
 
-- verify in Result Review Queue;
-- confirm public recent results/history;
-- retain the original pre-match publication/cutoff.
+- recheck kickoff and eligibility;
+- save the internal current-model prediction;
+- publish the basic public product;
+- confirm the exact publish queue clears;
+- never generate after kickoff;
+- preserve immutable publication history.
 
-### 5. Evaluation persistence
+## Trusted result refresh
 
-- select verified rows;
-- persist evaluations in bounded batches;
-- confirm the queue clears;
-- retain idempotency.
+Command:
 
-## MVP2 scheduler target
+```text
+npm run ops:world-cup-result-refresh
+```
 
-Frequency:
+### Dry-run
 
-- normal: once or twice daily;
-- dense match windows: before/after relevant kickoff blocks;
-- on-demand retry after provider failure.
+- always start without `--apply`;
+- select by exact IDs/manifest and optional date/matchday;
+- inspect terminal results, already-identical rows, exceptions, and evaluation actions;
+- save the artifact.
 
-Initial scheduler scope:
+### Apply
 
-- discovery/status refresh;
-- terminal-result pending-review creation;
-- run report/admin notification.
+Apply requires an exact allowlist using:
 
-Human verification remains mandatory.
+- match IDs;
+- external IDs;
+- API-Football fixture IDs;
+- or an allowlist manifest.
+
+Do not apply a broad matchday/date selection without an exact allowlist.
+
+### Auto-verification eligibility
+
+Automatically verify only when:
+
+- the stored fixture already exists;
+- provider is API-Football;
+- fixture identity matches;
+- supported terminal state is `FT`;
+- both scores exist;
+- no duplicate, linkage, identity, or score conflict exists.
+
+### Result/evaluation behavior
+
+- create or recognize an identical verified result;
+- update stored status if appropriate;
+- persist an eligible evaluation idempotently;
+- never create or mutate a prediction;
+- never silently overwrite a changed verified score.
+
+## Exception handling
+
+Exception examples:
+
+- `provider_fixture_not_found`;
+- incomplete/missing score;
+- unsupported state;
+- identity mismatch;
+- incompatible duplicate;
+- changed verified score;
+- evaluation persistence failure.
+
+`provider_fixture_not_found` may be transient. Retry later under a bounded recent-fixture scope. Do not delete or downgrade existing verified data.
+
+## Routine target selection
+
+Prefer:
+
+- kickoff recently passed;
+- scheduled/started rows without a verified result;
+- recent pending exceptions;
+- a short correction window.
+
+Avoid routinely querying completed historical batches that are already verified and evaluated.
+
+## Scheduler target
+
+Pending implementation:
+
+- once/twice daily;
+- additional runs around dense kickoff windows;
+- automatic recent-pending selection;
+- retry/backoff;
+- concise operator notification;
+- run metrics and reconciliation alerts.
+
+## Partner export
+
+Torneo export contract:
+
+```text
+torneo-ufo-export-v1
+```
+
+- JSON is the approved delivery artifact;
+- partner identity uses `fixtureId` or `externalId`;
+- no PDF is required;
+- export public-safe fields only.
 
 ## Required report
 
 - run ID/cutoff/environment;
-- fixture scope;
-- provider response time;
-- create/update/skip counts;
-- live/finished/pending-review counts;
-- failures and retry status;
-- post-run queue counts;
+- exact fixture scope;
+- provider response time where available;
+- create/update/already-identical/skip counts;
+- verification/evaluation counts;
+- exception/retry status;
+- idempotency evidence;
 - no secrets.
 
 ## Guardrails
 
 - production target confirmation;
 - exact competition/fixture scope;
-- idempotency;
-- no broad silent apply;
-- no unverified public final;
-- no post-kickoff prediction generation;
-- no manual probability rewrite;
-- immutable prediction history.
+- dry-run before apply;
+- exact allowlist for writes;
+- immutable prediction history;
+- no post-kickoff generation;
+- no silent score correction;
+- no broad silent apply.

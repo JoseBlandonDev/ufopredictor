@@ -1,6 +1,6 @@
 # Auth, Payments, and Entitlements - Current
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-24._
 
 ## Authentication baseline
 
@@ -20,7 +20,7 @@ Production and stage Auth universes are separate. A production user may need to 
 - premium: entitlement-protected advanced projection;
 - admin: explicit operational authorization.
 
-A subscription/payment row alone does not reveal premium content. The active entitlement is the access authority.
+A payment or subscription row alone does not reveal premium content. The active entitlement is the access authority.
 
 ## Pase Mundial 2026 flow
 
@@ -46,24 +46,19 @@ The return page does not grant premium access.
 
 ## Production proof
 
-The full real production flow has already been smoke-tested:
+The full production flow has been smoke-tested:
 
 - authenticated checkout opened;
 - Wompi showed the expected amount and merchant;
 - approved payment activated premium;
-- premium persisted after session refresh/login.
+- premium persisted after refresh/login;
+- premium UI shows premium content rather than free-only upgrade prompts.
 
-Do not repeat a paid transaction simply because documentation or frontend copy changed.
-
-## Local development note
-
-A local production-key Wompi redirect may be blocked by origin/CloudFront policy even when production works. This is not a production regression by itself.
-
-Local `.env.local` is Git-ignored and must never be copied into docs or commits.
+Do not repeat a paid transaction merely because documentation or frontend copy changed.
 
 ## Entitlement operations
 
-Required operational properties:
+Required properties:
 
 - idempotent grant;
 - no activation for pending/failed/cancelled payment;
@@ -73,18 +68,31 @@ Required operational properties:
 
 ## Stage policy
 
-Stage must use its own:
+Stage uses its own:
 
 - Supabase project;
 - users and test roles;
 - test entitlements;
 - safe payment/test configuration where applicable.
 
-Do not copy production Wompi transactions, webhook payloads, users, or secrets into stage.
+Do not copy production Wompi transactions, webhook payloads, users, personal data, or secrets into stage.
+
+## Relationship to MVP2
+
+Prediction Intelligence v2 must not regress:
+
+- Auth;
+- purchase routing;
+- webhook validation;
+- entitlement authority;
+- premium projection;
+- admin authorization.
+
+MVP2 may enrich premium analytical content, but it does not replace the payment/entitlement authority model.
 
 ## Future payment-provider decision
 
-A second provider is a future commercial epic, not part of Prediction Intelligence v2 itself.
+A second provider is a later commercial epic, not part of the immediate Prediction Intelligence v2 path.
 
 Before implementation, define a provider-neutral payment/entitlement contract and choose whether the goal is:
 
