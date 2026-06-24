@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-24T03:09:50.616Z",
+  "selection": {
+    "from": null,
+    "to": null,
+    "matchday": null
+  },
+  "allowlist": {
+    "matchIds": [
+      "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb"
+    ],
+    "externalIds": [
+      "api-football:fixture:1489404",
+      "api-football:fixture:1489402"
+    ],
+    "apiFootballFixtureIds": [
+      1489404,
+      1489402
+    ]
+  }
+}

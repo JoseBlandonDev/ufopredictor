@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-24T03:11:02.366Z",
+  "selection": {
+    "label": "match_ids_2_external_ids_2_provider_ids_2",
+    "from": null,
+    "to": null,
+    "matchday": null,
+    "matchIds": [
+      "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb"
+    ],
+    "externalIds": [
+      "api-football:fixture:1489404",
+      "api-football:fixture:1489402"
+    ],
+    "apiFootballFixtureIds": [
+      1489402,
+      1489404
+    ]
+  },
+  "summary": {
+    "selectedFixtures": 2,
+    "providerTerminalResults": 2,
+    "statusesUpdated": 0,
+    "resultsCreated": 0,
+    "resultsUpdated": 0,
+    "resultsAlreadyIdentical": 2,
+    "resultsVerified": 2,
+    "evaluationsCreated": 0,
+    "evaluationsUpdated": 0,
+    "evaluationsAlreadyStored": 2,
+    "exceptionsOrConflicts": 0,
+    "skippedRows": 0
+  },
+  "rows": [
+    {
+      "matchId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "externalId": "api-football:fixture:1489404",
+      "apiFootballFixtureId": 1489404,
+      "slug": "world-cup-2026-portugal-vs-uzbekistan-2026-06-23",
+      "competitionName": "World Cup",
+      "homeTeamName": "Portugal",
+      "awayTeamName": "Uzbekistan",
+      "kickoffAt": "2026-06-23T17:00:00+00:00",
+      "storedStatus": "finished",
+      "canonicalFixtureId": "wc2026-match-047",
+      "matchday": 2,
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "providerHomeGoals": 5,
+      "providerAwayGoals": 0,
+      "providerTerminalResult": true,
+      "trustedAutoVerifyEligible": true,
+      "statusAction": "none",
+      "nextStoredStatus": "finished",
+      "resultAction": "already_identical",
+      "evaluationAction": "already_stored",
+      "exceptionReason": null,
+      "conflictSummary": null,
+      "evaluationFailureReason": null,
+      "resultAlreadyIdentical": true,
+      "evaluationAlreadyStored": true
+    },
+    {
+      "matchId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+      "externalId": "api-football:fixture:1489402",
+      "apiFootballFixtureId": 1489402,
+      "slug": "world-cup-2026-england-vs-ghana-2026-06-23",
+      "competitionName": "World Cup",
+      "homeTeamName": "England",
+      "awayTeamName": "Ghana",
+      "kickoffAt": "2026-06-23T20:00:00+00:00",
+      "storedStatus": "finished",
+      "canonicalFixtureId": "wc2026-match-045",
+      "matchday": 2,
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "providerHomeGoals": 0,
+      "providerAwayGoals": 0,
+      "providerTerminalResult": true,
+      "trustedAutoVerifyEligible": true,
+      "statusAction": "none",
+      "nextStoredStatus": "finished",
+      "resultAction": "already_identical",
+      "evaluationAction": "already_stored",
+      "exceptionReason": null,
+      "conflictSummary": null,
+      "evaluationFailureReason": null,
+      "resultAlreadyIdentical": true,
+      "evaluationAlreadyStored": true
+    }
+  ],
+  "applyCounts": {
+    "selected": 2,
+    "statusesUpdated": 0,
+    "resultsCreated": 0,
+    "resultsUpdated": 0,
+    "resultsVerified": 0,
+    "evaluationsCreated": 0,
+    "evaluationsUpdated": 0,
+    "evaluationsAlreadyStored": 2,
+    "exceptionsOrConflicts": 0,
+    "skipped": 0,
+    "evaluationFailures": 0
+  }
+}
