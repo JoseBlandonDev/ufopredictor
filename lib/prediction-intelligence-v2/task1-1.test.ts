@@ -14,6 +14,7 @@ import {
   buildPredictionIntelligenceV2ReplayInput,
   canonicalizeHistoricalFactForReplay,
   resolveDefaultPreparedPaths,
+  type CanonicalTeamAlias,
   type CanonicalTeamLocalization,
   type HistoricalMatchFact,
   type RatingSnapshotRow,
@@ -123,6 +124,14 @@ const localizations: CanonicalTeamLocalization[] = [
   },
 ];
 
+const aliases: CanonicalTeamAlias[] = [
+  { alias: "Spain", canonical_team_key: "spain", canonical_name_en: "Spain", source_scope: "test", resolution_status: "resolved" },
+  { alias: "Cape Verde", canonical_team_key: "cape_verde", canonical_name_en: "Cape Verde", source_scope: "test", resolution_status: "resolved" },
+  { alias: "Cabo Verde", canonical_team_key: "cape_verde", canonical_name_en: "Cape Verde", source_scope: "test", resolution_status: "resolved" },
+  { alias: "Brazil", canonical_team_key: "brazil", canonical_name_en: "Brazil", source_scope: "test", resolution_status: "resolved" },
+  { alias: "Morocco", canonical_team_key: "morocco", canonical_name_en: "Morocco", source_scope: "test", resolution_status: "resolved" },
+];
+
 const historicalFacts: HistoricalMatchFact[] = [
   {
     source_snapshot_id: "seed",
@@ -221,6 +230,7 @@ describe("prediction intelligence v2 task1.1", () => {
       homeTeamKey: "spain",
       awayTeamKey: "cape_verde",
       historicalFacts,
+      aliases,
       eloCurrent,
       eloStart2026,
       fifaRanking,
@@ -311,6 +321,7 @@ describe("prediction intelligence v2 task1.1", () => {
       scheduleRows,
       scheduleLinks: [{ official_match_number: 1, provider_fixture_id: 1001, provider_status: "FT", linked_by: "kickoff_and_teams" }],
       refreshPlan,
+      aliases,
       localizations,
       historicalFacts,
       eloCurrent,
@@ -350,6 +361,7 @@ describe("prediction intelligence v2 task1.1", () => {
     const previews = buildCorrectedEvidencePreviews({
       fixtures: [{ home: "spain", away: "cape_verde" }],
       scheduleRows,
+      aliases,
       localizations,
       historicalFacts,
       eloCurrent,

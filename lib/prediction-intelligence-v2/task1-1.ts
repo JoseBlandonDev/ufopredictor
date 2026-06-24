@@ -7,6 +7,7 @@ import {
   canonicalizeHistoricalFactForReplay,
   findOfficialScheduleMatchByTeams,
   loadTask1Datasets,
+  type CanonicalTeamAlias,
   type CanonicalTeamLocalization,
   type HistoricalMatchFact,
   type PreparedPaths,
@@ -52,7 +53,7 @@ type ProductCompetitionRow = {
   usage_scope: "public_product" | "internal_lab";
 };
 
-type ProductReplayInventory = {
+export type ProductReplayInventory = {
   competition: ProductCompetitionRow;
   matches: ProductMatchInventoryRow[];
   resultsByMatchId: Map<string, ProductResultInventoryRow>;
@@ -240,7 +241,7 @@ function findCanonicalHistoricalFactForScheduleMatch(
   return candidates[0] ?? null;
 }
 
-function buildScheduleLinksFromClassification(
+export function buildScheduleLinksFromClassification(
   classification: OfficialScheduleLinkClassification,
 ): ScheduleFixtureLink[] {
   return classification.entries.map((entry) => ({
@@ -251,7 +252,7 @@ function buildScheduleLinksFromClassification(
   }));
 }
 
-function buildHistoricalProductReplayInventory(
+export function buildHistoricalProductReplayInventory(
   replayCoverageManifest: ReplayCoverageManifestEntry[],
   refreshPlan: CompletedFixtureRefreshPlan,
   scheduleRows: WorldCupScheduleMatch[],
@@ -501,6 +502,7 @@ export function buildReplayCoverageManifest(input: {
   scheduleRows: WorldCupScheduleMatch[];
   scheduleLinks: ScheduleFixtureLink[];
   refreshPlan: CompletedFixtureRefreshPlan;
+  aliases: CanonicalTeamAlias[];
   localizations: CanonicalTeamLocalization[];
   historicalFacts: HistoricalMatchFact[];
   eloCurrent: RatingSnapshotRow[];
@@ -543,6 +545,7 @@ export function buildReplayCoverageManifest(input: {
               homeTeamKey: canonicalHomeTeamKey,
               awayTeamKey: canonicalAwayTeamKey,
               historicalFacts: input.historicalFacts,
+              aliases: input.aliases,
               eloCurrent: input.eloCurrent,
               eloStart2026: input.eloStart2026,
               fifaRanking: input.fifaRanking,
@@ -598,6 +601,7 @@ export function buildReplayCoverageManifest(input: {
 export function buildCorrectedEvidencePreviews(input: {
   fixtures: Array<{ home: string; away: string }>;
   scheduleRows: WorldCupScheduleMatch[];
+  aliases: CanonicalTeamAlias[];
   localizations: CanonicalTeamLocalization[];
   historicalFacts: HistoricalMatchFact[];
   eloCurrent: RatingSnapshotRow[];
@@ -625,6 +629,7 @@ export function buildCorrectedEvidencePreviews(input: {
       homeTeamKey: home,
       awayTeamKey: away,
       historicalFacts: input.historicalFacts,
+      aliases: input.aliases,
       eloCurrent: input.eloCurrent,
       eloStart2026: input.eloStart2026,
       fifaRanking: input.fifaRanking,
@@ -775,6 +780,7 @@ export async function runTask1_1(paths: Task11Paths) {
     scheduleRows: datasets.schedule,
     scheduleLinks,
     refreshPlan: reference.refreshPlan,
+    aliases: datasets.aliases,
     localizations: datasets.localizations,
     historicalFacts: datasets.historicalFacts,
     eloCurrent: datasets.eloCurrent,
@@ -790,6 +796,7 @@ export async function runTask1_1(paths: Task11Paths) {
       { home: "ecuador", away: "curacao" },
     ],
     scheduleRows: datasets.schedule,
+    aliases: datasets.aliases,
     localizations: datasets.localizations,
     historicalFacts: datasets.historicalFacts,
     eloCurrent: datasets.eloCurrent,

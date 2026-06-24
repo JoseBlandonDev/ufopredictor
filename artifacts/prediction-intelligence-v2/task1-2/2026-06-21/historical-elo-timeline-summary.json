@@ -1,0 +1,986 @@
+{
+  "total_entries": 3028,
+  "baseline_entries": 244,
+  "match_entries": 2784,
+  "exact_entries": 320,
+  "date_only_entries": 2708,
+  "teams_covered": 244,
+  "by_team": [
+    {
+      "canonical_team_key": "afghanistan",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "albania",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "algeria",
+      "entries": 23
+    },
+    {
+      "canonical_team_key": "andorra",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "angola",
+      "entries": 20
+    },
+    {
+      "canonical_team_key": "anguilla",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "antigua_and_barbuda",
+      "entries": 5
+    },
+    {
+      "canonical_team_key": "argentina",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "armenia",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "aruba",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "australia",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "austria",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "azerbaijan",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "bahamas",
+      "entries": 7
+    },
+    {
+      "canonical_team_key": "bahrain",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "bangladesh",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "barbados",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "belarus",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "belgium",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "belize",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "benin",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "bermuda",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "bhutan",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "bolivia",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "bonaire",
+      "entries": 7
+    },
+    {
+      "canonical_team_key": "bosnia_and_herzegovina",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "botswana",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "brazil",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "british_virgin_islands",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "brunei",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "bulgaria",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "burkina_faso",
+      "entries": 18
+    },
+    {
+      "canonical_team_key": "burundi",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "cambodia",
+      "entries": 7
+    },
+    {
+      "canonical_team_key": "cameroon",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "canada",
+      "entries": 21
+    },
+    {
+      "canonical_team_key": "cape_verde",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "cayman_islands",
+      "entries": 8
+    },
+    {
+      "canonical_team_key": "central_african_republic",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "chad",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "chagos_islands",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "chile",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "china",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "christmas_island",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "cocos_islands",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "colombia",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "comoros",
+      "entries": 24
+    },
+    {
+      "canonical_team_key": "congo",
+      "entries": 4
+    },
+    {
+      "canonical_team_key": "cook_islands",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "costa_rica",
+      "entries": 20
+    },
+    {
+      "canonical_team_key": "croatia",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "cuba",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "curacao",
+      "entries": 18
+    },
+    {
+      "canonical_team_key": "cyprus",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "czechia",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "denmark",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "djibouti",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "dominica",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "dominican_republic",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "dr_congo",
+      "entries": 20
+    },
+    {
+      "canonical_team_key": "east_timor",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "eastern_samoa",
+      "entries": 3
+    },
+    {
+      "canonical_team_key": "ecuador",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "egypt",
+      "entries": 21
+    },
+    {
+      "canonical_team_key": "el_salvador",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "england",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "equatorial_guinea",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "eritrea",
+      "entries": 3
+    },
+    {
+      "canonical_team_key": "estonia",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "eswatini",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "ethiopia",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "falkland_islands",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "faroe_islands",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "fiji",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "finland",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "france",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "french_guiana",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "fs_micronesia",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "gabon",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "gambia",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "georgia",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "germany",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "ghana",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "gibraltar",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "greece",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "greenland",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "grenada",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "guadeloupe",
+      "entries": 6
+    },
+    {
+      "canonical_team_key": "guam",
+      "entries": 5
+    },
+    {
+      "canonical_team_key": "guatemala",
+      "entries": 21
+    },
+    {
+      "canonical_team_key": "guinea",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "guinea_bissau",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "guyana",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "haiti",
+      "entries": 19
+    },
+    {
+      "canonical_team_key": "honduras",
+      "entries": 19
+    },
+    {
+      "canonical_team_key": "hong_kong",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "hungary",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "iceland",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "india",
+      "entries": 18
+    },
+    {
+      "canonical_team_key": "indonesia",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "iran",
+      "entries": 18
+    },
+    {
+      "canonical_team_key": "iraq",
+      "entries": 20
+    },
+    {
+      "canonical_team_key": "ireland",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "israel",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "italy",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "ivory_coast",
+      "entries": 19
+    },
+    {
+      "canonical_team_key": "jamaica",
+      "entries": 23
+    },
+    {
+      "canonical_team_key": "japan",
+      "entries": 18
+    },
+    {
+      "canonical_team_key": "jordan",
+      "entries": 25
+    },
+    {
+      "canonical_team_key": "kazakhstan",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "kenya",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "kiribati",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "kosovo",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "kurdistan",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "kuwait",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "kyrgyzstan",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "laos",
+      "entries": 8
+    },
+    {
+      "canonical_team_key": "latvia",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "lebanon",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "lesotho",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "liberia",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "libya",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "liechtenstein",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "lithuania",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "luxembourg",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "macao",
+      "entries": 5
+    },
+    {
+      "canonical_team_key": "madagascar",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "malawi",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "malaysia",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "maldives",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "mali",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "malta",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "marshall_islands",
+      "entries": 3
+    },
+    {
+      "canonical_team_key": "martinique",
+      "entries": 7
+    },
+    {
+      "canonical_team_key": "mauritania",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "mauritius",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "mayotte",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "mexico",
+      "entries": 24
+    },
+    {
+      "canonical_team_key": "moldova",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "monaco",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "mongolia",
+      "entries": 3
+    },
+    {
+      "canonical_team_key": "montenegro",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "montserrat",
+      "entries": 3
+    },
+    {
+      "canonical_team_key": "morocco",
+      "entries": 27
+    },
+    {
+      "canonical_team_key": "mozambique",
+      "entries": 19
+    },
+    {
+      "canonical_team_key": "myanmar",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "namibia",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "nepal",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "netherlands",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "new_caledonia",
+      "entries": 5
+    },
+    {
+      "canonical_team_key": "new_zealand",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "nicaragua",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "niger",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "nigeria",
+      "entries": 22
+    },
+    {
+      "canonical_team_key": "niue",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "north_korea",
+      "entries": 7
+    },
+    {
+      "canonical_team_key": "north_macedonia",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "northern_cyprus",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "northern_ireland",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "northern_mariana_islands",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "norway",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "oman",
+      "entries": 22
+    },
+    {
+      "canonical_team_key": "pakistan",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "palau",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "palestine",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "panama",
+      "entries": 22
+    },
+    {
+      "canonical_team_key": "papua_new_guinea",
+      "entries": 4
+    },
+    {
+      "canonical_team_key": "paraguay",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "peru",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "philippines",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "poland",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "portugal",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "puerto_rico",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "qatar",
+      "entries": 18
+    },
+    {
+      "canonical_team_key": "reunion",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "romania",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "russia",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "rwanda",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "saba",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "saint_barthelemy",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "saint_kitts_and_nevis",
+      "entries": 13
+    },
+    {
+      "canonical_team_key": "saint_lucia",
+      "entries": 6
+    },
+    {
+      "canonical_team_key": "saint_martin",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "saint_pierre_and_miquelon",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "saint_vincent_and_the_grenadines",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "samoa",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "san_marino",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "sao_tome_and_principe",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "saudi_arabia",
+      "entries": 28
+    },
+    {
+      "canonical_team_key": "scotland",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "senegal",
+      "entries": 19
+    },
+    {
+      "canonical_team_key": "serbia",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "seychelles",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "sierra_leone",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "singapore",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "sint_eustatius",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "sint_maarten",
+      "entries": 5
+    },
+    {
+      "canonical_team_key": "slovakia",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "slovenia",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "solomon_islands",
+      "entries": 6
+    },
+    {
+      "canonical_team_key": "somalia",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "somaliland",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "south_africa",
+      "entries": 24
+    },
+    {
+      "canonical_team_key": "south_korea",
+      "entries": 20
+    },
+    {
+      "canonical_team_key": "south_sudan",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "spain",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "sri_lanka",
+      "entries": 12
+    },
+    {
+      "canonical_team_key": "sudan",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "suriname",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "sweden",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "switzerland",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "syria",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "tahiti",
+      "entries": 2
+    },
+    {
+      "canonical_team_key": "taiwan",
+      "entries": 9
+    },
+    {
+      "canonical_team_key": "tajikistan",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "tanzania",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "thailand",
+      "entries": 16
+    },
+    {
+      "canonical_team_key": "tibet",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "togo",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "tonga",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "trinidad_and_tobago",
+      "entries": 23
+    },
+    {
+      "canonical_team_key": "tunisia",
+      "entries": 24
+    },
+    {
+      "canonical_team_key": "turkiye",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "turkmenistan",
+      "entries": 10
+    },
+    {
+      "canonical_team_key": "turks_and_caicos_islands",
+      "entries": 3
+    },
+    {
+      "canonical_team_key": "tuvalu",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "uganda",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "ukraine",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "united_arab_emirates",
+      "entries": 17
+    },
+    {
+      "canonical_team_key": "united_states",
+      "entries": 25
+    },
+    {
+      "canonical_team_key": "uruguay",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "us_virgin_islands",
+      "entries": 6
+    },
+    {
+      "canonical_team_key": "uzbekistan",
+      "entries": 19
+    },
+    {
+      "canonical_team_key": "vanuatu",
+      "entries": 6
+    },
+    {
+      "canonical_team_key": "vatican",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "venezuela",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "vietnam",
+      "entries": 11
+    },
+    {
+      "canonical_team_key": "wales",
+      "entries": 15
+    },
+    {
+      "canonical_team_key": "wallis_and_futuna",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "western_sahara",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "yemen",
+      "entries": 8
+    },
+    {
+      "canonical_team_key": "zambia",
+      "entries": 14
+    },
+    {
+      "canonical_team_key": "zanzibar",
+      "entries": 1
+    },
+    {
+      "canonical_team_key": "zimbabwe",
+      "entries": 20
+    }
+  ]
+}
