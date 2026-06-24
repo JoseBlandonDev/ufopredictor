@@ -1,0 +1,9 @@
+{
+  "fixtureCount": 36,
+  "correctOneXTwoFamily": 1,
+  "correctWinningMarginFamily": 1,
+  "correctTotalGoalRange": 0.944444,
+  "mainScenarioMaterialized": 0.277778,
+  "riskScenarioMaterialized": 0.166667,
+  "resultOutsideAllThreeScenarioFamilies": 0.388889
+}

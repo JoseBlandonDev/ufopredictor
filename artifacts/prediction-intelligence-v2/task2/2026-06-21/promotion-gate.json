@@ -1,0 +1,11 @@
+{
+  "recommendation": "do_not_promote",
+  "decisionContext": {
+    "selectedCandidate": "structural_only_ablation",
+    "validationScore": 0.786066,
+    "holdoutBrierImprovement": -0.004355999999999999,
+    "holdoutLogLossImprovement": -0.015765999999999947,
+    "holdoutOutcomeAccuracyImprovement": -0.02777800000000008,
+    "futureWarnings": 0
+  }
+}

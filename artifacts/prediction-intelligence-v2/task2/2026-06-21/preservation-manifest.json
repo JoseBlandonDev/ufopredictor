@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "prediction-intelligence-v2-task2-preservation-manifest-v1",
+  "sourceCommit": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6",
+  "snapshotDate": "2026-06-21",
+  "historicalOnly": true,
+  "currentCandidateEligible": false,
+  "currentReleaseDecisionEligible": false,
+  "artifacts": [
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/README.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "0d48ff58a671a9d0f97c5c8d1457a670a726e747b8c93b38bdd4f70b34969078",
+      "restoredSha256": "0d48ff58a671a9d0f97c5c8d1457a670a726e747b8c93b38bdd4f70b34969078",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/README.txt"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/candidate-calibration-results.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "56e8df1ace9cbf031c70d55116e5e6cd0d498becf1c637595c0760059ec87f73",
+      "restoredSha256": "56e8df1ace9cbf031c70d55116e5e6cd0d498becf1c637595c0760059ec87f73",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/candidate-calibration-results.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/future-shadow-predictions.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "3654af445a35f78b08dcb0d48ffe45af9f58d2e658dcc2528a3a9a2de391436b",
+      "restoredSha256": "3654af445a35f78b08dcb0d48ffe45af9f58d2e658dcc2528a3a9a2de391436b",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/future-shadow-predictions.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/model-feature-contract.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "63d2334f532b643c1ecd8ce0442d65c2a51182964220a55ae4ca7d2378a3e00b",
+      "restoredSha256": "63d2334f532b643c1ecd8ce0442d65c2a51182964220a55ae4ca7d2378a3e00b",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/model-feature-contract.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/promotion-gate.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "c68ff33832c7f2738ec9b5b4ba2809bb0bf1dac6e4ac327506be48ec509f730b",
+      "restoredSha256": "c68ff33832c7f2738ec9b5b4ba2809bb0bf1dac6e4ac327506be48ec509f730b",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/promotion-gate.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/qualitative-case-reviews.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "4fb7327f2a7c8f83950c37f4886f8d88d282f81103bef2a49cadd3370bae426c",
+      "restoredSha256": "4fb7327f2a7c8f83950c37f4886f8d88d282f81103bef2a49cadd3370bae426c",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/qualitative-case-reviews.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/scenario-evaluation-summary.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "cab48d5bb2e6ef5840ed5109043e1c7f5d34dcf3ed89bcbd07c1e0e4f6c7e765",
+      "restoredSha256": "cab48d5bb2e6ef5840ed5109043e1c7f5d34dcf3ed89bcbd07c1e0e4f6c7e765",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/scenario-evaluation-summary.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/selected-model-spec.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "927ddaf60042966010048e0c77582eb9bbc00221ccaeb70b4b7ad905f7e734cb",
+      "restoredSha256": "927ddaf60042966010048e0c77582eb9bbc00221ccaeb70b4b7ad905f7e734cb",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/selected-model-spec.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/torneo-mundialista-shadow-export.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "323f1b690247083acb790e8549f125c6778b189afceeab92e3e3a6044c1d1e65",
+      "restoredSha256": "323f1b690247083acb790e8549f125c6778b189afceeab92e3e3a6044c1d1e65",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/torneo-mundialista-shadow-export.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/training-validation-holdout-manifest.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "ec5ff3a547ecc7cbba9129ba5f983036673bdbc7dc8a194bbfc166f5e07ad6e1",
+      "restoredSha256": "ec5ff3a547ecc7cbba9129ba5f983036673bdbc7dc8a194bbfc166f5e07ad6e1",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/training-validation-holdout-manifest.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/v1-v2-replay-by-fixture.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "cb97b4fc6bada0cc4899596c56b0793fe4e727401913cb769b4c7eb06c943969",
+      "restoredSha256": "cb97b4fc6bada0cc4899596c56b0793fe4e727401913cb769b4c7eb06c943969",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/v1-v2-replay-by-fixture.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2/2026-06-21/v1-v2-replay-summary.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "516e8a161522bde982a67563d1af6246f1863175755ea3743b062933adc29203",
+      "restoredSha256": "516e8a161522bde982a67563d1af6246f1863175755ea3743b062933adc29203",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "7cd2ea25fde0f5c87d9505cffa1b9638ba03ccf6:artifacts/prediction-intelligence-v2/task2/2026-06-21/v1-v2-replay-summary.json"
+    }
+  ]
+}

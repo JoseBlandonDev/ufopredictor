@@ -1,0 +1,38 @@
+{
+  "modelVersion": "prediction-intelligence-v2-model-2.0-challenger",
+  "selectedCandidate": {
+    "key": "structural_only_ablation",
+    "label": "Structural-only ablation",
+    "calibrationVersion": "task2-calibration-v1",
+    "effectiveStrengthWeights": {
+      "structural": 0.72,
+      "recentForm": 0.08,
+      "tournamentForm": 0.04,
+      "attack": 0.06,
+      "defense": 0.05,
+      "expectation": 0.03,
+      "reliability": 0.02
+    },
+    "expectedGoalDifference": {
+      "structuralGap": 1.35,
+      "recentGap": 0.15,
+      "tournamentGap": 0.08,
+      "attackDefenseGap": 0.22,
+      "expectationGap": 0.15,
+      "reliabilityTilt": 0.08
+    },
+    "expectedTotalGoals": {
+      "base": 2.28,
+      "combinedAttack": 0.38,
+      "combinedDefense": 0.18,
+      "combinedOpenPlay": 0.22,
+      "combinedTournamentOpenPlay": 0.08,
+      "favoriteControl": -0.16,
+      "reliabilityDrag": -0.1
+    },
+    "drawLift": 0.03,
+    "maxGoals": 8
+  },
+  "selectedValidationScore": 0.786066,
+  "deterministicSeed": "not_applicable_deterministic_formula_model"
+}
