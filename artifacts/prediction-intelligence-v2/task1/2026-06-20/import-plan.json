@@ -1,0 +1,1399 @@
+{
+  "sourceAccess": [
+    {
+      "sourceKey": "elo_current",
+      "selectedMode": "normalized_snapshot",
+      "attempts": [
+        {
+          "mode": "web",
+          "ok": true,
+          "note": "Static fetch returned enough content to confirm the source is reachable."
+        },
+        {
+          "mode": "local_fallback",
+          "ok": true,
+          "note": "Local raw fallback file is available."
+        },
+        {
+          "mode": "normalized_snapshot",
+          "ok": true,
+          "note": "Prepared normalized snapshot used for the initial Task 1 seed."
+        }
+      ],
+      "recordCount": 244
+    },
+    {
+      "sourceKey": "elo_start_2026",
+      "selectedMode": "normalized_snapshot",
+      "attempts": [
+        {
+          "mode": "web",
+          "ok": true,
+          "note": "Static fetch returned enough content to confirm the source is reachable."
+        },
+        {
+          "mode": "local_fallback",
+          "ok": true,
+          "note": "Local raw fallback file is available."
+        },
+        {
+          "mode": "normalized_snapshot",
+          "ok": true,
+          "note": "Prepared normalized snapshot used for the initial Task 1 seed."
+        }
+      ],
+      "recordCount": 244
+    },
+    {
+      "sourceKey": "elo_latest_results",
+      "selectedMode": "local_fallback",
+      "attempts": [
+        {
+          "mode": "web",
+          "ok": true,
+          "note": "Static fetch returned enough content to confirm the source is reachable."
+        },
+        {
+          "mode": "local_fallback",
+          "ok": true,
+          "note": "Local raw fallback file is available."
+        }
+      ],
+      "recordCount": 357
+    },
+    {
+      "sourceKey": "elo_results_2025",
+      "selectedMode": "local_fallback",
+      "attempts": [
+        {
+          "mode": "web",
+          "ok": true,
+          "note": "Static fetch returned enough content to confirm the source is reachable."
+        },
+        {
+          "mode": "local_fallback",
+          "ok": true,
+          "note": "Local raw fallback file is available."
+        }
+      ],
+      "recordCount": 1035
+    },
+    {
+      "sourceKey": "elo_fixtures",
+      "selectedMode": "local_fallback",
+      "attempts": [
+        {
+          "mode": "web",
+          "ok": true,
+          "note": "Static fetch returned enough content to confirm the source is reachable."
+        },
+        {
+          "mode": "local_fallback",
+          "ok": true,
+          "note": "Local raw fallback file is available."
+        }
+      ],
+      "recordCount": 407
+    },
+    {
+      "sourceKey": "fifa_men_ranking",
+      "selectedMode": "normalized_snapshot",
+      "attempts": [
+        {
+          "mode": "web",
+          "ok": true,
+          "note": "Static fetch returned enough content to confirm the source is reachable."
+        },
+        {
+          "mode": "local_fallback",
+          "ok": false,
+          "note": "Local raw fallback file exists but is not stable enough for deterministic parsing; using prepared normalized snapshot."
+        },
+        {
+          "mode": "normalized_snapshot",
+          "ok": true,
+          "note": "Prepared normalized snapshot used for the initial Task 1 seed."
+        }
+      ],
+      "recordCount": 211
+    },
+    {
+      "sourceKey": "api_football",
+      "selectedMode": "web",
+      "attempts": [
+        {
+          "mode": "web",
+          "ok": true,
+          "note": "Existing API-Football integration is available through the repository client."
+        }
+      ],
+      "recordCount": 0
+    },
+    {
+      "sourceKey": "fifa_world_cup_schedule_v17",
+      "selectedMode": "normalized_snapshot",
+      "attempts": [
+        {
+          "mode": "normalized_snapshot",
+          "ok": true,
+          "note": "Task 1 uses the prepared official schedule snapshot because the exact source URL is intentionally not blocking implementation."
+        }
+      ],
+      "recordCount": 104
+    },
+    {
+      "sourceKey": "world_cup_venues",
+      "selectedMode": "normalized_snapshot",
+      "attempts": [
+        {
+          "mode": "normalized_snapshot",
+          "ok": true,
+          "note": "Task 1 uses the prepared curated venue catalog."
+        }
+      ],
+      "recordCount": 16
+    }
+  ],
+  "counts": {
+    "aliases": 312,
+    "localizations": 244,
+    "venues": 16,
+    "schedule": 104,
+    "eloCurrent": 244,
+    "eloStart2026": 244,
+    "fifaRanking": 211,
+    "eloFixtures": 407,
+    "historicalFacts": 1392
+  },
+  "duplicates": {
+    "exact": 0,
+    "likely": 0
+  },
+  "corrections": 0,
+  "unresolvedAliases": [],
+  "affectedTeams": [
+    "afghanistan",
+    "albania",
+    "algeria",
+    "andorra",
+    "angola",
+    "anguilla",
+    "antigua_and_barbuda",
+    "argentina",
+    "armenia",
+    "aruba",
+    "australia",
+    "austria",
+    "azerbaijan",
+    "bahamas",
+    "bahrain",
+    "bangladesh",
+    "barbados",
+    "belarus",
+    "belgium",
+    "belize",
+    "benin",
+    "bermuda",
+    "bhutan",
+    "bolivia",
+    "bonaire",
+    "bosnia_and_herzegovina",
+    "botswana",
+    "brazil",
+    "british_virgin_islands",
+    "brunei",
+    "brunei_darusalam",
+    "bulgaria",
+    "burkina_faso",
+    "burundi",
+    "cambodia",
+    "cameroon",
+    "canada",
+    "cape_verde",
+    "cayman_islands",
+    "central_african_republic",
+    "chad",
+    "chagos_islands",
+    "chile",
+    "china",
+    "china_taipei",
+    "christmas_island",
+    "cocos_islands",
+    "colombia",
+    "comoros",
+    "congo",
+    "cook_islands",
+    "costa_rica",
+    "croatia",
+    "cuba",
+    "curacao",
+    "cyprus",
+    "czechia",
+    "denmark",
+    "djibouti",
+    "dominica",
+    "dominican_republic",
+    "dr_congo",
+    "east_timor",
+    "eastern_samoa",
+    "ecuador",
+    "egypt",
+    "el_salvador",
+    "england",
+    "equatorial_guinea",
+    "eritrea",
+    "estonia",
+    "eswatini",
+    "ethiopia",
+    "falkland_islands",
+    "faroe_islands",
+    "fiji",
+    "finland",
+    "france",
+    "french_guiana",
+    "fs_micronesia",
+    "gabon",
+    "gales",
+    "gambia",
+    "georgia",
+    "germany",
+    "ghana",
+    "gibraltar",
+    "greece",
+    "greenland",
+    "grenada",
+    "guadeloupe",
+    "guam",
+    "guatemala",
+    "guinea",
+    "guinea_bissau",
+    "guyana",
+    "haiti",
+    "honduras",
+    "hong_kong",
+    "hungary",
+    "iceland",
+    "india",
+    "indonesia",
+    "iran",
+    "iraq",
+    "ireland",
+    "irlanda_del_norte",
+    "islas_de_cabo_verde",
+    "islas_virgenes_estadounidenses",
+    "israel",
+    "italy",
+    "ivory_coast",
+    "jamaica",
+    "japan",
+    "jordan",
+    "kazakhstan",
+    "kenya",
+    "kirguizistan",
+    "kiribati",
+    "kosovo",
+    "kurdistan",
+    "kuwait",
+    "kyrgyzstan",
+    "laos",
+    "latvia",
+    "lebanon",
+    "lesotho",
+    "liberia",
+    "libya",
+    "liechtenstein",
+    "lithuania",
+    "luxembourg",
+    "macao",
+    "madagascar",
+    "malawi",
+    "malaysia",
+    "maldives",
+    "mali",
+    "malta",
+    "marshall_islands",
+    "martinique",
+    "mauritania",
+    "mauritius",
+    "mayotte",
+    "mexico",
+    "moldova",
+    "monaco",
+    "mongolia",
+    "montenegro",
+    "montserrat",
+    "morocco",
+    "mozambique",
+    "myanmar",
+    "namibia",
+    "nepal",
+    "netherlands",
+    "new_caledonia",
+    "new_zealand",
+    "nicaragua",
+    "niger",
+    "nigeria",
+    "niue",
+    "north_korea",
+    "north_macedonia",
+    "northern_cyprus",
+    "northern_ireland",
+    "northern_mariana_islands",
+    "norway",
+    "oman",
+    "pakistan",
+    "palau",
+    "palestina",
+    "palestine",
+    "panama",
+    "papua_new_guinea",
+    "paraguay",
+    "peru",
+    "philippines",
+    "poland",
+    "portugal",
+    "puerto_rico",
+    "qatar",
+    "republica_de_irlanda",
+    "reunion",
+    "romania",
+    "rp_china",
+    "rpd_de_corea",
+    "rusia",
+    "russia",
+    "rwanda",
+    "saba",
+    "saint_barthelemy",
+    "saint_kitts_and_nevis",
+    "saint_lucia",
+    "saint_martin",
+    "saint_pierre_and_miquelon",
+    "saint_vincent_and_the_grenadines",
+    "samoa",
+    "samoa_estadounidense",
+    "san_marino",
+    "sao_tome_and_principe",
+    "saudi_arabia",
+    "scotland",
+    "senegal",
+    "serbia",
+    "seychelles",
+    "sierra_leone",
+    "singapore",
+    "sint_eustatius",
+    "sint_maarten",
+    "slovakia",
+    "slovenia",
+    "solomon_islands",
+    "somalia",
+    "somaliland",
+    "south_africa",
+    "south_korea",
+    "south_sudan",
+    "spain",
+    "sri_lanka",
+    "suazilandia",
+    "sudan",
+    "suriname",
+    "sweden",
+    "switzerland",
+    "syria",
+    "tahiti",
+    "taiwan",
+    "tajikistan",
+    "tanzania",
+    "thailand",
+    "tibet",
+    "timor_oriental",
+    "togo",
+    "tonga",
+    "trinidad_and_tobago",
+    "tunisia",
+    "turkiye",
+    "turkmenistan",
+    "turks_and_caicos_islands",
+    "tuvalu",
+    "uganda",
+    "ukraine",
+    "united_arab_emirates",
+    "united_states",
+    "uruguay",
+    "us_virgin_islands",
+    "uzbekistan",
+    "vanuatu",
+    "vatican",
+    "venezuela",
+    "vietnam",
+    "wales",
+    "wallis_and_futuna",
+    "western_sahara",
+    "yemen",
+    "zambia",
+    "zanzibar",
+    "zimbabwe"
+  ],
+  "productTeamLinks": [
+    {
+      "canonical_team_key": "algeria",
+      "display_name_en": "Algeria",
+      "runtime_team_key": "algeria",
+      "runtime_display_name": "Algeria",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "argentina",
+      "display_name_en": "Argentina",
+      "runtime_team_key": "argentina",
+      "runtime_display_name": "Argentina",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "australia",
+      "display_name_en": "Australia",
+      "runtime_team_key": "australia",
+      "runtime_display_name": "Australia",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "austria",
+      "display_name_en": "Austria",
+      "runtime_team_key": "austria",
+      "runtime_display_name": "Austria",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "belgium",
+      "display_name_en": "Belgium",
+      "runtime_team_key": "belgium",
+      "runtime_display_name": "Belgium",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "bosnia_and_herzegovina",
+      "display_name_en": "Bosnia and Herzegovina",
+      "runtime_team_key": "bosnia-herzegovina",
+      "runtime_display_name": "Bosnia & Herzegovina",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "brazil",
+      "display_name_en": "Brazil",
+      "runtime_team_key": "brazil",
+      "runtime_display_name": "Brazil",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "canada",
+      "display_name_en": "Canada",
+      "runtime_team_key": "canada",
+      "runtime_display_name": "Canada",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "cape_verde",
+      "display_name_en": "Cape Verde",
+      "runtime_team_key": "cabo-verde",
+      "runtime_display_name": "Cabo Verde",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "colombia",
+      "display_name_en": "Colombia",
+      "runtime_team_key": "colombia",
+      "runtime_display_name": "Colombia",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "croatia",
+      "display_name_en": "Croatia",
+      "runtime_team_key": "croatia",
+      "runtime_display_name": "Croatia",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "curacao",
+      "display_name_en": "Curaçao",
+      "runtime_team_key": "curacao",
+      "runtime_display_name": "Curaçao",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "czechia",
+      "display_name_en": "Czechia",
+      "runtime_team_key": "czech-republic",
+      "runtime_display_name": "Czech Republic",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "dr_congo",
+      "display_name_en": "DR Congo",
+      "runtime_team_key": "congo-dr",
+      "runtime_display_name": "Congo DR",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "ecuador",
+      "display_name_en": "Ecuador",
+      "runtime_team_key": "ecuador",
+      "runtime_display_name": "Ecuador",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "egypt",
+      "display_name_en": "Egypt",
+      "runtime_team_key": "egypt",
+      "runtime_display_name": "Egypt",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "england",
+      "display_name_en": "England",
+      "runtime_team_key": "england",
+      "runtime_display_name": "England",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "france",
+      "display_name_en": "France",
+      "runtime_team_key": "france",
+      "runtime_display_name": "France",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "germany",
+      "display_name_en": "Germany",
+      "runtime_team_key": "germany",
+      "runtime_display_name": "Germany",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "ghana",
+      "display_name_en": "Ghana",
+      "runtime_team_key": "ghana",
+      "runtime_display_name": "Ghana",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "haiti",
+      "display_name_en": "Haiti",
+      "runtime_team_key": "haiti",
+      "runtime_display_name": "Haiti",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "iran",
+      "display_name_en": "Iran",
+      "runtime_team_key": "iran",
+      "runtime_display_name": "IR Iran",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "iraq",
+      "display_name_en": "Iraq",
+      "runtime_team_key": "iraq",
+      "runtime_display_name": "Iraq",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "ivory_coast",
+      "display_name_en": "Ivory Coast",
+      "runtime_team_key": "cote-divoire",
+      "runtime_display_name": "Côte d’Ivoire",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "japan",
+      "display_name_en": "Japan",
+      "runtime_team_key": "japan",
+      "runtime_display_name": "Japan",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "jordan",
+      "display_name_en": "Jordan",
+      "runtime_team_key": "jordan",
+      "runtime_display_name": "Jordan",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "mexico",
+      "display_name_en": "Mexico",
+      "runtime_team_key": "mexico",
+      "runtime_display_name": "Mexico",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "morocco",
+      "display_name_en": "Morocco",
+      "runtime_team_key": "morocco",
+      "runtime_display_name": "Morocco",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "netherlands",
+      "display_name_en": "Netherlands",
+      "runtime_team_key": "netherlands",
+      "runtime_display_name": "Netherlands",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "new_zealand",
+      "display_name_en": "New Zealand",
+      "runtime_team_key": "new-zealand",
+      "runtime_display_name": "New Zealand",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "norway",
+      "display_name_en": "Norway",
+      "runtime_team_key": "norway",
+      "runtime_display_name": "Norway",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "panama",
+      "display_name_en": "Panama",
+      "runtime_team_key": "panama",
+      "runtime_display_name": "Panama",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "paraguay",
+      "display_name_en": "Paraguay",
+      "runtime_team_key": "paraguay",
+      "runtime_display_name": "Paraguay",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "portugal",
+      "display_name_en": "Portugal",
+      "runtime_team_key": "portugal",
+      "runtime_display_name": "Portugal",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "qatar",
+      "display_name_en": "Qatar",
+      "runtime_team_key": "qatar",
+      "runtime_display_name": "Qatar",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "saudi_arabia",
+      "display_name_en": "Saudi Arabia",
+      "runtime_team_key": "saudi-arabia",
+      "runtime_display_name": "Saudi Arabia",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "scotland",
+      "display_name_en": "Scotland",
+      "runtime_team_key": "scotland",
+      "runtime_display_name": "Scotland",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "senegal",
+      "display_name_en": "Senegal",
+      "runtime_team_key": "senegal",
+      "runtime_display_name": "Senegal",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "south_africa",
+      "display_name_en": "South Africa",
+      "runtime_team_key": "south-africa",
+      "runtime_display_name": "South Africa",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "south_korea",
+      "display_name_en": "South Korea",
+      "runtime_team_key": "south-korea",
+      "runtime_display_name": "South Korea",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "spain",
+      "display_name_en": "Spain",
+      "runtime_team_key": "spain",
+      "runtime_display_name": "Spain",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "sweden",
+      "display_name_en": "Sweden",
+      "runtime_team_key": "sweden",
+      "runtime_display_name": "Sweden",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "switzerland",
+      "display_name_en": "Switzerland",
+      "runtime_team_key": "switzerland",
+      "runtime_display_name": "Switzerland",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "tunisia",
+      "display_name_en": "Tunisia",
+      "runtime_team_key": "tunisia",
+      "runtime_display_name": "Tunisia",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "turkiye",
+      "display_name_en": "Türkiye",
+      "runtime_team_key": "turkiye",
+      "runtime_display_name": "Türkiye",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "united_states",
+      "display_name_en": "United States",
+      "runtime_team_key": "usa",
+      "runtime_display_name": "USA",
+      "resolution_method": "display_name"
+    },
+    {
+      "canonical_team_key": "uruguay",
+      "display_name_en": "Uruguay",
+      "runtime_team_key": "uruguay",
+      "runtime_display_name": "Uruguay",
+      "resolution_method": "direct_key"
+    },
+    {
+      "canonical_team_key": "uzbekistan",
+      "display_name_en": "Uzbekistan",
+      "runtime_team_key": "uzbekistan",
+      "runtime_display_name": "Uzbekistan",
+      "resolution_method": "direct_key"
+    }
+  ],
+  "scheduleFixtureLinks": [
+    {
+      "official_match_number": 1,
+      "provider_fixture_id": 1489369,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 2,
+      "provider_fixture_id": 1538999,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 3,
+      "provider_fixture_id": 1539000,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 4,
+      "provider_fixture_id": 1489370,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 5,
+      "provider_fixture_id": 1489372,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 6,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 7,
+      "provider_fixture_id": 1489371,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 8,
+      "provider_fixture_id": 1489373,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 9,
+      "provider_fixture_id": 1489375,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 10,
+      "provider_fixture_id": 1489374,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 11,
+      "provider_fixture_id": 1489376,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 12,
+      "provider_fixture_id": 1539002,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 13,
+      "provider_fixture_id": 1489379,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 14,
+      "provider_fixture_id": 1489380,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 15,
+      "provider_fixture_id": 1489378,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 16,
+      "provider_fixture_id": 1489377,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 17,
+      "provider_fixture_id": 1489383,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 18,
+      "provider_fixture_id": 1539016,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 19,
+      "provider_fixture_id": 1489381,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 20,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 21,
+      "provider_fixture_id": 1489385,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 22,
+      "provider_fixture_id": 1489384,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 23,
+      "provider_fixture_id": 1539003,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 24,
+      "provider_fixture_id": 1489386,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 25,
+      "provider_fixture_id": 1539004,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 26,
+      "provider_fixture_id": 1539005,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 27,
+      "provider_fixture_id": 1489387,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 28,
+      "provider_fixture_id": 1489388,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 29,
+      "provider_fixture_id": 1489389,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 30,
+      "provider_fixture_id": 1489390,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 31,
+      "provider_fixture_id": 1539006,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 32,
+      "provider_fixture_id": 1489391,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 33,
+      "provider_fixture_id": 1489393,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 34,
+      "provider_fixture_id": 1489392,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 35,
+      "provider_fixture_id": 1539007,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 36,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 37,
+      "provider_fixture_id": 1489398,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 38,
+      "provider_fixture_id": 1489397,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 39,
+      "provider_fixture_id": 1489395,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 40,
+      "provider_fixture_id": 1489396,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 41,
+      "provider_fixture_id": 1489401,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 42,
+      "provider_fixture_id": 1539017,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 43,
+      "provider_fixture_id": 1489399,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 44,
+      "provider_fixture_id": 1489400,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 45,
+      "provider_fixture_id": 1489402,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 46,
+      "provider_fixture_id": 1489403,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 47,
+      "provider_fixture_id": 1489404,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 48,
+      "provider_fixture_id": 1539008,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 49,
+      "provider_fixture_id": 1489406,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 50,
+      "provider_fixture_id": 1489405,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 51,
+      "provider_fixture_id": 1489408,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 52,
+      "provider_fixture_id": 1539009,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 53,
+      "provider_fixture_id": 1539010,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 54,
+      "provider_fixture_id": 1489407,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 55,
+      "provider_fixture_id": 1489409,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 56,
+      "provider_fixture_id": 1489410,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 57,
+      "provider_fixture_id": 1539011,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 58,
+      "provider_fixture_id": 1489412,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 59,
+      "provider_fixture_id": 1539012,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 60,
+      "provider_fixture_id": 1489411,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 61,
+      "provider_fixture_id": 1489416,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 62,
+      "provider_fixture_id": 1539074,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 63,
+      "provider_fixture_id": 1489414,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 64,
+      "provider_fixture_id": 1489415,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 65,
+      "provider_fixture_id": 1489413,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 66,
+      "provider_fixture_id": 1489417,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 67,
+      "provider_fixture_id": 1489422,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 68,
+      "provider_fixture_id": 1489420,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 69,
+      "provider_fixture_id": 1489418,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 70,
+      "provider_fixture_id": 1489421,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 71,
+      "provider_fixture_id": 1489419,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 72,
+      "provider_fixture_id": 1539013,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 73,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 74,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 75,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 76,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 77,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 78,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 79,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 80,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 81,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 82,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 83,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 84,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 85,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 86,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 87,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 88,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 89,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 90,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 91,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 92,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 93,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 94,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 95,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 96,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 97,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 98,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 99,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 100,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 101,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 102,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 103,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 104,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    }
+  ]
+}

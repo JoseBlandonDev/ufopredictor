@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e",
+  "snapshotDate": "2026-06-20",
+  "historicalOnly": true,
+  "currentCandidateEligible": false,
+  "artifacts": [
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/alias-coverage.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "487a4d5bdb6e047df87b5ad29d0292e3502c3461d0050ef9a6913cfe4aa05fa7",
+      "restoredSha256": "487a4d5bdb6e047df87b5ad29d0292e3502c3461d0050ef9a6913cfe4aa05fa7",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/alias-coverage.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/historical-match-coverage.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "a62f7927d60905255a00da4bb23731df953763e6a1a355c74f7d676bf4fe11f7",
+      "restoredSha256": "a62f7927d60905255a00da4bb23731df953763e6a1a355c74f7d676bf4fe11f7",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/historical-match-coverage.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/import-plan.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "e825ddcccc0a9e37997130a014abfa2068bddb575fe5477aa8257d8813305608",
+      "restoredSha256": "e825ddcccc0a9e37997130a014abfa2068bddb575fe5477aa8257d8813305608",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/import-plan.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/rating-snapshot-coverage.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "4381fc786f16bbfae834c3667b0e54edf74cb473b7da4230c73c4355ec5a1ef0",
+      "restoredSha256": "4381fc786f16bbfae834c3667b0e54edf74cb473b7da4230c73c4355ec5a1ef0",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/rating-snapshot-coverage.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/README.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "cbf54e9efa13ebc91973ec73062bd0a1bc6970923a26ec7d7b7b22c0af379226",
+      "restoredSha256": "cbf54e9efa13ebc91973ec73062bd0a1bc6970923a26ec7d7b7b22c0af379226",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/README.txt"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/source-discovery-access-results.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "a19261c0567f3784201322dc0beb222db8a37fbbadfad3dfc600a96d50b0ace2",
+      "restoredSha256": "a19261c0567f3784201322dc0beb222db8a37fbbadfad3dfc600a96d50b0ace2",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/source-discovery-access-results.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/strict-pre-kickoff-evidence-previews.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "9a765d6ad0c9a45b0e123eea8bef14d1cb9da4e23f76978f3ad772a3b4433bdc",
+      "restoredSha256": "9a765d6ad0c9a45b0e123eea8bef14d1cb9da4e23f76978f3ad772a3b4433bdc",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/strict-pre-kickoff-evidence-previews.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/task2-replay-interface.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "6e4c04a42d3d29e9beaf5fdf43b6bf737b1d6a70d8af85c379c110691ce370b7",
+      "restoredSha256": "6e4c04a42d3d29e9beaf5fdf43b6bf737b1d6a70d8af85c379c110691ce370b7",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/task2-replay-interface.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/team-signal-previews.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "002767784b0fa8b580153bf67691186f087d32438a8fdcac2c0ce09f10f8706f",
+      "restoredSha256": "002767784b0fa8b580153bf67691186f087d32438a8fdcac2c0ce09f10f8706f",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/team-signal-previews.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/ufo-effective-strength-previews.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "9726ceb21c43bde7695bf64201e4baecf0b62b6c464cbbadce8587e17e7bffce",
+      "restoredSha256": "9726ceb21c43bde7695bf64201e4baecf0b62b6c464cbbadce8587e17e7bffce",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/ufo-effective-strength-previews.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/world-cup-schedule-venue-coverage.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "23275780e6433d30dfce8823a618390c354e6ad23d59e8d5613f3e0153dd978b",
+      "restoredSha256": "23275780e6433d30dfce8823a618390c354e6ad23d59e8d5613f3e0153dd978b",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/world-cup-schedule-venue-coverage.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1/2026-06-20/write-result.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "adb6fa9827714e1c0454e971c1e39d6b859df8de353ac516c04afe24f6dcaa53",
+      "restoredSha256": "adb6fa9827714e1c0454e971c1e39d6b859df8de353ac516c04afe24f6dcaa53",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "bac8a287ca521324e82a2707d9bf3fd5ca32d31e:artifacts/prediction-intelligence-v2/task1/2026-06-20/write-result.json"
+    }
+  ]
+}
