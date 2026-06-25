@@ -1,6 +1,6 @@
 # Documentation Refresh Manifest
 
-_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 normalization, local-run guard correction, and checkpoint approval._
+_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
 
 ## Canonical structure
 
@@ -31,7 +31,7 @@ They own current truth, including the distinction between production `main`, the
 production main: e771de3c39c480f05d026075e5e553fb75207468
 active integration branch: integration/prediction-intelligence-v2
 active Draft PR: #114
-active integration head: 1b746f9d038ecfbd49068ecacf8d39c62d4a5fc9
+active integration head: 0db9ac8867eae344e56237ac028cc32255ff1a3d
 preserved old branch: feature/prediction-intelligence-v2-data-foundation
 preserved Draft PR: #106
 preserved old head: eefcff709e80209215b25b90fb870aa5c080d735
@@ -48,16 +48,16 @@ Completed on the integration branch:
 - Task 2B calibration stabilization;
 - Task 2C signal gates and candidate eligibility;
 - Task 2D historical release-candidate packaging;
-- strict runner-specific local-run output containment;
-- accumulated Task 2 checkpoint with verdict `TASK2_CHECKPOINT_READY`.
+- strict runner-specific Task 2 local-run output containment;
+- Task 3A local-only planner/dry-run;
+- accumulated Task 2 checkpoint with verdict `TASK2_CHECKPOINT_READY`;
+- final M2-01 implementation checkpoint with verdict `M2_01_IMPLEMENTATION_CHECKPOINT_READY`.
 
-Still pending in M2-01:
+M2-01 is implementation-complete.
 
-```text
-Task 3A source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
-```
+No useful old-branch implementation remains to be ported. Task 3A historical evidence remains byte-exact and non-authorizing. Migration 0038 is committed and structurally tested but unapplied.
 
-Task 3A remains planner/dry-run only. Migration 0038 is committed but unapplied.
+Task 3B has not started. Its first phase is a read-only Supabase stage audit. Stage writes require a later explicit owner approval. Production writes remain unauthorized.
 
 ## Updated files in this refresh
 
@@ -65,14 +65,9 @@ Task 3A remains planner/dry-run only. Migration 0038 is committed but unapplied.
 
 - `00_START_HERE_CURRENT.md`
 - `01_PRODUCT_MVP1_CURRENT.md`
-- `02_ARCHITECTURE_DATA_SECURITY.md`
-- `03_AUTH_PAYMENTS_ENTITLEMENTS.md`
-- `04_FIXTURE_RESULT_AND_EVALUATION_OPS.md`
 - `05_PREDICTION_INTELLIGENCE_V2_CURRENT.md`
 - `06_V2_STAGE_RELEASE_PLAN.md`
 - `07_ROADMAP_EPICS_DECISIONS.md`
-- `08_MODEL_HISTORY_CALIBRATION.md`
-- `09_WORKFLOW_GUARDRAILS_DOC_POLICY.md`
 
 ### Updated active runbooks
 
@@ -90,18 +85,31 @@ Task 3A remains planner/dry-run only. Migration 0038 is committed but unapplied.
 Total replacement files:
 
 ```text
-14
+9
 ```
 
 ## No-change decisions
 
+Canonical shared sources intentionally unchanged:
+
+- `02_ARCHITECTURE_DATA_SECURITY.md`;
+- `03_AUTH_PAYMENTS_ENTITLEMENTS.md`;
+- `04_FIXTURE_RESULT_AND_EVALUATION_OPS.md`;
+- `08_MODEL_HISTORY_CALIBRATION.md`;
+- `09_WORKFLOW_GUARDRAILS_DOC_POLICY.md`.
+
+Other no-change decisions:
+
+- do not update `docs/10_codex_runbooks/01_TASK3B_STAGE_SYNC_RUNBOOK.md`; its read-only/write-gated separation is already correct;
 - do not update `UFO_Predictor_MVP2_Backlog_Tracker.xlsx`;
 - do not rewrite `docs/90_archive/`;
+- do not modify historical artifacts;
 - do not modify active entitlement SQL;
-- do not modify unrelated stable Wompi, entitlement, API-Football, or creative runbooks;
+- do not modify unrelated Wompi, entitlement, API-Football, creative, frontend, or operations runbooks;
 - do not apply migration 0038;
 - do not access or write stage/production during documentation apply;
-- do not modify app code, package files, generated artifacts, or secrets.
+- do not modify app code, tests, package files, generated artifacts, or secrets;
+- do not update Draft PR #114 description in this docs-only apply unless separately authorized.
 
 ## Apply target for this checkpoint
 
@@ -111,25 +119,29 @@ Apply this refresh to:
 integration/prediction-intelligence-v2
 ```
 
-This is a branch-local checkpoint refresh so the long-running integration branch and the next ChatGPT conversation remain self-describing.
+This is a branch-local final M2-01 checkpoint refresh so the long-running integration branch and next conversations remain self-describing.
 
 After PR #114 eventually merges, perform another final canonical refresh from updated `main`.
 
 ## Apply protocol
 
-1. verify the active integration branch and clean worktree;
-2. copy these 14 replacement files exactly;
-3. do not editorialize or merge content with older versions;
+1. verify the active integration branch at `0db9ac8867eae344e56237ac028cc32255ff1a3d` and a clean worktree;
+2. replace exactly the 9 files listed in this manifest;
+3. do not editorialize, summarize, or merge with older content;
 4. confirm a documentation-only diff;
-5. search active docs for stale claims such as:
-   - M2-01 `Ready`;
-   - integration branch not yet created;
-   - Task 1/2 still pending;
-   - PR #114 absent;
-   - Task 3B as the immediate next code slice;
-6. validate paths and filenames;
-7. run `git diff --check`;
-8. owner reviews, stages, commits, and pushes.
+5. confirm exactly 9 changed files;
+6. search active docs for stale claims including:
+   - Task 3A pending or remaining;
+   - M2-01 `In Progress`;
+   - final M2-01 checkpoint still pending;
+   - active integration head `1b746f9` or `927cb1b`;
+   - more code to port from the old branch;
+   - Task 3B already writing or synchronizing stage;
+   - Migration 0038 already applied;
+   - PR #114 no longer Draft;
+7. validate paths, filenames, cross-file SHAs, statuses, and sequence;
+8. run `git diff --check`;
+9. owner reviews, stages, commits, and pushes.
 
 ## ChatGPT upload rule
 

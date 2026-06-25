@@ -1,6 +1,6 @@
 # Product and Commercial MVP1 - Current
 
-_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 checkpoint approval._
+_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
 
 ## Product
 
@@ -181,7 +181,7 @@ A second payment provider is not an immediate v2 blocker.
 
 ## Current v2 integration boundary
 
-Prediction Intelligence v2 Task 1 and Task 2 are normalized on Draft PR #114, but none of that work is live in production.
+Prediction Intelligence v2 Tasks 1, 1.1, 1.2, 2A, 2B, 2C, 2D, and 3A are normalized on Draft PR #114, and the final M2-01 implementation checkpoint passed. None of that work is live in production.
 
 The integration track has not changed:
 
@@ -189,10 +189,12 @@ The integration track has not changed:
 - Wompi/Auth/entitlement authority;
 - public lifecycle behavior;
 - trusted result operations;
+- immutable v1 publications;
 - the production `torneo-ufo-export-v1` contract.
 
-Task 3A remains planner/dry-run work. Stage and production writes are still unauthorized.
+Task 3A is complete as a local-only planner/dry-run. It grants no current migration, import, persistence, publication, stage, production, or partner-delivery authority.
 
+The next v2 phase is a Task 3B read-only stage audit. Stage writes remain unauthorized until the audit produces a non-destructive plan and the owner gives explicit approval; production writes remain unauthorized.
 ## MVP1 verdict
 
 The product is commercially usable now. The next core release is not a rewrite of MVP1. It is an incremental MVP2 intelligence layer, stage-validated and versioned safely while current operations continue.

@@ -1,6 +1,6 @@
 # Prediction Intelligence v2 - Current Source
 
-_Last refreshed: 2026-06-24 after Task 1/2 normalization and the accumulated Task 2 checkpoint._
+_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
 
 ## Current status
 
@@ -9,11 +9,11 @@ Prediction Intelligence v2 is actively normalized on:
 ```text
 branch: integration/prediction-intelligence-v2
 Draft PR: #114
-head: 1b746f9d038ecfbd49068ecacf8d39c62d4a5fc9
+head: 0db9ac8867eae344e56237ac028cc32255ff1a3d
 base: main at e771de3c39c480f05d026075e5e553fb75207468
 ```
 
-It is not merged and not live in production.
+It is not merged and not live in production. M2-01 implementation is complete, but PR #114 remains open and Draft.
 
 The old source remains preserved on:
 
@@ -39,11 +39,13 @@ Completed integration commits:
 | `1d70412` | Task 2C | Signal gates and candidate eligibility |
 | `de083c1` | Task 2D | Historical release-candidate packaging |
 | `1b746f9` | Task 2 guard | Strict runner-specific local-run output containment |
+| `0db9ac8` | Task 3A | Local-only planner and dry-run with explicit execution denial |
 
-Task 2 checkpoint:
+Checkpoint verdicts:
 
 ```text
 TASK2_CHECKPOINT_READY
+M2_01_IMPLEMENTATION_CHECKPOINT_READY
 ```
 
 ## Mission
@@ -165,7 +167,7 @@ Historical artifacts named `production-candidate-selection`, `release-decision`,
 
 ## Local-only runner contract
 
-Task 2 runners:
+Task 2 and Task 3A runners:
 
 - require no `.env`;
 - use no Supabase client;
@@ -174,8 +176,9 @@ Task 2 runners:
 - refuse preserved dated artifact directories;
 - may write only below their own strict runner-specific `local-run` roots.
 
-`--artifacts-dir` remains allowed only when the resolved path is a strict descendant of the matching runner root. External paths, sibling runner trees, path traversal, textual-prefix lookalikes, and the root itself are rejected.
+`--artifacts-dir` remains allowed only when the resolved path is a strict descendant of the matching runner root. External paths, arbitrary repository paths, sibling runner trees, path traversal, textual-prefix lookalikes, preserved historical directories, and the root itself are rejected.
 
+Task 3A additionally rejects non-empty output targets and produces only inert local planner artifacts. Its historical command, migration, import, signal, publication, and export evidence is explicitly non-authorizing.
 ## Model findings preserved from historical research
 
 Initial unrestricted challengers did not beat v1.
@@ -209,39 +212,45 @@ Honest interpretation:
 - no current release decision may be inferred from the dated artifacts;
 - evidence, provenance, scenarios, reliability, localization, and tournament context remain the main product value under evaluation.
 
-## Remaining old-branch implementation
+## Old-branch implementation completion
 
-One code slice remains:
+No useful old-branch implementation remains unported.
+
+Task 3A was normalized from:
 
 ```text
-Task 3A
-source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
+historical source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
+integration commit: 0db9ac8
 ```
 
-Task 3A is the last useful implementation concern to port from the old branch. It prepares safe plans and dry runs for:
+It prepares local descriptive plans for:
 
-- target authorization;
+- target/environment classification;
 - migration ordering;
 - idempotent import;
+- current-cutoff release review;
 - signal persistence;
 - immutable prediction versions;
 - Torneo export compatibility;
-- production-write denial.
+- explicit production, stage, and remote execution denial.
 
-It must not apply a migration or write remotely.
-
+The historical `supabase/.gitignore`, `supabase/config.toml`, and final old-branch docs-only commit remain intentionally excluded. The old branch and PR #106 are now preservation/reference only and must not supply new implementation.
 ## After Task 3A
 
-After Task 3A and its checkpoint:
+M2-01 implementation is complete.
 
-1. M2-01 normalization can be considered implementation-complete;
-2. the old branch remains preserved but no longer supplies new code;
-3. Task 3B begins with a read-only stage audit;
-4. stage synchronization requires explicit owner approval;
-5. current Elo, FIFA, results, schedule, standings, and tournament context must be refreshed;
-6. current stage candidates can then be generated and compared fairly;
-7. a v2.0 release mode can be selected only after stage gates.
+The next sequence is:
 
+1. apply the final M2-01 documentation refresh;
+2. replace the shared ChatGPT source set with the refreshed exact 10 files;
+3. optionally refresh the Draft PR #114 description while keeping it Draft;
+4. begin Task 3B with a read-only stage audit;
+5. stop for owner approval before any stage synchronization;
+6. refresh current Elo, FIFA, results, schedule, standings, and tournament context only after the approved stage foundation is ready;
+7. generate current stage candidates and compare them fairly;
+8. select a v2.0 release mode only after stage gates.
+
+No current release, publication, migration, or accuracy decision may be inferred from the dated artifacts or from M2-01 completion alone.
 ## Release framing
 
 Planned sequence:

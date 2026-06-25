@@ -1,10 +1,10 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-24 after Task 2 normalization and checkpoint approval._
+_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
 
 ## Goal
 
-Finish rebuilding Prediction Intelligence v2 on top of the current production baseline without losing historical research or regressing MVP1 behavior.
+Preserve the completed Prediction Intelligence v2 normalization on top of the current production baseline and hand off safely into the read-only stage-audit phase without losing historical research or regressing MVP1 behavior.
 
 ## Live-state source
 
@@ -14,9 +14,10 @@ Before work, read and verify:
 docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
 docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
 docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
+docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
-Verify live SHAs before implementation.
+Verify live SHAs and environment boundaries before any task.
 
 ## Current stable references
 
@@ -24,13 +25,13 @@ Verify live SHAs before implementation.
 production main at integration base: e771de3c39c480f05d026075e5e553fb75207468
 active integration branch: integration/prediction-intelligence-v2
 active Draft PR: #114
-active head at this refresh: 1b746f9d038ecfbd49068ecacf8d39c62d4a5fc9
+active head at this refresh: 0db9ac8867eae344e56237ac028cc32255ff1a3d
 old v2 branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
 old v2 head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
-## Completed port map
+## Completed normalization map
 
 | Historical concern | Integrated commit | Status |
 |---|---|---|
@@ -42,82 +43,109 @@ old v2 head: eefcff709e80209215b25b90fb870aa5c080d735
 | Task 2 gates/eligibility | `1d70412` | Complete |
 | Task 2 release packaging | `de083c1` | Complete |
 | Task 2 local-run guard | `1b746f9` | Complete |
+| Task 3A local-only planner/dry-run | `0db9ac8` | Complete |
 
-Task 2 checkpoint passed.
-
-## Remaining normalization strategy
-
-Port only Task 3A from:
+Checkpoint verdicts:
 
 ```text
-6967fd6b22a49e23ab9963345f1a1437b1d6b668
+TASK2_CHECKPOINT_READY
+M2_01_IMPLEMENTATION_CHECKPOINT_READY
 ```
 
-Task 3A must be separated from later stage execution and from the old handoff documentation.
+No useful implementation remains to be ported from the old branch.
 
-Expected Task 3A scope:
+## Intentionally excluded historical items
 
-- target authorization guard;
-- migration plan;
-- idempotent import plan;
-- signal-persistence plan;
-- immutable prediction-version plan;
-- Torneo export dry-run;
-- production-write denial;
-- focused tests.
+Do not port:
 
-Do not port stale frontend, shared queries, docs, or environment-specific paths blindly.
+- `supabase/.gitignore` from the old branch;
+- `supabase/config.toml` from the old branch;
+- the final old-branch documentation-only handoff commit;
+- broad environment-specific paths or configuration;
+- stale frontend/shared-query changes outside the normalized slices.
 
-## Task 3A safety
+The old branch and PR #106 remain preservation/reference only.
+
+## Completed Task 3A safety contract
+
+Task 3A is:
 
 - local-only;
-- no `.env` requirement unless the implementation explicitly uses safe optional local configuration without remote access;
+- planner/dry-run only;
+- argument-driven;
+- no `.env`;
+- no credential;
 - no Supabase client;
 - no network;
+- no live provider read;
+- no subprocess execution;
 - no remote migration;
 - no stage or production write;
 - no current candidate generation;
 - no publication;
 - no modification of preserved historical evidence;
-- fail closed for any production target.
+- fail closed for migration, import, persistence, publication, partner delivery, stage, production, and remote execution.
 
-## Post-Task 3A checkpoint
+Task 3A writes only to strict descendants of:
 
-Confirm:
+```text
+artifacts/prediction-intelligence-v2/task3a/local-run/
+```
 
-- all useful old-branch implementation concerns are ported or intentionally excluded;
-- no Task 3B remote behavior entered early;
-- migration 0038 remains unapplied;
-- MVP1 protected behavior remains intact;
-- local-only output boundaries are enforced;
-- PR #114 can move toward review after documentation and final scope update.
+It rejects the root itself, preserved dated evidence, external paths, arbitrary repository paths, sibling runner trees, traversal escapes, textual-prefix lookalikes, and non-empty targets.
+
+## M2-01 closeout meaning
+
+M2-01 is implementation-complete.
+
+This means:
+
+- every approved normalization slice is present;
+- no useful old-branch implementation remains;
+- the final implementation checkpoint passed;
+- protected MVP1 behavior remains intact;
+- Migration 0038 remains committed, tested, and unapplied;
+- no stage or production write occurred.
+
+It does not mean:
+
+- PR #114 is merged or ready to merge;
+- Prediction Intelligence v2 is live;
+- historical candidates are current;
+- Migration 0038 is applied;
+- stage synchronization is authorized;
+- a release mode has been selected.
 
 ## Stage transition
 
-Task 3B begins only after the M2-01 checkpoint.
+Task 3B begins only after the final M2-01 documentation refresh and source replacement.
 
 First phase is read-only:
 
-- identify stage target safely;
-- inspect remote migration history/schema;
+- validate ignored stage credentials without printing values;
+- identify the stage target safely;
+- prove the target is not production;
+- inspect remote migration history and schema;
 - compare against repository migrations;
-- inspect RLS, functions, views, and dependencies;
+- inspect RLS, functions, views, policies, and dependencies;
+- confirm existing stage Auth users will not be deleted or corrupted;
 - produce an ordered non-destructive synchronization plan;
 - stop for owner approval.
 
-Only a later approved phase may apply migration 0038 and import non-sensitive data.
+Only a later explicitly approved phase may apply migration 0038 and import approved non-sensitive data into stage.
 
 ## Validation after bounded work
 
-- focused imported tests;
-- relevant Task 1/2/3 local runners;
+- focused task-specific tests;
+- relevant local runners only when needed;
 - protected MVP1 regression tests when shared code is touched;
 - lint;
 - production build when warranted;
-- typecheck classification with zero new diagnostics;
+- typecheck classification with zero new task-local diagnostics;
 - diff-check;
 - generated-noise cleanup;
-- no production write.
+- no production write;
+- no stage write during read-only audit.
 
 ## Current production concerns that must survive
 
@@ -128,13 +156,15 @@ Only a later approved phase may apply migration 0038 and import non-sensitive da
 - Wompi/Auth/entitlement behavior;
 - public lifecycle and history.
 
-## Required output
+## Required output for Task 3B Phase A
 
-- source commit and exact changed-file boundary;
-- old concern -> integrated concern mapping;
-- intentionally excluded files and rationale;
-- conflicts and resolutions;
-- safety and write-scope review;
-- tests/build/diff evidence;
-- final verdict;
+- confirmed branch, HEAD, and clean worktree;
+- confirmed stage target and explicit production denial;
+- remote migration/schema inventory;
+- drift and dependency analysis;
+- existing stage-user preservation assessment;
+- exact non-destructive synchronization plan;
+- evidence that no remote writes occurred;
+- concrete blockers only;
+- final read-only audit verdict;
 - no Git commit/push unless the owner explicitly delegates it.

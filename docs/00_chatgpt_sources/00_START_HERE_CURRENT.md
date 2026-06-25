@@ -1,6 +1,6 @@
 # Start Here - UFO Predictor Current
 
-_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 normalization and checkpoint approval._
+_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
 
 ## Current truth
 
@@ -33,8 +33,8 @@ Active v2 integration:
 ```text
 branch: integration/prediction-intelligence-v2
 Draft PR: #114
-head: 1b746f9d038ecfbd49068ecacf8d39c62d4a5fc9
-status: open, Draft, Task 1 and Task 2 normalized
+head: 0db9ac8867eae344e56237ac028cc32255ff1a3d
+status: open, Draft, M2-01 implementation complete
 ```
 
 Preserved historical source:
@@ -50,7 +50,7 @@ PR #106 and its branch remain unchanged. Do not continue implementation there an
 
 ## M2-01 normalization progress
 
-Completed on `integration/prediction-intelligence-v2`:
+Implementation-complete on `integration/prediction-intelligence-v2`:
 
 ```text
 76500de  Task 1   - data foundation
@@ -61,39 +61,34 @@ bf13c21  Task 2B  - calibration stabilization
 1d70412  Task 2C  - signal gates and candidate eligibility
 de083c1  Task 2D  - historical release-candidate packaging
 1b746f9  Task 2   - strict runner local-run output boundaries
+0db9ac8  Task 3A  - local-only planner and dry-run
 ```
 
-Task 2 accumulated checkpoint verdict:
+Checkpoint verdicts:
 
 ```text
 TASK2_CHECKPOINT_READY
+M2_01_IMPLEMENTATION_CHECKPOINT_READY
 ```
 
-The integrated stack is local-only, preserves historical artifacts byte-for-byte where declared, keeps MVP1 behavior protected, and contains no Task 3 stage or production writes.
+M2-01 is implementation-complete, not merged and not live. The normalized stack remains local-only, preserves historical artifacts byte-for-byte where declared, keeps protected MVP1 behavior unchanged, and contains no stage or production write path.
+## Old v2 branch completion
 
-## What remains from the old v2 branch
+No useful implementation remains to be ported from the old branch.
 
-One useful implementation slice remains to be selectively ported:
+Task 3A was selectively normalized from:
 
 ```text
-Task 3A source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
-concern: planner and dry-run only
+source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
+integration commit: 0db9ac8
+concern: local-only planner and dry-run
 ```
 
-Task 3A prepares:
+Task 3A now prepares descriptive plans for target classification, migration ordering, idempotent import, signal persistence, immutable prediction versions, and Torneo Mundialista export compatibility while explicitly denying execution.
 
-- safe target authorization guards;
-- migration planning;
-- idempotent import planning;
-- signal persistence planning;
-- immutable prediction-version planning;
-- Torneo Mundialista export dry-run;
-- explicit production-write denial.
+It requires no `.env`, credentials, Supabase client, live API-Football read, network request, remote inspection, migration apply, import, persistence, publication, stage write, or production write.
 
-Task 3A must remain local-only. It does not apply migration 0038 and does not write to stage or production.
-
-The final old-branch documentation commit is historical handoff material and should not be ported as implementation.
-
+The historical `supabase/.gitignore`, `supabase/config.toml`, and final old-branch documentation-only commit remain intentionally excluded. PR #106 and its branch are preservation/reference only.
 ## Environment map
 
 ```text
@@ -118,34 +113,35 @@ Status:
 - not applied to stage;
 - not applied to production.
 
-Any remote migration work begins only after Task 3A and a read-only stage audit.
+Any remote migration work begins only after the Task 3B read-only stage audit, an owner-reviewed synchronization plan, and explicit owner approval.
 
 ## Historical artifact policy
 
-Task 1 and Task 2 preserved evidence is historical research.
+Task 1, Task 2, and Task 3A preserved evidence is historical research.
 
-Where declared by preservation manifests, artifacts are:
+Where declared by preservation manifests, artifacts are constrained by flags such as:
 
 ```text
 historicalOnly: true
 currentCandidateEligible: false
 currentReleaseDecisionEligible: false
-currentPublicationEligible: false   # Task 2.3 where applicable
+currentPublicationEligible: false
+currentExecutionEligible: false   # Task 3A
 ```
 
-Historical names containing `production`, `candidate`, `release`, or `publication` do not authorize current use.
+Historical names containing `production`, `candidate`, `release`, `migration`, `import`, `persistence`, `publication`, or `export` do not authorize current use.
 
-Task 2 runners may write only to strict descendants of their own runner-specific trees:
+Task 2 and Task 3A runners may write only to strict descendants of their own runner-specific trees:
 
 ```text
 artifacts/prediction-intelligence-v2/task2/local-run/
 artifacts/prediction-intelligence-v2/task2-1/local-run/
 artifacts/prediction-intelligence-v2/task2-2/local-run/
 artifacts/prediction-intelligence-v2/task2-3/local-run/
+artifacts/prediction-intelligence-v2/task3a/local-run/
 ```
 
-External paths, sibling runner trees, preserved dated directories, traversal outside the allowed root, and the local-run root itself are rejected.
-
+External paths, sibling runner trees, arbitrary repository paths, preserved dated directories, traversal outside the allowed root, textual-prefix lookalikes, non-empty targets where prohibited, and the local-run root itself are rejected.
 ## World Cup production operations
 
 Current production v1 continuity remains unchanged:
@@ -163,21 +159,20 @@ Production fixture/result operations continue independently while v2 work remain
 
 ## Exact next sequence
 
-1. apply this checkpoint documentation refresh to the integration branch;
+1. apply this final M2-01 documentation refresh to the integration branch;
 2. replace the shared ChatGPT project source set with the exact refreshed 10 files;
-3. start the next conversation from this file;
-4. selectively port Task 3A from `6967fd6b22a49e23ab9963345f1a1437b1d6b668`;
-5. run a Task 3A checkpoint and finish M2-01 normalization;
-6. perform a read-only stage audit;
+3. optionally refresh the Draft PR #114 description after owner review while keeping it Draft;
+4. start Task 3B with a read-only Supabase stage audit only;
+5. prove the target is stage and inspect remote migration history, schema drift, RLS, views, functions, policies, and dependencies;
+6. produce an ordered non-destructive synchronization plan;
 7. stop for owner approval before any stage write;
-8. apply migration 0038 in stage only after approval;
-9. import non-sensitive history/reference data idempotently;
+8. apply migration 0038 in stage only after explicit approval;
+9. import approved non-sensitive history/reference data idempotently and prove zero duplicates on rerun;
 10. refresh current Elo, FIFA, results, schedule, standings, and tournament context;
 11. generate current stage candidates under explicit cutoffs;
-12. compare v1, v1-probability-plus-v2-analysis, and gated-v2 fairly;
-13. decide the v2.0 Tournament Candidate;
+12. compare stored v1, v1-probability-plus-v2-analysis, and gated-v2 fairly;
+13. decide the future v2.0 Tournament Candidate;
 14. prepare v2.1 Knockout Context.
-
 ## Release framing
 
 Possible future production modes remain:

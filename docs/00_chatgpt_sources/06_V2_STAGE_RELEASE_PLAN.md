@@ -1,6 +1,6 @@
 # Prediction Intelligence v2 - Integration, Stage, and Release Plan
 
-_Last refreshed: 2026-06-24 after Task 2 normalization and checkpoint approval._
+_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
 
 ## Environment decision
 
@@ -18,7 +18,7 @@ Auth registration/login works. Do not create another environment or revive the a
 production main: e771de3c39c480f05d026075e5e553fb75207468
 integration branch: integration/prediction-intelligence-v2
 Draft PR: #114
-integration head: 1b746f9d038ecfbd49068ecacf8d39c62d4a5fc9
+integration head: 0db9ac8867eae344e56237ac028cc32255ff1a3d
 old source branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
 ```
@@ -30,50 +30,49 @@ Migration 0038 is committed but unapplied.
 Completed:
 
 - preserved old branch and PR #106 unchanged;
-- created integration branch from current production baseline;
+- created integration branch from the current production baseline;
 - opened replacement Draft PR #114;
 - selectively ported Task 1, Task 1.1, and Task 1.2;
 - selectively ported Task 2A, Task 2B, Task 2C, and Task 2D;
-- restored dated artifacts with preservation manifests;
-- kept historical candidates and decisions non-current;
-- validated bounded slices against protected MVP1 behavior;
 - enforced strict runner-specific local-run output boundaries;
-- passed the accumulated Task 2 checkpoint.
+- selectively normalized Task 3A as a local-only planner/dry-run;
+- restored dated artifacts with preservation manifests;
+- kept historical candidates, commands, plans, and decisions non-current and non-authorizing;
+- validated bounded slices against protected MVP1 behavior;
+- passed the accumulated Task 2 checkpoint and final M2-01 implementation checkpoint.
 
-Remaining Phase 0 implementation:
+Final Phase 0 verdict:
 
 ```text
-Task 3A source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
+M2_01_IMPLEMENTATION_CHECKPOINT_READY
 ```
 
-The old branch's final documentation handoff is not an implementation slice and should not be ported.
-
+No useful implementation remains to be ported from the old branch. The old branch's final documentation handoff and broad Supabase-local support files remain intentionally excluded.
 ## Phase 0A - Task 3A planner and dry-run
 
-Task 3A must remain local-only and no-write.
+Status: `Complete`
 
-Expected concerns:
+Integrated commit:
 
-- explicit safe-target authorization guard;
+```text
+0db9ac8 feat: add local-only prediction intelligence v2 task3a planner
+```
+
+Delivered concerns:
+
+- explicit local-only target/environment guard;
 - ordered migration plan;
 - idempotent source/history import plan;
+- current-cutoff release review;
 - signal snapshot persistence plan;
 - immutable development/replay publication plan;
 - Torneo Mundialista export dry-run;
-- production-write denial;
-- focused tests and preservation evidence where applicable.
+- explicit production, stage, remote, migration, import, persistence, publication, and partner-delivery denial;
+- focused tests and historical preservation evidence.
 
-Task 3A does not:
+Task 3A uses no `.env`, credentials, Supabase client, remote schema inspection, live API-Football read, network request, migration apply, remote import, prediction publication, stage write, or production write.
 
-- inspect stage with credentials unless explicitly separated into a later read-only audit;
-- apply migration 0038;
-- import data remotely;
-- create stage prediction versions;
-- publish anything;
-- touch production.
-
-After Task 3A, run an M2-01 checkpoint before changing PR #114 from Draft status.
-
+M2-01 implementation is complete. PR #114 remains Draft pending documentation refresh, review, and later stage evidence.
 ## Phase 1 - mandatory read-only stage audit
 
 Only after Task 3A checkpoint:
