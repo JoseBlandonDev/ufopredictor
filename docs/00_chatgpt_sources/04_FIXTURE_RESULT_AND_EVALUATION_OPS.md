@@ -1,6 +1,6 @@
 # Fixture, Result, and Evaluation Operations
 
-_Last refreshed: 2026-06-24 after PR #111 and PR #112 production operations._
+_Last refreshed: 2026-06-24 after PR #111/#112 operations and Prediction Intelligence v2 Task 2 checkpoint approval._
 
 ## Operating model
 
@@ -220,6 +220,14 @@ Validated Matchday 3 export:
 - public-safe URLs and prediction fields;
 - JSON approved as the delivery artifact;
 - PDF not required.
+
+## Prediction Intelligence v2 operational boundary
+
+The current integration branch does not alter production fixture registration, trusted result refresh, verification, evaluation persistence, publication queues, or the `torneo-ufo-export-v1` runtime.
+
+Historical Task 2 Torneo candidate artifacts are research packaging only. They are not the production partner export and cannot replace it.
+
+Task 3A may generate plans and dry-run artifacts only. Current result operations continue on the production v1 path until a later stage-validated release decision.
 
 ## Automation guardrails
 

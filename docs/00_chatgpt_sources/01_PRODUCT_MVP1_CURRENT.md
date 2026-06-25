@@ -1,6 +1,6 @@
 # Product and Commercial MVP1 - Current
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 checkpoint approval._
 
 ## Product
 
@@ -178,6 +178,20 @@ Potential later additions:
 - Hotmart only if product strategy intentionally changes toward marketplace/course distribution.
 
 A second payment provider is not an immediate v2 blocker.
+
+## Current v2 integration boundary
+
+Prediction Intelligence v2 Task 1 and Task 2 are normalized on Draft PR #114, but none of that work is live in production.
+
+The integration track has not changed:
+
+- the production v1 probability layer;
+- Wompi/Auth/entitlement authority;
+- public lifecycle behavior;
+- trusted result operations;
+- the production `torneo-ufo-export-v1` contract.
+
+Task 3A remains planner/dry-run work. Stage and production writes are still unauthorized.
 
 ## MVP1 verdict
 

@@ -1,64 +1,98 @@
 # Start Here - UFO Predictor Current
 
-_Last refreshed: 2026-06-24 after PR #111, PR #112, Matchday 3 publication, and Torneo export validation._
+_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 normalization and checkpoint approval._
 
 ## Current truth
 
-UFO Predictor has a commercially usable production MVP1 and a separate, unmerged Prediction Intelligence v2 development track.
+UFO Predictor has a commercially usable production MVP1 and an active, unmerged Prediction Intelligence v2 integration track.
 
-Production currently supports:
+Production remains on the v1-compatible probability layer and currently supports:
 
 - public World Cup prediction pages;
 - anonymous, registered-free, premium, and admin experiences;
 - Wompi checkout and approved-webhook entitlement activation;
 - premium scenario, xG, BTTS, and over/under detail where available;
-- exact fixture registration and publication operations;
+- exact fixture registration and prediction publication operations;
 - trusted-provider result refresh, automatic verification, public history, and internal evaluation persistence;
 - admin operational queues;
 - a public-safe Torneo Mundialista JSON export.
 
-The production probability layer remains the v1-compatible baseline. Prediction Intelligence v2 is not live and must not be described as live.
+Prediction Intelligence v2 is not live. Historical v2 artifacts, candidate names, release recommendations, and publication plans must not be described as current production decisions.
 
-## Repository baseline
+## Repository and PR baseline
 
-Current production baseline:
+Production baseline at the start of the current integration track:
 
 ```text
-origin/main: 130ffc8b6728ccccfdb9f29ecc4244ec1cd019b6
-PR #111: merged - World Cup group-stage fixture registry flow
-PR #112: merged - trusted World Cup result refresh flow
+main: e771de3c39c480f05d026075e5e553fb75207468
+PR #113: merged - documentation refresh after World Cup operations
 ```
 
-Prediction Intelligence v2 remains preserved on:
+Active v2 integration:
+
+```text
+branch: integration/prediction-intelligence-v2
+Draft PR: #114
+head: 1b746f9d038ecfbd49068ecacf8d39c62d4a5fc9
+status: open, Draft, Task 1 and Task 2 normalized
+```
+
+Preserved historical source:
 
 ```text
 branch: feature/prediction-intelligence-v2-data-foundation
 Draft PR: #106
 head: eefcff709e80209215b25b90fb870aa5c080d735
+status: preservation/reference only
 ```
 
-PR #106 remains a preservation/reference branch. Do not continue implementation directly on it.
+PR #106 and its branch remain unchanged. Do not continue implementation there and do not blanket-merge or blanket-cherry-pick it.
 
-## Branch normalization decision
+## M2-01 normalization progress
 
-The latest read-only comparison recorded:
+Completed on `integration/prediction-intelligence-v2`:
 
-- current `main` has 19 commits not present on the old v2 branch;
-- the old v2 branch has 9 commits not present on `main`;
-- merge base: `1dca9bf91000c089927452941a009117b622103f`.
+```text
+76500de  Task 1   - data foundation
+16fef9b  Task 1.1 - replay readiness
+f411d60  Task 1.2 - historical Elo reconstruction
+ca5fd01  Task 2A  - challenger and replay
+bf13c21  Task 2B  - calibration stabilization
+1d70412  Task 2C  - signal gates and candidate eligibility
+de083c1  Task 2D  - historical release-candidate packaging
+1b746f9  Task 2   - strict runner local-run output boundaries
+```
 
-Approved strategy:
+Task 2 accumulated checkpoint verdict:
 
-1. preserve the old v2 branch and Draft PR #106;
-2. create `integration/prediction-intelligence-v2` from current `origin/main`;
-3. audit the nine v2-only commits by concern;
-4. selectively port valid data, migration, model, replay, script, artifact, and test work;
-5. exclude stale frontend, shared-runtime, and documentation changes;
-6. validate MVP1 behavior after each bounded group;
-7. open a replacement Draft PR;
-8. perform Task 3B stage work only after normalization.
+```text
+TASK2_CHECKPOINT_READY
+```
 
-Do not blanket-merge or blanket-cherry-pick the old branch.
+The integrated stack is local-only, preserves historical artifacts byte-for-byte where declared, keeps MVP1 behavior protected, and contains no Task 3 stage or production writes.
+
+## What remains from the old v2 branch
+
+One useful implementation slice remains to be selectively ported:
+
+```text
+Task 3A source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
+concern: planner and dry-run only
+```
+
+Task 3A prepares:
+
+- safe target authorization guards;
+- migration planning;
+- idempotent import planning;
+- signal persistence planning;
+- immutable prediction-version planning;
+- Torneo Mundialista export dry-run;
+- explicit production-write denial.
+
+Task 3A must remain local-only. It does not apply migration 0038 and does not write to stage or production.
+
+The final old-branch documentation commit is historical handoff material and should not be ported as implementation.
 
 ## Environment map
 
@@ -71,213 +105,105 @@ Stage already exists. Do not create another Railway service, Supabase project, o
 
 Production and stage have separate Auth, users, sessions, roles, entitlements, data, and secrets.
 
-## World Cup operational state
-
-Matchday 3 is operationally complete under the current v1 model:
-
-- 24/24 group-stage Matchday 3 fixtures are stored;
-- 20 new fixtures were registered in four exact allowlist batches;
-- every batch passed dry-run, apply, and idempotency checks;
-- 24/24 Matchday 3 predictions are published;
-- the Real Fixture Publish Queue is empty;
-- the validated Torneo export contains 24 unique fixtures;
-- the partner contract is `torneo-ufo-export-v1`;
-- JSON, not PDF, is the approved Torneo Mundialista delivery artifact.
-
-PR #111 provides:
+## Migration 0038 status
 
 ```text
-npm run ops:world-cup-group-stage-fixture-registry
+0038_prediction_intelligence_v2_data_foundation.sql
 ```
 
-It is dry-run by default and supports bounded selection, exact allowlists, conflict reporting, and idempotent fixture creation/update.
+Status:
 
-## Trusted result policy
+- committed on the integration branch;
+- structurally tested;
+- not applied to stage;
+- not applied to production.
 
-API-Football is the approved operational authority for stored World Cup fixture status and final scores when identity and score checks pass.
+Any remote migration work begins only after Task 3A and a read-only stage audit.
 
-PR #112 provides:
+## Historical artifact policy
+
+Task 1 and Task 2 preserved evidence is historical research.
+
+Where declared by preservation manifests, artifacts are:
 
 ```text
-npm run ops:world-cup-result-refresh
+historicalOnly: true
+currentCandidateEligible: false
+currentReleaseDecisionEligible: false
+currentPublicationEligible: false   # Task 2.3 where applicable
 ```
 
-Normal valid flow:
+Historical names containing `production`, `candidate`, `release`, or `publication` do not authorize current use.
+
+Task 2 runners may write only to strict descendants of their own runner-specific trees:
 
 ```text
-stored exact fixture
--> API-Football FT result
--> trusted automatic verification
--> public verified result
--> idempotent internal evaluation
+artifacts/prediction-intelligence-v2/task2/local-run/
+artifacts/prediction-intelligence-v2/task2-1/local-run/
+artifacts/prediction-intelligence-v2/task2-2/local-run/
+artifacts/prediction-intelligence-v2/task2-3/local-run/
 ```
 
-Apply mode requires an exact allowlist.
+External paths, sibling runner trees, preserved dated directories, traversal outside the allowed root, and the local-run root itself are rejected.
 
-The Result Review Queue is now exception-oriented rather than a mandatory step for every normal final score.
+## World Cup production operations
 
-A real production run:
+Current production v1 continuity remains unchanged:
 
-- selected 15 exact Matchday 2 fixtures;
-- found 15 terminal results in the successful apply;
-- recognized 14 results/evaluations as already identical;
-- created and verified Colombia 1-0 Congo DR;
-- created its evaluation;
-- produced zero duplicate writes on the second apply.
+- 24/24 Matchday 3 fixtures stored;
+- 24/24 Matchday 3 predictions published;
+- exact publish queue empty at the recorded milestone;
+- trusted API-Football `FT` results may be verified automatically when identity and score checks pass;
+- internal evaluation persistence is idempotent;
+- human review is exception-oriented;
+- `torneo-ufo-export-v1` remains the approved partner contract;
+- JSON remains the approved Torneo Mundialista delivery artifact.
 
-`provider_fixture_not_found` may be transient. It is not automatically an identity conflict and must not erase or downgrade an already stored verified result.
+Production fixture/result operations continue independently while v2 work remains in Draft PR #114.
 
-Next operational hardening:
+## Exact next sequence
 
-- retry and backoff;
-- distinguish transient provider absence from persistent reconciliation failure;
-- poll only recent pending/relevant fixtures;
-- scheduler and operator notifications;
-- avoid repeatedly querying completed historical batches.
+1. apply this checkpoint documentation refresh to the integration branch;
+2. replace the shared ChatGPT project source set with the exact refreshed 10 files;
+3. start the next conversation from this file;
+4. selectively port Task 3A from `6967fd6b22a49e23ab9963345f1a1437b1d6b668`;
+5. run a Task 3A checkpoint and finish M2-01 normalization;
+6. perform a read-only stage audit;
+7. stop for owner approval before any stage write;
+8. apply migration 0038 in stage only after approval;
+9. import non-sensitive history/reference data idempotently;
+10. refresh current Elo, FIFA, results, schedule, standings, and tournament context;
+11. generate current stage candidates under explicit cutoffs;
+12. compare v1, v1-probability-plus-v2-analysis, and gated-v2 fairly;
+13. decide the v2.0 Tournament Candidate;
+14. prepare v2.1 Knockout Context.
 
-## Torneo Mundialista export
+## Release framing
 
-Validated file scope:
+Possible future production modes remain:
 
 ```text
-schemaVersion: torneo-ufo-export-v1
-range: 2026-06-24 to 2026-06-30
-fixtures: 24
-unique fixtureId: 24
-unique externalId: 24
-duplicates: 0
+v1 probabilities + v2 analysis
 ```
 
-The export is public-safe and includes:
-
-- fixture/provider identity;
-- public match URL;
-- kickoff and stage;
-- 1X2 probabilities;
-- confidence and risk;
-- most likely score;
-- expected goals;
-- top scorelines;
-- display guidance.
-
-Torneo Mundialista should join by `fixtureId` or `externalId`, not localized team names.
-
-## Immediate product priority
-
-The next core engineering task is:
+or:
 
 ```text
-M2-01 - Prediction Intelligence v2 integration normalization
+gated v2 probabilities + v2 analysis
 ```
 
-Immediate sequence:
+No current accuracy or production-readiness claim is allowed until current data, stage persistence, fair comparison, and release gates are complete.
 
-1. create the new integration branch from current `main`;
-2. preserve PR #106 and the old v2 branch unchanged;
-3. port the nine v2-only commits selectively;
-4. restore the v2 data/model/replay path on the current product baseline;
-5. open a replacement Draft PR;
-6. perform Task 3B read-only stage audit;
-7. synchronize stage only after approval;
-8. compare v1 and v2 under identical cutoffs;
-9. release a tournament candidate only after stage gates.
+## Required reading order
 
-Production v1 operations continue while this work happens.
+For a new engineering conversation, read:
 
-## MVP2 release framing
+1. `00_START_HERE_CURRENT.md`
+2. `05_PREDICTION_INTELLIGENCE_V2_CURRENT.md`
+3. `06_V2_STAGE_RELEASE_PLAN.md`
+4. `07_ROADMAP_EPICS_DECISIONS.md`
+5. `09_WORKFLOW_GUARDRAILS_DOC_POLICY.md`
 
-Planned release sequence:
+For model/calibration history, also read:
 
-```text
-Prediction Intelligence v2.0 Tournament Candidate
-Prediction Intelligence v2.1 Knockout Context
-MVP2 Tournament Release
-```
-
-Possible production modes after evidence review:
-
-- v1 probabilities + v2 analysis;
-- gated v2 probabilities + v2 analysis.
-
-No accuracy claim is allowed until supported by a larger fair sample.
-
-## MVP2 intelligence scope
-
-Priority signal families now include:
-
-- structural Elo and FIFA strength;
-- recent 5/10-match form;
-- goals for/against and scoring behavior;
-- opponent quality;
-- tournament-current form;
-- group table position;
-- qualification/elimination pressure;
-- supporting and contradicting evidence;
-- representative scenario families;
-- provenance, reliability, and exact cutoff.
-
-Final-group qualification pressure is no longer deferred to a distant v3 idea. It is part of the immediate tournament-context design, implemented only with pre-kickoff information.
-
-## Prediction versioning and replay
-
-Published predictions remain immutable.
-
-A new pre-kickoff version may be created only when:
-
-- the fixture has not started;
-- a new model/feature version is approved;
-- the information cutoff is explicit;
-- lineage to the prior version is preserved.
-
-Finished fixtures may receive a `historical_replay` version for fair v1/v2 comparison, using only evidence available before the original kickoff. Historical replay must never replace the original publication.
-
-## Internationalization decision
-
-Core target languages are:
-
-```text
-ES
-EN
-PT
-```
-
-Spanish remains the current production language. English and Portuguese are first-class roadmap targets.
-
-Canonical identities, data contracts, signal keys, and model outputs must be locale-neutral now. French and German are later possibilities, not current MVP2 scope.
-
-## Local source snapshot truth
-
-The prepared v2 source workspace remains at:
-
-```text
-D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
-```
-
-Committed equivalents remain under `data/`, `artifacts/prediction-intelligence-v2/`, `lib/prediction-intelligence-v2/`, and `scripts/prediction-intelligence-v2/`.
-
-Keep the external workspace until stage import, checksums, lineage, and idempotency are proven.
-
-## Product truth
-
-```text
-The statistical model calculates.
-The analysis layer explains.
-Probabilities are not certainties.
-```
-
-The strongest current v2 value is the intelligence layer: evidence, recency, provenance, scenarios, reliability, localization, and post-match learning.
-
-## Hard boundaries
-
-- no production writes from Task 3B;
-- no post-result prediction rewriting;
-- no post-kickoff evidence in a pre-match version;
-- no secrets in docs, prompts, screenshots, logs, or artifacts;
-- no service-role key in browser/runtime;
-- no merge of Draft PR #106;
-- no blanket merge of the stale v2 branch;
-- no claim that v2 is already a material accuracy breakthrough;
-- no new stage or Docker environment;
-- no full frontend redesign, player-prop system, odds integration, or second payment provider in the immediate v2 release;
-- no routine manual verification for normal trusted `FT` results;
-- no broad unguarded production apply.
+- `08_MODEL_HISTORY_CALIBRATION.md`

@@ -1,6 +1,6 @@
 # Codex Handoff Current
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-24 after Task 2 normalization and checkpoint approval._
 
 ## Canonical-source rule
 
@@ -8,60 +8,81 @@ Before implementation, read:
 
 ```text
 docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
+docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
 docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
 docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
 Those files own live product, branch, roadmap, and workflow truth.
 
-This handoff contains the current immediate sequence and hard execution boundaries. Verify live SHAs rather than assuming this snapshot remains current.
-
-## Reference baseline at this refresh
+## Current baseline
 
 ```text
-main: 130ffc8b6728ccccfdb9f29ecc4244ec1cd019b6
-PR #111: merged
-PR #112: merged
-
-old v2 branch:
-feature/prediction-intelligence-v2-data-foundation
-
-Draft PR #106 head:
-eefcff709e80209215b25b90fb870aa5c080d735
+production main: e771de3c39c480f05d026075e5e553fb75207468
+active branch: integration/prediction-intelligence-v2
+active Draft PR: #114
+active head: 1b746f9d038ecfbd49068ecacf8d39c62d4a5fc9
+old branch: feature/prediction-intelligence-v2-data-foundation
+old Draft PR: #106
+old head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
-PR #106 remains Draft and must not receive new implementation work.
+PR #106 remains Draft and unchanged. Do not add implementation work to it.
 
-## Immediate next sequence
+## Completed normalization
 
-1. Start from clean current `origin/main`.
-2. Create `integration/prediction-intelligence-v2`.
-3. Preserve the old branch and PR #106 unchanged.
-4. Audit the nine v2-only commits by file and concern.
-5. Selectively port valid data, migration, model, replay, script, artifact, and test work.
-6. Exclude stale frontend, docs, and shared-runtime changes.
-7. Validate MVP1 tests, lint, build, and diff-check after bounded groups.
-8. Open a replacement Draft PR.
-9. Perform Task 3B read-only stage audit.
-10. Stop for owner approval before stage writes.
+```text
+Task 1    complete
+Task 1.1  complete
+Task 1.2  complete
+Task 2A   complete
+Task 2B   complete
+Task 2C   complete
+Task 2D   complete
+Task 2 checkpoint: TASK2_CHECKPOINT_READY
+```
 
-## Current production continuity
+The Task 2 stack is local-only and historical artifacts remain non-current.
 
-Already delivered:
+## Immediate next task
 
-- 24/24 Matchday 3 fixtures stored;
-- 24/24 v1 predictions published;
-- trusted World Cup result refresh;
-- automatic valid `FT` verification/evaluation;
-- validated 24-fixture Torneo JSON export.
+Selectively port only:
 
-Parallel production work should now focus on:
+```text
+Task 3A source: 6967fd6b22a49e23ab9963345f1a1437b1d6b668
+```
 
-- relevant recent result/status polling;
-- retry/backoff and scheduler hardening;
-- bounded product fixes;
-- independent UI/UX improvements;
-- no re-opening of completed Matchday 3 registry/publication work.
+Task 3A concern:
+
+- safe target authorization guard;
+- migration plan;
+- idempotent import plan;
+- signal persistence plan;
+- immutable publication/replay plan;
+- Torneo export dry-run;
+- production-write denial;
+- focused tests.
+
+Task 3A is planner/dry-run only.
+
+Do not:
+
+- access or write stage unless a later prompt explicitly starts the read-only stage audit;
+- apply migration 0038;
+- write to Supabase;
+- fetch live current data;
+- publish predictions;
+- alter `torneo-ufo-export-v1`;
+- port the old final documentation commit;
+- mark PR #114 ready or merge it.
+
+## After Task 3A
+
+1. run final M2-01 checkpoint;
+2. confirm all useful old-branch code concerns are preserved or intentionally excluded;
+3. update PR #114 description to reflect full scope;
+4. begin Task 3B with read-only stage audit;
+5. stop for owner approval before any stage write.
 
 ## Source workspace
 
@@ -75,38 +96,31 @@ Committed equivalents exist under `data/`, `artifacts/prediction-intelligence-v2
 
 Do not report the data as lost merely because the external path is unavailable in one environment.
 
-## Environment contract
-
-```text
-ufopredictor.com       -> production Railway/Supabase
-stage.ufopredictor.com -> development Railway/Supabase stage
-```
-
-Do not create another environment. Do not require Docker.
-
 ## Hard boundaries
 
-- no production writes during v2 normalization or Task 3B;
+- no production writes;
+- no stage writes during Task 3A or the read-only audit;
 - no merge of PR #106;
-- no blanket merge/cherry-pick of all nine old commits;
+- no blanket old-branch cherry-pick;
 - no production migration 0038;
-- no production user/payment/entitlement cloning;
+- no production Auth/payment/entitlement cloning;
 - no secrets in output;
 - no post-kickoff prediction generation;
-- no reopening completed MVP1 commercial work;
-- no rewriting original v1 Matchday 3 publications;
-- no claim that v2 is already more accurate.
+- no rewriting original v1 publications;
+- no claim that historical v2 is currently approved or more accurate;
+- no output outside approved local-run/planner artifact roots.
 
 ## Reporting contract
 
 Return:
 
-- branch/status/base SHA;
-- divergence/commit inventory;
-- files inspected/changed;
-- exact before/after behavior;
-- tests/lint/build/diff-check;
-- environment/write scope;
-- blockers only when concrete;
-- final verdict;
-- commit SHA when committed.
+- exact source boundary inspected;
+- files changed;
+- behavior before/after;
+- local-only/write-safety review;
+- tests, lint, build, and diff-check as appropriate;
+- generated noise cleanup;
+- concrete blockers only;
+- final verdict.
+
+The owner handles routine Git staging, commit, push, and final log confirmation unless explicitly requested otherwise.

@@ -1,6 +1,6 @@
 # Architecture, Data, and Security - UFO Predictor
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 normalization._
 
 ## System overview
 
@@ -142,11 +142,19 @@ Future prediction version fields should be added compatibly rather than breaking
 
 ## Prediction Intelligence v2 foundation
 
-Planned migration:
+Integration migration:
 
 ```text
 0038_prediction_intelligence_v2_data_foundation.sql
 ```
+
+Current status:
+
+- committed on `integration/prediction-intelligence-v2`;
+- structurally tested;
+- not applied to stage;
+- not applied to production;
+- remote apply remains blocked until Task 3A planning and a read-only stage audit are complete.
 
 Analytical entities include:
 
@@ -214,6 +222,26 @@ No result or later fact may leak into a pre-match prediction or replay.
 - FIFA ranking snapshots;
 - official World Cup schedule/venue data;
 - deterministic prepared snapshots when live sources are not reliably machine-readable.
+
+## Integrated local research pipeline
+
+The normalized integration branch now contains:
+
+- Task 1 data contracts, parsers, manifests, and preservation evidence;
+- Task 1.1 replay readiness;
+- Task 1.2 historical Elo reconstruction;
+- Task 2 challenger, calibration, gates, candidate eligibility, and historical packaging;
+- local-only runners and focused tests.
+
+Historical Task 1/2 artifacts are not current database seed authority by themselves. Current stage import requires Task 3A planning, read-only schema audit, explicit approval, provenance checks, and idempotency proof.
+
+Task 2 runners enforce runner-specific output containment under strict descendants of their own `local-run` roots. Arbitrary repository paths, external absolute paths, sibling runner trees, traversal outside the allowed root, and preserved historical directories are rejected.
+
+## Task 3 boundary
+
+Task 3A is planner/dry-run only. It may prepare migration, import, signal-persistence, immutable-publication, and partner-export plans, but may not perform remote writes.
+
+Task 3B begins with a read-only audit of the existing Supabase stage environment. Any authorized stage synchronization is a later owner-approved phase.
 
 ## Security boundaries
 

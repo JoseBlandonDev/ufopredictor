@@ -1,6 +1,6 @@
 # Auth, Payments, and Entitlements - Current
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 checkpoint approval._
 
 ## Authentication baseline
 
@@ -89,6 +89,12 @@ Prediction Intelligence v2 must not regress:
 - admin authorization.
 
 MVP2 may enrich premium analytical content, but it does not replace the payment/entitlement authority model.
+
+## Current integration checkpoint
+
+Draft PR #114 keeps Auth, Wompi, payment events, entitlements, premium projection, and admin authorization outside the Prediction Intelligence v2 Task 1/2 change boundary. Protected MVP1 regression suites remained green during the bounded slices.
+
+Task 3A and the later stage audit must preserve the same boundary. Production users, payment history, webhook payloads, and entitlements must never be copied into stage.
 
 ## Future payment-provider decision
 
