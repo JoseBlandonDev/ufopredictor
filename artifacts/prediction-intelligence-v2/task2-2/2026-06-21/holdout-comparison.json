@@ -1,0 +1,267 @@
+{
+  "exactV1": {
+    "fixtureCount": 36,
+    "oneXTwo": {
+      "multiclassBrier": 0.188394,
+      "logLoss": 0.952495,
+      "outcomeAccuracy": 0.611111,
+      "favoriteAccuracy": 0.583333,
+      "calibrationByBucket": [
+        {
+          "bucket": "0.00-0.39",
+          "fixtureCount": 5,
+          "averagePredicted": 0.37677,
+          "actualHitRate": 0.6
+        },
+        {
+          "bucket": "0.40-0.49",
+          "fixtureCount": 9,
+          "averagePredicted": 0.441164,
+          "actualHitRate": 0.444444
+        },
+        {
+          "bucket": "0.50-0.59",
+          "fixtureCount": 10,
+          "averagePredicted": 0.554705,
+          "actualHitRate": 0.6
+        },
+        {
+          "bucket": "0.60+",
+          "fixtureCount": 12,
+          "averagePredicted": 0.740313,
+          "actualHitRate": 0.75
+        }
+      ]
+    },
+    "goalsAndMarkets": {
+      "totalGoalsMae": 1.495881,
+      "goalDifferenceMae": 1.445492,
+      "bttsBrier": 0.227958,
+      "bttsAccuracy": 0.583333,
+      "over25Brier": 0.232884,
+      "over25Accuracy": 0.611111
+    },
+    "scoreDistribution": {
+      "exactScoreTop1Coverage": 0.222222,
+      "exactScoreTop3Coverage": 0.472222,
+      "exactScoreTop5Coverage": null,
+      "actualScoreProbability": 0.056115,
+      "scoreMatrixTailMass": 0.000072
+    }
+  },
+  "selectedProductionCandidate": "v1_plus_high_confidence_signals",
+  "selectedCandidateMetrics": {
+    "fixtureCount": 36,
+    "oneXTwo": {
+      "multiclassBrier": 0.188427,
+      "logLoss": 0.951756,
+      "outcomeAccuracy": 0.583333,
+      "favoriteAccuracy": 0.583333,
+      "calibrationByBucket": [
+        {
+          "bucket": "0.00-0.39",
+          "fixtureCount": 5,
+          "averagePredicted": 0.381592,
+          "actualHitRate": 0.4
+        },
+        {
+          "bucket": "0.40-0.49",
+          "fixtureCount": 10,
+          "averagePredicted": 0.443092,
+          "actualHitRate": 0.5
+        },
+        {
+          "bucket": "0.50-0.59",
+          "fixtureCount": 9,
+          "averagePredicted": 0.554627,
+          "actualHitRate": 0.555556
+        },
+        {
+          "bucket": "0.60+",
+          "fixtureCount": 12,
+          "averagePredicted": 0.722,
+          "actualHitRate": 0.75
+        }
+      ]
+    },
+    "goalsAndMarkets": {
+      "totalGoalsMae": 1.497097,
+      "goalDifferenceMae": 1.468792,
+      "bttsBrier": 0.228036,
+      "bttsAccuracy": 0.555556,
+      "over25Brier": 0.23295,
+      "over25Accuracy": 0.611111
+    },
+    "scoreDistribution": {
+      "exactScoreTop1Coverage": 0.222222,
+      "exactScoreTop3Coverage": 0.472222,
+      "exactScoreTop5Coverage": 0.527778,
+      "actualScoreProbability": 0.065325,
+      "scoreMatrixTailMass": 0.000591
+    }
+  },
+  "diagnosticCandidates": {
+    "structural_only_ablation": {
+      "fixtureCount": 36,
+      "oneXTwo": {
+        "multiclassBrier": 0.203617,
+        "logLoss": 1.012579,
+        "outcomeAccuracy": 0.527778,
+        "favoriteAccuracy": 0.527778,
+        "calibrationByBucket": [
+          {
+            "bucket": "0.00-0.39",
+            "fixtureCount": 8,
+            "averagePredicted": 0.38336,
+            "actualHitRate": 0.5
+          },
+          {
+            "bucket": "0.40-0.49",
+            "fixtureCount": 22,
+            "averagePredicted": 0.446924,
+            "actualHitRate": 0.545455
+          },
+          {
+            "bucket": "0.50-0.59",
+            "fixtureCount": 6,
+            "averagePredicted": 0.543188,
+            "actualHitRate": 0.5
+          },
+          {
+            "bucket": "0.60+",
+            "fixtureCount": 0,
+            "averagePredicted": null,
+            "actualHitRate": null
+          }
+        ]
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.565344,
+        "goalDifferenceMae": 1.664983,
+        "bttsBrier": 0.241853,
+        "bttsAccuracy": 0.583333,
+        "over25Brier": 0.245831,
+        "over25Accuracy": 0.611111
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.166667,
+        "exactScoreTop3Coverage": 0.305556,
+        "exactScoreTop5Coverage": 0.5,
+        "actualScoreProbability": 0.052595,
+        "scoreMatrixTailMass": 0.000044
+      }
+    },
+    "recent_only_ablation": {
+      "fixtureCount": 36,
+      "oneXTwo": {
+        "multiclassBrier": 0.206554,
+        "logLoss": 1.031847,
+        "outcomeAccuracy": 0.5,
+        "favoriteAccuracy": 0.5,
+        "calibrationByBucket": [
+          {
+            "bucket": "0.00-0.39",
+            "fixtureCount": 4,
+            "averagePredicted": 0.392683,
+            "actualHitRate": 0.5
+          },
+          {
+            "bucket": "0.40-0.49",
+            "fixtureCount": 22,
+            "averagePredicted": 0.454524,
+            "actualHitRate": 0.454545
+          },
+          {
+            "bucket": "0.50-0.59",
+            "fixtureCount": 9,
+            "averagePredicted": 0.543449,
+            "actualHitRate": 0.666667
+          },
+          {
+            "bucket": "0.60+",
+            "fixtureCount": 1,
+            "averagePredicted": 0.651839,
+            "actualHitRate": 0
+          }
+        ]
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.622397,
+        "goalDifferenceMae": 1.658964,
+        "bttsBrier": 0.245023,
+        "bttsAccuracy": 0.583333,
+        "over25Brier": 0.264248,
+        "over25Accuracy": 0.5
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.166667,
+        "exactScoreTop3Coverage": 0.25,
+        "exactScoreTop5Coverage": 0.416667,
+        "actualScoreProbability": 0.045954,
+        "scoreMatrixTailMass": 0.000201
+      }
+    },
+    "tournament_only_ablation": {
+      "fixtureCount": 36,
+      "oneXTwo": {
+        "multiclassBrier": 0.206503,
+        "logLoss": 1.03153,
+        "outcomeAccuracy": 0.5,
+        "favoriteAccuracy": 0.5,
+        "calibrationByBucket": [
+          {
+            "bucket": "0.00-0.39",
+            "fixtureCount": 4,
+            "averagePredicted": 0.392661,
+            "actualHitRate": 0.5
+          },
+          {
+            "bucket": "0.40-0.49",
+            "fixtureCount": 22,
+            "averagePredicted": 0.454498,
+            "actualHitRate": 0.454545
+          },
+          {
+            "bucket": "0.50-0.59",
+            "fixtureCount": 9,
+            "averagePredicted": 0.543486,
+            "actualHitRate": 0.666667
+          },
+          {
+            "bucket": "0.60+",
+            "fixtureCount": 1,
+            "averagePredicted": 0.651926,
+            "actualHitRate": 0
+          }
+        ]
+      },
+      "goalsAndMarkets": {
+        "totalGoalsMae": 1.620269,
+        "goalDifferenceMae": 1.658953,
+        "bttsBrier": 0.244886,
+        "bttsAccuracy": 0.583333,
+        "over25Brier": 0.263874,
+        "over25Accuracy": 0.5
+      },
+      "scoreDistribution": {
+        "exactScoreTop1Coverage": 0.166667,
+        "exactScoreTop3Coverage": 0.25,
+        "exactScoreTop5Coverage": 0.416667,
+        "actualScoreProbability": 0.046018,
+        "scoreMatrixTailMass": 0.000199
+      }
+    }
+  },
+  "bootstrapRanges": {
+    "multiclassBrierImprovement": {
+      "mean": -0.000033,
+      "p05": -0.002813,
+      "p95": 0.002786
+    },
+    "logLossImprovement": {
+      "mean": 0.000739,
+      "p05": -0.014812,
+      "p95": 0.017282
+    }
+  }
+}

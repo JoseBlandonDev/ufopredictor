@@ -1,0 +1,9 @@
+{
+  "probabilityEngineVerdict": "promote_gated_v2",
+  "analysisLayerVerdict": "promote_v2_analysis",
+  "reasons": [
+    "holdout_probability_metrics_non_inferior_to_v1",
+    "future_shadow_anomalies_within_selected_caps",
+    "scenario_layer_adds_information_without_leakage_flags"
+  ]
+}

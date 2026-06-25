@@ -1,7 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { generatePrediction } from "../prediction-engine/generate-prediction";
+import { resolveNationalTeamPredictionInputData } from "../prediction-engine/national-team-strength-snapshots";
 import { buildScoreMatrix, poissonProbability } from "../prediction-engine/poisson";
+import type { MatchPredictionInput } from "../prediction-engine/types";
 import { buildTask1_2Coverage, type ReplayCoverageManifestEntryV2 } from "./task1-2";
 import {
   buildPredictionIntelligenceV2ReplayInput,
@@ -3146,7 +3149,8 @@ export function assertTask2LocalOnlyPreflight(paths: Task2Paths): void {
 
   if (
     path.normalize(paths.artifactsDir).includes(path.join("task2", HISTORICAL_ARTIFACT_DATE)) ||
-    path.normalize(paths.artifactsDir).includes(path.join("task2-1", HISTORICAL_ARTIFACT_DATE))
+    path.normalize(paths.artifactsDir).includes(path.join("task2-1", HISTORICAL_ARTIFACT_DATE)) ||
+    path.normalize(paths.artifactsDir).includes(path.join("task2-2", HISTORICAL_ARTIFACT_DATE))
   ) {
     throw new Error(
       `Task 2 local run refused because artifactsDir points at the preserved historical evidence path (${HISTORICAL_ARTIFACT_DATE}).`,
@@ -4477,5 +4481,1403 @@ export async function runTask2_1(paths: Task2Paths) {
     futureAnomalyReview,
     neutralContextAudit,
     promotionGate,
+  };
+}
+
+type Task2_2CandidateClass = "production_eligible" | "diagnostic_only";
+
+type Task2_2CandidateConfig = Task2ModelCandidateConfig & {
+  candidateClass: Task2_2CandidateClass;
+};
+
+type ProductionV1Replay = {
+  prediction: PredictionLike;
+  challenger: ChallengerPrediction;
+  expectedGoals: { home: number; away: number; total: number; difference: number };
+  rawProjection: ReturnType<typeof generatePrediction>["predictionVersionProjection"];
+};
+
+type ProductionV1ParityAuditEntry = {
+  fixtureId: string;
+  storedPredictionVersionId: string | null;
+  originalStoredV1: PredictionLike | null;
+  replayedProductionV1: PredictionLike;
+  deltas: {
+    homeWin: number | null;
+    draw: number | null;
+    awayWin: number | null;
+    expectedHomeGoals: number | null;
+    expectedAwayGoals: number | null;
+  };
+  parityStatus: "exact_match" | "runtime_drift";
+  mismatchReason: string | null;
+};
+
+type BlockedFoldManifestEntry = {
+  key: string;
+  trainingCount: number;
+  validationCount: number;
+  trainingCutoffEnd: string;
+  validationCutoffStart: string;
+  validationCutoffEnd: string;
+};
+
+type GateEvidence = {
+  activatedGates: string[];
+  rawDiffProposal: number;
+  rawTotalProposal: number;
+  reliabilityScale: number;
+  contradictionPenalty: number;
+  components: {
+    structuralDisagreement: number;
+    repeatedPerformance: number;
+    tournamentForm: number;
+    scoringDeterioration: number;
+    defensiveOverperformance: number;
+    venueContext: number;
+  };
+  evidence: string[];
+};
+
+type ResidualFit = {
+  diffScale: number;
+  totalScale: number;
+  trainingRows: number;
+  regularization: number;
+};
+
+type GateActivationAuditEntry = {
+  fixtureId: string;
+  candidateKey: string;
+  activatedGates: string[];
+  evidence: string[];
+  rawDiffProposal: number;
+  rawTotalProposal: number;
+  reliabilityScale: number;
+  contradictionPenalty: number;
+  capsApplied: string[];
+  probabilityDeltasFromExactV1: {
+    homeWin: number;
+    draw: number;
+    awayWin: number;
+  };
+};
+
+type BlockedFoldCandidateResult = {
+  candidateKey: string;
+  candidateClass: Task2_2CandidateClass;
+  foldResults: Array<{
+    foldKey: string;
+    trainingCount: number;
+    validationCount: number;
+    residualFit: ResidualFit | null;
+    metrics: ReplayMetricSummary;
+  }>;
+  aggregateMetrics: ReplayMetricSummary;
+  stability: {
+    multiclassBrierRange: number | null;
+    logLossRange: number | null;
+  };
+};
+
+type ReleaseRecommendation = {
+  probabilityEngineVerdict: "promote_gated_v2" | "retain_v1";
+  analysisLayerVerdict: "promote_v2_analysis" | "do_not_promote_analysis";
+  reasons: string[];
+};
+
+const TASK2_2_BASELINE_CANDIDATE: Task2_2CandidateConfig = {
+  ...TASK2_1_CANDIDATES.find((candidate) => candidate.key === "v1_compatible_baseline")!,
+  key: "exact_production_v1_baseline",
+  label: "Exact production v1 baseline",
+  candidateClass: "production_eligible",
+};
+
+const TASK2_2_PRODUCTION_CANDIDATES: Task2_2CandidateConfig[] = [
+  TASK2_2_BASELINE_CANDIDATE,
+  {
+    ...TASK2_1_CANDIDATES.find((candidate) => candidate.key === "v1_plus_bounded_signals")!,
+    key: "v1_plus_high_confidence_signals",
+    label: "V1 plus high-confidence signals",
+    candidateClass: "production_eligible",
+    boundedCaps: {
+      expectedGoalDifferenceDelta: 0.24,
+      expectedTotalGoalsDelta: 0.32,
+      oneXTwoDelta: 0.08,
+    },
+  },
+  {
+    ...TASK2_1_CANDIDATES.find((candidate) => candidate.key === "v1_plus_bounded_signals_conservative")!,
+    key: "v1_plus_high_confidence_signals_conservative",
+    label: "V1 plus high-confidence signals conservative",
+    candidateClass: "production_eligible",
+    boundedCaps: {
+      expectedGoalDifferenceDelta: 0.2,
+      expectedTotalGoalsDelta: 0.25,
+      oneXTwoDelta: 0.06,
+    },
+  },
+];
+
+const TASK2_2_DIAGNOSTIC_CANDIDATES: Task2_2CandidateConfig[] = [
+  {
+    ...MODEL_2_CANDIDATES.find((candidate) => candidate.key === "structural_only_ablation")!,
+    candidateClass: "diagnostic_only",
+  },
+  {
+    ...MODEL_2_CANDIDATES.find((candidate) => candidate.key === "recent_tournament_emphasis")!,
+    key: "recent_only_ablation",
+    label: "Recent-only ablation",
+    candidateClass: "diagnostic_only",
+    effectiveStrengthWeights: {
+      structural: 0.08,
+      recentForm: 0.68,
+      tournamentForm: 0.06,
+      attack: 0.08,
+      defense: 0.04,
+      expectation: 0.04,
+      reliability: 0.02,
+    },
+  },
+  {
+    ...MODEL_2_CANDIDATES.find((candidate) => candidate.key === "recent_tournament_emphasis")!,
+    key: "tournament_only_ablation",
+    label: "Tournament-only ablation",
+    candidateClass: "diagnostic_only",
+    effectiveStrengthWeights: {
+      structural: 0.1,
+      recentForm: 0.1,
+      tournamentForm: 0.56,
+      attack: 0.08,
+      defense: 0.08,
+      expectation: 0.04,
+      reliability: 0.04,
+    },
+  },
+];
+
+export const TASK2_2_CANDIDATES: Task2_2CandidateConfig[] = [
+  ...TASK2_2_PRODUCTION_CANDIDATES,
+  ...TASK2_2_DIAGNOSTIC_CANDIDATES,
+];
+
+const TASK2_2_PARITY_TOLERANCE = 0.001;
+
+function buildProductionV1Input(args: {
+  fixtureId: string;
+  homeTeamId: string;
+  awayTeamId: string;
+  homeName: string;
+  awayName: string;
+}): MatchPredictionInput {
+  return {
+    matchId: args.fixtureId,
+    homeTeam: {
+      id: args.homeTeamId,
+      name: args.homeName,
+      ...(resolveNationalTeamPredictionInputData({ name: args.homeName }) ?? {}),
+    },
+    awayTeam: {
+      id: args.awayTeamId,
+      name: args.awayName,
+      ...(resolveNationalTeamPredictionInputData({ name: args.awayName }) ?? {}),
+    },
+    context: {
+      neutralVenue: false,
+    },
+    runScope: "internal_lab",
+    predictionType: "pre_match_24h",
+  };
+}
+
+function buildProductionV1Replay(args: {
+  fixtureId: string;
+  homeTeamId: string;
+  awayTeamId: string;
+  homeName: string;
+  awayName: string;
+  candidate?: Task2ModelCandidateConfig;
+  features?: MatchFeatureVector;
+}): ProductionV1Replay {
+  const output = generatePrediction(
+    buildProductionV1Input({
+      fixtureId: args.fixtureId,
+      homeTeamId: args.homeTeamId,
+      awayTeamId: args.awayTeamId,
+      homeName: args.homeName,
+      awayName: args.awayName,
+    }),
+  );
+  const matrixWithTail = buildScoreMatrixWithTail(output.expectedGoals, 10);
+  const prediction = {
+    homeWin: round(output.predictionVersionProjection.homeWinProb / 100, 6),
+    draw: round(output.predictionVersionProjection.drawProb / 100, 6),
+    awayWin: round(output.predictionVersionProjection.awayWinProb / 100, 6),
+    expectedHomeGoals: output.predictionVersionProjection.expectedHomeGoals,
+    expectedAwayGoals: output.predictionVersionProjection.expectedAwayGoals,
+    mostLikelyScore: output.predictionVersionProjection.mostLikelyScore,
+    topScorelines: output.predictionVersionProjection.topScoresJson.map((entry) => ({
+      score: entry.score,
+      probability: round(entry.probability / 100, 6),
+    })),
+    bttsYes: round(output.probabilities.btts.yes / 100, 6),
+    bttsNo: round(output.probabilities.btts.no / 100, 6),
+    over25: round(output.probabilities.overUnder25.over / 100, 6),
+    under25: round(output.probabilities.overUnder25.under / 100, 6),
+    scoreMatrixTailMass: matrixWithTail.tailMass,
+    scoreMatrixSource: "reconstructed_from_xg" as const,
+  } satisfies PredictionLike;
+  const expectedGoals = {
+    home: output.predictionVersionProjection.expectedHomeGoals,
+    away: output.predictionVersionProjection.expectedAwayGoals,
+    total: round(output.predictionVersionProjection.expectedHomeGoals + output.predictionVersionProjection.expectedAwayGoals, 4),
+    difference: round(output.predictionVersionProjection.expectedHomeGoals - output.predictionVersionProjection.expectedAwayGoals, 4),
+  };
+  const baselineCandidate = args.candidate ?? TASK2_2_BASELINE_CANDIDATE;
+  const challenger =
+    args.features == null
+      ? ({
+          modelVersion: MODEL_VERSION,
+          candidateKey: baselineCandidate.key,
+          cutoffAt: "",
+          expectedGoals,
+          probabilities: {
+            oneXTwo: {
+              homeWin: prediction.homeWin,
+              draw: prediction.draw,
+              awayWin: prediction.awayWin,
+            },
+            btts: {
+              yes: prediction.bttsYes ?? 0.5,
+              no: prediction.bttsNo ?? 0.5,
+            },
+            overUnder25: {
+              over: prediction.over25 ?? 0.5,
+              under: prediction.under25 ?? 0.5,
+            },
+          },
+          scoreMatrix: matrixWithTail.matrix,
+          scoreMatrixTailMass: matrixWithTail.tailMass,
+          topScorelines: [...matrixWithTail.matrix]
+            .sort(compareByProbability)
+            .slice(0, 8)
+            .map((cell) => ({
+              score: `${cell.homeGoals}-${cell.awayGoals}`,
+              homeGoals: cell.homeGoals,
+              awayGoals: cell.awayGoals,
+              probability: round(cell.probability, 6),
+            })),
+          mostLikelyScore: prediction.mostLikelyScore,
+          confidence: round(output.confidence, 2),
+          riskLevel: output.risk,
+          scenarios: [],
+          additionalPlausibleScorelines: [],
+          evidenceBundle: {
+            homeSubScores: {
+              baselineStrength: 0.5,
+              recentForm: 0.5,
+              tournamentForm: 0.5,
+              attack: 0.5,
+              defense: 0.5,
+              performanceVsExpectation: 0.5,
+              reliability: 0.5,
+            },
+            awaySubScores: {
+              baselineStrength: 0.5,
+              recentForm: 0.5,
+              tournamentForm: 0.5,
+              attack: 0.5,
+              defense: 0.5,
+              performanceVsExpectation: 0.5,
+              reliability: 0.5,
+            },
+            reasonCodes: [],
+            contradictingReasonCodes: [],
+            sourceSnapshotIds: [],
+          },
+          explanationPreviews: {
+            en: { locale: "en", summary: "", scenarioLines: [], reasonLines: [] },
+            es: { locale: "es", summary: "", scenarioLines: [], reasonLines: [] },
+          },
+        } satisfies ChallengerPrediction)
+      : buildPredictionFromExpectedGoals({
+          candidate: baselineCandidate,
+          features: args.features,
+          expectedGoals,
+          internalAudit: {
+            v1ExpectedGoalDifference: expectedGoals.difference,
+            v1ExpectedTotalGoals: expectedGoals.total,
+            signalAdjustments: {
+              structuralDisagreement: 0,
+              recentForm: 0,
+              attack: 0,
+              defense: 0,
+              opponentAdjustment: 0,
+              tournamentForm: 0,
+              venueContext: 0,
+              reliabilityShrinkage: 0,
+            },
+            finalExpectedGoalDifference: expectedGoals.difference,
+            finalExpectedTotalGoals: expectedGoals.total,
+            capsApplied: [],
+          },
+        });
+  if (args.features != null) {
+    challenger.probabilities.oneXTwo = {
+      homeWin: prediction.homeWin,
+      draw: prediction.draw,
+      awayWin: prediction.awayWin,
+    };
+    challenger.probabilities.btts = {
+      yes: prediction.bttsYes ?? challenger.probabilities.btts.yes,
+      no: prediction.bttsNo ?? challenger.probabilities.btts.no,
+    };
+    challenger.probabilities.overUnder25 = {
+      over: prediction.over25 ?? challenger.probabilities.overUnder25.over,
+      under: prediction.under25 ?? challenger.probabilities.overUnder25.under,
+    };
+    challenger.mostLikelyScore = prediction.mostLikelyScore;
+  }
+  return {
+    prediction,
+    challenger,
+    expectedGoals,
+    rawProjection: output.predictionVersionProjection,
+  };
+}
+
+export function buildProductionV1ParityAudit(args: {
+  fixtureId: string;
+  storedRow: ProductPredictionRow | null;
+  storedMarkets: ProductPredictionMarketRow[];
+  replay: ProductionV1Replay;
+}) {
+  const stored = args.storedRow ? parseOriginalPrediction(args.storedRow, args.storedMarkets) : null;
+  const deltas =
+    stored == null
+      ? {
+          homeWin: null,
+          draw: null,
+          awayWin: null,
+          expectedHomeGoals: null,
+          expectedAwayGoals: null,
+        }
+      : {
+          homeWin: round(args.replay.prediction.homeWin - stored.homeWin, 6),
+          draw: round(args.replay.prediction.draw - stored.draw, 6),
+          awayWin: round(args.replay.prediction.awayWin - stored.awayWin, 6),
+          expectedHomeGoals: round(args.replay.prediction.expectedHomeGoals - stored.expectedHomeGoals, 6),
+          expectedAwayGoals: round(args.replay.prediction.expectedAwayGoals - stored.expectedAwayGoals, 6),
+        };
+  const exact =
+    stored != null &&
+    Math.max(
+      Math.abs(deltas.homeWin ?? 0),
+      Math.abs(deltas.draw ?? 0),
+      Math.abs(deltas.awayWin ?? 0),
+      Math.abs(deltas.expectedHomeGoals ?? 0),
+      Math.abs(deltas.expectedAwayGoals ?? 0),
+    ) <= TASK2_2_PARITY_TOLERANCE;
+  return {
+    fixtureId: args.fixtureId,
+    storedPredictionVersionId: args.storedRow?.id ?? null,
+    originalStoredV1: stored,
+    replayedProductionV1: args.replay.prediction,
+    deltas,
+    parityStatus: exact ? "exact_match" : "runtime_drift",
+    mismatchReason: exact ? null : stored == null ? "missing_stored_public_v1" : "snapshot_or_runtime_input_drift",
+  } satisfies ProductionV1ParityAuditEntry;
+}
+
+export function deriveGateEvidence(features: MatchFeatureVector): GateEvidence {
+  const activatedGates: string[] = [];
+  const evidence: string[] = [];
+  const minRecentSample = Math.min(features.home.reliability.sampleSize, features.away.reliability.sampleSize);
+  const minTournamentMatches = Math.min(
+    features.home.currentWorldCupForm.matchesPlayed,
+    features.away.currentWorldCupForm.matchesPlayed,
+  );
+  const contradictionCount =
+    features.home.reliability.contradictionFlags.length + features.away.reliability.contradictionFlags.length;
+  const sampleScale = clamp(minRecentSample / 6, 0, 1);
+  const sourceScale = clamp(
+    (
+      features.home.reliability.sourceCoverage +
+      features.away.reliability.sourceCoverage +
+      features.home.reliability.datePrecision +
+      features.away.reliability.datePrecision
+    ) / 4,
+    0.2,
+    1,
+  );
+  const contradictionPenalty = clamp(1 - contradictionCount * 0.12, 0.55, 1);
+  const reliabilityScale = round(clamp(features.derived.reliabilityAverage * sampleScale * sourceScale * contradictionPenalty, 0, 1), 6);
+
+  let structuralDisagreement = 0;
+  const disagreementGap =
+    (features.home.structuralStrength.fifaEloDisagreement ?? 0) -
+    (features.away.structuralStrength.fifaEloDisagreement ?? 0);
+  if (Math.abs(disagreementGap) >= 0.08 && Math.abs(features.derived.structuralGap) >= 0.08) {
+    structuralDisagreement = disagreementGap * 0.18;
+    activatedGates.push("structural_vs_current_disagreement");
+    evidence.push("elo_fifa_anchor_with_recent_correction");
+  }
+
+  let repeatedPerformance = 0;
+  if (minRecentSample >= 5 && Math.abs(features.derived.expectationGap) >= 0.06) {
+    repeatedPerformance = features.derived.expectationGap * 0.22;
+    activatedGates.push("repeated_over_or_underperformance");
+    evidence.push("multi_match_opponent_adjusted_performance");
+  }
+
+  let tournamentForm = 0;
+  if (minTournamentMatches >= 1 && Math.abs(features.derived.tournamentGap) >= 0.05) {
+    const shrink = minTournamentMatches === 1 ? 0.18 : clamp(minTournamentMatches / 3, 0.45, 1);
+    tournamentForm = features.derived.tournamentGap * 0.18 * shrink;
+    if (Math.abs(tournamentForm) > 0.002) {
+      activatedGates.push("current_tournament_form");
+      evidence.push(minTournamentMatches === 1 ? "one_match_tournament_shrink_applied" : "multi_match_tournament_evidence");
+    }
+  }
+
+  let scoringDeterioration = 0;
+  const homeScoringRisk =
+    (features.home.recentForm.failedToScoreRate ?? 0) -
+    (features.home.recentForm.scoringMatchRate ?? 0) * 0.35 -
+    (features.home.opponentAdjustment.performanceVsEloExpectation ?? 0) * 0.25;
+  const awayScoringRisk =
+    (features.away.recentForm.failedToScoreRate ?? 0) -
+    (features.away.recentForm.scoringMatchRate ?? 0) * 0.35 -
+    (features.away.opponentAdjustment.performanceVsEloExpectation ?? 0) * 0.25;
+  if (Math.max(homeScoringRisk, awayScoringRisk) >= 0.18) {
+    scoringDeterioration = clamp(awayScoringRisk - homeScoringRisk, -0.08, 0.08);
+    activatedGates.push("scoring_conversion_deterioration");
+    evidence.push("consecutive_failed_to_score_style_signal");
+  }
+
+  let defensiveOverperformance = 0;
+  const homeDefenseEdge =
+    (features.home.recentForm.cleanSheetRate ?? 0) +
+    Math.max(0, features.home.opponentAdjustment.performanceVsEloExpectation ?? 0) * 0.2;
+  const awayDefenseEdge =
+    (features.away.recentForm.cleanSheetRate ?? 0) +
+    Math.max(0, features.away.opponentAdjustment.performanceVsEloExpectation ?? 0) * 0.2;
+  if (Math.max(homeDefenseEdge, awayDefenseEdge) >= 0.45) {
+    defensiveOverperformance = clamp(homeDefenseEdge - awayDefenseEdge, -0.08, 0.08);
+    activatedGates.push("defensive_overperformance");
+    evidence.push("repeated_clean_sheet_or_suppressed_concession_signal");
+  }
+
+  const venueContext =
+    features.derived.venueContext.appliesTo === "home"
+      ? 0.03
+      : features.derived.venueContext.appliesTo === "away"
+        ? -0.03
+        : 0;
+
+  const rawDiffProposal = round(
+    (structuralDisagreement + repeatedPerformance + tournamentForm + defensiveOverperformance + venueContext) *
+      reliabilityScale,
+    6,
+  );
+  const rawTotalProposal = round(
+    ((Math.abs(repeatedPerformance) * 0.2 + tournamentForm * 0.1) - Math.abs(scoringDeterioration) * 0.65 - Math.abs(defensiveOverperformance) * 0.4) *
+      reliabilityScale,
+    6,
+  );
+
+  return {
+    activatedGates,
+    evidence,
+    rawDiffProposal,
+    rawTotalProposal,
+    reliabilityScale,
+    contradictionPenalty: round(contradictionPenalty, 6),
+    components: {
+      structuralDisagreement: round(structuralDisagreement, 6),
+      repeatedPerformance: round(repeatedPerformance, 6),
+      tournamentForm: round(tournamentForm, 6),
+      scoringDeterioration: round(scoringDeterioration, 6),
+      defensiveOverperformance: round(defensiveOverperformance, 6),
+      venueContext: round(venueContext, 6),
+    },
+  };
+}
+
+function fitResidualScale(proposals: number[], targets: number[], regularization: number) {
+  const numerator = proposals.reduce((total, proposal, index) => total + proposal * (targets[index] ?? 0), 0);
+  const denominator = proposals.reduce((total, proposal) => total + proposal * proposal, 0) + regularization;
+  if (denominator <= 0 || Math.abs(numerator) <= 1e-9) {
+    return 0;
+  }
+  return numerator / denominator;
+}
+
+function fitResidualModel(args: {
+  candidate: Task2_2CandidateConfig;
+  rows: HistoricalEvaluationRow[];
+  baselineByFixtureId: Map<string, ProductionV1Replay>;
+}) {
+  const diffProposals: number[] = [];
+  const totalProposals: number[] = [];
+  const diffTargets: number[] = [];
+  const totalTargets: number[] = [];
+  for (const row of args.rows) {
+    const baseline = args.baselineByFixtureId.get(row.fixtureId);
+    if (!baseline) {
+      continue;
+    }
+    const gateEvidence = deriveGateEvidence(row.features);
+    diffProposals.push(gateEvidence.rawDiffProposal);
+    totalProposals.push(gateEvidence.rawTotalProposal);
+    diffTargets.push((row.actual.homeGoals - row.actual.awayGoals) - baseline.expectedGoals.difference);
+    totalTargets.push((row.actual.homeGoals + row.actual.awayGoals) - baseline.expectedGoals.total);
+  }
+  const regularization = args.candidate.key.endsWith("conservative") ? 18 : 14;
+  const multiplier = args.candidate.key.endsWith("conservative") ? 0.82 : 1;
+  return {
+    diffScale: round(fitResidualScale(diffProposals, diffTargets, regularization) * multiplier, 6),
+    totalScale: round(fitResidualScale(totalProposals, totalTargets, regularization) * multiplier, 6),
+    trainingRows: args.rows.length,
+    regularization,
+  } satisfies ResidualFit;
+}
+
+function buildGatedPrediction(args: {
+  candidate: Task2_2CandidateConfig;
+  features: MatchFeatureVector;
+  baselineReplay: ProductionV1Replay;
+  residualFit: ResidualFit | null;
+}) {
+  if (args.candidate.key === TASK2_2_BASELINE_CANDIDATE.key) {
+    return {
+      prediction: args.baselineReplay.challenger,
+      gateEvidence: {
+        activatedGates: [],
+        evidence: [],
+        rawDiffProposal: 0,
+        rawTotalProposal: 0,
+        reliabilityScale: 1,
+        contradictionPenalty: 1,
+        components: {
+          structuralDisagreement: 0,
+          repeatedPerformance: 0,
+          tournamentForm: 0,
+          scoringDeterioration: 0,
+          defensiveOverperformance: 0,
+          venueContext: 0,
+        },
+      } satisfies GateEvidence,
+    };
+  }
+  const gateEvidence = deriveGateEvidence(args.features);
+  const residualFit = args.residualFit ?? {
+    diffScale: 0,
+    totalScale: 0,
+    trainingRows: 0,
+    regularization: 0,
+  };
+  const diffCap = args.candidate.boundedCaps?.expectedGoalDifferenceDelta ?? 0.24;
+  const totalCap = args.candidate.boundedCaps?.expectedTotalGoalsDelta ?? 0.32;
+  let diffDelta = gateEvidence.rawDiffProposal * residualFit.diffScale;
+  let totalDelta = gateEvidence.rawTotalProposal * residualFit.totalScale;
+  const capsApplied: string[] = [];
+  if (Math.abs(diffDelta) > diffCap) {
+    diffDelta = Math.sign(diffDelta) * diffCap;
+    capsApplied.push("expected_goal_difference_delta_cap");
+  }
+  if (Math.abs(totalDelta) > totalCap) {
+    totalDelta = Math.sign(totalDelta) * totalCap;
+    capsApplied.push("expected_total_goals_delta_cap");
+  }
+  const makePrediction = (scale: number) => {
+    const total = clamp(args.baselineReplay.expectedGoals.total + totalDelta * scale, 1.45, 4.25);
+    const difference = clamp(args.baselineReplay.expectedGoals.difference + diffDelta * scale, -2.2, 2.2);
+    const home = clamp((total + difference) / 2, 0.2, 3.8);
+    const away = clamp((total - difference) / 2, 0.2, 3.8);
+    return buildPredictionFromExpectedGoals({
+      candidate: args.candidate,
+      features: args.features,
+      expectedGoals: {
+        home: round(home, 4),
+        away: round(away, 4),
+        total: round(home + away, 4),
+        difference: round(home - away, 4),
+      },
+      internalAudit: {
+        v1ExpectedGoalDifference: args.baselineReplay.expectedGoals.difference,
+        v1ExpectedTotalGoals: args.baselineReplay.expectedGoals.total,
+        signalAdjustments: {
+          structuralDisagreement: round(gateEvidence.components.structuralDisagreement * residualFit.diffScale * scale, 6),
+          recentForm: round(gateEvidence.components.repeatedPerformance * residualFit.diffScale * scale, 6),
+          attack: round(gateEvidence.components.scoringDeterioration * residualFit.totalScale * scale, 6),
+          defense: round(gateEvidence.components.defensiveOverperformance * residualFit.diffScale * scale, 6),
+          opponentAdjustment: round(gateEvidence.components.repeatedPerformance * residualFit.totalScale * scale, 6),
+          tournamentForm: round(gateEvidence.components.tournamentForm * residualFit.diffScale * scale, 6),
+          venueContext: round(gateEvidence.components.venueContext * residualFit.diffScale * scale, 6),
+          reliabilityShrinkage: round((gateEvidence.reliabilityScale - 1) * (Math.abs(diffDelta) + Math.abs(totalDelta)) * scale, 6),
+        },
+        finalExpectedGoalDifference: round(home - away, 4),
+        finalExpectedTotalGoals: round(home + away, 4),
+        capsApplied,
+      },
+    });
+  };
+  const probabilityCap = args.candidate.boundedCaps?.oneXTwoDelta ?? 0.08;
+  let appliedScale = 1;
+  let prediction = makePrediction(appliedScale);
+  const maxDelta = () =>
+    Math.max(
+      Math.abs(prediction.probabilities.oneXTwo.homeWin - args.baselineReplay.prediction.homeWin),
+      Math.abs(prediction.probabilities.oneXTwo.draw - args.baselineReplay.prediction.draw),
+      Math.abs(prediction.probabilities.oneXTwo.awayWin - args.baselineReplay.prediction.awayWin),
+    );
+  if (maxDelta() > probabilityCap + 1e-9) {
+    let low = 0;
+    let high = 1;
+    for (let iteration = 0; iteration < 16; iteration += 1) {
+      const mid = (low + high) / 2;
+      const candidatePrediction = makePrediction(mid);
+      const candidateDelta = Math.max(
+        Math.abs(candidatePrediction.probabilities.oneXTwo.homeWin - args.baselineReplay.prediction.homeWin),
+        Math.abs(candidatePrediction.probabilities.oneXTwo.draw - args.baselineReplay.prediction.draw),
+        Math.abs(candidatePrediction.probabilities.oneXTwo.awayWin - args.baselineReplay.prediction.awayWin),
+      );
+      if (candidateDelta <= probabilityCap + 1e-9) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    appliedScale = low;
+    prediction = makePrediction(appliedScale);
+    capsApplied.push("one_x_two_delta_cap");
+    if (prediction.internalAudit) {
+      prediction.internalAudit.capsApplied = [...capsApplied];
+    }
+  }
+  return { prediction, gateEvidence };
+}
+
+export function buildBlockedTimeSeriesFoldManifest(rows: HistoricalEvaluationRow[]) {
+  const sorted = [...rows].sort((left, right) =>
+    left.cutoffAt === right.cutoffAt ? left.fixtureId.localeCompare(right.fixtureId) : left.cutoffAt.localeCompare(right.cutoffAt),
+  );
+  const count = sorted.length;
+  const windows = [
+    { key: "fold_1", trainEnd: 0.55, validateEnd: 0.7 },
+    { key: "fold_2", trainEnd: 0.7, validateEnd: 0.85 },
+    { key: "fold_3", trainEnd: 0.85, validateEnd: 1 },
+  ];
+  return windows
+    .map((window) => {
+      const trainingCount = Math.max(1, Math.floor(count * window.trainEnd));
+      const validationEnd = Math.max(trainingCount + 1, Math.floor(count * window.validateEnd));
+      const validationRows = sorted.slice(trainingCount, validationEnd);
+      if (validationRows.length === 0) {
+        return null;
+      }
+      return {
+        key: window.key,
+        trainingCount,
+        validationCount: validationRows.length,
+        trainingCutoffEnd: sorted[trainingCount - 1]!.cutoffAt,
+        validationCutoffStart: validationRows[0]!.cutoffAt,
+        validationCutoffEnd: validationRows.at(-1)!.cutoffAt,
+      } satisfies BlockedFoldManifestEntry;
+    })
+    .filter((entry): entry is BlockedFoldManifestEntry => entry != null);
+}
+
+function replayHistoricalProductionV1(args: {
+  row: HistoricalEvaluationRow;
+}) {
+  return buildProductionV1Replay({
+    fixtureId: args.row.fixtureId,
+    homeTeamId: args.row.homeTeamKey,
+    awayTeamId: args.row.awayTeamKey,
+    homeName: args.row.features.home.displayNameEn,
+    awayName: args.row.features.away.displayNameEn,
+    candidate: TASK2_2_BASELINE_CANDIDATE,
+    features: args.row.features,
+  });
+}
+
+function buildHistoricalBaselineMap(rows: HistoricalEvaluationRow[]) {
+  return new Map(rows.map((row) => [row.fixtureId, replayHistoricalProductionV1({ row })]));
+}
+
+function averageMetricSummaries(metrics: ReplayMetricSummary[]) {
+  return {
+    fixtureCount: metrics.reduce((total, entry) => total + entry.fixtureCount, 0),
+    oneXTwo: {
+      multiclassBrier: average(metrics.map((entry) => entry.oneXTwo.multiclassBrier ?? 0), 6),
+      logLoss: average(metrics.map((entry) => entry.oneXTwo.logLoss ?? 0), 6),
+      outcomeAccuracy: average(metrics.map((entry) => entry.oneXTwo.outcomeAccuracy ?? 0), 6),
+      favoriteAccuracy: average(metrics.map((entry) => entry.oneXTwo.favoriteAccuracy ?? 0), 6),
+      calibrationByBucket: [],
+    },
+    goalsAndMarkets: {
+      totalGoalsMae: average(metrics.map((entry) => entry.goalsAndMarkets.totalGoalsMae ?? 0), 6),
+      goalDifferenceMae: average(metrics.map((entry) => entry.goalsAndMarkets.goalDifferenceMae ?? 0), 6),
+      bttsBrier: average(metrics.map((entry) => entry.goalsAndMarkets.bttsBrier ?? 0), 6),
+      bttsAccuracy: average(metrics.map((entry) => entry.goalsAndMarkets.bttsAccuracy ?? 0), 6),
+      over25Brier: average(metrics.map((entry) => entry.goalsAndMarkets.over25Brier ?? 0), 6),
+      over25Accuracy: average(metrics.map((entry) => entry.goalsAndMarkets.over25Accuracy ?? 0), 6),
+    },
+    scoreDistribution: {
+      exactScoreTop1Coverage: average(metrics.map((entry) => entry.scoreDistribution.exactScoreTop1Coverage ?? 0), 6),
+      exactScoreTop3Coverage: average(metrics.map((entry) => entry.scoreDistribution.exactScoreTop3Coverage ?? 0), 6),
+      exactScoreTop5Coverage: average(metrics.map((entry) => entry.scoreDistribution.exactScoreTop5Coverage ?? 0), 6),
+      actualScoreProbability: average(metrics.map((entry) => entry.scoreDistribution.actualScoreProbability ?? 0), 6),
+      scoreMatrixTailMass: average(metrics.map((entry) => entry.scoreDistribution.scoreMatrixTailMass ?? 0), 6),
+    },
+  } satisfies ReplayMetricSummary;
+}
+
+function range(values: Array<number | null>) {
+  const usable = values.filter((value): value is number => value != null);
+  return usable.length === 0 ? null : round(Math.max(...usable) - Math.min(...usable), 6);
+}
+
+function evaluateBlockedFolds(args: {
+  candidates: Task2_2CandidateConfig[];
+  rows: HistoricalEvaluationRow[];
+}) {
+  const foldManifest = buildBlockedTimeSeriesFoldManifest(args.rows);
+  const baselineByFixtureId = buildHistoricalBaselineMap(args.rows);
+  const sortedRows = [...args.rows].sort((left, right) =>
+    left.cutoffAt === right.cutoffAt ? left.fixtureId.localeCompare(right.fixtureId) : left.cutoffAt.localeCompare(right.cutoffAt),
+  );
+  const results = args.candidates.map((candidate) => {
+    const foldResults = foldManifest.map((fold) => {
+      const trainingRows = sortedRows.slice(0, fold.trainingCount);
+      const validationRows = sortedRows.slice(fold.trainingCount, fold.trainingCount + fold.validationCount);
+      const residualFit =
+        candidate.candidateClass === "production_eligible"
+          ? fitResidualModel({
+              candidate,
+              rows: trainingRows,
+              baselineByFixtureId,
+            })
+          : null;
+      const metrics = computeReplayMetrics(
+        validationRows.map((row) => {
+          const baselineReplay = baselineByFixtureId.get(row.fixtureId)!;
+          const prediction =
+            candidate.candidateClass === "production_eligible"
+              ? buildGatedPrediction({
+                  candidate,
+                  features: row.features,
+                  baselineReplay,
+                  residualFit,
+                }).prediction
+              : buildChallengerPrediction({
+                  candidate,
+                  features: row.features,
+                });
+          return {
+            prediction:
+              candidate.key === TASK2_2_BASELINE_CANDIDATE.key
+                ? baselineReplay.prediction
+                : parseChallengerPrediction(prediction),
+            actual: row.actual,
+          };
+        }),
+      );
+      return {
+        foldKey: fold.key,
+        trainingCount: trainingRows.length,
+        validationCount: validationRows.length,
+        residualFit,
+        metrics,
+      };
+    });
+    return {
+      candidateKey: candidate.key,
+      candidateClass: candidate.candidateClass,
+      foldResults,
+      aggregateMetrics: averageMetricSummaries(foldResults.map((entry) => entry.metrics)),
+      stability: {
+        multiclassBrierRange: range(foldResults.map((entry) => entry.metrics.oneXTwo.multiclassBrier)),
+        logLossRange: range(foldResults.map((entry) => entry.metrics.oneXTwo.logLoss)),
+      },
+    } satisfies BlockedFoldCandidateResult;
+  });
+  return {
+    foldManifest,
+    results,
+  };
+}
+
+export function selectProductionEligibleCandidate(results: BlockedFoldCandidateResult[]) {
+  const productionOnly = results.filter((result) => result.candidateClass === "production_eligible");
+  const tolerance = {
+    brier: 0.00015,
+    logLoss: 0.0005,
+  };
+  return [...productionOnly].sort((left, right) => {
+    const leftMetrics = left.aggregateMetrics;
+    const rightMetrics = right.aggregateMetrics;
+    const brierDelta =
+      (leftMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) -
+      (rightMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY);
+    const logLossDelta =
+      (leftMetrics.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY) -
+      (rightMetrics.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY);
+    if (
+      Math.abs(brierDelta) <= tolerance.brier &&
+      Math.abs(logLossDelta) <= tolerance.logLoss &&
+      left.candidateKey.includes("conservative") !== right.candidateKey.includes("conservative")
+    ) {
+      return left.candidateKey.includes("conservative") ? -1 : 1;
+    }
+    const comparisons = [
+      brierDelta,
+      logLossDelta,
+      (left.stability.multiclassBrierRange ?? Number.POSITIVE_INFINITY) - (right.stability.multiclassBrierRange ?? Number.POSITIVE_INFINITY),
+      (leftMetrics.goalsAndMarkets.goalDifferenceMae ?? Number.POSITIVE_INFINITY) - (rightMetrics.goalsAndMarkets.goalDifferenceMae ?? Number.POSITIVE_INFINITY),
+      (leftMetrics.goalsAndMarkets.totalGoalsMae ?? Number.POSITIVE_INFINITY) - (rightMetrics.goalsAndMarkets.totalGoalsMae ?? Number.POSITIVE_INFINITY),
+      left.candidateKey.localeCompare(right.candidateKey),
+    ];
+    return comparisons.find((value) => value !== 0) ?? 0;
+  })[0]!;
+}
+
+function buildReleaseRecommendation(args: {
+  selectedCandidate: BlockedFoldCandidateResult;
+  holdoutV1: ReplayMetricSummary;
+  holdoutSelected: ReplayMetricSummary;
+  anomalyRows: Array<{ explainedOrAnomalous: "explained" | "anomalous" }>;
+  scenarioComparison: {
+    exactV1: ReturnType<typeof evaluateScenarioRows>;
+    gatedV2: ReturnType<typeof evaluateScenarioRows>;
+  };
+}) {
+  const reasons: string[] = [];
+  const selectedBeatsV1 =
+    (args.holdoutSelected.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) <=
+      (args.holdoutV1.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) + 0.002 &&
+    (args.holdoutSelected.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY) <=
+      (args.holdoutV1.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY) + 0.005;
+  if (selectedBeatsV1) {
+    reasons.push("holdout_probability_metrics_non_inferior_to_v1");
+  }
+  const anomalies = args.anomalyRows.filter((row) => row.explainedOrAnomalous === "anomalous").length;
+  if (anomalies === 0) {
+    reasons.push("future_shadow_anomalies_within_selected_caps");
+  }
+  const probabilityEngineVerdict =
+    selectedBeatsV1 && anomalies === 0 && args.selectedCandidate.candidateKey !== TASK2_2_BASELINE_CANDIDATE.key
+      ? "promote_gated_v2"
+      : "retain_v1";
+  const gatedCoverage = args.scenarioComparison.gatedV2.correctOneXTwoFamily ?? 0;
+  const baselineCoverage = args.scenarioComparison.exactV1.correctOneXTwoFamily ?? 0;
+  const analysisLayerVerdict =
+    gatedCoverage + 0.01 >= baselineCoverage ? "promote_v2_analysis" : "do_not_promote_analysis";
+  if (analysisLayerVerdict === "promote_v2_analysis") {
+    reasons.push("scenario_layer_adds_information_without_leakage_flags");
+  }
+  return {
+    probabilityEngineVerdict,
+    analysisLayerVerdict,
+    reasons,
+  } satisfies ReleaseRecommendation;
+}
+
+function buildScenarioComparison(args: {
+  exactV1Rows: Array<{ row: ReplayFixtureRecord; prediction: ChallengerPrediction; features: MatchFeatureVector }>;
+  gatedRows: Array<{ row: ReplayFixtureRecord; prediction: ChallengerPrediction; features: MatchFeatureVector }>;
+}) {
+  return {
+    exactV1: evaluateScenarioRows(
+      args.exactV1Rows.map((entry) => ({
+        actual: entry.row.actual,
+        prediction: entry.prediction,
+        favoriteSide: entry.features.derived.favoriteSide,
+      })),
+    ),
+    gatedV2: evaluateScenarioRows(
+      args.gatedRows.map((entry) => ({
+        actual: entry.row.actual,
+        prediction: entry.prediction,
+        favoriteSide: entry.features.derived.favoriteSide,
+      })),
+    ),
+  };
+}
+
+export async function runTask2_2(paths: Task2Paths) {
+  assertTask2LocalOnlyPreflight(paths);
+
+  const datasets = loadTask1Datasets(paths);
+  const task11Reference = loadHistoricalTask11Reference(paths.historicalReferenceDir);
+  const task2Reference = loadHistoricalTask2Reference(paths.historicalTask2ReferenceDir);
+  const productInventory = buildHistoricalProductReplayInventory(
+    task11Reference.replayCoverageManifest,
+    task11Reference.refreshPlan,
+    datasets.schedule,
+  );
+  const refreshPlan = task11Reference.refreshPlan;
+  const scheduleLinks = buildScheduleLinksFromClassification(task11Reference.classification);
+  const historicalReplayPredictions = buildHistoricalReplayPredictionIndex(task2Reference);
+  const historicalFuturePredictions = buildHistoricalFuturePredictionIndex(task2Reference);
+  const coverage = buildTask1_2Coverage({
+    productInventory,
+    refreshPlan,
+    scheduleRows: datasets.schedule,
+    scheduleLinks,
+    aliases: datasets.aliases,
+    localizations: datasets.localizations,
+    historicalFacts: datasets.historicalFacts,
+    eloCurrent: datasets.eloCurrent,
+    eloStart2026: datasets.eloStart2026,
+    fifaRanking: datasets.fifaRanking,
+  });
+  const readyManifest = coverage.manifest.filter((entry) => entry.replay_readiness === "ready");
+  const holdoutRows = buildReplayFixtureRecords({
+    manifest: readyManifest,
+    productInventory,
+    aliases: datasets.aliases,
+    localizations: datasets.localizations,
+    historicalFacts: datasets.historicalFacts,
+    eloCurrent: datasets.eloCurrent,
+    eloStart2026: datasets.eloStart2026,
+    fifaRanking: datasets.fifaRanking,
+    scheduleRows: datasets.schedule,
+    historicalReplayPredictions,
+    refreshResults: [
+      ...refreshPlan.already_known_results,
+      ...refreshPlan.newly_discovered_results,
+      ...refreshPlan.score_or_status_corrections,
+      ...refreshPlan.unresolved_finished_fixtures,
+    ],
+  });
+  const expandedManifest = buildExpandedCalibrationManifest({
+    historicalFacts: datasets.historicalFacts,
+    holdoutRows,
+    scheduleRows: datasets.schedule,
+    localizations: datasets.localizations,
+  });
+  const trainingRows = materializeHistoricalRows({
+    rows: expandedManifest.splitManifest.training.rows,
+    datasets,
+  });
+  const validationRows = materializeHistoricalRows({
+    rows: expandedManifest.splitManifest.validation.rows,
+    datasets,
+  });
+  const preWorldCupRows = [...trainingRows, ...validationRows];
+  const blockedValidation = evaluateBlockedFolds({
+    candidates: TASK2_2_CANDIDATES,
+    rows: preWorldCupRows,
+  });
+  const selectedCandidate = selectProductionEligibleCandidate(blockedValidation.results);
+  const baselineByHistoricalFixtureId = buildHistoricalBaselineMap(preWorldCupRows);
+  const selectedResidualFit = fitResidualModel({
+    candidate: TASK2_2_PRODUCTION_CANDIDATES.find((candidate) => candidate.key === selectedCandidate.candidateKey)!,
+    rows: preWorldCupRows,
+    baselineByFixtureId: baselineByHistoricalFixtureId,
+  });
+
+  const holdoutParityAudit = holdoutRows.map((row) => {
+    const replay = buildProductionV1Replay({
+      fixtureId: row.fixtureId,
+      homeTeamId: row.homeTeamKey,
+      awayTeamId: row.awayTeamKey,
+      homeName: row.homeNameEn,
+      awayName: row.awayNameEn,
+      candidate: TASK2_2_BASELINE_CANDIDATE,
+      features: buildMatchFeatureVector({
+        fixtureId: row.fixtureId,
+        cutoffAt: row.kickoffAt,
+        homeTeamKey: row.homeTeamKey,
+        awayTeamKey: row.awayTeamKey,
+        officialMatchNumber: row.officialMatchNumber,
+        homeSignal: row.homeSignal,
+        awaySignal: row.awaySignal,
+        historicalFacts: datasets.historicalFacts,
+        localizations: datasets.localizations,
+        eloCurrent: datasets.eloCurrent,
+        eloStart2026: datasets.eloStart2026,
+        fifaRanking: datasets.fifaRanking,
+        scheduleRows: datasets.schedule,
+      }),
+    });
+    return buildProductionV1ParityAudit({
+      fixtureId: row.fixtureId,
+      storedRow: row.originalPrediction,
+      storedMarkets: row.originalMarkets,
+      replay,
+    });
+  });
+
+  const holdoutByCandidate = Object.fromEntries(
+    TASK2_2_CANDIDATES.map((candidate) => {
+      const predictions = holdoutRows.map((row) => {
+        const features = buildMatchFeatureVector({
+          fixtureId: row.fixtureId,
+          cutoffAt: row.kickoffAt,
+          homeTeamKey: row.homeTeamKey,
+          awayTeamKey: row.awayTeamKey,
+          officialMatchNumber: row.officialMatchNumber,
+          homeSignal: row.homeSignal,
+          awaySignal: row.awaySignal,
+          historicalFacts: datasets.historicalFacts,
+          localizations: datasets.localizations,
+          eloCurrent: datasets.eloCurrent,
+          eloStart2026: datasets.eloStart2026,
+          fifaRanking: datasets.fifaRanking,
+          scheduleRows: datasets.schedule,
+        });
+        const baselineReplay = buildProductionV1Replay({
+          fixtureId: row.fixtureId,
+          homeTeamId: row.homeTeamKey,
+          awayTeamId: row.awayTeamKey,
+          homeName: row.homeNameEn,
+          awayName: row.awayNameEn,
+          candidate: TASK2_2_BASELINE_CANDIDATE,
+          features,
+        });
+        const built =
+          candidate.candidateClass === "production_eligible"
+            ? buildGatedPrediction({
+                candidate,
+                features,
+                baselineReplay,
+                residualFit: candidate.key === TASK2_2_BASELINE_CANDIDATE.key ? null : selectedResidualFit,
+              })
+            : {
+                prediction: buildChallengerPrediction({ candidate, features }),
+                gateEvidence: {
+                  activatedGates: [],
+                  evidence: [],
+                  rawDiffProposal: 0,
+                  rawTotalProposal: 0,
+                  reliabilityScale: 1,
+                  contradictionPenalty: 1,
+                  components: {
+                    structuralDisagreement: 0,
+                    repeatedPerformance: 0,
+                    tournamentForm: 0,
+                    scoringDeterioration: 0,
+                    defensiveOverperformance: 0,
+                    venueContext: 0,
+                  },
+                } satisfies GateEvidence,
+              };
+        return {
+          row,
+          features,
+          baselineReplay,
+          prediction: built.prediction,
+          gateEvidence: built.gateEvidence,
+        };
+      });
+      const metrics = computeReplayMetrics(
+        predictions.map((entry) => ({
+          prediction:
+            candidate.key === TASK2_2_BASELINE_CANDIDATE.key
+              ? entry.baselineReplay.prediction
+              : parseChallengerPrediction(entry.prediction),
+          actual: entry.row.actual,
+        })),
+      );
+      return [candidate.key, { predictions, metrics }] as const;
+    }),
+  );
+
+  const futureRows = buildFutureFixtureRecords({
+    historicalFutureFixtures: task2Reference.futureShadowFixtures,
+    aliases: datasets.aliases,
+    localizations: datasets.localizations,
+    venues: datasets.venues,
+    historicalFacts: datasets.historicalFacts,
+    eloCurrent: datasets.eloCurrent,
+    eloStart2026: datasets.eloStart2026,
+    fifaRanking: datasets.fifaRanking,
+    scheduleRows: datasets.schedule,
+    generationCutoff: paths.generationCutoff,
+    latestPredictionRows: historicalFuturePredictions,
+  });
+
+  const gateActivationAudit: GateActivationAuditEntry[] = [];
+  const futureShadowPredictions = futureRows.map((row) => {
+    const features = buildMatchFeatureVector({
+      fixtureId: row.productMatchId,
+      cutoffAt: paths.generationCutoff,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      officialMatchNumber: row.officialMatchNumber,
+      homeSignal: row.homeSignal,
+      awaySignal: row.awaySignal,
+      historicalFacts: datasets.historicalFacts,
+      localizations: datasets.localizations,
+      eloCurrent: datasets.eloCurrent,
+      eloStart2026: datasets.eloStart2026,
+      fifaRanking: datasets.fifaRanking,
+      scheduleRows: datasets.schedule,
+    });
+    const baselineReplay = buildProductionV1Replay({
+      fixtureId: row.productMatchId,
+      homeTeamId: row.homeTeamKey,
+      awayTeamId: row.awayTeamKey,
+      homeName: row.homeNameEn,
+      awayName: row.awayNameEn,
+      candidate: TASK2_2_BASELINE_CANDIDATE,
+      features,
+    });
+    const selectedProductionCandidate = TASK2_2_PRODUCTION_CANDIDATES.find(
+      (candidate) => candidate.key === selectedCandidate.candidateKey,
+    )!;
+    const gated = buildGatedPrediction({
+      candidate: selectedProductionCandidate,
+      features,
+      baselineReplay,
+      residualFit: selectedResidualFit,
+    });
+    const probabilityDeltas = {
+      homeWin: round(gated.prediction.probabilities.oneXTwo.homeWin - baselineReplay.prediction.homeWin, 6),
+      draw: round(gated.prediction.probabilities.oneXTwo.draw - baselineReplay.prediction.draw, 6),
+      awayWin: round(gated.prediction.probabilities.oneXTwo.awayWin - baselineReplay.prediction.awayWin, 6),
+    };
+    gateActivationAudit.push({
+      fixtureId: row.productMatchId,
+      candidateKey: selectedProductionCandidate.key,
+      activatedGates: gated.gateEvidence.activatedGates,
+      evidence: gated.gateEvidence.evidence,
+      rawDiffProposal: gated.gateEvidence.rawDiffProposal,
+      rawTotalProposal: gated.gateEvidence.rawTotalProposal,
+      reliabilityScale: gated.gateEvidence.reliabilityScale,
+      contradictionPenalty: gated.gateEvidence.contradictionPenalty,
+      capsApplied: gated.prediction.internalAudit?.capsApplied ?? [],
+      probabilityDeltasFromExactV1: probabilityDeltas,
+    });
+    return {
+      ...row,
+      features,
+      exactV1: baselineReplay,
+      gatedV2: gated.prediction,
+      probabilityDeltas,
+      xgDeltas: {
+        home: round(gated.prediction.expectedGoals.home - baselineReplay.expectedGoals.home, 6),
+        away: round(gated.prediction.expectedGoals.away - baselineReplay.expectedGoals.away, 6),
+      },
+      coherenceWarnings: buildCoherenceWarnings(gated.prediction),
+    };
+  });
+
+  const selectedHoldout = holdoutByCandidate[selectedCandidate.candidateKey]!;
+  const holdoutV1Metrics = computeReplayMetrics(
+    holdoutByCandidate[TASK2_2_BASELINE_CANDIDATE.key]!.predictions.map((entry) => ({
+      prediction: entry.baselineReplay.prediction,
+      actual: entry.row.actual,
+    })),
+  );
+  const scenarioComparison = buildScenarioComparison({
+    exactV1Rows: holdoutByCandidate[TASK2_2_BASELINE_CANDIDATE.key]!.predictions.map((entry) => ({
+      row: entry.row,
+      prediction: entry.baselineReplay.challenger,
+      features: entry.features,
+    })),
+    gatedRows: selectedHoldout.predictions.map((entry) => ({
+      row: entry.row,
+      prediction: entry.prediction,
+      features: entry.features,
+    })),
+  });
+  const sixAnomalyCaseReview = buildFutureAnomalyReview(
+    futureShadowPredictions.map((row) => ({
+      fixture: `${row.homeNameEn} vs ${row.awayNameEn}`,
+      v1: row.exactV1.prediction,
+      prediction: row.gatedV2,
+      venueContext: row.features.derived.venueContext,
+      coherenceWarnings: row.coherenceWarnings,
+    })),
+  ).map((row) => {
+    const futureRow = futureShadowPredictions.find((entry) => `${entry.homeNameEn} vs ${entry.awayNameEn}` === row.fixture)!;
+    return {
+      fixture: row.fixture,
+      exactV1: futureRow.exactV1.prediction,
+      gatedV2: futureRow.gatedV2.probabilities.oneXTwo,
+      probabilityDeltas: row.deltas,
+      xgDeltas: futureRow.xgDeltas,
+      activatedGates: gateActivationAudit.find((entry) => entry.fixtureId === futureRow.productMatchId)?.activatedGates ?? [],
+      evidence: gateActivationAudit.find((entry) => entry.fixtureId === futureRow.productMatchId)?.evidence ?? [],
+      capsApplied: row.capsApplied,
+      explainedOrAnomalous: (row.flaggedUnexplainedShift ? "anomalous" : "explained") as "explained" | "anomalous",
+    };
+  });
+  const releaseRecommendation = buildReleaseRecommendation({
+    selectedCandidate,
+    holdoutV1: holdoutV1Metrics,
+    holdoutSelected: selectedHoldout.metrics,
+    anomalyRows: sixAnomalyCaseReview,
+    scenarioComparison,
+  });
+
+  const productionCandidateSelection = {
+    candidateEligibility: Object.fromEntries(
+      TASK2_2_CANDIDATES.map((candidate) => [candidate.key, candidate.candidateClass]),
+    ),
+    blockedValidationWinner: selectedCandidate.candidateKey,
+    rankedProductionEligibleCandidates: blockedValidation.results
+      .filter((entry) => entry.candidateClass === "production_eligible")
+      .sort((left, right) =>
+        (left.aggregateMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) -
+        (right.aggregateMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY),
+      ),
+  };
+  const capActivationRates = {
+    expectedGoalDifferenceDeltaCapRate: rate(
+      gateActivationAudit.filter((entry) => entry.capsApplied.includes("expected_goal_difference_delta_cap")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+    expectedTotalGoalsDeltaCapRate: rate(
+      gateActivationAudit.filter((entry) => entry.capsApplied.includes("expected_total_goals_delta_cap")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+    oneXTwoDeltaCapRate: rate(
+      gateActivationAudit.filter((entry) => entry.capsApplied.includes("one_x_two_delta_cap")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+  };
+  const gateActivationRates = {
+    repeatedOverOrUnderperformance: rate(
+      gateActivationAudit.filter((entry) => entry.activatedGates.includes("repeated_over_or_underperformance")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+    currentTournamentForm: rate(
+      gateActivationAudit.filter((entry) => entry.activatedGates.includes("current_tournament_form")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+    scoringConversionDeterioration: rate(
+      gateActivationAudit.filter((entry) => entry.activatedGates.includes("scoring_conversion_deterioration")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+    defensiveOverperformance: rate(
+      gateActivationAudit.filter((entry) => entry.activatedGates.includes("defensive_overperformance")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+    structuralVsCurrentDisagreement: rate(
+      gateActivationAudit.filter((entry) => entry.activatedGates.includes("structural_vs_current_disagreement")).length,
+      gateActivationAudit.length,
+      6,
+    ),
+  };
+
+  const artifactBase = paths.artifactsDir;
+  ensureDirectory(artifactBase);
+  writeJson(path.join(artifactBase, "production-v1-parity-audit.json"), {
+    tolerance: TASK2_2_PARITY_TOLERANCE,
+    holdout: holdoutParityAudit,
+    future: futureRows.map((row) => {
+      const replay = buildProductionV1Replay({
+        fixtureId: row.productMatchId,
+        homeTeamId: row.homeTeamKey,
+        awayTeamId: row.awayTeamKey,
+        homeName: row.homeNameEn,
+        awayName: row.awayNameEn,
+      });
+      return buildProductionV1ParityAudit({
+        fixtureId: row.productMatchId,
+        storedRow: row.originalPrediction,
+        storedMarkets: row.originalMarkets,
+        replay,
+      });
+    }),
+  });
+  writeJson(path.join(artifactBase, "candidate-eligibility-contract.json"), productionCandidateSelection);
+  writeJson(path.join(artifactBase, "time-series-fold-manifest.json"), blockedValidation.foldManifest);
+  writeJson(path.join(artifactBase, "gate-definition-contract.json"), {
+    repeated_over_or_underperformance: "Requires at least five recent matches and opponent-adjusted expectation gap.",
+    current_tournament_form: "No tournament move at zero matches, strong shrink at one match, meaningful weight from two matches onward.",
+    scoring_conversion_deterioration: "Targets total-goals and scoring side adjustments when failed-to-score evidence repeats.",
+    defensive_overperformance: "Requires repeated clean-sheet or goals-conceded suppression evidence.",
+    structural_vs_current_disagreement: "Uses Elo and FIFA disagreement as anchor-versus-current correction.",
+  });
+  writeJson(path.join(artifactBase, "gate-activation-audit.json"), {
+    rates: gateActivationRates,
+    entries: gateActivationAudit,
+  });
+  writeJson(path.join(artifactBase, "blocked-validation-results.json"), blockedValidation);
+  writeJson(path.join(artifactBase, "production-candidate-selection.json"), productionCandidateSelection);
+  writeJson(path.join(artifactBase, "holdout-comparison.json"), {
+    exactV1: holdoutV1Metrics,
+    selectedProductionCandidate: selectedCandidate.candidateKey,
+    selectedCandidateMetrics: selectedHoldout.metrics,
+    diagnosticCandidates: Object.fromEntries(
+      TASK2_2_DIAGNOSTIC_CANDIDATES.map((candidate) => [candidate.key, holdoutByCandidate[candidate.key]!.metrics]),
+    ),
+    bootstrapRanges: {
+      multiclassBrierImprovement: bootstrapMeanRange(
+        selectedHoldout.predictions.map((entry) =>
+          multiclassBrier(entry.baselineReplay.prediction, entry.row.actual.outcome) -
+          multiclassBrier(parseChallengerPrediction(entry.prediction), entry.row.actual.outcome),
+        ),
+        31,
+      ),
+      logLossImprovement: bootstrapMeanRange(
+        selectedHoldout.predictions.map((entry) =>
+          logLoss(entry.baselineReplay.prediction, entry.row.actual.outcome) -
+          logLoss(parseChallengerPrediction(entry.prediction), entry.row.actual.outcome),
+        ),
+        32,
+      ),
+    },
+  });
+  writeJson(path.join(artifactBase, "scenario-engine-comparison.json"), scenarioComparison);
+  writeJson(path.join(artifactBase, "future-shadow-predictions.json"), futureShadowPredictions.map((row) => ({
+    productMatchId: row.productMatchId,
+    officialMatchNumber: row.officialMatchNumber,
+    fixture: `${row.homeNameEn} vs ${row.awayNameEn}`,
+    kickoffAt: row.kickoffAt,
+    exactV1: row.exactV1.prediction,
+    gatedV2: row.gatedV2,
+    probabilityDeltas: row.probabilityDeltas,
+    xgDeltas: row.xgDeltas,
+    activatedGates: gateActivationAudit.find((entry) => entry.fixtureId === row.productMatchId)?.activatedGates ?? [],
+    evidence: gateActivationAudit.find((entry) => entry.fixtureId === row.productMatchId)?.evidence ?? [],
+    capsApplied: row.gatedV2.internalAudit?.capsApplied ?? [],
+    coherenceWarnings: row.coherenceWarnings,
+  })));
+  writeJson(path.join(artifactBase, "six-anomaly-case-review.json"), sixAnomalyCaseReview);
+  writeJson(path.join(artifactBase, "release-recommendation.json"), releaseRecommendation);
+  writeText(
+    path.join(artifactBase, "README.txt"),
+    [
+      "Prediction Intelligence v2 Task 2.2 artifacts",
+      `artifact_date=${paths.artifactDate}`,
+      `generation_cutoff=${paths.generationCutoff}`,
+      `training_rows=${expandedManifest.splitManifest.training.rowCount}`,
+      `validation_rows=${expandedManifest.splitManifest.validation.rowCount}`,
+      `holdout_rows=${expandedManifest.splitManifest.holdout.rowCount}`,
+      `selected_candidate=${selectedCandidate.candidateKey}`,
+      `probability_engine_verdict=${releaseRecommendation.probabilityEngineVerdict}`,
+      `analysis_layer_verdict=${releaseRecommendation.analysisLayerVerdict}`,
+      `future_shadow_predictions=${futureShadowPredictions.length}`,
+    ].join("\n"),
+  );
+
+  return {
+    expandedManifest,
+    blockedValidation,
+    holdoutV1Metrics,
+    selectedCandidate,
+    selectedHoldout,
+    gateActivationRates,
+    capActivationRates,
+    futureShadowPredictions,
+    sixAnomalyCaseReview,
+    scenarioComparison,
+    releaseRecommendation,
+    holdoutParityAudit,
   };
 }
