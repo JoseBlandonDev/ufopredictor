@@ -1,0 +1,1402 @@
+{
+  "summary": {
+    "fixtureCount": 36,
+    "correctOneXTwoFamily": 0.916667,
+    "correctWinningMarginFamily": 0.916667,
+    "correctTotalGoalRange": 0.694444,
+    "mainScenarioMaterialized": 0.277778,
+    "riskScenarioMaterialized": 0.333333,
+    "resultOutsideAllThreeScenarioFamilies": 0.388889,
+    "perFixture": [
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "favorite_clear_win"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "favorite_narrow_win",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "favorite_clear_win",
+          "favorite_narrow_win",
+          "controlled_low_total_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_narrow_win",
+            "outcome": "favorite",
+            "winningMargin": "one_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          }
+        ],
+        "correctOneXTwoFamily": false,
+        "correctWinningMarginFamily": false,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "favorite_clear_win",
+          "favorite_narrow_win",
+          "controlled_low_total_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_narrow_win",
+            "outcome": "favorite",
+            "winningMargin": "one_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "favorite_clear_win",
+          "favorite_narrow_win",
+          "controlled_low_total_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_narrow_win",
+            "outcome": "favorite",
+            "winningMargin": "one_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          }
+        ],
+        "correctOneXTwoFamily": false,
+        "correctWinningMarginFamily": false,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "favorite_clear_win"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "favorite_clear_win",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "favorite_clear_win",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "favorite_clear_win",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "favorite_clear_win",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "favorite_clear_win"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "favorite_clear_win",
+        "selectedFamilies": [
+          "favorite_clear_win",
+          "favorite_narrow_win",
+          "controlled_low_total_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_narrow_win",
+            "outcome": "favorite",
+            "winningMargin": "one_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "controlled_low_total_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": true,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "favorite_clear_win",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "open_high_scoring_match",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": true,
+        "resultOutsideAllThreeScenarioFamilies": false
+      },
+      {
+        "actualFamily": "favorite_narrow_win",
+        "selectedFamilies": [
+          "controlled_low_total_match",
+          "low_scoring_draw",
+          "open_high_scoring_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          },
+          {
+            "familyCode": "low_scoring_draw",
+            "outcome": "draw",
+            "winningMargin": "draw_margin",
+            "totalGoalRange": "low_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "open_high_scoring_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "high_total",
+            "btts": "either"
+          }
+        ],
+        "correctOneXTwoFamily": true,
+        "correctWinningMarginFamily": true,
+        "correctTotalGoalRange": false,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      },
+      {
+        "actualFamily": "low_scoring_draw",
+        "selectedFamilies": [
+          "favorite_clear_win",
+          "favorite_narrow_win",
+          "controlled_low_total_match"
+        ],
+        "selectedContracts": [
+          {
+            "familyCode": "favorite_clear_win",
+            "outcome": "favorite",
+            "winningMargin": "multi_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "favorite_narrow_win",
+            "outcome": "favorite",
+            "winningMargin": "one_goal_margin",
+            "totalGoalRange": "medium_total",
+            "btts": "either"
+          },
+          {
+            "familyCode": "controlled_low_total_match",
+            "outcome": "non_draw",
+            "winningMargin": "non_draw_any",
+            "totalGoalRange": "low_total",
+            "btts": "no"
+          }
+        ],
+        "correctOneXTwoFamily": false,
+        "correctWinningMarginFamily": false,
+        "correctTotalGoalRange": true,
+        "mainScenarioMaterialized": false,
+        "riskScenarioMaterialized": false,
+        "resultOutsideAllThreeScenarioFamilies": true
+      }
+    ]
+  },
+  "qualitativeCases": [
+    {
+      "fixture": "Brazil vs Morocco",
+      "actualResult": "1-1",
+      "actualScenarioFamily": "low_scoring_draw",
+      "displayedFamilies": [
+        "controlled_low_total_match",
+        "low_scoring_draw",
+        "open_high_scoring_match"
+      ],
+      "evaluatorMatched": true
+    },
+    {
+      "fixture": "Germany vs Curaçao",
+      "actualResult": "7-1",
+      "actualScenarioFamily": "open_high_scoring_match",
+      "displayedFamilies": [
+        "favorite_clear_win",
+        "favorite_narrow_win",
+        "controlled_low_total_match"
+      ],
+      "evaluatorMatched": false
+    },
+    {
+      "fixture": "Spain vs Cape Verde",
+      "actualResult": "0-0",
+      "actualScenarioFamily": "low_scoring_draw",
+      "displayedFamilies": [
+        "favorite_clear_win",
+        "favorite_narrow_win",
+        "controlled_low_total_match"
+      ],
+      "evaluatorMatched": false
+    },
+    {
+      "fixture": "Germany vs Ivory Coast",
+      "actualResult": "2-1",
+      "actualScenarioFamily": "favorite_narrow_win",
+      "displayedFamilies": [
+        "controlled_low_total_match",
+        "low_scoring_draw",
+        "open_high_scoring_match"
+      ],
+      "evaluatorMatched": false
+    },
+    {
+      "fixture": "Ecuador vs Curaçao",
+      "actualResult": "0-0",
+      "actualScenarioFamily": "low_scoring_draw",
+      "displayedFamilies": [
+        "favorite_clear_win",
+        "favorite_narrow_win",
+        "controlled_low_total_match"
+      ],
+      "evaluatorMatched": false
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "prediction-intelligence-v2-task2-1-preservation-manifest-v1",
+  "sourceCommit": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85",
+  "snapshotDate": "2026-06-21",
+  "historicalOnly": true,
+  "currentCandidateEligible": false,
+  "currentReleaseDecisionEligible": false,
+  "artifacts": [
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/README.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "cfcd9513c0497b4dd54370ca4d8b22de0296c263c7be500522aaae5ba4492549",
+      "restoredSha256": "cfcd9513c0497b4dd54370ca4d8b22de0296c263c7be500522aaae5ba4492549",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/README.txt"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/candidate-selection-audit.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "64b5dcb2d1125da7269bcd5dd91679bc32cf04588b1c522e7e6bb63fbb43527d",
+      "restoredSha256": "64b5dcb2d1125da7269bcd5dd91679bc32cf04588b1c522e7e6bb63fbb43527d",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/candidate-selection-audit.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/expanded-calibration-manifest.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "3cab99c28ee39429cb781d318d49672196affc86ce54483d5a80a6df25fdeee8",
+      "restoredSha256": "3cab99c28ee39429cb781d318d49672196affc86ce54483d5a80a6df25fdeee8",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/expanded-calibration-manifest.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/future-anomaly-review.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "3c9eafd3cdb8e8f4623b9ba106ec2fb974143fd2bf866183c5d96e1e6730f932",
+      "restoredSha256": "3c9eafd3cdb8e8f4623b9ba106ec2fb974143fd2bf866183c5d96e1e6730f932",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/future-anomaly-review.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/future-shadow-predictions.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "3de28f3cacd54ea234712aed5f51c1418da51974dbf32bef47f1f250fdc85320",
+      "restoredSha256": "3de28f3cacd54ea234712aed5f51c1418da51974dbf32bef47f1f250fdc85320",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/future-shadow-predictions.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/historical-row-inclusion-audit.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "42bc87c8302287bbb830d75fe99a098212d2f8c9f796aa1313baf66e3cc9aea2",
+      "restoredSha256": "42bc87c8302287bbb830d75fe99a098212d2f8c9f796aa1313baf66e3cc9aea2",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/historical-row-inclusion-audit.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/hybrid-adjustment-distribution.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "c2aa153aa01181ab442b8d1ed7fd2e8e3dc24ebeb7264794c67c1569c7e6362a",
+      "restoredSha256": "c2aa153aa01181ab442b8d1ed7fd2e8e3dc24ebeb7264794c67c1569c7e6362a",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/hybrid-adjustment-distribution.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/neutral-context-audit.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "04299571e9d26853752bf89927f511a5b6c5b9cde5dcea783a3aef3521d88e85",
+      "restoredSha256": "04299571e9d26853752bf89927f511a5b6c5b9cde5dcea783a3aef3521d88e85",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/neutral-context-audit.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/promotion-gate.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "a5b759c4bc96f868a159d6c2027ee0c94ede878003d8a9bf202f7d23ef96a80b",
+      "restoredSha256": "a5b759c4bc96f868a159d6c2027ee0c94ede878003d8a9bf202f7d23ef96a80b",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/promotion-gate.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/scenario-definition-contract.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "7e17e5222de38fc5fd1b3cadd7ed2c32a5da65ea881e15a6ec655a40019d0e91",
+      "restoredSha256": "7e17e5222de38fc5fd1b3cadd7ed2c32a5da65ea881e15a6ec655a40019d0e91",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/scenario-definition-contract.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/scenario-evaluation-audit.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "a60ee7351f681995d0450b1d663939675383ccdc366fe3488cadc2d1ae41aa5a",
+      "restoredSha256": "a60ee7351f681995d0450b1d663939675383ccdc366fe3488cadc2d1ae41aa5a",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/scenario-evaluation-audit.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/v1-v2-holdout-comparison.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "9a89c6805abfeeb98226f15cb679418e3c13fecde5d3386e5a539f413839e1d6",
+      "restoredSha256": "9a89c6805abfeeb98226f15cb679418e3c13fecde5d3386e5a539f413839e1d6",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/v1-v2-holdout-comparison.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-1/2026-06-21/validation-candidate-results.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "2287127bf43a7daabb55c38fdcdcce9cfb1df6f844c576f31c2e881da2cc6a83",
+      "restoredSha256": "2287127bf43a7daabb55c38fdcdcce9cfb1df6f844c576f31c2e881da2cc6a83",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "f0af755a4873325144dbb9bf0d6ab0f6f0950c85:artifacts/prediction-intelligence-v2/task2-1/2026-06-21/validation-candidate-results.json"
+    }
+  ]
+}

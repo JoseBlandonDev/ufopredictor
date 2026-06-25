@@ -6,6 +6,7 @@ import { buildTask1_2Coverage, type ReplayCoverageManifestEntryV2 } from "./task
 import {
   buildPredictionIntelligenceV2ReplayInput,
   canonicalizeHistoricalFactForReplay,
+  findOfficialScheduleMatchByTeams,
   loadTask1Datasets,
   resolveHistoricalFactComparableKickoffAt,
   type CanonicalTeamAlias,
@@ -40,6 +41,7 @@ export type Task2ModelCandidateConfig = {
   key: string;
   label: string;
   calibrationVersion: string;
+  modelFamily?: "legacy_formula" | "v1_baseline" | "bounded_hybrid";
   effectiveStrengthWeights: {
     structural: number;
     recentForm: number;
@@ -68,6 +70,25 @@ export type Task2ModelCandidateConfig = {
   };
   drawLift: number;
   maxGoals: number;
+  hybridAdjustments?: {
+    structuralDisagreement: number;
+    recentForm: number;
+    attack: number;
+    defense: number;
+    opponentAdjustment: number;
+    tournamentForm: number;
+    venueContext: number;
+  };
+  reliabilityShrinkage?: {
+    base: number;
+    recentFormMultiplier: number;
+    tournamentMultiplier: number;
+  };
+  boundedCaps?: {
+    expectedGoalDifferenceDelta: number;
+    expectedTotalGoalsDelta: number;
+    oneXTwoDelta: number;
+  };
 };
 
 export type TeamFeatureVector = {
@@ -172,7 +193,36 @@ export type MatchFeatureVector = {
     combinedOpenPlay: number;
     combinedTournamentOpenPlay: number;
     reliabilityAverage: number;
+    venueContext: {
+      fixtureContext: "home" | "away" | "neutral";
+      appliesTo: "home" | "away" | null;
+      venueCountryCode: string | null;
+      hostTeamKey: string | null;
+      reasonCode:
+        | "neutral_by_default"
+        | "world_cup_neutral_override"
+        | "host_country_match"
+        | "non_world_cup_no_adjustment";
+    };
   };
+};
+
+export type PredictionAdjustmentAudit = {
+  v1ExpectedGoalDifference: number;
+  v1ExpectedTotalGoals: number;
+  signalAdjustments: {
+    structuralDisagreement: number;
+    recentForm: number;
+    attack: number;
+    defense: number;
+    opponentAdjustment: number;
+    tournamentForm: number;
+    venueContext: number;
+    reliabilityShrinkage: number;
+  };
+  finalExpectedGoalDifference: number;
+  finalExpectedTotalGoals: number;
+  capsApplied: string[];
 };
 
 export type ScenarioObject = {
@@ -255,6 +305,7 @@ export type ChallengerPrediction = {
     sourceSnapshotIds: string[];
   };
   explanationPreviews: Record<SupportedLocale, ExplanationPreview>;
+  internalAudit?: PredictionAdjustmentAudit;
 };
 
 export type Task2SplitManifest = {
@@ -407,12 +458,26 @@ type PredictionLike = {
   over25: number | null;
   under25: number | null;
   scoreMatrixTailMass: number | null;
+  scoreMatrixSource?: "stored_top_scores" | "reconstructed_from_xg";
 };
 
-type CandidateReplayEvaluation = {
+export type CandidateReplayEvaluation = {
   candidate: Task2ModelCandidateConfig;
   validationMetrics: ReplayMetricSummary;
-  score: number;
+  selectionAudit: {
+    multiclassBrier: number | null;
+    brierFromBest: number | null;
+    withinBrierTolerance: boolean;
+    logLoss: number | null;
+    logLossFromBestWithinToleranceSet: number | null;
+    withinLogLossTolerance: boolean;
+    totalGoalsMae: number | null;
+    goalDifferenceMae: number | null;
+    outcomeAccuracy: number | null;
+    favoriteAccuracy: number | null;
+    tieBreakOrder: number[];
+    validationSelectionScore: number | null;
+  };
 };
 
 export type ReplayMetricSummary = {
@@ -451,6 +516,7 @@ export const MODEL_2_CANDIDATES: Task2ModelCandidateConfig[] = [
     key: "baseline_compatible_v2",
     label: "Baseline-compatible v2",
     calibrationVersion: "task2-calibration-v1",
+    modelFamily: "legacy_formula",
     effectiveStrengthWeights: {
       structural: 0.4,
       recentForm: 0.2,
@@ -484,6 +550,7 @@ export const MODEL_2_CANDIDATES: Task2ModelCandidateConfig[] = [
     key: "model_2_full",
     label: "Model 2.0 full",
     calibrationVersion: "task2-calibration-v1",
+    modelFamily: "legacy_formula",
     effectiveStrengthWeights: {
       structural: 0.3,
       recentForm: 0.2,
@@ -517,6 +584,7 @@ export const MODEL_2_CANDIDATES: Task2ModelCandidateConfig[] = [
     key: "structural_only_ablation",
     label: "Structural-only ablation",
     calibrationVersion: "task2-calibration-v1",
+    modelFamily: "legacy_formula",
     effectiveStrengthWeights: {
       structural: 0.72,
       recentForm: 0.08,
@@ -550,6 +618,7 @@ export const MODEL_2_CANDIDATES: Task2ModelCandidateConfig[] = [
     key: "recent_tournament_emphasis",
     label: "Recent+tournament emphasis",
     calibrationVersion: "task2-calibration-v1",
+    modelFamily: "legacy_formula",
     effectiveStrengthWeights: {
       structural: 0.24,
       recentForm: 0.24,
@@ -581,16 +650,161 @@ export const MODEL_2_CANDIDATES: Task2ModelCandidateConfig[] = [
   },
 ] as const;
 
+export const TASK2_1_CANDIDATES: Task2ModelCandidateConfig[] = [
+  {
+    key: "v1_compatible_baseline",
+    label: "V1-compatible baseline",
+    calibrationVersion: "task2-1-calibration-v1",
+    modelFamily: "v1_baseline",
+    effectiveStrengthWeights: {
+      structural: 0.5,
+      recentForm: 0.15,
+      tournamentForm: 0.05,
+      attack: 0.1,
+      defense: 0.1,
+      expectation: 0.05,
+      reliability: 0.05,
+    },
+    expectedGoalDifference: {
+      structuralGap: 1.05,
+      recentGap: 0.3,
+      tournamentGap: 0.12,
+      attackDefenseGap: 0.2,
+      expectationGap: 0.18,
+      reliabilityTilt: 0.08,
+    },
+    expectedTotalGoals: {
+      base: 2.38,
+      combinedAttack: 0.4,
+      combinedDefense: 0.18,
+      combinedOpenPlay: 0.24,
+      combinedTournamentOpenPlay: 0.06,
+      favoriteControl: -0.08,
+      reliabilityDrag: -0.1,
+    },
+    drawLift: 0.01,
+    maxGoals: 8,
+  },
+  MODEL_2_CANDIDATES.find((candidate) => candidate.key === "structural_only_ablation")!,
+  {
+    key: "v1_plus_bounded_signals",
+    label: "V1 plus bounded signals",
+    calibrationVersion: "task2-1-calibration-v1",
+    modelFamily: "bounded_hybrid",
+    effectiveStrengthWeights: {
+      structural: 0.5,
+      recentForm: 0.15,
+      tournamentForm: 0.08,
+      attack: 0.1,
+      defense: 0.08,
+      expectation: 0.05,
+      reliability: 0.04,
+    },
+    expectedGoalDifference: {
+      structuralGap: 1.05,
+      recentGap: 0.3,
+      tournamentGap: 0.12,
+      attackDefenseGap: 0.2,
+      expectationGap: 0.18,
+      reliabilityTilt: 0.08,
+    },
+    expectedTotalGoals: {
+      base: 2.38,
+      combinedAttack: 0.4,
+      combinedDefense: 0.18,
+      combinedOpenPlay: 0.24,
+      combinedTournamentOpenPlay: 0.06,
+      favoriteControl: -0.08,
+      reliabilityDrag: -0.1,
+    },
+    drawLift: 0.01,
+    maxGoals: 8,
+    hybridAdjustments: {
+      structuralDisagreement: 0.28,
+      recentForm: 0.36,
+      attack: 0.18,
+      defense: 0.16,
+      opponentAdjustment: 0.2,
+      tournamentForm: 0.18,
+      venueContext: 0.14,
+    },
+    reliabilityShrinkage: {
+      base: 0.55,
+      recentFormMultiplier: 0.28,
+      tournamentMultiplier: 0.17,
+    },
+    boundedCaps: {
+      expectedGoalDifferenceDelta: 0.42,
+      expectedTotalGoalsDelta: 0.36,
+      oneXTwoDelta: 0.1,
+    },
+  },
+  {
+    key: "v1_plus_bounded_signals_conservative",
+    label: "V1 plus bounded signals conservative",
+    calibrationVersion: "task2-1-calibration-v1",
+    modelFamily: "bounded_hybrid",
+    effectiveStrengthWeights: {
+      structural: 0.5,
+      recentForm: 0.15,
+      tournamentForm: 0.08,
+      attack: 0.1,
+      defense: 0.08,
+      expectation: 0.05,
+      reliability: 0.04,
+    },
+    expectedGoalDifference: {
+      structuralGap: 1.05,
+      recentGap: 0.3,
+      tournamentGap: 0.12,
+      attackDefenseGap: 0.2,
+      expectationGap: 0.18,
+      reliabilityTilt: 0.08,
+    },
+    expectedTotalGoals: {
+      base: 2.38,
+      combinedAttack: 0.4,
+      combinedDefense: 0.18,
+      combinedOpenPlay: 0.24,
+      combinedTournamentOpenPlay: 0.06,
+      favoriteControl: -0.08,
+      reliabilityDrag: -0.1,
+    },
+    drawLift: 0.012,
+    maxGoals: 8,
+    hybridAdjustments: {
+      structuralDisagreement: 0.2,
+      recentForm: 0.24,
+      attack: 0.12,
+      defense: 0.1,
+      opponentAdjustment: 0.14,
+      tournamentForm: 0.1,
+      venueContext: 0.12,
+    },
+    reliabilityShrinkage: {
+      base: 0.42,
+      recentFormMultiplier: 0.2,
+      tournamentMultiplier: 0.12,
+    },
+    boundedCaps: {
+      expectedGoalDifferenceDelta: 0.28,
+      expectedTotalGoalsDelta: 0.24,
+      oneXTwoDelta: 0.07,
+    },
+  },
+];
+
 const MODEL_VERSION = "prediction-intelligence-v2-model-2.0-challenger";
 const VALIDATION_CUTOFF = "2026-06-11T00:00:00Z";
-const WORLD_CUP_TEAM_SET = new Set([
-  "mexico", "south_africa", "south_korea", "czechia", "canada", "bosnia_and_herzegovina", "united_states",
-  "paraguay", "australia", "turkiye", "qatar", "switzerland", "brazil", "morocco", "haiti", "scotland",
-  "germany", "curacao", "netherlands", "japan", "ivory_coast", "ecuador", "sweden", "tunisia", "spain",
-  "cape_verde", "belgium", "egypt", "saudi_arabia", "uruguay", "iran", "new_zealand", "austria", "jordan",
-  "france", "senegal", "iraq", "norway", "argentina", "algeria", "portugal", "dr_congo", "england",
-  "croatia", "ghana", "panama", "uzbekistan", "colombia",
-]);
+const HOST_COUNTRY_CODES = new Set(["CAN", "MEX", "USA"]);
+const HOST_COUNTRY_CODE_EQUIVALENTS: Record<string, string> = {
+  CA: "CAN",
+  CAN: "CAN",
+  MX: "MEX",
+  MEX: "MEX",
+  US: "USA",
+  USA: "USA",
+};
 const CONFEDERATION_BY_TEAM_KEY: Record<string, string> = {
   mexico: "concacaf",
   south_africa: "caf",
@@ -763,7 +977,111 @@ function isOfficialCompetition(competitionKey: string) {
   return competitionKey !== "friendly" && competitionKey !== "friendly_tournament";
 }
 
-function inferVenueContext(fact: HistoricalMatchFact, teamKey: string): "home" | "away" | "neutral" {
+function buildLocalizationCountryIndex(localizations: CanonicalTeamLocalization[]) {
+  return new Map(
+    localizations.map((entry) => [
+      entry.canonical_team_key,
+      entry.iso_alpha3?.toUpperCase() ?? entry.fifa_code?.toUpperCase() ?? null,
+    ]),
+  );
+}
+
+function resolveHostContextForFixture(args: {
+  homeTeamKey: string;
+  awayTeamKey: string;
+  venueCountryCode: string | null;
+  localizations: CanonicalTeamLocalization[];
+}) {
+  const countryByTeam = buildLocalizationCountryIndex(args.localizations);
+  const venueCountry = args.venueCountryCode?.toUpperCase() ?? null;
+  const normalizedVenueCountry = venueCountry == null ? null : HOST_COUNTRY_CODE_EQUIVALENTS[venueCountry] ?? venueCountry;
+  if (!normalizedVenueCountry || !HOST_COUNTRY_CODES.has(normalizedVenueCountry)) {
+    return {
+      fixtureContext: "neutral" as const,
+      appliesTo: null,
+      hostTeamKey: null,
+      venueCountryCode: normalizedVenueCountry,
+      reasonCode: "world_cup_neutral_override" as const,
+    };
+  }
+  const homeCountry = countryByTeam.get(args.homeTeamKey) ?? null;
+  if (homeCountry === normalizedVenueCountry) {
+    return {
+      fixtureContext: "home" as const,
+      appliesTo: "home" as const,
+      hostTeamKey: args.homeTeamKey,
+      venueCountryCode: normalizedVenueCountry,
+      reasonCode: "host_country_match" as const,
+    };
+  }
+  const awayCountry = countryByTeam.get(args.awayTeamKey) ?? null;
+  if (awayCountry === normalizedVenueCountry) {
+    return {
+      fixtureContext: "away" as const,
+      appliesTo: "away" as const,
+      hostTeamKey: args.awayTeamKey,
+      venueCountryCode: normalizedVenueCountry,
+      reasonCode: "host_country_match" as const,
+    };
+  }
+  return {
+    fixtureContext: "neutral" as const,
+    appliesTo: null,
+    hostTeamKey: null,
+    venueCountryCode: normalizedVenueCountry,
+    reasonCode: "world_cup_neutral_override" as const,
+  };
+}
+
+function findScheduleMatchForFixture(args: {
+  scheduleRows: WorldCupScheduleMatch[];
+  officialMatchNumber?: number | null;
+  homeTeamKey: string;
+  awayTeamKey: string;
+  matchDate?: string | null;
+}) {
+  if (args.officialMatchNumber != null) {
+    return args.scheduleRows.find((row) => row.official_match_number === args.officialMatchNumber) ?? null;
+  }
+  const exactDateMatch =
+    args.matchDate == null
+      ? null
+      : args.scheduleRows.find(
+          (row) =>
+            row.scheduled_date_et === args.matchDate &&
+            row.home_team_key === args.homeTeamKey &&
+            row.away_team_key === args.awayTeamKey,
+        ) ?? null;
+  if (exactDateMatch) {
+    return exactDateMatch;
+  }
+  return findOfficialScheduleMatchByTeams(args.scheduleRows, args.homeTeamKey, args.awayTeamKey);
+}
+
+function inferVenueContext(
+  fact: HistoricalMatchFact,
+  teamKey: string,
+  scheduleRows: WorldCupScheduleMatch[],
+  localizations: CanonicalTeamLocalization[],
+): "home" | "away" | "neutral" {
+  const scheduleMatch = findScheduleMatchForFixture({
+    scheduleRows,
+    homeTeamKey: fact.team_1_key,
+    awayTeamKey: fact.team_2_key,
+    matchDate: fact.match_date,
+  });
+  if (scheduleMatch) {
+    const hostContext = resolveHostContextForFixture({
+      homeTeamKey: fact.team_1_key,
+      awayTeamKey: fact.team_2_key,
+      venueCountryCode: scheduleMatch.country_code,
+      localizations,
+    });
+    if (hostContext.appliesTo == null) {
+      return "neutral";
+    }
+    return (hostContext.hostTeamKey === teamKey ? "home" : "away");
+  }
   const location = normalizeIdentity(fact.event_location_raw ?? "");
   const team1 = normalizeIdentity(fact.team_1_name_raw);
   const team2 = normalizeIdentity(fact.team_2_name_raw);
@@ -783,6 +1101,7 @@ function buildTeamPerspective(
   fact: HistoricalMatchFact,
   teamKey: string,
   scheduleRows: WorldCupScheduleMatch[],
+  localizations: CanonicalTeamLocalization[],
 ): TeamMatchPerspective | null {
   const canonical = canonicalizeHistoricalFactForReplay(fact, scheduleRows);
   if (canonical.team_1_key !== teamKey && canonical.team_2_key !== teamKey) {
@@ -804,7 +1123,7 @@ function buildTeamPerspective(
     comparableKickoffAt: resolveHistoricalFactComparableKickoffAt(canonical, scheduleRows),
     competitionKey: canonical.competition_key,
     official: isOfficialCompetition(canonical.competition_key),
-    venueContext: inferVenueContext(canonical, teamKey),
+    venueContext: inferVenueContext(canonical, teamKey, scheduleRows, localizations),
     preMatchElo,
     opponentPreMatchElo,
     expectedResult: buildExpectedResult(preMatchElo, opponentPreMatchElo),
@@ -853,10 +1172,10 @@ function getLatestRatingBeforeCutoff(
   teamKey: string,
   cutoffAt: string,
 ) {
-  const cutoffMs = Date.parse(cutoffAt);
+  const cutoffDay = cutoffAt.slice(0, 10);
   return rows
     .filter((row) => row.canonical_team_key === teamKey)
-    .filter((row) => Date.parse(`${row.effective_date}T23:59:59Z`) < cutoffMs)
+    .filter((row) => row.effective_date < cutoffDay)
     .sort((left, right) => left.effective_date.localeCompare(right.effective_date))
     .at(-1) ?? null;
 }
@@ -866,18 +1185,18 @@ function getLatestFifaBeforeCutoff(
   teamKey: string,
   cutoffAt: string,
 ) {
-  const cutoffMs = Date.parse(cutoffAt);
+  const cutoffDay = cutoffAt.slice(0, 10);
   return rows
     .filter((row) => row.canonical_team_key === teamKey)
-    .filter((row) => Date.parse(`${row.effective_date}T00:00:00Z`) < cutoffMs)
+    .filter((row) => row.effective_date < cutoffDay)
     .sort((left, right) => left.effective_date.localeCompare(right.effective_date))
     .at(-1) ?? null;
 }
 
 function buildEloPercentileMap(rows: RatingSnapshotRow[], cutoffAt: string) {
-  const cutoffMs = Date.parse(cutoffAt);
+  const cutoffDay = cutoffAt.slice(0, 10);
   const filtered = rows
-    .filter((row) => Date.parse(`${row.effective_date}T23:59:59Z`) < cutoffMs)
+    .filter((row) => row.effective_date < cutoffDay)
     .filter((row) => row.elo_rating != null)
     .sort((left, right) => (right.elo_rating ?? 0) - (left.elo_rating ?? 0));
   const byTeam = new Map<string, { rank: number; percentile: number }>();
@@ -938,7 +1257,7 @@ function buildTeamFeatureVector(args: {
   }
   const cutoffMs = Date.parse(args.cutoffAt);
   const eligiblePerspectives = args.historicalFacts
-    .map((fact) => buildTeamPerspective(fact, args.teamKey, args.scheduleRows))
+    .map((fact) => buildTeamPerspective(fact, args.teamKey, args.scheduleRows, args.localizations))
     .filter((entry): entry is TeamMatchPerspective => entry != null)
     .filter((entry) => Date.parse(entry.comparableKickoffAt) < cutoffMs)
     .sort((left, right) => right.comparableKickoffAt.localeCompare(left.comparableKickoffAt));
@@ -1187,6 +1506,7 @@ export function buildMatchFeatureVector(args: {
   cutoffAt: string;
   homeTeamKey: string;
   awayTeamKey: string;
+  officialMatchNumber?: number | null;
   homeSignal: TeamSignalSnapshot;
   awaySignal: TeamSignalSnapshot;
   historicalFacts: HistoricalMatchFact[];
@@ -1218,6 +1538,28 @@ export function buildMatchFeatureVector(args: {
     fifaRanking: args.fifaRanking,
     scheduleRows: args.scheduleRows,
   });
+  const scheduleMatch = findScheduleMatchForFixture({
+    scheduleRows: args.scheduleRows,
+    officialMatchNumber: args.officialMatchNumber ?? null,
+    homeTeamKey: args.homeTeamKey,
+    awayTeamKey: args.awayTeamKey,
+    matchDate: args.cutoffAt.slice(0, 10),
+  });
+  const venueContext =
+    scheduleMatch == null
+      ? {
+          fixtureContext: "neutral" as const,
+          appliesTo: null,
+          hostTeamKey: null,
+          venueCountryCode: null,
+          reasonCode: "non_world_cup_no_adjustment" as const,
+        }
+      : resolveHostContextForFixture({
+          homeTeamKey: args.homeTeamKey,
+          awayTeamKey: args.awayTeamKey,
+          venueCountryCode: scheduleMatch.country_code,
+          localizations: args.localizations,
+        });
   const homeEffectiveStrength = home.subScores.baselineStrength * 0.4 + home.subScores.recentForm * 0.22 + home.subScores.tournamentForm * 0.13 + home.subScores.attack * 0.1 + home.subScores.defense * 0.08 + home.subScores.performanceVsExpectation * 0.04 + home.subScores.reliability * 0.03;
   const awayEffectiveStrength = away.subScores.baselineStrength * 0.4 + away.subScores.recentForm * 0.22 + away.subScores.tournamentForm * 0.13 + away.subScores.attack * 0.1 + away.subScores.defense * 0.08 + away.subScores.performanceVsExpectation * 0.04 + away.subScores.reliability * 0.03;
   const favoriteSide: MatchOutcomeKey = homeEffectiveStrength >= awayEffectiveStrength ? "home" : "away";
@@ -1242,6 +1584,7 @@ export function buildMatchFeatureVector(args: {
       combinedOpenPlay: round((((home.recentForm.bttsRate ?? 0.45) + (away.recentForm.bttsRate ?? 0.45)) / 2 + ((home.recentForm.over25Rate ?? 0.45) + (away.recentForm.over25Rate ?? 0.45)) / 2) / 2, 4),
       combinedTournamentOpenPlay: round((((home.currentWorldCupForm.scoringRate ?? 0.5) + (away.currentWorldCupForm.scoringRate ?? 0.5)) / 2 + ((home.currentWorldCupForm.failedToScoreRate ?? 0.4) + (away.currentWorldCupForm.failedToScoreRate ?? 0.4)) / -4 + 0.25), 4),
       reliabilityAverage: round((home.subScores.reliability + away.subScores.reliability) / 2, 4),
+      venueContext,
     },
   } satisfies MatchFeatureVector;
 }
@@ -1333,11 +1676,11 @@ function familyCodeForScore(args: {
   if (args.homeGoals === args.awayGoals) {
     return total <= 2 ? "low_scoring_draw" : "scoring_draw";
   }
-  if (total >= 5) {
-    return "open_high_scoring_match";
-  }
   if (total <= 2) {
     return "controlled_low_total_match";
+  }
+  if (total >= 5) {
+    return "open_high_scoring_match";
   }
   const outcome = outcomeFromGoals(args.homeGoals, args.awayGoals);
   const margin = Math.abs(args.homeGoals - args.awayGoals);
@@ -1349,13 +1692,17 @@ function familyCodeForScore(args: {
 
 function totalRangeCode(homeGoals: number, awayGoals: number) {
   const total = homeGoals + awayGoals;
-  if (total <= 1) {
-    return "very_low_total";
+  if (total <= 2) {
+    return "low_total";
   }
-  if (total <= 3) {
+  if (total <= 4) {
     return "medium_total";
   }
   return "high_total";
+}
+
+function bttsCode(homeGoals: number, awayGoals: number) {
+  return homeGoals > 0 && awayGoals > 0 ? "yes" : "no";
 }
 
 function winningMarginCode(homeGoals: number, awayGoals: number) {
@@ -1367,6 +1714,61 @@ function winningMarginCode(homeGoals: number, awayGoals: number) {
     return "one_goal_margin";
   }
   return "multi_goal_margin";
+}
+
+type ScenarioFamilyContract = {
+  familyCode: string;
+  outcome: "favorite" | "underdog" | "draw" | "non_draw";
+  winningMargin: "draw_margin" | "one_goal_margin" | "multi_goal_margin" | "non_draw_any";
+  totalGoalRange: "low_total" | "medium_total" | "high_total";
+  btts: "yes" | "no" | "either";
+};
+
+const SCENARIO_FAMILY_CONTRACTS: ScenarioFamilyContract[] = [
+  { familyCode: "low_scoring_draw", outcome: "draw", winningMargin: "draw_margin", totalGoalRange: "low_total", btts: "either" },
+  { familyCode: "scoring_draw", outcome: "draw", winningMargin: "draw_margin", totalGoalRange: "medium_total", btts: "yes" },
+  { familyCode: "controlled_low_total_match", outcome: "non_draw", winningMargin: "non_draw_any", totalGoalRange: "low_total", btts: "no" },
+  { familyCode: "favorite_narrow_win", outcome: "favorite", winningMargin: "one_goal_margin", totalGoalRange: "medium_total", btts: "either" },
+  { familyCode: "favorite_clear_win", outcome: "favorite", winningMargin: "multi_goal_margin", totalGoalRange: "medium_total", btts: "either" },
+  { familyCode: "underdog_narrow_win", outcome: "underdog", winningMargin: "one_goal_margin", totalGoalRange: "medium_total", btts: "either" },
+  { familyCode: "underdog_clear_win", outcome: "underdog", winningMargin: "multi_goal_margin", totalGoalRange: "medium_total", btts: "either" },
+  { familyCode: "open_high_scoring_match", outcome: "non_draw", winningMargin: "non_draw_any", totalGoalRange: "high_total", btts: "either" },
+];
+
+function scenarioFamilyContract(familyCode: string) {
+  const contract = SCENARIO_FAMILY_CONTRACTS.find((entry) => entry.familyCode === familyCode);
+  if (!contract) {
+    throw new Error(`Unknown scenario family ${familyCode}.`);
+  }
+  return contract;
+}
+
+function familyMatchesScore(args: {
+  familyCode: string;
+  homeGoals: number;
+  awayGoals: number;
+  favoriteSide: MatchOutcomeKey;
+}) {
+  const contract = scenarioFamilyContract(args.familyCode);
+  const actualOutcome = outcomeFromGoals(args.homeGoals, args.awayGoals);
+  const actualMargin = winningMarginCode(args.homeGoals, args.awayGoals);
+  const actualTotalRange = totalRangeCode(args.homeGoals, args.awayGoals);
+  const actualBtts = bttsCode(args.homeGoals, args.awayGoals);
+  const outcomeMatches =
+    contract.outcome === "draw"
+      ? actualOutcome === "draw"
+      : contract.outcome === "favorite"
+        ? actualOutcome === args.favoriteSide
+        : contract.outcome === "underdog"
+          ? actualOutcome !== "draw" && actualOutcome !== args.favoriteSide
+          : actualOutcome !== "draw";
+  const marginMatches =
+    contract.winningMargin === "non_draw_any"
+      ? actualMargin !== "draw_margin"
+      : actualMargin === contract.winningMargin;
+  const totalMatches = actualTotalRange === contract.totalGoalRange;
+  const bttsMatches = contract.btts === "either" ? true : actualBtts === contract.btts;
+  return outcomeMatches && marginMatches && totalMatches && bttsMatches;
 }
 
 function buildSupportingReasonCodes(features: MatchFeatureVector) {
@@ -1654,11 +2056,348 @@ export function renderExplanationPreview(args: {
   } satisfies ExplanationPreview;
 }
 
+function buildBaselineExpectedGoals(features: MatchFeatureVector) {
+  const venueShift =
+    features.derived.venueContext.appliesTo === "home"
+      ? 0.14
+      : features.derived.venueContext.appliesTo === "away"
+        ? -0.14
+        : 0;
+  const expectedGoalDifference = clamp(
+    features.derived.structuralGap * 1.05 +
+      features.derived.recentGap * 0.24 +
+      features.derived.expectationGap * 0.16 +
+      venueShift,
+    -1.9,
+    1.9,
+  );
+  const favoriteControl = Math.abs(features.derived.favoriteStrengthGap);
+  const expectedTotalGoals = clamp(
+    2.38 +
+      features.derived.combinedAttackIntent * 0.38 +
+      (1 - features.derived.combinedDefensiveResistance) * 0.2 +
+      features.derived.combinedOpenPlay * 0.18 +
+      favoriteControl * -0.06,
+    1.55,
+    4.15,
+  );
+  return {
+    difference: round(expectedGoalDifference, 4),
+    total: round(expectedTotalGoals, 4),
+  };
+}
+
+function buildPredictionFromExpectedGoals(args: {
+  candidate: Task2ModelCandidateConfig;
+  features: MatchFeatureVector;
+  expectedGoals: { home: number; away: number; total: number; difference: number };
+  internalAudit?: PredictionAdjustmentAudit;
+}) {
+  const reliability = (args.features.home.subScores.reliability + args.features.away.subScores.reliability) / 2;
+  const matrixWithTail = buildScoreMatrixWithTail(
+    {
+      home: round(args.expectedGoals.home, 4),
+      away: round(args.expectedGoals.away, 4),
+    },
+    args.candidate.maxGoals,
+  );
+  const oneXTwo = build1X2(matrixWithTail.matrix);
+  const drawAdjusted = {
+    homeWin: clamp(oneXTwo.homeWin - args.candidate.drawLift / 2, 0, 1),
+    draw: clamp(oneXTwo.draw + args.candidate.drawLift, 0, 1),
+    awayWin: clamp(oneXTwo.awayWin - args.candidate.drawLift / 2, 0, 1),
+  };
+  const normalizedOneXTwoSum = drawAdjusted.homeWin + drawAdjusted.draw + drawAdjusted.awayWin;
+  const oneXTwoNormalized = {
+    homeWin: round(drawAdjusted.homeWin / normalizedOneXTwoSum, 6),
+    draw: round(drawAdjusted.draw / normalizedOneXTwoSum, 6),
+    awayWin: round(drawAdjusted.awayWin / normalizedOneXTwoSum, 6),
+  };
+  const markets = buildBttsAndTotals(matrixWithTail.matrix);
+  const topScorelines = [...matrixWithTail.matrix]
+    .sort(compareByProbability)
+    .slice(0, 8)
+    .map((cell) => ({
+      score: `${cell.homeGoals}-${cell.awayGoals}`,
+      homeGoals: cell.homeGoals,
+      awayGoals: cell.awayGoals,
+      probability: round(cell.probability, 6),
+    }));
+  const confidence = confidenceFromProbabilities(oneXTwoNormalized, reliability);
+  const riskLevel = riskLevelFromPrediction({
+    oneXTwo: oneXTwoNormalized,
+    reliability,
+    totalGoals: args.expectedGoals.total,
+  });
+  const scenarios = selectScenarioSet({
+    features: args.features,
+    prediction: {
+      scoreMatrix: matrixWithTail.matrix,
+      oneXTwo: oneXTwoNormalized,
+      confidence,
+      reliability,
+    },
+  });
+  const additionalPlausible = topScorelines.filter(
+    (scoreline) =>
+      !scenarios.some(
+        (scenario) =>
+          scenario.representativeScore.home === scoreline.homeGoals &&
+          scenario.representativeScore.away === scoreline.awayGoals,
+      ),
+  ).slice(0, 5);
+  const reasonCodes = buildSupportingReasonCodes(args.features);
+  const contradictingReasonCodes = buildContradictingReasonCodes(args.features);
+  return {
+    modelVersion: MODEL_VERSION,
+    candidateKey: args.candidate.key,
+    cutoffAt: args.features.cutoffAt,
+    expectedGoals: {
+      home: round(args.expectedGoals.home, 4),
+      away: round(args.expectedGoals.away, 4),
+      total: round(args.expectedGoals.total, 4),
+      difference: round(args.expectedGoals.difference, 4),
+    },
+    probabilities: {
+      oneXTwo: oneXTwoNormalized,
+      btts: markets.btts,
+      overUnder25: markets.overUnder25,
+    },
+    scoreMatrix: matrixWithTail.matrix,
+    scoreMatrixTailMass: matrixWithTail.tailMass,
+    topScorelines,
+    mostLikelyScore: topScorelines[0]?.score ?? "0-0",
+    confidence,
+    riskLevel,
+    scenarios,
+    additionalPlausibleScorelines: additionalPlausible,
+    evidenceBundle: {
+      homeSubScores: args.features.home.subScores,
+      awaySubScores: args.features.away.subScores,
+      reasonCodes,
+      contradictingReasonCodes,
+      sourceSnapshotIds: Array.from(
+        new Set([...args.features.home.sourceSnapshotIds, ...args.features.away.sourceSnapshotIds]),
+      ).sort(),
+    },
+    explanationPreviews: {
+      en: renderExplanationPreview({
+        locale: "en",
+        homeName: args.features.home.displayNameEn,
+        awayName: args.features.away.displayNameEn,
+        scenarios,
+      }),
+      es: renderExplanationPreview({
+        locale: "es",
+        homeName: args.features.home.displayNameEs,
+        awayName: args.features.away.displayNameEs,
+        scenarios,
+      }),
+    },
+    internalAudit: args.internalAudit,
+  } satisfies ChallengerPrediction;
+}
+
+function buildBoundedHybridExpectedGoals(candidate: Task2ModelCandidateConfig, features: MatchFeatureVector) {
+  const baseline = buildBaselineExpectedGoals(features);
+  const tournamentSampleReliability = clamp(
+    Math.min(features.home.currentWorldCupForm.matchesPlayed, features.away.currentWorldCupForm.matchesPlayed) / 3,
+    0,
+    1,
+  );
+  const baseReliability = clamp(features.derived.reliabilityAverage, 0, 1);
+  const reliabilityScale = clamp(
+    (candidate.reliabilityShrinkage?.base ?? 0.5) +
+      baseReliability * (candidate.reliabilityShrinkage?.recentFormMultiplier ?? 0.25) +
+      tournamentSampleReliability * (candidate.reliabilityShrinkage?.tournamentMultiplier ?? 0.15),
+    0.15,
+    1,
+  );
+  const structuralDisagreement =
+    ((features.away.structuralStrength.fifaEloDisagreement ?? 0) -
+      (features.home.structuralStrength.fifaEloDisagreement ?? 0)) *
+    (candidate.hybridAdjustments?.structuralDisagreement ?? 0);
+  const recentForm = features.derived.recentGap * (candidate.hybridAdjustments?.recentForm ?? 0);
+  const attack = (features.home.subScores.attack - features.away.subScores.attack) * (candidate.hybridAdjustments?.attack ?? 0);
+  const defense = (features.home.subScores.defense - features.away.subScores.defense) * (candidate.hybridAdjustments?.defense ?? 0);
+  const qualityGap =
+    (features.home.opponentAdjustment.qualityWins - features.home.opponentAdjustment.badLosses) -
+    (features.away.opponentAdjustment.qualityWins - features.away.opponentAdjustment.badLosses);
+  const opponentAdjustment =
+    (((features.home.opponentAdjustment.performanceVsEloExpectation ?? 0) -
+      (features.away.opponentAdjustment.performanceVsEloExpectation ?? 0)) +
+      qualityGap * 0.035) *
+    (candidate.hybridAdjustments?.opponentAdjustment ?? 0);
+  const tournamentForm =
+    features.derived.tournamentGap *
+    tournamentSampleReliability *
+    (candidate.hybridAdjustments?.tournamentForm ?? 0);
+  const venueContext =
+    (features.derived.venueContext.appliesTo === "home"
+      ? 1
+      : features.derived.venueContext.appliesTo === "away"
+        ? -1
+        : 0) * (candidate.hybridAdjustments?.venueContext ?? 0);
+  const unshrunkDiffDelta =
+    structuralDisagreement +
+    recentForm +
+    attack +
+    defense +
+    opponentAdjustment +
+    tournamentForm +
+    venueContext;
+  let diffDelta = unshrunkDiffDelta * reliabilityScale;
+  const capsApplied: string[] = [];
+  const diffCap = candidate.boundedCaps?.expectedGoalDifferenceDelta ?? 0.4;
+  if (Math.abs(diffDelta) > diffCap) {
+    diffDelta = Math.sign(diffDelta) * diffCap;
+    capsApplied.push("expected_goal_difference_delta_cap");
+  }
+  const totalSignalCore =
+    ((features.derived.combinedOpenPlay - 0.5) * 0.32 +
+      ((features.home.subScores.attack + features.away.subScores.attack) / 2 - 0.5) * 0.22 -
+      ((features.home.subScores.defense + features.away.subScores.defense) / 2 - 0.5) * 0.18 +
+      Math.abs(recentForm) * 0.12 +
+      Math.abs(tournamentForm) * 0.08) *
+    reliabilityScale;
+  let totalDelta = totalSignalCore;
+  const totalCap = candidate.boundedCaps?.expectedTotalGoalsDelta ?? 0.3;
+  if (Math.abs(totalDelta) > totalCap) {
+    totalDelta = Math.sign(totalDelta) * totalCap;
+    capsApplied.push("expected_total_goals_delta_cap");
+  }
+  let adjustedDifference = baseline.difference + diffDelta;
+  let adjustedTotal = baseline.total + totalDelta;
+  const diffToHomeAway = (difference: number, total: number) => ({
+    home: clamp((total + difference) / 2, 0.2, 3.8),
+    away: clamp((total - difference) / 2, 0.2, 3.8),
+  });
+  const baselineHomeAway = diffToHomeAway(baseline.difference, baseline.total);
+  const baselinePrediction = buildPredictionFromExpectedGoals({
+    candidate: { ...candidate, drawLift: 0, modelFamily: "v1_baseline" },
+    features,
+    expectedGoals: {
+      home: baselineHomeAway.home,
+      away: baselineHomeAway.away,
+      total: round(baselineHomeAway.home + baselineHomeAway.away, 4),
+      difference: round(baselineHomeAway.home - baselineHomeAway.away, 4),
+    },
+  });
+  const probabilityCap = candidate.boundedCaps?.oneXTwoDelta ?? 0.1;
+  const buildComparableOneXTwo = (difference: number, total: number) => {
+    const homeAway = diffToHomeAway(difference, total);
+    return buildPredictionFromExpectedGoals({
+      candidate: { ...candidate, drawLift: 0, modelFamily: "v1_baseline" },
+      features,
+      expectedGoals: {
+        home: homeAway.home,
+        away: homeAway.away,
+        total: round(homeAway.home + homeAway.away, 4),
+        difference: round(homeAway.home - homeAway.away, 4),
+      },
+    }).probabilities.oneXTwo;
+  };
+  const baselineOneXTwo = baselinePrediction.probabilities.oneXTwo;
+  const deltaWithinCap = (oneXTwo: { homeWin: number; draw: number; awayWin: number }) =>
+    Math.max(
+      Math.abs(oneXTwo.homeWin - baselineOneXTwo.homeWin),
+      Math.abs(oneXTwo.draw - baselineOneXTwo.draw),
+      Math.abs(oneXTwo.awayWin - baselineOneXTwo.awayWin),
+    ) <= probabilityCap + 1e-9;
+  const rawOneXTwo = buildComparableOneXTwo(adjustedDifference, adjustedTotal);
+  if (!deltaWithinCap(rawOneXTwo)) {
+    let low = 0;
+    let high = 1;
+    for (let iteration = 0; iteration < 16; iteration += 1) {
+      const mid = (low + high) / 2;
+      const oneXTwo = buildComparableOneXTwo(
+        baseline.difference + diffDelta * mid,
+        baseline.total + totalDelta * mid,
+      );
+      if (deltaWithinCap(oneXTwo)) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    adjustedDifference = baseline.difference + diffDelta * low;
+    adjustedTotal = baseline.total + totalDelta * low;
+    capsApplied.push("one_x_two_delta_cap");
+  }
+  const expectedGoals = diffToHomeAway(adjustedDifference, adjustedTotal);
+  return {
+    expectedGoals: {
+      home: expectedGoals.home,
+      away: expectedGoals.away,
+      total: round(expectedGoals.home + expectedGoals.away, 4),
+      difference: round(expectedGoals.home - expectedGoals.away, 4),
+    },
+    internalAudit: {
+      v1ExpectedGoalDifference: baseline.difference,
+      v1ExpectedTotalGoals: baseline.total,
+      signalAdjustments: {
+        structuralDisagreement: round(structuralDisagreement, 4),
+        recentForm: round(recentForm, 4),
+        attack: round(attack, 4),
+        defense: round(defense, 4),
+        opponentAdjustment: round(opponentAdjustment, 4),
+        tournamentForm: round(tournamentForm, 4),
+        venueContext: round(venueContext, 4),
+        reliabilityShrinkage: round(unshrunkDiffDelta * (reliabilityScale - 1), 4),
+      },
+      finalExpectedGoalDifference: round(expectedGoals.home - expectedGoals.away, 4),
+      finalExpectedTotalGoals: round(expectedGoals.home + expectedGoals.away, 4),
+      capsApplied,
+    } satisfies PredictionAdjustmentAudit,
+  };
+}
+
 export function buildChallengerPrediction(args: {
   candidate: Task2ModelCandidateConfig;
   features: MatchFeatureVector;
 }) {
   const { candidate, features } = args;
+  if (candidate.modelFamily === "v1_baseline") {
+    const baseline = buildBaselineExpectedGoals(features);
+    const home = clamp((baseline.total + baseline.difference) / 2, 0.2, 3.8);
+    const away = clamp((baseline.total - baseline.difference) / 2, 0.2, 3.8);
+    return buildPredictionFromExpectedGoals({
+      candidate,
+      features,
+      expectedGoals: {
+        home,
+        away,
+        total: round(home + away, 4),
+        difference: round(home - away, 4),
+      },
+      internalAudit: {
+        v1ExpectedGoalDifference: baseline.difference,
+        v1ExpectedTotalGoals: baseline.total,
+        signalAdjustments: {
+          structuralDisagreement: 0,
+          recentForm: 0,
+          attack: 0,
+          defense: 0,
+          opponentAdjustment: 0,
+          tournamentForm: 0,
+          venueContext: 0,
+          reliabilityShrinkage: 0,
+        },
+        finalExpectedGoalDifference: baseline.difference,
+        finalExpectedTotalGoals: baseline.total,
+        capsApplied: [],
+      },
+    });
+  }
+  if (candidate.modelFamily === "bounded_hybrid") {
+    const bounded = buildBoundedHybridExpectedGoals(candidate, features);
+    return buildPredictionFromExpectedGoals({
+      candidate,
+      features,
+      expectedGoals: bounded.expectedGoals,
+      internalAudit: bounded.internalAudit,
+    });
+  }
   const reliability = (features.home.subScores.reliability + features.away.subScores.reliability) / 2;
   const homeStrength =
     features.home.subScores.baselineStrength * candidate.effectiveStrengthWeights.structural +
@@ -1703,99 +2442,16 @@ export function buildChallengerPrediction(args: {
   const homeXg = clamp(rawHomeXg, 0.2, 3.8);
   const awayXg = clamp(rawAwayXg, 0.2, 3.8);
   const normalizedTotal = homeXg + awayXg;
-  const matrixWithTail = buildScoreMatrixWithTail({ home: round(homeXg, 4), away: round(awayXg, 4) }, candidate.maxGoals);
-  const oneXTwo = build1X2(matrixWithTail.matrix);
-  const drawAdjusted = {
-    homeWin: clamp(oneXTwo.homeWin - candidate.drawLift / 2, 0, 1),
-    draw: clamp(oneXTwo.draw + candidate.drawLift, 0, 1),
-    awayWin: clamp(oneXTwo.awayWin - candidate.drawLift / 2, 0, 1),
-  };
-  const normalizedOneXTwoSum = drawAdjusted.homeWin + drawAdjusted.draw + drawAdjusted.awayWin;
-  const oneXTwoNormalized = {
-    homeWin: round(drawAdjusted.homeWin / normalizedOneXTwoSum, 6),
-    draw: round(drawAdjusted.draw / normalizedOneXTwoSum, 6),
-    awayWin: round(drawAdjusted.awayWin / normalizedOneXTwoSum, 6),
-  };
-  const markets = buildBttsAndTotals(matrixWithTail.matrix);
-  const topScorelines = [...matrixWithTail.matrix]
-    .sort(compareByProbability)
-    .slice(0, 8)
-    .map((cell) => ({
-      score: `${cell.homeGoals}-${cell.awayGoals}`,
-      homeGoals: cell.homeGoals,
-      awayGoals: cell.awayGoals,
-      probability: round(cell.probability, 6),
-    }));
-  const confidence = confidenceFromProbabilities(oneXTwoNormalized, reliability);
-  const riskLevel = riskLevelFromPrediction({
-    oneXTwo: oneXTwoNormalized,
-    reliability,
-    totalGoals: normalizedTotal,
-  });
-  const scenarios = selectScenarioSet({
+  return buildPredictionFromExpectedGoals({
+    candidate,
     features,
-    prediction: {
-      scoreMatrix: matrixWithTail.matrix,
-      oneXTwo: oneXTwoNormalized,
-      confidence,
-      reliability,
-    },
-  });
-  const additionalPlausible = topScorelines.filter(
-    (scoreline) =>
-      !scenarios.some(
-        (scenario) =>
-          scenario.representativeScore.home === scoreline.homeGoals &&
-          scenario.representativeScore.away === scoreline.awayGoals,
-      ),
-  ).slice(0, 5);
-  const reasonCodes = buildSupportingReasonCodes(features);
-  const contradictingReasonCodes = buildContradictingReasonCodes(features);
-  return {
-    modelVersion: MODEL_VERSION,
-    candidateKey: candidate.key,
-    cutoffAt: features.cutoffAt,
     expectedGoals: {
       home: round(homeXg, 4),
       away: round(awayXg, 4),
       total: round(normalizedTotal, 4),
       difference: round(homeXg - awayXg, 4),
     },
-    probabilities: {
-      oneXTwo: oneXTwoNormalized,
-      btts: markets.btts,
-      overUnder25: markets.overUnder25,
-    },
-    scoreMatrix: matrixWithTail.matrix,
-    scoreMatrixTailMass: matrixWithTail.tailMass,
-    topScorelines,
-    mostLikelyScore: topScorelines[0]?.score ?? "0-0",
-    confidence,
-    riskLevel,
-    scenarios,
-    additionalPlausibleScorelines: additionalPlausible,
-    evidenceBundle: {
-      homeSubScores: features.home.subScores,
-      awaySubScores: features.away.subScores,
-      reasonCodes,
-      contradictingReasonCodes,
-      sourceSnapshotIds: Array.from(new Set([...features.home.sourceSnapshotIds, ...features.away.sourceSnapshotIds])).sort(),
-    },
-    explanationPreviews: {
-      en: renderExplanationPreview({
-        locale: "en",
-        homeName: features.home.displayNameEn,
-        awayName: features.away.displayNameEn,
-        scenarios,
-      }),
-      es: renderExplanationPreview({
-        locale: "es",
-        homeName: features.home.displayNameEs,
-        awayName: features.away.displayNameEs,
-        scenarios,
-      }),
-    },
-  } satisfies ChallengerPrediction;
+  });
 }
 
 function bucketLabel(probability: number) {
@@ -1823,12 +2479,24 @@ function favoriteFromOneXTwo(prediction: PredictionLike): MatchOutcomeKey {
   return values[0]?.key ?? "draw";
 }
 
-function parseOriginalPrediction(row: ProductPredictionRow, markets: ProductPredictionMarketRow[]): PredictionLike {
-  const topScorelines = Array.isArray(row.top_scores_json)
+export function parseOriginalPrediction(row: ProductPredictionRow, markets: ProductPredictionMarketRow[]): PredictionLike {
+  const storedTopScorelines = Array.isArray(row.top_scores_json)
     ? (row.top_scores_json as Array<{ score?: string; probability?: number }>)
         .filter((entry) => typeof entry.score === "string" && typeof entry.probability === "number")
         .map((entry) => ({ score: entry.score!, probability: Number(entry.probability) / 100 }))
     : [];
+  const reconstructedMatrix = buildScoreMatrixWithTail(
+    { home: row.expected_home_goals, away: row.expected_away_goals },
+    8,
+  );
+  const reconstructedTopScorelines = [...reconstructedMatrix.matrix]
+    .sort(compareByProbability)
+    .slice(0, 8)
+    .map((entry) => ({
+      score: `${entry.homeGoals}-${entry.awayGoals}`,
+      probability: round(entry.probability, 6),
+    }));
+  const topScorelines = storedTopScorelines.length >= 5 ? storedTopScorelines : reconstructedTopScorelines;
   const pickMarket = (market: string, selection: string) =>
     markets.find((entry) => entry.market === market && entry.selection === selection)?.probability ?? null;
   return {
@@ -1843,7 +2511,8 @@ function parseOriginalPrediction(row: ProductPredictionRow, markets: ProductPred
     bttsNo: safeNumber(pickMarket("btts", "no")) != null ? Number(pickMarket("btts", "no")) / 100 : null,
     over25: safeNumber(pickMarket("over_2_5", "over")) != null ? Number(pickMarket("over_2_5", "over")) / 100 : null,
     under25: safeNumber(pickMarket("over_2_5", "under")) != null ? Number(pickMarket("over_2_5", "under")) / 100 : null,
-    scoreMatrixTailMass: null,
+    scoreMatrixTailMass: reconstructedMatrix.tailMass,
+    scoreMatrixSource: storedTopScorelines.length >= 5 ? "stored_top_scores" : "reconstructed_from_xg",
   };
 }
 
@@ -1989,100 +2658,145 @@ function computeReplayMetrics(rows: Array<{
   } satisfies ReplayMetricSummary;
 }
 
-function validationSelectionScore(metrics: ReplayMetricSummary) {
-  return round(
-    (metrics.oneXTwo.multiclassBrier ?? 1) * 0.35 +
-    (metrics.oneXTwo.logLoss ?? 1) * 0.3 +
-    (metrics.goalsAndMarkets.totalGoalsMae ?? 2) * 0.15 +
-    (metrics.goalsAndMarkets.goalDifferenceMae ?? 2) * 0.1 +
-    (1 - (metrics.oneXTwo.outcomeAccuracy ?? 0)) * 0.1,
-    6,
+export function buildValidationSelectionAudit(evaluations: Array<{
+  candidate: Task2ModelCandidateConfig;
+  validationMetrics: ReplayMetricSummary;
+}>) {
+  const brierFloor = Math.min(...evaluations.map((entry) => entry.validationMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY));
+  const brierTolerance = 0.0005;
+  const brierPool = evaluations.filter(
+    (entry) => (entry.validationMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) <= brierFloor + brierTolerance,
   );
+  const logLossFloor = Math.min(...brierPool.map((entry) => entry.validationMetrics.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY));
+  const logLossTolerance = 0.001;
+  const ranked = [...evaluations]
+    .map((entry) => {
+      const metrics = entry.validationMetrics;
+      const brier = metrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY;
+      const logLoss = metrics.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY;
+      const totalGoalsMae = metrics.goalsAndMarkets.totalGoalsMae ?? Number.POSITIVE_INFINITY;
+      const goalDifferenceMae = metrics.goalsAndMarkets.goalDifferenceMae ?? Number.POSITIVE_INFINITY;
+      const outcomeAccuracy = -(metrics.oneXTwo.outcomeAccuracy ?? -1);
+      const favoriteAccuracy = -(metrics.oneXTwo.favoriteAccuracy ?? -1);
+      const tieBreakOrder = [brier, logLoss, totalGoalsMae, goalDifferenceMae, outcomeAccuracy, favoriteAccuracy];
+      return {
+        candidate: entry.candidate,
+        validationMetrics: entry.validationMetrics,
+        selectionAudit: {
+          multiclassBrier: metrics.oneXTwo.multiclassBrier,
+          brierFromBest: metrics.oneXTwo.multiclassBrier == null ? null : round(metrics.oneXTwo.multiclassBrier - brierFloor, 6),
+          withinBrierTolerance: brier <= brierFloor + brierTolerance,
+          logLoss: metrics.oneXTwo.logLoss,
+          logLossFromBestWithinToleranceSet: metrics.oneXTwo.logLoss == null ? null : round(metrics.oneXTwo.logLoss - logLossFloor, 6),
+          withinLogLossTolerance: logLoss <= logLossFloor + logLossTolerance,
+          totalGoalsMae: metrics.goalsAndMarkets.totalGoalsMae,
+          goalDifferenceMae: metrics.goalsAndMarkets.goalDifferenceMae,
+          outcomeAccuracy: metrics.oneXTwo.outcomeAccuracy,
+          favoriteAccuracy: metrics.oneXTwo.favoriteAccuracy,
+          tieBreakOrder,
+          validationSelectionScore: round(
+            (metrics.oneXTwo.multiclassBrier ?? 1) * 0.35 +
+              (metrics.oneXTwo.logLoss ?? 1) * 0.3 +
+              (metrics.goalsAndMarkets.totalGoalsMae ?? 2) * 0.15 +
+              (metrics.goalsAndMarkets.goalDifferenceMae ?? 2) * 0.1 +
+              (1 - (metrics.oneXTwo.outcomeAccuracy ?? 0)) * 0.1,
+            6,
+          ),
+        },
+      } satisfies CandidateReplayEvaluation;
+    })
+    .sort((left, right) => {
+      for (let index = 0; index < left.selectionAudit.tieBreakOrder.length; index += 1) {
+        const delta = left.selectionAudit.tieBreakOrder[index]! - right.selectionAudit.tieBreakOrder[index]!;
+        if (delta !== 0) {
+          return delta;
+        }
+      }
+      return left.candidate.key.localeCompare(right.candidate.key);
+    });
+  return {
+    ranked,
+    rule: {
+      primary: "lowest_multiclass_brier",
+      brierTolerance,
+      secondary: "lowest_log_loss_within_brier_tolerance",
+      logLossTolerance,
+      tertiary: ["lowest_total_goals_mae", "lowest_goal_difference_mae"],
+      tieBreakers: ["highest_outcome_accuracy", "highest_favorite_accuracy", "stable_key_order"],
+    },
+    winner: ranked[0]!,
+  };
 }
 
-function evaluateScenarioRows(rows: Array<{
+export function evaluateScenarioRows(rows: Array<{
   actual: { homeGoals: number; awayGoals: number; outcome: MatchOutcomeKey };
   prediction: ChallengerPrediction;
   favoriteSide: MatchOutcomeKey;
 }>) {
-  const summary = {
-    fixtureCount: rows.length,
-    correctOneXTwoFamily: 0,
-    correctWinningMarginFamily: 0,
-    correctTotalGoalRange: 0,
-    mainScenarioMaterialized: 0,
-    riskScenarioMaterialized: 0,
-    resultOutsideAllThreeScenarioFamilies: 0,
-  };
-  for (const row of rows) {
+  const perFixture = rows.map((row) => {
     const actualFamily = familyCodeForScore({
       homeGoals: row.actual.homeGoals,
       awayGoals: row.actual.awayGoals,
       favoriteSide: row.favoriteSide,
     });
     const selectedFamilies = row.prediction.scenarios.map((scenario) => scenario.familyCode);
-    const actualOutcome = row.actual.outcome;
-    const actualMargin = winningMarginCode(row.actual.homeGoals, row.actual.awayGoals);
-    const actualTotalRange = totalRangeCode(row.actual.homeGoals, row.actual.awayGoals);
-    const first = row.prediction.scenarios[0];
-    const third = row.prediction.scenarios[2];
-    if (selectedFamilies.some((familyCode) => {
-      if (familyCode.includes("draw")) {
-        return actualOutcome === "draw";
-      }
-      if (familyCode.includes("favorite")) {
-        return actualOutcome === row.favoriteSide;
-      }
-      if (familyCode.includes("underdog")) {
-        return actualOutcome !== "draw" && actualOutcome !== row.favoriteSide;
-      }
-      return true;
-    })) {
-      summary.correctOneXTwoFamily += 1;
-    }
-    if (selectedFamilies.some((familyCode) => {
-      if (familyCode === "favorite_clear_win" || familyCode === "underdog_clear_win") {
-        return actualMargin === "multi_goal_margin";
-      }
-      if (familyCode === "favorite_narrow_win" || familyCode === "underdog_narrow_win") {
-        return actualMargin === "one_goal_margin";
-      }
-      if (familyCode.includes("draw")) {
-        return actualMargin === "draw_margin";
-      }
-      return true;
-    })) {
-      summary.correctWinningMarginFamily += 1;
-    }
-    if (selectedFamilies.some((familyCode) => {
-      if (familyCode === "controlled_low_total_match" || familyCode === "low_scoring_draw") {
-        return actualTotalRange !== "high_total";
-      }
-      if (familyCode === "open_high_scoring_match") {
-        return actualTotalRange === "high_total";
-      }
-      return actualTotalRange === "medium_total";
-    })) {
-      summary.correctTotalGoalRange += 1;
-    }
-    if (first && first.familyCode === actualFamily) {
-      summary.mainScenarioMaterialized += 1;
-    }
-    if (third && third.familyCode === actualFamily) {
-      summary.riskScenarioMaterialized += 1;
-    }
-    if (!selectedFamilies.includes(actualFamily)) {
-      summary.resultOutsideAllThreeScenarioFamilies += 1;
-    }
+    const selectedContracts = selectedFamilies.map((familyCode) => scenarioFamilyContract(familyCode));
+    const matchesAnyDisplayedFamily = selectedFamilies.some((familyCode) =>
+      familyMatchesScore({
+        familyCode,
+        homeGoals: row.actual.homeGoals,
+        awayGoals: row.actual.awayGoals,
+        favoriteSide: row.favoriteSide,
+      }),
+    );
+    return {
+      actualFamily,
+      selectedFamilies,
+      selectedContracts,
+      correctOneXTwoFamily: selectedContracts.some((contract) =>
+        contract.outcome === "draw"
+          ? row.actual.outcome === "draw"
+          : contract.outcome === "favorite"
+            ? row.actual.outcome === row.favoriteSide
+            : contract.outcome === "underdog"
+              ? row.actual.outcome !== "draw" && row.actual.outcome !== row.favoriteSide
+              : row.actual.outcome !== "draw",
+      ),
+      correctWinningMarginFamily: selectedContracts.some((contract) =>
+        contract.winningMargin === "non_draw_any"
+          ? winningMarginCode(row.actual.homeGoals, row.actual.awayGoals) !== "draw_margin"
+          : contract.winningMargin === winningMarginCode(row.actual.homeGoals, row.actual.awayGoals),
+      ),
+      correctTotalGoalRange: selectedContracts.some(
+        (contract) => contract.totalGoalRange === totalRangeCode(row.actual.homeGoals, row.actual.awayGoals),
+      ),
+      mainScenarioMaterialized: row.prediction.scenarios[0]?.familyCode === actualFamily,
+      riskScenarioMaterialized:
+        row.prediction.scenarios
+          .filter((scenario) => scenario.scenarioType !== "main")
+          .some((scenario) => scenario.familyCode === actualFamily),
+      resultOutsideAllThreeScenarioFamilies: !matchesAnyDisplayedFamily,
+    };
+  });
+  const outsideAndMatched = perFixture.filter(
+    (row) => row.resultOutsideAllThreeScenarioFamilies && row.selectedFamilies.includes(row.actualFamily),
+  );
+  if (outsideAndMatched.length > 0) {
+    throw new Error("Scenario evaluator inconsistency: fixture cannot be outside all three families and inside a displayed family.");
   }
   return {
-    fixtureCount: summary.fixtureCount,
-    correctOneXTwoFamily: rate(summary.correctOneXTwoFamily, summary.fixtureCount, 6),
-    correctWinningMarginFamily: rate(summary.correctWinningMarginFamily, summary.fixtureCount, 6),
-    correctTotalGoalRange: rate(summary.correctTotalGoalRange, summary.fixtureCount, 6),
-    mainScenarioMaterialized: rate(summary.mainScenarioMaterialized, summary.fixtureCount, 6),
-    riskScenarioMaterialized: rate(summary.riskScenarioMaterialized, summary.fixtureCount, 6),
-    resultOutsideAllThreeScenarioFamilies: rate(summary.resultOutsideAllThreeScenarioFamilies, summary.fixtureCount, 6),
+    fixtureCount: rows.length,
+    correctOneXTwoFamily: rate(perFixture.filter((row) => row.correctOneXTwoFamily).length, rows.length, 6),
+    correctWinningMarginFamily: rate(perFixture.filter((row) => row.correctWinningMarginFamily).length, rows.length, 6),
+    correctTotalGoalRange: rate(perFixture.filter((row) => row.correctTotalGoalRange).length, rows.length, 6),
+    mainScenarioMaterialized: rate(perFixture.filter((row) => row.mainScenarioMaterialized).length, rows.length, 6),
+    riskScenarioMaterialized: rate(perFixture.filter((row) => row.riskScenarioMaterialized).length, rows.length, 6),
+    resultOutsideAllThreeScenarioFamilies: rate(
+      perFixture.filter((row) => row.resultOutsideAllThreeScenarioFamilies).length,
+      rows.length,
+      6,
+    ),
+    perFixture,
   };
 }
 
@@ -2090,26 +2804,89 @@ function teamCoverage(rows: Array<{ homeTeamKey: string; awayTeamKey: string }>)
   return Array.from(new Set(rows.flatMap((row) => [row.homeTeamKey, row.awayTeamKey]))).sort();
 }
 
-function isWorldCupCanonicalFixture(fact: HistoricalMatchFact) {
-  return WORLD_CUP_TEAM_SET.has(fact.team_1_key) && WORLD_CUP_TEAM_SET.has(fact.team_2_key);
-}
-
-export function buildTrainingValidationHoldoutManifest(args: {
+export function buildExpandedCalibrationManifest(args: {
   historicalFacts: HistoricalMatchFact[];
   holdoutRows: ReplayFixtureRecord[];
   scheduleRows: WorldCupScheduleMatch[];
+  localizations?: CanonicalTeamLocalization[];
 }) {
+  const localizationKeys = new Set((args.localizations ?? []).map((entry) => entry.canonical_team_key));
+  const seenNaturalKeys = new Set<string>();
+  const priorMatchesByTeam = new Map<string, number>();
+  const includedTrainingFacts: HistoricalMatchFact[] = [];
+  const includedValidationFacts: HistoricalMatchFact[] = [];
+  const excludedRows: Array<{
+    naturalMatchKey: string;
+    sourceSnapshotId: string;
+    sourceFile: string;
+    matchDate: string;
+    team1Key: string;
+    team2Key: string;
+    reasonCode: string;
+  }> = [];
   const canonicalFacts = args.historicalFacts
     .map((fact) => canonicalizeHistoricalFactForReplay(fact, args.scheduleRows))
-    .filter((fact) => isWorldCupCanonicalFixture(fact));
-  const trainingFacts = canonicalFacts.filter((fact) => fact.match_date.startsWith("2025-"));
-  const validationFacts = canonicalFacts.filter((fact) => fact.match_date.startsWith("2026-") && Date.parse(buildHistoricalReplayCutoff(fact, args.scheduleRows).cutoffAt) < Date.parse(VALIDATION_CUTOFF));
-  return {
+    .sort((left, right) => {
+      const cutoffDelta =
+        Date.parse(buildHistoricalReplayCutoff(left, args.scheduleRows).cutoffAt) -
+        Date.parse(buildHistoricalReplayCutoff(right, args.scheduleRows).cutoffAt);
+      if (cutoffDelta !== 0) {
+        return cutoffDelta;
+      }
+      return left.natural_match_key.localeCompare(right.natural_match_key);
+    });
+  for (const fact of canonicalFacts) {
+    const cutoff = buildHistoricalReplayCutoff(fact, args.scheduleRows);
+    const reasonCode =
+      !/^\d{4}-\d{2}-\d{2}$/.test(fact.match_date)
+        ? "invalid_date"
+        : seenNaturalKeys.has(fact.natural_match_key)
+          ? "duplicate"
+          : !fact.team_1_key || !fact.team_2_key
+            ? "unresolved_team"
+            : localizationKeys.size > 0 && (!localizationKeys.has(fact.team_1_key) || !localizationKeys.has(fact.team_2_key))
+              ? "unresolved_team"
+              : fact.score_1 == null || fact.score_2 == null
+                ? "missing_result"
+                : fact.team_1_key === fact.team_2_key
+                  ? "unsupported_fixture_orientation"
+                  : (fact.pre_match_elo_1 ?? maybePostMinusChange(fact.post_match_elo_1, fact.elo_change_1)) == null ||
+                      (fact.pre_match_elo_2 ?? maybePostMinusChange(fact.post_match_elo_2, fact.elo_change_2)) == null
+                    ? "missing_pre_match_elo"
+                    : !fact.match_date.startsWith("2025-") &&
+                        !(fact.match_date.startsWith("2026-") && Date.parse(cutoff.cutoffAt) < Date.parse(VALIDATION_CUTOFF))
+                      ? "outside_calibration_window"
+                      : (priorMatchesByTeam.get(fact.team_1_key) ?? 0) < 1 ||
+                          (priorMatchesByTeam.get(fact.team_2_key) ?? 0) < 1
+                        ? "insufficient_prior_history"
+                        : null;
+    if (reasonCode == null) {
+      if (fact.match_date.startsWith("2025-")) {
+        includedTrainingFacts.push(fact);
+      } else {
+        includedValidationFacts.push(fact);
+      }
+    } else {
+      excludedRows.push({
+        naturalMatchKey: fact.natural_match_key,
+        sourceSnapshotId: fact.source_snapshot_id,
+        sourceFile: fact.source_file,
+        matchDate: fact.match_date,
+        team1Key: fact.team_1_key,
+        team2Key: fact.team_2_key,
+        reasonCode,
+      });
+    }
+    seenNaturalKeys.add(fact.natural_match_key);
+    priorMatchesByTeam.set(fact.team_1_key, (priorMatchesByTeam.get(fact.team_1_key) ?? 0) + 1);
+    priorMatchesByTeam.set(fact.team_2_key, (priorMatchesByTeam.get(fact.team_2_key) ?? 0) + 1);
+  }
+  const splitManifest = {
     training: {
       split: "training",
-      rowCount: trainingFacts.length,
-      teamsCovered: teamCoverage(trainingFacts.map((fact) => ({ homeTeamKey: fact.team_1_key, awayTeamKey: fact.team_2_key }))),
-      rows: trainingFacts.map((fact) => {
+      rowCount: includedTrainingFacts.length,
+      teamsCovered: teamCoverage(includedTrainingFacts.map((fact) => ({ homeTeamKey: fact.team_1_key, awayTeamKey: fact.team_2_key }))),
+      rows: includedTrainingFacts.map((fact) => {
         const cutoff = buildHistoricalReplayCutoff(fact, args.scheduleRows);
         return {
           fixtureId: fact.natural_match_key,
@@ -2123,14 +2900,13 @@ export function buildTrainingValidationHoldoutManifest(args: {
           datePrecision: cutoff.datePrecision,
         };
       }),
-      adjustmentNote:
-        "Training rows are restricted to fixtures where both teams are in the World Cup canonical set because Task 2 reuses the Task 1 replay entrypoint and localizations.",
+      adjustmentNote: "Training rows use recoverable 2025 national-team historical fixtures with explicit exclusion reasons for dropped rows.",
     } satisfies Task2SplitManifest,
     validation: {
       split: "validation",
-      rowCount: validationFacts.length,
-      teamsCovered: teamCoverage(validationFacts.map((fact) => ({ homeTeamKey: fact.team_1_key, awayTeamKey: fact.team_2_key }))),
-      rows: validationFacts.map((fact) => {
+      rowCount: includedValidationFacts.length,
+      teamsCovered: teamCoverage(includedValidationFacts.map((fact) => ({ homeTeamKey: fact.team_1_key, awayTeamKey: fact.team_2_key }))),
+      rows: includedValidationFacts.map((fact) => {
         const cutoff = buildHistoricalReplayCutoff(fact, args.scheduleRows);
         return {
           fixtureId: fact.natural_match_key,
@@ -2145,7 +2921,7 @@ export function buildTrainingValidationHoldoutManifest(args: {
         };
       }),
       adjustmentNote:
-        "Validation rows use conservative start-of-day cutoffs when the historical seed lacks an exact kickoff timestamp, preventing same-day leakage.",
+        "Validation rows use 2026 fixtures strictly before the World Cup holdout window, with date-only evidence restricted to earlier calendar dates.",
     } satisfies Task2SplitManifest,
     holdout: {
       split: "holdout",
@@ -2164,6 +2940,60 @@ export function buildTrainingValidationHoldoutManifest(args: {
       })),
       adjustmentNote: null,
     } satisfies Task2SplitManifest,
+  };
+  const reasonCounts = excludedRows.reduce<Record<string, number>>((accumulator, row) => {
+    accumulator[row.reasonCode] = (accumulator[row.reasonCode] ?? 0) + 1;
+    return accumulator;
+  }, {});
+  const reasonCountsBySource = excludedRows.reduce<Record<string, Record<string, number>>>((accumulator, row) => {
+    const sourceBucket = accumulator[row.sourceSnapshotId] ?? {};
+    sourceBucket[row.reasonCode] = (sourceBucket[row.reasonCode] ?? 0) + 1;
+    accumulator[row.sourceSnapshotId] = sourceBucket;
+    return accumulator;
+  }, {});
+  return {
+    splitManifest,
+    audit: {
+      totalHistoricalFacts: canonicalFacts.length,
+      includedTrainingRows: includedTrainingFacts.length,
+      includedValidationRows: includedValidationFacts.length,
+      excludedRows: excludedRows.length,
+      reasonCounts,
+      reasonCountsBySource,
+      excludedExamples: excludedRows.slice(0, 50),
+    },
+  };
+}
+
+export function buildTrainingValidationHoldoutManifest(args: {
+  historicalFacts: HistoricalMatchFact[];
+  holdoutRows: ReplayFixtureRecord[];
+  scheduleRows: WorldCupScheduleMatch[];
+  localizations?: CanonicalTeamLocalization[];
+}) {
+  return buildExpandedCalibrationManifest(args).splitManifest;
+}
+
+function buildHistoricalFeatureCoverage(rows: MatchFeatureVector[]) {
+  const nullCounts: Record<string, number> = {};
+  const visit = (prefix: string, value: unknown) => {
+    if (value == null) {
+      nullCounts[prefix] = (nullCounts[prefix] ?? 0) + 1;
+      return;
+    }
+    if (typeof value === "object" && !Array.isArray(value)) {
+      for (const [key, nested] of Object.entries(value)) {
+        visit(`${prefix}.${key}`, nested);
+      }
+    }
+  };
+  for (const row of rows) {
+    visit("home", row.home);
+    visit("away", row.away);
+  }
+  return {
+    fixtureCount: rows.length,
+    nullCounts,
   };
 }
 
@@ -2248,10 +3078,6 @@ function buildHistoricalPredictionRows(
   };
 }
 
-function buildProductMatchMap(productInventory: ProductReplayInventory) {
-  return new Map(productInventory.matches.map((match) => [match.id, match]));
-}
-
 function loadHistoricalTask2Reference(referenceDir: string): HistoricalTask2Reference {
   return {
     readme: readText(path.join(referenceDir, "README.txt")),
@@ -2318,11 +3144,18 @@ export function assertTask2LocalOnlyPreflight(paths: Task2Paths): void {
     throw new Error(`Historical Task 2 reference directory not found: ${paths.historicalTask2ReferenceDir}`);
   }
 
-  if (path.normalize(paths.artifactsDir).includes(path.join("task2", HISTORICAL_ARTIFACT_DATE))) {
+  if (
+    path.normalize(paths.artifactsDir).includes(path.join("task2", HISTORICAL_ARTIFACT_DATE)) ||
+    path.normalize(paths.artifactsDir).includes(path.join("task2-1", HISTORICAL_ARTIFACT_DATE))
+  ) {
     throw new Error(
       `Task 2 local run refused because artifactsDir points at the preserved historical evidence path (${HISTORICAL_ARTIFACT_DATE}).`,
     );
   }
+}
+
+function buildProductMatchMap(productInventory: ProductReplayInventory) {
+  return new Map(productInventory.matches.map((match) => [match.id, match]));
 }
 
 function buildReplayFixtureRecords(args: {
@@ -2545,6 +3378,10 @@ function buildPromotionGate(args: {
   holdoutV1: ReplayMetricSummary;
   holdoutV2: ReplayMetricSummary;
   futureWarnings: number;
+  validationImproved?: boolean;
+  scenarioConsistent?: boolean;
+  boundedFutureShifts?: boolean;
+  deterministic?: boolean;
 }) {
   const brierImprovement =
     args.holdoutV1.oneXTwo.multiclassBrier != null && args.holdoutV2.oneXTwo.multiclassBrier != null
@@ -2563,13 +3400,21 @@ function buildPromotionGate(args: {
     (brierImprovement ?? -1) > 0.01 &&
     (logLossImprovement ?? -1) > 0.01 &&
     (outcomeImprovement ?? -1) >= 0 &&
-    args.futureWarnings <= 2
+    args.futureWarnings <= 2 &&
+    (args.validationImproved ?? true) &&
+    (args.scenarioConsistent ?? true) &&
+    (args.boundedFutureShifts ?? true) &&
+    (args.deterministic ?? true)
   ) {
     recommendation = "promote";
   } else if (
     (brierImprovement ?? -1) > 0 &&
     (logLossImprovement ?? -1) > 0 &&
-    args.futureWarnings <= 6
+    args.futureWarnings <= 6 &&
+    (args.validationImproved ?? true) &&
+    (args.scenarioConsistent ?? true) &&
+    (args.boundedFutureShifts ?? true) &&
+    (args.deterministic ?? true)
   ) {
     recommendation = "promote_with_warnings";
   }
@@ -2577,11 +3422,15 @@ function buildPromotionGate(args: {
     recommendation,
     decisionContext: {
       selectedCandidate: args.validationWinner.candidate.key,
-      validationScore: args.validationWinner.score,
+      validationScore: args.validationWinner.selectionAudit.validationSelectionScore,
       holdoutBrierImprovement: brierImprovement,
       holdoutLogLossImprovement: logLossImprovement,
       holdoutOutcomeAccuracyImprovement: outcomeImprovement,
       futureWarnings: args.futureWarnings,
+      validationImproved: args.validationImproved ?? true,
+      scenarioConsistent: args.scenarioConsistent ?? true,
+      boundedFutureShifts: args.boundedFutureShifts ?? true,
+      deterministic: args.deterministic ?? true,
     },
   };
 }
@@ -2663,6 +3512,7 @@ export async function runTask2(paths: Task2Paths) {
     historicalFacts: datasets.historicalFacts,
     holdoutRows,
     scheduleRows: datasets.schedule,
+    localizations: datasets.localizations,
   });
   const historicalIndex = buildHistoricalResultIndex(datasets.historicalFacts, datasets.schedule);
   const validationRows = splitManifest.validation.rows.map((row) => {
@@ -2698,6 +3548,7 @@ export async function runTask2(paths: Task2Paths) {
         cutoffAt: row.cutoffAt,
         homeTeamKey: row.homeTeamKey,
         awayTeamKey: row.awayTeamKey,
+        officialMatchNumber: row.officialMatchNumber,
         homeSignal: replayInput.homeSignal,
         awaySignal: replayInput.awaySignal,
         historicalFacts: datasets.historicalFacts,
@@ -2709,22 +3560,20 @@ export async function runTask2(paths: Task2Paths) {
       }),
     };
   });
-  const candidateEvaluations: CandidateReplayEvaluation[] = MODEL_2_CANDIDATES.map((candidate) => {
-    const metrics = computeReplayMetrics(
-      validationRows.map((row) => ({
-        prediction: parseChallengerPrediction(buildChallengerPrediction({
-          candidate,
-          features: row.features,
-        })),
-        actual: row.actual,
-      })),
-    );
-    return {
+  const candidateEvaluations = buildValidationSelectionAudit(
+    MODEL_2_CANDIDATES.map((candidate) => ({
       candidate,
-      validationMetrics: metrics,
-      score: validationSelectionScore(metrics),
-    };
-  }).sort((left, right) => left.score - right.score);
+      validationMetrics: computeReplayMetrics(
+        validationRows.map((row) => ({
+          prediction: parseChallengerPrediction(buildChallengerPrediction({
+            candidate,
+            features: row.features,
+          })),
+          actual: row.actual,
+        })),
+      ),
+    })),
+  ).ranked;
   const selectedCandidate = candidateEvaluations[0]!;
   const holdoutPredictions = holdoutRows.map((row) => {
     const features = buildMatchFeatureVector({
@@ -2732,6 +3581,7 @@ export async function runTask2(paths: Task2Paths) {
       cutoffAt: row.kickoffAt,
       homeTeamKey: row.homeTeamKey,
       awayTeamKey: row.awayTeamKey,
+      officialMatchNumber: row.officialMatchNumber,
       homeSignal: row.homeSignal,
       awaySignal: row.awaySignal,
       historicalFacts: datasets.historicalFacts,
@@ -2789,6 +3639,7 @@ export async function runTask2(paths: Task2Paths) {
       cutoffAt: paths.generationCutoff,
       homeTeamKey: row.homeTeamKey,
       awayTeamKey: row.awayTeamKey,
+      officialMatchNumber: row.officialMatchNumber,
       homeSignal: row.homeSignal,
       awaySignal: row.awaySignal,
       historicalFacts: datasets.historicalFacts,
@@ -2897,7 +3748,7 @@ export async function runTask2(paths: Task2Paths) {
   writeJson(path.join(artifactBase, "selected-model-spec.json"), {
     modelVersion: MODEL_VERSION,
     selectedCandidate: selectedCandidate.candidate,
-    selectedValidationScore: selectedCandidate.score,
+    selectedValidationScore: selectedCandidate.selectionAudit.validationSelectionScore,
     deterministicSeed: "not_applicable_deterministic_formula_model",
   });
   writeJson(path.join(artifactBase, "v1-v2-replay-summary.json"), {
@@ -2981,6 +3832,650 @@ export async function runTask2(paths: Task2Paths) {
     qualitativeCases,
     futurePredictions,
     shadowExport,
+    promotionGate,
+  };
+}
+
+function readJsonIfExists<T>(filePath: string): T | null {
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+  return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+}
+
+function createDeterministicRandom(seed: number) {
+  let state = seed >>> 0;
+  return () => {
+    state = (1664525 * state + 1013904223) >>> 0;
+    return state / 2 ** 32;
+  };
+}
+
+function percentile(sortedValues: number[], p: number) {
+  if (sortedValues.length === 0) {
+    return null;
+  }
+  const index = clamp(Math.floor((sortedValues.length - 1) * p), 0, sortedValues.length - 1);
+  return round(sortedValues[index]!, 6);
+}
+
+function bootstrapMeanRange(values: number[], seed: number) {
+  if (values.length === 0) {
+    return null;
+  }
+  const random = createDeterministicRandom(seed);
+  const samples: number[] = [];
+  for (let sample = 0; sample < 400; sample += 1) {
+    let total = 0;
+    for (let index = 0; index < values.length; index += 1) {
+      total += values[Math.floor(random() * values.length)] ?? 0;
+    }
+    samples.push(total / values.length);
+  }
+  samples.sort((left, right) => left - right);
+  return {
+    mean: round(average(values, 6) ?? 0, 6),
+    p05: percentile(samples, 0.05),
+    p95: percentile(samples, 0.95),
+  };
+}
+
+function buildAdjustmentDistribution(predictions: ChallengerPrediction[]) {
+  const audits = predictions
+    .map((prediction) => prediction.internalAudit)
+    .filter((audit): audit is PredictionAdjustmentAudit => audit != null);
+  const adjustmentKeys = [
+    "structuralDisagreement",
+    "recentForm",
+    "attack",
+    "defense",
+    "opponentAdjustment",
+    "tournamentForm",
+    "venueContext",
+    "reliabilityShrinkage",
+  ] as const;
+  return {
+    predictionCount: predictions.length,
+    byAdjustment: Object.fromEntries(
+      adjustmentKeys.map((key) => {
+        const values = audits.map((audit) => audit.signalAdjustments[key]);
+        return [
+          key,
+          {
+            mean: average(values, 6),
+            min: values.length === 0 ? null : round(Math.min(...values), 6),
+            max: values.length === 0 ? null : round(Math.max(...values), 6),
+          },
+        ];
+      }),
+    ),
+    capsAppliedCounts: audits.flatMap((audit) => audit.capsApplied).reduce<Record<string, number>>((accumulator, cap) => {
+      accumulator[cap] = (accumulator[cap] ?? 0) + 1;
+      return accumulator;
+    }, {}),
+    aggregateMeanGoalDifferenceAdjustment: average(
+      audits.map((audit) => audit.finalExpectedGoalDifference - audit.v1ExpectedGoalDifference),
+      6,
+    ),
+    aggregateMeanTotalGoalAdjustment: average(
+      audits.map((audit) => audit.finalExpectedTotalGoals - audit.v1ExpectedTotalGoals),
+      6,
+    ),
+  };
+}
+
+function buildNeutralContextAudit(args: {
+  holdoutRows: ReplayFixtureRecord[];
+  futureRows: FutureFixtureRecord[];
+  datasets: ReturnType<typeof loadTask1Datasets>;
+  generationCutoff: string;
+}) {
+  const inspectRow = (row: {
+    fixtureId: string;
+    officialMatchNumber: number | null;
+    cutoffAt: string;
+    homeTeamKey: string;
+    awayTeamKey: string;
+    homeSignal: TeamSignalSnapshot;
+    awaySignal: TeamSignalSnapshot;
+  }) => {
+    const features = buildMatchFeatureVector({
+      fixtureId: row.fixtureId,
+      cutoffAt: row.cutoffAt,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      officialMatchNumber: row.officialMatchNumber,
+      homeSignal: row.homeSignal,
+      awaySignal: row.awaySignal,
+      historicalFacts: args.datasets.historicalFacts,
+      localizations: args.datasets.localizations,
+      eloCurrent: args.datasets.eloCurrent,
+      eloStart2026: args.datasets.eloStart2026,
+      fifaRanking: args.datasets.fifaRanking,
+      scheduleRows: args.datasets.schedule,
+    });
+    return {
+      fixtureId: row.fixtureId,
+      officialMatchNumber: row.officialMatchNumber,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      priorNaiveContext: "home",
+      correctedContext: features.derived.venueContext.fixtureContext,
+      appliesTo: features.derived.venueContext.appliesTo,
+      venueCountryCode: features.derived.venueContext.venueCountryCode,
+      changed: features.derived.venueContext.appliesTo !== "home",
+      reasonCode: features.derived.venueContext.reasonCode,
+    };
+  };
+  const holdoutAudit = args.holdoutRows.map((row) =>
+    inspectRow({
+      fixtureId: row.fixtureId,
+      officialMatchNumber: row.officialMatchNumber,
+      cutoffAt: row.kickoffAt,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      homeSignal: row.homeSignal,
+      awaySignal: row.awaySignal,
+    }),
+  );
+  const futureAudit = args.futureRows.map((row) =>
+    inspectRow({
+      fixtureId: row.productMatchId,
+      officialMatchNumber: row.officialMatchNumber,
+      cutoffAt: args.generationCutoff,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      homeSignal: row.homeSignal,
+      awaySignal: row.awaySignal,
+    }),
+  );
+  const allRows = [...holdoutAudit, ...futureAudit];
+  return {
+    rowsInspected: allRows.length,
+    changedFixtures: allRows.filter((row) => row.changed).length,
+    hostContextFixtures: allRows.filter((row) => row.appliesTo != null).length,
+    neutralFixtures: allRows.filter((row) => row.correctedContext === "neutral").length,
+    examples: allRows.slice(0, 60),
+  };
+}
+
+type HistoricalEvaluationRow = {
+  fixtureId: string;
+  cutoffAt: string;
+  officialMatchNumber: number | null;
+  homeTeamKey: string;
+  awayTeamKey: string;
+  actual: { homeGoals: number; awayGoals: number; score: string; outcome: MatchOutcomeKey };
+  features: MatchFeatureVector;
+};
+
+function materializeHistoricalRows(args: {
+  rows: Task2SplitManifest["rows"];
+  datasets: ReturnType<typeof loadTask1Datasets>;
+}) {
+  const historicalIndex = buildHistoricalResultIndex(args.datasets.historicalFacts, args.datasets.schedule);
+  return args.rows.map((row) => {
+    const fact =
+      historicalIndex.get(row.naturalMatchKey ?? "") ??
+      historicalIndex.get(`${row.homeTeamKey}::${row.awayTeamKey}::${row.cutoffAt}`);
+    if (!fact) {
+      throw new Error(`Missing historical fact for ${row.fixtureId}.`);
+    }
+    const replayInput = buildPredictionIntelligenceV2ReplayInput({
+      cutoffAt: row.cutoffAt,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      historicalFacts: args.datasets.historicalFacts,
+      aliases: args.datasets.aliases,
+      eloCurrent: args.datasets.eloCurrent,
+      eloStart2026: args.datasets.eloStart2026,
+      fifaRanking: args.datasets.fifaRanking,
+      localizations: args.datasets.localizations,
+      schedule: args.datasets.schedule,
+    });
+    return {
+      fixtureId: row.fixtureId,
+      cutoffAt: row.cutoffAt,
+      officialMatchNumber: row.officialMatchNumber,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      actual: {
+        homeGoals: fact.score_1,
+        awayGoals: fact.score_2,
+        score: `${fact.score_1}-${fact.score_2}`,
+        outcome: outcomeFromGoals(fact.score_1, fact.score_2),
+      },
+      features: buildMatchFeatureVector({
+        fixtureId: row.fixtureId,
+        cutoffAt: row.cutoffAt,
+        homeTeamKey: row.homeTeamKey,
+        awayTeamKey: row.awayTeamKey,
+        officialMatchNumber: row.officialMatchNumber,
+        homeSignal: replayInput.homeSignal,
+        awaySignal: replayInput.awaySignal,
+        historicalFacts: args.datasets.historicalFacts,
+        localizations: args.datasets.localizations,
+        eloCurrent: args.datasets.eloCurrent,
+        eloStart2026: args.datasets.eloStart2026,
+        fifaRanking: args.datasets.fifaRanking,
+        scheduleRows: args.datasets.schedule,
+      }),
+    } satisfies HistoricalEvaluationRow;
+  });
+}
+
+function buildFutureAnomalyReview(rows: Array<{
+  fixture: string;
+  v1: PredictionLike | null;
+  prediction: ChallengerPrediction;
+  venueContext: MatchFeatureVector["derived"]["venueContext"];
+  coherenceWarnings: string[];
+}>) {
+  const targets = new Set([
+    "Belgium vs Iran",
+    "Panama vs Croatia",
+    "Norway vs Senegal",
+    "Argentina vs Austria",
+    "England vs Ghana",
+    "Spain vs Saudi Arabia",
+  ]);
+  return rows
+    .filter((row) => targets.has(row.fixture))
+    .map((row) => {
+      const deltas =
+        row.v1 == null
+          ? null
+          : {
+              homeWinDelta: round(row.prediction.probabilities.oneXTwo.homeWin - row.v1.homeWin, 6),
+              drawDelta: round(row.prediction.probabilities.oneXTwo.draw - row.v1.draw, 6),
+              awayWinDelta: round(row.prediction.probabilities.oneXTwo.awayWin - row.v1.awayWin, 6),
+              expectedHomeGoalsDelta: round(row.prediction.expectedGoals.home - row.v1.expectedHomeGoals, 6),
+              expectedAwayGoalsDelta: round(row.prediction.expectedGoals.away - row.v1.expectedAwayGoals, 6),
+            };
+      const maxDelta =
+        deltas == null
+          ? null
+          : Math.max(Math.abs(deltas.homeWinDelta), Math.abs(deltas.drawDelta), Math.abs(deltas.awayWinDelta));
+      return {
+        fixture: row.fixture,
+        deltas,
+        venueContext: row.venueContext,
+        capsApplied: row.prediction.internalAudit?.capsApplied ?? [],
+        coherenceWarnings: row.coherenceWarnings,
+        flaggedUnexplainedShift: maxDelta != null && maxDelta > 0.1,
+        conclusion:
+          maxDelta == null
+            ? "missing_v1_reference"
+            : maxDelta > 0.1
+              ? "flagged_shift_above_threshold"
+              : "bounded_shift_within_threshold",
+      };
+    });
+}
+
+export async function runTask2_1(paths: Task2Paths) {
+  assertTask2LocalOnlyPreflight(paths);
+
+  const datasets = loadTask1Datasets(paths);
+  const task11Reference = loadHistoricalTask11Reference(paths.historicalReferenceDir);
+  const task2Reference = loadHistoricalTask2Reference(paths.historicalTask2ReferenceDir);
+  const productInventory = buildHistoricalProductReplayInventory(
+    task11Reference.replayCoverageManifest,
+    task11Reference.refreshPlan,
+    datasets.schedule,
+  );
+  const refreshPlan = task11Reference.refreshPlan;
+  const scheduleLinks = buildScheduleLinksFromClassification(task11Reference.classification);
+  const historicalReplayPredictions = buildHistoricalReplayPredictionIndex(task2Reference);
+  const historicalFuturePredictions = buildHistoricalFuturePredictionIndex(task2Reference);
+  const coverage = buildTask1_2Coverage({
+    productInventory,
+    refreshPlan,
+    scheduleRows: datasets.schedule,
+    scheduleLinks,
+    aliases: datasets.aliases,
+    localizations: datasets.localizations,
+    historicalFacts: datasets.historicalFacts,
+    eloCurrent: datasets.eloCurrent,
+    eloStart2026: datasets.eloStart2026,
+    fifaRanking: datasets.fifaRanking,
+  });
+  const readyManifest = coverage.manifest.filter((entry) => entry.replay_readiness === "ready");
+  const holdoutRows = buildReplayFixtureRecords({
+    manifest: readyManifest,
+    productInventory,
+    aliases: datasets.aliases,
+    localizations: datasets.localizations,
+    historicalFacts: datasets.historicalFacts,
+    eloCurrent: datasets.eloCurrent,
+    eloStart2026: datasets.eloStart2026,
+    fifaRanking: datasets.fifaRanking,
+    scheduleRows: datasets.schedule,
+    historicalReplayPredictions,
+    refreshResults: [
+      ...refreshPlan.already_known_results,
+      ...refreshPlan.newly_discovered_results,
+      ...refreshPlan.score_or_status_corrections,
+      ...refreshPlan.unresolved_finished_fixtures,
+    ],
+  });
+  const expandedManifest = buildExpandedCalibrationManifest({
+    historicalFacts: datasets.historicalFacts,
+    holdoutRows,
+    scheduleRows: datasets.schedule,
+    localizations: datasets.localizations,
+  });
+  const trainingRows = materializeHistoricalRows({
+    rows: expandedManifest.splitManifest.training.rows,
+    datasets,
+  });
+  const validationRows = materializeHistoricalRows({
+    rows: expandedManifest.splitManifest.validation.rows,
+    datasets,
+  });
+  const featureCoverage = buildHistoricalFeatureCoverage([...trainingRows, ...validationRows].map((row) => row.features));
+  const validationSelection = buildValidationSelectionAudit(
+    TASK2_1_CANDIDATES.map((candidate) => ({
+      candidate,
+      validationMetrics: computeReplayMetrics(
+        validationRows.map((row) => ({
+          prediction: parseChallengerPrediction(buildChallengerPrediction({
+            candidate,
+            features: row.features,
+          })),
+          actual: row.actual,
+        })),
+      ),
+    })),
+  );
+  const selectedCandidate = validationSelection.winner;
+  const holdoutByCandidate = Object.fromEntries(
+    validationSelection.ranked.map((evaluation) => {
+      const predictions = holdoutRows.map((row) => {
+        const features = buildMatchFeatureVector({
+          fixtureId: row.fixtureId,
+          cutoffAt: row.kickoffAt,
+          homeTeamKey: row.homeTeamKey,
+          awayTeamKey: row.awayTeamKey,
+          officialMatchNumber: row.officialMatchNumber,
+          homeSignal: row.homeSignal,
+          awaySignal: row.awaySignal,
+          historicalFacts: datasets.historicalFacts,
+          localizations: datasets.localizations,
+          eloCurrent: datasets.eloCurrent,
+          eloStart2026: datasets.eloStart2026,
+          fifaRanking: datasets.fifaRanking,
+          scheduleRows: datasets.schedule,
+        });
+        const prediction = buildChallengerPrediction({
+          candidate: evaluation.candidate,
+          features,
+        });
+        return {
+          row,
+          features,
+          prediction,
+        };
+      });
+      return [
+        evaluation.candidate.key,
+        {
+          metrics: computeReplayMetrics(
+            predictions.map((entry) => ({
+              prediction: parseChallengerPrediction(entry.prediction),
+              actual: entry.row.actual,
+            })),
+          ),
+          predictions,
+        },
+      ];
+    }),
+  ) as Record<string, {
+    metrics: ReplayMetricSummary;
+    predictions: Array<{ row: ReplayFixtureRecord; features: MatchFeatureVector; prediction: ChallengerPrediction }>;
+  }>;
+  const selectedHoldout = holdoutByCandidate[selectedCandidate.candidate.key]!;
+  const holdoutV1Metrics = computeReplayMetrics(
+    holdoutRows.map((row) => ({
+      prediction: parseOriginalPrediction(row.originalPrediction, row.originalMarkets),
+      actual: row.actual,
+    })),
+  );
+  const holdoutComparisonDiffs = holdoutRows.map((row, index) => {
+    const v1 = parseOriginalPrediction(row.originalPrediction, row.originalMarkets);
+    const v2 = parseChallengerPrediction(selectedHoldout.predictions[index]!.prediction);
+    return {
+      brierDiff: multiclassBrier(v1, row.actual.outcome) - multiclassBrier(v2, row.actual.outcome),
+      logLossDiff: logLoss(v1, row.actual.outcome) - logLoss(v2, row.actual.outcome),
+    };
+  });
+  const futureRows = buildFutureFixtureRecords({
+    historicalFutureFixtures: task2Reference.futureShadowFixtures,
+    aliases: datasets.aliases,
+    localizations: datasets.localizations,
+    venues: datasets.venues,
+    historicalFacts: datasets.historicalFacts,
+    eloCurrent: datasets.eloCurrent,
+    eloStart2026: datasets.eloStart2026,
+    fifaRanking: datasets.fifaRanking,
+    scheduleRows: datasets.schedule,
+    generationCutoff: paths.generationCutoff,
+    latestPredictionRows: historicalFuturePredictions,
+  });
+  const futurePredictions = futureRows.map((row) => {
+    const features = buildMatchFeatureVector({
+      fixtureId: row.productMatchId,
+      cutoffAt: paths.generationCutoff,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      officialMatchNumber: row.officialMatchNumber,
+      homeSignal: row.homeSignal,
+      awaySignal: row.awaySignal,
+      historicalFacts: datasets.historicalFacts,
+      localizations: datasets.localizations,
+      eloCurrent: datasets.eloCurrent,
+      eloStart2026: datasets.eloStart2026,
+      fifaRanking: datasets.fifaRanking,
+      scheduleRows: datasets.schedule,
+    });
+    const prediction = buildChallengerPrediction({
+      candidate: selectedCandidate.candidate,
+      features,
+    });
+    const v1 = row.originalPrediction ? parseOriginalPrediction(row.originalPrediction, row.originalMarkets) : null;
+    return {
+      ...row,
+      features,
+      prediction,
+      v1,
+      coherenceWarnings: buildCoherenceWarnings(prediction),
+    };
+  });
+  const futureWarnings = futurePredictions.reduce((total, row) => total + row.coherenceWarnings.length, 0);
+  const scenarioSummary = evaluateScenarioRows(
+    selectedHoldout.predictions.map((entry) => ({
+      actual: entry.row.actual,
+      prediction: entry.prediction,
+      favoriteSide: entry.features.derived.favoriteSide,
+    })),
+  );
+  const qualitativeCaseKeys = new Set([
+    "germany|curacao|7-1",
+    "spain|cape_verde|0-0",
+    "brazil|morocco|1-1",
+    "germany|ivory_coast|2-1",
+    "ecuador|curacao|0-0",
+  ]);
+  const qualitativeCases = selectedHoldout.predictions
+    .filter((entry) =>
+      qualitativeCaseKeys.has(`${entry.row.homeTeamKey}|${entry.row.awayTeamKey}|${entry.row.actual.score}`),
+    )
+    .map((entry) => ({
+      fixture: `${entry.row.homeNameEn} vs ${entry.row.awayNameEn}`,
+      actualResult: entry.row.actual.score,
+      actualScenarioFamily: familyCodeForScore({
+        homeGoals: entry.row.actual.homeGoals,
+        awayGoals: entry.row.actual.awayGoals,
+        favoriteSide: entry.features.derived.favoriteSide,
+      }),
+      displayedFamilies: entry.prediction.scenarios.map((scenario) => scenario.familyCode),
+      evaluatorMatched: entry.prediction.scenarios.some((scenario) =>
+        familyMatchesScore({
+          familyCode: scenario.familyCode,
+          homeGoals: entry.row.actual.homeGoals,
+          awayGoals: entry.row.actual.awayGoals,
+          favoriteSide: entry.features.derived.favoriteSide,
+        }),
+      ),
+    }));
+  const adjustmentDistribution = buildAdjustmentDistribution([
+    ...validationRows.map((row) => buildChallengerPrediction({ candidate: selectedCandidate.candidate, features: row.features })),
+    ...futurePredictions.map((row) => row.prediction),
+  ]);
+  const futureAnomalyReview = buildFutureAnomalyReview(
+    futurePredictions.map((row) => ({
+      fixture: `${row.homeNameEn} vs ${row.awayNameEn}`,
+      v1: row.v1,
+      prediction: row.prediction,
+      venueContext: row.features.derived.venueContext,
+      coherenceWarnings: row.coherenceWarnings,
+    })),
+  );
+  const boundedFutureShifts = futureAnomalyReview.every((row) => !row.flaggedUnexplainedShift);
+  const promotionGate = buildPromotionGate({
+    validationWinner: selectedCandidate,
+    holdoutV1: holdoutV1Metrics,
+    holdoutV2: selectedHoldout.metrics,
+    futureWarnings,
+    validationImproved:
+      (selectedCandidate.validationMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) <=
+      ((validationSelection.ranked.find((entry) => entry.candidate.key === "v1_compatible_baseline")?.validationMetrics.oneXTwo.multiclassBrier) ?? Number.POSITIVE_INFINITY),
+    scenarioConsistent: scenarioSummary.perFixture.every(
+      (row) => !(row.resultOutsideAllThreeScenarioFamilies && row.selectedFamilies.includes(row.actualFamily)),
+    ),
+    boundedFutureShifts,
+    deterministic: true,
+  });
+  const previousTask2CandidateResults = readJsonIfExists<Array<{
+    candidate?: { key?: string };
+    validationMetrics?: ReplayMetricSummary;
+    score?: number;
+  }>>(path.join(paths.repoRoot, "artifacts", "prediction-intelligence-v2", "task2", "2026-06-21", "candidate-calibration-results.json"));
+  const previousTask2SelectionBug =
+    previousTask2CandidateResults == null
+      ? null
+      : (() => {
+          const structural = previousTask2CandidateResults.find((entry) => entry.candidate?.key === "structural_only_ablation");
+          const baseline = previousTask2CandidateResults.find((entry) => entry.candidate?.key === "baseline_compatible_v2");
+          return structural && baseline
+            ? {
+                selectedCandidate: structural.candidate?.key,
+                lowerCompositeScore: structural.score ?? null,
+                butWorseThanBaseline: {
+                  brier:
+                    (structural.validationMetrics?.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) >
+                    (baseline.validationMetrics?.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY),
+                  logLoss:
+                    (structural.validationMetrics?.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY) >
+                    (baseline.validationMetrics?.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY),
+                  accuracy:
+                    (structural.validationMetrics?.oneXTwo.outcomeAccuracy ?? -1) <
+                    (baseline.validationMetrics?.oneXTwo.outcomeAccuracy ?? -1),
+                },
+              }
+            : null;
+        })();
+  const neutralContextAudit = buildNeutralContextAudit({
+    holdoutRows,
+    futureRows,
+    datasets,
+    generationCutoff: paths.generationCutoff,
+  });
+  const artifactBase = paths.artifactsDir;
+  ensureDirectory(artifactBase);
+  writeJson(path.join(artifactBase, "historical-row-inclusion-audit.json"), expandedManifest.audit);
+  writeJson(path.join(artifactBase, "expanded-calibration-manifest.json"), {
+    ...expandedManifest.splitManifest,
+    featureCoverage,
+  });
+  writeJson(path.join(artifactBase, "neutral-context-audit.json"), neutralContextAudit);
+  writeJson(path.join(artifactBase, "candidate-selection-audit.json"), {
+    previousTask2SelectionBug,
+    selectionRule: validationSelection.rule,
+    rankedCandidates: validationSelection.ranked,
+    selectedCandidate: validationSelection.winner.candidate.key,
+  });
+  writeJson(path.join(artifactBase, "hybrid-adjustment-distribution.json"), adjustmentDistribution);
+  writeJson(path.join(artifactBase, "validation-candidate-results.json"), validationSelection);
+  writeJson(path.join(artifactBase, "v1-v2-holdout-comparison.json"), {
+    v1: holdoutV1Metrics,
+    candidates: Object.fromEntries(
+      validationSelection.ranked.map((entry) => [entry.candidate.key, holdoutByCandidate[entry.candidate.key]!.metrics]),
+    ),
+    selectedCandidate: selectedCandidate.candidate.key,
+    bootstrapRanges: {
+      multiclassBrierImprovement: bootstrapMeanRange(holdoutComparisonDiffs.map((entry) => entry.brierDiff), 21),
+      logLossImprovement: bootstrapMeanRange(holdoutComparisonDiffs.map((entry) => entry.logLossDiff), 22),
+    },
+  });
+  writeJson(path.join(artifactBase, "scenario-definition-contract.json"), SCENARIO_FAMILY_CONTRACTS);
+  writeJson(path.join(artifactBase, "scenario-evaluation-audit.json"), {
+    summary: scenarioSummary,
+    qualitativeCases,
+  });
+  writeJson(path.join(artifactBase, "future-shadow-predictions.json"), futurePredictions.map((row) => ({
+    productMatchId: row.productMatchId,
+    officialMatchNumber: row.officialMatchNumber,
+    fixture: `${row.homeNameEn} vs ${row.awayNameEn}`,
+    kickoffAt: row.kickoffAt,
+    venueContext: row.features.derived.venueContext,
+    v1: row.v1,
+    v2: row.prediction,
+    probabilityDeltas:
+      row.v1 == null
+        ? null
+        : {
+            homeWin: round(row.prediction.probabilities.oneXTwo.homeWin - row.v1.homeWin, 6),
+            draw: round(row.prediction.probabilities.oneXTwo.draw - row.v1.draw, 6),
+            awayWin: round(row.prediction.probabilities.oneXTwo.awayWin - row.v1.awayWin, 6),
+          },
+    xgDeltas:
+      row.v1 == null
+        ? null
+        : {
+            home: round(row.prediction.expectedGoals.home - row.v1.expectedHomeGoals, 6),
+            away: round(row.prediction.expectedGoals.away - row.v1.expectedAwayGoals, 6),
+          },
+    capsApplied: row.prediction.internalAudit?.capsApplied ?? [],
+    coherenceWarnings: row.coherenceWarnings,
+  })));
+  writeJson(path.join(artifactBase, "future-anomaly-review.json"), futureAnomalyReview);
+  writeJson(path.join(artifactBase, "promotion-gate.json"), promotionGate);
+  writeText(
+    path.join(artifactBase, "README.txt"),
+    [
+      "Prediction Intelligence v2 Task 2.1 artifacts",
+      `artifact_date=${paths.artifactDate}`,
+      `generation_cutoff=${paths.generationCutoff}`,
+      `training_rows=${expandedManifest.splitManifest.training.rowCount}`,
+      `validation_rows=${expandedManifest.splitManifest.validation.rowCount}`,
+      `holdout_rows=${expandedManifest.splitManifest.holdout.rowCount}`,
+      `selected_candidate=${selectedCandidate.candidate.key}`,
+      `promotion_gate=${promotionGate.recommendation}`,
+      `future_shadow_predictions=${futurePredictions.length}`,
+    ].join("\n"),
+  );
+  return {
+    expandedManifest,
+    featureCoverage,
+    validationSelection,
+    holdoutV1Metrics,
+    holdoutByCandidate,
+    selectedCandidate,
+    scenarioSummary,
+    futurePredictions,
+    futureAnomalyReview,
+    neutralContextAudit,
     promotionGate,
   };
 }

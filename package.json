@@ -12,6 +12,7 @@
     "prediction-intelligence-v2:task1-1": "npx tsx scripts/prediction-intelligence-v2/run-task1-1.ts",
     "prediction-intelligence-v2:task1-2": "npx tsx scripts/prediction-intelligence-v2/run-task1-2.ts",
     "prediction-intelligence-v2:task2": "npx tsx scripts/prediction-intelligence-v2/run-task2.ts",
+    "prediction-intelligence-v2:task2-1": "npx tsx scripts/prediction-intelligence-v2/run-task2-1.ts",
     "spike:api-football": "npx tsx scripts/api-football-read-spike.ts",
     "ops:world-cup-matchday2-final-export": "npx tsx scripts/world-cup-matchday2-final-export.ts",
     "ops:regenerate-torneo-matchday2-export": "npx tsx scripts/regenerate-torneo-matchday2-export.ts",
