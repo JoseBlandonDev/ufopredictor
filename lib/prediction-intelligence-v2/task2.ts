@@ -40,6 +40,8 @@ export type Task2Paths = PreparedPaths & {
   historicalTask2ReferenceDir: string;
 };
 
+type Task2RunnerArtifactKey = "task2" | "task2-1" | "task2-2" | "task2-3";
+
 export type Task2ModelCandidateConfig = {
   key: string;
   label: string;
@@ -3143,7 +3145,24 @@ function buildHistoricalFuturePredictionIndex(reference: HistoricalTask2Referenc
   return byProductMatchId;
 }
 
-export function assertTask2LocalOnlyPreflight(paths: Task2Paths): void {
+function buildTask2RunnerLocalRunRoot(repoRoot: string, runnerArtifactKey: Task2RunnerArtifactKey): string {
+  return path.resolve(repoRoot, "artifacts", "prediction-intelligence-v2", runnerArtifactKey, "local-run");
+}
+
+function buildTask2HistoricalArtifactRoot(repoRoot: string, runnerArtifactKey: Task2RunnerArtifactKey): string {
+  return path.resolve(repoRoot, "artifacts", "prediction-intelligence-v2", runnerArtifactKey, HISTORICAL_ARTIFACT_DATE);
+}
+
+function isPathWithinResolvedRoot(args: { candidatePath: string; rootPath: string; allowSamePath?: boolean }): boolean {
+  const relativePath = path.relative(args.rootPath, args.candidatePath);
+  if (relativePath === "") {
+    return args.allowSamePath ?? false;
+  }
+
+  return !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
+}
+
+export function assertTask2LocalOnlyPreflight(paths: Task2Paths, runnerArtifactKey: Task2RunnerArtifactKey): void {
   if (!fs.existsSync(paths.preparedDir)) {
     throw new Error(`Prepared V2 workspace not found: ${paths.preparedDir}`);
   }
@@ -3156,14 +3175,32 @@ export function assertTask2LocalOnlyPreflight(paths: Task2Paths): void {
     throw new Error(`Historical Task 2 reference directory not found: ${paths.historicalTask2ReferenceDir}`);
   }
 
+  const resolvedArtifactsDir = path.resolve(paths.artifactsDir);
+  const preservedHistoricalRoots: Task2RunnerArtifactKey[] = ["task2", "task2-1", "task2-2", "task2-3"];
   if (
-    path.normalize(paths.artifactsDir).includes(path.join("task2", HISTORICAL_ARTIFACT_DATE)) ||
-    path.normalize(paths.artifactsDir).includes(path.join("task2-1", HISTORICAL_ARTIFACT_DATE)) ||
-    path.normalize(paths.artifactsDir).includes(path.join("task2-2", HISTORICAL_ARTIFACT_DATE)) ||
-    path.normalize(paths.artifactsDir).includes(path.join("task2-3", HISTORICAL_ARTIFACT_DATE))
+    preservedHistoricalRoots.some((artifactKey) =>
+      isPathWithinResolvedRoot({
+        candidatePath: resolvedArtifactsDir,
+        rootPath: buildTask2HistoricalArtifactRoot(paths.repoRoot, artifactKey),
+        allowSamePath: true,
+      }),
+    )
   ) {
     throw new Error(
       `Task 2 local run refused because artifactsDir points at the preserved historical evidence path (${HISTORICAL_ARTIFACT_DATE}).`,
+    );
+  }
+
+  const allowedLocalRunRoot = buildTask2RunnerLocalRunRoot(paths.repoRoot, runnerArtifactKey);
+  if (
+    !isPathWithinResolvedRoot({
+      candidatePath: resolvedArtifactsDir,
+      rootPath: allowedLocalRunRoot,
+      allowSamePath: false,
+    })
+  ) {
+    throw new Error(
+      `Task 2 local run refused because artifactsDir must resolve inside ${allowedLocalRunRoot}${path.sep}.`,
     );
   }
 }
@@ -3477,7 +3514,7 @@ function buildCoherenceWarnings(prediction: ChallengerPrediction) {
 }
 
 export async function runTask2(paths: Task2Paths) {
-  assertTask2LocalOnlyPreflight(paths);
+  assertTask2LocalOnlyPreflight(paths, "task2");
 
   const datasets = loadTask1Datasets(paths);
   const task11Reference = loadHistoricalTask11Reference(paths.historicalReferenceDir);
@@ -4128,7 +4165,7 @@ function buildFutureAnomalyReview(rows: Array<{
 }
 
 export async function runTask2_1(paths: Task2Paths) {
-  assertTask2LocalOnlyPreflight(paths);
+  assertTask2LocalOnlyPreflight(paths, "task2-1");
 
   const datasets = loadTask1Datasets(paths);
   const task11Reference = loadHistoricalTask11Reference(paths.historicalReferenceDir);
@@ -5418,7 +5455,7 @@ function buildScenarioComparison(args: {
 }
 
 export async function runTask2_2(paths: Task2Paths) {
-  assertTask2LocalOnlyPreflight(paths);
+  assertTask2LocalOnlyPreflight(paths, "task2-2");
 
   const datasets = loadTask1Datasets(paths);
   const task11Reference = loadHistoricalTask11Reference(paths.historicalReferenceDir);
@@ -6501,7 +6538,7 @@ export function buildPublicationPlanEntry(args: {
 }
 
 export async function runTask2_3(paths: Task2Paths) {
-  assertTask2LocalOnlyPreflight(paths);
+  assertTask2LocalOnlyPreflight(paths, "task2-3");
 
   const datasets = loadTask1Datasets(paths);
   const task11Reference = loadHistoricalTask11Reference(paths.historicalReferenceDir);

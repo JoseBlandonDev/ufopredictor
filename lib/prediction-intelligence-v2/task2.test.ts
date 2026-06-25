@@ -259,6 +259,17 @@ const scheduleRows: WorldCupScheduleMatch[] = [
 const baseHomeSignal = makeSignal({ teamKey: "germany", en: "Germany", es: "Alemania", elo: 1890, fifa: 1788 });
 const baseAwaySignal = makeSignal({ teamKey: "curacao", en: "Curacao", es: "Curazao", elo: 1590, fifa: 1390, missingOptionalSignals: ["market_context"] });
 
+function buildTask2LocalOnlyPaths(artifactsDir: string) {
+  return {
+    ...basePaths,
+    artifactsDir,
+    artifactDate: "2026-06-21",
+    generationCutoff: "2026-06-21T00:00:00Z",
+    historicalReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task1-1", "2026-06-21"),
+    historicalTask2ReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "2026-06-21"),
+  };
+}
+
 describe("prediction intelligence v2 task2", () => {
   it("expands recoverable historical calibration rows beyond the World Cup team-only subset", () => {
     const holdoutRows = [
@@ -1394,38 +1405,59 @@ describe("prediction intelligence v2 task2", () => {
     expect(JSON.stringify(first)).toBe(JSON.stringify(second));
   });
 
-  it("refuses to overwrite the preserved 2026-06-21 task2, task2-1, task2-2, or task2-3 historical artifact path", () => {
-    expect(() =>
-      assertTask2LocalOnlyPreflight({
-        ...basePaths,
-        artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-1", "2026-06-21"),
-        artifactDate: "2026-06-21",
-        generationCutoff: "2026-06-21T00:00:00Z",
-        historicalReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task1-1", "2026-06-21"),
-        historicalTask2ReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "2026-06-21"),
-      }),
-    ).toThrow(/preserved historical evidence path/i);
+  it("accepts only descendant artifact directories under the matching runner local-run root", () => {
+    const cases = [
+      { key: "task2" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "local-run", "2026-06-24", "nested") },
+      { key: "task2-1" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-1", "local-run", "2026-06-24", "nested") },
+      { key: "task2-2" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-2", "local-run", "2026-06-24", "nested") },
+      { key: "task2-3" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-3", "local-run", "2026-06-24", "nested") },
+    ];
+
+    for (const testCase of cases) {
+      expect(() => assertTask2LocalOnlyPreflight(buildTask2LocalOnlyPaths(testCase.artifactsDir), testCase.key)).not.toThrow();
+    }
+  });
+
+  it("rejects non-local-run repository directories, external absolute directories, sibling runner local-run roots, and traversal outside the allowed tree", () => {
+    const task2Root = path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "local-run");
+    const task21Root = path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-1", "local-run");
 
     expect(() =>
-      assertTask2LocalOnlyPreflight({
-        ...basePaths,
-        artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-2", "2026-06-21"),
-        artifactDate: "2026-06-21",
-        generationCutoff: "2026-06-21T00:00:00Z",
-        historicalReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task1-1", "2026-06-21"),
-        historicalTask2ReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "2026-06-21"),
-      }),
-    ).toThrow(/preserved historical evidence path/i);
+      assertTask2LocalOnlyPreflight(
+        buildTask2LocalOnlyPaths(path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "scratch")),
+        "task2",
+      ),
+    ).toThrow(/must resolve inside/i);
 
     expect(() =>
-      assertTask2LocalOnlyPreflight({
-        ...basePaths,
-        artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-3", "2026-06-21"),
-        artifactDate: "2026-06-21",
-        generationCutoff: "2026-06-21T00:00:00Z",
-        historicalReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task1-1", "2026-06-21"),
-        historicalTask2ReferenceDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "2026-06-21"),
-      }),
-    ).toThrow(/preserved historical evidence path/i);
+      assertTask2LocalOnlyPreflight(buildTask2LocalOnlyPaths(path.resolve(process.cwd(), "..", "task2-guard-outside")), "task2"),
+    ).toThrow(/must resolve inside/i);
+
+    expect(() =>
+      assertTask2LocalOnlyPreflight(buildTask2LocalOnlyPaths(path.join(task21Root, "2026-06-24")), "task2"),
+    ).toThrow(/must resolve inside/i);
+
+    expect(() =>
+      assertTask2LocalOnlyPreflight(buildTask2LocalOnlyPaths(path.join(task2Root, "..", "..", "task2-3", "local-run", "2026-06-24")), "task2"),
+    ).toThrow(/must resolve inside/i);
+
+    expect(() =>
+      assertTask2LocalOnlyPreflight(buildTask2LocalOnlyPaths(task2Root), "task2"),
+    ).toThrow(/must resolve inside/i);
+  });
+
+  it("keeps refusing the preserved 2026-06-21 task2, task2-1, task2-2, or task2-3 historical artifact path", () => {
+    const cases = [
+      { key: "task2" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2", "2026-06-21") },
+      { key: "task2" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-1", "2026-06-21") },
+      { key: "task2" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-2", "2026-06-21") },
+      { key: "task2" as const, artifactsDir: path.join(process.cwd(), "artifacts", "prediction-intelligence-v2", "task2-3", "2026-06-21") },
+    ];
+
+    for (const testCase of cases) {
+      expect(() => assertTask2LocalOnlyPreflight(buildTask2LocalOnlyPaths(testCase.artifactsDir), testCase.key)).toThrow(
+        /preserved historical evidence path/i,
+      );
+    }
   });
 });
