@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "prediction-intelligence-v2-task2-3-preservation-manifest-v1",
+  "sourceCommit": "5d4bcadea682aa1e80eab5c37be23045f722c4fc",
+  "snapshotDate": "2026-06-21",
+  "historicalOnly": true,
+  "currentCandidateEligible": false,
+  "currentReleaseDecisionEligible": false,
+  "currentPublicationEligible": false,
+  "artifacts": [
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/README.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "578edaac359bed09af7674a0cb8f66b2edbf50b268b46b92df7f2ffd1a83b5a3",
+      "restoredSha256": "578edaac359bed09af7674a0cb8f66b2edbf50b268b46b92df7f2ffd1a83b5a3",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/fixture-publication-review.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "d0cba207148adbaebc3153fa949d82686c728d6724993a65ed5bd4b8d55b7481",
+      "restoredSha256": "d0cba207148adbaebc3153fa949d82686c728d6724993a65ed5bd4b8d55b7481",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/future-three-state-comparison.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "9b1b5a1e2606f3c22fad7e7753d023c677d535ec460682e49361dd5d99854ec5",
+      "restoredSha256": "9b1b5a1e2606f3c22fad7e7753d023c677d535ec460682e49361dd5d99854ec5",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/gated-v2-release-candidate.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "6470edba1dd56ea12b1d38131eeb2b578d66cea5cbe51fa00a1016460cc53793",
+      "restoredSha256": "6470edba1dd56ea12b1d38131eeb2b578d66cea5cbe51fa00a1016460cc53793",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/operational-refresh-summary.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "0f0b37f9c4df6fb11d0683061c8563290210f242f6539b5f4d1e15493335440c",
+      "restoredSha256": "0f0b37f9c4df6fb11d0683061c8563290210f242f6539b5f4d1e15493335440c",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/publication-plan.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "a2ba714b0a9154fe672957ba8922304b8af84a2d5355f2c8f8b126d34db446bc",
+      "restoredSha256": "a2ba714b0a9154fe672957ba8922304b8af84a2d5355f2c8f8b126d34db446bc",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/release-decision.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "eb6beb370276a0c2ad431c440f20b026b936ff8a742400a00f4827c45e7b55c6",
+      "restoredSha256": "eb6beb370276a0c2ad431c440f20b026b936ff8a742400a00f4827c45e7b55c6",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/safe-analysis-release-candidate.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "51068484f932cdbd1b3bad060a3c5d498245ef2e145292aa9cc286b58fa8b2b9",
+      "restoredSha256": "51068484f932cdbd1b3bad060a3c5d498245ef2e145292aa9cc286b58fa8b2b9",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/stored-runtime-drift-classification.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "5ff4b91a680ac7bbe98b8f5f45337a6f19ac7f52dce8605b38cdc49bd6ac34f5",
+      "restoredSha256": "5ff4b91a680ac7bbe98b8f5f45337a6f19ac7f52dce8605b38cdc49bd6ac34f5",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/torneo-mundialista-gated-v2-candidate.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "72cadaa1ec5b7be323133f2d6ad4b95718fa8e149c2f60a0b86c6b82fd8b5272",
+      "restoredSha256": "72cadaa1ec5b7be323133f2d6ad4b95718fa8e149c2f60a0b86c6b82fd8b5272",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-3/2026-06-21/torneo-mundialista-v1-probability-v2-analysis-candidate.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "df50ca25c0a4515bdd4402687cdf2812c019322b2f162b5c2cbc878d7178c64d",
+      "restoredSha256": "df50ca25c0a4515bdd4402687cdf2812c019322b2f162b5c2cbc878d7178c64d",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "5d4bcadea682aa1e80eab5c37be23045f722c4fc"
+    }
+  ]
+}

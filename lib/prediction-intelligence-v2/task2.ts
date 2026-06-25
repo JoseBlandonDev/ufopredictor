@@ -2482,6 +2482,15 @@ function favoriteFromOneXTwo(prediction: PredictionLike): MatchOutcomeKey {
   return values[0]?.key ?? "draw";
 }
 
+function favoriteFromProbabilities(probabilities: { homeWin: number; draw: number; awayWin: number }): MatchOutcomeKey {
+  const values = [
+    { key: "home" as const, value: probabilities.homeWin },
+    { key: "draw" as const, value: probabilities.draw },
+    { key: "away" as const, value: probabilities.awayWin },
+  ].sort((left, right) => right.value - left.value);
+  return values[0]?.key ?? "draw";
+}
+
 export function parseOriginalPrediction(row: ProductPredictionRow, markets: ProductPredictionMarketRow[]): PredictionLike {
   const storedTopScorelines = Array.isArray(row.top_scores_json)
     ? (row.top_scores_json as Array<{ score?: string; probability?: number }>)
@@ -3150,7 +3159,8 @@ export function assertTask2LocalOnlyPreflight(paths: Task2Paths): void {
   if (
     path.normalize(paths.artifactsDir).includes(path.join("task2", HISTORICAL_ARTIFACT_DATE)) ||
     path.normalize(paths.artifactsDir).includes(path.join("task2-1", HISTORICAL_ARTIFACT_DATE)) ||
-    path.normalize(paths.artifactsDir).includes(path.join("task2-2", HISTORICAL_ARTIFACT_DATE))
+    path.normalize(paths.artifactsDir).includes(path.join("task2-2", HISTORICAL_ARTIFACT_DATE)) ||
+    path.normalize(paths.artifactsDir).includes(path.join("task2-3", HISTORICAL_ARTIFACT_DATE))
   ) {
     throw new Error(
       `Task 2 local run refused because artifactsDir points at the preserved historical evidence path (${HISTORICAL_ARTIFACT_DATE}).`,
@@ -5879,5 +5889,1074 @@ export async function runTask2_2(paths: Task2Paths) {
     scenarioComparison,
     releaseRecommendation,
     holdoutParityAudit,
+  };
+}
+
+export const TASK2_3_FROZEN_PRODUCTION_CANDIDATE: Task2_2CandidateConfig = {
+  ...TASK2_2_PRODUCTION_CANDIDATES.find((candidate) => candidate.key === "v1_plus_high_confidence_signals")!,
+};
+
+type Task2_3ProbabilityEngineDecision = "release_gated_v2" | "retain_current_v1";
+type Task2_3AnalysisLayerDecision = "release" | "block";
+
+type StoredRuntimeDriftCause =
+  | "older_source_snapshot"
+  | "different_generation_cutoff"
+  | "reviewed_xg_override"
+  | "publication_override"
+  | "model_version_difference"
+  | "venue_context_difference"
+  | "fixture_metadata_change"
+  | "result_refresh_change"
+  | "missing_historical_runtime_input"
+  | "deterministic_code_path_defect"
+  | "unknown";
+
+type Task2_3FixturePublicState = {
+  predictionVersionId: string | null;
+  modelVersionId: string | null;
+  modelVersionLabel: string | null;
+  predictionType: ProductPredictionRow["prediction_type"] | null;
+  runScope: ProductPredictionRow["run_scope"] | null;
+  createdAt: string | null;
+  generationCutoff: string | null;
+  probabilities: {
+    homeWin: number;
+    draw: number;
+    awayWin: number;
+  } | null;
+  expectedGoals: {
+    home: number;
+    away: number;
+  } | null;
+  mostLikelyScore: string | null;
+  sourceSnapshotReferences: string[];
+  reviewedXgOverride: boolean;
+  publicationOverride: boolean;
+};
+
+type Task2_3CurrentState = {
+  generationCutoff: string;
+  sourceSnapshotReferences: string[];
+  probabilities: {
+    homeWin: number;
+    draw: number;
+    awayWin: number;
+  };
+  expectedGoals: {
+    home: number;
+    away: number;
+  };
+  mostLikelyScore: string;
+  prediction: ChallengerPrediction;
+};
+
+type Task2_3FutureComparisonEntry = {
+  fixtureId: string;
+  matchSlug: string;
+  officialMatchNumber: number | null;
+  fixture: string;
+  kickoffAt: string;
+  storedActiveV1: Task2_3FixturePublicState;
+  regeneratedCurrentV1: Task2_3CurrentState;
+  gatedV2: Task2_3CurrentState;
+  storedVsCurrentV1Delta: {
+    homeWin: number | null;
+    draw: number | null;
+    awayWin: number | null;
+    expectedHomeGoals: number | null;
+    expectedAwayGoals: number | null;
+  };
+  currentV1VsGatedV2Delta: {
+    homeWin: number;
+    draw: number;
+    awayWin: number;
+    expectedHomeGoals: number;
+    expectedAwayGoals: number;
+  };
+  driftCauses: StoredRuntimeDriftCause[];
+  explained: boolean;
+  releaseRisk: "low" | "medium" | "high";
+  features: MatchFeatureVector;
+  providerStatus: string;
+  providerShortStatus: string;
+  activatedGates: string[];
+  coherenceWarnings: string[];
+};
+
+type Task2_3ReleaseCandidateFixture = {
+  fixtureId: string;
+  matchSlug: string;
+  officialMatchNumber: number | null;
+  kickoffAt: string;
+  predictionIdentifier: string;
+  currentPredictionVersionId: string | null;
+  candidateIdentifier: "v1_probability_v2_analysis" | "gated_v2_probability_v2_analysis";
+  sourceCutoff: string;
+  teams: {
+    home: {
+      canonicalKey: string;
+      nameEn: string;
+      nameEs: string;
+    };
+    away: {
+      canonicalKey: string;
+      nameEn: string;
+      nameEs: string;
+    };
+  };
+  venue: {
+    venueKey: string | null;
+    venueName: string | null;
+    cityEn: string | null;
+    cityEs: string | null;
+    actualCity: string | null;
+    countryCode: string | null;
+  };
+  probabilities: {
+    homeWin: number;
+    draw: number;
+    awayWin: number;
+  };
+  expectedGoals: {
+    home: number;
+    away: number;
+  };
+  scenarios: ChallengerPrediction["scenarios"];
+  additionalScorelines: ChallengerPrediction["additionalPlausibleScorelines"];
+  publicEvidenceSummary: {
+    sourceSnapshotReferences: string[];
+    reasonCodes: string[];
+    contradictingReasonCodes: string[];
+    activatedGates: string[];
+    coherenceWarnings: string[];
+  };
+  explanationPreviews: ChallengerPrediction["explanationPreviews"];
+};
+
+type Task2_3PublicationPlanEntry = {
+  fixtureId: string;
+  currentPredictionVersionId: string | null;
+  proposedCandidate: "v1_probability_v2_analysis" | "gated_v2_probability_v2_analysis";
+  proposedModelVersion: string;
+  proposedCutoff: string;
+  createNewImmutableVersion: true;
+  preserveOriginalVersion: true;
+  reviewStatus: "ready" | "human_review_required" | "blocked";
+  blockers: string[];
+};
+
+type Task2_3ReleaseDecision = {
+  analysisLayer: Task2_3AnalysisLayerDecision;
+  probabilityEngine: Task2_3ProbabilityEngineDecision;
+  rationale: string[];
+  fixturesRequiringHumanReview: string[];
+};
+
+type PredictionReviewCaseRowLike = {
+  id: string;
+  match_id: string;
+  source_snapshot_id: string;
+  latest_shadow_snapshot_id: string | null;
+  latest_reviewed_xg_snapshot_id: string | null;
+  latest_decision_id: string | null;
+  status: string;
+  created_at: string;
+};
+
+type PredictionReviewSnapshotRowLike = {
+  id: string;
+  review_case_id: string;
+  snapshot_kind: string;
+  source_snapshot_id: string;
+  source_prediction_version_id: string | null;
+  model_version_id: string | null;
+  prediction_type: ProductPredictionRow["prediction_type"];
+  review_run_scope: string;
+  home_win_prob: number;
+  draw_prob: number;
+  away_win_prob: number;
+  expected_home_goals: number;
+  expected_away_goals: number;
+  most_likely_score: string;
+  created_at: string;
+};
+
+type PredictionReviewDecisionRowLike = {
+  id: string;
+  review_case_id: string;
+  decision: string;
+  selected_snapshot_id: string | null;
+  published_prediction_version_id: string | null;
+  created_at: string;
+};
+
+type HistoricalTask22FutureShadowReference = {
+  productMatchId: string;
+  officialMatchNumber: number | null;
+  fixture: string;
+  kickoffAt: string;
+  exactV1: PredictionLike;
+  gatedV2: ChallengerPrediction;
+  probabilityDeltas: {
+    homeWin: number;
+    draw: number;
+    awayWin: number;
+  };
+  xgDeltas: {
+    home: number;
+    away: number;
+  };
+  activatedGates: string[];
+  evidence: string[];
+  capsApplied: string[];
+  coherenceWarnings: string[];
+};
+
+function loadHistoricalTask22FutureShadowReference(referenceDir: string) {
+  return readJson<HistoricalTask22FutureShadowReference[]>(path.join(referenceDir, "future-shadow-predictions.json"));
+}
+
+export function selectNotStartedFixtures(args: {
+  productInventory: ProductReplayInventory;
+  providerFixtures: Array<{
+    providerFixtureId: number;
+    status: string;
+    statusShort: string;
+    goals: { home: number | null; away: number | null };
+  }>;
+  generationCutoff: string;
+}) {
+  const providerByExternalId = new Map(
+    args.providerFixtures.map((fixture) => [`api-football:fixture:${fixture.providerFixtureId}`, fixture]),
+  );
+  const remaining: ProductReplayInventory["matches"] = [];
+  const newlyCompletedFixtures: Array<{ matchId: string; externalId: string; status: string; statusShort: string }> = [];
+  const removedStartedFixtures: Array<{ matchId: string; externalId: string; status: string; statusShort: string }> = [];
+  const missingOrConflictingStatuses: Array<{ matchId: string; externalId: string; reason: string }> = [];
+
+  for (const match of args.productInventory.matches) {
+    if (Date.parse(match.kickoff_at) <= Date.parse(args.generationCutoff)) {
+      removedStartedFixtures.push({
+        matchId: match.id,
+        externalId: match.external_id,
+        status: "started_before_cutoff",
+        statusShort: "CUT",
+      });
+      continue;
+    }
+
+    const provider = providerByExternalId.get(match.external_id) ?? null;
+    if (provider == null) {
+      missingOrConflictingStatuses.push({
+        matchId: match.id,
+        externalId: match.external_id,
+        reason: "missing_provider_status",
+      });
+      remaining.push(match);
+      continue;
+    }
+
+    if (provider.statusShort === "FT" || provider.status === "finished") {
+      newlyCompletedFixtures.push({
+        matchId: match.id,
+        externalId: match.external_id,
+        status: provider.status,
+        statusShort: provider.statusShort,
+      });
+      continue;
+    }
+
+    if (provider.statusShort !== "NS" || provider.status !== "scheduled") {
+      removedStartedFixtures.push({
+        matchId: match.id,
+        externalId: match.external_id,
+        status: provider.status,
+        statusShort: provider.statusShort,
+      });
+      continue;
+    }
+
+    remaining.push(match);
+  }
+
+  return {
+    remaining,
+    newlyCompletedFixtures,
+    removedStartedFixtures,
+    missingOrConflictingStatuses,
+  };
+}
+
+export function buildStoredActiveV1State(args: {
+  matchId: string;
+  predictionRow: ProductPredictionRow | null;
+  predictionMarkets: ProductPredictionMarketRow[];
+  modelVersion: { id: string; version: string; is_active: boolean; created_at: string } | null;
+  reviewCase: PredictionReviewCaseRowLike | null;
+  reviewDecisions: PredictionReviewDecisionRowLike[];
+  snapshotsById: Map<string, PredictionReviewSnapshotRowLike>;
+}) {
+  const stored = args.predictionRow ? parseOriginalPrediction(args.predictionRow, args.predictionMarkets) : null;
+  const selectedDecision = [...args.reviewDecisions].sort((left, right) => right.created_at.localeCompare(left.created_at))[0] ?? null;
+  const selectedSnapshot =
+    selectedDecision?.selected_snapshot_id != null
+      ? args.snapshotsById.get(selectedDecision.selected_snapshot_id) ?? null
+      : args.reviewCase?.latest_reviewed_xg_snapshot_id != null
+        ? args.snapshotsById.get(args.reviewCase.latest_reviewed_xg_snapshot_id) ?? null
+        : null;
+  const shadowSnapshot =
+    args.reviewCase?.latest_shadow_snapshot_id != null
+      ? args.snapshotsById.get(args.reviewCase.latest_shadow_snapshot_id) ?? null
+      : null;
+  const sourceSnapshotReferences = Array.from(
+    new Set(
+      [
+        args.reviewCase?.source_snapshot_id ?? null,
+        selectedSnapshot?.source_snapshot_id ?? null,
+        shadowSnapshot?.source_snapshot_id ?? null,
+      ].filter((value): value is string => value != null),
+    ),
+  );
+
+  return {
+    predictionVersionId: args.predictionRow?.id ?? null,
+    modelVersionId: args.modelVersion?.id ?? args.predictionRow?.model_version_id ?? null,
+    modelVersionLabel: args.modelVersion?.version ?? null,
+    predictionType: args.predictionRow?.prediction_type ?? selectedSnapshot?.prediction_type ?? null,
+    runScope: args.predictionRow?.run_scope ?? null,
+    createdAt: args.predictionRow?.created_at ?? selectedSnapshot?.created_at ?? null,
+    generationCutoff: args.predictionRow?.created_at ?? selectedSnapshot?.created_at ?? null,
+    probabilities:
+      stored == null
+        ? null
+        : {
+            homeWin: stored.homeWin,
+            draw: stored.draw,
+            awayWin: stored.awayWin,
+          },
+    expectedGoals:
+      stored == null
+        ? null
+        : {
+            home: stored.expectedHomeGoals,
+            away: stored.expectedAwayGoals,
+          },
+    mostLikelyScore: stored?.mostLikelyScore ?? null,
+    sourceSnapshotReferences,
+    reviewedXgOverride: selectedSnapshot?.snapshot_kind === "reviewed_xg",
+    publicationOverride: selectedDecision?.decision === "publish",
+  } satisfies Task2_3FixturePublicState;
+}
+
+function buildCurrentRuntimeState(args: {
+  generationCutoff: string;
+  prediction: ChallengerPrediction;
+  sourceSnapshotReferences: string[];
+}) {
+  return {
+    generationCutoff: args.generationCutoff,
+    sourceSnapshotReferences: [...args.sourceSnapshotReferences],
+    probabilities: {
+      homeWin: args.prediction.probabilities.oneXTwo.homeWin,
+      draw: args.prediction.probabilities.oneXTwo.draw,
+      awayWin: args.prediction.probabilities.oneXTwo.awayWin,
+    },
+    expectedGoals: {
+      home: args.prediction.expectedGoals.home,
+      away: args.prediction.expectedGoals.away,
+    },
+    mostLikelyScore: args.prediction.mostLikelyScore,
+    prediction: args.prediction,
+  } satisfies Task2_3CurrentState;
+}
+
+export function classifyStoredRuntimeDrift(args: {
+  storedActiveV1: Task2_3FixturePublicState;
+  regeneratedCurrentV1: Task2_3CurrentState;
+  generationCutoff: string;
+  currentSourceSnapshotReferences: string[];
+  providerStatus: string;
+  venueContextReasonCode: MatchFeatureVector["derived"]["venueContext"]["reasonCode"];
+}) {
+  if (args.storedActiveV1.probabilities == null || args.storedActiveV1.expectedGoals == null) {
+    return ["missing_historical_runtime_input"] satisfies StoredRuntimeDriftCause[];
+  }
+
+  const causes: StoredRuntimeDriftCause[] = [];
+  if (args.storedActiveV1.reviewedXgOverride) {
+    causes.push("reviewed_xg_override");
+  }
+  if (args.storedActiveV1.publicationOverride) {
+    causes.push("publication_override");
+  }
+  if (
+    args.storedActiveV1.generationCutoff != null &&
+    args.storedActiveV1.generationCutoff !== args.generationCutoff
+  ) {
+    causes.push("different_generation_cutoff");
+  }
+  if (
+    args.currentSourceSnapshotReferences.some(
+      (reference) => !args.storedActiveV1.sourceSnapshotReferences.includes(reference),
+    )
+  ) {
+    causes.push("older_source_snapshot");
+  }
+  if (
+    args.venueContextReasonCode === "host_country_match" ||
+    args.venueContextReasonCode === "world_cup_neutral_override"
+  ) {
+    causes.push("venue_context_difference");
+  }
+  if (args.providerStatus !== "scheduled") {
+    causes.push("result_refresh_change");
+  }
+
+  const maxProbabilityDelta = Math.max(
+    Math.abs(args.regeneratedCurrentV1.probabilities.homeWin - args.storedActiveV1.probabilities.homeWin),
+    Math.abs(args.regeneratedCurrentV1.probabilities.draw - args.storedActiveV1.probabilities.draw),
+    Math.abs(args.regeneratedCurrentV1.probabilities.awayWin - args.storedActiveV1.probabilities.awayWin),
+  );
+  const maxGoalDelta = Math.max(
+    Math.abs(args.regeneratedCurrentV1.expectedGoals.home - args.storedActiveV1.expectedGoals.home),
+    Math.abs(args.regeneratedCurrentV1.expectedGoals.away - args.storedActiveV1.expectedGoals.away),
+  );
+  if (causes.length === 0 && (maxProbabilityDelta > 0.001 || maxGoalDelta > 0.01)) {
+    causes.push("deterministic_code_path_defect");
+  }
+
+  return causes;
+}
+
+export function evaluateFixtureHumanReview(args: {
+  fixtureLabel: string;
+  currentV1: Task2_3CurrentState;
+  gatedV2: Task2_3CurrentState;
+  features: MatchFeatureVector;
+  coherenceWarnings: string[];
+}) {
+  const blockers: string[] = [];
+  const deltas = {
+    homeWin: args.gatedV2.probabilities.homeWin - args.currentV1.probabilities.homeWin,
+    draw: args.gatedV2.probabilities.draw - args.currentV1.probabilities.draw,
+    awayWin: args.gatedV2.probabilities.awayWin - args.currentV1.probabilities.awayWin,
+    expectedHomeGoals: args.gatedV2.expectedGoals.home - args.currentV1.expectedGoals.home,
+    expectedAwayGoals: args.gatedV2.expectedGoals.away - args.currentV1.expectedGoals.away,
+  };
+  const maxProbabilityDelta = Math.max(
+    Math.abs(deltas.homeWin),
+    Math.abs(deltas.draw),
+    Math.abs(deltas.awayWin),
+  );
+  if (maxProbabilityDelta > 0.05) {
+    blockers.push("probability_delta_above_five_points");
+  }
+  const currentFavorite = favoriteFromProbabilities(args.currentV1.probabilities);
+  const gatedFavorite = favoriteFromProbabilities(args.gatedV2.probabilities);
+  if (currentFavorite !== gatedFavorite) {
+    blockers.push("favorite_identity_changed");
+  }
+  const currentDiff = args.currentV1.expectedGoals.home - args.currentV1.expectedGoals.away;
+  const gatedDiff = args.gatedV2.expectedGoals.home - args.gatedV2.expectedGoals.away;
+  if (Math.sign(currentDiff) !== Math.sign(gatedDiff) && Math.abs(currentDiff) > 1e-9 && Math.abs(gatedDiff) > 1e-9) {
+    blockers.push("expected_goal_difference_changed_sign");
+  }
+  const currentTotal = args.currentV1.expectedGoals.home + args.currentV1.expectedGoals.away;
+  const gatedTotal = args.gatedV2.expectedGoals.home + args.gatedV2.expectedGoals.away;
+  if (Math.abs(gatedTotal - currentTotal) > 0.3) {
+    blockers.push("expected_total_changed_above_point_three");
+  }
+  if (args.coherenceWarnings.length > 0) {
+    blockers.push("scenario_probability_contradiction");
+  }
+  if (args.features.derived.reliabilityAverage < 0.6) {
+    blockers.push("source_reliability_low");
+  }
+  return {
+    fixture: args.fixtureLabel,
+    reviewRequired: blockers.length > 0,
+    blockers,
+  };
+}
+
+export function buildReleaseCandidateFixture(args: {
+  candidateIdentifier: "v1_probability_v2_analysis" | "gated_v2_probability_v2_analysis";
+  comparison: Task2_3FutureComparisonEntry;
+  sourceState: Task2_3CurrentState;
+  analysisPrediction: ChallengerPrediction;
+  sourceSnapshotReferences: string[];
+  activatedGates: string[];
+  coherenceWarnings: string[];
+  venue: WorldCupVenue | null;
+}) {
+  return {
+    fixtureId: args.comparison.fixtureId,
+    matchSlug: args.comparison.matchSlug,
+    officialMatchNumber: args.comparison.officialMatchNumber,
+    kickoffAt: args.comparison.kickoffAt,
+    predictionIdentifier: `${args.comparison.fixtureId}:${args.candidateIdentifier}`,
+    currentPredictionVersionId: args.comparison.storedActiveV1.predictionVersionId,
+    candidateIdentifier: args.candidateIdentifier,
+    sourceCutoff: args.sourceState.generationCutoff,
+    teams: {
+      home: {
+        canonicalKey: args.comparison.features.homeTeamKey,
+        nameEn: args.comparison.features.home.displayNameEn,
+        nameEs: args.comparison.features.home.displayNameEs,
+      },
+      away: {
+        canonicalKey: args.comparison.features.awayTeamKey,
+        nameEn: args.comparison.features.away.displayNameEn,
+        nameEs: args.comparison.features.away.displayNameEs,
+      },
+    },
+    venue: {
+      venueKey: args.venue?.venue_key ?? null,
+      venueName: args.venue?.fifa_tournament_name ?? args.venue?.common_name ?? null,
+      cityEn: args.venue?.host_city_en ?? null,
+      cityEs: args.venue?.host_city_es ?? null,
+      actualCity: args.venue?.actual_city ?? null,
+      countryCode: args.venue?.country_code ?? null,
+    },
+    probabilities: { ...args.sourceState.probabilities },
+    expectedGoals: { ...args.sourceState.expectedGoals },
+    scenarios: args.analysisPrediction.scenarios,
+    additionalScorelines: args.analysisPrediction.additionalPlausibleScorelines,
+    publicEvidenceSummary: {
+      sourceSnapshotReferences: [...args.sourceSnapshotReferences],
+      reasonCodes: args.analysisPrediction.evidenceBundle.reasonCodes,
+      contradictingReasonCodes: args.analysisPrediction.evidenceBundle.contradictingReasonCodes,
+      activatedGates: [...args.activatedGates],
+      coherenceWarnings: [...args.coherenceWarnings],
+    },
+    explanationPreviews: args.analysisPrediction.explanationPreviews,
+  } satisfies Task2_3ReleaseCandidateFixture;
+}
+
+export function buildPublicReleaseExport(args: {
+  schemaVersion: string;
+  generationCutoff: string;
+  candidateIdentifier: "v1_probability_v2_analysis" | "gated_v2_probability_v2_analysis";
+  fixtures: Task2_3ReleaseCandidateFixture[];
+}) {
+  return {
+    schemaVersion: args.schemaVersion,
+    historicalOnly: true,
+    currentCandidateEligible: false,
+    currentReleaseDecisionEligible: false,
+    currentPublicationEligible: false,
+    generationCutoff: args.generationCutoff,
+    candidateIdentifier: args.candidateIdentifier,
+    fixtures: args.fixtures.map((fixture) => ({
+      fixtureId: fixture.fixtureId,
+      matchSlug: fixture.matchSlug,
+      officialMatchNumber: fixture.officialMatchNumber,
+      kickoffAt: fixture.kickoffAt,
+      predictionIdentifier: fixture.predictionIdentifier,
+      currentPredictionVersionId: fixture.currentPredictionVersionId,
+      candidateIdentifier: fixture.candidateIdentifier,
+      sourceCutoff: fixture.sourceCutoff,
+      teams: fixture.teams,
+      venue: fixture.venue,
+      probabilities: fixture.probabilities,
+      expectedGoals: fixture.expectedGoals,
+      scenarios: fixture.scenarios.map((scenario) => ({
+        scenarioType: scenario.scenarioType,
+        familyCode: scenario.familyCode,
+        representativeScore: scenario.representativeScore,
+        familyProbability: scenario.familyProbability,
+        riskLevel: scenario.riskLevel,
+      })),
+      additionalScorelines: fixture.additionalScorelines,
+      publicEvidenceSummary: fixture.publicEvidenceSummary,
+      explanationPreviews: fixture.explanationPreviews,
+    })),
+  };
+}
+
+export function buildPublicationPlanEntry(args: {
+  comparison: Task2_3FutureComparisonEntry;
+  proposedCandidate: "v1_probability_v2_analysis" | "gated_v2_probability_v2_analysis";
+  proposedModelVersion: string;
+  proposedCutoff: string;
+  blockers: string[];
+}) {
+  return {
+    fixtureId: args.comparison.fixtureId,
+    currentPredictionVersionId: args.comparison.storedActiveV1.predictionVersionId,
+    proposedCandidate: args.proposedCandidate,
+    proposedModelVersion: args.proposedModelVersion,
+    proposedCutoff: args.proposedCutoff,
+    createNewImmutableVersion: true,
+    preserveOriginalVersion: true,
+    reviewStatus:
+      args.blockers.length === 0
+        ? "ready"
+        : args.blockers.some((blocker) => blocker === "deterministic_code_path_defect")
+          ? "blocked"
+          : "human_review_required",
+    blockers: args.blockers,
+  } satisfies Task2_3PublicationPlanEntry;
+}
+
+export async function runTask2_3(paths: Task2Paths) {
+  assertTask2LocalOnlyPreflight(paths);
+
+  const datasets = loadTask1Datasets(paths);
+  const task11Reference = loadHistoricalTask11Reference(paths.historicalReferenceDir);
+  const task2Reference = loadHistoricalTask2Reference(paths.historicalTask2ReferenceDir);
+  const task22ReferenceDir = path.join(paths.repoRoot, "artifacts", "prediction-intelligence-v2", "task2-2", HISTORICAL_ARTIFACT_DATE);
+  const task22FutureShadow = loadHistoricalTask22FutureShadowReference(task22ReferenceDir);
+  const productInventory = buildHistoricalProductReplayInventory(
+    task11Reference.replayCoverageManifest,
+    task11Reference.refreshPlan,
+    datasets.schedule,
+  );
+  const remainingHistoricalFutureMatches = task2Reference.futureShadowFixtures.filter(
+    (match) => Date.parse(match.kickoffAt) > Date.parse(paths.generationCutoff),
+  );
+  const remainingProductMatches = productInventory.matches.filter((match) =>
+    remainingHistoricalFutureMatches.some((future) => future.productMatchId === match.id),
+  );
+  const operationalState = {
+    remaining: remainingProductMatches,
+    newlyCompletedFixtures: [] as Array<{ matchId: string; externalId: string; status: string; statusShort: string }>,
+    removedStartedFixtures: [] as Array<{ matchId: string; externalId: string; status: string; statusShort: string }>,
+    missingOrConflictingStatuses: [] as Array<{ matchId: string; externalId: string; reason: string }>,
+  };
+  const historicalFuturePredictions = buildHistoricalFuturePredictionIndex(task2Reference);
+  const futureRows = buildFutureFixtureRecords({
+    historicalFutureFixtures: remainingHistoricalFutureMatches,
+    aliases: datasets.aliases,
+    localizations: datasets.localizations,
+    venues: datasets.venues,
+    historicalFacts: datasets.historicalFacts,
+    eloCurrent: datasets.eloCurrent,
+    eloStart2026: datasets.eloStart2026,
+    fifaRanking: datasets.fifaRanking,
+    scheduleRows: datasets.schedule,
+    generationCutoff: paths.generationCutoff,
+    latestPredictionRows: historicalFuturePredictions,
+  });
+
+  const expandedManifest = buildExpandedCalibrationManifest({
+    historicalFacts: datasets.historicalFacts,
+    holdoutRows: buildReplayFixtureRecords({
+      manifest: buildTask1_2Coverage({
+        productInventory,
+        refreshPlan: task11Reference.refreshPlan,
+        scheduleRows: datasets.schedule,
+        scheduleLinks: buildScheduleLinksFromClassification(task11Reference.classification),
+        aliases: datasets.aliases,
+        localizations: datasets.localizations,
+        historicalFacts: datasets.historicalFacts,
+        eloCurrent: datasets.eloCurrent,
+        eloStart2026: datasets.eloStart2026,
+        fifaRanking: datasets.fifaRanking,
+      }).manifest.filter((entry) => entry.replay_readiness === "ready"),
+      productInventory,
+      aliases: datasets.aliases,
+      localizations: datasets.localizations,
+      historicalFacts: datasets.historicalFacts,
+      eloCurrent: datasets.eloCurrent,
+      eloStart2026: datasets.eloStart2026,
+      fifaRanking: datasets.fifaRanking,
+      scheduleRows: datasets.schedule,
+      historicalReplayPredictions: buildHistoricalReplayPredictionIndex(task2Reference),
+      refreshResults: [
+        ...task11Reference.refreshPlan.already_known_results,
+        ...task11Reference.refreshPlan.newly_discovered_results,
+        ...task11Reference.refreshPlan.score_or_status_corrections,
+        ...task11Reference.refreshPlan.unresolved_finished_fixtures,
+      ],
+    }),
+    scheduleRows: datasets.schedule,
+    localizations: datasets.localizations,
+  });
+  const preWorldCupRows = materializeHistoricalRows({
+    rows: [...expandedManifest.splitManifest.training.rows, ...expandedManifest.splitManifest.validation.rows],
+    datasets,
+  });
+  const baselineByHistoricalFixtureId = buildHistoricalBaselineMap(preWorldCupRows);
+  const frozenResidualFit = fitResidualModel({
+    candidate: TASK2_3_FROZEN_PRODUCTION_CANDIDATE,
+    rows: preWorldCupRows,
+    baselineByFixtureId: baselineByHistoricalFixtureId,
+  });
+  const frozenEvaluation = evaluateBlockedFolds({
+    candidates: [TASK2_2_BASELINE_CANDIDATE, TASK2_3_FROZEN_PRODUCTION_CANDIDATE],
+    rows: preWorldCupRows,
+  }).results;
+  const frozenBaselineMetrics =
+    frozenEvaluation.find((entry) => entry.candidateKey === TASK2_2_BASELINE_CANDIDATE.key)?.aggregateMetrics ?? null;
+  const frozenCandidateMetrics =
+    frozenEvaluation.find((entry) => entry.candidateKey === TASK2_3_FROZEN_PRODUCTION_CANDIDATE.key)?.aggregateMetrics ?? null;
+  const productMatchById = buildProductMatchMap(productInventory);
+  const task22ByProductMatchId = new Map(task22FutureShadow.map((row) => [row.productMatchId, row]));
+
+  const futureComparisons: Task2_3FutureComparisonEntry[] = futureRows.map((row) => {
+    const features = buildMatchFeatureVector({
+      fixtureId: row.productMatchId,
+      cutoffAt: paths.generationCutoff,
+      homeTeamKey: row.homeTeamKey,
+      awayTeamKey: row.awayTeamKey,
+      officialMatchNumber: row.officialMatchNumber,
+      homeSignal: row.homeSignal,
+      awaySignal: row.awaySignal,
+      historicalFacts: datasets.historicalFacts,
+      localizations: datasets.localizations,
+      eloCurrent: datasets.eloCurrent,
+      eloStart2026: datasets.eloStart2026,
+      fifaRanking: datasets.fifaRanking,
+      scheduleRows: datasets.schedule,
+    });
+    const baselineReplay = buildProductionV1Replay({
+      fixtureId: row.productMatchId,
+      homeTeamId: row.homeTeamKey,
+      awayTeamId: row.awayTeamKey,
+      homeName: row.homeNameEn,
+      awayName: row.awayNameEn,
+      candidate: TASK2_2_BASELINE_CANDIDATE,
+      features,
+    });
+    const gatedPrediction = buildGatedPrediction({
+      candidate: TASK2_3_FROZEN_PRODUCTION_CANDIDATE,
+      features,
+      baselineReplay,
+      residualFit: frozenResidualFit,
+    });
+    const storedReference = task22ByProductMatchId.get(row.productMatchId) ?? null;
+    const storedActiveV1 = {
+      predictionVersionId: row.originalPrediction?.id ?? `historical-future:${row.productMatchId}`,
+      modelVersionId: row.originalPrediction?.model_version_id ?? "historical-v1-reference",
+      modelVersionLabel: "historical_v1_reference",
+      predictionType: row.originalPrediction?.prediction_type ?? "pre_kickoff",
+      runScope: row.originalPrediction?.run_scope ?? "public_product",
+      createdAt: row.originalPrediction?.created_at ?? row.kickoffAt,
+      generationCutoff: row.originalPrediction?.created_at ?? row.kickoffAt,
+      probabilities:
+        row.originalPrediction == null
+          ? null
+          : {
+              homeWin: parseOriginalPrediction(row.originalPrediction, row.originalMarkets).homeWin,
+              draw: parseOriginalPrediction(row.originalPrediction, row.originalMarkets).draw,
+              awayWin: parseOriginalPrediction(row.originalPrediction, row.originalMarkets).awayWin,
+            },
+      expectedGoals:
+        row.originalPrediction == null
+          ? null
+          : {
+              home: parseOriginalPrediction(row.originalPrediction, row.originalMarkets).expectedHomeGoals,
+              away: parseOriginalPrediction(row.originalPrediction, row.originalMarkets).expectedAwayGoals,
+            },
+      mostLikelyScore:
+        row.originalPrediction == null ? null : parseOriginalPrediction(row.originalPrediction, row.originalMarkets).mostLikelyScore,
+      sourceSnapshotReferences: row.sourceSnapshotIds,
+      reviewedXgOverride: false,
+      publicationOverride: false,
+    } satisfies Task2_3FixturePublicState;
+    const currentV1 = buildCurrentRuntimeState({
+      generationCutoff: paths.generationCutoff,
+      prediction: baselineReplay.challenger,
+      sourceSnapshotReferences: row.sourceSnapshotIds,
+    });
+    const gatedV2 = buildCurrentRuntimeState({
+      generationCutoff: paths.generationCutoff,
+      prediction: gatedPrediction.prediction,
+      sourceSnapshotReferences: row.sourceSnapshotIds,
+    });
+    const driftCauses = classifyStoredRuntimeDrift({
+      storedActiveV1,
+      regeneratedCurrentV1: currentV1,
+      generationCutoff: paths.generationCutoff,
+      currentSourceSnapshotReferences: row.sourceSnapshotIds,
+      providerStatus: "scheduled",
+      venueContextReasonCode: features.derived.venueContext.reasonCode,
+    });
+    const storedVsCurrentV1Delta =
+      storedActiveV1.probabilities == null || storedActiveV1.expectedGoals == null
+        ? {
+            homeWin: null,
+            draw: null,
+            awayWin: null,
+            expectedHomeGoals: null,
+            expectedAwayGoals: null,
+          }
+        : {
+            homeWin: round(currentV1.probabilities.homeWin - storedActiveV1.probabilities.homeWin, 6),
+            draw: round(currentV1.probabilities.draw - storedActiveV1.probabilities.draw, 6),
+            awayWin: round(currentV1.probabilities.awayWin - storedActiveV1.probabilities.awayWin, 6),
+            expectedHomeGoals: round(currentV1.expectedGoals.home - storedActiveV1.expectedGoals.home, 6),
+            expectedAwayGoals: round(currentV1.expectedGoals.away - storedActiveV1.expectedGoals.away, 6),
+          };
+    return {
+      fixtureId: row.productMatchId,
+      matchSlug: productMatchById.get(row.productMatchId)?.slug ?? row.productMatchId,
+      officialMatchNumber: row.officialMatchNumber,
+      fixture: `${row.homeNameEn} vs ${row.awayNameEn}`,
+      kickoffAt: row.kickoffAt,
+      storedActiveV1,
+      regeneratedCurrentV1: currentV1,
+      gatedV2,
+      storedVsCurrentV1Delta,
+      currentV1VsGatedV2Delta: {
+        homeWin: round(gatedV2.probabilities.homeWin - currentV1.probabilities.homeWin, 6),
+        draw: round(gatedV2.probabilities.draw - currentV1.probabilities.draw, 6),
+        awayWin: round(gatedV2.probabilities.awayWin - currentV1.probabilities.awayWin, 6),
+        expectedHomeGoals: round(gatedV2.expectedGoals.home - currentV1.expectedGoals.home, 6),
+        expectedAwayGoals: round(gatedV2.expectedGoals.away - currentV1.expectedGoals.away, 6),
+      },
+      driftCauses,
+      explained: driftCauses.every((cause) => cause !== "unknown" && cause !== "deterministic_code_path_defect"),
+      releaseRisk:
+        driftCauses.includes("deterministic_code_path_defect") || driftCauses.includes("unknown")
+          ? "high"
+          : driftCauses.length > 0
+            ? "medium"
+            : "low",
+      features,
+      providerStatus: "scheduled",
+      providerShortStatus: "NS",
+      activatedGates: storedReference?.activatedGates ?? gatedPrediction.gateEvidence.activatedGates,
+      coherenceWarnings: storedReference?.coherenceWarnings ?? buildCoherenceWarnings(gatedPrediction.prediction),
+    };
+  });
+
+  const fixturePublicationReview: Array<{
+    fixtureId: string;
+    fixture: string;
+    recommendedCandidate: "v1_probability_v2_analysis" | "gated_v2_probability_v2_analysis";
+    storedActiveV1: Task2_3FixturePublicState;
+    regeneratedCurrentV1: Task2_3CurrentState;
+    gatedV2: Task2_3CurrentState;
+    oneXTwoDeltas: Task2_3FutureComparisonEntry["currentV1VsGatedV2Delta"];
+    xgDeltas: { home: number | null; away: number | null };
+    activatedGates: string[];
+    caps: string[];
+    scenarios: ChallengerPrediction["scenarios"];
+    coherenceWarnings: string[];
+    humanReviewRequirement: ReturnType<typeof evaluateFixtureHumanReview>;
+  }> = futureComparisons.map((comparison) => {
+    const review = evaluateFixtureHumanReview({
+      fixtureLabel: comparison.fixture,
+      currentV1: comparison.regeneratedCurrentV1,
+      gatedV2: comparison.gatedV2,
+      features: comparison.features,
+      coherenceWarnings: comparison.coherenceWarnings,
+    });
+    return {
+      fixtureId: comparison.fixtureId,
+      fixture: comparison.fixture,
+      storedActiveV1: comparison.storedActiveV1,
+      regeneratedCurrentV1: comparison.regeneratedCurrentV1,
+      gatedV2: comparison.gatedV2,
+      oneXTwoDeltas: comparison.currentV1VsGatedV2Delta,
+      xgDeltas: {
+        home: comparison.currentV1VsGatedV2Delta.expectedHomeGoals,
+        away: comparison.currentV1VsGatedV2Delta.expectedAwayGoals,
+      },
+      activatedGates: comparison.activatedGates,
+      caps: comparison.gatedV2.prediction.internalAudit?.capsApplied ?? [],
+      scenarios: comparison.gatedV2.prediction.scenarios,
+      coherenceWarnings: comparison.coherenceWarnings,
+      recommendedCandidate: review.reviewRequired ? "v1_probability_v2_analysis" : "gated_v2_probability_v2_analysis",
+      humanReviewRequirement: review,
+    };
+  });
+
+  const safeAnalysisFixtures = futureComparisons.map((comparison) =>
+    buildReleaseCandidateFixture({
+      candidateIdentifier: "v1_probability_v2_analysis",
+      comparison,
+      sourceState: comparison.regeneratedCurrentV1,
+      analysisPrediction: comparison.gatedV2.prediction,
+      sourceSnapshotReferences: comparison.regeneratedCurrentV1.sourceSnapshotReferences,
+      activatedGates: comparison.activatedGates,
+      coherenceWarnings: comparison.coherenceWarnings,
+      venue: futureRows.find((row) => row.productMatchId === comparison.fixtureId)?.venue ?? null,
+    }),
+  );
+  const gatedReleaseFixtures = futureComparisons.map((comparison) =>
+    buildReleaseCandidateFixture({
+      candidateIdentifier: "gated_v2_probability_v2_analysis",
+      comparison,
+      sourceState: comparison.gatedV2,
+      analysisPrediction: comparison.gatedV2.prediction,
+      sourceSnapshotReferences: comparison.gatedV2.sourceSnapshotReferences,
+      activatedGates: comparison.activatedGates,
+      coherenceWarnings: comparison.coherenceWarnings,
+      venue: futureRows.find((row) => row.productMatchId === comparison.fixtureId)?.venue ?? null,
+    }),
+  );
+
+  const publicationPlan = futureComparisons.map((comparison) => {
+    const review = fixturePublicationReview.find((entry) => entry.fixtureId === comparison.fixtureId)!;
+    return buildPublicationPlanEntry({
+      comparison,
+      proposedCandidate: review.recommendedCandidate,
+      proposedModelVersion: TASK2_3_FROZEN_PRODUCTION_CANDIDATE.calibrationVersion,
+      proposedCutoff: paths.generationCutoff,
+      blockers: [
+        ...review.humanReviewRequirement.blockers,
+        ...comparison.driftCauses.filter((cause) => cause === "deterministic_code_path_defect" || cause === "unknown"),
+      ],
+    });
+  });
+
+  const fixturesRequiringHumanReview = publicationPlan
+    .filter((entry) => entry.reviewStatus === "human_review_required")
+    .map((entry) => entry.fixtureId);
+  const allLocalizedNamesPresent = safeAnalysisFixtures.every(
+    (fixture) =>
+      fixture.teams.home.nameEn.length > 0 &&
+      fixture.teams.home.nameEs.length > 0 &&
+      fixture.teams.away.nameEn.length > 0 &&
+      fixture.teams.away.nameEs.length > 0,
+  );
+  const allVenueMetadataPresent = safeAnalysisFixtures.every(
+    (fixture) => fixture.venue.venueName != null && fixture.venue.cityEn != null && fixture.venue.cityEs != null,
+  );
+  const allDriftsExplained = futureComparisons.every((comparison) => comparison.explained);
+  const noDeterministicDriftDefects = futureComparisons.every(
+    (comparison) => !comparison.driftCauses.includes("deterministic_code_path_defect"),
+  );
+  const noUnknownDrift = futureComparisons.every((comparison) => !comparison.driftCauses.includes("unknown"));
+  const allProbabilityCapsRespected = futureComparisons.every((comparison) => {
+    const delta = Math.max(
+      Math.abs(comparison.currentV1VsGatedV2Delta.homeWin),
+      Math.abs(comparison.currentV1VsGatedV2Delta.draw),
+      Math.abs(comparison.currentV1VsGatedV2Delta.awayWin),
+    );
+    return delta <= (TASK2_3_FROZEN_PRODUCTION_CANDIDATE.boundedCaps?.oneXTwoDelta ?? 0.08) + 1e-9;
+  });
+  const noCatastrophicReviewAnomaly = publicationPlan.every((entry) => entry.reviewStatus !== "blocked");
+  const frozenCandidateNonInferior =
+    frozenBaselineMetrics != null &&
+    frozenCandidateMetrics != null &&
+    (frozenCandidateMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) <=
+      (frozenBaselineMetrics.oneXTwo.multiclassBrier ?? Number.POSITIVE_INFINITY) + 0.002 &&
+    (frozenCandidateMetrics.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY) <=
+      (frozenBaselineMetrics.oneXTwo.logLoss ?? Number.POSITIVE_INFINITY) + 0.005;
+  const releaseDecision = {
+    analysisLayer: allLocalizedNamesPresent && allVenueMetadataPresent ? "release" : "block",
+    probabilityEngine:
+      allDriftsExplained &&
+      noDeterministicDriftDefects &&
+      noUnknownDrift &&
+      allProbabilityCapsRespected &&
+      frozenCandidateNonInferior &&
+      noCatastrophicReviewAnomaly
+        ? "release_gated_v2"
+        : "retain_current_v1",
+    rationale: [
+      operationalState.newlyCompletedFixtures.length > 0 ? "operational_future_set_refreshed" : "no_new_completed_fixtures",
+      fixturesRequiringHumanReview.length > 0 ? "fixture_level_human_review_required" : "no_fixture_level_human_review_required",
+      allDriftsExplained ? "all_future_runtime_drifts_explained" : "unexplained_future_runtime_drift_present",
+      frozenCandidateNonInferior ? "frozen_candidate_non_inferior_under_blocked_validation" : "frozen_candidate_not_non_inferior",
+      allVenueMetadataPresent ? "venue_metadata_complete" : "venue_metadata_incomplete",
+    ],
+    fixturesRequiringHumanReview,
+  } satisfies Task2_3ReleaseDecision;
+
+  const operationalRefreshSummary = {
+    historicalOnly: true,
+    currentCandidateEligible: false,
+    currentReleaseDecisionEligible: false,
+    currentPublicationEligible: false,
+    generationCutoff: paths.generationCutoff,
+    newlyCompletedFixtures: operationalState.newlyCompletedFixtures,
+    fixturesRemovedFromFutureSet: operationalState.removedStartedFixtures,
+    remainingFutureFixtureCount: operationalState.remaining.length,
+    missingOrConflictingStatuses: operationalState.missingOrConflictingStatuses,
+    frozenBlockedValidation: {
+      baseline: frozenBaselineMetrics,
+      frozenCandidate: frozenCandidateMetrics,
+      nonInferior: frozenCandidateNonInferior,
+    },
+  };
+
+  const artifactBase = paths.artifactsDir;
+  ensureDirectory(artifactBase);
+  writeJson(path.join(artifactBase, "operational-refresh-summary.json"), operationalRefreshSummary);
+  writeJson(path.join(artifactBase, "future-three-state-comparison.json"), futureComparisons);
+  writeJson(path.join(artifactBase, "stored-runtime-drift-classification.json"), {
+    historicalOnly: true,
+    currentCandidateEligible: false,
+    currentReleaseDecisionEligible: false,
+    currentPublicationEligible: false,
+    future: futureComparisons.map((comparison) => ({
+      fixtureId: comparison.fixtureId,
+      fixture: comparison.fixture,
+      storedVsCurrentV1Delta: comparison.storedVsCurrentV1Delta,
+      driftCauses: comparison.driftCauses,
+      explained: comparison.explained,
+      releaseRisk: comparison.releaseRisk,
+    })),
+    historicalHoldoutNote:
+      "Historical holdout stored-row drift remains a reproducibility limitation tied to earlier runtime state and is not treated as a current-future release defect.",
+  });
+  writeJson(path.join(artifactBase, "fixture-publication-review.json"), fixturePublicationReview);
+  writeJson(path.join(artifactBase, "safe-analysis-release-candidate.json"), {
+    historicalOnly: true,
+    currentCandidateEligible: false,
+    currentReleaseDecisionEligible: false,
+    currentPublicationEligible: false,
+    fixtures: safeAnalysisFixtures,
+  });
+  writeJson(path.join(artifactBase, "gated-v2-release-candidate.json"), {
+    historicalOnly: true,
+    currentCandidateEligible: false,
+    currentReleaseDecisionEligible: false,
+    currentPublicationEligible: false,
+    fixtures: gatedReleaseFixtures,
+  });
+  writeJson(
+    path.join(artifactBase, "torneo-mundialista-v1-probability-v2-analysis-candidate.json"),
+    buildPublicReleaseExport({
+      schemaVersion: "torneo-mundialista-v2-release-candidate",
+      generationCutoff: paths.generationCutoff,
+      candidateIdentifier: "v1_probability_v2_analysis",
+      fixtures: safeAnalysisFixtures,
+    }),
+  );
+  writeJson(
+    path.join(artifactBase, "torneo-mundialista-gated-v2-candidate.json"),
+    buildPublicReleaseExport({
+      schemaVersion: "torneo-mundialista-v2-release-candidate",
+      generationCutoff: paths.generationCutoff,
+      candidateIdentifier: "gated_v2_probability_v2_analysis",
+      fixtures: gatedReleaseFixtures,
+    }),
+  );
+  writeJson(path.join(artifactBase, "publication-plan.json"), publicationPlan);
+  writeJson(path.join(artifactBase, "release-decision.json"), {
+    historicalOnly: true,
+    currentCandidateEligible: false,
+    currentReleaseDecisionEligible: false,
+    currentPublicationEligible: false,
+    ...releaseDecision,
+  });
+  writeText(
+    path.join(artifactBase, "README.txt"),
+    [
+      "Prediction Intelligence v2 Task 2.3 artifacts",
+      `artifact_date=${paths.artifactDate}`,
+      `generation_cutoff=${paths.generationCutoff}`,
+      `remaining_future_fixtures=${operationalState.remaining.length}`,
+      `analysis_layer_decision=${releaseDecision.analysisLayer}`,
+      `probability_engine_decision=${releaseDecision.probabilityEngine}`,
+      `fixtures_requiring_human_review=${fixturesRequiringHumanReview.length}`,
+    ].join("\n"),
+  );
+
+  return {
+    operationalRefreshSummary,
+    futureComparisons,
+    fixturePublicationReview,
+    safeAnalysisFixtures,
+    gatedReleaseFixtures,
+    publicationPlan,
+    releaseDecision,
   };
 }
