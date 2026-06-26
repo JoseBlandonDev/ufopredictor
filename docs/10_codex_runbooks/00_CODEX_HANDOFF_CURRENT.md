@@ -1,6 +1,6 @@
 # Codex Handoff Current
 
-_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
+_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
 
 ## Canonical-source rule
 
@@ -19,103 +19,137 @@ Those files own live product, branch, roadmap, stage, and workflow truth.
 ## Current baseline
 
 ```text
-production main: e771de3c39c480f05d026075e5e553fb75207468
+production base: e771de3c39c480f05d026075e5e553fb75207468
 active branch: integration/prediction-intelligence-v2
 active Draft PR: #114
-active head: 0db9ac8867eae344e56237ac028cc32255ff1a3d
+last reviewed pre-checkpoint HEAD: 27782c25bb4dc752fe335f0b2515feec264f8a6d
 old branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
 old head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
-PR #114 remains open and Draft. PR #106 remains unchanged and historical. Do not add implementation work to the old branch or blanket-cherry-pick it.
+Verify actual HEAD and worktree before every task.
 
-## M2-01 completion
+The old branch remains preservation and reference only.
+
+## Completed checkpoint
+
+Task 3B is technically complete.
+
+Stage target:
 
 ```text
-Task 1    complete
-Task 1.1  complete
-Task 1.2  complete
-Task 2A   complete
-Task 2B   complete
-Task 2C   complete
-Task 2D   complete
-Task 3A   complete
-Task 2 checkpoint: TASK2_CHECKPOINT_READY
-M2-01 checkpoint: M2_01_IMPLEMENTATION_CHECKPOINT_READY
+yfmklapgjrupctgxaako
 ```
 
-No useful old-branch implementation remains unported.
+Production deny target:
 
-Task 2 and Task 3A are local-only. Historical artifacts, candidate names, commands, migration plans, import plans, signal plans, publication plans, and export payloads remain non-current and non-authorizing.
+```text
+gcpdffkgsdomzyoenalg
+```
+
+Completed:
+
+- 46 migrations externally verified;
+- migration 0038 applied in stage only;
+- Task 3B stage importer implemented and tested;
+- foundation data imported;
+- second exact apply produced zero inserts and zero updates;
+- stage Auth user and admin profile preserved;
+- publish queue loads without the old competition-resolution error;
+- `/predictions` loads;
+- production remained untouched.
+
+Current stage product state:
+
+```text
+model_versions = 0
+prediction_versions = 0
+public_prediction_summaries = 0
+```
 
 ## Immediate next task
 
-After this documentation refresh and shared-source replacement, begin **Task 3B Phase A only**:
+```text
+Stage V1 Visible Predictions Slice
+```
 
-- validate ignored stage credentials without printing values;
-- prove the target is stage, not production;
-- inspect remote migration history and schema read-only;
-- compare stage with repository migrations;
-- inspect drift, tables, views, functions, policies, RLS, and dependencies;
-- confirm existing stage Auth users will not be deleted or corrupted;
-- produce an ordered non-destructive synchronization plan;
-- stop for owner review.
+Bounded goal:
 
-Task 3B Phase A performs no remote write.
+1. reconcile all 24 Matchday 3 fixture identities in stage;
+2. preserve the exact immutable production V1 baseline;
+3. import and activate the canonical V1 model version;
+4. import original V1 predictions and required child records without recalculation;
+5. map by stable provider/product identity, never localized names;
+6. validate public and admin surfaces;
+7. rerun and prove zero growth;
+8. prepare current-data and V2 replay handoff.
 
-Do not:
+Do not generate V2 in this slice.
 
-- apply migration 0038;
-- import data;
-- create signal snapshots;
-- create prediction versions;
-- publish anything;
-- alter `torneo-ufo-export-v1`;
-- access production;
-- mark PR #114 ready or merge it.
+## Source priority for immutable V1
+
+Use, in order:
+
+1. committed public-safe or publication artifacts containing the complete required baseline;
+2. strict read-only production queries scoped to the exact 24 fixtures;
+3. another preserved immutable source already in the project.
+
+Production is source-read-only. Production writes are forbidden.
+
+Do not copy production UUID relationships blindly. Resolve stage match IDs using trusted fixture identity.
+
+## Authenticated browser
+
+The internal browser may already be authenticated as the stage admin user.
+
+Use it only for:
+
+- `https://stage.ufopredictor.com`;
+- read-only or explicitly approved stage smoke checks;
+- public and admin projection validation.
+
+Do not log into or inspect production through that browser during the stage task.
 
 ## Source workspace
 
-External prepared source workspace:
+Prepared historical/reference workspace:
 
 ```text
 D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
 ```
 
-Committed equivalents exist under `data/`, `artifacts/prediction-intelligence-v2/`, `lib/prediction-intelligence-v2/`, and `scripts/prediction-intelligence-v2/`.
+Its cutoff is historical as of 2026-06-26.
 
-Do not report the data as lost merely because the external path is unavailable in one environment. Do not treat historical artifacts as approved stage seed authority without the Task 3B audit and owner approval.
+Do not describe it as current. Do not delete it until current refresh and lineage needs are settled.
 
 ## Hard boundaries
 
 - no production writes;
-- no stage writes during the read-only audit;
-- no merge of PR #106;
-- no more old-branch code porting;
-- no blanket old-branch cherry-pick;
-- no production migration 0038;
-- no production Auth/payment/entitlement cloning;
-- no secrets in output;
+- no production Auth, payment, entitlement, webhook, or session access beyond an explicitly bounded read-only prediction source if approved;
+- no migration-history writes;
 - no post-kickoff prediction generation;
-- no rewriting original v1 publications;
-- no claim that historical v2 is currently approved or more accurate;
-- no output outside approved local-run/planner artifact roots;
-- no interpretation of M2-01 completion as production readiness.
+- no rewriting original V1 publications;
+- no invented provider IDs;
+- no broad fixture or prediction apply;
+- no V2 generation during the V1 visible slice;
+- no Wompi or AI provider configuration;
+- no merge or Draft PR state change without owner instruction.
 
-## Reporting contract
+## Validation contract
 
 Return:
 
-- exact branch, HEAD, and environment target;
-- read-only evidence that the target is stage;
-- remote migration/schema inventory;
-- repository-to-stage drift classification;
-- RLS/view/function/policy/dependency review;
-- non-destructive synchronization plan;
-- stage-user preservation analysis;
-- concrete blockers only;
-- explicit confirmation of zero remote writes;
-- final verdict and stop point.
+- exact branch, HEAD, and worktree;
+- stage target and production denial;
+- exact fixture mapping counts;
+- chosen immutable V1 source;
+- per-table source, insert, update, skip, reject, and conflict counts;
+- probability and timestamp preservation proof;
+- public and admin smoke results;
+- second-run zero-growth proof;
+- Auth/admin preservation;
+- production read-only/no-write proof;
+- concrete blockers only.
 
-The owner handles routine Git staging, commit, push, PR-description changes, and all later write authorization unless explicitly delegated.
+The owner handles routine Git staging, commit, push, and final source replacement unless explicitly delegated.

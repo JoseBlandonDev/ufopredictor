@@ -1,214 +1,225 @@
 # Prediction Intelligence v2 - Integration, Stage, and Release Plan
 
-_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
+_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
 
 ## Environment decision
 
-The development environment already exists:
+The development environment is:
 
 ```text
-stage.ufopredictor.com -> Railway development -> Supabase stage
+stage.ufopredictor.com -> Railway development -> Supabase stage yfmklapgjrupctgxaako
 ```
 
-Auth registration/login works. Do not create another environment or revive the abandoned Docker path.
+Production is:
+
+```text
+ufopredictor.com -> Railway production -> Supabase gcpdffkgsdomzyoenalg
+```
+
+Do not create another environment or revive the abandoned Docker path for normal work.
 
 ## Current branch state
 
 ```text
-production main: e771de3c39c480f05d026075e5e553fb75207468
+production base: e771de3c39c480f05d026075e5e553fb75207468
 integration branch: integration/prediction-intelligence-v2
 Draft PR: #114
-integration head: 0db9ac8867eae344e56237ac028cc32255ff1a3d
+last reviewed pre-checkpoint HEAD: 27782c25bb4dc752fe335f0b2515feec264f8a6d
 old source branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
 ```
 
-Migration 0038 is committed but unapplied.
+Verify the actual integration HEAD before implementation.
 
-## Phase 0 - normalization status
-
-Completed:
-
-- preserved old branch and PR #106 unchanged;
-- created integration branch from the current production baseline;
-- opened replacement Draft PR #114;
-- selectively ported Task 1, Task 1.1, and Task 1.2;
-- selectively ported Task 2A, Task 2B, Task 2C, and Task 2D;
-- enforced strict runner-specific local-run output boundaries;
-- selectively normalized Task 3A as a local-only planner/dry-run;
-- restored dated artifacts with preservation manifests;
-- kept historical candidates, commands, plans, and decisions non-current and non-authorizing;
-- validated bounded slices against protected MVP1 behavior;
-- passed the accumulated Task 2 checkpoint and final M2-01 implementation checkpoint.
-
-Final Phase 0 verdict:
-
-```text
-M2_01_IMPLEMENTATION_CHECKPOINT_READY
-```
-
-No useful implementation remains to be ported from the old branch. The old branch's final documentation handoff and broad Supabase-local support files remain intentionally excluded.
-## Phase 0A - Task 3A planner and dry-run
+## Phase 0 - integration normalization
 
 Status: `Complete`
 
-Integrated commit:
+Completed:
+
+- preserved old branch and PR #106;
+- created integration branch from the production baseline;
+- selectively integrated Task 1, 1.1, 1.2, Task 2, and Task 3A concerns;
+- restored historical evidence with non-current eligibility flags;
+- protected MVP1 behavior;
+- enforced local-run output boundaries;
+- proved no useful old-branch implementation remains.
+
+## Phase 1 - stage audit and schema synchronization
+
+Status: `Complete for the current foundation`
+
+Completed:
+
+- explicit stage identity and production denial;
+- migration and schema inspection;
+- stage Auth preservation assessment;
+- manual application of the canonical 46-migration chain where CLI behavior was unreliable;
+- migration 0038 applied to stage only;
+- no production migration or write.
+
+Migration history remains externally verified because the service-role PostgREST path cannot query `supabase_migrations`.
+
+## Phase 2 - Task 3B foundation bootstrap
+
+Status: `Complete`
+
+Completed:
+
+- stage-only importer and tests;
+- prepared snapshot checksum validation;
+- deterministic aliases and localization handling;
+- competition, season, teams, venues, runtime matches, ratings, history, schedule, and venue reference import;
+- zero conflicts and balanced accounting;
+- first apply success;
+- second apply with zero inserts and zero updates;
+- Auth and admin preservation;
+- public/admin smoke checks;
+- production denial.
+
+Current source cutoff:
 
 ```text
-0db9ac8 feat: add local-only prediction intelligence v2 task3a planner
+2026-06-20
 ```
 
-Delivered concerns:
+## Phase 3 - Stage V1 Visible Predictions Slice
 
-- explicit local-only target/environment guard;
-- ordered migration plan;
-- idempotent source/history import plan;
-- current-cutoff release review;
-- signal snapshot persistence plan;
-- immutable development/replay publication plan;
-- Torneo Mundialista export dry-run;
-- explicit production, stage, remote, migration, import, persistence, publication, and partner-delivery denial;
-- focused tests and historical preservation evidence.
+Status: `Next`
 
-Task 3A uses no `.env`, credentials, Supabase client, remote schema inspection, live API-Football read, network request, migration apply, remote import, prediction publication, stage write, or production write.
+Goal: establish the exact immutable V1 baseline in stage before V2 comparison.
 
-M2-01 implementation is complete. PR #114 remains Draft pending documentation refresh, review, and later stage evidence.
-## Phase 1 - mandatory read-only stage audit
+Required work:
 
-Only after Task 3A checkpoint:
+1. run the Matchday 3 fixture registry against stage in dry-run mode;
+2. produce an exact 24-fixture allowlist manifest;
+3. reconcile existing manual runtime rows with trusted API-Football fixture IDs;
+4. locate the complete original V1 baseline from committed safe artifacts or strict read-only production queries;
+5. import the canonical V1 model version;
+6. map original V1 prediction records to stage matches by stable identity;
+7. import required prediction markets, narratives, and public detail records without recalculation;
+8. activate V1 in stage;
+9. verify `/predictions`, match detail, and admin surfaces;
+10. rerun and prove zero growth.
 
-1. validate ignored stage credentials without printing values;
-2. prove the target is stage, not production;
-3. inspect remote migration history and schema;
-4. compare stage with `supabase/migrations`;
-5. identify drift, manually created objects, views, functions, policies, and dependencies;
-6. confirm existing stage Auth users will not be deleted or corrupted;
-7. confirm source manifests and committed equivalents;
-8. generate an ordered non-destructive synchronization plan;
-9. stop for owner review.
+Do not recompute historical V1 probabilities or narratives with current data.
 
-No remote write is allowed in Phase 1.
+Production access, if needed as a source, is read-only and exact-scope only.
 
-## Phase 2 - authorized stage synchronization
+## Phase 4 - current football data refresh
 
-Only after owner approval:
+Status: `Planned immediately after V1 visibility`
 
-1. reconcile stage migration history/schema using the approved plan;
-2. apply the approved missing canonical chain;
-3. apply `0038_prediction_intelligence_v2_data_foundation.sql` in stage;
-4. load non-sensitive reference/history data idempotently;
-5. rerun and prove zero duplicates;
-6. persist signal snapshots with cutoff and provenance;
-7. validate RLS, public-safe views, canonical aliases, localizations, and venues;
-8. create immutable development prediction versions only for eligible not-started fixtures;
-9. create approved `historical_replay` versions for selected finished fixtures;
-10. generate a development Torneo JSON export without altering `torneo-ufo-export-v1` production behavior.
+Refresh and register:
 
-Do not copy:
-
-- production users or sessions;
-- Wompi transactions or webhook payloads;
-- production entitlements/subscriptions;
-- secrets or personal data.
-
-## Phase 3 - current-data freshness
-
-Historical restoration is not current-data readiness.
-
-Before current v2 candidates, refresh and register:
-
-- current Elo timeline and cutoffs;
-- latest available official FIFA ranking snapshot;
-- recent verified results and match facts;
-- official schedule and provider linkage;
-- group standings and goal difference;
-- qualification/elimination pressure;
+- current API-Football fixture identity, kickoff, and status;
+- recent verified results;
+- current Elo timeline and cutoff;
+- latest available FIFA ranking snapshot;
+- group standings, points, goals, and goal difference;
 - current tournament form;
-- source manifests, hashes, provenance, and reliability metadata.
+- opponent quality;
+- source manifests, hashes, provenance, and reliability.
 
-Every signal must preserve a pre-kickoff evidence cutoff.
+Every candidate signal preserves a pre-kickoff cutoff.
 
-## Phase 4 - current candidate generation and fair comparison
+The refresh must be repeatable and idempotent. Stage should not require another foundation bootstrap for every new data update.
 
-Generate current stage candidates only after schema, data, and freshness gates pass.
+## Phase 5 - V2 candidates and fair comparison
 
-Required comparison states:
+Generate only after V1 and current-data gates pass.
+
+Required states:
 
 ```text
-stored/published v1 baseline
-v1 probabilities + v2 analysis
-gated v2 probabilities + v2 analysis
+original stored/published V1 baseline
+v1 probabilities + V2 analysis
+bounded/gated V2 probabilities + V2 analysis
 ```
 
-For finished fixtures:
+For completed fixtures:
 
 ```text
-original immutable v1 publication
-vs fair v2 historical_replay
+original V1 publication
+vs V2 historical_replay
 vs verified result
 ```
 
-For future fixtures, every compared candidate must use the same explicit cutoff and source state.
+For future fixtures, candidates use the same explicit evidence cutoff.
 
-## v2.0 Tournament Candidate gate
+Evaluation must separate:
 
-A v2.0 candidate requires:
+- probability quality;
+- scenario-family quality;
+- explanation and evidence quality;
+- football variance;
+- data availability and reliability.
+
+## V2.0 Tournament Candidate gate
+
+A V2.0 candidate requires:
 
 - current stage data and provenance;
 - no post-kickoff leakage;
 - stable fixture identity;
 - deterministic and idempotent execution;
-- acceptable v1 parity or better performance;
-- bounded probability movements;
-- reliable evidence/scenario output;
+- acceptable V1 parity or better probability performance;
+- bounded movements;
+- useful evidence and scenario explanations;
 - RLS and public-safe projection validation;
-- Auth/Wompi/entitlement regression protection;
+- Auth, Wompi, and entitlement regression protection;
 - compatible Torneo export;
 - owner approval and rollback plan.
 
 Possible release modes:
 
 ```text
-v1 probabilities + v2 analysis
+v1 probabilities + V2 analysis
 ```
 
 or:
 
 ```text
-gated v2 probabilities + v2 analysis
+gated V2 probabilities + V2 analysis
 ```
 
-## v2.1 Knockout Context
+The first mode may release the explanation layer before a probability superiority claim is justified.
 
-After a stable v2.0 candidate, add:
+## V2.1 and later context
 
-- qualification and bracket path;
-- group outcome context;
-- neutral venue and elimination stakes;
-- knockout-specific reliability controls;
-- representative scenario explanations suitable for elimination football.
+After a stable V2.0 candidate, add bounded increments for:
 
-Do not bundle lineups, player props, market odds, or full news automation into v2.1.
+- knockout qualification probability separate from 90-minute result;
+- extra time and penalties;
+- knockout-specific caution and changing risk through the match;
+- richer standings and bracket context;
+- squad, lineup, injury, suspension, and player-impact signals;
+- top scorers and team offensive dependency.
+
+Do not block V2.0 on full player intelligence or complete multilingual rollout.
+
+## Parallel product delivery
+
+A separate owner may work on the expert product experience while the primary owner continues data and model work.
+
+That work should:
+
+- branch from current `main` when production-safe;
+- improve use of existing V1 information without changing probabilities;
+- support missing data gracefully;
+- prepare locale-neutral contracts and ES/EN/PT rendering;
+- merge normally to `main` and then flow into the integration branch through Git history.
+
+It must not duplicate stage data pipelines or V2 model implementation.
 
 ## Production promotion gate
 
-A later production promotion requires:
+Production promotion requires:
 
-- PR #114 normalization complete and reviewed;
-- stage schema/data state accepted;
-- current candidate evidence captured;
+- accepted stage schema and data state;
+- visible V1 baseline and fair comparison evidence;
 - chosen release mode;
-- immutable version/cutoff proof;
-- no regression to MVP1 Auth, Wompi, entitlements, result operations, or public lifecycle;
+- immutable version and cutoff proof;
+- no regression to MVP1 commercial or operational flows;
 - partner export compatibility;
 - explicit owner approval.
-
-## Parallel delivery rule
-
-While v2 remains in Draft/stage:
-
-- `main` continues relevant fixture/result operations;
-- current v1 publications remain live and immutable;
-- trusted result auto-refresh continues independently;
-- bounded UI/UX improvements may use short branches from `main`;
-- no independent task may consume unfinished migration 0038 contracts unless explicitly part of v2 stage work.

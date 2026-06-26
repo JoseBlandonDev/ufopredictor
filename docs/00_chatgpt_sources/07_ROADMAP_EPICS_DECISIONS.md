@@ -1,265 +1,344 @@
 # Roadmap, MVP2 Epics, and Open Decisions
 
-_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
+_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion and MVP2 roadmap simplification._
 
 ## MVP2 objective
 
 MVP2 is the shortest safe path from the sellable MVP1 to a product with:
 
-- normalized football history/reference data;
-- reliable tournament operations;
+- normalized football history and reference data;
+- repeatable current-data operations;
+- visible immutable V1 baselines in stage;
 - explainable evidence and scenario output;
-- reproducible v1/v2 comparison;
+- fair V1/V2 comparison;
 - immutable prediction versions;
 - tournament and qualification context;
 - lower manual operational burden;
 - ES/EN/PT-ready contracts;
 - continued production delivery during research.
 
-The central product epic is Prediction Intelligence v2, not a frontend rewrite.
+The goal is a football-intelligence product, not a frontend rewrite and not a result-prediction oracle.
+
+## MVP2 naming convention
+
+MVP2 planning uses a simple convention:
+
+```text
+Epic 1, Epic 2, Epic 3...
+Task 1A, 1B, 1C...
+```
+
+Rules:
+
+- epic numbers identify owner-sized workstreams;
+- task letters identify bounded deliverables;
+- avoid a third identifier level unless absolutely necessary;
+- PR checklists may contain smaller implementation steps without creating more roadmap codes;
+- MVP1 historical naming is not changed;
+- old `M2-01` to `M2-08` labels remain historical references only and are mapped below.
 
 ## Current status summary
 
 ```text
-M2-01  Implementation Complete - final checkpoint approved
-M2-02  Done
-M2-03  Ready for Task 3B read-only stage audit
-M2-04  Planned after stage data/freshness path
-M2-05  Partially delivered and operational
-M2-06  Parallel, bounded microreleases
-M2-07  Contract design active; public rollout later
-M2-08  Later
+Epic 1  Foundation and Stage          - Task 1A and 1B complete; 1C next
+Epic 2  Current Football Data         - planned after 1C
+Epic 3  V2 Candidate and Evaluation   - planned after current data
+Epic 4  Expert Product Experience     - parallel, separate owner
+Epic 5  Operations and Automation     - partially delivered, continuing
 ```
 
-## P0 - immediate
+## Epic 1 - Foundation and Stage
 
-### Epic M2-01 - Prediction Intelligence v2 integration normalization
+Purpose: provide a safe, reproducible stage environment with V1 and V2 comparison foundations.
 
-Status: `Implementation Complete`
-
-Delivered:
-
-- preserved old v2 branch and Draft PR #106;
-- created `integration/prediction-intelligence-v2` from the current production baseline;
-- opened replacement Draft PR #114;
-- selectively ported Task 1, 1.1, and 1.2;
-- selectively ported Task 2A, 2B, 2C, and 2D;
-- restored historical artifacts and preservation manifests;
-- passed the accumulated Task 2 checkpoint;
-- enforced strict local-run-only output containment for Task 2 runners;
-- selectively normalized Task 3A as a local-only planner/dry-run;
-- preserved Task 3A historical artifacts byte-for-byte with explicit non-authorization flags;
-- passed the final M2-01 implementation checkpoint;
-- proved no useful old-branch implementation concern remains unaccounted for;
-- preserved MVP1 runtime, production operations, Auth, Wompi, entitlements, immutable v1 publications, and partner export behavior.
-
-Checkpoint verdict:
-
-```text
-M2_01_IMPLEMENTATION_CHECKPOINT_READY
-```
-
-M2-01 implementation completion does not mean merged, production-live, or release-approved. Draft PR #114 remains open and Draft. The old branch and PR #106 remain historical evidence only.
-
-### Epic M2-02 - World Cup group-stage coverage and publication continuity
+### Task 1A - Integration normalization
 
 Status: `Done`
 
 Delivered:
 
-- bounded fixture registry flow in PR #111;
-- 72 canonical group-stage fixtures recognized;
-- 24/24 Matchday 3 fixtures stored;
-- 24/24 Matchday 3 v1 predictions published;
-- dry-run/apply/idempotency evidence;
-- publish queue cleared at the recorded milestone;
-- Torneo JSON export with 24 unique fixtures.
+- current-main-based integration branch and Draft PR #114;
+- selective Task 1, Task 2, and Task 3A integration;
+- historical evidence preservation;
+- local-run and production-denial guards;
+- no remaining useful code to port from the old branch.
 
-Future fixture coverage continues as routine operations, not unfinished M2-02 scope.
+### Task 1B - Stage schema and data bootstrap
 
-### Epic M2-03 - stage data foundation and Task 3B
+Status: `Done`
 
-Status: `Ready for Task 3B read-only stage audit`
+Delivered:
 
-Sequence:
+- stage identity and production denial;
+- canonical 46-migration stage chain;
+- migration 0038 applied to stage only;
+- Task 3B importer;
+- reference and historical foundation data;
+- first apply and zero-write second apply;
+- Auth/admin preservation;
+- stage queue and predictions smoke checks.
 
-1. read-only stage audit;
-2. migration/schema reconciliation plan;
-3. owner approval;
-4. migration 0038 in stage;
-5. idempotent source/history import;
-6. second-run zero-duplicate proof;
-7. signal snapshots;
-8. immutable development/replay versions;
-9. RLS, localization, venue, and public-safe projection validation.
+Current stage remains empty of model and prediction rows.
 
-No write is allowed during the initial audit. No production write belongs to M2-03.
+### Task 1C - V1 visible baseline
 
-### Epic M2-04 - current model integration and release decision
+Status: `Next`
 
-Status: `Planned`
+Deliverables:
 
-- refresh current Elo, FIFA, results, schedule, standings, and tournament context;
-- generate current stage candidates under explicit cutoffs;
-- compare v1 and gated v2 fairly;
-- validate tournament-current signals;
-- validate scenario families, evidence, contradictions, and reliability;
-- choose v1 probability + v2 analysis or gated-v2 probability + v2 analysis;
-- promote only after stage exit gates;
-- prepare v2.0 Tournament Candidate and v2.1 Knockout Context.
+- exact 24 Matchday 3 fixture linkage in stage;
+- canonical V1 model import and activation;
+- original immutable V1 prediction baseline imported without recalculation;
+- public and admin visibility;
+- second-run zero-growth proof;
+- handoff to current-data refresh.
 
-## P1 - parallel and near-term
+## Epic 2 - Current Football Data
 
-### Epic M2-05 - operations efficiency and automation
+Purpose: make stage independently refreshable instead of relying on dated bootstrap files or production as an ongoing data source.
 
-Status: `Partially Done`
+### Task 2A - Fixture and result refresh
+
+- not-started fixture identity and kickoff refresh;
+- verified recent results;
+- exact provider links;
+- idempotent reruns and exception reporting.
+
+### Task 2B - Ranking refresh
+
+- current World Football Elo snapshot and timeline;
+- latest available official FIFA ranking;
+- source, observed time, cutoff, and checksum;
+- deterministic team mapping.
+
+### Task 2C - Tournament form and standings
+
+- played, wins, draws, losses, and points;
+- goals for, goals against, and goal difference;
+- scoring and conceding averages;
+- group position and qualification pressure;
+- opponent-quality context;
+- small-sample reliability controls.
+
+### Task 2D - Repeatable signal snapshots
+
+- source-backed signal snapshot creation;
+- explicit pre-kickoff cutoffs;
+- missing-signal and reliability metadata;
+- rerunnable current-data pipeline;
+- no full bootstrap required for ordinary refreshes.
+
+## Epic 3 - V2 Candidate and Evaluation
+
+Purpose: produce, explain, compare, and release V2 honestly.
+
+### Task 3A - Live V2 candidate
+
+- create current V2 candidates for not-started fixtures;
+- preserve V1 as predecessor/baseline;
+- apply movement and reliability gates;
+- produce source-backed scenarios and evidence.
+
+### Task 3B - Historical replay
+
+- create labeled V2 `historical_replay` versions for completed fixtures;
+- use only evidence available before kickoff;
+- never replace original V1 publications.
+
+### Task 3C - V1/V2 evaluation
+
+- compare probabilities, goals, scenarios, and explanation quality;
+- use verified results;
+- separate model error, data limitation, and football variance;
+- record what V2 improved or worsened.
+
+### Task 3D - Release decision
+
+Choose and validate one of:
+
+```text
+v1 probabilities + V2 analysis
+```
+
+or:
+
+```text
+gated V2 probabilities + V2 analysis
+```
+
+Production release requires stage gates, rollback, and owner approval.
+
+## Epic 4 - Expert Product Experience
+
+Purpose: allow another owner to improve the current product in production and stage while the primary owner continues data and model work.
+
+This epic does not change probabilities or build the V2 data pipeline.
+
+### Task 4A - V1 information inventory
+
+- identify data V1 stores but does not show;
+- identify duplicated, unclear, or betting-centric presentation;
+- define safe public, registered, premium, and admin display boundaries.
+
+### Task 4B - Expert match summary
+
+- explain who arrives stronger and why;
+- translate V1 signals into ordinary football language;
+- show confidence and uncertainty honestly;
+- support missing data without empty placeholder boxes.
+
+### Task 4C - Understandable scenario families
+
+- controlled favorite win;
+- tight balanced match;
+- open match or upset path;
+- representative exact scores as anchors, not the full explanation.
+
+### Task 4D - Evidence and transparency
+
+- supporting evidence;
+- contradicting evidence;
+- source and cutoff when available;
+- data-quality and missing-data messages;
+- no invented statistics.
+
+### Task 4E - Locale-ready presentation
+
+- locale-neutral fact contracts;
+- translation keys and renderers;
+- Spanish first;
+- English and Portuguese ready as first-class targets;
+- no model recalculation per language.
+
+### Task 4F - Future-data receivers
+
+Prepare UI and contracts, without requiring the data now, for:
+
+- tournament form and standings;
+- rankings and attack/defense profiles;
+- squads and lineups;
+- injuries and suspensions;
+- top scorers;
+- contribution to team goals;
+- offensive dependency;
+- likely scorer and key-absence impact.
+
+Branch rule:
+
+- production-safe work branches from current `main`;
+- merges to `main` through normal PR review;
+- then flows into `integration/prediction-intelligence-v2` through normal Git history;
+- no duplicate manual implementation in both branches.
+
+## Epic 5 - Operations and Automation
+
+Purpose: reduce repetitive manual operations without weakening exact-scope safety.
 
 Delivered:
 
 - bounded fixture registry;
 - exact allowlist apply;
-- trusted result refresh in PR #112;
-- API-Football `FT` auto-verification;
-- idempotent result/evaluation persistence;
+- trusted result refresh;
+- valid `FT` verification;
+- idempotent result and evaluation persistence;
 - exception-oriented review;
-- real apply and idempotency proof.
+- Task 3B stage bootstrap and rerun proof.
 
 Remaining:
 
 - automatic selection of recent pending fixtures;
+- retry and backoff for transient provider absence;
 - scheduler around match windows;
-- retry/backoff for transient provider absence;
-- run notifications;
-- persistent reconciliation workflow;
+- run summaries and notifications;
+- persistent score-reconciliation workflow;
 - operational metrics;
-- recurring signal refresh after v2 stage stabilization.
+- recurring ranking and signal refresh after stage stabilization.
 
-### Epic M2-06 - independent MVP1 UI/UX microreleases
+## Planned later extensions
 
-Status: `Parallel`
+These are intentionally not V2.0 blockers:
 
-Possible bounded work:
+- canonical player and squad intelligence;
+- likely and confirmed lineups;
+- injuries, suspensions, rest, and rotation;
+- tournament top scorers and player contribution;
+- offensive dependency and replacement quality;
+- classification probability including extra time and penalties;
+- deeper multilingual rollout;
+- second payment provider;
+- larger holdout and stricter probability acceptance gates.
 
-- mobile/accessibility polish;
-- loading/empty/error states;
-- visual hierarchy and motion restraint;
-- CTA/conversion measurement;
-- trusted venue display;
-- admin workflow ergonomics;
-- copy deduplication.
+## Legacy MVP2 mapping
 
-These tasks must not depend on unfinished v2 analytical tables.
+For historical continuity only:
 
-### Epic M2-07 - ES/EN/PT internationalization foundation
+| Old label | New location |
+|---|---|
+| M2-01 | Epic 1 Task 1A |
+| M2-02 | completed production milestone, retained as history |
+| M2-03 | Epic 1 Task 1B and 1C |
+| M2-04 | Epic 2 and Epic 3 |
+| M2-05 | Epic 5 |
+| M2-06 | Epic 4 |
+| M2-07 | Epic 4 Task 4E and later localization rollout |
+| M2-08 | planned later commercial extension |
 
-Status: `Contract design now; public rollout after stable v2 contracts`
-
-- locale-neutral team and competition identity;
-- translation-key extraction;
-- ES/EN/PT copy and metadata;
-- locale-aware routing/selection;
-- localized fallback behavior;
-- regression protection across all three core languages.
-
-Spanish remains current production. English and Portuguese are first-class targets.
-
-### Epic M2-08 - commercial platform abstraction
-
-Status: `Later`
-
-- provider-neutral payment event/entitlement adapter;
-- evaluate PayPal Business or another direct provider;
-- define refund/revocation/reconciliation;
-- preserve Wompi as current production provider.
-
-This is not an immediate v2 blocker.
-
-## Immediate tournament intelligence scope
-
-Included in MVP2:
-
-- structural Elo and FIFA strength;
-- recent form and opponent quality;
-- current World Cup form;
-- group position, points, and goal difference;
-- qualification/elimination pressure;
-- win/draw/loss need scenarios;
-- small-sample reliability controls;
-- supporting and contradicting evidence;
-- representative scenario families;
-- exact provenance and cutoff.
-
-## Later radar
-
-- confirmed lineups and major player absences;
-- injuries, suspensions, rotation, rest, and travel;
-- player/scorer propositions;
-- timestamped news evidence;
-- market odds after legal/product review;
-- French and German localization;
-- larger holdout and stricter accuracy acceptance gates.
+Do not use old labels for new MVP2 tasks.
 
 ## Decisions already made
 
-- MVP1 remains live during v2 work;
+- MVP1 remains live during MVP2 work;
 - production and stage remain separate;
-- no new Docker dependency or new stage environment;
-- old v2 branch is preserved, not used as the active base;
-- Task 1, Task 2, and Task 3A normalization are complete;
-- M2-01 implementation checkpoint is approved;
-- no more code will be ported from the old branch;
-- Task 3B starts read-only;
-- stage writes require explicit owner approval after the audit;
-- production writes remain denied during stage work;
-- historical Task 2/3A candidates, plans, and decisions are non-current;
-- v2 probability evidence is near parity, not an established accuracy breakthrough;
-- v2 analysis is the main current product gain under evaluation;
-- scenarios are representative families, not prophecy;
-- predictions are immutable;
-- fair finished-fixture comparison uses `historical_replay`;
-- canonical identity is locale-neutral;
-- core target languages are ES, EN, and PT;
-- API-Football is trusted for valid exact `FT` results;
-- manual result review is exception-only;
-- Torneo Mundialista consumes JSON under `torneo-ufo-export-v1`;
-- project-management spreadsheets are derived, not canonical.
+- old V2 branch is preservation only;
+- stage foundation bootstrap is complete and idempotent;
+- production writes remain denied from the integration task path;
+- original V1 publications are immutable baselines;
+- finished-fixture V2 comparison uses `historical_replay`;
+- historical V2 artifacts do not authorize a current release;
+- V2 probability superiority is not yet established;
+- explanation, evidence, provenance, scenarios, and context are core product value;
+- scenarios are match-script families, not prophecy;
+- user-facing language should explain football rather than assume betting literacy;
+- canonical identity and facts are locale-neutral;
+- ES, EN, and PT are core language targets;
+- API-Football is trusted for valid exact terminal result operations;
+- Torneo Mundialista continues to consume `torneo-ufo-export-v1`;
+- Epic 4 is a parallel workstream for another owner and does not redirect the primary data/model work.
 
 ## Decisions still required
 
-- exact stage migration reconciliation after read-only audit;
-- approved stage seed/import scope;
-- current-data freshness source set and cutoff;
-- v1 probability + v2 analysis versus gated-v2 probability + v2 analysis;
-- final public/free/premium signal matrix;
+- exact immutable V1 source used for stage import;
+- final current-data source set and refresh cadence;
+- V1 probabilities plus V2 analysis versus gated V2 probabilities;
+- final public, free, and premium signal matrix;
 - deterministic narrative versus optional LLM polish;
 - public proprietary boundary;
-- scheduler/retry notification architecture;
-- legal/terms/privacy publication timing;
+- scheduler and notification architecture;
+- timing of broad EN/PT rollout;
+- scope and source strategy for player and lineup intelligence;
 - second payment-provider strategy.
 
 ## Exact next sequence
 
-1. apply the final M2-01 documentation refresh;
-2. replace the shared ChatGPT source set and start the next conversation;
-3. optionally refresh the Draft PR #114 description while keeping it Draft;
-4. begin M2-03 Task 3B with a read-only stage audit only;
-5. produce a non-destructive stage migration/schema reconciliation plan;
-6. stop for owner approval;
-7. synchronize stage only after explicit approval;
-8. refresh current football data and tournament context;
-9. generate fair current v1/v2 comparisons;
-10. decide v2.0 production mode;
-11. prepare knockout-context v2.1.
+1. owner commits Task 3B and this documentation checkpoint;
+2. replace the shared ChatGPT source set;
+3. start `Stage V1 Visible Predictions Slice`;
+4. complete Epic 1 Task 1C;
+5. execute Epic 2 current-data refresh;
+6. execute Epic 3 live candidate and historical replay;
+7. compare and decide release mode;
+8. continue Epic 4 in parallel under a separate owner;
+9. promote only after stage acceptance.
 
 ## Delivery rule
 
-Every epic must use bounded increments with:
+Every epic and task uses:
 
 - explicit branch base;
 - explicit environment;
 - exact write scope;
 - acceptance evidence;
 - rollback boundary;
-- documentation update at meaningful checkpoints and after merge.
+- documentation refresh at meaningful checkpoints.
 
-Avoid giant cross-cutting PRs that combine model, payments, UI, migrations, operations, and documentation.
+Avoid giant PRs that combine model, data, payments, UI, migrations, operations, and documentation.

@@ -1,6 +1,6 @@
 # Product and Commercial MVP1 - Current
 
-_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
+_Last refreshed: 2026-06-26 after the Prediction Intelligence v2 Task 3B stage checkpoint._
 
 ## Product
 
@@ -8,15 +8,15 @@ UFO Predictor is a football-intelligence product that publishes probabilistic Wo
 
 ## Production MVP1 status
 
-The commercial loop is operational:
+The commercial production loop remains operational:
 
 ```text
 visitor -> account -> checkout -> Wompi approval webhook -> entitlement -> premium access
 ```
 
-The redirect after payment is informational. Premium activation is granted only by the validated server-side webhook and idempotent entitlement flow.
+The payment return page is informational. Premium activation is granted only by the validated server-side webhook and idempotent entitlement flow.
 
-MVP1 remains live while Prediction Intelligence v2 is integrated and tested separately.
+MVP1 remains live while MVP2 is developed and validated separately.
 
 ## Access tiers
 
@@ -66,29 +66,29 @@ MVP1 remains live while Prediction Intelligence v2 is integrated and tested sepa
 - trusted-provider result refresh and automatic evaluation;
 - public-safe Torneo Mundialista JSON export.
 
-## Matchday 3 delivery
+## Matchday 3 production baseline
 
 Current production v1 coverage:
 
 - 24/24 Matchday 3 fixtures stored;
 - 24/24 Matchday 3 predictions published;
-- no pending rows in the exact publish queue;
+- no pending rows in the exact publish queue at the recorded milestone;
 - partner export generated with 24 unique fixtures and no duplicates.
 
-The current v1 publications remain immutable historical versions even if a later v2 version is created before kickoff.
+These original V1 publications are immutable historical baselines. A later V2 candidate or replay never replaces them.
 
 ## Verified-result and historical behavior
 
 A verified final result is shown as historical truth while the original pre-match prediction remains immutable.
 
-Normal valid API-Football `FT` results may now be verified automatically when:
+Normal valid API-Football `FT` results may be verified automatically when:
 
-- the stored fixture and provider identity match;
+- stored fixture and provider identity match;
 - home and away scores are present;
 - the state is supported;
 - no duplicate or reconciliation conflict exists.
 
-Human review is reserved for exceptions, not every normal result.
+Human review is reserved for exceptions.
 
 For eligible premium historical details:
 
@@ -105,53 +105,87 @@ The approved partner artifact is JSON:
 schemaVersion: torneo-ufo-export-v1
 ```
 
-The validated Matchday 3 export includes 24 unique fixtures and public-safe prediction fields.
+Partner joins use stable fixture or external IDs, not localized team names.
 
 PDF is not required for the current integration.
 
-Partner joins should use stable `fixtureId` or `externalId`, not localized team names.
-
 ## MVP1 closeout meaning
 
-MVP1 is commercially usable. Its closeout does not freeze the product.
+MVP1 is commercially usable. Its closeout does not freeze production.
 
-Allowed post-closeout work includes:
+Allowed bounded work includes:
 
 - current tournament operations;
-- bounded UI/UX, accessibility, mobile, and conversion improvements;
-- venue enrichment when trusted;
+- UI/UX, accessibility, mobile, and conversion improvements;
+- clearer use of information already stored by V1;
 - safe operational automation;
 - documentation maintenance;
-- preparation of locale-neutral contracts;
-- integration and stage validation of v2.
+- locale-neutral presentation contracts;
+- integration and stage validation of V2.
 
-These are incremental releases, not reasons to reopen the entire MVP1 architecture.
+These are incremental releases, not reasons to reopen MVP1 architecture.
 
-## Production continuity while v2 is developed
+## Parallel expert-experience work
 
-- keep current v1 publications available;
-- refresh only relevant recent fixture/result state;
-- use exact allowlists for production apply;
-- auto-verify trusted normal results;
-- route anomalies to exception handling;
-- create a replacement v2 prediction only before kickoff;
-- preserve every published prediction version, cutoff, and lineage;
-- use historical replay rather than rewriting finished fixtures.
+A separate MVP2 epic may be assigned to another owner while the primary owner continues data and model work.
 
-## Premium direction for MVP2
+That parallel epic may improve production and stage by:
 
-The premium value should increasingly expose:
+- inventorying V1 data that exists but is not displayed;
+- converting probabilities, xG, BTTS, totals, confidence, and scenarios into understandable football language;
+- presenting likely match scripts rather than three isolated exact scores;
+- showing evidence, contradictions, freshness, and uncertainty;
+- preparing components for tournament form, rankings, attack, defense, squads, and players;
+- making components tolerant of missing data;
+- preparing ES/EN/PT localization contracts.
 
-- evidence and source-backed context;
-- recent and tournament form;
-- opponent quality;
-- supporting and contradicting signals;
-- representative scenario families;
-- expected goals and score distributions;
-- group/qualification context;
-- post-match explanation of what the model read correctly or missed.
+It must not:
 
-The proprietary formula itself is not a public product requirement.
+- change V1 calculations;
+- generate V2;
+- invent missing statistics;
+- depend on unfinished stage-only tables for production rendering;
+- duplicate the primary data/model workstream.
+
+Independent production-safe UI improvements should branch from current `main`, merge through a normal PR, and then be incorporated into the V2 integration branch through normal Git history.
+
+## MVP2 explanation-first direction
+
+The product should not require users to understand betting terminology before receiving value.
+
+The preferred public reading explains:
+
+- who arrives stronger and why;
+- tournament points and form;
+- goals scored and conceded;
+- offensive and defensive tendencies;
+- rankings and opponent quality;
+- plausible controlled, tight, open, or upset match scripts;
+- what supports the primary reading;
+- what could make it fail;
+- how reliable and current the evidence is.
+
+Probabilities remain available as quantitative support.
+
+## Future squad and player intelligence
+
+The product and data contracts should be prepared to receive later:
+
+- tournament squads and call-ups;
+- likely and confirmed lineups;
+- injuries, suspensions, doubts, and expected minutes;
+- top scorers and assists in the current tournament;
+- percentage contribution to team goals;
+- individual shots and xG when reliable;
+- penalty and set-piece roles;
+- offensive dependency;
+- replacement quality;
+- estimated impact of a key absence;
+- likely scoring candidates.
+
+This future capability should be represented as structured facts and localized explanations, not stored only as a Spanish paragraph.
+
+It is not required to finish V2.0.
 
 ## Internationalization
 
@@ -165,36 +199,36 @@ PT
 
 - Spanish remains the current production language;
 - English and Portuguese are first-class roadmap targets;
-- locale-neutral entities and contracts are required now;
-- public translation rollout follows stable v2 contracts;
+- canonical football facts and identities remain locale-neutral;
+- translation keys and localized renderers should be designed before broad rollout;
 - French and German remain later possibilities.
+
+## Stage product state
+
+Task 3B completed the stage data foundation without changing production.
+
+Stage currently has:
+
+```text
+model_versions = 0
+prediction_versions = 0
+public_prediction_summaries = 0
+```
+
+The publish queue and predictions page load successfully but are empty. The next task is to preserve and import the original Matchday 3 V1 baseline into stage.
 
 ## Commercial roadmap boundaries
 
-Potential later additions:
+A second payment provider remains later work.
 
-- PayPal Business as a secondary direct checkout;
-- another regional gateway with reliable webhook/refund/reconciliation behavior;
-- Hotmart only if product strategy intentionally changes toward marketplace/course distribution.
+Potential options include:
 
-A second payment provider is not an immediate v2 blocker.
+- PayPal Business for direct international checkout;
+- another regional provider with reliable webhook, refund, and reconciliation behavior;
+- Hotmart only if product strategy intentionally changes toward marketplace or course distribution.
 
-## Current v2 integration boundary
+A second payment provider is not a V2 blocker.
 
-Prediction Intelligence v2 Tasks 1, 1.1, 1.2, 2A, 2B, 2C, 2D, and 3A are normalized on Draft PR #114, and the final M2-01 implementation checkpoint passed. None of that work is live in production.
-
-The integration track has not changed:
-
-- the production v1 probability layer;
-- Wompi/Auth/entitlement authority;
-- public lifecycle behavior;
-- trusted result operations;
-- immutable v1 publications;
-- the production `torneo-ufo-export-v1` contract.
-
-Task 3A is complete as a local-only planner/dry-run. It grants no current migration, import, persistence, publication, stage, production, or partner-delivery authority.
-
-The next v2 phase is a Task 3B read-only stage audit. Stage writes remain unauthorized until the audit produces a non-destructive plan and the owner gives explicit approval; production writes remain unauthorized.
 ## MVP1 verdict
 
-The product is commercially usable now. The next core release is not a rewrite of MVP1. It is an incremental MVP2 intelligence layer, stage-validated and versioned safely while current operations continue.
+The production product remains commercially usable. MVP2 is an incremental intelligence and data release, not a replacement of the validated Auth, payment, entitlement, and publication foundations.

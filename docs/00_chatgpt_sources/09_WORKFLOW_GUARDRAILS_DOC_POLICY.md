@@ -1,6 +1,6 @@
 # Workflow Guardrails and Documentation Policy
 
-_Last refreshed: 2026-06-24 after the Prediction Intelligence v2 Task 2 checkpoint._
+_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
 
 ## Source hierarchy
 
@@ -19,17 +19,11 @@ They own:
 - current production and active-branch truth;
 - architecture and operations;
 - roadmap and epic status;
-- active model/release decisions;
+- active model and release decisions;
 - exact next sequence;
 - documentation policy.
 
-A long-running integration branch may receive a checkpoint refresh before merge when a clean handoff is necessary. Such a refresh must clearly distinguish:
-
-- production `main` truth;
-- active integration-branch truth;
-- historical branch/reference truth.
-
-After a final merge, refresh again from updated `main` if branch-local status has become merged production/repository truth.
+A long-running integration branch may receive a checkpoint refresh before merge when a clean handoff is necessary.
 
 After every approved source refresh:
 
@@ -41,18 +35,18 @@ After every approved source refresh:
 
 `docs/10_codex_runbooks/` contains execution procedures.
 
-Runbooks should:
+Runbooks:
 
 - reference shared sources for live status;
-- avoid stale hardcoded backlog assumptions;
 - preserve exact safety and validation procedures;
-- not compete with shared sources as current product truth.
+- do not compete with shared sources as product truth;
+- are updated only when a completed checkpoint makes an active procedure stale.
 
 ### Project management
 
-`docs/30_project_management/` contains derived planning assets.
+Derived trackers are non-canonical.
 
-The Markdown tracker and XLSX are non-canonical. If they conflict with:
+If they conflict with:
 
 ```text
 docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
@@ -62,9 +56,9 @@ the shared roadmap wins.
 
 ### Archive
 
-`docs/90_archive/` is historical evidence, not current truth.
+Archived snapshots are historical evidence, not current truth.
 
-Do not rewrite archived snapshots merely to make them look current.
+Do not rewrite archives merely to make them look current.
 
 ## Documentation refresh protocol
 
@@ -72,14 +66,11 @@ Do not rewrite archived snapshots merely to make them look current.
 
 Codex:
 
-- verifies the correct branch and clean worktree;
-- reports relevant HEAD/PR state;
-- inventories active documentation;
+- verifies branch, HEAD, status, and environment scope;
+- inventories active documentation and runbooks;
 - searches for stale claims and contradictions;
-- classifies files as update, reference-only, derived, or no-change;
-- performs no unrelated implementation work.
-
-For a branch-local checkpoint refresh, recognition uses the active integration branch, not `main`, and records the production baseline separately.
+- reports implemented facts and exact evidence;
+- does not author canonical source truth unless explicitly delegated.
 
 ### Phase 2 - ChatGPT authoring
 
@@ -87,66 +78,79 @@ ChatGPT:
 
 - interprets implemented behavior and owner decisions;
 - authors complete replacement files;
-- preserves canonical filenames and directory ownership;
-- updates shared sources first;
-- updates only the minimal active runbooks/trackers needed to remove contradictions;
+- preserves canonical filenames and ownership;
+- updates the 10 shared sources first;
+- updates only runbooks needed to remove active contradictions;
 - never rewrites archive evidence;
-- produces an exact application map.
+- records completed work separately from future roadmap decisions.
 
-### Phase 3 - Codex apply-only
+### Phase 3 - Codex review and apply-only
 
 Codex:
 
-- applies the authored replacements exactly on the approved target branch;
-- does not editorialize or rewrite them;
-- confirms the diff is documentation-only;
+- reviews authored replacements against repository and runtime evidence;
+- reports `ACCEPTED` or exact required corrections;
+- applies accepted replacements exactly when instructed;
+- does not editorialize broad new content during apply-only work;
+- confirms documentation-only paths;
 - searches for stale active references;
-- validates paths, counts, links, and internal consistency;
-- runs `git diff --check`;
-- commits and pushes only after owner review.
+- runs `git diff --check` and relevant consistency checks.
 
-For this checkpoint, the approved target is `integration/prediction-intelligence-v2` so the branch and its handoff stay self-describing. A final post-merge refresh will later originate from updated `main`.
+### Phase 4 - owner Git actions and source replacement
 
-### Phase 4 - source replacement
+The owner normally:
 
-After the documentation commit is accepted:
-
-1. replace the ChatGPT project source set with the exact refreshed 10 files;
-2. preserve Codex runbooks in the repository;
-3. start the next conversation from `00_START_HERE_CURRENT.md`;
-4. do not carry superseded source files into the new conversation.
-
-After PR #114 eventually merges, repeat the final canonical refresh from `main`.
+- reviews final status and diff;
+- stages exact implementation, evidence, and documentation files;
+- commits and pushes;
+- confirms final HEAD and clean status;
+- replaces ChatGPT project sources with the accepted 10 files;
+- starts the next conversation from `00_START_HERE_CURRENT.md`.
 
 ## Branch discipline
 
 - `main` is the production baseline;
-- production fixes and microreleases branch from current `main`;
-- active v2 work uses `integration/prediction-intelligence-v2` and Draft PR #114;
-- old v2 branch/PR #106 remain preservation/reference;
+- production fixes and independent product improvements branch from current `main`;
+- active V2 work uses `integration/prediction-intelligence-v2` and Draft PR #114;
+- old V2 branch and PR #106 remain preservation only;
 - no new implementation work enters PR #106;
-- documentation-only commits do not change app code, migrations, environments, or secrets;
+- use normal merges or rebases to carry accepted `main` improvements into the integration branch;
+- do not implement the same product change manually in both branches;
 - use worktrees for parallel tracks rather than switching a dirty directory.
 
-## Owner/Codex responsibility split
+## MVP2 roadmap naming
+
+New MVP2 planning uses:
+
+```text
+Epic 1, Epic 2, Epic 3...
+Task 1A, 1B, 1C...
+```
+
+Do not create long compound identifiers or unnecessary third-level codes.
+
+Old `M2-xx` names remain historical references only.
+
+## Owner and Codex responsibility split
 
 Owner terminal work normally includes:
 
-- branch/status verification;
+- branch and status verification;
 - staging review;
 - commit;
 - push;
-- final log/status confirmation.
+- final log and status confirmation.
 
 Codex work normally includes:
 
 - repository inspection;
-- implementation or apply-only documentation changes;
+- bounded implementation;
 - tests and static validation;
+- authenticated stage smoke checks where appropriate;
 - exact changed-file report;
 - concrete blockers and verdict.
 
-Do not spend implementation tokens narrating routine Git commands already handled by the owner.
+ChatGPT owns canonical shared-source authoring in the current project workflow.
 
 ## Prediction immutability
 
@@ -154,13 +158,14 @@ Do not spend implementation tokens narrating routine Git commands already handle
 - no post-kickoff evidence in a pre-match version;
 - every replacement prediction receives a new immutable version and cutoff;
 - verified results and evaluations reference the original version;
-- finished-fixture v2 comparison uses labeled `historical_replay`.
+- finished-fixture V2 comparison uses labeled `historical_replay`;
+- original production V1 publications remain the baseline.
 
 ## Historical research eligibility
 
-Preserved v2 research artifacts must not become current through naming alone.
+Preserved V2 research artifacts do not become current through naming alone.
 
-Where declared by manifests:
+Where declared:
 
 ```text
 historicalOnly: true
@@ -169,55 +174,42 @@ currentReleaseDecisionEligible: false
 currentPublicationEligible: false
 ```
 
-Current candidate generation requires current data, current cutoffs, stage validation, and an explicit release decision.
+Current candidate generation requires current data, explicit cutoffs, stage validation, and a release decision.
 
-## Local-only output governance
-
-Task 2 runners may write only to strict descendants of their own runner-specific `local-run` roots.
-
-Guards must use normalized/resolved filesystem containment, not textual prefix matching.
-
-Reject:
-
-- preserved historical paths;
-- arbitrary repository paths;
-- external absolute paths;
-- sibling runner roots;
-- traversal outside the allowed root;
-- the local-run root itself.
-
-Task 3A must use equivalent fail-closed local-only principles.
-
-## Data/source governance
+## Data and source governance
 
 - retain source manifests, provenance, and checksums;
-- raw external workspaces may remain ignored/outside Git;
+- raw external workspaces may remain ignored or outside Git;
 - register their path and committed equivalents;
-- do not delete snapshots until stage import and idempotency are proven;
+- do not delete required snapshots until import and idempotency are proved;
 - do not commit secrets, credentials, personal data, or raw payment payloads;
-- historical artifacts do not automatically become approved stage seed data.
+- distinguish file-backed snapshots from explicit non-file-backed sentinels;
+- historical artifacts are not automatically approved current input;
+- structured facts remain locale-neutral;
+- localized explanations do not change underlying model facts.
 
 ## Environment safety
 
-- `ufopredictor.com` and production Supabase are production;
-- `stage.ufopredictor.com` and separate Supabase stage are development;
-- migration 0038 is committed but not applied;
-- Task 3A is planner/dry-run only;
-- Task 3B begins read-only;
-- stage writes require explicit owner approval after audit;
-- no production user/payment/entitlement cloning;
-- no production writes during M2-01 or M2-03.
+- production project is `gcpdffkgsdomzyoenalg`;
+- stage project is `yfmklapgjrupctgxaako`;
+- migration 0038 is applied in stage only;
+- the stage migration chain is externally verified as 46 migrations;
+- Task 3B foundation import is complete and idempotent;
+- production writes remain forbidden from the V2 integration workflow;
+- no production user, payment, entitlement, webhook, session, or personal-data cloning;
+- stage Wompi and optional AI configuration remain out of scope until explicitly scheduled;
+- authenticated browser automation may inspect stage, not production.
 
 ## Operations automation governance
 
-Approved normal production automation may:
+Approved normal automation may:
 
-- discover/register exact fixtures;
+- discover and register exact fixtures;
 - synchronize bounded status metadata;
-- trust API-Football for valid exact `FT` results;
-- automatically verify normal trusted final scores;
+- trust API-Football for valid exact terminal results;
 - persist eligible evaluations idempotently;
-- generate reports and partner exports.
+- generate reports and partner exports;
+- refresh approved stage reference and signal snapshots.
 
 Automation must:
 
@@ -226,21 +218,37 @@ Automation must:
 - never create post-kickoff predictions;
 - never mutate published predictions;
 - never silently overwrite a changed verified score;
-- route unsupported, incomplete, missing, or contradictory data to exceptions;
-- preserve observable audit evidence.
+- preserve observable audit evidence;
+- prove rerun idempotency for imports and publication baselines.
+
+## Parallel product work governance
+
+A separate owner may implement the Expert Product Experience epic while the main owner continues data and model work.
+
+That parallel work:
+
+- uses a branch from current `main` when production-safe;
+- may improve use of existing V1 information;
+- may prepare locale-neutral UI contracts;
+- must tolerate absent future data;
+- must not change model probabilities or fabricate statistics;
+- must not depend on unfinished stage-only data for production availability;
+- flows into the integration branch through normal Git history.
 
 ## Documentation update triggers
 
 Refresh canonical docs after:
 
 - major integration checkpoint;
-- branch/PR supersession or merge;
-- migration/schema or environment change;
+- branch or PR supersession or merge;
+- migration, schema, or environment change;
 - stage import milestone;
-- model candidate/release decision;
-- payment/entitlement authority change;
+- visible V1 baseline milestone;
+- current-data refresh milestone;
+- model candidate or release decision;
+- payment or entitlement authority change;
 - automation governance change;
-- major tournament coverage/publication milestone;
-- language/product scope decision.
+- major tournament coverage or publication milestone;
+- language or product-scope decision.
 
-A successful checkpoint or merge must not leave active documentation describing the prior phase as future work.
+A successful checkpoint must not leave active documentation describing the completed phase as future work.

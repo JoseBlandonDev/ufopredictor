@@ -1,10 +1,10 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
+_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
 
 ## Goal
 
-Preserve the completed Prediction Intelligence v2 normalization on top of the current production baseline and hand off safely into the read-only stage-audit phase without losing historical research or regressing MVP1 behavior.
+Preserve the completed Prediction Intelligence v2 normalization on top of the production baseline, maintain strict production separation, and hand off from stage foundation into the V1-visible and current-data phases.
 
 ## Live-state source
 
@@ -17,40 +17,36 @@ docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
 docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
-Verify live SHAs and environment boundaries before any task.
+Verify actual branch, HEAD, environment, and write boundary before every task.
 
-## Current stable references
+## Stable references
 
 ```text
-production main at integration base: e771de3c39c480f05d026075e5e553fb75207468
+production base: e771de3c39c480f05d026075e5e553fb75207468
 active integration branch: integration/prediction-intelligence-v2
 active Draft PR: #114
-active head at this refresh: 0db9ac8867eae344e56237ac028cc32255ff1a3d
-old v2 branch: feature/prediction-intelligence-v2-data-foundation
+last reviewed pre-checkpoint HEAD: 27782c25bb4dc752fe335f0b2515feec264f8a6d
+old V2 branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
-old v2 head: eefcff709e80209215b25b90fb870aa5c080d735
+old V2 head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
+
+The reviewed HEAD is the base before the owner commits Task 3B and the current documentation refresh.
 
 ## Completed normalization map
 
-| Historical concern | Integrated commit | Status |
-|---|---|---|
-| Task 1 data foundation | `76500de` | Complete |
-| Task 1.1 replay readiness | `16fef9b` | Complete |
-| Task 1.2 historical Elo | `f411d60` | Complete |
-| Task 2 challenger/replay | `ca5fd01` | Complete |
-| Task 2 calibration stabilization | `bf13c21` | Complete |
-| Task 2 gates/eligibility | `1d70412` | Complete |
-| Task 2 release packaging | `de083c1` | Complete |
-| Task 2 local-run guard | `1b746f9` | Complete |
-| Task 3A local-only planner/dry-run | `0db9ac8` | Complete |
+Completed concerns:
 
-Checkpoint verdicts:
-
-```text
-TASK2_CHECKPOINT_READY
-M2_01_IMPLEMENTATION_CHECKPOINT_READY
-```
+- Task 1 data foundation;
+- Task 1.1 replay readiness;
+- Task 1.2 historical Elo;
+- Task 2 challenger and replay;
+- Task 2 calibration stabilization;
+- Task 2 gates and eligibility;
+- Task 2 release packaging;
+- Task 2 local-run guard;
+- Task 3A planner and target-safety contracts;
+- Task 3B stage synchronization and foundation import.
 
 No useful implementation remains to be ported from the old branch.
 
@@ -58,113 +54,129 @@ No useful implementation remains to be ported from the old branch.
 
 Do not port:
 
-- `supabase/.gitignore` from the old branch;
-- `supabase/config.toml` from the old branch;
-- the final old-branch documentation-only handoff commit;
-- broad environment-specific paths or configuration;
-- stale frontend/shared-query changes outside the normalized slices.
+- old environment-specific Supabase config;
+- old documentation-only handoff commits as implementation;
+- stale frontend and shared-query changes outside reviewed slices;
+- broad environment paths or credentials;
+- historical candidate artifacts as current release authority.
 
-The old branch and PR #106 remain preservation/reference only.
+The old branch and PR #106 remain reference only.
 
-## Completed Task 3A safety contract
-
-Task 3A is:
-
-- local-only;
-- planner/dry-run only;
-- argument-driven;
-- no `.env`;
-- no credential;
-- no Supabase client;
-- no network;
-- no live provider read;
-- no subprocess execution;
-- no remote migration;
-- no stage or production write;
-- no current candidate generation;
-- no publication;
-- no modification of preserved historical evidence;
-- fail closed for migration, import, persistence, publication, partner delivery, stage, production, and remote execution.
-
-Task 3A writes only to strict descendants of:
+## Environment map
 
 ```text
-artifacts/prediction-intelligence-v2/task3a/local-run/
+production domain: ufopredictor.com
+production Supabase: gcpdffkgsdomzyoenalg
+stage domain: stage.ufopredictor.com
+stage Supabase: yfmklapgjrupctgxaako
 ```
 
-It rejects the root itself, preserved dated evidence, external paths, arbitrary repository paths, sibling runner trees, traversal escapes, textual-prefix lookalikes, and non-empty targets.
+Do not create another stage environment.
 
-## M2-01 closeout meaning
+Do not use production credentials for stage.
 
-M2-01 is implementation-complete.
+## Completed Task 3B state
 
-This means:
+- canonical stage migration chain externally verified at 46;
+- migration 0038 applied in stage only;
+- stage foundation data imported;
+- second apply produced zero inserts and zero updates;
+- Auth user and admin profile preserved;
+- competition and season resolve;
+- publish queue and predictions pages load;
+- no model or prediction rows exist yet;
+- production remained untouched.
 
-- every approved normalization slice is present;
-- no useful old-branch implementation remains;
-- the final implementation checkpoint passed;
-- protected MVP1 behavior remains intact;
-- Migration 0038 remains committed, tested, and unapplied;
-- no stage or production write occurred.
+Verified stage counts include:
 
-It does not mean:
+```text
+teams = 48
+runtime matches = 72
+official schedule matches = 104
+rating snapshots = 699
+historical match facts = 1392
+```
 
-- PR #114 is merged or ready to merge;
-- Prediction Intelligence v2 is live;
-- historical candidates are current;
-- Migration 0038 is applied;
-- stage synchronization is authorized;
-- a release mode has been selected.
+Current source cutoff is `2026-06-20`.
 
-## Stage transition
+## Current application gap
 
-Task 3B begins only after the final M2-01 documentation refresh and source replacement.
+Stage has foundation data but no active prediction product:
 
-First phase is read-only:
+```text
+model_versions = 0
+prediction_versions = 0
+public_prediction_summaries = 0
+```
 
-- validate ignored stage credentials without printing values;
-- identify the stage target safely;
-- prove the target is not production;
-- inspect remote migration history and schema;
-- compare against repository migrations;
-- inspect RLS, functions, views, policies, and dependencies;
-- confirm existing stage Auth users will not be deleted or corrupted;
-- produce an ordered non-destructive synchronization plan;
-- stop for owner approval.
+This is the next bounded gap, not a reason to redo normalization or Task 3B.
 
-Only a later explicitly approved phase may apply migration 0038 and import approved non-sensitive data into stage.
+## Next transition
+
+Begin:
+
+```text
+Stage V1 Visible Predictions Slice
+```
+
+Required sequence:
+
+1. fixture registry Matchday 3 dry-run against stage;
+2. exact 24-fixture allowlist;
+3. deterministic provider linkage;
+4. immutable V1 source selection;
+5. V1 model and prediction import;
+6. public/admin smoke;
+7. idempotent second run;
+8. current-data and V2 handoff.
+
+Do not generate V2 during this slice.
 
 ## Validation after bounded work
 
 - focused task-specific tests;
-- relevant local runners only when needed;
+- relevant fixture and publication tests;
 - protected MVP1 regression tests when shared code is touched;
 - lint;
-- production build when warranted;
 - typecheck classification with zero new task-local diagnostics;
 - diff-check;
 - generated-noise cleanup;
-- no production write;
-- no stage write during read-only audit.
+- exact environment proof;
+- no production write.
 
-## Current production concerns that must survive
+## Production concerns that must survive
 
-- PR #111 fixture registry behavior;
-- PR #112 trusted result refresh behavior;
-- immutable v1 Matchday 3 publications;
+- fixture registry behavior;
+- trusted result refresh behavior;
+- immutable V1 Matchday 3 publications;
 - `torneo-ufo-export-v1` compatibility;
-- Wompi/Auth/entitlement behavior;
-- public lifecycle and history.
+- Wompi, Auth, and entitlement behavior;
+- public lifecycle and history;
+- production UI microreleases from `main`.
 
-## Required output for Task 3B Phase A
+## Parallel branch rule
 
-- confirmed branch, HEAD, and clean worktree;
-- confirmed stage target and explicit production denial;
-- remote migration/schema inventory;
-- drift and dependency analysis;
-- existing stage-user preservation assessment;
-- exact non-destructive synchronization plan;
-- evidence that no remote writes occurred;
+A separate owner may improve the expert product experience from current `main`.
+
+Those changes must:
+
+- remain independent of unfinished V2 data;
+- avoid probability changes;
+- merge normally to `main`;
+- flow into the integration branch through normal Git history;
+- not be manually reimplemented in both branches.
+
+## Required output for the next slice
+
+- confirmed branch, HEAD, and worktree;
+- exact stage target and production denial;
+- exact 24-fixture mapping;
+- immutable V1 source and preservation proof;
+- per-table dry-run and apply counts;
+- active V1 model proof;
+- public/admin smoke results;
+- second-run zero-growth proof;
+- Auth/admin preservation;
+- production read-only/no-write proof;
 - concrete blockers only;
-- final read-only audit verdict;
-- no Git commit/push unless the owner explicitly delegates it.
+- no Git commit or push unless the owner explicitly delegates it.

@@ -1,6 +1,6 @@
 # Fixture, Result, and Evaluation Operations
 
-_Last refreshed: 2026-06-24 after PR #111/#112 operations and Prediction Intelligence v2 Task 2 checkpoint approval._
+_Last refreshed: 2026-06-26 after the Prediction Intelligence v2 Task 3B stage bootstrap._
 
 ## Operating model
 
@@ -8,36 +8,38 @@ API-Football is the operational source for fixture identity, kickoff, status, an
 
 Official World Cup schedule data provides canonical tournament schedule and venue reference where available.
 
-The production path now combines:
+Production combines:
 
 - exact bounded fixture registration;
-- current-model publication;
-- trusted result auto-verification;
+- V1 prediction publication;
+- trusted result verification;
 - idempotent evaluation persistence;
 - exception-oriented review;
 - public-safe partner export.
+
+Stage now has the foundational schedule, team, venue, rating, and historical data needed for the V1/V2 path, but it does not yet have model or prediction rows.
 
 ## Public lifecycle
 
 Public classification uses kickoff and verified-result truth:
 
-1. Verified final result wins and appears in recent results/history.
-2. Future kickoff without verified result appears in upcoming.
-3. Kickoff passed and inside the conservative active window appears in progress.
-4. Outside the active window without verified final result appears as awaiting official update.
-5. Explicit postponed/cancelled states remain honestly labeled.
+1. verified final result appears in history;
+2. future kickoff without verified result appears in upcoming;
+3. kickoff passed inside the conservative active window appears in progress;
+4. outside that window without a verified result appears as awaiting official update;
+5. postponed and cancelled states remain honestly labeled.
 
 Displayed probabilities remain the immutable pre-match publication and are not live-updated.
 
 ## Routine admin surfaces
 
-- Prediction Review Gate for selected signal/model anomalies;
+- Prediction Review Gate for selected model and signal anomalies;
 - Real Fixture Publish Queue for exact fixture publication;
-- Result Review Queue for exceptions/reconciliation;
+- Result Review Queue for exceptions and reconciliation;
 - Evaluation Queue for exceptional or manual persistence paths;
 - Torneo Export for public-safe partner payloads.
 
-Real Fixture Lab exact detail remains deeper diagnostics, not a routine dependency.
+Real Fixture Lab remains deeper diagnostics, not a routine dependency.
 
 ## Fixture registry command
 
@@ -51,28 +53,27 @@ Behavior:
 - bounded selection by matchday or date;
 - exact allowlist manifest for apply;
 - canonical/provider link reporting;
-- create/update/already-stored counts;
+- create, update, already-stored, conflict, and duplicate counts;
 - no prediction, result, or evaluation creation;
 - idempotent second apply.
 
-Matchday 3 result:
+Production Matchday 3 result:
 
 - 24/24 fixtures stored;
-- 20 new fixtures created in four exact five-fixture batches;
+- 20 fixtures created in exact bounded batches;
 - 4 already stored;
 - 0 Matchday 3 conflicts;
-- all four batches proved idempotent.
+- idempotency proved.
 
-## Prediction publication state
+## Production prediction publication state
 
 Matchday 3:
 
-- 24/24 v1 internal predictions saved;
+- 24/24 V1 internal predictions saved;
 - 24/24 public products published;
-- publish queue empty;
-- original v1 publications remain immutable.
+- original V1 publications remain immutable.
 
-A later v2 publication may be created only before kickoff as a new version.
+A later V2 candidate may become a new version before kickoff. A completed fixture may receive a labeled `historical_replay`, but the replay does not replace the original publication.
 
 ## Trusted result refresh command
 
@@ -85,16 +86,15 @@ Behavior:
 - dry-run by default;
 - bounded selection by exact identifiers, manifest, date range, or matchday;
 - apply requires an exact allowlist;
-- touches only stored World Cup fixtures;
-- never creates fixtures;
+- stored World Cup fixtures only;
 - never generates or mutates predictions;
-- auto-verifies supported trusted-provider finals;
+- verifies supported trusted-provider finals;
 - persists eligible evaluations idempotently;
 - reports exceptions separately.
 
-## Trusted auto-verification policy
+## Trusted verification policy
 
-API-Football `FT` may be auto-verified when:
+API-Football `FT` may be verified when:
 
 - provider linkage matches the stored fixture;
 - home and away identity match;
@@ -102,94 +102,21 @@ API-Football `FT` may be auto-verified when:
 - terminal status is supported;
 - no duplicate, linkage, identity, or stored-score conflict exists.
 
-Normal flow:
-
-```text
-provider FT
--> status sync if needed
--> verified result create/already-identical
--> evaluation create/already-stored
-```
-
-The owner has approved trusted-provider automatic verification. Human review is no longer mandatory for normal valid finals.
+A changed previously verified score must never be silently overwritten.
 
 ## Exception policy
-
-The Result Review Queue is now exception-oriented.
 
 Examples:
 
 - provider fixture not found;
 - unsupported or incomplete state;
 - missing score;
-- identity/link mismatch;
+- identity or linkage mismatch;
 - incompatible duplicate;
 - stored verified score differs from provider;
 - evaluation persistence failure.
 
-A changed previously verified score must never be silently overwritten.
-
-`provider_fixture_not_found` may be transient and is not automatically a data conflict.
-
-## Real production result-refresh evidence
-
-Successful exact Matchday 2 apply:
-
-- selected fixtures: 15;
-- provider terminal results: 15;
-- results already identical: 14;
-- results created: 1;
-- results verified in apply: Colombia 1-0 Congo DR;
-- evaluations already stored: 14;
-- evaluations created: 1;
-- conflicts/exceptions in successful apply: 0.
-
-Second apply produced:
-
-- results created: 0;
-- results updated: 0;
-- evaluations created: 0;
-- evaluations updated: 0.
-
-Provider availability varied between repeated calls. Existing verified rows remained safe and unchanged.
-
-## Current run cadence
-
-Routine production refresh should focus on:
-
-- fixtures whose kickoff recently passed;
-- stored rows without verified final result;
-- scheduled/started rows needing status update;
-- unresolved recent exceptions;
-- a bounded recent correction window.
-
-Do not routinely poll entire completed historical matchdays merely to reconfirm identical data.
-
-## Next automation increments
-
-Still pending:
-
-- automatic selection of recent pending fixtures;
-- retry/backoff for transient provider absence;
-- scheduler once/twice daily and around dense kickoff windows;
-- run summaries and notifications;
-- persistent reconciliation workflow for changed official scores;
-- operational metrics for provider failures.
-
-## Required run logging
-
-Every batch should capture:
-
-- run ID and UTC cutoff;
-- environment and target;
-- exact requested fixture scope;
-- provider response timestamp where available;
-- create/update/already-identical/skip counts;
-- verification/evaluation counts;
-- exceptions and retryability;
-- idempotency evidence.
-
-Do not log credentials or raw sensitive payloads.
+Human review is reserved for exceptions.
 
 ## Evaluation persistence
 
@@ -203,6 +130,16 @@ It supports:
 - future challenger research;
 - auditable learning without rewriting history.
 
+Future V1/V2 comparison must preserve:
+
+```text
+original V1 publication
+V2 live candidate or historical_replay
+verified result
+```
+
+A replay may use only evidence available before the original kickoff.
+
 ## Torneo Mundialista export
 
 Current partner artifact:
@@ -211,28 +148,64 @@ Current partner artifact:
 schemaVersion: torneo-ufo-export-v1
 ```
 
-Validated Matchday 3 export:
+The production contract remains unchanged by Task 3B.
 
-- range: 2026-06-24 to 2026-06-30;
-- fixtures: 24;
-- unique fixture IDs: 24;
-- duplicates: 0;
-- public-safe URLs and prediction fields;
-- JSON approved as the delivery artifact;
-- PDF not required.
+## Stage Task 3B operations state
 
-## Prediction Intelligence v2 operational boundary
+Task 3B completed:
 
-The current integration branch does not alter production fixture registration, trusted result refresh, verification, evaluation persistence, publication queues, or the `torneo-ufo-export-v1` runtime.
+- World Cup competition and season resolution;
+- 72 runtime group-stage matches;
+- 104 official schedule rows;
+- 72 official-to-runtime links;
+- 32 deferred knockout links;
+- source, rating, historical-match, venue, alias, and localization bootstrap;
+- first apply and zero-write second apply;
+- Auth/admin preservation;
+- production denial.
 
-Historical Task 2 Torneo candidate artifacts are research packaging only. They are not the production partner export and cannot replace it.
+Current authenticated stage smoke result:
 
-Task 3A may generate plans and dry-run artifacts only. Current result operations continue on the production v1 path until a later stage-validated release decision.
+- `/admin/real-fixture-publish-queue` loads;
+- the prior competition-resolution error is gone;
+- no active model version exists;
+- no exact fixture is currently eligible for the bounded queue;
+- `/predictions` loads and reports no public predictions.
+
+The queue is not a generic view of all 72 matches. It requires eligible scheduled API-Football-linked admin-only fixtures in its bounded future window.
+
+## Next operational slice
+
+`Stage V1 Visible Predictions Slice` should:
+
+1. reconcile all 24 Matchday 3 fixture identities in stage;
+2. preserve and import the original immutable V1 model and prediction records;
+3. map records by stable provider identity or verified canonical slug;
+4. activate the canonical V1 model in stage;
+5. verify public and admin projections;
+6. rerun and prove zero growth.
+
+Do not recalculate historical V1 probabilities using newer evidence.
+
+## Current-data refresh after V1 visibility
+
+The next repeatable operations should cover:
+
+- not-started fixture linkage and status;
+- verified recent results;
+- current Elo;
+- latest available FIFA ranking;
+- group standings, points, goals, and goal difference;
+- tournament form and attack/defense summaries;
+- source manifests, cutoffs, and hashes;
+- signal snapshots for V2 candidates.
+
+The imported source cutoff remains `2026-06-20` until an approved refresh replaces it.
 
 ## Automation guardrails
 
-- exact competition/fixture scope;
-- stage/production target guard;
+- exact competition and fixture scope;
+- explicit stage or production target guard;
 - dry-run before apply;
 - exact allowlist for production apply;
 - idempotent writes;
@@ -240,4 +213,5 @@ Task 3A may generate plans and dry-run artifacts only. Current result operations
 - no post-kickoff prediction generation;
 - no silent score correction;
 - observable exceptions;
-- no broad silent apply.
+- no broad silent apply;
+- no production write from the V2 integration branch without an explicit promotion task.

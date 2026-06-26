@@ -1,22 +1,22 @@
 # Model History and Calibration
 
-_Last refreshed: 2026-06-24 after Prediction Intelligence v2 Task 2 normalization._
+_Last refreshed: 2026-06-26 after the Task 3B stage foundation checkpoint._
 
 ## Purpose
 
-This document preserves historical model decisions so current work does not reinterpret old baselines, rewrite published predictions, or manufacture progress.
+This document preserves model history so current work does not reinterpret old baselines, rewrite published predictions, or manufacture progress.
 
-## V0.1 / v1-compatible baseline
+## V0.1 / V1-compatible baseline
 
 The production model established:
 
 - expected-goal inputs;
 - score matrix;
 - 1X2, BTTS, over/under, and exact-score probabilities;
-- confidence/risk presentation;
+- confidence and risk presentation;
 - immutable pre-match publication.
 
-Its limitations include thinner historical context, limited provenance, and weaker evidence/scenario explanations.
+Its limitations include thinner historical context, limited provenance, and weaker evidence and scenario explanations.
 
 ## Calibration closeout around PR #94
 
@@ -32,73 +32,54 @@ Core guardrails:
 - preserve publication lineage;
 - separate probability performance from explanation quality.
 
-## Current production baseline evidence
+## Production V1 comparison set
 
-Matchday 3 created an important immutable v1 comparison set:
+Matchday 3 provides an immutable V1 baseline:
 
 - 24 stored fixtures;
-- 24 published v1 predictions;
-- public partner export under `torneo-ufo-export-v1`;
-- stable fixture/provider IDs;
-- public kickoff and probability fields.
+- 24 published V1 predictions;
+- stable provider and product identities;
+- partner export under `torneo-ufo-export-v1`.
 
-These v1 publications remain production history and must not be replaced by replay or dated v2 artifacts.
+These publications must be preserved into stage without recalculation before V2 comparison.
 
-## Normalized historical v2 research
+## Historical V2 research
 
-Task 2A through Task 2D were selectively restored on the current integration branch.
+The normalized research stack preserves:
 
-The normalized research stack now preserves:
-
-- exact/stored v1 replay references;
+- exact and stored V1 replay references;
 - challenger candidates;
 - expanded calibration rows;
 - neutral-context correction;
 - candidate-selection correction;
-- explicit train/validation/holdout separation;
+- train, validation, and holdout separation;
 - high-confidence signal gates;
 - reliability shrinkage and contradiction penalties;
 - movement caps;
-- time-series fold evaluation;
-- candidate eligibility and blocked states;
+- time-series evaluation;
+- eligibility and blocked states;
 - stored/runtime drift classification;
-- historical safe-analysis and gated-v2 packaging;
-- historical publication and release planning artifacts.
+- historical safe-analysis and gated-V2 packaging.
 
 ## Historical candidate names
 
-Selected bounded probability candidate in the preserved research:
+Preserved bounded probability label:
 
 ```text
 v1_plus_high_confidence_signals
 ```
 
-Selected historical development package:
+Preserved historical development package:
 
 ```text
 gated_v2_probability_v2_analysis
 ```
 
-These names are historical research labels, not current release approvals.
-
-## Historical-only interpretation
-
-Preservation manifests declare the dated artifacts historical and non-current.
-
-Where applicable:
-
-```text
-historicalOnly: true
-currentCandidateEligible: false
-currentReleaseDecisionEligible: false
-currentPublicationEligible: false
-```
-
-No historical `promotion-gate`, `production-candidate-selection`, `release-recommendation`, `release-decision`, or `publication-plan` artifact may be treated as a current decision.
+These labels are research history, not current release approvals.
 
 ## Honest probability interpretation
 
-The preserved gated v2 candidate was near parity with exact v1:
+The preserved gated V2 candidate was near parity with exact V1:
 
 - small favorable log-loss movement;
 - essentially flat or slightly worse Brier behavior;
@@ -107,16 +88,16 @@ The preserved gated v2 candidate was near parity with exact v1:
 
 Therefore:
 
-- do not market v2 as more accurate yet;
+- do not market V2 as more accurate yet;
 - do not promote from historical artifacts alone;
 - use stage to verify regression safety and product quality;
-- treat evidence, provenance, scenarios, reliability, localization, and tournament context as the main value under evaluation;
+- treat evidence, provenance, scenarios, reliability, localization, and tournament context as value that can be assessed separately;
 - reserve stronger accuracy claims for a larger fair current sample.
 
 ## Calibration corrections that must remain
 
 - World Cup matches are neutral by default except host-country cases;
-- date-only historical evidence must resolve strictly before the fixture date/cutoff;
+- date-only historical evidence resolves strictly before fixture cutoff;
 - validation and holdout remain separate;
 - candidate selection uses explicit auditable metrics and conservative tie-breaking;
 - low-confidence or contradictory signals remain shrunk or blocked;
@@ -124,39 +105,35 @@ Therefore:
 - diagnostic-only candidates cannot silently become production candidates;
 - eligibility is distinct from promotion, release approval, and publication.
 
-## Runner and artifact safety
+## Stage foundation status
 
-Task 2 runners may write only to strict descendants of their own runner-specific `local-run` trees.
+Task 3B completed the stage data foundation:
 
-This prevents accidental writes to:
+- 699 rating snapshots;
+- 1,392 historical match facts;
+- 104 official schedule rows;
+- 72 runtime group-stage matches and schedule links;
+- canonical aliases, localizations, venues, and source snapshots;
+- zero-write second apply.
 
-- preserved dated evidence;
-- repository siblings;
-- another runner's output tree;
-- external absolute paths;
-- traversal-resolved paths outside the allowed root.
+This closes the missing-schema and missing-foundation-data gap.
 
-## Current-data calibration gap
+It does not close the current-data or current-candidate gap.
 
-Historical normalization is complete through Task 2, but current model calibration is not.
+## Current calibration gaps
 
-Before a real v2.0 decision, refresh:
+Before a real V2.0 decision:
 
-- current Elo;
-- latest available FIFA ranking;
-- recent verified match facts;
-- current World Cup form;
-- standings, goal difference, and qualification pressure;
-- source provenance and reliability;
-- explicit prediction cutoffs.
+1. import the immutable original V1 baseline into stage;
+2. refresh current Elo;
+3. capture latest available FIFA ranking;
+4. refresh recent verified match facts;
+5. calculate current standings, tournament form, points, and goal difference;
+6. record opponent quality and reliability;
+7. create source-backed signal snapshots with explicit cutoffs;
+8. generate current live candidates and fair historical replays.
 
-Then compare under identical cutoffs:
-
-```text
-stored/published v1
-v1 probabilities + v2 analysis
-gated v2 probabilities + v2 analysis
-```
+The imported stage foundation cutoff is `2026-06-20` and must not be treated as current on 2026-06-26.
 
 ## Versioned comparison contract
 
@@ -167,18 +144,73 @@ Each compared prediction identifies:
 - feature version;
 - calculation time;
 - evidence cutoff;
-- publication/replay purpose;
+- publication or replay purpose;
 - predecessor lineage.
 
 For finished fixtures:
 
 ```text
-original v1 publication
-vs fair v2 historical_replay
+original V1 publication
+vs fair V2 historical_replay
 vs verified result
 ```
 
-The replay uses only pre-kickoff evidence and never replaces the original.
+For not-started fixtures:
+
+```text
+original V1 publication
+vs V2 candidate under an explicit comparable cutoff
+```
+
+A replay uses only pre-kickoff evidence and never replaces the original.
+
+## Evaluation dimensions
+
+Evaluate separately:
+
+- 1X2 calibration and direction;
+- Brier and log loss;
+- expected-goal and total-goal error;
+- BTTS and totals;
+- exact and scenario-family hit;
+- margin and surprise severity;
+- explanation usefulness;
+- evidence correctness and freshness;
+- confidence calibration;
+- data availability and reliability.
+
+A better explanation does not prove better probabilities. Better probabilities do not excuse weak provenance or misleading explanations.
+
+## Explanation-first model output
+
+V2 analysis should convert structured signals into football meaning:
+
+- stronger or weaker structural rating;
+- tournament attack and defense profile;
+- points and qualification context;
+- controlled, tight, open, or upset match scripts;
+- supporting and contradicting evidence;
+- uncertainty and missing-data limitations.
+
+Exact scores are representative anchors inside scenario families.
+
+## Future player and squad signals
+
+Later model versions may incorporate:
+
+- squad and lineup availability;
+- injuries and suspensions;
+- expected minutes;
+- tournament goals and assists;
+- player contribution to team goals;
+- individual shooting and xG;
+- offensive dependency;
+- replacement strength;
+- likely scoring candidates.
+
+Each player signal requires source, observed time, cutoff, and reliability. No later lineup or injury fact may leak into an earlier replay.
+
+These signals are not required for the first V2.0 candidate.
 
 ## Post-match learning contract
 
@@ -188,10 +220,11 @@ Evaluation may classify:
 - scenario-family hit;
 - correct 1X2 direction;
 - margin and total-goal behavior;
-- BTTS/over-under;
+- BTTS and over/under;
 - surprise severity;
 - path state and late-goal sensitivity;
 - model error versus football variance;
-- structural versus tournament-context contribution.
+- structural versus tournament-context contribution;
+- player-availability impact when that data exists.
 
-Learning artifacts may inform future versions but must never rewrite the original published prediction.
+Learning artifacts may inform V2.1, V3, or later versions but must never rewrite the original published prediction.
