@@ -1,0 +1,1609 @@
+{
+  "schemaName": "ufo-task1c-stage-v1-fixture-linkage-v1",
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-26T20:33:22.685Z",
+  "mode": "dry_run",
+  "targetProjectRef": "yfmklapgjrupctgxaako",
+  "deniedProjectRef": "gcpdffkgsdomzyoenalg",
+  "sourceManifestPath": "D:\\Projects\\ufo-predictor\\artifacts\\prediction-intelligence-v2\\task1c\\2026-06-26\\2026-06-26T10-59-46-686Z\\frozen-source-manifest.json",
+  "sourceManifestChecksum": "f144309e67050438aada06bbc0dbad95de63e17a6f204b9abbb15423e66c4958",
+  "canonicalPackageSha256": "bdb8a3bc57734f97f826a6988c009c646a62e3a0036f6f10fb214e113dbc8416",
+  "selectedFixtureCount": 24,
+  "selectedMatchNumbers": [
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72
+  ],
+  "selectedSlugs": [
+    "world-cup-2026-scotland-vs-brazil-2026-06-24",
+    "world-cup-2026-morocco-vs-haiti-2026-06-24",
+    "world-cup-2026-switzerland-vs-canada-2026-06-24",
+    "world-cup-2026-bosnia-herzegovina-vs-qatar-2026-06-24",
+    "world-cup-2026-czech-republic-vs-mexico-2026-06-25",
+    "world-cup-2026-south-africa-vs-south-korea-2026-06-25",
+    "world-cup-2026-curacao-vs-cote-divoire-2026-06-25",
+    "world-cup-2026-ecuador-vs-germany-2026-06-25",
+    "world-cup-2026-japan-vs-sweden-2026-06-25",
+    "world-cup-2026-tunisia-vs-netherlands-2026-06-25",
+    "world-cup-2026-turkiye-vs-usa-2026-06-26",
+    "world-cup-2026-paraguay-vs-australia-2026-06-26",
+    "world-cup-2026-norway-vs-france-2026-06-26",
+    "world-cup-2026-senegal-vs-iraq-2026-06-26",
+    "world-cup-2026-egypt-vs-iran-2026-06-27",
+    "world-cup-2026-new-zealand-vs-belgium-2026-06-27",
+    "world-cup-2026-cabo-verde-vs-saudi-arabia-2026-06-27",
+    "world-cup-2026-uruguay-vs-spain-2026-06-27",
+    "world-cup-2026-panama-vs-england-2026-06-27",
+    "world-cup-2026-croatia-vs-ghana-2026-06-27",
+    "world-cup-2026-algeria-vs-austria-2026-06-28",
+    "world-cup-2026-jordan-vs-argentina-2026-06-28",
+    "world-cup-2026-colombia-vs-portugal-2026-06-27",
+    "world-cup-2026-congo-dr-vs-uzbekistan-2026-06-27"
+  ],
+  "selectedProviderFixtureIds": [
+    1489406,
+    1489405,
+    1489408,
+    1539009,
+    1539010,
+    1489407,
+    1489409,
+    1489410,
+    1539011,
+    1489412,
+    1539012,
+    1489411,
+    1489416,
+    1539074,
+    1489414,
+    1489415,
+    1489413,
+    1489417,
+    1489422,
+    1489420,
+    1489418,
+    1489421,
+    1489419,
+    1539013
+  ],
+  "providerRetrieval": {
+    "executionMode": "sequential_by_match_number",
+    "requestConcurrency": 1,
+    "retryPolicy": {
+      "maxAttempts": 3,
+      "retryableHttpStatuses": [
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "retryableFailureStatuses": [
+        "provider_rate_limited",
+        "provider_transport_failed",
+        "provider_server_failed"
+      ],
+      "nonRetryableHttpStatuses": [
+        200,
+        400,
+        401,
+        403,
+        404
+      ],
+      "retryOnProviderNotFound": false
+    }
+  },
+  "summary": {
+    "selected": 24,
+    "updateLinkage": 24,
+    "alreadyLinked": 0,
+    "blockedConflict": 0,
+    "blockedMissing": 0,
+    "blockedDuplicate": 0,
+    "creates": 0,
+    "deletes": 0,
+    "stageDatabaseWrites": 0,
+    "productionDatabaseWrites": 0,
+    "outOfScopeRows": 1
+  },
+  "outOfScopeEvidence": [
+    {
+      "slug": "world-cup-2026-colombia-vs-congo-dr-2026-06-24",
+      "providerFixtureId": 1539008,
+      "reason": "matchday_2_outside_task1c_scope",
+      "selected": false,
+      "actionEligible": false,
+      "applyEligible": false,
+      "patchPresent": false
+    }
+  ],
+  "rows": [
+    {
+      "matchNumber": 49,
+      "slug": "world-cup-2026-scotland-vs-brazil-2026-06-24",
+      "providerFixtureId": 1489406,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-24T22:00:00+00:00",
+        "canonicalHomeTeamKey": "scotland",
+        "canonicalAwayTeamKey": "brazil",
+        "sourceMatchRef": "f486f6da-c25b-4676-9e8d-679251d2eaf6",
+        "sourcePredictionRef": "e0bdef2c-d966-4d5a-999a-d3ebe05999f1"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489406,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-24T22:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Scotland",
+        "awayTeamName": "Brazil",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "0300f427-a761-44c0-8785-b30a3f74c248",
+      "stageIdentityEvidence": {
+        "stageMatchId": "0300f427-a761-44c0-8785-b30a3f74c248",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-scotland-vs-brazil-2026-06-24",
+          "kickoffAt": "2026-06-24T22:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "0f93ead6-e0fc-4f2d-8696-bc1218e6604b",
+          "awayTeamId": "70325f57-97b9-47f1-9715-98f3e84647a4",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489406",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 50,
+      "slug": "world-cup-2026-morocco-vs-haiti-2026-06-24",
+      "providerFixtureId": 1489405,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-24T22:00:00+00:00",
+        "canonicalHomeTeamKey": "morocco",
+        "canonicalAwayTeamKey": "haiti",
+        "sourceMatchRef": "a3a9c8b9-7aca-4802-b979-b02a9dcbfdf8",
+        "sourcePredictionRef": "9e52b5fc-b44c-4ed4-a3ef-34a9d81b77b6"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489405,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-24T22:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Morocco",
+        "awayTeamName": "Haiti",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "89ce35fe-cc4a-46e4-9b58-7e130ef92dff",
+      "stageIdentityEvidence": {
+        "stageMatchId": "89ce35fe-cc4a-46e4-9b58-7e130ef92dff",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-morocco-vs-haiti-2026-06-24",
+          "kickoffAt": "2026-06-24T22:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "663e952d-40ee-4b26-af4d-b2e8ac15dcb5",
+          "awayTeamId": "13254096-b5d8-43f6-a034-50ee96aafafe",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489405",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 51,
+      "slug": "world-cup-2026-switzerland-vs-canada-2026-06-24",
+      "providerFixtureId": 1489408,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-24T19:00:00+00:00",
+        "canonicalHomeTeamKey": "switzerland",
+        "canonicalAwayTeamKey": "canada",
+        "sourceMatchRef": "4690cf1d-7b6d-49e8-a0dd-cbf1aa2e3729",
+        "sourcePredictionRef": "bff156e2-a9c2-4967-9a92-0013c804443a"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489408,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-24T19:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Switzerland",
+        "awayTeamName": "Canada",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "852428a4-c6a2-494e-8310-e878b97604c7",
+      "stageIdentityEvidence": {
+        "stageMatchId": "852428a4-c6a2-494e-8310-e878b97604c7",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-switzerland-vs-canada-2026-06-24",
+          "kickoffAt": "2026-06-24T19:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "3152dca7-8c1e-4f94-9633-3abf632b41c4",
+          "awayTeamId": "c4c12390-0bb0-401e-928a-33cabd57408d",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489408",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 52,
+      "slug": "world-cup-2026-bosnia-herzegovina-vs-qatar-2026-06-24",
+      "providerFixtureId": 1539009,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-24T19:00:00+00:00",
+        "canonicalHomeTeamKey": "bosnia-herzegovina",
+        "canonicalAwayTeamKey": "qatar",
+        "sourceMatchRef": "49db7585-bb12-450d-8810-50da0e2bbb8c",
+        "sourcePredictionRef": "e1d6917b-bd05-43da-9103-249133253cad"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1539009,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-24T19:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Bosnia & Herzegovina",
+        "awayTeamName": "Qatar",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "9a52dc29-05e7-48f6-93f9-dfaf7c16450d",
+      "stageIdentityEvidence": {
+        "stageMatchId": "9a52dc29-05e7-48f6-93f9-dfaf7c16450d",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-bosnia-herzegovina-vs-qatar-2026-06-24",
+          "kickoffAt": "2026-06-24T19:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "98d04a83-e417-460b-9861-5b0fb803e486",
+          "awayTeamId": "0b2fff38-8581-45a9-bf3f-b4af3f6c6f6c",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1539009",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 53,
+      "slug": "world-cup-2026-czech-republic-vs-mexico-2026-06-25",
+      "providerFixtureId": 1539010,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-25T01:00:00+00:00",
+        "canonicalHomeTeamKey": "czech-republic",
+        "canonicalAwayTeamKey": "mexico",
+        "sourceMatchRef": "7e798b58-2fc1-4b01-ab4b-902175cb35e3",
+        "sourcePredictionRef": "4aab21de-0a9c-4087-9b80-495520fc096d"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1539010,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-25T01:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Czechia",
+        "awayTeamName": "Mexico",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "df07f866-f24a-4643-970a-e61f2d01a1aa",
+      "stageIdentityEvidence": {
+        "stageMatchId": "df07f866-f24a-4643-970a-e61f2d01a1aa",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-czech-republic-vs-mexico-2026-06-25",
+          "kickoffAt": "2026-06-25T01:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "cb5aee51-9c33-43e9-8d6f-34fc3a0cc082",
+          "awayTeamId": "2188c8d4-6734-4b7b-9849-f4a78fad771b",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1539010",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 54,
+      "slug": "world-cup-2026-south-africa-vs-south-korea-2026-06-25",
+      "providerFixtureId": 1489407,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-25T01:00:00+00:00",
+        "canonicalHomeTeamKey": "south-africa",
+        "canonicalAwayTeamKey": "south-korea",
+        "sourceMatchRef": "bc8490cc-7cf5-4c0b-9da7-01b6ec9f08e7",
+        "sourcePredictionRef": "60de5936-e670-4f2e-be85-0b75e12a2077"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489407,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-25T01:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "South Africa",
+        "awayTeamName": "South Korea",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "7d0ea8ca-57d8-4c58-9a64-bbee7e166732",
+      "stageIdentityEvidence": {
+        "stageMatchId": "7d0ea8ca-57d8-4c58-9a64-bbee7e166732",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-south-africa-vs-south-korea-2026-06-25",
+          "kickoffAt": "2026-06-25T01:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "25a2e99d-57f7-4439-8464-3daf390feb8c",
+          "awayTeamId": "eae4afb7-8007-4168-aa44-131f3d16f866",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489407",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 55,
+      "slug": "world-cup-2026-curacao-vs-cote-divoire-2026-06-25",
+      "providerFixtureId": 1489409,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-25T20:00:00+00:00",
+        "canonicalHomeTeamKey": "curacao",
+        "canonicalAwayTeamKey": "cote-divoire",
+        "sourceMatchRef": "32afad6c-4e86-4575-9a04-499d913ef369",
+        "sourcePredictionRef": "e7fb39c9-73aa-46c5-b19b-8502fe04c47b"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489409,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-25T20:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Curaçao",
+        "awayTeamName": "Ivory Coast",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "7e7f670b-b1fb-4331-8998-c0563132b056",
+      "stageIdentityEvidence": {
+        "stageMatchId": "7e7f670b-b1fb-4331-8998-c0563132b056",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-curacao-vs-cote-divoire-2026-06-25",
+          "kickoffAt": "2026-06-25T20:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "3e364a74-9b33-4e5f-8167-8c462c58d582",
+          "awayTeamId": "7357b308-fe52-4b05-89af-71c005add034",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489409",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 56,
+      "slug": "world-cup-2026-ecuador-vs-germany-2026-06-25",
+      "providerFixtureId": 1489410,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-25T20:00:00+00:00",
+        "canonicalHomeTeamKey": "ecuador",
+        "canonicalAwayTeamKey": "germany",
+        "sourceMatchRef": "065e742f-d14e-4b1b-99cf-d9d1d0e14550",
+        "sourcePredictionRef": "754a4966-be23-4314-b4f7-0603b7bb61ae"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489410,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-25T20:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Ecuador",
+        "awayTeamName": "Germany",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "8f541247-edfd-4ce8-a64d-5767d9433098",
+      "stageIdentityEvidence": {
+        "stageMatchId": "8f541247-edfd-4ce8-a64d-5767d9433098",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-ecuador-vs-germany-2026-06-25",
+          "kickoffAt": "2026-06-25T20:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "9f75c247-b666-400d-a9b4-504579378fc3",
+          "awayTeamId": "12c2d2c4-6941-419b-ad45-46796fc4e626",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489410",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 57,
+      "slug": "world-cup-2026-japan-vs-sweden-2026-06-25",
+      "providerFixtureId": 1539011,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-25T23:00:00+00:00",
+        "canonicalHomeTeamKey": "japan",
+        "canonicalAwayTeamKey": "sweden",
+        "sourceMatchRef": "e8bfa1d0-1129-4ad8-a8cd-02300fe8f9a3",
+        "sourcePredictionRef": "f857dd83-78af-477a-a050-7e8d9621ac22"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1539011,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-25T23:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Japan",
+        "awayTeamName": "Sweden",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "faf5ec40-14b4-4cd9-97da-f419b74b5aee",
+      "stageIdentityEvidence": {
+        "stageMatchId": "faf5ec40-14b4-4cd9-97da-f419b74b5aee",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-japan-vs-sweden-2026-06-25",
+          "kickoffAt": "2026-06-25T23:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "41690b07-fd0e-4d5d-8abb-0169b91db80d",
+          "awayTeamId": "e697c65f-c29b-4598-b770-a431b6044d0a",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1539011",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 58,
+      "slug": "world-cup-2026-tunisia-vs-netherlands-2026-06-25",
+      "providerFixtureId": 1489412,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-25T23:00:00+00:00",
+        "canonicalHomeTeamKey": "tunisia",
+        "canonicalAwayTeamKey": "netherlands",
+        "sourceMatchRef": "cdf3a69a-3992-400a-9e59-f6a7ea6db20e",
+        "sourcePredictionRef": "e372b68a-736b-4b51-8edd-a6f1cf6862dd"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489412,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-25T23:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Tunisia",
+        "awayTeamName": "Netherlands",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "bda360b3-5899-41fd-8bc1-db7b128a9648",
+      "stageIdentityEvidence": {
+        "stageMatchId": "bda360b3-5899-41fd-8bc1-db7b128a9648",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-tunisia-vs-netherlands-2026-06-25",
+          "kickoffAt": "2026-06-25T23:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "1402375f-34f1-42c4-8e01-cc472aae07db",
+          "awayTeamId": "d21feaa0-e8b1-4d90-8b9d-12e855ebf6d6",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489412",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 59,
+      "slug": "world-cup-2026-turkiye-vs-usa-2026-06-26",
+      "providerFixtureId": 1539012,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-26T02:00:00+00:00",
+        "canonicalHomeTeamKey": "turkiye",
+        "canonicalAwayTeamKey": "usa",
+        "sourceMatchRef": "58c2cfc3-cf7e-4ecb-8102-aa87ecf0b1f8",
+        "sourcePredictionRef": "a0e5e1bd-97d8-4a59-8caf-4db86cb39861"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1539012,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-26T02:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Türkiye",
+        "awayTeamName": "USA",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "6c5f2b2b-4d28-46ea-bed7-67f7ba3fa6e2",
+      "stageIdentityEvidence": {
+        "stageMatchId": "6c5f2b2b-4d28-46ea-bed7-67f7ba3fa6e2",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-turkiye-vs-usa-2026-06-26",
+          "kickoffAt": "2026-06-26T02:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "d7ca3c99-d3cf-48da-8919-9b00c65ca6e7",
+          "awayTeamId": "72e62f0a-0ccc-4855-bde0-316333933eaf",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1539012",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 60,
+      "slug": "world-cup-2026-paraguay-vs-australia-2026-06-26",
+      "providerFixtureId": 1489411,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-26T02:00:00+00:00",
+        "canonicalHomeTeamKey": "paraguay",
+        "canonicalAwayTeamKey": "australia",
+        "sourceMatchRef": "8954bde0-bbec-4ed4-9678-a91e5dde716c",
+        "sourcePredictionRef": "d52c58eb-ebb6-487d-91d9-13b1262a9f36"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489411,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-26T02:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Paraguay",
+        "awayTeamName": "Australia",
+        "status": "finished",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "5bee3281-c7ef-4760-9c4f-035af9b8baf7",
+      "stageIdentityEvidence": {
+        "stageMatchId": "5bee3281-c7ef-4760-9c4f-035af9b8baf7",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-paraguay-vs-australia-2026-06-26",
+          "kickoffAt": "2026-06-26T02:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "aafcd1d0-4511-40a7-aa04-49468bc518df",
+          "awayTeamId": "a1da3d23-40c0-41aa-81a5-f7a8fc3917cc",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489411",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 61,
+      "slug": "world-cup-2026-norway-vs-france-2026-06-26",
+      "providerFixtureId": 1489416,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-26T19:00:00+00:00",
+        "canonicalHomeTeamKey": "norway",
+        "canonicalAwayTeamKey": "france",
+        "sourceMatchRef": "92fd7781-97b5-4f1a-b096-550fb76baae6",
+        "sourcePredictionRef": "04dd0545-d893-4c01-a5aa-2196abd2e09c"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489416,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-26T19:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Norway",
+        "awayTeamName": "France",
+        "status": "live",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "c3eeb608-2387-47d2-a508-b212b18b91f4",
+      "stageIdentityEvidence": {
+        "stageMatchId": "c3eeb608-2387-47d2-a508-b212b18b91f4",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-norway-vs-france-2026-06-26",
+          "kickoffAt": "2026-06-26T19:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "c2c4f39d-8462-4142-9127-0588aa41fa65",
+          "awayTeamId": "3d8596bd-7a4a-41d8-9e14-162325636ad0",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489416",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 62,
+      "slug": "world-cup-2026-senegal-vs-iraq-2026-06-26",
+      "providerFixtureId": 1539074,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-26T19:00:00+00:00",
+        "canonicalHomeTeamKey": "senegal",
+        "canonicalAwayTeamKey": "iraq",
+        "sourceMatchRef": "8f8be52f-10ab-450c-ad14-c39dc4aeb77e",
+        "sourcePredictionRef": "e7b5b3a5-dd53-450c-8beb-a2de8e6fcaf6"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1539074,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-26T19:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Senegal",
+        "awayTeamName": "Iraq",
+        "status": "live",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "5a015e5a-a158-40a5-96a1-b654ea92aca8",
+      "stageIdentityEvidence": {
+        "stageMatchId": "5a015e5a-a158-40a5-96a1-b654ea92aca8",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-senegal-vs-iraq-2026-06-26",
+          "kickoffAt": "2026-06-26T19:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "e6d4b4ff-f41f-43c5-ab71-f8a1d20ec83b",
+          "awayTeamId": "b99ffaea-bcb0-46be-8c4c-53f3242c7740",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1539074",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 63,
+      "slug": "world-cup-2026-egypt-vs-iran-2026-06-27",
+      "providerFixtureId": 1489414,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T03:00:00+00:00",
+        "canonicalHomeTeamKey": "egypt",
+        "canonicalAwayTeamKey": "iran",
+        "sourceMatchRef": "ca982c00-ca25-480c-83c4-265c207f42e3",
+        "sourcePredictionRef": "f1363d95-c8c4-485a-87b0-2936c73bbacd"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489414,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T03:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Egypt",
+        "awayTeamName": "Iran",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "480d23e7-69a0-418e-8906-b6d5a13bd8d0",
+      "stageIdentityEvidence": {
+        "stageMatchId": "480d23e7-69a0-418e-8906-b6d5a13bd8d0",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-egypt-vs-iran-2026-06-27",
+          "kickoffAt": "2026-06-27T03:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "f0813014-96c2-4698-8b80-b84dcb5d3ac1",
+          "awayTeamId": "58b7a1b1-26a3-4fea-afae-c7e49158f019",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489414",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 64,
+      "slug": "world-cup-2026-new-zealand-vs-belgium-2026-06-27",
+      "providerFixtureId": 1489415,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T03:00:00+00:00",
+        "canonicalHomeTeamKey": "new-zealand",
+        "canonicalAwayTeamKey": "belgium",
+        "sourceMatchRef": "bb8219b3-4241-47d7-9456-dc6ed3acb372",
+        "sourcePredictionRef": "ad926e05-9d93-4896-83ae-84596f227d3e"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489415,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T03:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "New Zealand",
+        "awayTeamName": "Belgium",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "bece5564-5c9f-449b-b6e3-c7cd11159823",
+      "stageIdentityEvidence": {
+        "stageMatchId": "bece5564-5c9f-449b-b6e3-c7cd11159823",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-new-zealand-vs-belgium-2026-06-27",
+          "kickoffAt": "2026-06-27T03:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "d5252f3e-92d8-4dd9-a8a8-48791c352c4e",
+          "awayTeamId": "f94644b8-9854-4150-ba7b-f3df8f9ffd1b",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489415",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 65,
+      "slug": "world-cup-2026-cabo-verde-vs-saudi-arabia-2026-06-27",
+      "providerFixtureId": 1489413,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T00:00:00+00:00",
+        "canonicalHomeTeamKey": "cabo-verde",
+        "canonicalAwayTeamKey": "saudi-arabia",
+        "sourceMatchRef": "819be448-66c4-43a4-aeb1-a8fae2d54fbf",
+        "sourcePredictionRef": "3f2ac816-a90e-4a25-98b3-87a980ac648b"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489413,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T00:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Cape Verde Islands",
+        "awayTeamName": "Saudi Arabia",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "4ead9413-2eda-4a16-9c8d-5ab02a4de5a3",
+      "stageIdentityEvidence": {
+        "stageMatchId": "4ead9413-2eda-4a16-9c8d-5ab02a4de5a3",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-cabo-verde-vs-saudi-arabia-2026-06-27",
+          "kickoffAt": "2026-06-27T00:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "58480f23-6bdf-4504-b0fd-78cf540966e8",
+          "awayTeamId": "7b5cbc92-bfc7-4ab7-b34f-5a837c242663",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489413",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 66,
+      "slug": "world-cup-2026-uruguay-vs-spain-2026-06-27",
+      "providerFixtureId": 1489417,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T00:00:00+00:00",
+        "canonicalHomeTeamKey": "uruguay",
+        "canonicalAwayTeamKey": "spain",
+        "sourceMatchRef": "9dc9b628-603a-4c50-ad74-c04efd22c577",
+        "sourcePredictionRef": "362c0c48-add2-4c6d-9fe0-7bf11d4dda71"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489417,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T00:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Uruguay",
+        "awayTeamName": "Spain",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "9feb3980-66eb-4db1-a9da-7fbd9ac6a238",
+      "stageIdentityEvidence": {
+        "stageMatchId": "9feb3980-66eb-4db1-a9da-7fbd9ac6a238",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-uruguay-vs-spain-2026-06-27",
+          "kickoffAt": "2026-06-27T00:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "9891c6e4-6298-440f-96d8-b45f8462ee66",
+          "awayTeamId": "4808ba77-4cc9-44f2-a13c-fd9d8a4768c7",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489417",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 67,
+      "slug": "world-cup-2026-panama-vs-england-2026-06-27",
+      "providerFixtureId": 1489422,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T21:00:00+00:00",
+        "canonicalHomeTeamKey": "panama",
+        "canonicalAwayTeamKey": "england",
+        "sourceMatchRef": "4056948d-b515-4a42-80a6-3e5243574f3e",
+        "sourcePredictionRef": "74348bfa-4354-478a-bf1d-98fd245328df"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489422,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T21:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Panama",
+        "awayTeamName": "England",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "3581151c-9611-4c1f-8855-c5fb45650ab7",
+      "stageIdentityEvidence": {
+        "stageMatchId": "3581151c-9611-4c1f-8855-c5fb45650ab7",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-panama-vs-england-2026-06-27",
+          "kickoffAt": "2026-06-27T21:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "324972fd-1d9c-4826-88a6-90233ae5c3a0",
+          "awayTeamId": "89d11bb1-0b1c-4ee0-aed0-6763056fbc26",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489422",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 68,
+      "slug": "world-cup-2026-croatia-vs-ghana-2026-06-27",
+      "providerFixtureId": 1489420,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T21:00:00+00:00",
+        "canonicalHomeTeamKey": "croatia",
+        "canonicalAwayTeamKey": "ghana",
+        "sourceMatchRef": "4bff08f3-f0dd-4759-bb43-e82db1ae7cd6",
+        "sourcePredictionRef": "14bd4c33-2121-41bf-8fdc-a88f65f4a8a9"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489420,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T21:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Croatia",
+        "awayTeamName": "Ghana",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "1a3a5646-a95f-44c4-a6d0-1acfb4c0902c",
+      "stageIdentityEvidence": {
+        "stageMatchId": "1a3a5646-a95f-44c4-a6d0-1acfb4c0902c",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-croatia-vs-ghana-2026-06-27",
+          "kickoffAt": "2026-06-27T21:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "bd4efb3c-d107-43d7-b0b0-68a3c0eef789",
+          "awayTeamId": "208b9ea4-eb6f-4b2a-870b-dd1e192c3c7d",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489420",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 69,
+      "slug": "world-cup-2026-algeria-vs-austria-2026-06-28",
+      "providerFixtureId": 1489418,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-28T02:00:00+00:00",
+        "canonicalHomeTeamKey": "algeria",
+        "canonicalAwayTeamKey": "austria",
+        "sourceMatchRef": "6c5ef2fd-03d9-4d2d-906e-67e789788f46",
+        "sourcePredictionRef": "7bc0d2c0-7b0d-41d5-a93f-87cc5838552d"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489418,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-28T02:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Algeria",
+        "awayTeamName": "Austria",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "175ad663-ad61-4fe5-a899-d86d3f74e0da",
+      "stageIdentityEvidence": {
+        "stageMatchId": "175ad663-ad61-4fe5-a899-d86d3f74e0da",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-algeria-vs-austria-2026-06-28",
+          "kickoffAt": "2026-06-28T02:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "95697a10-f1c8-4815-b9ad-b91b9e8134e6",
+          "awayTeamId": "c56eb5ed-fc27-4707-a1fc-5ce1a5f8cbea",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489418",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 70,
+      "slug": "world-cup-2026-jordan-vs-argentina-2026-06-28",
+      "providerFixtureId": 1489421,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-28T02:00:00+00:00",
+        "canonicalHomeTeamKey": "jordan",
+        "canonicalAwayTeamKey": "argentina",
+        "sourceMatchRef": "df617793-5740-4a6c-b2d0-d638b5bc25bc",
+        "sourcePredictionRef": "789cc015-e7a1-4782-982c-98135b63ec16"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489421,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-28T02:00:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Jordan",
+        "awayTeamName": "Argentina",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "210ee157-ea3c-4b7c-92fa-b7bb0f55ce7d",
+      "stageIdentityEvidence": {
+        "stageMatchId": "210ee157-ea3c-4b7c-92fa-b7bb0f55ce7d",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-jordan-vs-argentina-2026-06-28",
+          "kickoffAt": "2026-06-28T02:00:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "ae53f77b-de97-41c5-8844-ed4a88dd2c08",
+          "awayTeamId": "eb2d8253-c37f-452f-8239-20e970dbff50",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489421",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 71,
+      "slug": "world-cup-2026-colombia-vs-portugal-2026-06-27",
+      "providerFixtureId": 1489419,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T23:30:00+00:00",
+        "canonicalHomeTeamKey": "colombia",
+        "canonicalAwayTeamKey": "portugal",
+        "sourceMatchRef": "611f7577-b592-4cdd-9b5f-47318a6b2d84",
+        "sourcePredictionRef": "980535a1-1801-45b4-ac2a-ff31ee8314a8"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1489419,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T23:30:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Colombia",
+        "awayTeamName": "Portugal",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "8145878b-dc63-41bb-a791-b54035ae6452",
+      "stageIdentityEvidence": {
+        "stageMatchId": "8145878b-dc63-41bb-a791-b54035ae6452",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-colombia-vs-portugal-2026-06-27",
+          "kickoffAt": "2026-06-27T23:30:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "eff8e50a-61d1-4b60-b980-a377f6564967",
+          "awayTeamId": "d617d85d-8be7-4f2c-a2c8-b7813087c50a",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1489419",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    },
+    {
+      "matchNumber": 72,
+      "slug": "world-cup-2026-congo-dr-vs-uzbekistan-2026-06-27",
+      "providerFixtureId": 1539013,
+      "sourceManifestIdentity": {
+        "kickoffAt": "2026-06-27T23:30:00+00:00",
+        "canonicalHomeTeamKey": "congo-dr",
+        "canonicalAwayTeamKey": "uzbekistan",
+        "sourceMatchRef": "aae8601c-84a1-4932-8c62-df8d585f5f7d",
+        "sourcePredictionRef": "9b56ea8b-280d-4a64-b9cd-196b83d78c9f"
+      },
+      "providerIdentityEvidence": {
+        "providerFixtureId": 1539013,
+        "verificationStatus": "provider_verified",
+        "attemptCount": 1,
+        "finalHttpStatus": 200,
+        "retryClassification": "not_needed",
+        "sanitizedErrorCode": null,
+        "sanitizedErrorMessage": null,
+        "retryAfterSeconds": null,
+        "fixtureIdentityReturned": true,
+        "kickoffAt": "2026-06-27T23:30:00+00:00",
+        "round": "Group Stage - 3",
+        "homeTeamName": "Congo DR",
+        "awayTeamName": "Uzbekistan",
+        "status": "scheduled",
+        "identityChecks": {
+          "fixtureReturned": true,
+          "homeIdentity": "match",
+          "awayIdentity": "match",
+          "kickoffIdentity": "match",
+          "groupStageIdentity": "match"
+        }
+      },
+      "resolvedStageMatchUuid": "e3e612b9-2d22-40f7-9738-0320f986a0c1",
+      "stageIdentityEvidence": {
+        "stageMatchId": "e3e612b9-2d22-40f7-9738-0320f986a0c1",
+        "existingExternalId": null,
+        "existingIntakeSource": "manual",
+        "observedFields": {
+          "slug": "world-cup-2026-congo-dr-vs-uzbekistan-2026-06-27",
+          "kickoffAt": "2026-06-27T23:30:00+00:00",
+          "stage": "group_stage",
+          "status": "scheduled",
+          "accessScope": "admin_only",
+          "labStatus": null,
+          "competitionId": "7c93c5f0-c338-4210-8326-976caa02e84a",
+          "seasonId": "cf23f376-1a09-4ff0-b98a-0df17ddf5888",
+          "homeTeamId": "8eb0740a-86cd-4ad6-a466-fc51b137f42b",
+          "awayTeamId": "475e7b18-7a2f-4fac-aea1-cfcf3c3fb116",
+          "dataQuality": "unreviewed",
+          "sourceNote": "Extracted from FIFA official match schedule PDF grid. API-Football id included only when already verified in UFO Predictor."
+        }
+      },
+      "action": "update_linkage",
+      "exactProposedPatch": {
+        "external_id": "api-football:fixture:1539013",
+        "intake_source": "api_football"
+      },
+      "blocker": null
+    }
+  ],
+  "zeroWriteConfirmation": true,
+  "stablePlanSha256": "bed6a3a989a566b322812f420e18888b4c2903e2a34e76fbd13b6fd8ded129de"
+}

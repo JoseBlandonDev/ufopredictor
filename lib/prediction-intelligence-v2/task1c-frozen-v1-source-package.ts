@@ -748,11 +748,11 @@ function canonicalByteLength(payload: unknown): number {
   return Buffer.byteLength(toCanonicalJson(payload), "utf8");
 }
 
-function normalizeUrlHost(url: string): string {
+export function normalizeUrlHost(url: string): string {
   return new URL(url).host;
 }
 
-function resolveProjectRefFromUrl(url: string): string {
+export function resolveProjectRefFromUrl(url: string): string {
   const host = normalizeUrlHost(url);
   const match = host.match(/^([a-z0-9]+)\.supabase\.co$/i);
   if (!match) {
@@ -767,7 +767,7 @@ function readTable(table: string): ReadOnlyTableLike {
   return client.from(table) as unknown as ReadOnlyTableLike;
 }
 
-function normalizeComparableText(value: string): string {
+export function normalizeComparableText(value: string): string {
   return value
     .normalize("NFKD")
     .replace(/\p{Diacritic}/gu, "")
@@ -1217,7 +1217,7 @@ function parseApiFootballFixtureId(externalId: string | null): number | null {
   return match ? Number(match[1]) : null;
 }
 
-function sameInstant(left: string | null, right: string | null): boolean {
+export function sameInstant(left: string | null, right: string | null): boolean {
   if (left === right) {
     return true;
   }

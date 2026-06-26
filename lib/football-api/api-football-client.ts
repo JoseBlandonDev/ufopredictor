@@ -11,6 +11,21 @@ import type {
 
 const DEFAULT_BASE_URL = "https://v3.football.api-sports.io";
 
+export type ApiFootballDetailedFailureKind =
+  | "http_error"
+  | "transport_error"
+  | "response_invalid";
+
+export type ApiFootballFixtureLookupDetailedResult = {
+  fixture: ProviderFixture | null;
+  diagnostics: ProviderApiRequestDiagnostics | null;
+  httpStatus: number | null;
+  retryAfterSeconds: number | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  failureKind: ApiFootballDetailedFailureKind | null;
+};
+
 type ApiFootballFixtureEnvelope = {
   fixture?: {
     id?: number;
@@ -246,22 +261,12 @@ function normalizeFixture(input: ApiFootballFixtureEnvelope): ProviderFixture | 
 }
 
 async function fetchApiFootball(pathname: string, query: Record<string, string>): Promise<ProviderFixture[]> {
-  const { apiKey, baseUrl } = getApiFootballConfig();
-  const url = buildUrl(pathname, baseUrl, query);
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "x-apisports-key": apiKey,
-    },
-    cache: "no-store",
-  });
-
+  const response = await performApiFootballJsonRequest<ApiFootballResponse>(pathname, query);
   if (!response.ok) {
-    throw new Error(`API-Football request failed (${response.status}) for ${pathname}.`);
+    throw new Error(`API-Football request failed (${response.httpStatus}) for ${pathname}.`);
   }
 
-  const payload = (await response.json()) as ApiFootballResponse;
+  const payload = response.payload;
   const fixtures = payload.response ?? [];
 
   return fixtures
@@ -273,22 +278,12 @@ async function fetchApiFootballStringList(
   pathname: string,
   query: Record<string, string>,
 ): Promise<ProviderFixtureRoundsResult> {
-  const { apiKey, baseUrl } = getApiFootballConfig();
-  const url = buildUrl(pathname, baseUrl, query);
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "x-apisports-key": apiKey,
-    },
-    cache: "no-store",
-  });
-
+  const response = await performApiFootballJsonRequest<ApiFootballRoundsResponse>(pathname, query);
   if (!response.ok) {
-    throw new Error(`API-Football request failed (${response.status}) for ${pathname}.`);
+    throw new Error(`API-Football request failed (${response.httpStatus}) for ${pathname}.`);
   }
 
-  const payload = (await response.json()) as ApiFootballRoundsResponse;
+  const payload = response.payload;
   return {
     rounds: (payload.response ?? []).filter((round): round is string => typeof round === "string"),
     diagnostics: buildDiagnostics(pathname, query, payload),
@@ -320,22 +315,12 @@ function normalizeLeague(input: ApiFootballLeagueEnvelope): ProviderLeague | nul
 async function fetchApiFootballLeaguesRequest(
   query: Record<string, string>,
 ): Promise<ProviderLeague[]> {
-  const { apiKey, baseUrl } = getApiFootballConfig();
-  const url = buildUrl("/leagues", baseUrl, query);
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "x-apisports-key": apiKey,
-    },
-    cache: "no-store",
-  });
-
+  const response = await performApiFootballJsonRequest<ApiFootballLeaguesResponse>("/leagues", query);
   if (!response.ok) {
-    throw new Error(`API-Football request failed (${response.status}) for /leagues.`);
+    throw new Error(`API-Football request failed (${response.httpStatus}) for /leagues.`);
   }
 
-  const payload = (await response.json()) as ApiFootballLeaguesResponse;
+  const payload = response.payload;
   const leagues = payload.response ?? [];
 
   return leagues
@@ -362,6 +347,160 @@ export async function fetchApiFootballFixturesByLeague(
 export async function fetchApiFootballFixtureById(fixtureId: number): Promise<ProviderFixture | null> {
   const fixtures = await fetchApiFootball("/fixtures", { id: String(fixtureId) });
   return fixtures[0] ?? null;
+}
+
+type ApiFootballJsonRequestSuccess<T extends ApiFootballBaseResponse> = {
+  ok: true;
+  httpStatus: number;
+  payload: T;
+  retryAfterSeconds: number | null;
+};
+
+type ApiFootballJsonRequestFailure<T extends ApiFootballBaseResponse> = {
+  ok: false;
+  httpStatus: number | null;
+  payload: T | null;
+  retryAfterSeconds: number | null;
+  errorMessage: string;
+  failureKind: ApiFootballDetailedFailureKind;
+};
+
+function parseRetryAfterSeconds(value: string | null): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const seconds = Number(value);
+  if (Number.isInteger(seconds) && seconds >= 0) {
+    return seconds;
+  }
+
+  const timestamp = Date.parse(value);
+  if (Number.isNaN(timestamp)) {
+    return null;
+  }
+
+  const delayMs = Math.max(0, timestamp - Date.now());
+  return Math.ceil(delayMs / 1000);
+}
+
+async function performApiFootballJsonRequest<T extends ApiFootballBaseResponse>(
+  pathname: string,
+  query: Record<string, string>,
+): Promise<ApiFootballJsonRequestSuccess<T> | ApiFootballJsonRequestFailure<T>> {
+  const { apiKey, baseUrl } = getApiFootballConfig();
+  const url = buildUrl(pathname, baseUrl, query);
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "x-apisports-key": apiKey,
+      },
+      cache: "no-store",
+    });
+  } catch (error) {
+    return {
+      ok: false,
+      httpStatus: null,
+      payload: null,
+      retryAfterSeconds: null,
+      errorMessage: error instanceof Error ? error.message : "Unknown transport failure.",
+      failureKind: "transport_error",
+    };
+  }
+
+  const retryAfterSeconds = parseRetryAfterSeconds(response.headers.get("retry-after"));
+  let payload: T | null = null;
+  try {
+    payload = (await response.json()) as T;
+  } catch {
+    if (!response.ok) {
+      return {
+        ok: false,
+        httpStatus: response.status,
+        payload: null,
+        retryAfterSeconds,
+        errorMessage: `API-Football request failed (${response.status}) for ${pathname}.`,
+        failureKind: "http_error",
+      };
+    }
+
+    return {
+      ok: false,
+      httpStatus: response.status,
+      payload: null,
+      retryAfterSeconds,
+      errorMessage: `API-Football returned invalid JSON for ${pathname}.`,
+      failureKind: "response_invalid",
+    };
+  }
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      httpStatus: response.status,
+      payload,
+      retryAfterSeconds,
+      errorMessage: normalizeErrors(payload.errors)[0] ?? `API-Football request failed (${response.status}) for ${pathname}.`,
+      failureKind: "http_error",
+    };
+  }
+
+  return {
+    ok: true,
+    httpStatus: response.status,
+    payload,
+    retryAfterSeconds,
+  };
+}
+
+export async function fetchApiFootballFixtureByIdDetailed(
+  fixtureId: number,
+): Promise<ApiFootballFixtureLookupDetailedResult> {
+  const pathname = "/fixtures";
+  const query = { id: String(fixtureId) };
+  const response = await performApiFootballJsonRequest<ApiFootballResponse>(pathname, query);
+
+  if (!response.ok) {
+    return {
+      fixture: null,
+      diagnostics: response.payload ? buildDiagnostics(pathname, query, response.payload) : null,
+      httpStatus: response.httpStatus,
+      retryAfterSeconds: response.retryAfterSeconds,
+      errorCode: response.failureKind,
+      errorMessage: response.errorMessage,
+      failureKind: response.failureKind,
+    };
+  }
+
+  const diagnostics = buildDiagnostics(pathname, query, response.payload);
+  const fixtures = (response.payload.response ?? [])
+    .map(normalizeFixture)
+    .filter((fixture): fixture is ProviderFixture => fixture !== null);
+
+  if ((response.payload.response ?? []).length > 0 && fixtures.length === 0) {
+    return {
+      fixture: null,
+      diagnostics,
+      httpStatus: response.httpStatus,
+      retryAfterSeconds: response.retryAfterSeconds,
+      errorCode: "response_invalid",
+      errorMessage: "API-Football returned fixture data that could not be normalized.",
+      failureKind: "response_invalid",
+    };
+  }
+
+  return {
+    fixture: fixtures[0] ?? null,
+    diagnostics,
+    httpStatus: response.httpStatus,
+    retryAfterSeconds: response.retryAfterSeconds,
+    errorCode: null,
+    errorMessage: normalizeErrors(response.payload.errors)[0] ?? null,
+    failureKind: null,
+  };
 }
 
 export async function fetchApiFootballLeagues(
