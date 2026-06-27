@@ -1,116 +1,142 @@
 # Signal Refresh and Model Operations Runbook
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-27 for the active V2 data phase._
 
-## Canonical current-model sources
+## Purpose
 
-Read current candidate, release, and calibration truth from:
+Own the active path from the preserved 2026-06-20 source package to a real V2 signal database, incremental current refresh, and the first V2 shadow candidate.
+
+Current model and release truth lives in:
 
 ```text
 docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
+docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
 docs/00_chatgpt_sources/08_MODEL_HISTORY_CALIBRATION.md
 ```
 
-This runbook owns stable procedure, not the current performance claim or roadmap status.
+## Phase A - V2 Signal Baseline Database Load
+
+Prepared workspace:
+
+```text
+D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
+```
+
+The package is historical but approved as a reproducible baseline.
+
+### Required sequence
+
+1. inventory the prepared and committed source artifacts;
+2. classify raw, normalized, derived, and report-only content;
+3. map approved data to existing stage tables;
+4. define exact natural keys and conflict behavior;
+5. retain source snapshot, checksum, observed time, cutoff, parser version, feature version, and reliability;
+6. dry-run under exact stage and production-deny refs;
+7. apply once if approved;
+8. verify counts, conflicts, and fixture coverage;
+9. rerun once to prove zero duplicate growth;
+10. stop before candidate generation.
+
+### Acceptance
+
+- balanced source/insert/update/skip/reject/conflict accounting;
+- no invented source values;
+- no post-kickoff leakage;
+- lineage queryable from destination rows;
+- canonical identities resolve;
+- second run creates zero duplicates;
+- production writes remain zero;
+- no V2 publication.
+
+## Phase B - Incremental current-data refresh
+
+After the baseline is stored, update only changed source families.
+
+### Fixture and result state
+
+- future fixture identities and kickoffs;
+- trusted terminal results;
+- exact provider mapping;
+- exception reporting.
+
+### Ratings and rankings
+
+- effective-dated World Football Elo snapshots;
+- latest available official FIFA ranking;
+- no overwrite of history;
+- source and capture time retained.
+
+### Tournament context
+
+- standings and points;
+- wins, draws, and losses;
+- goals for/against and difference;
+- scoring/conceding averages;
+- opponent quality;
+- qualification or pressure state;
+- small-sample reliability controls.
+
+### Derived signals
+
+- explicit cutoff;
+- source IDs;
+- model/feature version;
+- missing optional inputs;
+- contradiction and reliability metadata;
+- idempotent persistence.
+
+## Phase C - First V2 shadow candidate
+
+Generate only after minimum current-data coverage is accepted.
+
+Candidate requirements:
+
+- fixture not started;
+- predecessor V1 linked;
+- explicit calculation time and cutoff;
+- source/signal snapshots linked;
+- movement caps and reliability gates;
+- missing and contradictory signals reported;
+- scenario families and representative scores coherent;
+- unpublished development purpose.
+
+Completed fixtures use `historical_replay` and pre-kickoff evidence only.
 
 ## Source families
 
 - API-Football fixtures/results;
-- World Football Elo ratings/results/fixtures;
+- World Football Elo;
 - FIFA rankings;
-- official World Cup schedule/venues;
-- deterministic prepared snapshots;
-- current tournament standings and pre-kickoff qualification context.
+- official World Cup schedule and venues;
+- prepared deterministic snapshots;
+- current tournament standings and qualification context.
 
-## Refresh triggers
+## Decision rule
 
-- new trusted verified results;
-- rating source updates;
-- newly published future fixtures;
-- alias/link correction;
-- group-table or qualification-state change before cutoff;
-- model/feature version change;
-- source disagreement requiring review.
+**Decision:** do not block Phase A on perfect current freshness.
 
-## Incremental strategy
+**Motivo:** storage, lineage, idempotency, and coverage must exist before refresh becomes routine.
 
-### Historical facts
-
-- append or correct with lineage;
-- score is not part of match identity;
-- retain source snapshot and timestamps;
-- avoid duplicate natural identity.
-
-### Ratings
-
-- append effective-dated snapshots;
-- never overwrite history;
-- preserve source and capture time.
-
-### Tournament context
-
-- capture standings and need-state at an explicit timestamp;
-- compute only from information available before kickoff;
-- shrink small tournament samples;
-- do not replace structural strength with two-match noise.
-
-### Signals
-
-- derive with exact cutoff;
-- record model/feature version;
-- record source IDs and missing optional inputs;
-- record reliability/sample metadata;
-- shrink or block weak signals;
-- persist idempotently.
+**Consequence:** baseline rows are historical and versioned; Phase B appends newer truth.
 
 ## Quality gates
 
-- observed time strictly before kickoff;
+- `observed_at < kickoff` for pre-match inputs;
 - canonical aliases resolve;
-- neutral/venue context correct;
+- neutral/host context correct;
 - source disagreement surfaced;
-- group/qualification context reflects the pre-kickoff table;
-- second run creates zero duplicates;
-- replay parity maintained;
-- immutable prediction publication.
+- no full foundation bootstrap for ordinary refreshes;
+- no prediction rewrite;
+- no release claim from historical replay alone.
 
-## Operational sequence
+## Responsibility
 
-```text
-refresh sources
--> normalize/link
--> capture pre-kickoff tournament context
--> validate cutoff
--> derive signals
--> run candidate/replay diagnostics
--> review
--> persist stage signals
--> publish immutable development version
-```
+- Codex implements bounded loaders, refreshers, tests, and reports.
+- The operator authorizes stage applies and runs Git/Supabase/API operations.
+- ChatGPT owns model-state interpretation, decisions, roadmap, and documentation.
 
-## Versioning
+## Process
 
-Every output records:
+Use one preflight, one apply, one verification. Add one exact rerun only when proving idempotency of a new loader.
 
-- model version;
-- feature version;
-- calculated timestamp;
-- cutoff;
-- source/signal snapshots;
-- purpose;
-- predecessor lineage.
-
-Finished-fixture comparison uses `historical_replay` and never replaces the original publication.
-
-## Release discipline
-
-Do not force probability movement merely to make v2 look different.
-
-Prioritize:
-
-- evidence quality;
-- reliability;
-- scenario coherence;
-- tournament-context usefulness;
-- explanation quality;
-- regression safety.
+Do not reopen Task 3B or Task 1C as part of signal refresh.

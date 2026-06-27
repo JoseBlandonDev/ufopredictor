@@ -1,14 +1,14 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-26 after Task 3B completion and the Task 1C fixture-linkage checkpoint._
+_Last refreshed: 2026-06-27 after Epic 1 completion._
 
 ## Goal
 
-Preserve the completed Prediction Intelligence v2 normalization on top of the production baseline, maintain strict production separation, and hand off from stage foundation into the V1-visible and current-data phases.
+Preserve the normalized V2 integration track and stable stage while moving directly into V2 data and candidate work.
 
 ## Live-state source
 
-Before work, read and verify:
+Read:
 
 ```text
 docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
@@ -17,186 +17,121 @@ docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
 docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
-Verify actual branch, HEAD, environment, and write boundary before every task.
-
 ## Stable references
 
 ```text
-production base: e771de3c39c480f05d026075e5e553fb75207468
-active integration branch: integration/prediction-intelligence-v2
+active branch: integration/prediction-intelligence-v2
 active Draft PR: #114
-reviewed checkpoint HEAD: dba63d8cc3d6d9235295abb4fe8834db44caf519
-canonical local stage env: .env.stage.local
-old V2 branch: feature/prediction-intelligence-v2-data-foundation
+reviewed checkpoint HEAD: bce9999
+canonical stage env: .env.stage.local
+stage project: yfmklapgjrupctgxaako
+production project: gcpdffkgsdomzyoenalg
+old branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
-old V2 head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
 Verify actual HEAD and worktree before implementation.
 
 ## Completed normalization map
 
-Completed concerns:
+Completed:
 
-- Task 1 data foundation;
-- Task 1.1 replay readiness;
-- Task 1.2 historical Elo;
-- Task 2 challenger and replay;
-- Task 2 calibration stabilization;
-- Task 2 gates and eligibility;
-- Task 2 release packaging;
-- Task 2 local-run guard;
-- Task 3A planner and target-safety contracts;
-- Task 3B stage synchronization and foundation import.
+- selective old-V2 normalization;
+- data foundation and replay readiness;
+- historical Elo and challenger research;
+- calibration, gates, eligibility, and packaging;
+- Task 3A safety planning;
+- Task 3B stage synchronization;
+- exact 24-fixture linkage;
+- V1 model/prediction/market import;
+- V1 activation/publication;
+- exact-complete and UI smoke verification.
 
-No useful implementation remains to be ported from the old branch.
+No useful implementation remains to be ported wholesale from the old branch.
 
-## Intentionally excluded historical items
-
-Do not port:
-
-- old environment-specific Supabase config;
-- old documentation-only handoff commits as implementation;
-- stale frontend and shared-query changes outside reviewed slices;
-- broad environment paths or credentials;
-- historical candidate artifacts as current release authority.
-
-The old branch and PR #106 remain reference only.
-
-## Environment map
+## Environment rule
 
 ```text
-production domain: ufopredictor.com
-production Supabase: gcpdffkgsdomzyoenalg
-stage domain: stage.ufopredictor.com
-stage Supabase: yfmklapgjrupctgxaako
+production: ufopredictor.com -> gcpdffkgsdomzyoenalg
+stage: stage.ufopredictor.com -> yfmklapgjrupctgxaako
 ```
 
 Do not create another stage environment.
 
 Do not use production credentials for stage.
 
-## Completed Task 3B and later fixture-linkage state
+Do not revive the Docker path for normal stage work.
 
-Task 3B:
-
-- prior stage migration history externally verified at 46 entries;
-- migration 0038 applied in stage only;
-- stage foundation data imported;
-- second apply produced zero inserts and zero updates;
-- Auth user and admin profile preserved;
-- competition and season resolve;
-- publish queue and predictions pages load;
-- production remained untouched.
-
-Verified foundation counts include:
+## Current stage result
 
 ```text
-teams = 48
 runtime matches = 72
-official schedule matches = 104
-rating snapshots = 699
-historical match facts = 1392
+linked V1 fixtures = 24
+active V1 models = 1
+V1 predictions = 24
+markets = 240
+public fixtures = 24
+state = exact_complete
 ```
 
-Current source cutoff is `2026-06-20`.
+Stage is no longer empty of prediction content.
 
-Task 1C fixture-linkage checkpoint:
+## Integrated parallel work
 
-- exact 24 Matchday 3 rows selected;
-- trusted provider identity verified;
-- `public.apply_task1c_stage_v1_fixture_linkage(jsonb)` installed in stage;
-- RPC requested 24 and updated 24;
-- exact post-state verified for all 24;
-- production writes remained zero.
+PR #115 and PR #116 were merged to `main` and brought into the integration branch through normal history before checkpoint `bce9999`.
 
-Migration `20260626220000` was applied manually and is operational. Migration-history repair remains pending and non-blocking. Do not rerun the migration or linkage apply.
+Do not reimplement those changes manually in the integration branch.
 
-## Current application gap
+## Migration notes
 
-Stage has foundation data and verified Matchday 3 provider linkage, but no active prediction product:
+Operational stage migrations include foundation and Task 1C functions.
 
-```text
-model_versions = 0
-prediction_versions = 0
-public_prediction_summaries = 0
-```
+Manual migration-ledger reconciliation remains non-blocking housekeeping.
 
-This is the next bounded gap, not a reason to redo normalization, Task 3B, or fixture linkage.
+`0039_manual_world_cup_result_reconciliation.sql` exists in Git; remote application is not asserted by this runbook.
 
 ## Next transition
 
-Begin:
-
 ```text
-Task 1C - V1 Model and Prediction Import
+Task 2A - V2 Signal Baseline Database Load
 ```
 
 Required sequence:
 
-1. select and freeze the immutable V1 source;
-2. reuse the verified 24-fixture stage mapping;
-3. import one canonical V1 model version;
-4. import 24 original V1 prediction versions;
-5. import 240 required prediction-market rows and only frozen source child records;
-6. activate V1;
-7. run public/admin smoke;
-8. rerun and prove zero growth;
-9. hand off to current-data and V2 work.
+1. use the preserved 2026-06-20 package;
+2. map to existing V2 tables;
+3. retain lineage and cutoff;
+4. load idempotently in stage;
+5. prove fixture coverage;
+6. refresh current sources incrementally;
+7. generate the first V2 shadow candidate.
 
-Do not repeat fixture linkage.
-
-Do not generate V2 during this slice.
-
-## Validation after bounded work
-
-- focused task-specific tests;
-- relevant fixture and publication tests;
-- protected MVP1 regression tests when shared code is touched;
-- lint;
-- typecheck classification with zero new task-local diagnostics;
-- diff-check;
-- generated-noise cleanup;
-- exact environment proof;
-- no production write.
-
-## Production concerns that must survive
-
-- fixture registry behavior;
-- trusted result refresh behavior;
-- immutable V1 Matchday 3 publications;
-- `torneo-ufo-export-v1` compatibility;
-- Wompi, Auth, and entitlement behavior;
-- public lifecycle and history;
-- production UI microreleases from `main`.
+Do not redo normalization, Task 3B, linkage, or V1 import.
 
 ## Parallel branch rule
 
-A separate owner may improve the expert product experience from current `main`.
+A separate owner may improve production-safe V1/expert-product work from current `main`.
 
-Those changes must:
+Those changes:
 
-- remain independent of unfinished V2 data;
-- avoid probability changes;
+- must not change model calculations casually;
+- must not depend on unfinished V2 data;
 - merge normally to `main`;
-- flow into the integration branch through normal Git history;
-- not be manually reimplemented in both branches.
+- flow into the integration branch through merge/rebase;
+- are not manually duplicated.
 
-## Required output for the next slice
+## Responsibility
 
-- confirmed branch, HEAD, and worktree;
-- exact stage target and production denial;
-- proof that the accepted 24-fixture mapping was reused;
-- immutable V1 source and preservation proof;
-- per-table dry-run and apply counts;
-- one active V1 model proof;
-- 24 prediction-version proof;
-- 240 market-row proof;
-- public/admin smoke results;
-- second-run zero-growth proof;
-- Auth/admin preservation;
-- production read-only/no-write proof;
-- concrete blockers only;
-- no Git commit or push unless the owner explicitly delegates it.
+- ChatGPT owns canonical branch/environment decisions and handoffs.
+- Codex implements bounded technical slices.
+- The operator handles Git, stage SQL, Railway, and remote operations.
 
-Use one preflight, one apply, and one verification unless a concrete mismatch exists.
+## Validation
+
+- branch/HEAD/worktree;
+- exact target and deny refs;
+- task-specific tests;
+- relevant protected regressions;
+- lint and diff-check;
+- zero new task-local diagnostics;
+- no production write.

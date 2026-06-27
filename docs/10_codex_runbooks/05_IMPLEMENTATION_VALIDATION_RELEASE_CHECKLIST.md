@@ -1,149 +1,132 @@
 # Implementation, Validation, and Release Checklist
 
-_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
+_Last refreshed: 2026-06-27 after Epic 1 completion._
 
 ## Every task
 
-- start from the declared branch and reviewed base;
-- prove worktree status;
-- declare environment and write scope;
-- identify production deny boundaries;
-- keep changes bounded to the requested concern;
-- use one preflight, one apply, and one verification;
-- repeat only after a concrete blocker, mismatch, or approved recovery need;
-- after repeated tooling failure, switch once to a safe direct owner-operated path;
-- add focused tests when code changes;
+- verify branch, HEAD, and worktree;
+- declare environment, read scope, write scope, and production denial;
+- state the exact completed checkpoint that must not be reopened;
+- identify source cutoff and freshness status;
+- keep implementation bounded;
+- add focused tests for code changes;
 - run lint and diff-check;
-- classify typecheck or build failures as task-local or preexisting;
-- report exact behavior, evidence, and final HEAD;
-- do not mix implementation, unrelated cleanup, and broad documentation rewrites.
+- classify typecheck/build failures as task-local or preexisting;
+- report exact behavior, evidence, changed files, and final state;
+- record important technical/process decisions in the authoritative docs;
+- do not mix unrelated cleanup, product work, payments, and broad documentation rewrites.
+
+## Review and execution rule
+
+```text
+one reconnaissance
+one focused implementation review
+one preflight
+one apply
+one verification
+```
+
+Repeat only for a concrete defect, mismatch, ambiguous result, or approved recovery.
+
+A focused correction does not restart reconnaissance.
+
+After repeated equivalent tooling failure, switch once to a safe direct owner-operated path.
+
+## Closed Epic 1 checkpoint
+
+Confirmed:
+
+- separate stage and production projects;
+- migration 0038 and foundation data in stage;
+- Task 3B idempotency;
+- 24 exact fixture links;
+- 1 active V1 model;
+- 24 immutable predictions;
+- 240 markets;
+- 24 public fixtures;
+- state `exact_complete`;
+- `/predictions` smoke;
+- production untouched.
+
+Do not rerun Task 3B, fixture linkage, or V1 import without a recovery task.
+
+## V2 Signal Baseline Database Load
+
+Before apply:
+
+- prepared 2026-06-20 package identified;
+- baseline explicitly labeled historical;
+- committed equivalents inspected;
+- exact destination tables and natural keys defined;
+- source/checksum/cutoff/version lineage mapped;
+- optional and missing signals classified;
+- stage and production-deny refs explicit;
+- balanced dry-run;
+- no candidate publication in scope.
+
+After apply:
+
+- exact counts verified;
+- conflicts and rejects explained;
+- fixture signal coverage query passes;
+- lineage is queryable;
+- no Auth/payment/entitlement scope;
+- production untouched;
+- second exact run produces zero duplicate growth.
+
+## Current-data incremental refresh
+
+- source and observed time recorded;
+- explicit evidence cutoff;
+- fixture/result scope bounded;
+- Elo/FIFA mappings deterministic;
+- standings and tournament form tested;
+- source hashes/provenance retained;
+- historical snapshots not overwritten;
+- no later evidence used for earlier fixture.
+
+## V2 shadow candidate
+
+- predecessor V1 preserved;
+- not-started fixture;
+- model/feature/purpose/lineage stored;
+- cutoff and calculation time explicit;
+- source/signal snapshots linked;
+- movement bounded;
+- missing/contradictory signals reported;
+- scenario families coherent;
+- candidate unpublished.
+
+## Historical replay
+
+- completed fixture only;
+- pre-kickoff evidence only;
+- labeled `historical_replay`;
+- original V1 publication untouched;
+- no release claim from replay alone.
 
 ## Production microrelease
 
 - branch from current `main`;
 - no dependency on unfinished stage-only data;
 - no regression to Auth, Wompi, entitlements, public history, or partner export;
-- mobile and basic accessibility smoke;
-- production deploy only after PR validation;
-- merge accepted `main` changes into the V2 integration branch through normal Git history.
-
-## V2 integration branch
-
-- preserve old V2 branch and PR #106;
-- use `integration/prediction-intelligence-v2` and Draft PR #114;
-- no blanket old-branch cherry-pick;
-- protect production behavior;
-- no production writes;
-- verify actual HEAD before work.
-
-## Task 3B completed checkpoint
-
-Required proof, now satisfied:
-
-- explicit stage project and production deny ref;
-- 46 migrations externally verified;
-- migration 0038 applied to stage only;
-- required analytical tables readable;
-- idempotent non-sensitive import;
-- balanced accounting and zero conflicts;
-- second apply with zero inserts and zero updates;
-- Auth/admin preservation;
-- public/admin stage smoke;
-- selected non-sensitive evidence artifacts;
-- no production, Wompi, payment, entitlement, webhook, session, or personal-data write.
-
-Do not reopen Task 3B unless a concrete schema, source, or recovery need exists.
-
-## Stage V1 Visible Predictions Slice
-
-Completed prerequisite:
-
-- exact 24-fixture Matchday 3 allowlist;
-- deterministic API-Football identity verification;
-- atomic service-role-only stage linkage RPC;
-- RPC requested 24 and updated 24;
-- exact post-state verified for all 24 rows;
-- production untouched.
-
-Do not repeat fixture linkage or migration `20260626220000`.
-
-Before V1 import apply:
-
-- complete immutable V1 source identified;
-- production source access read-only and exact-scope;
-- verified stage match IDs reused;
-- no probability, xG, score, confidence, risk, market, narrative, or timestamp recomputation;
-- canonical V1 model identity resolved;
-- expected scope fixed at one model, 24 prediction versions, and 240 market rows;
-- only frozen child records accepted;
-- per-table balanced dry-run;
-- no Auth/payment/entitlement scope.
-
-After apply:
-
-- exactly 24 expected immutable V1 fixture baselines available in stage;
-- active V1 model version present;
-- 240 required market rows present without duplicate growth;
-- public prediction projection populated;
-- `/predictions` and match detail load;
-- admin queue and review surfaces remain coherent;
-- second run produces zero row growth;
-- Auth/admin unchanged;
-- production untouched.
-
-Migration-history repair for `20260626220000` is a separate non-blocking operation and must not be mixed into the V1 import apply.
-
-## Current-data refresh
-
-- source and observed time recorded;
-- explicit evidence cutoff;
-- current fixture/result scope;
-- Elo and FIFA source mapping;
-- standings and tournament-form calculation tested;
-- source hashes and provenance retained;
-- idempotent refresh;
-- no later evidence used for an earlier fixture.
-
-## V2 live candidate and historical replay
-
-- original V1 baseline preserved;
-- current candidate uses a not-started fixture and explicit cutoff;
-- historical replay uses pre-kickoff evidence only;
-- model, feature, purpose, and predecessor metadata stored;
-- probability movement bounded;
-- missing and contradictory signals reported;
-- scenario families and representative scores coherent;
-- explanation facts trace to structured evidence;
-- no release claim from historical artifacts alone.
-
-## Parallel expert product work
-
-- branch from current `main` when production-safe;
-- use existing V1 information without changing calculations;
-- do not invent absent statistics;
-- support missing data gracefully;
-- keep facts locale-neutral and render text separately;
-- prepare ES/EN/PT contracts;
-- do not duplicate V2 data/model implementation.
-
-## Ops automation
-
-- dry-run and report mode;
-- exact target and fixture scope;
-- run logging;
-- idempotent retries;
-- terminal scores only to supported verification flow;
-- human exception handling retained;
-- no prediction rewrite.
+- mobile/basic accessibility smoke;
+- merge accepted `main` changes normally into the V2 integration branch.
 
 ## Production promotion
 
 - accepted stage state;
-- visible V1 baseline;
 - current-data cutoff audit;
-- V1/V2 comparison evidence;
-- selected probability mode;
+- V1/V2 comparison;
+- selected release mode;
+- immutable version proof;
 - rollback plan;
-- regression suite for commercial, public, admin, and partner flows;
+- commercial/public/admin/partner regressions covered;
 - owner approval;
 - documentation refresh after merge.
+
+## Documentation ownership
+
+- ChatGPT authors canonical sources and runbooks.
+- Codex reviews once or applies exact accepted files when delegated.
+- The operator commits, pushes, and replaces uploaded canonical sources.

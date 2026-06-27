@@ -1,34 +1,21 @@
 # Task 3B Stage Synchronization Runbook
 
-_Last refreshed: 2026-06-26 after Task 3B completion and the later Task 1C fixture-linkage checkpoint._
+_Last refreshed: 2026-06-27 after Task 1C completion._
 
 ## Status
 
-Task 3B foundation synchronization is complete for the current stage checkpoint.
+Task 3B is a closed historical checkpoint.
 
 ```text
 branch: integration/prediction-intelligence-v2
-stage project: yfmklapgjrupctgxaako
-production deny project: gcpdffkgsdomzyoenalg
-source cutoff: 2026-06-20
+stage: yfmklapgjrupctgxaako
+production denied: gcpdffkgsdomzyoenalg
+foundation source cutoff: 2026-06-20
 ```
 
-Production writes remain forbidden.
-
-## Completed prerequisites
-
-- current-main-based integration branch established;
-- old V2 branch preserved;
-- Task 3A planning and safety contracts integrated;
-- stage Supabase project identified;
-- existing stage Auth user and admin profile identified and preserved;
-- canonical migration chain manually reconciled where CLI behavior was unreliable;
-- 46 migrations externally verified;
-- migration 0038 applied to stage only.
+Do not use this runbook as the active next-task handoff.
 
 ## Completed Task 3B import
-
-The bounded importer loaded:
 
 | Destination | Count |
 |---|---:|
@@ -48,50 +35,30 @@ The bounded importer loaded:
 | official schedule matches | 104 |
 | official schedule links | 72 |
 
-Knockout schedule rows 73-104 remain intentionally deferred from runtime linkage.
+Knockout schedule rows 73-104 remain deferred from runtime linkage until participants are known.
 
-The non-file-backed API-Football sentinel was not inserted as a fake checksum-backed source snapshot.
+## Idempotency and preservation proof
 
-## Alias normalization rule
+- first apply succeeded;
+- second exact apply planned zero inserts and zero updates;
+- Auth user and admin profile were preserved;
+- no production, payment, entitlement, webhook, session, or personal-data write occurred.
 
-Equivalent Unicode and punctuation variants that resolve to the same canonical team and semantic payload collapse deterministically:
+## Later checkpoints completed after Task 3B
 
-- one stable representative insert;
-- remaining equivalent rows recorded as deterministic skips;
-- source provenance retained;
-- incompatible canonical targets remain blocking conflicts.
+- 24 Matchday 3 fixtures linked to API-Football identity;
+- 1 V1 model imported and activated;
+- 24 V1 prediction versions imported;
+- 240 markets imported;
+- 24 fixtures published;
+- stage state verified as `exact_complete`;
+- `/predictions` visual smoke passed.
 
-Final alias accounting:
+The empty prediction state described by the original Task 3B checkpoint is historical and no longer current.
 
-```text
-source rows = 312
-inserts = 309
-skips = 3
-conflicts = 0
-```
+## Historical command
 
-## Migration-history attestation
-
-The importer records:
-
-```text
-independently verified migration history = false
-external operator attestation accepted = true
-expected migration count = 46
-verification mode = external_operator_attestation
-```
-
-Reason:
-
-```text
-PostgREST query error: Invalid schema: supabase_migrations
-```
-
-Do not expose the migration schema or add an RPC merely to satisfy the importer.
-
-## Approved command
-
-Dry-run or apply uses explicit stage and production-deny refs:
+The original Task 3B command remains evidence only:
 
 ```powershell
 npx tsx scripts/prediction-intelligence-v2/run-task3b-stage-bootstrap.ts `
@@ -104,108 +71,31 @@ npx tsx scripts/prediction-intelligence-v2/run-task3b-stage-bootstrap.ts `
   --dry-run
 ```
 
-Use `--apply` only under a separately approved rerun or recovery task.
-
-## Idempotency proof
-
-First apply succeeded.
-
-Second exact apply produced:
-
-```text
-planned inserts = 0
-planned updates = 0
-blockers = 0
-```
-
-All destination counts remained unchanged.
-
-Do not perform a third ceremonial apply merely to restate idempotency.
-
-## Preservation proof
-
-Before and after Task 3B:
-
-- Auth user count remained 1;
-- profile count remained 1;
-- profile role remained `admin`;
-- production remained untouched;
-- no payment, entitlement, Wompi, webhook, session, or personal-data write occurred.
-
-## Current stage application result
-
-At Task 3B completion:
-
-- World Cup competition resolved;
-- World Cup season resolved;
-- publish queue competition resolution succeeded;
-- publish queue loaded but had no active model version and no eligible exact fixture;
-- `/predictions` loaded but had no public predictions.
-
-These empty states were expected and were not a Task 3B failure.
-
-Post-Task 3B checkpoint:
-
-- the exact 24 Matchday 3 rows were linked to approved API-Football fixture IDs;
-- the atomic linkage RPC requested and updated 24 rows;
-- all 24 post-state rows were verified;
-- production remained untouched.
-
-The post-Task 3B linkage is not part of this importer and must not be replayed through a Task 3B rerun.
-
-## Remaining work outside Task 3B
-
-Completed after Task 3B:
-
-- exact 24 Matchday 3 fixture linkage in stage.
-
-Still remaining:
-
-- import one canonical V1 model;
-- import 24 immutable V1 prediction versions;
-- import 240 required prediction-market rows;
-- activate the V1 model;
-- expose and validate public/admin predictions;
-- refresh current Elo or FIFA data;
-- refresh current standings and tournament form;
-- generate V2 candidates;
-- configure Wompi or an AI provider only under a later explicit task.
-
-The next task is:
-
-```text
-Task 1C - V1 Model and Prediction Import
-```
-
-Operational debt outside this runbook:
-
-```text
-migration-history repair pending for 20260626220000
-```
-
-The RPC migration is already applied and operational in stage. Do not rerun it. The pending history repair does not block the V1 import.
+Do not reuse the historical `46` count as a claim about the current migration ledger without a new dedicated inventory. Later manual migrations exist.
 
 ## Rerun gate
 
-A future Task 3B rerun must stop if:
+Task 3B may be rerun only for an approved recovery when:
 
-- target ref is not exact stage;
-- production denial is absent;
-- expected migration count is not 46 unless a later approved migration changes the canonical count;
-- required destination tables are missing;
-- Auth/admin preservation cannot be observed;
-- source checksums differ unexpectedly;
-- natural-key conflicts appear;
-- row accounting is unbalanced.
+- foundation tables are missing or corrupted;
+- source checksums prove an unintended divergence;
+- an environment restore requires replay;
+- owner approves exact target, scope, and recovery plan.
 
-## Evidence retention
+A desire to “verify again” is not a rerun reason.
 
-Retain the selected evidence set covering:
+## Migration debt
 
-- final eligible pre-apply dry-run;
-- first apply plan;
-- post-apply verification;
-- second idempotency apply;
-- final zero-growth verification.
+Manual Task 1C migrations are operational. Formal migration-ledger reconciliation remains separate, non-blocking housekeeping.
 
-Exclude redundant failed or superseded local-run noise from version control.
+Migration `0039_manual_world_cup_result_reconciliation.sql` is present in Git; this runbook does not assert remote application.
+
+## Active next procedure
+
+Use:
+
+```text
+docs/10_codex_runbooks/03_SIGNAL_REFRESH_AND_MODEL_OPS_RUNBOOK.md
+```
+
+for the V2 signal baseline and incremental refresh path.

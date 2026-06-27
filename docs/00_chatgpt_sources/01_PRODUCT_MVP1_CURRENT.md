@@ -1,6 +1,6 @@
 # Product and Commercial MVP1 - Current
 
-_Last refreshed: 2026-06-26 after the Prediction Intelligence v2 Task 3B stage checkpoint._
+_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
 
 ## Product
 
@@ -205,17 +205,23 @@ PT
 
 ## Stage product state
 
-Task 3B completed the stage data foundation without changing production.
+Task 3B and Task 1C completed the stable stage baseline without changing production.
 
 Stage currently has:
 
 ```text
-model_versions = 0
-prediction_versions = 0
-public_prediction_summaries = 0
+active V1 models = 1
+prediction versions = 24
+prediction-market rows = 240
+public fixtures = 24
+state = exact_complete
 ```
 
-The publish queue and predictions page load successfully but are empty. The next task is to preserve and import the original Matchday 3 V1 baseline into stage.
+The `/predictions` page visibly renders the immutable V1 baseline, confidence, risk, pending-result fixtures, upcoming fixtures, and public detail links.
+
+**Decision:** the stage UI may continue to present the V1-compatible experience while V2 data, signals, candidates, and evaluations are built behind it.
+
+**Consecuencia operativa:** production-safe V1 and expert-experience improvements may continue in parallel, but they must not duplicate or override the V2 data/model workstream.
 
 ## Commercial roadmap boundaries
 

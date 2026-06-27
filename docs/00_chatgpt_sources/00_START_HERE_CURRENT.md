@@ -1,274 +1,231 @@
 # Start Here - UFO Predictor Current
 
-_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
+_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
 
 ## Current truth
 
-UFO Predictor has a commercially usable production MVP1 and an active, unmerged Prediction Intelligence v2 integration track.
+UFO Predictor has:
 
-Production remains on the v1-compatible probability layer and continues to support:
+- a commercially usable MVP1 in production;
+- a separate, stable stage environment;
+- an active Prediction Intelligence v2 integration track in Draft PR #114;
+- the original V1 prediction baseline visible and queryable in stage;
+- no V2 probability candidate released to production.
 
-- public World Cup prediction pages;
-- anonymous, registered-free, premium, and admin experiences;
-- Wompi checkout and approved-webhook entitlement activation;
-- premium scenario, xG, BTTS, and over/under detail where available;
-- exact fixture registration and prediction publication operations;
-- trusted-provider result refresh, verification, public history, and internal evaluation persistence;
-- admin operational queues;
-- a public-safe Torneo Mundialista JSON export.
+Production remains on the V1-compatible probability layer. V2 work continues behind the existing product surface in stage.
 
-Prediction Intelligence v2 is not live in production.
+**Decision:** V1 remains the published baseline while V2 is built in shadow mode.
 
-Stage now has:
+**Motivo:** the team needs a fair, immutable predecessor for comparison and must not block the live product while research continues.
 
-- the Task 3B analytical foundation;
-- 72 runtime group-stage matches;
-- the exact 24 Matchday 3 fixtures linked to approved API-Football fixture IDs;
-- no active model version and no visible public predictions yet.
-
-Historical v2 artifacts, candidate names, release recommendations, and publication plans remain research evidence. They are not current production decisions.
+**Consecuencia operativa:** stage may look like V1 in the UI while its database, source lineage, signal tables, candidate versions, and evaluation paths evolve toward V2.
 
 ## Repository and PR baseline
 
-Production baseline used for the current integration track:
-
 ```text
-main: e771de3c39c480f05d026075e5e553fb75207468
+active branch: integration/prediction-intelligence-v2
+active Draft PR: #114
+reviewed checkpoint HEAD: bce9999
+worktree at checkpoint: clean and synchronized
 ```
 
-Active v2 integration checkpoint:
-
-```text
-branch: integration/prediction-intelligence-v2
-Draft PR: #114
-reviewed checkpoint HEAD: dba63d8cc3d6d9235295abb4fe8834db44caf519
-status: open, Draft
-```
-
-Always verify the actual current HEAD and worktree before implementation. The reviewed checkpoint includes the atomic Task 1C fixture-linkage implementation; the documentation package may be applied and committed afterward.
+The active integration branch already includes the accepted `main` changes from PR #115 and PR #116 through normal Git history.
 
 Preserved historical source:
 
 ```text
-branch: feature/prediction-intelligence-v2-data-foundation
-Draft PR: #106
-head: eefcff709e80209215b25b90fb870aa5c080d735
+old branch: feature/prediction-intelligence-v2-data-foundation
+old Draft PR: #106
 status: preservation/reference only
 ```
 
-Do not continue implementation on PR #106 and do not blanket-merge or blanket-cherry-pick it.
+Do not resume implementation on PR #106. Do not blanket-merge or blanket-cherry-pick the old branch.
 
 ## Environment map
 
 ```text
-ufopredictor.com       -> Railway production  -> production Supabase
-stage.ufopredictor.com -> Railway development -> separate Supabase stage
+production domain: ufopredictor.com
+production Supabase: gcpdffkgsdomzyoenalg
+
+stage domain: stage.ufopredictor.com
+stage Supabase: yfmklapgjrupctgxaako
+
+canonical local stage env: .env.stage.local
 ```
-
-Supabase project references:
-
-```text
-stage:      yfmklapgjrupctgxaako
-production: gcpdffkgsdomzyoenalg
-```
-
-Canonical local stage environment file:
-
-```text
-.env.stage.local
-```
-
-`.env.stage.local` is the sole active local source for stage variables. The former task-specific stage environment file was consolidated, backed up outside the repository, and retired from active code and runbooks. Historical archive references remain unchanged.
 
 Production and stage have separate Auth, users, sessions, roles, entitlements, data, and secrets.
 
-Do not create another stage environment. Do not revive the abandoned Docker path for normal stage work.
+**No repetir:** do not create another stage environment and do not revive the abandoned Docker path for normal stage work.
 
-## Prediction Intelligence v2 progress
+## Epic 1 completion
 
-Completed on the integration track:
+Epic 1 - Foundation and Stage is complete.
 
-- Task 1 data foundation;
-- Task 1.1 replay readiness;
-- Task 1.2 historical Elo reconstruction;
-- Task 2 challenger, calibration, signal gates, eligibility, and historical packaging;
-- Task 3A local-only planner and target-safety preparation;
-- Task 3B stage schema synchronization and bounded data bootstrap;
-- Task 1C exact Matchday 3 fixture-linkage subblock.
+Completed:
 
-Task 3B is technically complete and proved idempotent.
+- Task 1A integration normalization;
+- Task 1B stage schema and foundation bootstrap;
+- Task 1C fixture linkage, immutable V1 import, model activation, publication, idempotency verification, and visual smoke.
 
-Task 1C is in progress. Its fixture-linkage subblock is complete; model and prediction import remains.
+Verified stage foundation counts include:
 
-## Stage Task 3B and Task 1C linkage checkpoint
-
-Stage retains the Task 3B foundation:
-
-- the prior migration history was externally verified at 46 entries;
-- migration 0038 is applied in stage only;
-- foundation import and zero-growth rerun are complete;
-- existing Auth user and admin profile were preserved;
-- production, Wompi, payment, entitlement, webhook, session, and personal-data writes did not occur.
-
-Verified stage foundation counts:
-
-| Table or entity | Count |
+| Entity | Count |
 |---|---:|
 | competitions | 1 |
 | seasons | 1 |
 | teams | 48 |
 | venues | 16 |
-| runtime matches | 72 |
+| runtime group-stage matches | 72 |
 | source snapshots | 8 |
 | canonical team aliases | 309 |
 | canonical team localizations | 488 |
 | canonical team links | 48 |
 | team rating snapshots | 699 |
 | historical match facts | 1,392 |
-| schedule snapshots | 1 |
-| World Cup venue catalog | 16 |
 | official schedule matches | 104 |
 | official schedule/runtime links | 72 |
 
-Official knockout match numbers 73-104 remain intentionally deferred from runtime linkage until participants are deterministically known.
+Official knockout schedule rows 73-104 remain reference rows until participants are deterministically known.
 
-Task 1C fixture-linkage result:
+## Complete Task 1C stage baseline
+
+Fixture linkage:
 
 ```text
-selected Matchday 3 fixtures = 24
-atomic RPC requestedCount = 24
-atomic RPC updatedCount = 24
-post-state rows verified = 24
-external_id exact matches = 24
-intake_source exact matches = 24
+linked Matchday 3 fixtures = 24
+provider identity = API-Football exact fixture identity
+post-state verified rows = 24
 production writes = 0
 ```
 
-The installed stage-only RPC is:
+V1 import and publication:
+
+```text
+active V1 model versions = 1
+immutable V1 prediction versions = 24
+prediction market rows = 240
+prediction narratives = 0
+public fixture publications = 24
+post-apply state = exact_complete
+pending match publications = 0
+```
+
+The stage UI smoke passed at:
+
+```text
+https://stage.ufopredictor.com/predictions
+```
+
+The page visibly renders published predictions, 1X2 probabilities, confidence, risk, public detail links, pending-result fixtures, and upcoming fixtures.
+
+**No repetir:** do not rerun Task 3B, the 24-row fixture linkage, the V1 import apply, or the Task 1C SQL migrations merely to restate idempotency.
+
+## Stage-only RPCs and migrations
+
+Operational stage RPCs include:
 
 ```text
 public.apply_task1c_stage_v1_fixture_linkage(jsonb)
+public.apply_task1c_stage_v1_import(jsonb)
 ```
 
-It may execute only as `service_role`; `anon` and `authenticated` execution are revoked.
+Both are stage-only operational tools with service-role execution and revoked public, anonymous, and authenticated execution.
 
-Migration `20260626220000_task1c_stage_v1_atomic_fixture_linkage_apply.sql` was applied manually through the stage SQL Editor. It is operational. Supabase migration-history repair for version `20260626220000` remains pending and does not block the V1 import slice. Do not rerun the SQL migration or fixture-linkage apply.
-
-## Current stage product state
-
-Stage application and admin Auth work.
-
-The exact 24 Matchday 3 runtime rows now carry their approved API-Football fixture identity. Stage still has no active prediction product:
+Relevant migrations:
 
 ```text
-model_versions = 0
-active_model_versions = 0
-prediction_versions = 0
-public_prediction_summaries = 0
+0038_prediction_intelligence_v2_data_foundation.sql
+20260626220000_task1c_stage_v1_atomic_fixture_linkage_apply.sql
+20260626233000_task1c_stage_v1_import_apply.sql
 ```
 
-Authenticated smoke checks previously showed:
+The manual SQL installations are operational in stage. Formal migration-ledger reconciliation for manually applied migrations remains separate, non-blocking housekeeping. Do not infer ledger state merely from a migration file being present in Git.
 
-- `/admin/real-fixture-publish-queue` loads without the old competition-resolution error;
-- `/predictions` loads and reports no public predictions;
-- no production prediction content appears in stage.
+The integration branch also contains:
 
-The empty prediction state is expected until the canonical V1 model and immutable V1 publications are imported and activated.
+```text
+0039_manual_world_cup_result_reconciliation.sql
+```
 
-## Data freshness boundary
+Its presence in Git is confirmed. This checkpoint does not claim that migration 0039 was applied to stage or production.
 
-The imported foundation uses source material with cutoff:
+## Data freshness decision
+
+The prepared foundation workspace has cutoff:
 
 ```text
 2026-06-20
 ```
 
-The current Elo, FIFA, schedule, historical-result, and reference snapshots must not be described as current truth on 2026-06-26.
+It is historical relative to 2026-06-27, but it remains an approved reproducible baseline.
 
-The stage foundation is ready to receive repeatable refreshes. It does not yet constitute current tournament data operations.
+**Decision:** load the 2026-06-20 signal baseline into the real V2 tables first, then refresh incrementally.
 
-## Production World Cup continuity
+**Alternativa descartada:** waiting for every source to be perfectly current before building the database and pipeline.
 
-Production v1 continuity remains unchanged:
+**Motivo:** the schema, lineage, idempotency, fixture coverage, and candidate flow can be proven with the preserved baseline; later refreshes should be ordinary incremental operations rather than another foundation rebuild.
 
-- 24/24 Matchday 3 fixtures stored;
-- 24/24 Matchday 3 v1 predictions published;
-- original v1 publications remain immutable;
-- trusted API-Football `FT` results may be verified when identity and score checks pass;
-- evaluation persistence is idempotent;
-- human review is exception-oriented;
-- `torneo-ufo-export-v1` remains the approved partner contract.
-
-Task 3B did not modify production.
+**Consecuencia operativa:** documents and UI must not describe the 2026-06-20 data as current, but its age does not block the next V2 engineering slice.
 
 ## Exact next task
 
-The next bounded conversation is:
-
 ```text
-Task 1C - V1 Model and Prediction Import
+V2 Signal Baseline Database Load
 ```
 
-The verified 24-fixture linkage is an accepted prerequisite and must not be repeated.
+Bounded result:
 
-Required result:
+1. inspect only the existing prepared 2026-06-20 signal package and committed equivalents;
+2. map approved baseline records to the existing Prediction Intelligence tables;
+3. persist source, observed time, cutoff, version, and lineage;
+4. perform one idempotent stage load;
+5. prove row accounting and fixture signal coverage;
+6. stop before candidate generation.
 
-1. select and preserve the exact immutable V1 source;
-2. import one canonical V1 model version;
-3. map and import 24 original V1 prediction versions to the already linked stage matches;
-4. import the required 240 prediction-market rows and only the frozen child records that actually exist;
-5. activate the canonical V1 model in stage;
-6. validate `/predictions`, match detail, and relevant admin surfaces;
-7. rerun and prove zero duplicate growth;
-8. preserve Auth/admin state and production read-only/no-write boundaries;
-9. prepare the current-data and V2 historical-replay handoff.
-
-Do not regenerate historical V1 probabilities, markets, timestamps, or narratives with newer evidence.
-
-## Sequence after V1 is visible
-
-1. refresh current fixtures and verified results;
-2. refresh Elo and the latest available FIFA ranking;
-3. persist current standings, tournament form, points, goal difference, and attack/defense summaries;
-4. create source-backed signal snapshots under explicit pre-kickoff cutoffs;
-5. generate live V2 candidates for not-started fixtures;
-6. generate labeled V2 `historical_replay` versions for completed fixtures using only pre-kickoff evidence;
-7. compare original V1, V2 replay/candidate, and verified results;
-8. choose between `v1 probabilities + v2 analysis` and `gated v2 probabilities + v2 analysis`;
-9. validate stage and prepare an explicit production promotion decision.
-
-## MVP2 product direction
-
-UFO Predictor should evolve from a thin probability display into an explanation-first football-intelligence product.
-
-The public experience should explain, where reliable data exists:
-
-- tournament form, points, wins, draws, and losses;
-- goals scored and conceded and their averages;
-- FIFA and Elo position;
-- offensive and defensive profile;
-- opponent quality and contextual pressure;
-- plausible match scripts;
-- evidence supporting and contradicting the main reading;
-- confidence, data quality, source, and cutoff.
-
-Betting-style labels such as 1X2, BTTS, and over/under may remain available, but they are not the primary user language.
-
-Future architecture must also be able to receive squads, likely and confirmed lineups, injuries, suspensions, top scorers, player contribution to team goals, offensive dependency, replacement quality, and estimated absence impact. These are planned capabilities, not V2.0 blockers.
-
-Core language targets remain:
+The immediate transition after that task is:
 
 ```text
-ES
-EN
-PT
+Current-data incremental refresh
+-> First V2 shadow candidate run
 ```
 
-Facts and model outputs should remain locale-neutral. Presentation and explanations should be localizable.
+## Working responsibility split
+
+**ChatGPT**
+
+- owns canonical shared-source and runbook authoring;
+- preserves product, roadmap, process, and decision context;
+- defines bounded handoffs and interprets implementation evidence.
+
+**Codex**
+
+- inspects the repository;
+- implements bounded code and migrations;
+- runs focused tests and static validation;
+- reports concrete findings, evidence, blockers, and changed files;
+- does not independently redefine canonical documentation unless explicitly delegated.
+
+**Operator/owner**
+
+- runs Git, PowerShell, Supabase, SQL Editor, Railway, and approved external API operations;
+- approves remote writes and exact artifacts;
+- reviews diffs, commits, pushes, and replaces the uploaded canonical source set.
+
+## Process rule
+
+For a bounded operation use:
+
+```text
+one preflight
+one apply
+one verification
+```
+
+Repeat only after a concrete blocker, mismatch, or approved recovery need.
+
+A completed checkpoint is not reopened because a new conversation lacks context. Read these sources first.
 
 ## Required reading order
-
-For a new engineering conversation, read:
 
 1. `00_START_HERE_CURRENT.md`
 2. `05_PREDICTION_INTELLIGENCE_V2_CURRENT.md`
@@ -276,6 +233,10 @@ For a new engineering conversation, read:
 4. `07_ROADMAP_EPICS_DECISIONS.md`
 5. `09_WORKFLOW_GUARDRAILS_DOC_POLICY.md`
 
-For model and calibration history, also read:
+For model history and evaluation also read:
 
-- `08_MODEL_HISTORY_CALIBRATION.md`
+6. `08_MODEL_HISTORY_CALIBRATION.md`
+
+For fixture, result, and evaluation operations read:
+
+7. `04_FIXTURE_RESULT_AND_EVALUATION_OPS.md`

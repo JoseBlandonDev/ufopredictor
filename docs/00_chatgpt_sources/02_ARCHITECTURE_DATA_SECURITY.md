@@ -1,6 +1,6 @@
 # Architecture, Data, and Security - UFO Predictor
 
-_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
+_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
 
 ## System overview
 
@@ -11,11 +11,11 @@ Next.js server routes and protected projections
         |
 Supabase Auth + Postgres + RLS
         |
-Operational fixture/result/publication layer
+Fixture, result, publication, and evaluation operations
         |
-Prediction/model/evaluation layers
+Immutable V1 baseline + shadow V2 versions
         |
-Source snapshots and football intelligence data
+Prediction Intelligence tables and source snapshots
         |
 API-Football / FIFA / World Football Elo / official schedule sources
 ```
@@ -23,11 +23,9 @@ API-Football / FIFA / World Football Elo / official schedule sources
 ## Environment separation
 
 ```text
-production: ufopredictor.com       -> production Supabase gcpdffkgsdomzyoenalg
-stage:      stage.ufopredictor.com -> stage Supabase yfmklapgjrupctgxaako
+production: ufopredictor.com       -> gcpdffkgsdomzyoenalg
+stage:      stage.ufopredictor.com -> yfmklapgjrupctgxaako
 ```
-
-Production and stage have separate users, sessions, profiles, roles, entitlements, data, and secrets.
 
 Canonical local stage environment:
 
@@ -35,87 +33,30 @@ Canonical local stage environment:
 .env.stage.local
 ```
 
-It is the sole active local stage variable file. Task-specific stage env files are not active configuration sources.
+Production and stage have separate Auth, users, sessions, profiles, roles, entitlements, data, and secrets.
 
-Never clone production Auth, payment history, webhook payloads, subscriptions, entitlements, or personal data into stage.
+Never copy production Auth, payment history, webhook payloads, subscriptions, entitlements, sessions, or personal data into stage.
 
-## Existing production architecture
+**Decision:** V2 is built in the existing stage application and database, not in another parallel product or a third environment.
 
-### Authentication and access
+**Motivo:** comparison must happen against the real V1-compatible product surface and the same normalized fixture identities.
 
-- Supabase Auth;
-- email/password and supported OAuth flows;
-- public, registered-free, premium, and admin projections;
-- entitlements authorize paid content;
-- admin bypass is explicit and server-side.
+## Production architecture that remains authoritative
 
-### Payments
+Production continues to provide:
 
-- canonical Pase Mundial price in USD;
-- configured COP conversion for Wompi checkout;
-- Wompi payment intent creation;
-- validated approved webhook;
-- idempotent entitlement grant and activation ledger;
-- redirects never grant access by themselves.
+- Supabase Auth and role-aware projections;
+- Wompi checkout and approved-webhook entitlement activation;
+- immutable prediction publications;
+- exact fixture registration;
+- trusted result refresh and verification;
+- idempotent evaluations;
+- admin operational queues;
+- public-safe `torneo-ufo-export-v1`.
 
-### Prediction publication
+No stage V2 task authorizes production writes.
 
-- published predictions are immutable historical records;
-- new publications create version and predecessor lineage;
-- started or finished fixtures cannot be silently rewritten;
-- public projections remain separate from internal review and evaluation payloads;
-- advanced versions carry explicit model, feature, cutoff, purpose, and provenance metadata.
-
-### Fixture registry
-
-```text
-npm run ops:world-cup-group-stage-fixture-registry
-```
-
-Properties:
-
-- dry-run by default;
-- selection by matchday or date range;
-- exact allowlist-gated apply;
-- canonical/provider reconciliation;
-- no result or prediction creation;
-- conflict and duplicate reporting;
-- idempotent rerun behavior.
-
-### Trusted result refresh
-
-```text
-npm run ops:world-cup-result-refresh
-```
-
-Properties:
-
-- dry-run by default;
-- exact bounded scope;
-- allowlist-gated apply;
-- stored World Cup fixtures only;
-- normal valid API-Football `FT` scores may be verified;
-- existing predictions are never mutated;
-- evaluation persistence is idempotent;
-- exceptions remain visible for reconciliation.
-
-## Partner export architecture
-
-The Torneo Mundialista export is an admin-generated, public-safe JSON projection.
-
-Current contract:
-
-```text
-torneo-ufo-export-v1
-```
-
-It exposes approved fixture, public URL, kickoff, status, probability, confidence, score, and xG summary fields.
-
-It must not expose internal review payloads, secrets, raw private sources, private evaluations, or proprietary calculation internals.
-
-Future fields should be added compatibly rather than breaking the v1 contract.
-
-## Prediction Intelligence v2 stage foundation
+## Prediction Intelligence stage foundation
 
 Foundation migration:
 
@@ -123,44 +64,15 @@ Foundation migration:
 0038_prediction_intelligence_v2_data_foundation.sql
 ```
 
-Current foundation status:
+Verified state:
 
-- committed on `integration/prediction-intelligence-v2`;
-- structurally tested;
 - applied to stage;
-- not applied to production;
-- prior stage migration history externally verified at 46 entries;
-- Task 3B foundation import complete and idempotent.
+- not promoted to production by this track;
+- foundation import complete;
+- second bootstrap apply produced zero inserts and zero updates;
+- stage Auth/admin preserved.
 
-Task 1C atomic fixture-linkage migration:
-
-```text
-20260626220000_task1c_stage_v1_atomic_fixture_linkage_apply.sql
-```
-
-It installs:
-
-```text
-public.apply_task1c_stage_v1_fixture_linkage(jsonb)
-```
-
-RPC properties:
-
-- `security invoker`;
-- exactly 24 reviewed rows;
-- validates the complete prior state before mutation;
-- updates only `matches.external_id` and `matches.intake_source`;
-- all 24 updates commit or all roll back;
-- execution granted only to `service_role`;
-- `public`, `anon`, and `authenticated` execution revoked.
-
-The migration was applied manually through the stage SQL Editor. The function is operational and the 24-row apply was verified. Migration-history repair for version `20260626220000` remains pending and is non-blocking. Do not rerun the migration or linkage apply.
-
-The Task 3B importer remains stage-only, explicit-target, production-denied, checksum-aware, and idempotent.
-
-## Populated stage analytical state
-
-Verified counts:
+Populated foundation counts:
 
 | Table | Count |
 |---|---:|
@@ -180,53 +92,168 @@ Verified counts:
 | `official_schedule_matches` | 104 |
 | `official_schedule_match_links` | 72 |
 
-Official knockout rows 73-104 remain reference schedule rows without fabricated runtime participants.
+## V1 baseline architecture in stage
 
-Within the 72 runtime matches, the exact 24 Matchday 3 fixtures are now linked to their approved API-Football IDs:
+The exact 24 Matchday 3 fixtures are linked by stable provider identity:
 
 ```text
 external_id = api-football:fixture:<id>
 intake_source = api_football
 ```
 
-No provider identity was invented for rows outside the reviewed Task 1C scope.
+The immutable V1 baseline now contains:
 
-## Identity and localization rules
+```text
+1 active model version
+24 prediction versions
+240 prediction-market rows
+0 narratives
+24 public fixtures
+```
 
-- canonical team and player identity is locale-neutral;
-- ES/EN/PT labels live outside canonical identity;
-- historical match identity does not include score;
-- corrections preserve lineage instead of inventing a new match;
-- API-Football/product links remain explicit and auditable;
-- integrations join by stable IDs, not translated names;
-- normalized aliases may collapse equivalent Unicode or punctuation variants while preserving source provenance.
+The original V1 probabilities, xG, confidence, risk, market probabilities, timestamps, and source identity were preserved rather than recomputed.
 
-## Prediction version contract
+**Decision:** stage primary and foreign keys are stage-native. Production UUIDs may appear only as evidence references, never as copied stage relationships.
 
-Every advanced prediction version should carry:
+## Atomic Task 1C RPCs
+
+Fixture linkage migration:
+
+```text
+20260626220000_task1c_stage_v1_atomic_fixture_linkage_apply.sql
+```
+
+RPC:
+
+```text
+public.apply_task1c_stage_v1_fixture_linkage(jsonb)
+```
+
+V1 import migration:
+
+```text
+20260626233000_task1c_stage_v1_import_apply.sql
+```
+
+RPC:
+
+```text
+public.apply_task1c_stage_v1_import(jsonb)
+```
+
+Shared properties:
+
+- stage-only use;
+- `security invoker`;
+- service-role execution only;
+- public, anonymous, and authenticated execution revoked;
+- complete prior-state validation before mutation;
+- single PostgreSQL transaction;
+- advisory transaction lock where required;
+- no upsert or partial-repair path;
+- all-or-nothing rollback.
+
+## Import state machine
+
+The V1 importer recognizes only:
+
+```text
+fresh
+exact_complete
+partial_or_conflicting
+```
+
+Behavior:
+
+- `fresh`: insert the exact reviewed baseline;
+- `exact_complete`: zero writes;
+- `partial_or_conflicting`: block and report.
+
+There is no automatic repair, overwrite, or order-dependent duplicate selection.
+
+## Reviewed-plan authorization contract
+
+The stable plan checksum uses a canonical semantic projection.
+
+Excluded as non-semantic:
+
+- `generatedAt`;
+- local artifact paths and filenames;
+- dry-run/apply mode metadata;
+- zero-write report flags.
+
+Still bound and recomputed:
+
+- target stage ref and denied production ref;
+- frozen source checksums;
+- model, prediction, and market payloads;
+- exact stage match UUIDs and provider identities;
+- publication actions;
+- expected prior state;
+- expected mutation counts.
+
+**Decision:** a stored checksum is never trusted without recomputing the semantic projection.
+
+**Problema evitado:** a reviewed plan cannot be invalidated merely because time passed or an artifact path changed, while semantic tampering still fails closed.
+
+## TypeScript-to-SQL JSON contract
+
+RPC publication payload keys use snake_case:
+
+```text
+match_id
+current_access_scope
+next_access_scope
+```
+
+The SQL validates required keys, nulls, duplicates, unknown IDs, exact fixture set, and allowed access-scope transitions before any real-table mutation.
+
+Legacy camelCase reviewed artifacts may be normalized only through the approved compatibility path; outbound RPC payloads use the canonical snake_case contract.
+
+**No repetir:** do not introduce untested JSON key drift between TypeScript and PL/pgSQL.
+
+## V1 and V2 version architecture
+
+V1 remains the immutable published predecessor.
+
+V2 versions must carry:
 
 - model version;
 - feature version;
-- calculation timestamp;
+- calculation time;
 - evidence cutoff;
-- purpose, including production candidate or `historical_replay`;
-- publication status;
-- source and provenance references;
-- predecessor and supersession relationship.
+- purpose, including live candidate or `historical_replay`;
+- source and signal snapshot references;
+- predecessor lineage;
+- publication/release state.
 
-Finished fixtures may receive fair historical replay versions, but the original V1 publication remains the historical product record.
+For completed fixtures, V2 uses labeled `historical_replay` and never replaces the original V1 publication.
 
-## Provenance and temporal safety
+For future fixtures, V2 runs in shadow until an explicit release decision.
 
-Every imported fact or rating points to a source snapshot or an explicit non-file-backed sentinel treatment.
+## Baseline-first source architecture
 
-Signal snapshots record:
+Prepared workspace cutoff:
 
-- exact cutoff;
-- source snapshot IDs;
-- model and feature versions;
-- missing optional signals;
-- sample and reliability metadata.
+```text
+2026-06-20
+```
+
+**Decision:** load this preserved baseline into the real V2 data model before requiring current refreshes.
+
+Each stored source or derived signal must retain:
+
+- source family and identity;
+- acquisition or observed time;
+- evidence cutoff;
+- parser/feature version;
+- checksum or explicit non-file-backed treatment;
+- missing and reliability metadata;
+- fixture/team linkage.
+
+Later current data is appended or versioned incrementally. Historical rows are not overwritten to appear current.
+
+## Temporal safety
 
 Pre-match evidence must satisfy:
 
@@ -234,83 +261,39 @@ Pre-match evidence must satisfy:
 observed_at < fixture kickoff
 ```
 
-No result or later fact may leak into a pre-match prediction or replay.
-
-## Current source families
-
-- API-Football: operational fixture identity, status, final score, and future bounded fixture refresh;
-- World Football Elo: ratings, timeline, historical results, and expectancy;
-- FIFA ranking snapshots;
-- official World Cup schedule and venue data;
-- deterministic prepared snapshots when live sources are not reliably machine-readable.
-
-Current imported source cutoff is `2026-06-20`. A repeatable current-data refresh is still required.
-
-## Explanation-first intelligence contract
-
-Model facts should be stored as structured, locale-neutral information. User-facing explanations are rendered separately.
-
-Planned structured concepts include:
-
-- tournament record and points;
-- goals for, goals against, and averages;
-- ranking and rating position;
-- attack and defense profile;
-- opponent strength;
-- scenario family and representative score anchors;
-- supporting and contradicting evidence;
-- confidence, reliability, source, and cutoff.
-
-This allows the same facts to be rendered in ES, EN, or PT without recalculating the prediction.
-
-Betting-style markets remain quantitative internals or secondary display fields, not the only explanation layer.
-
-## Future squad and player extension
-
-The architecture must be able to add, without rewriting canonical team and match identity:
-
-- canonical players and tournament squad membership;
-- call-up and availability snapshots;
-- likely and confirmed lineups;
-- injuries, suspensions, doubts, and expected minutes;
-- player roles and set-piece responsibility;
-- tournament goals, assists, shots, and xG when reliable;
-- contribution to team goals and offensive dependency;
-- replacement quality and estimated absence impact;
-- likely scorer candidates;
-- source, observed time, cutoff, and confidence.
-
-These are planned extensions. They are not required for the first V2.0 release.
-
-## Current stage application boundary
-
-Task 3B populated foundation data and Task 1C completed the exact 24-fixture linkage.
-
-Stage still has:
-
-```text
-model_versions = 0
-active_model_versions = 0
-prediction_versions = 0
-public_prediction_summaries = 0
-```
-
-The next slice reuses the verified 24-match mapping to import and activate the immutable V1 model, 24 V1 prediction versions, and required child records. It does not repeat fixture linkage or generate V2.
+No result, later lineup, later injury, or later table state may leak into a live candidate or historical replay.
 
 ## Security boundaries
 
-- no service-role key in frontend or normal web runtime;
-- RLS on analytical and protected tables;
-- no secrets committed or printed;
-- production-write authorization fails closed;
-- stage writes require explicit stage identity and production denial;
-- `.env.stage.local` is the sole active local stage variable source;
+- no service-role key in frontend or ordinary web runtime;
+- RLS remains authoritative for protected analytical tables;
 - public views expose only product-safe fields;
-- payment webhook validation is server-side;
-- started-fixture publication remains immutable;
-- broad production apply is forbidden;
-- trusted result verification never authorizes prediction mutation;
-- a changed verified score becomes a reconciliation event, not a silent overwrite;
-- the Task 1C linkage RPC is service-role-only and exact-count atomic;
-- a remotely confirmed atomic commit is never repeated merely because a later local verification script failed;
-- browser automation may inspect authenticated stage only and must not carry production sessions into the stage workflow.
+- secrets are never committed or printed;
+- stage writes require exact target and explicit production denial;
+- production apply fails closed;
+- started-fixture publications remain immutable;
+- changed verified results become reconciliation events, not silent overwrites;
+- Auth, payments, entitlements, Wompi, webhooks, and sessions are outside V2 data tasks;
+- migration presence in Git does not prove remote application.
+
+## Operational debt
+
+Manually installed Task 1C migrations are operational. Formal migration-ledger reconciliation remains a separate, non-blocking maintenance task.
+
+Migration `0039_manual_world_cup_result_reconciliation.sql` is present in the integrated repository. This checkpoint does not assert its remote application state.
+
+## Responsibility split
+
+- ChatGPT owns canonical architecture and decision documentation.
+- Codex owns bounded repository implementation, tests, and evidence reports.
+- The operator owns approved remote operations, Git, SQL Editor, and release actions.
+
+## Next architecture transition
+
+```text
+prepared 2026-06-20 baseline
+-> V2 table load with lineage
+-> fixture coverage query
+-> current-data incremental refresh
+-> first shadow V2 candidate
+```
