@@ -1,36 +1,41 @@
 # Prediction Intelligence v2 - Current
 
-_Last refreshed: 2026-06-27 after PR #117 was merged to production and synchronized into the active V2 integration branch._
+_Last refreshed: 2026-06-27 after Task 2A reached `exact_complete`, PR #119 completed football-first premium terminology, and the active V2 branch synchronized at `4f758b2`._
 
 ## Current product and model state
 
 Production remains on the V1-compatible probability layer.
 
-Stage now has a complete immutable V1 comparison baseline:
+Stage contains:
 
 ```text
 1 active V1 model
-24 V1 prediction versions
+24 immutable V1 prediction versions
 240 prediction-market rows
 0 narratives
 24 public fixtures
-post-state exact_complete
+V1 post-state = exact_complete
+48 V2 team-signal baseline rows
+V2 signal post-state = exact_complete
+72/72 runtime fixtures baseline-ready
+0 candidate-ready fixtures
 ```
 
-V2 is not live in production and no current V2 candidate has yet been accepted for release.
+No current V2 candidate has been generated, accepted, published, or released.
 
 ## Active branch checkpoint
 
 ```text
-production main HEAD = 3aff0e4
+production main HEAD = 9f89d62
 V2 integration branch = integration/prediction-intelligence-v2
-V2 integration HEAD = 5007de7
+V2 integration HEAD = 4f758b2
+Task 2A commit = 9491fd8
 active Draft PR = #114
 ```
 
-PR #117 is now part of both `main` and the V2 branch through normal Git history.
+PR #117 and PR #119 are part of both `main` and the V2 branch through normal Git history.
 
-Its `Lectura UFO` helper is a V1 presentation improvement, not a V2 probability candidate and not evidence of V2 calibration superiority.
+Their presentation changes are not V2 probability candidates and are not evidence of calibration superiority.
 
 ## Why the V1 baseline matters
 
@@ -48,7 +53,7 @@ It preserves:
 
 **Decision:** V2 cannot rewrite or retrospectively improve the original V1 record.
 
-## Completed foundation
+## Completed foundation and signal baseline
 
 The integration track contains:
 
@@ -58,9 +63,23 @@ The integration track contains:
 - prediction/model/evaluation versioning;
 - candidate/replay research code and historical evidence;
 - stage target and production-denial guards;
-- a stable visible V1 baseline.
+- a stable visible immutable V1 baseline;
+- the exact Task 2A V2 signal baseline in real stage tables.
 
-Task 3B and Task 1C are closed.
+Task 2A closed with:
+
+```text
+rows = 48
+state = exact_complete
+verification identical = 48
+verification inserts = 0
+conflicts = 0
+unexpected existing = 0
+fixture coverage = 72/72
+candidate-ready = 0
+```
+
+Task 3B, Task 1C, and Task 2A are closed.
 
 ## Historical V2 research status
 
@@ -95,7 +114,7 @@ Therefore:
 - evaluate explanation, evidence, provenance, reliability, and scenario quality separately from probability metrics;
 - require a fair current sample before a stronger accuracy claim.
 
-## Active technical decision: baseline first
+## Active technical decision: incremental current-data refresh
 
 Prepared source workspace cutoff:
 
@@ -103,45 +122,39 @@ Prepared source workspace cutoff:
 2026-06-20
 ```
 
-**Decision:** use this preserved package to create the first real signal baseline in the V2 database, then update it incrementally.
+Task 2A has already persisted this package as the canonical reproducible baseline.
 
-**Alternativa descartada:** delaying pipeline construction until every ranking, result, table, and signal source is refreshed to the latest minute.
+**Decision:** refresh only newer or changed source families incrementally instead of rebuilding the foundation or replacing historical rows.
 
-**Motivo:** a reproducible baseline is enough to prove schema mapping, lineage, idempotency, signal coverage, feature assembly, and candidate execution.
+**Motivo:** source identity, checksum lineage, cutoff, missing/reliability metadata, exact-state classification, and fixture coverage are now proven in the real database.
 
-**Consecuencia operativa:** the 2026-06-20 package is valid baseline input but must not be described as current data.
+**Consecuencia operativa:** the stored rows remain baseline evidence, not current candidate evidence. Candidate generation stays blocked until current-data coverage passes.
 
 ## Exact next task
 
 ```text
-V2 Signal Baseline Database Load
+Task 2B - Current fixture and result refresh
 ```
 
 Scope:
 
-1. inventory only the prepared baseline and committed equivalents;
-2. classify raw, normalized, derived, and report artifacts;
-3. map approved records to existing stage tables;
-4. persist source snapshot, observed time, cutoff, parser/feature version, and checksum lineage;
-5. preserve missing and reliability metadata;
-6. load once under exact stage and production-deny boundaries;
-7. rerun once to prove zero duplicate growth;
-8. demonstrate fixture-level signal coverage;
-9. stop before V2 candidate generation.
-
-This task is a database load, not another schema-foundation project and not a broad current-data audit.
+1. refresh current not-started fixture identity and kickoff state;
+2. persist newly verified results through exact provider identity;
+3. preserve immutable V1 publications and Task 2A signal rows;
+4. report conflicts and unsupported states instead of repairing silently;
+5. stop before rankings/context synthesis and candidate generation.
 
 ## Transition after baseline load
 
 ```text
-current fixture/result refresh
--> current Elo and latest available FIFA ranking
--> standings and tournament form
--> repeatable source-backed signal snapshots
+Task 2B current fixture/result refresh
+-> Task 2C current Elo and latest available official FIFA ranking
+-> group standings, tournament form, and qualification/pressure context
+-> Task 2D repeatable current source-backed signal snapshots
 -> first V2 shadow candidate
 ```
 
-Current refreshes should update or append versioned snapshots rather than rebuild Task 3B.
+Current refreshes append or version snapshots rather than rebuilding Task 3B or rewriting the 2026-06-20 baseline.
 
 ## First V2 shadow candidate contract
 
@@ -178,6 +191,8 @@ Structured output may include:
 Exact scores are anchors inside scenario families, not prophecies.
 
 Facts remain locale-neutral. ES, EN, and PT rendering happens separately.
+
+Task 4C improves terminology on existing product surfaces only. It does not alter V2 signals, probabilities, or calibration.
 
 ## Possible release modes
 

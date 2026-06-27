@@ -1,6 +1,6 @@
 # Auth, Payments, and Entitlements - Current
 
-_Last refreshed: 2026-06-27 after PR #117 premium regression smoke and permanent test-entitlement verification._
+_Last refreshed: 2026-06-27 after PR #119 terminology changes, Task 2A stage completion, and confirmation that Auth, Wompi, payment, and entitlement authority remained unchanged._
 
 ## Authentication baseline
 
@@ -81,6 +81,20 @@ The production smoke for `Lectura UFO` confirmed:
 
 The test premium account was granted an entitlement with no expiry for ongoing UI validation. Personal identifiers are intentionally not part of canonical documentation.
 
+## PR #119 terminology preservation proof
+
+Task 4C changed premium-facing terminology and explanatory copy only.
+
+It did not:
+
+- alter Wompi checkout or webhook validation;
+- change payment-intent or subscription state;
+- grant, revoke, broaden, or bypass entitlements;
+- replace server-side authorization with client-side display logic;
+- change premium data values or V1/V2 calculations.
+
+The existing entitlement remains the sole authority for premium projection.
+
 ## Stage policy
 
 Stage uses its own:
@@ -100,7 +114,7 @@ Current stage state:
 
 Do not copy production Wompi transactions, webhook payloads, users, personal data, sessions, subscriptions, or entitlements into stage.
 
-## Task 3B preservation proof
+## Stage data-task preservation proof
 
 Task 3B preserved:
 
@@ -108,7 +122,7 @@ Task 3B preserved:
 - profile count: 1;
 - admin role: unchanged.
 
-Task 3B did not write to:
+Task 2A added 48 V2 signal-baseline rows and verified 72/72 fixture coverage without writing to:
 
 - Auth;
 - profiles;
@@ -119,7 +133,7 @@ Task 3B did not write to:
 - sessions;
 - personal-data tables.
 
-Production remained untouched.
+Production remained untouched by the V2 stage task.
 
 ## Relationship to MVP2
 
