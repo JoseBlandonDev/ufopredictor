@@ -304,8 +304,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
                 <li>Escenarios representativos explicados</li>
                 <li>Goles esperados</li>
-                <li>Ambos equipos marcan</li>
-                <li>Más/Menos de 2,5</li>
+                <li>Probabilidad de que anoten ambos equipos</li>
+                <li>Proyección del total de goles</li>
                 <li>Interpretación completa del partido</li>
               </ul>
             </div>
@@ -330,8 +330,8 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             <ul className="mt-4 space-y-2 text-sm text-[var(--muted)]">
               <li>Tres escenarios representativos explicados</li>
               <li>Goles esperados</li>
-              <li>Ambos equipos marcan</li>
-              <li>Más/Menos de 2,5</li>
+              <li>Probabilidad de que anoten ambos equipos</li>
+              <li>Proyección del total de goles</li>
               <li>Lectura completa de confianza y riesgo</li>
             </ul>
             <div className="mt-4">
@@ -463,7 +463,10 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               </article>
 
               <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm font-medium">Ambos equipos marcan (BTTS)</p>
+                <p className="text-sm font-medium">¿Anotan ambos equipos?</p>
+                <p className="mt-2 text-xs text-[var(--muted)]">
+                  Probabilidad de que cada equipo marque al menos un gol.
+                </p>
                 <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
                   <p>
                     Sí: <span className="font-medium text-white">{formatProbability(premiumModelDetail.bothTeamsToScore.yesProbability)}</span>
@@ -475,13 +478,13 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               </article>
 
               <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-sm font-medium">Más / Menos de 2,5 goles</p>
+                <p className="text-sm font-medium">Total de goles del partido</p>
                 <div className="mt-3 space-y-2 text-sm text-[var(--muted)]">
                   <p>
-                    Más de 2,5: <span className="font-medium text-white">{formatProbability(premiumModelDetail.totalGoals25.overProbability)}</span>
+                    3 o más goles: <span className="font-medium text-white">{formatProbability(premiumModelDetail.totalGoals25.overProbability)}</span>
                   </p>
                   <p>
-                    Menos de 2,5: <span className="font-medium text-white">{formatProbability(premiumModelDetail.totalGoals25.underProbability)}</span>
+                    2 o menos goles: <span className="font-medium text-white">{formatProbability(premiumModelDetail.totalGoals25.underProbability)}</span>
                   </p>
                 </div>
               </article>
