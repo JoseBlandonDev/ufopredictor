@@ -1,6 +1,6 @@
 # Auth, Payments, and Entitlements - Current
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-27 after PR #117 premium regression smoke and permanent test-entitlement verification._
 
 ## Authentication baseline
 
@@ -16,7 +16,7 @@ Production and stage Auth universes are separate. A production user may need to 
 ## Access rules
 
 - anonymous: limited public preview;
-- registered free: full public probability/context layer;
+- registered free: full public probability and context layer;
 - premium: entitlement-protected advanced projection;
 - admin: explicit operational authorization.
 
@@ -41,41 +41,85 @@ The return page does not grant premium access.
 
 - canonical price is stored in USD;
 - server uses configured `WOMPI_USD_COP_RATE` for COP checkout;
-- current production example: USD 20 -> COP 68,700 at configured rate;
-- pricing/admin update logic must preserve the canonical-source contract.
+- current production example remains USD 20 with the configured conversion;
+- pricing and admin update logic must preserve the canonical-source contract.
 
 ## Production proof
 
-The full production flow has been smoke-tested:
+The production commercial flow has been smoke-tested:
 
 - authenticated checkout opened;
-- Wompi showed the expected amount and merchant;
+- Wompi showed the expected merchant and amount;
 - approved payment activated premium;
-- premium persisted after refresh/login;
-- premium UI shows premium content rather than free-only upgrade prompts.
+- premium persisted after refresh and login;
+- premium UI showed premium content instead of free-only upgrade prompts.
 
 Do not repeat a paid transaction merely because documentation or frontend copy changed.
+
+A non-payment test account may receive a direct, auditable admin entitlement for UI smoke work. That grant must use the existing entitlement authority, must not fabricate a Wompi payment, and must remain clearly identified as test/admin-originated.
 
 ## Entitlement operations
 
 Required properties:
 
 - idempotent grant;
-- no activation for pending/failed/cancelled payment;
+- no activation for pending, failed, or cancelled payment;
 - explicit revocation path;
 - auditability of event, payment intent, and grant;
 - admin visibility without exposing secrets.
+
+## PR #117 entitlement regression proof
+
+The production smoke for `Lectura UFO` confirmed:
+
+- premium access remained server-validated;
+- premium xG, scenarios, BTTS, totals, and confidence/risk detail remained visible;
+- the new public reading supplemented rather than replaced premium analysis;
+- anonymous/free boundaries were not broadened;
+- no role change was required;
+- no payment or subscription row was used as a substitute for entitlement authority.
+
+The test premium account was granted an entitlement with no expiry for ongoing UI validation. Personal identifiers are intentionally not part of canonical documentation.
 
 ## Stage policy
 
 Stage uses its own:
 
 - Supabase project;
-- users and test roles;
-- test entitlements;
-- safe payment/test configuration where applicable.
+- Auth users and roles;
+- test entitlements when explicitly needed;
+- safe payment configuration when intentionally introduced.
 
-Do not copy production Wompi transactions, webhook payloads, users, personal data, or secrets into stage.
+Current stage state:
+
+- one Auth user exists;
+- the corresponding profile is `admin`;
+- the authenticated Codex browser session may be used for stage smoke checks;
+- Wompi is intentionally not configured for this checkpoint;
+- the optional AI provider is intentionally not configured for this checkpoint.
+
+Do not copy production Wompi transactions, webhook payloads, users, personal data, sessions, subscriptions, or entitlements into stage.
+
+## Task 3B preservation proof
+
+Task 3B preserved:
+
+- Auth user count: 1;
+- profile count: 1;
+- admin role: unchanged.
+
+Task 3B did not write to:
+
+- Auth;
+- profiles;
+- Wompi payment intents or events;
+- subscriptions;
+- entitlements;
+- webhook payloads;
+- sessions;
+- personal-data tables.
+
+Production remained untouched.
 
 ## Relationship to MVP2
 
@@ -88,14 +132,16 @@ Prediction Intelligence v2 must not regress:
 - premium projection;
 - admin authorization.
 
-MVP2 may enrich premium analytical content, but it does not replace the payment/entitlement authority model.
+MVP2 may enrich analytical content, but it does not replace the payment and entitlement authority model.
+
+Parallel expert-experience improvements may change how premium information is presented, but they must not change who is authorized to see it.
 
 ## Future payment-provider decision
 
-A second provider is a later commercial epic, not part of the immediate Prediction Intelligence v2 path.
+A second provider is later commercial work and is not an immediate V2 blocker.
 
-Before implementation, define a provider-neutral payment/entitlement contract and choose whether the goal is:
+Before implementation, define a provider-neutral payment and entitlement contract and decide whether the goal is:
 
-- direct international checkout, where PayPal Business may fit;
+- direct international checkout;
 - regional payment coverage;
-- marketplace/course distribution, where Hotmart would imply a different operating model.
+- or marketplace/course distribution, which would imply a different operating model.

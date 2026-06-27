@@ -1,302 +1,229 @@
-# Prediction Intelligence v2 - Current Source
+# Prediction Intelligence v2 - Current
 
-_Last refreshed: 2026-06-24 after production-continuity closeout and MVP2 scope expansion._
+_Last refreshed: 2026-06-27 after PR #117 was merged to production and synchronized into the active V2 integration branch._
 
-## Status
+## Current product and model state
 
-Prediction Intelligence v2 remains preserved on:
+Production remains on the V1-compatible probability layer.
 
-```text
-branch: feature/prediction-intelligence-v2-data-foundation
-Draft PR: #106
-head: eefcff709e80209215b25b90fb870aa5c080d735
-```
-
-It is not merged and not live in production.
-
-The branch is a reference/recovery source, not the base for continued feature development.
-
-## Divergence from production
-
-Latest read-only comparison:
-
-- current `main` has 19 commits missing from the old v2 branch;
-- the old v2 branch has 9 commits missing from `main`;
-- merge base: `1dca9bf91000c089927452941a009117b622103f`.
-
-The nine v2 commits must be audited and ported selectively onto a new integration branch from current `main`.
-
-## Mission
-
-Move UFO from a thin probability/score display toward a durable, explainable football-intelligence system that can answer:
-
-- which team has stronger structural numbers;
-- how recent and tournament form change the baseline;
-- why a draw or upset remains plausible;
-- what match scripts support each scenario;
-- what evidence contradicts the favored view;
-- how reliable each signal is;
-- what the model got right or wrong afterward.
-
-## Release framing
-
-Planned sequence:
+Stage now has a complete immutable V1 comparison baseline:
 
 ```text
-Prediction Intelligence v2.0 Tournament Candidate
-Prediction Intelligence v2.1 Knockout Context
-MVP2 Tournament Release
+1 active V1 model
+24 V1 prediction versions
+240 prediction-market rows
+0 narratives
+24 public fixtures
+post-state exact_complete
 ```
 
-The urgent target is to make v2 useful during the active tournament without sacrificing fair cutoffs, versioning, or production stability.
+V2 is not live in production and no current V2 candidate has yet been accepted for release.
 
-## Stable prepared coverage
-
-Prepared and committed v2 work includes:
-
-- 1,392 historical match facts;
-- 3,028 Elo timeline entries;
-- 244 Elo teams;
-- 211 FIFA ranking rows;
-- 104 official World Cup matches;
-- 72/72 group-stage links;
-- 32 knockout placeholders;
-- 16/16 venues;
-- 48/48 World Cup runtime teams;
-- 36/36 completed product fixtures replay-ready;
-- 45 fixture Elo coherence rows;
-- 312 canonical aliases;
-- 488 localized team-name rows planned;
-- 699 rating snapshot rows planned.
-
-Provider linking is strongest for the group stage. Knockout placeholders remain unresolved until teams and paths are known.
-
-## Source workspace and committed equivalents
-
-Original external workspace:
+## Active branch checkpoint
 
 ```text
-D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
+production main HEAD = 3aff0e4
+V2 integration branch = integration/prediction-intelligence-v2
+V2 integration HEAD = 5007de7
+active Draft PR = #114
 ```
 
-Committed equivalents exist under:
+PR #117 is now part of both `main` and the V2 branch through normal Git history.
 
-- `data/prediction-engine/national-team-signals/2026-06-19/`;
-- `artifacts/prediction-intelligence-v2/`;
-- `lib/prediction-intelligence-v2/`;
-- `scripts/prediction-intelligence-v2/`;
-- migration `0038_prediction_intelligence_v2_data_foundation.sql`;
-- `types/database.ts`.
+Its `Lectura UFO` helper is a V1 presentation improvement, not a V2 probability candidate and not evidence of V2 calibration superiority.
 
-Keep the external workspace until stage persistence, checksum/lineage validation, and idempotent reruns prove it can be archived.
+## Why the V1 baseline matters
 
-## Signal families
+The stage V1 baseline is the predecessor against which V2 must be judged.
 
-### Structural strength
+It preserves:
 
-- current and start-year Elo;
-- FIFA ranking;
-- long-term strength anchor;
-- source agreement/disagreement.
+- original probabilities;
+- original xG and score distributions where present;
+- confidence and risk;
+- original timestamps;
+- exact fixture identity;
+- public visibility behavior;
+- immutable history.
 
-### Recent performance
+**Decision:** V2 cannot rewrite or retrospectively improve the original V1 record.
 
-- last 5 and 10 matches;
-- goals for/against and goal difference;
-- scoring and failure-to-score rates;
-- clean sheets, BTTS, and totals;
-- attack, defense, and conversion indicators;
-- opponent quality;
-- Elo over/underperformance.
+## Completed foundation
 
-### Tournament-current context
+The integration track contains:
 
-Immediate MVP2 scope now includes:
+- normalized team, alias, localization, venue, schedule, rating, and historical-match foundations;
+- deterministic fixture identity;
+- source snapshots and provenance structures;
+- prediction/model/evaluation versioning;
+- candidate/replay research code and historical evidence;
+- stage target and production-denial guards;
+- a stable visible V1 baseline.
 
-- current World Cup form;
-- performance in the first group matches;
-- group standings;
-- qualification/elimination pressure;
-- draw/win/loss need scenarios;
-- small-sample reliability controls;
-- official/friendly and neutral/venue context.
+Task 3B and Task 1C are closed.
 
-Tournament form is an important current signal, but two matches must not erase the structural baseline.
+## Historical V2 research status
 
-### Reliability
+Preserved research includes:
 
-Signals are shrunk or blocked when sample, timestamp, alias confidence, source coverage, or contextual reliability is weak.
+- historical Elo reconstruction;
+- challenger candidates;
+- neutral-context correction;
+- reliability shrinkage;
+- contradiction penalties;
+- movement caps;
+- eligibility and release packaging;
+- fair replay and evaluation concepts.
 
-## Research result
-
-Selected bounded probability candidate:
+Historical candidate names remain research evidence, including:
 
 ```text
 v1_plus_high_confidence_signals
-```
-
-Selected development release candidate:
-
-```text
 gated_v2_probability_v2_analysis
 ```
 
-Exact v1 and gated v2 are near statistical parity. The candidate must not be marketed as a decisive accuracy improvement.
+They do not authorize a current release.
 
-| Metric | Exact v1 | Gated v2 |
-|---|---:|---:|
-| Multiclass Brier | 0.188394 | 0.188427 |
-| Log loss | 0.952495 | 0.951756 |
-| Outcome accuracy | 0.611111 | 0.583333 |
-| Favorite accuracy | 0.583333 | 0.583333 |
-| Total-goals MAE | 1.495881 | 1.497097 |
-| Goal-difference MAE | 1.445492 | 1.468792 |
+## Honest performance position
 
-## Strongest v2 gain
+Historical V2 probability work was near parity with the exact V1 baseline. It did not establish a robust superiority claim.
 
-The current product gain is the intelligence layer:
+Therefore:
 
-- evidence-backed statistical reading;
-- recent and tournament form;
+- do not market V2 as more accurate yet;
+- do not move probabilities merely to make V2 look different;
+- evaluate explanation, evidence, provenance, reliability, and scenario quality separately from probability metrics;
+- require a fair current sample before a stronger accuracy claim.
+
+## Active technical decision: baseline first
+
+Prepared source workspace cutoff:
+
+```text
+2026-06-20
+```
+
+**Decision:** use this preserved package to create the first real signal baseline in the V2 database, then update it incrementally.
+
+**Alternativa descartada:** delaying pipeline construction until every ranking, result, table, and signal source is refreshed to the latest minute.
+
+**Motivo:** a reproducible baseline is enough to prove schema mapping, lineage, idempotency, signal coverage, feature assembly, and candidate execution.
+
+**Consecuencia operativa:** the 2026-06-20 package is valid baseline input but must not be described as current data.
+
+## Exact next task
+
+```text
+V2 Signal Baseline Database Load
+```
+
+Scope:
+
+1. inventory only the prepared baseline and committed equivalents;
+2. classify raw, normalized, derived, and report artifacts;
+3. map approved records to existing stage tables;
+4. persist source snapshot, observed time, cutoff, parser/feature version, and checksum lineage;
+5. preserve missing and reliability metadata;
+6. load once under exact stage and production-deny boundaries;
+7. rerun once to prove zero duplicate growth;
+8. demonstrate fixture-level signal coverage;
+9. stop before V2 candidate generation.
+
+This task is a database load, not another schema-foundation project and not a broad current-data audit.
+
+## Transition after baseline load
+
+```text
+current fixture/result refresh
+-> current Elo and latest available FIFA ranking
+-> standings and tournament form
+-> repeatable source-backed signal snapshots
+-> first V2 shadow candidate
+```
+
+Current refreshes should update or append versioned snapshots rather than rebuild Task 3B.
+
+## First V2 shadow candidate contract
+
+The first candidate should:
+
+- use a not-started stage fixture;
+- carry explicit model and feature versions;
+- carry calculation time and evidence cutoff;
+- reference exact source and signal snapshots;
+- identify V1 as predecessor/baseline;
+- remain unpublished or development-only;
+- report missing, weak, and contradictory signals;
+- obey movement caps and reliability gates;
+- produce scenario families and structured evidence.
+
+Finished fixtures use `historical_replay` with only pre-kickoff evidence.
+
+## V2 output direction
+
+V2 should move the product from a thin probability display toward football intelligence.
+
+Structured output may include:
+
+- rating and ranking advantage;
+- tournament points and form;
+- goals for and against;
+- attack and defense profile;
 - opponent quality;
-- representative scenario families;
-- full score distribution;
+- qualification or pressure context;
+- likely match scripts;
 - supporting and contradicting evidence;
-- group/qualification context;
-- provenance and cutoff;
-- reliability and missing-signal disclosure;
-- ES/EN/PT-ready structured signal keys;
-- post-match family/path evaluation.
+- reliability, data quality, source, and cutoff.
 
-## Premium intelligence contract
+Exact scores are anchors inside scenario families, not prophecies.
 
-Premium should expose useful evidence without exposing the proprietary formula.
+Facts remain locale-neutral. ES, EN, and PT rendering happens separately.
 
-Recommended sections:
+## Possible release modes
 
-- structural baseline;
-- recent form;
-- tournament-current form;
-- opponent quality;
-- expected goals and score distribution;
-- principal scenario;
-- coverage/risk scenario;
-- alternate meaningful scenario;
-- supporting evidence;
-- contradicting evidence;
-- reliability and missing inputs;
-- post-match explanation.
-
-Three exact scores are representative scenario anchors, not three independent guesses.
-
-## Prediction version contract
-
-Every advanced prediction version should carry:
-
-- `modelVersion`;
-- `featureVersion`;
-- `calculatedAt`;
-- `cutoffAt`;
-- source snapshot IDs;
-- signal snapshot IDs;
-- purpose;
-- publication state;
-- predecessor/supersession lineage.
-
-Permitted purposes include:
-
-- production publication;
-- development candidate;
-- `historical_replay`.
-
-## Historical replay
-
-Finished fixtures may receive fair v2 replay only when:
-
-- every feature respects the original pre-kickoff cutoff;
-- no result-derived or post-kickoff evidence leaks in;
-- the replay is labeled `historical_replay`;
-- the original v1 publication remains unchanged;
-- comparison is fixture/version/cutoff aligned.
-
-Replay enables:
+A later stage decision may choose:
 
 ```text
-original v1
-vs fair v2 replay
-vs verified result
+V1 probabilities + V2 analysis
 ```
 
-without pretending v2 existed before the match.
-
-## Completed work on the old branch
-
-Nine v2 commits cover:
-
-- Task 1 / 1.1 / 1.2: data foundation, fixture linking, replay readiness, Elo reconstruction;
-- Task 2 / 2.1 / 2.2 / 2.3: challenger research, calibration, gated candidate, release packaging;
-- Task 3A: safe dry-run operational layer;
-- production-write denial;
-- migration/import/signal/publication/export planners;
-- focused tests and handoff documentation.
-
-Task 3A is planning/dry-run evidence, not proof that remote stage writes occurred.
-
-## Integration objective
-
-Before Task 3B writes:
-
-1. create `integration/prediction-intelligence-v2` from current `main`;
-2. classify all nine old commits by concern;
-3. port valid data/model/migration/test assets selectively;
-4. reject stale frontend/docs/shared-runtime changes;
-5. rerun current MVP1 tests, lint, and build after each bounded port;
-6. reconcile scripts with the actual source workspace and current schema;
-7. open a replacement Draft PR.
-
-## Pending Task 3B
-
-- read-only remote stage audit;
-- human-reviewed migration synchronization;
-- migration 0038 in stage;
-- idempotent non-sensitive data load;
-- signal persistence;
-- immutable development prediction versions;
-- RLS/public/localization/venue/stage UI validation;
-- v1/v2 stage comparison.
-
-## Production release modes
-
-After stage validation, choose:
-
-- v1 probabilities + v2 analysis;
-- gated v2 probabilities + v2 analysis.
-
-The decision must be evidence-based.
-
-For not-started fixtures, an approved v2 version may supersede the active public version while preserving v1 history. For finished fixtures, use replay only.
-
-## Internationalization
-
-Core targets:
+or:
 
 ```text
-ES
-EN
-PT
+gated V2 probabilities + V2 analysis
 ```
 
-Model outputs should use locale-neutral identifiers and structured signal keys. Narrative rendering is a separate localization layer.
+The explanation layer may be releasable before V2 probability superiority is established.
 
-## Later radar, not immediate MVP2 gate
+## Non-blocking future signals
 
-Potential later inputs:
+Not required for the first V2.0 candidate:
 
-- confirmed lineups and major player absences;
-- injuries, suspensions, rotation, rest, and travel;
-- player/scorer propositions;
-- tactical/news evidence with timestamp and source reliability;
-- market odds only after legal/product review;
-- French and German localization.
+- squads and call-ups;
+- likely and confirmed lineups;
+- injuries and suspensions;
+- player expected minutes;
+- top scorers and individual xG;
+- offensive dependency;
+- replacement quality;
+- extra-time and penalties modeling.
 
-These must never leak post-kickoff information into a pre-match version.
+The architecture should receive them later without rewriting canonical team, match, or prediction identity.
+
+## Decisions that must persist
+
+- V1 remains the immutable published predecessor.
+- V2 runs in shadow before promotion.
+- Stage is the same application surface, not a separate prototype.
+- The 2026-06-20 package is a reproducible baseline, not current truth.
+- Current refresh follows baseline load and is incremental.
+- No post-kickoff leakage.
+- No candidate release from historical artifacts alone.
+- One bounded review is sufficient unless a concrete defect appears.
+- Production writes remain forbidden from the V2 integration track.
+
+## Responsibility split
+
+- ChatGPT owns model-state, roadmap, and decision documentation.
+- Codex implements and validates bounded database/model slices.
+- The operator approves and executes remote stage, Git, and release operations.

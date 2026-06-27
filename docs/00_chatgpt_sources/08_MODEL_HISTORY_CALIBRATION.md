@@ -1,148 +1,240 @@
 # Model History and Calibration
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-27 after the production `Lectura UFO` release and latest verified-result batch._
 
 ## Purpose
 
-This document preserves historical model decisions so current work does not reinterpret old baselines, rewrite published predictions, or manufacture progress.
+Preserve model history so current work does not reinterpret old baselines, rewrite published predictions, or manufacture progress.
 
-## V0.1 / v1-compatible baseline
+## V1-compatible baseline
 
-The production model established:
+V1 established:
 
 - expected-goal inputs;
 - score matrix;
 - 1X2, BTTS, over/under, and exact-score probabilities;
-- confidence/risk presentation;
+- confidence and risk presentation;
 - immutable pre-match publication.
 
-Its limitations include thinner historical context, limited provenance, and weaker evidence/scenario explanations.
+Known limitations include thinner provenance, weaker tournament context, and less developed evidence/scenario explanation.
 
-## Calibration closeout around PR #94
+## Stage V1 comparison baseline
 
-The stored baseline was closed out honestly.
+The immutable V1 baseline is now present in stage:
 
-Later challenger work must compare against a fair stored/runtime-compatible baseline rather than a simplified strawman.
+```text
+1 active model
+24 prediction versions
+240 market rows
+0 narratives
+24 public fixtures
+```
 
-Core guardrails:
+The post-import read returned:
 
-- no post-result rewrite;
-- no post-kickoff evidence;
-- fair fixture identity and cutoff;
-- preserve publication lineage;
-- separate probability performance from explanation quality.
+```text
+state = exact_complete
+pending publications = 0
+```
 
-## Current production baseline evidence
+This closes the missing-stage-baseline gap.
 
-Matchday 3 created an important immutable v1 comparison set:
+**Decision:** all V2 comparisons use the stored V1 versions, never a reconstructed strawman.
 
-- 24 stored fixtures;
-- 24 published v1 predictions;
-- public partner export under `torneo-ufo-export-v1`;
-- stable fixture/provider IDs;
-- public kickoff and probability fields.
+## Presentation changes are not model changes
 
-These v1 publications must remain available for later fair v2 comparison.
+PR #117 introduced a deterministic `Lectura UFO` derived from the existing V1 probability output and authorized confidence/risk presentation.
 
-## Recent production model operations
+It did not:
 
-The production track added:
+- create a new model version;
+- recalculate any prediction;
+- move any probability;
+- alter calibration;
+- change confidence or risk values;
+- use post-kickoff evidence;
+- establish a V2 accuracy claim.
 
-- reviewed xG publication;
-- recent-form challenger work;
-- public review gates;
-- current-model World Cup publication continuity.
+The helper is a presentation layer. Its release must not be counted as model-performance progress.
 
-These remain v1 production operations and are separate from the unmerged v2 foundation.
+The latest verified results remain evaluation evidence for the original immutable V1 versions:
 
-## Prediction Intelligence v2 research
+```text
+Egypt 1-1 Iran
+New Zealand 1-5 Belgium
+Uruguay 0-1 Spain
+Cape Verde 0-0 Saudi Arabia
+Panama 0-1 Croatia
+```
 
-Initial unrestricted challengers did not beat v1.
+## Historical calibration closeout
 
-Subsequent corrections addressed:
+Preserved historical work includes:
 
-- neutral-site handling;
-- historical windows;
-- candidate-selection bug;
-- stored/runtime replay parity;
-- reliability shrinkage and gates;
+- exact and runtime-compatible V1 references;
+- challenger candidates;
+- expanded calibration rows;
+- neutral-context correction;
+- candidate-selection correction;
+- train, validation, and holdout separation;
+- reliability shrinkage and contradiction penalties;
 - movement caps;
-- scenario-family evaluation.
+- time-series evaluation;
+- eligibility and blocked states;
+- stored/runtime drift classification;
+- historical safe-analysis and gated-V2 packaging.
 
-Selected bounded probability candidate:
+Historical labels include:
 
 ```text
 v1_plus_high_confidence_signals
-```
-
-Selected development release candidate:
-
-```text
 gated_v2_probability_v2_analysis
 ```
 
-## Honest interpretation
+They remain research history, not release approval.
 
-Gated v2 is near parity with exact v1:
+## Honest probability interpretation
+
+Historical gated V2 work was near parity with exact V1:
 
 - small favorable log-loss movement;
-- essentially flat/slightly worse Brier;
+- flat or slightly worse Brier behavior;
 - no established outcome-accuracy advantage;
 - no established goals-error advantage.
 
 Therefore:
 
-- do not market v2 as more accurate yet;
-- use stage to verify regression safety and product quality;
-- treat evidence, provenance, scenarios, reliability, localization, tournament context, and evaluation as the current product value;
-- reserve stronger accuracy claims for a larger fair sample.
+- do not claim V2 is more accurate yet;
+- do not force probability movement;
+- assess explanation, provenance, scenarios, reliability, and tournament context separately;
+- require a fair current sample for stronger claims.
 
-## Tournament-context calibration
+## Calibration corrections that remain binding
 
-Immediate v2 research should test:
+- World Cup fixtures are neutral by default except host-country cases;
+- historical evidence resolves strictly before fixture cutoff;
+- validation and holdout remain separate;
+- candidate selection uses explicit auditable metrics;
+- low-confidence and contradictory signals are shrunk or blocked;
+- probability movement is capped;
+- diagnostic-only candidates cannot silently become release candidates;
+- eligibility is distinct from promotion and publication.
 
-- structural strength versus current World Cup form;
-- group-state and qualification pressure;
-- opponent quality;
-- small-sample shrinkage;
-- whether tournament signals improve explanation without destabilizing probabilities.
+## Baseline-first decision
 
-Two tournament matches are informative but insufficient to erase long-term strength anchors.
+Prepared workspace cutoff:
+
+```text
+2026-06-20
+```
+
+**Decision:** store the preserved baseline in the real V2 signal database before refreshing every source.
+
+**Motivo:** calibration needs a reproducible, queryable source lineage and feature assembly path. Freshness can then improve incrementally without changing historical identity.
+
+**Consequence:** baseline data may be used for storage and pipeline validation, but current candidate generation must meet an explicit current-data gate.
+
+## Current calibration gaps
+
+Before a real V2.0 release decision:
+
+1. load the 2026-06-20 signal baseline with lineage;
+2. refresh current fixture and result state;
+3. append current Elo;
+4. capture the latest available official FIFA ranking;
+5. calculate current standings, form, points, and goal difference;
+6. derive source-backed signal snapshots;
+7. generate live shadow candidates;
+8. create fair historical replays;
+9. compare with immutable V1 and verified results.
 
 ## Versioned comparison contract
 
-Each compared prediction must identify:
+Each compared version identifies:
 
 - fixture;
 - model version;
 - feature version;
 - calculation time;
 - evidence cutoff;
-- publication/replay purpose;
+- purpose;
+- source and signal snapshots;
 - predecessor lineage.
 
 For finished fixtures:
 
 ```text
-original v1 publication
-vs fair v2 historical_replay
+original V1 publication
+vs V2 historical_replay
 vs verified result
 ```
 
-The replay must use only pre-kickoff evidence and may not replace the original.
+For not-started fixtures:
+
+```text
+stored V1 baseline
+vs V2 shadow candidate under explicit cutoff
+```
+
+## First shadow-candidate calibration gate
+
+A candidate is eligible for evaluation when:
+
+- fixture has not started;
+- required identity and source lineage resolve;
+- minimum current-data coverage is met;
+- missing optional signals are explicit;
+- no post-kickoff evidence is present;
+- movement caps and reliability gates pass;
+- predecessor V1 is linked;
+- candidate remains unpublished.
+
+## Evaluation dimensions
+
+Evaluate separately:
+
+- 1X2 direction and calibration;
+- log loss and Brier;
+- xG and total-goal error;
+- BTTS and totals;
+- exact-score and scenario-family hit;
+- margin and surprise severity;
+- explanation usefulness;
+- evidence correctness and freshness;
+- confidence calibration;
+- missing-data and reliability behavior.
+
+A better explanation does not prove better probabilities. Better probabilities do not excuse weak provenance.
+
+## Explanation-first output
+
+V2 analysis should express:
+
+- structural rating strength;
+- tournament attack and defense profile;
+- points and qualification context;
+- controlled, tight, open, or upset match scripts;
+- supporting and contradicting evidence;
+- uncertainty and data limitations.
+
+Exact scores remain representative anchors inside scenario families.
+
+## Future player and squad signals
+
+Later versions may add:
+
+- squad and lineup availability;
+- injuries and suspensions;
+- expected minutes;
+- player goals, assists, shots, and xG;
+- offensive dependency;
+- replacement quality;
+- likely scoring candidates.
+
+Every player signal requires source, observed time, cutoff, and reliability. These are not first-candidate blockers.
 
 ## Post-match learning contract
 
-Evaluation may classify:
+Learning artifacts may inform V2.1, V3, or later versions, but they never rewrite the original publication.
 
-- exact scenario hit;
-- scenario-family hit;
-- correct 1X2 direction;
-- margin and total-goal behavior;
-- BTTS/over-under;
-- surprise severity;
-- path state and late-goal sensitivity;
-- model error versus football variance;
-- structural versus tournament-context contribution.
-
-Learning artifacts may inform future versions but must never rewrite the original published prediction.
+Classify model error, data limitation, tactical path, late-goal sensitivity, and football variance separately where evidence permits.
