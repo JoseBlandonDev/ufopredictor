@@ -1,187 +1,221 @@
-# Prediction Intelligence v2 - Integration, Stage, and Release Plan
+# V2 Stage and Release Plan
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-27 after PR #117 was synchronized into the V2 integration branch at HEAD `5007de7`._
 
-## Environment decision
+## Goal
 
-The development environment already exists:
+Move from a stable V1-visible stage to a fair, source-backed V2 shadow candidate without disrupting production or repeating completed foundation work.
 
-```text
-stage.ufopredictor.com -> Railway development -> Supabase stage
-```
+## Current gate status
 
-Auth registration/login works. Do not create another environment or revive the abandoned Docker path.
+| Gate | Status |
+|---|---|
+| Separate stage and production identity | Passed |
+| Prediction Intelligence schema in stage | Passed |
+| Foundation data bootstrap | Passed |
+| Bootstrap idempotency | Passed |
+| Exact 24-fixture provider linkage | Passed |
+| Immutable V1 model and prediction import | Passed |
+| V1 market import | Passed |
+| V1 activation and public visibility | Passed |
+| Post-apply exact-complete verification | Passed |
+| Stage `/predictions` visual smoke | Passed |
+| V2 signal baseline in real tables | Next |
+| Current-data incremental refresh | Pending |
+| First V2 shadow candidate | Pending |
+| V1/V2 evaluation | Pending |
+| Production release decision | Pending |
 
-## Phase 0 - branch normalization
-
-Task 3B must not begin from the stale v2 branch.
-
-1. Fetch current `origin/main` and prove a clean worktree.
-2. Preserve `feature/prediction-intelligence-v2-data-foundation` and Draft PR #106 unchanged.
-3. Create `integration/prediction-intelligence-v2` from current `origin/main`.
-4. Inventory the nine v2-only commits.
-5. Classify every changed file as:
-   - migration/types/contracts;
-   - source data/manifests/parsers;
-   - model/replay/calibration;
-   - scripts/artifacts/tests;
-   - stale frontend/docs/shared runtime.
-6. Port only valid v2 concerns.
-7. Validate MVP1 tests, lint, build, and diff-check after each bounded group.
-8. Open a replacement Draft PR.
-9. Close or supersede PR #106 only after preservation parity is proven.
-
-Current reference:
+## Stable stage checkpoint
 
 ```text
-main at last docs refresh: 130ffc8
-old v2 head: eefcff7
-v2-only commits: 9
+branch: integration/prediction-intelligence-v2
+Draft PR: #114
+HEAD: 5007de7
+stage: yfmklapgjrupctgxaako
+production denied: gcpdffkgsdomzyoenalg
 ```
 
-Always verify live SHAs before implementation.
-
-## Worktree layout
-
-Recommended local layout:
+Stage V1 state:
 
 ```text
-D:\Projects\ufo-predictor       -> main / production operations
-D:\Projects\ufo-predictor-v2    -> integration/prediction-intelligence-v2
-D:\Projects\ufo-predictor-ui    -> optional independent UI/UX microrelease
+active models = 1
+predictions = 24
+markets = 240
+narratives = 0
+public fixtures = 24
+state = exact_complete
+pending publications = 0
 ```
 
-Each worktree has its own ignored `.env.local`.
+## Completed phase: foundation and visible V1
 
-## Task 3B objective
+Closed work:
 
-Synchronize the existing Supabase stage project with the canonical repository schema and Prediction Intelligence v2 data safely, without touching production.
+- Task 3B schema/data foundation;
+- exact fixture linkage;
+- frozen V1 source selection;
+- semantic reviewed-plan authorization;
+- atomic V1 import;
+- publication and activation;
+- idempotency and visual smoke.
 
-## Phase 1 - mandatory read-only stage audit
+**No repetir:** do not rerun bootstrap, fixture linkage, V1 import, or SQL installation without a concrete recovery requirement.
 
-1. Validate ignored stage credentials without printing values.
-2. Confirm the target is stage, not production.
-3. Inspect remote migration history and schema.
-4. Compare with `supabase/migrations`.
-5. Identify missing migrations, drift, manually created objects, views, functions, policies, and dependencies.
-6. Confirm the stage Auth user will not be deleted or corrupted.
-7. Confirm source snapshot manifests and committed equivalents.
-8. Generate an ordered non-destructive synchronization plan.
-9. Stop for owner review.
+## Active phase: V2 Signal Baseline Database Load
 
-No remote write is allowed in Phase 1.
-
-## Phase 2 - authorized stage synchronization
-
-Only after approval:
-
-1. Reconcile stage migration history/schema using the approved plan.
-2. Apply the missing canonical chain.
-3. Apply `0038_prediction_intelligence_v2_data_foundation.sql`.
-4. Load non-sensitive reference/history data idempotently.
-5. Rerun and prove zero duplicates.
-6. Persist signal snapshots with cutoff/provenance.
-7. Create immutable development prediction versions only for eligible not-started fixtures.
-8. Create fair `historical_replay` versions for selected finished fixtures if approved.
-9. Generate a development Torneo JSON export.
-10. Validate RLS and public-safe projections.
-11. Validate aliases, ES/EN/PT localization contracts, venues, and stage UI.
-12. Compare v1 and v2 on identical fixture/version cutoffs.
-
-## Seed scope
-
-Preferred stage data:
-
-- teams, competitions, seasons, and reference entities;
-- official World Cup schedule and venues;
-- all known group-stage provider links;
-- FIFA/Elo/history source data;
-- tournament-current context;
-- signal snapshots;
-- development-only prediction versions;
-- test profiles/roles/entitlements where needed.
-
-Do not copy:
-
-- production users or sessions;
-- Wompi transactions/webhooks;
-- production entitlements/subscriptions;
-- secrets or personal data.
-
-## Accelerated tournament release sequence
-
-### v2.0 Tournament Candidate
-
-Goal:
-
-- restore the prepared v2 data/model/replay stack on current `main`;
-- produce stage candidates with evidence and reliability;
-- compare against current v1;
-- choose a safe probability mode;
-- preserve every prior version.
-
-Possible release:
+Prepared cutoff:
 
 ```text
-v1 probabilities + v2 analysis
+2026-06-20
 ```
 
-or:
+The active slice is intentionally bounded.
+
+Required steps:
+
+1. read the prepared workspace and committed equivalents;
+2. map existing baseline records to current tables;
+3. retain source, checksum, observed time, cutoff, and version lineage;
+4. classify missing and optional signals explicitly;
+5. run one dry-run/preflight;
+6. apply once to stage under production denial;
+7. verify counts, conflicts, and fixture coverage;
+8. rerun once only to prove idempotency;
+9. stop before candidate generation.
+
+**Decision:** a one-week-old reproducible baseline is sufficient to establish the real database and pipeline.
+
+**Motivo:** current data becomes an incremental refresh once the canonical storage and lineage path exists.
+
+## Baseline-load acceptance gate
+
+The task passes when:
+
+- every inserted row maps to a canonical team, fixture, competition, season, or source snapshot;
+- source and cutoff lineage are queryable;
+- row accounting balances;
+- no production writes occur;
+- no Auth, Wompi, entitlement, webhook, session, or personal-data scope is touched;
+- fixture signal coverage can be queried;
+- a second exact run produces zero duplicate growth;
+- no V2 prediction is published.
+
+## Current-data incremental refresh
+
+After baseline load, refresh only changed or newer source families:
+
+- future fixture identities and kickoffs;
+- verified results;
+- current World Football Elo;
+- latest available official FIFA ranking;
+- group standings and tournament form;
+- qualification and pressure context;
+- source-backed derived signals.
+
+Each refresh records observed time and explicit cutoff. Historical snapshots are preserved.
+
+Ordinary refresh must not require another Task 3B bootstrap.
+
+## First V2 shadow candidate
+
+Generate only after baseline storage and minimum current-data coverage pass.
+
+Required candidate properties:
+
+- not-started fixture;
+- explicit model and feature version;
+- calculation timestamp and evidence cutoff;
+- V1 predecessor reference;
+- source and signal snapshot references;
+- reliability and missing-signal report;
+- bounded probability movement;
+- coherent scenario families;
+- unpublished/development state.
+
+For completed fixtures, use labeled `historical_replay` with pre-kickoff evidence only.
+
+## Evaluation gate
+
+Compare separately:
+
+- 1X2 probability and calibration;
+- log loss and Brier;
+- xG and total-goal error;
+- BTTS and over/under;
+- scenario-family quality;
+- explanation and evidence usefulness;
+- source freshness and reliability;
+- data limitation, model error, and football variance.
+
+A better explanation does not prove better probability calibration.
+
+## Release decision gate
+
+Choose explicitly between:
 
 ```text
-gated v2 probabilities + v2 analysis
+V1 probabilities + V2 analysis
 ```
 
-### v2.1 Knockout Context
+and:
 
-Add tournament-state features required for knockout rounds:
+```text
+gated V2 probabilities + V2 analysis
+```
 
-- qualification/path context;
-- group outcome and bracket path;
-- neutral venue;
-- elimination stakes;
-- small-sample reliability;
-- scenario explanations appropriate to knockout football.
+Promotion requires:
 
-Do not bundle lineups, player props, market odds, and full news automation into this release.
-
-## Task 3B exit gate
-
-- normalized integration branch based on current `main`;
-- old v2 preservation proof captured;
-- stage migration chain understood and synchronized;
-- migration 0038 applied in stage;
-- idempotent import proven;
-- signal snapshots persisted;
-- development predictions immutable;
-- fair replay contract validated where used;
-- public/admin RLS validated;
-- ES/EN/PT-ready localization contracts validated;
-- official venues and canonical aliases validated;
-- v1/v2 comparison captured;
-- no production write occurred;
-- artifacts and evidence captured.
-
-## Production promotion gate
-
-A later production promotion requires:
-
-- accepted stage data/schema state;
-- chosen probability release mode;
-- current-fixture review;
-- immutable version/cutoff proof;
+- accepted stage state;
+- immutable version and cutoff proof;
+- no post-kickoff leakage;
+- current sample comparison;
 - rollback plan;
-- no regression to MVP1 Auth/Wompi/entitlements/public results;
-- compatible Torneo export;
+- Auth/Wompi/entitlement regression protection;
+- public, premium, admin, and partner-export compatibility;
 - owner approval.
 
-## Parallel delivery rule
+## Parallel V1/product work
 
-While v2 is in stage:
+Production-safe UI and V1 improvements continue from current `main` under a separate owner.
 
-- `main` continues relevant fixture/result operations;
-- current v1 publications remain live;
-- trusted result auto-refresh may continue independently;
-- bounded UI/UX improvements may use short branches from `main`;
-- ES/EN/PT data contracts may be prepared, while full public translation rollout waits for stable contracts;
-- no UI microrelease depends on migration 0038 unless explicitly part of v2 stage work.
+Completed example:
+
+```text
+Task 4A - V1 Information Inventory
+Task 4B - Public Expert Read
+PR #117 -> main 3aff0e4
+main -> V2 integration 5007de7
+production smoke -> passed
+```
+
+The next parallel slice is:
+
+```text
+Task 4C - Football-first premium terminology
+```
+
+These changes flow into the V2 integration branch through normal Git history.
+
+They must not:
+
+- change probabilities without model governance;
+- duplicate V2 data/model implementation;
+- depend on unfinished stage-only V2 data for production availability;
+- broaden premium authorization;
+- be implemented independently in both branches.
+
+## Process decisions
+
+- one implementation review, not repeated general scrutiny;
+- one preflight, one apply, one verification per bounded operation;
+- direct owner-operated SQL/Git/Supabase is valid when it preserves scope and safety;
+- a concrete defect permits a focused correction, not a restart of the whole audit;
+- migration files in Git and remote migration application are separate facts;
+- canonical docs record both state and decisions so future conversations do not reopen closed work.
+
+## Responsibility
+
+- ChatGPT defines and documents gates, decisions, and handoffs.
+- Codex implements bounded slices and returns evidence.
+- The operator authorizes and executes remote stage and Git actions.
