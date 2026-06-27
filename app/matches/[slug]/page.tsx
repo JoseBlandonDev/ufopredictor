@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 import { buildRepresentativeScenario } from "../../../lib/presentation/premium-scenarios";
+import { buildPublicExpertReadView } from "../../../lib/presentation/public-expert-read";
 import {
   formatMatchDateTimeLabel,
   formatProbability,
@@ -102,6 +103,25 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
       : null;
   const canShowRegisteredFreeProbableScore =
     !hasPremiumAccess && match.prediction?.viewer === "registered_free" && match.verifiedResult !== null;
+  const expertRead =
+    match.prediction
+      ? buildPublicExpertReadView({
+          base: {
+            homeTeamName,
+            awayTeamName,
+            homeWinProb: match.prediction.homeWinProb,
+            drawProb: match.prediction.drawProb,
+            awayWinProb: match.prediction.awayWinProb,
+          },
+          confidence:
+            match.prediction.viewer === "registered_free"
+              ? {
+                  confidenceScore: match.prediction.confidenceScore,
+                  riskLevel: match.prediction.riskLevel,
+                }
+              : null,
+        })
+      : null;
 
   const representativeScenarios =
     premiumModelDetail
@@ -192,7 +212,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               <p className="font-mono text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
                 Predicción pública básica
               </p>
-              <h2 className="mt-2 text-xl font-semibold">Probabilidades 1X2 publicadas</h2>
+              <h2 className="mt-2 text-xl font-semibold">Probabilidad del resultado publicada</h2>
             </div>
             {match.prediction.viewer === "registered_free" ? (
               <div className="flex gap-2">
@@ -209,6 +229,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             )}
           </div>
           <div className="mt-6 max-w-2xl">
+            <p className="mb-3 text-sm font-medium text-white">Probabilidad del resultado</p>
             <ProbabilityBar
               probabilities={{
                 homeWin: match.prediction.homeWinProb,
@@ -217,9 +238,19 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               }}
             />
           </div>
+          {expertRead ? (
+            <div className="mt-5 rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/6 p-4">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+                Lectura UFO
+              </p>
+              <p className="mt-2 text-sm text-white">{expertRead.summary}</p>
+              {expertRead.confidenceNote ? (
+                <p className="mt-2 text-sm text-[var(--muted)]">{expertRead.confidenceNote}</p>
+              ) : null}
+            </div>
+          ) : null}
           <div className="mt-5 space-y-2 text-sm text-[var(--muted)]">
             <p>Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.</p>
-            <p>Alta incertidumbre: probabilidades cercanas. Una ventaja ligera no implica certeza.</p>
           </div>
           {!hasPremiumAccess && match.prediction.viewer === "registered_free" ? (
             <div className="mt-5 rounded-xl border border-[var(--accent)]/25 bg-[var(--accent)]/6 p-4">
