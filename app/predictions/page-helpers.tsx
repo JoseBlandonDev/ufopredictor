@@ -132,8 +132,9 @@ export function renderPremiumUpgradeModule() {
     <section className="ufo-card rounded-2xl border border-[var(--accent)]/30 p-5 sm:p-6">
       <h2 className="text-xl font-semibold">Ve más allá del 1X2</h2>
       <p className="mt-3 max-w-2xl text-sm text-[var(--muted)]">
-        El {getWorldCupProductName()} desbloquea escenarios representativos, goles esperados, Ambos
-        equipos marcan, Más/Menos de 2,5 y una explicación completa de cada partido.
+        El {getWorldCupProductName()} desbloquea escenarios representativos, goles esperados,
+        probabilidad de que anoten ambos equipos, proyección del total de goles y una explicación
+        completa de cada partido.
       </p>
       <div className="mt-5">
         <Link href="/pricing" className="ufo-btn-primary ufo-focus-ring">
