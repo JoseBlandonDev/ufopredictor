@@ -30,6 +30,19 @@ const verifyRealFixtureResultSchema = z.object({
   matchResultId: z.string().uuid(),
 });
 
+const manualResultGoalSchema = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() !== "" ? Number(value) : Number.NaN),
+  z.number().int().min(0).max(20),
+);
+
+const createManualRealFixtureResultSchema = z.object({
+  matchId: z.string().uuid(),
+  externalId: z.string().trim().min(1),
+  homeGoals: manualResultGoalSchema,
+  awayGoals: manualResultGoalSchema,
+  sourceNote: z.string().trim().min(1).max(500),
+});
+
 const publishPublicPredictionSchema = z.object({
   matchId: z.string().trim().min(1),
   matchSlug: z.string().trim().min(1),
@@ -66,6 +79,15 @@ type ResultVerificationStatus =
   | "rejected"
   | "not_found"
   | "error";
+type ManualResultStatus =
+  | "created"
+  | "already_pending"
+  | "already_verified"
+  | "invalid"
+  | "future"
+  | "conflict"
+  | "not_found"
+  | "error";
 type PublishStatus =
   | "published"
   | "already_published"
@@ -96,7 +118,13 @@ type RealFixtureLabProtectedMatch = {
   access_scope: "admin_only" | "public" | "premium" | "lab_only";
   intake_source: "mock" | "manual" | "csv_import" | "api_football";
   status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
+  kickoff_at: string;
 };
+
+type RealFixtureLabStatusSyncTargetMatch = Pick<
+  RealFixtureLabProtectedMatch,
+  "id" | "access_scope" | "status"
+>;
 
 const DEFAULT_REAL_FIXTURE_LAB_RETURN_TO = "/admin/real-fixture-lab";
 const ADMIN_REAL_FIXTURE_RETURN_PATHS = new Set([
@@ -174,6 +202,22 @@ function redirectWithResultStatus(
       params: {
         externalId,
         result: status,
+      },
+    }),
+  );
+}
+
+function redirectWithManualResultStatus(
+  status: ManualResultStatus,
+  externalId: string,
+  returnTo = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO,
+): never {
+  redirect(
+    buildAdminRouteStatusHref({
+      basePath: returnTo,
+      params: {
+        externalId,
+        manual: status,
       },
     }),
   );
@@ -371,13 +415,13 @@ async function canAccessRealFixtureLabProtectedMatch(args: {
     return true;
   }
 
-  if (args.match.access_scope !== "public" || args.match.status !== "finished") {
+  if (args.match.access_scope !== "public") {
     return false;
   }
 
   const { data: competition, error: competitionError } = await args.supabase
     .from("competitions")
-    .select("id, usage_scope")
+    .select("id, slug, usage_scope")
     .eq("id", args.match.competition_id)
     .maybeSingle();
 
@@ -390,7 +434,20 @@ async function canAccessRealFixtureLabProtectedMatch(args: {
     args.onCompetitionError(args.match.external_id);
   }
 
-  return competition?.usage_scope === "public_product";
+  if (!competition || competition.usage_scope !== "public_product") {
+    return false;
+  }
+
+  const kickoffTime = Date.parse(args.match.kickoff_at);
+  if (competition.slug === "world-cup-2026") {
+    return Number.isFinite(kickoffTime) && kickoffTime <= Date.now();
+  }
+
+  return args.match.status === "finished";
+}
+
+function shouldSyncPublicWorldCupMatchStatusOnVerification(match: RealFixtureLabStatusSyncTargetMatch) {
+  return match.access_scope === "public" && match.status !== "finished";
 }
 
 export async function saveRealFixturePredictionAction(formData: FormData) {
@@ -718,7 +775,7 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
 
   const { data: match, error: matchError } = await supabase
     .from("matches")
-    .select("id, competition_id, external_id, access_scope, intake_source, status")
+    .select("id, competition_id, external_id, access_scope, intake_source, status, kickoff_at")
     .eq("id", prediction.match_id)
     .eq("external_id", externalId)
     .maybeSingle();
@@ -886,6 +943,156 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
   redirectWithEvaluationStatus(existingEvaluation ? "refreshed" : "saved", externalId, returnTo);
 }
 
+export async function createManualRealFixtureResultAction(formData: FormData) {
+  const input = createManualRealFixtureResultSchema.safeParse({
+    matchId: formData.get("matchId"),
+    externalId: formData.get("externalId"),
+    homeGoals: formData.get("home_goals"),
+    awayGoals: formData.get("away_goals"),
+    sourceNote: formData.get("source_note"),
+  });
+
+  const returnTo = normalizeAdminReturnTo(formData.get("returnTo"), "/admin/real-fixture-result-review-queue");
+  const fallbackExternalId =
+    typeof formData.get("externalId") === "string" ? String(formData.get("externalId")).trim() : "";
+
+  if (!input.success) {
+    redirectWithManualResultStatus("invalid", fallbackExternalId, returnTo);
+  }
+
+  await requireAdmin(returnTo);
+  const { matchId, externalId, homeGoals, awayGoals, sourceNote } = input.data;
+  const supabase = await createSupabaseServerClient();
+
+  const { data: match, error: matchError } = await supabase
+    .from("matches")
+    .select("id, competition_id, external_id, access_scope, intake_source, status, kickoff_at")
+    .eq("id", matchId)
+    .eq("external_id", externalId)
+    .maybeSingle();
+
+  if (matchError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_match_for_manual_result_creation",
+      table: "matches",
+      error: matchError,
+    });
+    redirectWithManualResultStatus("error", externalId, returnTo);
+  }
+
+  if (!match) {
+    redirectWithManualResultStatus("not_found", externalId, returnTo);
+  }
+
+  const { data: competition, error: competitionError } = await supabase
+    .from("competitions")
+    .select("id, slug")
+    .eq("id", match.competition_id)
+    .maybeSingle();
+
+  if (competitionError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_competition_for_manual_result_creation",
+      table: "competitions",
+      error: competitionError,
+    });
+    redirectWithManualResultStatus("error", externalId, returnTo);
+  }
+
+  const kickoffTime = Date.parse(match.kickoff_at);
+  const isEligibleMatch =
+    match.intake_source === "api_football" &&
+    competition?.slug === "world-cup-2026" &&
+    (match.access_scope === "admin_only" || match.access_scope === "public");
+
+  if (!isEligibleMatch) {
+    redirectWithManualResultStatus("not_found", externalId, returnTo);
+  }
+
+  if (!Number.isFinite(kickoffTime) || kickoffTime > Date.now()) {
+    redirectWithManualResultStatus("future", externalId, returnTo);
+  }
+
+  const { data: existingResult, error: existingResultError } = await supabase
+    .from("match_results")
+    .select("id, home_goals, away_goals, verification_status, intake_source, source_note")
+    .eq("match_id", match.id)
+    .maybeSingle();
+
+  if (existingResultError) {
+    logRealFixtureLabSupabaseError({
+      operation: "select_existing_match_result_for_manual_creation",
+      table: "match_results",
+      error: existingResultError,
+    });
+    redirectWithManualResultStatus("error", externalId, returnTo);
+  }
+
+  if (existingResult?.verification_status === "verified") {
+    if (existingResult.home_goals === homeGoals && existingResult.away_goals === awayGoals) {
+      redirectWithManualResultStatus("already_verified", externalId, returnTo);
+    }
+
+    redirectWithManualResultStatus("conflict", externalId, returnTo);
+  }
+
+  if (existingResult?.verification_status === "pending_review") {
+    if (
+      existingResult.home_goals === homeGoals &&
+      existingResult.away_goals === awayGoals &&
+      existingResult.intake_source === "manual" &&
+      (existingResult.source_note ?? "") === sourceNote
+    ) {
+      redirectWithManualResultStatus("already_pending", externalId, returnTo);
+    }
+
+    redirectWithManualResultStatus("conflict", externalId, returnTo);
+  }
+
+  if (existingResult) {
+    redirectWithManualResultStatus("conflict", externalId, returnTo);
+  }
+
+  const manualResultInsert = {
+    match_id: match.id,
+    home_goals: homeGoals,
+    away_goals: awayGoals,
+    verification_status: "pending_review" as const,
+    intake_source: "manual" as const,
+    source_note: sourceNote,
+    reviewed_at: null,
+    reviewed_by: null,
+  };
+
+  const { data: insertedResult, error: insertError } = await supabase
+    .from("match_results")
+    .insert(manualResultInsert)
+    .select("id")
+    .maybeSingle();
+
+  if (insertError || !insertedResult) {
+    if (insertError) {
+      logRealFixtureLabSupabaseError({
+        operation: "insert_manual_match_result",
+        table: "match_results",
+        error: insertError,
+      });
+    } else {
+      console.error("real_fixture_lab_manual_result_error", {
+        operation: "insert_manual_match_result",
+        table: "match_results",
+        matchId,
+        message: "Insert returned no match_result row.",
+      });
+    }
+    redirectWithManualResultStatus("error", externalId, returnTo);
+  }
+
+  revalidatePath("/admin/real-fixture-lab");
+  revalidatePath("/admin/real-fixture-result-review-queue");
+  redirectWithManualResultStatus("created", externalId, returnTo);
+}
+
 export async function verifyRealFixtureResultAction(formData: FormData) {
   const input = verifyRealFixtureResultSchema.safeParse({
     externalId: formData.get("externalId"),
@@ -934,7 +1141,7 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
 
   const { data: match, error: matchError } = await supabase
     .from("matches")
-    .select("id, competition_id, external_id, access_scope, intake_source, status")
+    .select("id, competition_id, external_id, access_scope, intake_source, status, kickoff_at")
     .eq("id", result.match_id)
     .eq("external_id", externalId)
     .maybeSingle();
@@ -961,6 +1168,33 @@ export async function verifyRealFixtureResultAction(formData: FormData) {
 
   if (!canAccessMatch) {
     redirectWithResultStatus("not_found", externalId, returnTo);
+  }
+
+  if (shouldSyncPublicWorldCupMatchStatusOnVerification(match)) {
+    const { data: updatedMatch, error: matchStatusUpdateError } = await supabase
+      .from("matches")
+      .update({ status: "finished" as const })
+      .eq("id", match.id)
+      .eq("status", match.status)
+      .select("id")
+      .maybeSingle();
+
+    if (matchStatusUpdateError || !updatedMatch) {
+      if (matchStatusUpdateError) {
+        logRealFixtureLabSupabaseError({
+          operation: "update_match_status_for_result_verification",
+          table: "matches",
+          error: matchStatusUpdateError,
+        });
+      } else {
+        console.error("real_fixture_lab_result_verification_error", {
+          operation: "update_match_status_for_result_verification",
+          table: "matches",
+          message: "Update returned no match row.",
+        });
+      }
+      redirectWithResultStatus("error", externalId, returnTo);
+    }
   }
 
   const verificationUpdate = {

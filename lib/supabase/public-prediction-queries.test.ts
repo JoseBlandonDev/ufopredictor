@@ -363,6 +363,46 @@ describe("public prediction queries", () => {
     });
   });
 
+  it("keeps a stale scheduled fixture with a verified result in history only", async () => {
+    const rows = [
+      buildRow({
+        match_slug: "world-cup-2026-stale-scheduled-verified",
+        kickoff_at: "2026-06-21T18:00:00Z",
+        status: "scheduled",
+        verified_home_goals: 1,
+        verified_away_goals: 0,
+        result_verification_status: "verified",
+      }),
+    ];
+    createSupabaseServerClientMock.mockResolvedValue(createFakeSupabaseClient(rows));
+
+    const landing = await getPublicPredictionsData("anonymous");
+    const history = await getHistoricalPublicPredictionsPage("anonymous", 1);
+    const upcoming = await getUpcomingPublicPredictionsPage("anonymous", 1);
+
+    expect(landing.status).toBe("ready");
+    if (landing.status === "ready") {
+      expect(landing.livePredictions).toEqual([]);
+      expect(landing.awaitingUpdatePredictions).toEqual([]);
+      expect(landing.upcomingPredictions).toEqual([]);
+      expect(landing.historicalPredictions.map((prediction) => prediction.matchSlug)).toEqual([
+        "world-cup-2026-stale-scheduled-verified",
+      ]);
+    }
+
+    expect(history.status).toBe("ready");
+    if (history.status === "ready") {
+      expect(history.predictions.map((prediction) => prediction.matchSlug)).toEqual([
+        "world-cup-2026-stale-scheduled-verified",
+      ]);
+    }
+
+    expect(upcoming.status).toBe("ready");
+    if (upcoming.status === "ready") {
+      expect(upcoming.predictions).toEqual([]);
+    }
+  });
+
   it("keeps explicit postponed and cancelled states visible with honest labels and no verified final result", async () => {
     const rows = [
       buildRow({

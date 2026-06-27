@@ -92,6 +92,32 @@ Automatically verify only when:
 - never create or mutate a prediction;
 - never silently overwrite a changed verified score.
 
+### Manual reconciliation fallback
+
+Use manual reconciliation only when all of these are true:
+
+- the stored World Cup fixture is exact and kickoff is already in the past;
+- no verified result exists yet;
+- provider refresh could not materialize a trusted terminal result;
+- an admin has confirmed the official final score from a trusted source.
+
+Operator path:
+
+1. Open `/admin/real-fixture-result-review-queue`.
+2. Find the fixture under `Manual result reconciliation`.
+3. Enter `home_goals`, `away_goals`, and a required source note describing the official source.
+4. Submit to create a `match_results` row with `verification_status = pending_review` and `intake_source = manual`.
+5. Verify that pending row through the existing review action. For stale public World Cup fixtures, this step may also finalize the stored match status to `finished`.
+6. Persist the internal evaluation only after the result is verified.
+
+Guardrails:
+
+- manual entry never auto-verifies the score;
+- manual entry never creates or mutates `prediction_versions`;
+- verification never changes the stored score;
+- evaluation only persists against the verified result;
+- if the score was entered incorrectly, correct it through a new reviewed admin action rather than rewriting prediction history.
+
 ## Exception handling
 
 Exception examples:

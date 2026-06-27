@@ -452,20 +452,36 @@ function SummaryTable(args: {
 }
 
 function canVerifyRealFixtureResultControl(fixture: RealFixtureLabFixtureView) {
+  const kickoffTime = Date.parse(fixture.kickoffAt);
+  const isWorldCupPastKickoffPublicFixture =
+    fixture.accessScope === "public" &&
+    fixture.competitionName.toLowerCase().includes("world cup") &&
+    Number.isFinite(kickoffTime) &&
+    kickoffTime <= Date.now();
+
   return (
     fixture.intakeSource === "api_football" &&
     fixture.result?.verification_status === "pending_review" &&
     (fixture.accessScope === "admin_only" ||
-      (fixture.accessScope === "public" && fixture.status === "finished"))
+      (fixture.accessScope === "public" &&
+        (fixture.status === "finished" || isWorldCupPastKickoffPublicFixture)))
   );
 }
 
 function canPersistRealFixtureEvaluationControl(fixture: RealFixtureLabFixtureView) {
+  const kickoffTime = Date.parse(fixture.kickoffAt);
+  const isWorldCupPastKickoffPublicFixture =
+    fixture.accessScope === "public" &&
+    fixture.competitionName.toLowerCase().includes("world cup") &&
+    Number.isFinite(kickoffTime) &&
+    kickoffTime <= Date.now();
+
   return (
     fixture.intakeSource === "api_football" &&
     fixture.savedPrediction !== null &&
     (fixture.accessScope === "admin_only" ||
-      (fixture.accessScope === "public" && fixture.status === "finished"))
+      (fixture.accessScope === "public" &&
+        (fixture.status === "finished" || isWorldCupPastKickoffPublicFixture)))
   );
 }
 
