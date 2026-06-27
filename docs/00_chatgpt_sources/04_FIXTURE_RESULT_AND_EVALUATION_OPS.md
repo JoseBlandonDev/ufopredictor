@@ -1,6 +1,6 @@
 # Fixture, Result, and Evaluation Operations
 
-_Last refreshed: 2026-06-26 after the Prediction Intelligence v2 Task 3B stage bootstrap._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
 
 ## Operating model
 
@@ -17,7 +17,11 @@ Production combines:
 - exception-oriented review;
 - public-safe partner export.
 
-Stage now has the foundational schedule, team, venue, rating, and historical data needed for the V1/V2 path, but it does not yet have model or prediction rows.
+Stage now has:
+
+- the foundational schedule, team, venue, rating, and historical data needed for the V1/V2 path;
+- the exact 24 Matchday 3 runtime rows linked to approved API-Football fixture IDs;
+- no model or prediction rows yet.
 
 ## Public lifecycle
 
@@ -150,7 +154,7 @@ schemaVersion: torneo-ufo-export-v1
 
 The production contract remains unchanged by Task 3B.
 
-## Stage Task 3B operations state
+## Stage Task 3B and Task 1C linkage state
 
 Task 3B completed:
 
@@ -164,28 +168,56 @@ Task 3B completed:
 - Auth/admin preservation;
 - production denial.
 
-Current authenticated stage smoke result:
+Task 1C fixture-linkage completed:
+
+```text
+reviewed Matchday 3 rows = 24
+atomic RPC requestedCount = 24
+atomic RPC updatedCount = 24
+exact post-state verified = 24
+production writes = 0
+```
+
+All 24 rows now use:
+
+```text
+external_id = api-football:fixture:<approved id>
+intake_source = api_football
+```
+
+The atomic RPC is `public.apply_task1c_stage_v1_fixture_linkage(jsonb)` and is executable only by `service_role`.
+
+The associated migration was applied manually in stage. Migration-history repair for `20260626220000` remains pending but does not block the V1 import. Do not rerun the migration or linkage apply.
+
+Current authenticated stage behavior:
 
 - `/admin/real-fixture-publish-queue` loads;
 - the prior competition-resolution error is gone;
 - no active model version exists;
-- no exact fixture is currently eligible for the bounded queue;
 - `/predictions` loads and reports no public predictions.
 
-The queue is not a generic view of all 72 matches. It requires eligible scheduled API-Football-linked admin-only fixtures in its bounded future window.
+The queue is not a generic view of all 72 matches. Its result also depends on fixture lifecycle, bounded timing, access scope, and an active model version.
 
 ## Next operational slice
 
-`Stage V1 Visible Predictions Slice` should:
+```text
+Task 1C - V1 Model and Prediction Import
+```
 
-1. reconcile all 24 Matchday 3 fixture identities in stage;
-2. preserve and import the original immutable V1 model and prediction records;
-3. map records by stable provider identity or verified canonical slug;
-4. activate the canonical V1 model in stage;
-5. verify public and admin projections;
-6. rerun and prove zero growth.
+The verified fixture mapping is a completed prerequisite.
 
-Do not recalculate historical V1 probabilities using newer evidence.
+Required work:
+
+1. preserve the exact immutable V1 source;
+2. import one canonical V1 model version;
+3. map 24 original V1 prediction versions to the verified stage matches;
+4. import 240 prediction-market rows and only required frozen child records;
+5. activate the canonical V1 model;
+6. verify public and admin projections;
+7. rerun and prove zero growth;
+8. preserve Auth/admin and production read-only/no-write boundaries.
+
+Do not recalculate historical V1 probabilities, markets, timestamps, or narratives using newer evidence.
 
 ## Current-data refresh after V1 visibility
 
@@ -206,8 +238,13 @@ The imported source cutoff remains `2026-06-20` until an approved refresh replac
 
 - exact competition and fixture scope;
 - explicit stage or production target guard;
-- dry-run before apply;
+- one preflight, one apply, and one verification for a bounded operation;
+- repeat only when a concrete blocker or mismatch exists;
+- dry-run before apply when a runner supports it;
 - exact allowlist for production apply;
+- direct owner-operated PowerShell, SQL, Supabase, Railway, Git, or API work is allowed when it is the safer and faster path;
+- after repeated CLI or tooling failure, switch once to a safe direct path rather than cycling through equivalent retries;
+- trusted API-Football identity or terminal-result evidence already accepted under the approved checks is not re-audited without a concrete conflict;
 - idempotent writes;
 - immutable prediction versions;
 - no post-kickoff prediction generation;

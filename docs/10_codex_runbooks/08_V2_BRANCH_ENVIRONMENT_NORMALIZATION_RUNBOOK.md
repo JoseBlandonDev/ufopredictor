@@ -1,6 +1,6 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
+_Last refreshed: 2026-06-26 after Task 3B completion and the Task 1C fixture-linkage checkpoint._
 
 ## Goal
 
@@ -25,13 +25,14 @@ Verify actual branch, HEAD, environment, and write boundary before every task.
 production base: e771de3c39c480f05d026075e5e553fb75207468
 active integration branch: integration/prediction-intelligence-v2
 active Draft PR: #114
-last reviewed pre-checkpoint HEAD: 27782c25bb4dc752fe335f0b2515feec264f8a6d
+reviewed checkpoint HEAD: dba63d8cc3d6d9235295abb4fe8834db44caf519
+canonical local stage env: .env.stage.local
 old V2 branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
 old V2 head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
-The reviewed HEAD is the base before the owner commits Task 3B and the current documentation refresh.
+Verify actual HEAD and worktree before implementation.
 
 ## Completed normalization map
 
@@ -75,19 +76,20 @@ Do not create another stage environment.
 
 Do not use production credentials for stage.
 
-## Completed Task 3B state
+## Completed Task 3B and later fixture-linkage state
 
-- canonical stage migration chain externally verified at 46;
+Task 3B:
+
+- prior stage migration history externally verified at 46 entries;
 - migration 0038 applied in stage only;
 - stage foundation data imported;
 - second apply produced zero inserts and zero updates;
 - Auth user and admin profile preserved;
 - competition and season resolve;
 - publish queue and predictions pages load;
-- no model or prediction rows exist yet;
 - production remained untouched.
 
-Verified stage counts include:
+Verified foundation counts include:
 
 ```text
 teams = 48
@@ -99,9 +101,20 @@ historical match facts = 1392
 
 Current source cutoff is `2026-06-20`.
 
+Task 1C fixture-linkage checkpoint:
+
+- exact 24 Matchday 3 rows selected;
+- trusted provider identity verified;
+- `public.apply_task1c_stage_v1_fixture_linkage(jsonb)` installed in stage;
+- RPC requested 24 and updated 24;
+- exact post-state verified for all 24;
+- production writes remained zero.
+
+Migration `20260626220000` was applied manually and is operational. Migration-history repair remains pending and non-blocking. Do not rerun the migration or linkage apply.
+
 ## Current application gap
 
-Stage has foundation data but no active prediction product:
+Stage has foundation data and verified Matchday 3 provider linkage, but no active prediction product:
 
 ```text
 model_versions = 0
@@ -109,26 +122,29 @@ prediction_versions = 0
 public_prediction_summaries = 0
 ```
 
-This is the next bounded gap, not a reason to redo normalization or Task 3B.
+This is the next bounded gap, not a reason to redo normalization, Task 3B, or fixture linkage.
 
 ## Next transition
 
 Begin:
 
 ```text
-Stage V1 Visible Predictions Slice
+Task 1C - V1 Model and Prediction Import
 ```
 
 Required sequence:
 
-1. fixture registry Matchday 3 dry-run against stage;
-2. exact 24-fixture allowlist;
-3. deterministic provider linkage;
-4. immutable V1 source selection;
-5. V1 model and prediction import;
-6. public/admin smoke;
-7. idempotent second run;
-8. current-data and V2 handoff.
+1. select and freeze the immutable V1 source;
+2. reuse the verified 24-fixture stage mapping;
+3. import one canonical V1 model version;
+4. import 24 original V1 prediction versions;
+5. import 240 required prediction-market rows and only frozen source child records;
+6. activate V1;
+7. run public/admin smoke;
+8. rerun and prove zero growth;
+9. hand off to current-data and V2 work.
+
+Do not repeat fixture linkage.
 
 Do not generate V2 during this slice.
 
@@ -170,13 +186,17 @@ Those changes must:
 
 - confirmed branch, HEAD, and worktree;
 - exact stage target and production denial;
-- exact 24-fixture mapping;
+- proof that the accepted 24-fixture mapping was reused;
 - immutable V1 source and preservation proof;
 - per-table dry-run and apply counts;
-- active V1 model proof;
+- one active V1 model proof;
+- 24 prediction-version proof;
+- 240 market-row proof;
 - public/admin smoke results;
 - second-run zero-growth proof;
 - Auth/admin preservation;
 - production read-only/no-write proof;
 - concrete blockers only;
 - no Git commit or push unless the owner explicitly delegates it.
+
+Use one preflight, one apply, and one verification unless a concrete mismatch exists.

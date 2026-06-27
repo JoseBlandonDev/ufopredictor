@@ -61,7 +61,7 @@ function applyDevelopmentSupabaseAliases(): void {
 async function main() {
   const repoRoot = process.cwd();
   const defaults = resolveTask3BStageBootstrapDefaults(repoRoot);
-  const envFile = parseFlagValue(process.argv, "--env-file") ?? ".env.task3b.development.local";
+  const envFile = parseFlagValue(process.argv, "--env-file") ?? ".env.stage.local";
   const projectRef = parseFlagValue(process.argv, "--project-ref");
   const denyProjectRef = parseFlagValue(process.argv, "--deny-project-ref");
   const expectedMigrationCount = parseFlagValue(process.argv, "--expected-migration-count");

@@ -1,6 +1,6 @@
 # Prediction Intelligence v2 - Current Source
 
-_Last refreshed: 2026-06-26 after Task 3B stage bootstrap and idempotency proof._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
 
 ## Current status
 
@@ -9,11 +9,11 @@ Prediction Intelligence v2 is active on:
 ```text
 branch: integration/prediction-intelligence-v2
 Draft PR: #114
-last reviewed pre-checkpoint HEAD: 27782c25bb4dc752fe335f0b2515feec264f8a6d
+reviewed checkpoint HEAD: dba63d8cc3d6d9235295abb4fe8834db44caf519
 production base: main at e771de3c39c480f05d026075e5e553fb75207468
 ```
 
-Verify the actual current HEAD before implementation. The reviewed SHA is the base before the owner commits Task 3B and this documentation refresh.
+Verify the actual current HEAD and worktree before implementation.
 
 Prediction Intelligence v2 is not merged and not live in production.
 
@@ -40,7 +40,8 @@ The normalized integration branch includes:
 - Task 2 historical release packaging;
 - Task 2 local-run output safety;
 - Task 3A local planner, target guard, and dry-run contracts;
-- Task 3B stage bootstrap importer, tests, apply evidence, and idempotency proof.
+- Task 3B stage bootstrap importer, tests, apply evidence, and idempotency proof;
+- Task 1C atomic Matchday 3 fixture-linkage implementation and verified stage apply.
 
 No useful implementation remains to be ported from the old branch.
 
@@ -70,21 +71,22 @@ The prepared historical workspace preserves:
 
 Historical artifacts remain non-current unless an explicit current-data task refreshes and approves them.
 
-## Stage Task 3B result
+## Stage foundation and fixture-linkage result
 
 Target:
 
 ```text
 stage project: yfmklapgjrupctgxaako
 production deny project: gcpdffkgsdomzyoenalg
+canonical local stage env: .env.stage.local
 ```
 
-Stage migration state:
+Task 3B migration state:
 
-- 46 migrations externally verified;
+- prior stage migration history externally verified at 46 entries;
 - migration 0038 applied in stage;
 - migration 0038 not applied in production;
-- migration history not modified by the importer.
+- Task 3B importer did not modify migration history.
 
 Verified destination counts:
 
@@ -108,7 +110,7 @@ Verified destination counts:
 
 The remaining 32 knockout schedule rows are intentionally deferred from runtime linkage.
 
-Task 3B first apply succeeded. The second exact apply planned:
+Task 3B first apply succeeded and its exact rerun planned:
 
 ```text
 inserts = 0
@@ -116,11 +118,25 @@ updates = 0
 blockers = 0
 ```
 
+Task 1C fixture-linkage result:
+
+```text
+selected = 24
+RPC requestedCount = 24
+RPC updatedCount = 24
+verified exact post-state = 24
+production writes = 0
+```
+
+The RPC `public.apply_task1c_stage_v1_fixture_linkage(jsonb)` is installed in stage and service-role-only.
+
+Migration `20260626220000` was applied manually in the stage SQL Editor. Migration-history repair remains pending and non-blocking. Do not rerun the SQL migration or linkage apply.
+
 Auth user and admin profile were preserved. Production remained untouched.
 
 ## Current stage limitation
 
-Stage foundation data exists, but product predictions do not.
+Stage foundation data and exact Matchday 3 provider linkage exist, but product predictions do not.
 
 ```text
 model_versions = 0
@@ -129,7 +145,9 @@ prediction_versions = 0
 public_prediction_summaries = 0
 ```
 
-The publish queue and `/predictions` now load correctly, but both are empty for valid reasons.
+The publish queue and `/predictions` load correctly, but both remain empty for valid reasons.
+
+Task 1C is therefore in progress rather than complete.
 
 ## Current data freshness
 
@@ -200,17 +218,23 @@ vs current V2 candidate at an explicit shared cutoff
 ## Exact next slice
 
 ```text
-Stage V1 Visible Predictions Slice
+Task 1C - V1 Model and Prediction Import
 ```
+
+Completed prerequisite:
+
+- all 24 Matchday 3 fixtures are deterministically linked in stage and their exact post-state is verified.
 
 Required result:
 
-- all 24 Matchday 3 fixtures deterministically linked in stage;
-- canonical V1 model imported and activated;
-- original V1 predictions, markets, narratives, and required public detail imported without semantic recalculation;
-- stable mapping to stage match IDs;
+- one canonical V1 model imported and activated;
+- 24 original immutable V1 prediction versions imported without semantic recalculation;
+- 240 required prediction-market rows imported;
+- only frozen source child records imported, with no invented narratives or detail;
+- stable mapping to the verified stage match IDs;
 - stage public and admin surfaces validated;
 - second run proves zero row growth;
+- Auth/admin preserved;
 - production remains read-only and untouched.
 
 ## V2 current-data path

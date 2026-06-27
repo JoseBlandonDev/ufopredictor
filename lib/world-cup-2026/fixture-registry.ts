@@ -308,6 +308,20 @@ type SeasonResolution =
       conflictReason: string;
     };
 
+export type ProviderFixtureIdentityCheck =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      conflictCode:
+        | "provider_group_stage_mismatch"
+        | "provider_reversed_teams"
+        | "provider_team_mismatch"
+        | "provider_kickoff_mismatch";
+      conflictReason: string;
+    };
+
 function normalizeText(value: string): string {
   return value
     .normalize("NFKD")
@@ -592,6 +606,44 @@ function resolveProviderFixtureIdentityConflict(
   }
 
   return null;
+}
+
+export function verifyWorldCupProviderFixtureIdentity(args: {
+  canonicalFixture: {
+    fixtureKey: string;
+    homeTeamKey: string;
+    awayTeamKey: string;
+    kickoffAt: string;
+  };
+  providerFixture: ProviderFixture;
+}): ProviderFixtureIdentityCheck {
+  const conflict = resolveProviderFixtureIdentityConflict(
+    args.canonicalFixture as (typeof WORLD_CUP_2026_FIXTURES)[number],
+    args.providerFixture,
+  );
+
+  if (!conflict) {
+    return { ok: true };
+  }
+
+  if (conflict.state !== "conflict") {
+    throw new Error("Expected provider identity verification conflict state.");
+  }
+
+  if (
+    conflict.conflictCode !== "provider_group_stage_mismatch" &&
+    conflict.conflictCode !== "provider_reversed_teams" &&
+    conflict.conflictCode !== "provider_team_mismatch" &&
+    conflict.conflictCode !== "provider_kickoff_mismatch"
+  ) {
+    throw new Error(`Unexpected provider identity conflict code: ${conflict.conflictCode}`);
+  }
+
+  return {
+    ok: false,
+    conflictCode: conflict.conflictCode,
+    conflictReason: conflict.conflictReason,
+  };
 }
 
 function resolveCompetition(
