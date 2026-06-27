@@ -125,21 +125,18 @@ const marketGlossary = [
   },
   {
     key: "btts",
-    title: "Ambos equipos marcan (BTTS)",
-    description:
-      "Probabilidad de que los dos equipos anoten al menos un gol.",
+    title: "¿Anotan ambos equipos?",
+    description: "Probabilidad de que cada equipo marque al menos un gol.",
   },
   {
     key: "over-2-5",
-    title: "Más de 2,5 goles",
-    description:
-      "Probabilidad de que el partido termine con tres goles o más.",
+    title: "Total de goles del partido: 3 o más goles",
+    description: "Probabilidad de que el partido termine con 3 o más goles.",
   },
   {
     key: "under-2-5",
-    title: "Menos de 2,5 goles",
-    description:
-      "Probabilidad de que el partido termine con dos goles o menos.",
+    title: "Total de goles del partido: 2 o menos goles",
+    description: "Probabilidad de que el partido termine con 2 o menos goles.",
   },
   {
     key: "confidence",
@@ -156,8 +153,8 @@ const marketGlossary = [
 ] as const;
 
 const premiumMarketLabels: Record<string, string> = {
-  btts: "Ambos equipos marcan (BTTS)",
-  over_2_5: "Más / Menos de 2,5 goles",
+  btts: "¿Anotan ambos equipos?",
+  over_2_5: "Total de goles del partido",
   exact_score: "Marcador exacto",
   match_winner: "Ganador del partido",
 };
@@ -165,8 +162,8 @@ const premiumMarketLabels: Record<string, string> = {
 const premiumMarketSelections: Record<string, string> = {
   yes: "Sí",
   no: "No",
-  over: "Más de 2,5",
-  under: "Menos de 2,5",
+  over: "3 o más goles",
+  under: "2 o menos goles",
   home: "Victoria local",
   away: "Victoria visitante",
   draw: "Empate",

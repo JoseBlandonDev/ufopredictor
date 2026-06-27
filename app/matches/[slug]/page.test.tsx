@@ -211,9 +211,13 @@ describe("MatchDetailPage", () => {
     expect(html).toContain("Crear cuenta gratis");
     expect(html).toContain("Lectura UFO");
     expect(html).toContain("El modelo le da a Alemania la probabilidad más alta en su lectura del partido.");
+    expect(html).toContain("Probabilidad de que anoten ambos equipos");
+    expect(html).toContain("Proyección del total de goles");
     expect(html).not.toContain("Goles esperados (xG)");
     expect(html).not.toContain("Escenarios representativos del partido");
     expect(html).not.toContain("Dentro del modelo, esta lectura");
+    expect(html).not.toContain("Ambos equipos marcan");
+    expect(html).not.toContain("Más/Menos de 2,5");
   });
 
   it("shows historical premium preview for eligible registered free users without hiding the upgrade path", async () => {
@@ -240,7 +244,14 @@ describe("MatchDetailPage", () => {
     expect(html).toContain("Este análisis fue publicado antes del partido.");
     expect(html).toContain("Consulta este nivel de análisis antes del próximo partido");
     expect(html).toContain("Goles esperados (xG)");
+    expect(html).toContain("¿Anotan ambos equipos?");
+    expect(html).toContain("Probabilidad de que cada equipo marque al menos un gol.");
+    expect(html).toContain("Total de goles del partido");
+    expect(html).toContain("3 o más goles");
+    expect(html).toContain("2 o menos goles");
     expect(html).toContain("Dentro del modelo, esta lectura todavía deja espacio para varios desenlaces.");
+    expect(html).not.toContain("Ambos equipos marcan (BTTS)");
+    expect(html).not.toContain("Más / Menos de 2,5 goles");
   });
 
   it("does not unlock historical premium content for unverified results", async () => {

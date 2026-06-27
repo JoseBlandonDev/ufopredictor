@@ -71,8 +71,8 @@ export default async function PricingPage() {
                 <ul className="mt-5 space-y-2 text-sm text-[var(--muted)]">
                   <li>Escenarios representativos</li>
                   <li>Goles esperados (xG)</li>
-                  <li>Ambos equipos marcan</li>
-                  <li>Más/Menos de 2,5</li>
+                  <li>Probabilidad de que anoten ambos equipos</li>
+                  <li>Proyección del total de goles</li>
                   <li>Interpretación completa de confianza y riesgo</li>
                 </ul>
               </div>

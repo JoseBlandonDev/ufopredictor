@@ -65,9 +65,13 @@ describe("PricingPage", () => {
     expect(html).toContain("Cobro Wompi: COP 68.700");
     expect(html).toContain("Pase Mundial 2026");
     expect(html).toContain("Crear cuenta para comprar");
+    expect(html).toContain("Probabilidad de que anoten ambos equipos");
+    expect(html).toContain("Proyección del total de goles");
     expect(html).toContain('href="/register?next=/pricing"');
     expect(html).toContain('href="/login?next=/pricing"');
     expect(html).not.toContain("WOMPI_CHECKOUT_BUTTON");
+    expect(html).not.toContain("Ambos equipos marcan");
+    expect(html).not.toContain("Más/Menos de 2,5");
     expect(html).not.toContain("10 Match Pack");
     expect(html).not.toContain("Single Match Unlock");
   });
