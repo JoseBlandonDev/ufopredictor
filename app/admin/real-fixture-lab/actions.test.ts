@@ -71,6 +71,7 @@ vi.mock("next/cache", () => ({
 }));
 
 import {
+  createManualRealFixtureResultAction,
   persistRealFixtureEvaluationAction,
   publishRealFixturePredictionAction,
   refreshPublishedRealFixturePredictionAction,
@@ -80,6 +81,7 @@ import {
 
 const externalId = "api-football:fixture:1540356";
 const predictionVersionId = "00000000-0000-4000-8000-000000000123";
+const manualMatchId = "00000000-0000-4000-8000-000000000789";
 const fixture = {
   id: "match-1",
   externalId,
@@ -133,6 +135,26 @@ function buildVerificationFormData(
   formData.set("matchResultId", matchResultId);
   if (returnTo) {
     formData.set("returnTo", returnTo);
+  }
+  return formData;
+}
+
+function buildManualResultFormData(overrides?: {
+  matchId?: string;
+  externalId?: string;
+  homeGoals?: string;
+  awayGoals?: string;
+  sourceNote?: string;
+  returnTo?: string;
+}) {
+  const formData = new FormData();
+  formData.set("matchId", overrides?.matchId ?? manualMatchId);
+  formData.set("externalId", overrides?.externalId ?? externalId);
+  formData.set("home_goals", overrides?.homeGoals ?? "2");
+  formData.set("away_goals", overrides?.awayGoals ?? "1");
+  formData.set("source_note", overrides?.sourceNote ?? "Official FIFA report");
+  if (overrides?.returnTo) {
+    formData.set("returnTo", overrides.returnTo);
   }
   return formData;
 }
@@ -292,6 +314,74 @@ function createMatchResultsVerificationBuilder(options?: {
             })),
           })),
         })),
+      })),
+    })),
+  };
+
+  return builder;
+}
+
+function createMatchSelectAndStatusUpdateBuilder(options: {
+  maybeSingle?: { data: unknown; error: unknown };
+  updateResult?: { data?: unknown; error: unknown };
+}) {
+  const builder = {
+    select: vi.fn(() => builder),
+    eq: vi.fn(() => builder),
+    maybeSingle: vi.fn(() =>
+      Promise.resolve(
+        options.maybeSingle ?? {
+          data: null,
+          error: null,
+        },
+      ),
+    ),
+    update: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          select: vi.fn(() => ({
+            maybeSingle: vi.fn(() =>
+              Promise.resolve(
+                options.updateResult ?? {
+                  data: { id: "match-1" },
+                  error: null,
+                },
+              ),
+            ),
+          })),
+        })),
+      })),
+    })),
+  };
+
+  return builder;
+}
+
+function createMatchResultsManualMutationBuilder(options?: {
+  maybeSingle?: { data: unknown; error: unknown };
+  insertResult?: { data?: unknown; error: unknown };
+}) {
+  const builder = {
+    select: vi.fn(() => builder),
+    eq: vi.fn(() => builder),
+    maybeSingle: vi.fn(() =>
+      Promise.resolve(
+        options?.maybeSingle ?? {
+          data: null,
+          error: null,
+        },
+      ),
+    ),
+    insert: vi.fn(() => ({
+      select: vi.fn(() => ({
+        maybeSingle: vi.fn(() =>
+          Promise.resolve(
+            options?.insertResult ?? {
+              data: { id: "manual-result-1" },
+              error: null,
+            },
+          ),
+        ),
       })),
     })),
   };
@@ -521,6 +611,7 @@ describe("persistRealFixtureEvaluationAction", () => {
     access_scope: "public",
     intake_source: "api_football",
     status: "finished",
+    kickoff_at: "2026-06-09T02:00:00Z",
   };
 
   beforeEach(() => {
@@ -578,13 +669,14 @@ describe("persistRealFixtureEvaluationAction", () => {
           access_scope: "admin_only",
           intake_source: "api_football",
           status: "scheduled",
+          kickoff_at: "2026-06-09T02:00:00Z",
         },
         error: null,
       },
     );
     const competitionBuilder = createSingleSelectBuilder(
       options?.competition ?? {
-        data: { id: "competition-1", usage_scope: "public_product" },
+        data: { id: "competition-1", slug: "friendlies-2026", usage_scope: "public_product" },
         error: null,
       },
     );
@@ -657,6 +749,35 @@ describe("persistRealFixtureEvaluationAction", () => {
     );
 
     expect(client.competitionBuilder.select).toHaveBeenCalled();
+    expect(client.predictionResultsBuilder.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        prediction_version_id: predictionVersionId,
+        actual_home_goals: 2,
+        actual_away_goals: 0,
+      }),
+    );
+  });
+
+  it("allows internal evaluation persistence for a public scheduled World Cup fixture after kickoff", async () => {
+    const client = buildEvaluationClient({
+      match: {
+        data: {
+          ...publicFinishedMatch,
+          status: "scheduled",
+        },
+        error: null,
+      },
+      competition: {
+        data: { id: "competition-1", slug: "world-cup-2026", usage_scope: "public_product" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(persistRealFixtureEvaluationAction(buildEvaluationFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&evaluation=saved`,
+    );
+
     expect(client.predictionResultsBuilder.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         prediction_version_id: predictionVersionId,
@@ -803,20 +924,22 @@ describe("verifyRealFixtureResultAction", () => {
     access_scope: "public",
     intake_source: "api_football",
     status: "finished",
+    kickoff_at: "2026-06-09T02:00:00Z",
   };
 
   function buildVerificationClient(options?: {
     result?: { data: unknown; error: unknown };
     match?: { data: unknown; error: unknown };
     competition?: { data: unknown; error: unknown };
+    updateMatch?: { data?: unknown; error: unknown };
     updateResult?: { data?: unknown; error: unknown };
   }) {
     const matchResultsBuilder = createMatchResultsVerificationBuilder({
       maybeSingle: options?.result ?? { data: pendingReviewResult, error: null },
       updateResult: options?.updateResult ?? { data: { id: "00000000-0000-4000-8000-000000000456" }, error: null },
     });
-    const matchBuilder = createSingleSelectBuilder(
-      options?.match ?? {
+    const matchBuilder = createMatchSelectAndStatusUpdateBuilder({
+      maybeSingle: options?.match ?? {
         data: {
           id: "match-1",
           competition_id: "competition-1",
@@ -824,13 +947,15 @@ describe("verifyRealFixtureResultAction", () => {
           access_scope: "admin_only",
           intake_source: "api_football",
           status: "scheduled",
+          kickoff_at: "2026-06-09T02:00:00Z",
         },
         error: null,
       },
-    );
+      updateResult: options?.updateMatch ?? { data: { id: "match-1" }, error: null },
+    });
     const competitionBuilder = createSingleSelectBuilder(
       options?.competition ?? {
-        data: { id: "competition-1", usage_scope: "public_product" },
+        data: { id: "competition-1", slug: "friendlies-2026", usage_scope: "public_product" },
         error: null,
       },
     );
@@ -876,6 +1001,7 @@ describe("verifyRealFixtureResultAction", () => {
       }),
     );
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-lab");
+    expect(client.matchBuilder.update).not.toHaveBeenCalled();
   });
 
   it("returns to the lightweight result review queue when requested", async () => {
@@ -909,6 +1035,7 @@ describe("verifyRealFixtureResultAction", () => {
 
     expect(client.competitionBuilder.select).toHaveBeenCalled();
     expect(client.matchResultsBuilder.update).toHaveBeenCalled();
+    expect(client.matchBuilder.update).not.toHaveBeenCalled();
   });
 
   it("blocks when no result exists", async () => {
@@ -934,7 +1061,7 @@ describe("verifyRealFixtureResultAction", () => {
     );
   });
 
-  it("blocks verification for a public scheduled fixture", async () => {
+  it("allows verification for a public scheduled World Cup fixture after kickoff", async () => {
     const client = buildVerificationClient({
       match: {
         data: {
@@ -943,13 +1070,43 @@ describe("verifyRealFixtureResultAction", () => {
         },
         error: null,
       },
+      competition: {
+        data: { id: "competition-1", slug: "world-cup-2026", usage_scope: "public_product" },
+        error: null,
+      },
     });
     createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
 
     await expect(verifyRealFixtureResultAction(buildVerificationFormData())).rejects.toThrow(
-      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=not_found`,
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=verified`,
     );
-    expect(client.matchResultsBuilder.update).not.toHaveBeenCalled();
+    expect(client.matchBuilder.update).toHaveBeenCalledWith({ status: "finished" });
+    expect(client.matchResultsBuilder.update).toHaveBeenCalled();
+  });
+
+  it("syncs stale public World Cup match status exactly once before verifying the result", async () => {
+    const client = buildVerificationClient({
+      match: {
+        data: {
+          ...publicFinishedVerificationMatch,
+          status: "scheduled",
+        },
+        error: null,
+      },
+      competition: {
+        data: { id: "competition-1", slug: "world-cup-2026", usage_scope: "public_product" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(verifyRealFixtureResultAction(buildVerificationFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=verified`,
+    );
+
+    expect(client.matchBuilder.update).toHaveBeenCalledTimes(1);
+    expect(client.matchBuilder.update).toHaveBeenCalledWith({ status: "finished" });
+    expect(client.matchResultsBuilder.update).toHaveBeenCalled();
   });
 
   it("blocks when the result is already verified", async () => {
@@ -980,6 +1137,165 @@ describe("verifyRealFixtureResultAction", () => {
       `REDIRECT:/admin/real-fixture-lab?externalId=${encodeURIComponent(externalId)}&result=rejected`,
     );
     expect(client.matchResultsBuilder.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("createManualRealFixtureResultAction", () => {
+  const manualEligibleMatch = {
+    id: manualMatchId,
+    competition_id: "competition-1",
+    external_id: externalId,
+    access_scope: "public",
+    intake_source: "api_football",
+    status: "scheduled",
+    kickoff_at: "2026-06-09T02:00:00Z",
+  };
+
+  function buildManualCreateClient(options?: {
+    match?: { data: unknown; error: unknown };
+    competition?: { data: unknown; error: unknown };
+    existingResult?: { data: unknown; error: unknown };
+    insertResult?: { data?: unknown; error: unknown };
+  }) {
+    const matchBuilder = createSingleSelectBuilder(
+      options?.match ?? { data: manualEligibleMatch, error: null },
+    );
+    const competitionBuilder = createSingleSelectBuilder(
+      options?.competition ?? {
+        data: { id: "competition-1", slug: "world-cup-2026" },
+        error: null,
+      },
+    );
+    const matchResultsBuilder = createMatchResultsManualMutationBuilder({
+      maybeSingle: options?.existingResult ?? { data: null, error: null },
+      insertResult: options?.insertResult ?? { data: { id: "manual-result-1" }, error: null },
+    });
+
+    const from = vi.fn((table: string) => {
+      if (table === "matches") return matchBuilder;
+      if (table === "competitions") return competitionBuilder;
+      if (table === "match_results") return matchResultsBuilder;
+      throw new Error(`unexpected table ${table}`);
+    });
+
+    return {
+      from,
+      matchBuilder,
+      competitionBuilder,
+      matchResultsBuilder,
+    };
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    requireAdminMock.mockResolvedValue({ user: { id: "admin-1" } });
+  });
+
+  it("creates a pending manual result for an eligible public World Cup fixture with no result", async () => {
+    const client = buildManualCreateClient();
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(createManualRealFixtureResultAction(buildManualResultFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-result-review-queue?externalId=${encodeURIComponent(externalId)}&manual=created`,
+    );
+
+    expect(client.matchResultsBuilder.insert).toHaveBeenCalledWith({
+      match_id: manualMatchId,
+      home_goals: 2,
+      away_goals: 1,
+      verification_status: "pending_review",
+      intake_source: "manual",
+      source_note: "Official FIFA report",
+      reviewed_at: null,
+      reviewed_by: null,
+    });
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin/real-fixture-result-review-queue");
+  });
+
+  it("rejects non-admin access", async () => {
+    requireAdminMock.mockRejectedValue(new Error("FORBIDDEN"));
+
+    await expect(createManualRealFixtureResultAction(buildManualResultFormData())).rejects.toThrow(
+      "FORBIDDEN",
+    );
+    expect(createSupabaseServerClientMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects future fixtures", async () => {
+    const client = buildManualCreateClient({
+      match: {
+        data: { ...manualEligibleMatch, kickoff_at: "2099-06-09T02:00:00Z" },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(createManualRealFixtureResultAction(buildManualResultFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-result-review-queue?externalId=${encodeURIComponent(externalId)}&manual=future`,
+    );
+    expect(client.matchResultsBuilder.insert).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid scores", async () => {
+    await expect(
+      createManualRealFixtureResultAction(buildManualResultFormData({ homeGoals: "-1" })),
+    ).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-result-review-queue?externalId=${encodeURIComponent(externalId)}&manual=invalid`,
+    );
+    expect(createSupabaseServerClientMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects missing source note", async () => {
+    await expect(
+      createManualRealFixtureResultAction(buildManualResultFormData({ sourceNote: "   " })),
+    ).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-result-review-queue?externalId=${encodeURIComponent(externalId)}&manual=invalid`,
+    );
+    expect(createSupabaseServerClientMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a different existing verified result", async () => {
+    const client = buildManualCreateClient({
+      existingResult: {
+        data: {
+          id: "result-1",
+          home_goals: 1,
+          away_goals: 0,
+          verification_status: "verified",
+          intake_source: "api_football",
+          source_note: "provider",
+        },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(createManualRealFixtureResultAction(buildManualResultFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-result-review-queue?externalId=${encodeURIComponent(externalId)}&manual=conflict`,
+    );
+    expect(client.matchResultsBuilder.insert).not.toHaveBeenCalled();
+  });
+
+  it("treats an identical pending manual result as idempotent", async () => {
+    const client = buildManualCreateClient({
+      existingResult: {
+        data: {
+          id: "result-1",
+          home_goals: 2,
+          away_goals: 1,
+          verification_status: "pending_review",
+          intake_source: "manual",
+          source_note: "Official FIFA report",
+        },
+        error: null,
+      },
+    });
+    createSupabaseServerClientMock.mockResolvedValue({ from: client.from });
+
+    await expect(createManualRealFixtureResultAction(buildManualResultFormData())).rejects.toThrow(
+      `REDIRECT:/admin/real-fixture-result-review-queue?externalId=${encodeURIComponent(externalId)}&manual=already_pending`,
+    );
+    expect(client.matchResultsBuilder.insert).not.toHaveBeenCalled();
   });
 });
 

@@ -197,10 +197,22 @@ describe("RealFixtureLabPage control visibility", () => {
     expect(html).toContain("Refrescar prediccion publica para este fixture");
   });
 
-  it("does not render the verification control for a selected public scheduled fixture", async () => {
+  it("renders the verification control for a selected public scheduled World Cup fixture after kickoff", async () => {
     const html = await renderSelectedFixture(
       buildFixture({
         status: "scheduled",
+      }),
+    );
+
+    expect(html).toContain("Verify result");
+    expect(html).toContain("Refrescar prediccion publica para este fixture");
+  });
+
+  it("does not render the verification control for a selected public scheduled non-World-Cup fixture", async () => {
+    const html = await renderSelectedFixture(
+      buildFixture({
+        status: "scheduled",
+        competitionName: "Friendlies",
       }),
     );
 
