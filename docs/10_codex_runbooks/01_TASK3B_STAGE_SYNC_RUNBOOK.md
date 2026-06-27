@@ -1,6 +1,6 @@
 # Task 3B Stage Synchronization Runbook
 
-_Last refreshed: 2026-06-26 after successful stage apply and idempotency verification._
+_Last refreshed: 2026-06-26 after Task 3B completion and the later Task 1C fixture-linkage checkpoint._
 
 ## Status
 
@@ -95,7 +95,7 @@ Dry-run or apply uses explicit stage and production-deny refs:
 
 ```powershell
 npx tsx scripts/prediction-intelligence-v2/run-task3b-stage-bootstrap.ts `
-  --env-file .env.task3b.development.local `
+  --env-file .env.stage.local `
   --project-ref yfmklapgjrupctgxaako `
   --deny-project-ref gcpdffkgsdomzyoenalg `
   --expected-migration-count 46 `
@@ -134,27 +134,56 @@ Before and after Task 3B:
 
 ## Current stage application result
 
-- World Cup competition resolves;
-- World Cup season resolves;
-- publish queue competition resolution succeeds;
-- publish queue loads but has no active model version and no eligible exact fixture;
-- `/predictions` loads but has no public predictions.
+At Task 3B completion:
 
-These empty states are expected and are not a Task 3B failure.
+- World Cup competition resolved;
+- World Cup season resolved;
+- publish queue competition resolution succeeded;
+- publish queue loaded but had no active model version and no eligible exact fixture;
+- `/predictions` loaded but had no public predictions.
+
+These empty states were expected and were not a Task 3B failure.
+
+Post-Task 3B checkpoint:
+
+- the exact 24 Matchday 3 rows were linked to approved API-Football fixture IDs;
+- the atomic linkage RPC requested and updated 24 rows;
+- all 24 post-state rows were verified;
+- production remained untouched.
+
+The post-Task 3B linkage is not part of this importer and must not be replayed through a Task 3B rerun.
 
 ## Remaining work outside Task 3B
 
-Task 3B did not:
+Completed after Task 3B:
 
-- import the V1 model;
-- import prediction versions;
-- publish predictions;
+- exact 24 Matchday 3 fixture linkage in stage.
+
+Still remaining:
+
+- import one canonical V1 model;
+- import 24 immutable V1 prediction versions;
+- import 240 required prediction-market rows;
+- activate the V1 model;
+- expose and validate public/admin predictions;
 - refresh current Elo or FIFA data;
 - refresh current standings and tournament form;
 - generate V2 candidates;
-- configure Wompi or an AI provider.
+- configure Wompi or an AI provider only under a later explicit task.
 
-The next task is `Stage V1 Visible Predictions Slice`.
+The next task is:
+
+```text
+Task 1C - V1 Model and Prediction Import
+```
+
+Operational debt outside this runbook:
+
+```text
+migration-history repair pending for 20260626220000
+```
+
+The RPC migration is already applied and operational in stage. Do not rerun it. The pending history repair does not block the V1 import.
 
 ## Rerun gate
 

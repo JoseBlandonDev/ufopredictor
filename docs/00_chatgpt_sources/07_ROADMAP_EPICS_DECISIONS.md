@@ -1,6 +1,6 @@
 # Roadmap, MVP2 Epics, and Open Decisions
 
-_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion and MVP2 roadmap simplification._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
 
 ## MVP2 objective
 
@@ -40,8 +40,8 @@ Rules:
 ## Current status summary
 
 ```text
-Epic 1  Foundation and Stage          - Task 1A and 1B complete; 1C next
-Epic 2  Current Football Data         - planned after 1C
+Epic 1  Foundation and Stage          - Task 1A and 1B done; Task 1C in progress, linkage complete
+Epic 2  Current Football Data         - planned after Task 1C
 Epic 3  V2 Candidate and Evaluation   - planned after current data
 Epic 4  Expert Product Experience     - parallel, separate owner
 Epic 5  Operations and Automation     - partially delivered, continuing
@@ -82,16 +82,32 @@ Current stage remains empty of model and prediction rows.
 
 ### Task 1C - V1 visible baseline
 
-Status: `Next`
+Status: `In progress`
 
-Deliverables:
+Completed:
 
-- exact 24 Matchday 3 fixture linkage in stage;
-- canonical V1 model import and activation;
-- original immutable V1 prediction baseline imported without recalculation;
+- exact 24 Matchday 3 fixture allowlist;
+- trusted API-Football identity verification;
+- atomic stage-only linkage RPC;
+- 24-row apply and exact post-state verification;
+- zero production writes;
+- `.env.stage.local` established as the sole active local stage environment file.
+
+Remaining:
+
+- one canonical V1 model import and activation;
+- 24 original immutable V1 prediction versions;
+- 240 required prediction-market rows;
+- only frozen source child records, without semantic recalculation;
 - public and admin visibility;
 - second-run zero-growth proof;
 - handoff to current-data refresh.
+
+Operational note:
+
+- migration `20260626220000` is applied and operational in stage;
+- migration-history repair remains pending and does not block the remaining Task 1C work;
+- fixture linkage must not be repeated.
 
 ## Epic 2 - Current Football Data
 
@@ -289,8 +305,12 @@ Do not use old labels for new MVP2 tasks.
 
 - MVP1 remains live during MVP2 work;
 - production and stage remain separate;
+- `.env.stage.local` is the sole active local stage environment file;
 - old V2 branch is preservation only;
 - stage foundation bootstrap is complete and idempotent;
+- Task 1C fixture linkage is complete for the exact 24 Matchday 3 rows;
+- the linkage RPC is atomic, service-role-only, and must not be rerun without a concrete recovery need;
+- migration-history repair for `20260626220000` is non-blocking;
 - production writes remain denied from the integration task path;
 - original V1 publications are immutable baselines;
 - finished-fixture V2 comparison uses `historical_replay`;
@@ -301,13 +321,16 @@ Do not use old labels for new MVP2 tasks.
 - user-facing language should explain football rather than assume betting literacy;
 - canonical identity and facts are locale-neutral;
 - ES, EN, and PT are core language targets;
-- API-Football is trusted for valid exact terminal result operations;
+- API-Football is trusted for valid exact fixture identity and terminal-result operations under the approved checks;
 - Torneo Mundialista continues to consume `torneo-ufo-export-v1`;
-- Epic 4 is a parallel workstream for another owner and does not redirect the primary data/model work.
+- Epic 4 is a parallel workstream for another owner and does not redirect the primary data/model work;
+- bounded operations use one preflight, one apply, and one verification unless a concrete mismatch exists;
+- the owner may directly operate Git, PowerShell, Supabase, Railway, SQL, and trusted APIs;
+- Codex is primarily used for repository inspection, bounded code implementation, tests, and review.
 
 ## Decisions still required
 
-- exact immutable V1 source used for stage import;
+- final immutable V1 import mapping and exact child-record scope after the frozen source is read;
 - final current-data source set and refresh cadence;
 - V1 probabilities plus V2 analysis versus gated V2 probabilities;
 - final public, free, and premium signal matrix;
@@ -320,15 +343,18 @@ Do not use old labels for new MVP2 tasks.
 
 ## Exact next sequence
 
-1. owner commits Task 3B and this documentation checkpoint;
+1. apply and commit the Task 1C linkage checkpoint documentation;
 2. replace the shared ChatGPT source set;
-3. start `Stage V1 Visible Predictions Slice`;
-4. complete Epic 1 Task 1C;
-5. execute Epic 2 current-data refresh;
-6. execute Epic 3 live candidate and historical replay;
-7. compare and decide release mode;
-8. continue Epic 4 in parallel under a separate owner;
-9. promote only after stage acceptance.
+3. start `Task 1C - V1 Model and Prediction Import`;
+4. import and activate the canonical V1 model;
+5. import 24 immutable prediction versions and 240 required market rows;
+6. validate public/admin visibility and prove zero growth;
+7. complete Epic 1 Task 1C;
+8. execute Epic 2 current-data refresh;
+9. execute Epic 3 live candidate and historical replay;
+10. compare and decide release mode;
+11. continue Epic 4 in parallel under a separate owner;
+12. promote only after stage acceptance.
 
 ## Delivery rule
 
@@ -339,6 +365,10 @@ Every epic and task uses:
 - exact write scope;
 - acceptance evidence;
 - rollback boundary;
+- one preflight, one apply, and one verification for a bounded operation;
+- direct owner operation where Git, PowerShell, Supabase, Railway, SQL, or an approved API is the efficient path;
 - documentation refresh at meaningful checkpoints.
+
+Repeat an operation only after a concrete blocker, mismatch, or approved recovery need.
 
 Avoid giant PRs that combine model, data, payments, UI, migrations, operations, and documentation.

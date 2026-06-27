@@ -1,6 +1,6 @@
 # Architecture, Data, and Security - UFO Predictor
 
-_Last refreshed: 2026-06-26 after the Prediction Intelligence v2 Task 3B stage bootstrap._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
 
 ## System overview
 
@@ -28,6 +28,14 @@ stage:      stage.ufopredictor.com -> stage Supabase yfmklapgjrupctgxaako
 ```
 
 Production and stage have separate users, sessions, profiles, roles, entitlements, data, and secrets.
+
+Canonical local stage environment:
+
+```text
+.env.stage.local
+```
+
+It is the sole active local stage variable file. Task-specific stage env files are not active configuration sources.
 
 Never clone production Auth, payment history, webhook payloads, subscriptions, entitlements, or personal data into stage.
 
@@ -109,23 +117,46 @@ Future fields should be added compatibly rather than breaking the v1 contract.
 
 ## Prediction Intelligence v2 stage foundation
 
-Integration migration:
+Foundation migration:
 
 ```text
 0038_prediction_intelligence_v2_data_foundation.sql
 ```
 
-Current status:
+Current foundation status:
 
 - committed on `integration/prediction-intelligence-v2`;
 - structurally tested;
 - applied to stage;
 - not applied to production;
-- included in an externally verified 46-migration stage chain.
+- prior stage migration history externally verified at 46 entries;
+- Task 3B foundation import complete and idempotent.
 
-The Task 3B importer is stage-only, explicit-target, production-denied, checksum-aware, and idempotent.
+Task 1C atomic fixture-linkage migration:
 
-It requires explicit external migration-history attestation because PostgREST does not expose `supabase_migrations` through the current read path.
+```text
+20260626220000_task1c_stage_v1_atomic_fixture_linkage_apply.sql
+```
+
+It installs:
+
+```text
+public.apply_task1c_stage_v1_fixture_linkage(jsonb)
+```
+
+RPC properties:
+
+- `security invoker`;
+- exactly 24 reviewed rows;
+- validates the complete prior state before mutation;
+- updates only `matches.external_id` and `matches.intake_source`;
+- all 24 updates commit or all roll back;
+- execution granted only to `service_role`;
+- `public`, `anon`, and `authenticated` execution revoked.
+
+The migration was applied manually through the stage SQL Editor. The function is operational and the 24-row apply was verified. Migration-history repair for version `20260626220000` remains pending and is non-blocking. Do not rerun the migration or linkage apply.
+
+The Task 3B importer remains stage-only, explicit-target, production-denied, checksum-aware, and idempotent.
 
 ## Populated stage analytical state
 
@@ -151,7 +182,14 @@ Verified counts:
 
 Official knockout rows 73-104 remain reference schedule rows without fabricated runtime participants.
 
-API-Football provider linkage was not invented for rows without a trustworthy provider identity.
+Within the 72 runtime matches, the exact 24 Matchday 3 fixtures are now linked to their approved API-Football IDs:
+
+```text
+external_id = api-football:fixture:<id>
+intake_source = api_football
+```
+
+No provider identity was invented for rows outside the reviewed Task 1C scope.
 
 ## Identity and localization rules
 
@@ -246,7 +284,7 @@ These are planned extensions. They are not required for the first V2.0 release.
 
 ## Current stage application boundary
 
-Task 3B populated foundation data only.
+Task 3B populated foundation data and Task 1C completed the exact 24-fixture linkage.
 
 Stage still has:
 
@@ -257,7 +295,7 @@ prediction_versions = 0
 public_prediction_summaries = 0
 ```
 
-The next slice imports the immutable V1 baseline and links current fixture identity before V2 candidate generation.
+The next slice reuses the verified 24-match mapping to import and activate the immutable V1 model, 24 V1 prediction versions, and required child records. It does not repeat fixture linkage or generate V2.
 
 ## Security boundaries
 
@@ -266,10 +304,13 @@ The next slice imports the immutable V1 baseline and links current fixture ident
 - no secrets committed or printed;
 - production-write authorization fails closed;
 - stage writes require explicit stage identity and production denial;
+- `.env.stage.local` is the sole active local stage variable source;
 - public views expose only product-safe fields;
 - payment webhook validation is server-side;
 - started-fixture publication remains immutable;
 - broad production apply is forbidden;
 - trusted result verification never authorizes prediction mutation;
 - a changed verified score becomes a reconciliation event, not a silent overwrite;
+- the Task 1C linkage RPC is service-role-only and exact-count atomic;
+- a remotely confirmed atomic commit is never repeated merely because a later local verification script failed;
 - browser automation may inspect authenticated stage only and must not carry production sessions into the stage workflow.

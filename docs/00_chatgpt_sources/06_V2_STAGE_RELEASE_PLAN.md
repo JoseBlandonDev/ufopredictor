@@ -1,6 +1,6 @@
 # Prediction Intelligence v2 - Integration, Stage, and Release Plan
 
-_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
 
 ## Environment decision
 
@@ -16,7 +16,13 @@ Production is:
 ufopredictor.com -> Railway production -> Supabase gcpdffkgsdomzyoenalg
 ```
 
-Do not create another environment or revive the abandoned Docker path for normal work.
+Canonical local stage variables live only in:
+
+```text
+.env.stage.local
+```
+
+Do not create another environment, revive the abandoned Docker path, or restore task-specific active stage env files.
 
 ## Current branch state
 
@@ -24,12 +30,12 @@ Do not create another environment or revive the abandoned Docker path for normal
 production base: e771de3c39c480f05d026075e5e553fb75207468
 integration branch: integration/prediction-intelligence-v2
 Draft PR: #114
-last reviewed pre-checkpoint HEAD: 27782c25bb4dc752fe335f0b2515feec264f8a6d
+reviewed checkpoint HEAD: dba63d8cc3d6d9235295abb4fe8834db44caf519
 old source branch: feature/prediction-intelligence-v2-data-foundation
 old Draft PR: #106
 ```
 
-Verify the actual integration HEAD before implementation.
+Verify the actual integration HEAD and worktree before implementation.
 
 ## Phase 0 - integration normalization
 
@@ -54,11 +60,13 @@ Completed:
 - explicit stage identity and production denial;
 - migration and schema inspection;
 - stage Auth preservation assessment;
-- manual application of the canonical 46-migration chain where CLI behavior was unreliable;
+- manual application of the canonical 46-migration foundation chain where CLI behavior was unreliable;
 - migration 0038 applied to stage only;
 - no production migration or write.
 
-Migration history remains externally verified because the service-role PostgREST path cannot query `supabase_migrations`.
+The prior migration history remains externally verified because the service-role PostgREST path cannot query `supabase_migrations`.
+
+A later Task 1C RPC migration, version `20260626220000`, was applied manually in the stage SQL Editor. It is operational, but migration-history repair for that version remains pending and non-blocking.
 
 ## Phase 2 - Task 3B foundation bootstrap
 
@@ -85,24 +93,42 @@ Current source cutoff:
 
 ## Phase 3 - Stage V1 Visible Predictions Slice
 
-Status: `Next`
+Status: `In progress`
 
 Goal: establish the exact immutable V1 baseline in stage before V2 comparison.
 
-Required work:
+Completed fixture-linkage subblock:
 
-1. run the Matchday 3 fixture registry against stage in dry-run mode;
-2. produce an exact 24-fixture allowlist manifest;
-3. reconcile existing manual runtime rows with trusted API-Football fixture IDs;
-4. locate the complete original V1 baseline from committed safe artifacts or strict read-only production queries;
-5. import the canonical V1 model version;
-6. map original V1 prediction records to stage matches by stable identity;
-7. import required prediction markets, narratives, and public detail records without recalculation;
-8. activate V1 in stage;
-9. verify `/predictions`, match detail, and admin surfaces;
-10. rerun and prove zero growth.
+- exact Matchday 3 dry-run and 24-fixture allowlist;
+- trusted API-Football identity verification;
+- atomic service-role-only RPC installation;
+- 24-row stage apply;
+- exact 24-row post-state verification;
+- zero production writes.
 
-Do not recompute historical V1 probabilities or narratives with current data.
+Accepted result:
+
+```text
+RPC requestedCount = 24
+RPC updatedCount = 24
+verified external_id matches = 24
+verified intake_source matches = 24
+```
+
+Remaining work:
+
+1. locate and freeze the complete original V1 baseline from committed safe artifacts or strict read-only production queries;
+2. import one canonical V1 model version;
+3. map 24 original V1 prediction versions to the already linked stage matches;
+4. import 240 required prediction-market rows and only frozen source child records;
+5. activate V1 in stage;
+6. verify `/predictions`, match detail, and admin surfaces;
+7. rerun and prove zero growth;
+8. preserve Auth/admin and production read-only/no-write boundaries.
+
+Do not repeat fixture linkage.
+
+Do not recompute historical V1 probabilities, markets, timestamps, or narratives with current data.
 
 Production access, if needed as a source, is read-only and exact-scope only.
 

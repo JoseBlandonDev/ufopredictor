@@ -1,6 +1,6 @@
 # Start Here - UFO Predictor Current
 
-_Last refreshed: 2026-06-26 after the Prediction Intelligence v2 Task 3B stage bootstrap and idempotency checkpoint._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
 
 ## Current truth
 
@@ -17,7 +17,14 @@ Production remains on the v1-compatible probability layer and continues to suppo
 - admin operational queues;
 - a public-safe Torneo Mundialista JSON export.
 
-Prediction Intelligence v2 is not live in production. Its stage data foundation is now operational, but stage still has no active model version and no visible public predictions.
+Prediction Intelligence v2 is not live in production.
+
+Stage now has:
+
+- the Task 3B analytical foundation;
+- 72 runtime group-stage matches;
+- the exact 24 Matchday 3 fixtures linked to approved API-Football fixture IDs;
+- no active model version and no visible public predictions yet.
 
 Historical v2 artifacts, candidate names, release recommendations, and publication plans remain research evidence. They are not current production decisions.
 
@@ -29,16 +36,16 @@ Production baseline used for the current integration track:
 main: e771de3c39c480f05d026075e5e553fb75207468
 ```
 
-Active v2 integration:
+Active v2 integration checkpoint:
 
 ```text
 branch: integration/prediction-intelligence-v2
 Draft PR: #114
-last reviewed pre-checkpoint HEAD: 27782c25bb4dc752fe335f0b2515feec264f8a6d
+reviewed checkpoint HEAD: dba63d8cc3d6d9235295abb4fe8834db44caf519
 status: open, Draft
 ```
 
-Always verify the actual current HEAD before implementation. The SHA above is the reviewed base before the owner commits the Task 3B implementation, evidence, and this documentation refresh.
+Always verify the actual current HEAD and worktree before implementation. The reviewed checkpoint includes the atomic Task 1C fixture-linkage implementation; the documentation package may be applied and committed afterward.
 
 Preserved historical source:
 
@@ -65,6 +72,14 @@ stage:      yfmklapgjrupctgxaako
 production: gcpdffkgsdomzyoenalg
 ```
 
+Canonical local stage environment file:
+
+```text
+.env.stage.local
+```
+
+`.env.stage.local` is the sole active local source for stage variables. The former task-specific stage environment file was consolidated, backed up outside the repository, and retired from active code and runbooks. Historical archive references remain unchanged.
+
 Production and stage have separate Auth, users, sessions, roles, entitlements, data, and secrets.
 
 Do not create another stage environment. Do not revive the abandoned Docker path for normal stage work.
@@ -78,21 +93,22 @@ Completed on the integration track:
 - Task 1.2 historical Elo reconstruction;
 - Task 2 challenger, calibration, signal gates, eligibility, and historical packaging;
 - Task 3A local-only planner and target-safety preparation;
-- Task 3B stage schema synchronization and bounded data bootstrap.
+- Task 3B stage schema synchronization and bounded data bootstrap;
+- Task 1C exact Matchday 3 fixture-linkage subblock.
 
 Task 3B is technically complete and proved idempotent.
 
-## Stage Task 3B checkpoint
+Task 1C is in progress. Its fixture-linkage subblock is complete; model and prediction import remains.
 
-Stage now has the canonical migration chain, including migration 0038, applied in stage only.
+## Stage Task 3B and Task 1C linkage checkpoint
 
-Migration history was externally verified as:
+Stage retains the Task 3B foundation:
 
-```text
-46 migrations
-```
-
-The current importer cannot read `supabase_migrations` through PostgREST, so it records an explicit external operator attestation instead of misreporting zero migrations.
+- the prior migration history was externally verified at 46 entries;
+- migration 0038 is applied in stage only;
+- foundation import and zero-growth rerun are complete;
+- existing Auth user and admin profile were preserved;
+- production, Wompi, payment, entitlement, webhook, session, and personal-data writes did not occur.
 
 Verified stage foundation counts:
 
@@ -116,30 +132,33 @@ Verified stage foundation counts:
 
 Official knockout match numbers 73-104 remain intentionally deferred from runtime linkage until participants are deterministically known.
 
-Task 3B safety proof:
+Task 1C fixture-linkage result:
 
-- stage-only target proved;
-- production project explicitly denied;
-- first apply succeeded;
-- second apply planned zero inserts and zero updates;
-- all destination counts remained unchanged;
-- existing stage Auth user remained present;
-- existing profile remained `admin`;
-- no production, Wompi, payment, entitlement, webhook, session, or personal-data write occurred.
+```text
+selected Matchday 3 fixtures = 24
+atomic RPC requestedCount = 24
+atomic RPC updatedCount = 24
+post-state rows verified = 24
+external_id exact matches = 24
+intake_source exact matches = 24
+production writes = 0
+```
+
+The installed stage-only RPC is:
+
+```text
+public.apply_task1c_stage_v1_fixture_linkage(jsonb)
+```
+
+It may execute only as `service_role`; `anon` and `authenticated` execution are revoked.
+
+Migration `20260626220000_task1c_stage_v1_atomic_fixture_linkage_apply.sql` was applied manually through the stage SQL Editor. It is operational. Supabase migration-history repair for version `20260626220000` remains pending and does not block the V1 import slice. Do not rerun the SQL migration or fixture-linkage apply.
 
 ## Current stage product state
 
 Stage application and admin Auth work.
 
-Authenticated smoke checks show:
-
-- `/admin/real-fixture-publish-queue` loads without the previous competition-resolution server error;
-- the queue reports no active model version;
-- the queue has no currently eligible exact fixtures;
-- `/predictions` loads and reports no public predictions;
-- no production prediction content appears in stage.
-
-Current stage counts:
+The exact 24 Matchday 3 runtime rows now carry their approved API-Football fixture identity. Stage still has no active prediction product:
 
 ```text
 model_versions = 0
@@ -148,7 +167,13 @@ prediction_versions = 0
 public_prediction_summaries = 0
 ```
 
-The empty queue is expected. Its query requires a scheduled, not-started, API-Football-linked, admin-only fixture inside the bounded queue window, plus an active model version before saving a prediction.
+Authenticated smoke checks previously showed:
+
+- `/admin/real-fixture-publish-queue` loads without the old competition-resolution error;
+- `/predictions` loads and reports no public predictions;
+- no production prediction content appears in stage.
+
+The empty prediction state is expected until the canonical V1 model and immutable V1 publications are imported and activated.
 
 ## Data freshness boundary
 
@@ -181,20 +206,24 @@ Task 3B did not modify production.
 The next bounded conversation is:
 
 ```text
-Stage V1 Visible Predictions Slice
+Task 1C - V1 Model and Prediction Import
 ```
 
-Its goal is to:
+The verified 24-fixture linkage is an accepted prerequisite and must not be repeated.
 
-1. preserve the exact immutable Matchday 3 V1 baseline;
-2. link all 24 Matchday 3 fixtures to API-Football in stage;
-3. import and activate the canonical V1 model version;
-4. map the original V1 prediction records to stage fixtures by stable identity;
-5. make those predictions visible in stage public and admin surfaces;
-6. rerun the importer and prove zero duplicate growth;
-7. prepare the current-data and V2 historical-replay handoff.
+Required result:
 
-Do not regenerate historical V1 predictions with newer data.
+1. select and preserve the exact immutable V1 source;
+2. import one canonical V1 model version;
+3. map and import 24 original V1 prediction versions to the already linked stage matches;
+4. import the required 240 prediction-market rows and only the frozen child records that actually exist;
+5. activate the canonical V1 model in stage;
+6. validate `/predictions`, match detail, and relevant admin surfaces;
+7. rerun and prove zero duplicate growth;
+8. preserve Auth/admin state and production read-only/no-write boundaries;
+9. prepare the current-data and V2 historical-replay handoff.
+
+Do not regenerate historical V1 probabilities, markets, timestamps, or narratives with newer evidence.
 
 ## Sequence after V1 is visible
 

@@ -1,6 +1,6 @@
 # Implementation, Validation, and Release Checklist
 
-_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint._
 
 ## Every task
 
@@ -9,7 +9,10 @@ _Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
 - declare environment and write scope;
 - identify production deny boundaries;
 - keep changes bounded to the requested concern;
-- add focused tests;
+- use one preflight, one apply, and one verification;
+- repeat only after a concrete blocker, mismatch, or approved recovery need;
+- after repeated tooling failure, switch once to a safe direct owner-operated path;
+- add focused tests when code changes;
 - run lint and diff-check;
 - classify typecheck or build failures as task-local or preexisting;
 - report exact behavior, evidence, and final HEAD;
@@ -53,27 +56,42 @@ Do not reopen Task 3B unless a concrete schema, source, or recovery need exists.
 
 ## Stage V1 Visible Predictions Slice
 
-Before apply:
+Completed prerequisite:
 
 - exact 24-fixture Matchday 3 allowlist;
-- deterministic mapping by provider ID, external ID, or verified canonical slug;
+- deterministic API-Football identity verification;
+- atomic service-role-only stage linkage RPC;
+- RPC requested 24 and updated 24;
+- exact post-state verified for all 24 rows;
+- production untouched.
+
+Do not repeat fixture linkage or migration `20260626220000`.
+
+Before V1 import apply:
+
 - complete immutable V1 source identified;
 - production source access read-only and exact-scope;
+- verified stage match IDs reused;
 - no probability, xG, score, confidence, risk, market, narrative, or timestamp recomputation;
 - canonical V1 model identity resolved;
+- expected scope fixed at one model, 24 prediction versions, and 240 market rows;
+- only frozen child records accepted;
 - per-table balanced dry-run;
 - no Auth/payment/entitlement scope.
 
 After apply:
 
-- exactly 24 expected V1 fixture baselines available in stage;
+- exactly 24 expected immutable V1 fixture baselines available in stage;
 - active V1 model version present;
+- 240 required market rows present without duplicate growth;
 - public prediction projection populated;
 - `/predictions` and match detail load;
 - admin queue and review surfaces remain coherent;
 - second run produces zero row growth;
 - Auth/admin unchanged;
 - production untouched.
+
+Migration-history repair for `20260626220000` is a separate non-blocking operation and must not be mixed into the V1 import apply.
 
 ## Current-data refresh
 

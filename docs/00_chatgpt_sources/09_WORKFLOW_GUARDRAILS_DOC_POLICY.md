@@ -1,6 +1,6 @@
 # Workflow Guardrails and Documentation Policy
 
-_Last refreshed: 2026-06-26 after Task 3B stage bootstrap completion._
+_Last refreshed: 2026-06-26 after the Task 1C Matchday 3 fixture-linkage checkpoint and workflow simplification decision._
 
 ## Source hierarchy
 
@@ -133,24 +133,44 @@ Old `M2-xx` names remain historical references only.
 
 ## Owner and Codex responsibility split
 
-Owner terminal work normally includes:
+The owner may directly operate:
 
-- branch and status verification;
-- staging review;
-- commit;
-- push;
-- final log and status confirmation.
+- Git;
+- PowerShell and local scripts;
+- Supabase dashboard, SQL Editor, PostgREST, and approved RPCs;
+- Railway configuration and deployment surfaces;
+- trusted external APIs;
+- staging, commit, push, final log, and source replacement.
 
-Codex work normally includes:
+Codex normally handles:
 
 - repository inspection;
 - bounded implementation;
 - tests and static validation;
+- runbook inventory;
 - authenticated stage smoke checks where appropriate;
-- exact changed-file report;
-- concrete blockers and verdict.
+- exact changed-file reports;
+- concrete blockers and verdicts.
+
+Codex is not a required intermediary for routine Git, Supabase, Railway, SQL, or API operations.
 
 ChatGPT owns canonical shared-source authoring in the current project workflow.
+
+For bounded operations, use:
+
+```text
+one preflight
+one apply
+one verification
+```
+
+Repeat only when a concrete blocker, mismatch, or approved recovery need exists.
+
+After repeated CLI or tooling failure, switch once to a safe direct owner-operated path rather than cycling through equivalent retries.
+
+A local verification-script failure after a remotely confirmed atomic commit does not authorize repeating the apply. Read the actual remote state once.
+
+Trusted API-Football identity or terminal-result evidence that already passed the approved checks is not re-audited without a concrete conflict.
 
 ## Prediction immutability
 
@@ -192,9 +212,14 @@ Current candidate generation requires current data, explicit cutoffs, stage vali
 
 - production project is `gcpdffkgsdomzyoenalg`;
 - stage project is `yfmklapgjrupctgxaako`;
+- `.env.stage.local` is the sole active local stage environment file;
 - migration 0038 is applied in stage only;
-- the stage migration chain is externally verified as 46 migrations;
+- the prior stage migration history is externally verified at 46 entries;
 - Task 3B foundation import is complete and idempotent;
+- Task 1C fixture-linkage migration `20260626220000` is applied manually and operational in stage;
+- migration-history repair for `20260626220000` remains pending and non-blocking;
+- the exact 24 Matchday 3 rows are linked and verified;
+- do not rerun the Task 1C linkage migration or apply;
 - production writes remain forbidden from the V2 integration workflow;
 - no production user, payment, entitlement, webhook, session, or personal-data cloning;
 - stage Wompi and optional AI configuration remain out of scope until explicitly scheduled;
@@ -206,20 +231,25 @@ Approved normal automation may:
 
 - discover and register exact fixtures;
 - synchronize bounded status metadata;
-- trust API-Football for valid exact terminal results;
+- trust API-Football for valid exact identity and terminal results;
 - persist eligible evaluations idempotently;
 - generate reports and partner exports;
 - refresh approved stage reference and signal snapshots.
 
 Automation must:
 
-- use dry-run first;
+- use one preflight, one apply, and one verification for a bounded operation;
 - require exact allowlists for production apply;
+- use explicit target and deny boundaries;
 - never create post-kickoff predictions;
 - never mutate published predictions;
 - never silently overwrite a changed verified score;
 - preserve observable audit evidence;
-- prove rerun idempotency for imports and publication baselines.
+- prove rerun idempotency for imports and publication baselines;
+- avoid repeated equivalent retries after a tooling failure;
+- escalate only concrete exceptions to human review.
+
+Direct owner-operated PowerShell, SQL, Supabase, Railway, Git, or trusted API execution is an approved operating mode when it preserves the same scope and safety boundaries.
 
 ## Parallel product work governance
 
@@ -243,6 +273,7 @@ Refresh canonical docs after:
 - branch or PR supersession or merge;
 - migration, schema, or environment change;
 - stage import milestone;
+- fixture-linkage milestone;
 - visible V1 baseline milestone;
 - current-data refresh milestone;
 - model candidate or release decision;
@@ -250,5 +281,7 @@ Refresh canonical docs after:
 - automation governance change;
 - major tournament coverage or publication milestone;
 - language or product-scope decision.
+
+Refresh at meaningful checkpoints, not after every command.
 
 A successful checkpoint must not leave active documentation describing the completed phase as future work.
