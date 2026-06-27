@@ -281,6 +281,331 @@ describe("world cup result refresh", () => {
     expect(report.rows[0]?.resultAction).toBe("none");
   });
 
+  it("resolves provider-linked canonical fixtures with World Cup catalog aliases", () => {
+    const snapshot = buildSnapshot({
+      teams: [
+        { id: "team-home", name: "South Korea" },
+        { id: "team-away", name: "Czechia" },
+      ],
+      matches: [
+        {
+          id: "match-1",
+          external_id: "api-football:fixture:1538999",
+          slug: "world-cup-2026-south-korea-vs-czech-republic-2026-06-12",
+          competition_id: "competition-1",
+          home_team_id: "team-home",
+          away_team_id: "team-away",
+          kickoff_at: "2026-06-12T02:00:00Z",
+          stage: "Group Stage - 1",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+      ],
+      predictionVersions: [],
+      predictionMarkets: [],
+    });
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1538999"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-23T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [
+        buildProviderFixture({
+          providerFixtureId: 1538999,
+          kickoffAt: "2026-06-12T02:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 1",
+          },
+          homeTeam: {
+            providerTeamId: 10,
+            name: "Korea Republic",
+            winner: true,
+          },
+          awayTeam: {
+            providerTeamId: 11,
+            name: "Czechia",
+            winner: false,
+          },
+          goals: {
+            home: 2,
+            away: 0,
+          },
+        }),
+      ],
+    });
+
+    expect(report.rows[0]?.canonicalFixtureId).toBe("wc2026-match-002");
+    expect(report.rows[0]?.trustedAutoVerifyEligible).toBe(true);
+  });
+
+  it("resolves Czechia to the canonical Czech Republic fixture and makes the row auto-verify eligible", () => {
+    const snapshot = buildSnapshot({
+      teams: [
+        { id: "team-home", name: "Czechia" },
+        { id: "team-away", name: "Mexico" },
+      ],
+      matches: [
+        {
+          id: "match-53",
+          external_id: "api-football:fixture:1539010",
+          slug: "world-cup-2026-czechia-vs-mexico-2026-06-25",
+          competition_id: "competition-1",
+          home_team_id: "team-home",
+          away_team_id: "team-away",
+          kickoff_at: "2026-06-25T01:00:00Z",
+          stage: "Group Stage - 3",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+      ],
+      predictionVersions: [],
+      predictionMarkets: [],
+    });
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1539010"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-26T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [
+        buildProviderFixture({
+          providerFixtureId: 1539010,
+          kickoffAt: "2026-06-25T01:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 3",
+          },
+          homeTeam: {
+            providerTeamId: 53,
+            name: "Czechia",
+            winner: false,
+          },
+          awayTeam: {
+            providerTeamId: 54,
+            name: "Mexico",
+            winner: true,
+          },
+          goals: {
+            home: 0,
+            away: 3,
+          },
+        }),
+      ],
+    });
+
+    expect(report.rows[0]?.canonicalFixtureId).toBe("wc2026-match-053");
+    expect(report.rows[0]?.trustedAutoVerifyEligible).toBe(true);
+    expect(report.rows[0]?.resultAction).toBe("create_verified");
+  });
+
+  it("resolves Ivory Coast aliases to the canonical Côte d’Ivoire fixture and makes the row auto-verify eligible", () => {
+    const snapshot = buildSnapshot({
+      teams: [
+        { id: "team-home", name: "Curacao" },
+        { id: "team-away", name: "Ivory Coast" },
+      ],
+      matches: [
+        {
+          id: "match-55",
+          external_id: "api-football:fixture:1489409",
+          slug: "world-cup-2026-curacao-vs-ivory-coast-2026-06-25",
+          competition_id: "competition-1",
+          home_team_id: "team-home",
+          away_team_id: "team-away",
+          kickoff_at: "2026-06-25T20:00:00Z",
+          stage: "Group Stage - 3",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+      ],
+      predictionVersions: [],
+      predictionMarkets: [],
+    });
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1489409"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-26T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [
+        buildProviderFixture({
+          providerFixtureId: 1489409,
+          kickoffAt: "2026-06-25T20:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 3",
+          },
+          homeTeam: {
+            providerTeamId: 55,
+            name: "Curaçao",
+            winner: false,
+          },
+          awayTeam: {
+            providerTeamId: 56,
+            name: "Ivory Coast",
+            winner: true,
+          },
+          goals: {
+            home: 0,
+            away: 2,
+          },
+        }),
+      ],
+    });
+
+    expect(report.rows[0]?.canonicalFixtureId).toBe("wc2026-match-055");
+    expect(report.rows[0]?.trustedAutoVerifyEligible).toBe(true);
+    expect(report.rows[0]?.resultAction).toBe("create_verified");
+  });
+
+  it("keeps reversed and unrelated team identities blocked", () => {
+    const reversedSnapshot = buildSnapshot({
+      teams: [
+        { id: "team-home", name: "Mexico" },
+        { id: "team-away", name: "Czechia" },
+      ],
+      matches: [
+        {
+          id: "match-53",
+          external_id: "api-football:fixture:1539010",
+          slug: "world-cup-2026-mexico-vs-czechia-2026-06-25",
+          competition_id: "competition-1",
+          home_team_id: "team-home",
+          away_team_id: "team-away",
+          kickoff_at: "2026-06-25T01:00:00Z",
+          stage: "Group Stage - 3",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+      ],
+      predictionVersions: [],
+      predictionMarkets: [],
+    });
+    const reversedSelection = buildWorldCupResultRefreshSelection(reversedSnapshot, {
+      externalIds: ["api-football:fixture:1539010"],
+    });
+    const reversedReport = planWorldCupResultRefresh({
+      generatedAt: "2026-06-26T00:00:00Z",
+      selection: reversedSelection,
+      snapshot: reversedSnapshot,
+      providerFixtures: [
+        buildProviderFixture({
+          providerFixtureId: 1539010,
+          kickoffAt: "2026-06-25T01:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 3",
+          },
+          homeTeam: {
+            providerTeamId: 53,
+            name: "Czechia",
+            winner: false,
+          },
+          awayTeam: {
+            providerTeamId: 54,
+            name: "Mexico",
+            winner: true,
+          },
+          goals: {
+            home: 0,
+            away: 3,
+          },
+        }),
+      ],
+    });
+
+    expect(reversedReport.rows[0]?.trustedAutoVerifyEligible).toBe(false);
+    expect(reversedReport.rows[0]?.conflictSummary).toContain("does not resolve to a canonical World Cup fixture");
+
+    const unrelatedSnapshot = buildSnapshot({
+      teams: [
+        { id: "team-home", name: "Atlantis" },
+        { id: "team-away", name: "Mexico" },
+      ],
+      matches: [
+        {
+          id: "match-53",
+          external_id: "api-football:fixture:1539010",
+          slug: "world-cup-2026-atlantis-vs-mexico-2026-06-25",
+          competition_id: "competition-1",
+          home_team_id: "team-home",
+          away_team_id: "team-away",
+          kickoff_at: "2026-06-25T01:00:00Z",
+          stage: "Group Stage - 3",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+      ],
+      predictionVersions: [],
+      predictionMarkets: [],
+    });
+    const unrelatedSelection = buildWorldCupResultRefreshSelection(unrelatedSnapshot, {
+      externalIds: ["api-football:fixture:1539010"],
+    });
+    const unrelatedReport = planWorldCupResultRefresh({
+      generatedAt: "2026-06-26T00:00:00Z",
+      selection: unrelatedSelection,
+      snapshot: unrelatedSnapshot,
+      providerFixtures: [
+        buildProviderFixture({
+          providerFixtureId: 1539010,
+          kickoffAt: "2026-06-25T01:00:00Z",
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Group Stage - 3",
+          },
+          homeTeam: {
+            providerTeamId: 53,
+            name: "Czechia",
+            winner: false,
+          },
+          awayTeam: {
+            providerTeamId: 54,
+            name: "Mexico",
+            winner: true,
+          },
+          goals: {
+            home: 0,
+            away: 3,
+          },
+        }),
+      ],
+    });
+
+    expect(unrelatedReport.rows[0]?.trustedAutoVerifyEligible).toBe(false);
+    expect(unrelatedReport.rows[0]?.conflictSummary).toContain("does not resolve to a canonical World Cup fixture");
+  });
+
   it("is idempotent on a second apply for the same trusted FT result", async () => {
     const snapshot = buildSnapshot();
     const providerFixtures = [buildProviderFixture()];
