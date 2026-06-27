@@ -1,6 +1,6 @@
 # Prediction Intelligence v2 - Current
 
-_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
+_Last refreshed: 2026-06-27 after PR #117 was merged to production and synchronized into the active V2 integration branch._
 
 ## Current product and model state
 
@@ -18,6 +18,19 @@ post-state exact_complete
 ```
 
 V2 is not live in production and no current V2 candidate has yet been accepted for release.
+
+## Active branch checkpoint
+
+```text
+production main HEAD = 3aff0e4
+V2 integration branch = integration/prediction-intelligence-v2
+V2 integration HEAD = 5007de7
+active Draft PR = #114
+```
+
+PR #117 is now part of both `main` and the V2 branch through normal Git history.
+
+Its `Lectura UFO` helper is a V1 presentation improvement, not a V2 probability candidate and not evidence of V2 calibration superiority.
 
 ## Why the V1 baseline matters
 

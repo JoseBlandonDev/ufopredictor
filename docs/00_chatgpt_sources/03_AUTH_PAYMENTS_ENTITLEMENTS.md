@@ -1,6 +1,6 @@
 # Auth, Payments, and Entitlements - Current
 
-_Last refreshed: 2026-06-26 after the Prediction Intelligence v2 Task 3B stage checkpoint._
+_Last refreshed: 2026-06-27 after PR #117 premium regression smoke and permanent test-entitlement verification._
 
 ## Authentication baseline
 
@@ -56,6 +56,8 @@ The production commercial flow has been smoke-tested:
 
 Do not repeat a paid transaction merely because documentation or frontend copy changed.
 
+A non-payment test account may receive a direct, auditable admin entitlement for UI smoke work. That grant must use the existing entitlement authority, must not fabricate a Wompi payment, and must remain clearly identified as test/admin-originated.
+
 ## Entitlement operations
 
 Required properties:
@@ -65,6 +67,19 @@ Required properties:
 - explicit revocation path;
 - auditability of event, payment intent, and grant;
 - admin visibility without exposing secrets.
+
+## PR #117 entitlement regression proof
+
+The production smoke for `Lectura UFO` confirmed:
+
+- premium access remained server-validated;
+- premium xG, scenarios, BTTS, totals, and confidence/risk detail remained visible;
+- the new public reading supplemented rather than replaced premium analysis;
+- anonymous/free boundaries were not broadened;
+- no role change was required;
+- no payment or subscription row was used as a substitute for entitlement authority.
+
+The test premium account was granted an entitlement with no expiry for ongoing UI validation. Personal identifiers are intentionally not part of canonical documentation.
 
 ## Stage policy
 

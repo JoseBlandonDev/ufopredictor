@@ -1,6 +1,6 @@
 # Fixture, Result, and Evaluation Operations
 
-_Last refreshed: 2026-06-27 after Task 1C completion and integration of PR #115 and PR #116._
+_Last refreshed: 2026-06-27 after the latest five-result trusted-provider batch, public verification, and PR #117 production checkpoint._
 
 ## Operational truth
 
@@ -68,9 +68,68 @@ supabase/migrations/0039_manual_world_cup_result_reconciliation.sql
 
 This migration exists in Git and is part of the integrated branch history.
 
-**Boundary:** this documentation checkpoint does not claim that migration 0039 has been applied to stage or production. Remote application must be proven separately before relying on it operationally.
+The migration was applied successfully to both production and stage.
 
 Manual reconciliation is for exact, reviewed exceptions. It is not a replacement for trusted automated refresh and must not mutate predictions.
+
+The admin queue may show a manual form for started fixtures without a result. That form is a fallback. A blank pending-review queue after an automatic apply is expected because trusted API-Football results may be persisted, verified, and evaluated in the apply itself.
+
+## Latest production result checkpoint
+
+A matchday-wide dry-run found:
+
+```text
+selected_fixtures = 24
+provider_terminal_results = 12
+results_created = 3
+results_already_identical = 9
+results_verified = 12
+evaluations_created = 3
+evaluations_already_stored = 9
+exceptions_or_conflicts = 8
+skipped_rows = 4
+zero_write_confirmation = true
+```
+
+The operator then applied only exact safe allowlists.
+
+First apply:
+
+```text
+API-Football IDs = 1489414,1489415,1489417
+selected = 3
+results_created = 3
+results_verified = 3
+evaluations_created = 3
+exceptions_or_conflicts = 0
+evaluation_failures = 0
+```
+
+Second apply:
+
+```text
+API-Football IDs = 1489403,1489413
+selected = 2
+results_created = 2
+results_verified = 2
+evaluations_created = 2
+exceptions_or_conflicts = 0
+evaluation_failures = 0
+```
+
+Publicly verified finals:
+
+```text
+Egypt 1-1 Iran
+New Zealand 1-5 Belgium
+Uruguay 0-1 Spain
+Panama 0-1 Croatia
+Cape Verde 0-0 Saudi Arabia
+```
+
+The exact apply commands are closed and must not be repeated.
+
+The remaining conflict rows from the broad dry-run were intentionally not forced. They require a future exact read only when they become operationally relevant.
 
 ## Stage fixture linkage checkpoint
 
@@ -152,11 +211,13 @@ For production fixture/result operations:
 ```text
 discover/read
 -> exact identity validation
--> dry-run
--> allowlisted apply
--> verification
--> exception reconciliation when necessary
+-> one dry-run
+-> one exact provider-fixture allowlisted apply
+-> one public/admin verification
+-> exception reconciliation only when necessary
 ```
+
+Codex is not required for routine executions of this established runbook.
 
 For V2 stage data work:
 
@@ -190,10 +251,18 @@ A local script or formatting failure after a confirmed remote commit does not au
 
 ## Next transition
 
-The fixture/result layer is sufficient to support the next task:
+Routine production result operations remain available under the established exact-allowlist protocol.
+
+The primary V2 transition remains:
 
 ```text
-V2 Signal Baseline Database Load
+Task 2A - V2 Signal Baseline Database Load
 ```
 
-Current result refresh and tournament context will be added incrementally after the preserved 2026-06-20 baseline is stored with lineage.
+The parallel MVP1 transition is:
+
+```text
+Task 4C - Football-first premium terminology
+```
+
+Neither transition requires repeating the closed result applies above.

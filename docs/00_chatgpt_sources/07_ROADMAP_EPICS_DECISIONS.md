@@ -1,6 +1,6 @@
 # Roadmap, MVP2 Epics, and Decisions
 
-_Last refreshed: 2026-06-27 after Epic 1 completion._
+_Last refreshed: 2026-06-27 after PR #117 production release, latest trusted results, and synchronization into the V2 integration branch._
 
 ## MVP2 objective
 
@@ -34,7 +34,7 @@ Old `M2-xx` labels remain historical only.
 Epic 1  Foundation and Stage          - DONE
 Epic 2  Current Football Data         - ACTIVE
 Epic 3  V2 Candidate and Evaluation   - NEXT
-Epic 4  Expert Product Experience     - PARALLEL
+Epic 4  Expert Product Experience     - PARALLEL / TASKS 4A-4B DONE
 Epic 5  Operations and Automation     - PARTIALLY DELIVERED
 ```
 
@@ -187,7 +187,54 @@ Purpose:
 
 This epic does not own V2 data pipelines or probability changes.
 
-Production-safe work branches from current `main` and flows normally into the integration branch.
+### Task 4A - V1 Information Inventory
+
+Status: `Done`
+
+Delivered:
+
+- inventory of public, free, premium, and admin prediction surfaces;
+- inventory of persisted V1 probabilities, xG, confidence, risk, markets, scorelines, and narratives;
+- authorization-boundary review;
+- identification of hidden, duplicated, unclear, and betting-centric language;
+- exclusion of unfinished V2-only data and causal claims.
+
+### Task 4B - Public Expert Read
+
+Status: `Done`
+
+Delivered:
+
+- deterministic `Lectura UFO` on `/predictions` cards;
+- deterministic `Lectura UFO` on `/matches/[slug]`;
+- `Probabilidad del resultado` label on the touched surfaces;
+- anonymous reading based only on public home/draw/away probabilities;
+- optional confidence/risk sentence only where already authorized;
+- unchanged premium xG, scenarios, BTTS, totals, narratives, and entitlement behavior;
+- focused tests and production smoke.
+
+Release evidence:
+
+```text
+PR #117
+feature commit = 3d647b2
+main merge commit = 3aff0e4
+V2 integration sync HEAD = 5007de7
+production smoke = passed
+```
+
+### Task 4C - Football-first premium terminology
+
+Status: `Next`
+
+Bounded goal:
+
+- replace or explain `BTTS`, `Más/Menos de 2,5`, and market-oriented labels with clearer football-analysis language;
+- preserve underlying values;
+- preserve premium gating;
+- avoid broad copy rewrites;
+- keep the change small enough for one PR;
+- branch from current `main` and flow into V2 only after merge and production verification.
 
 ## Epic 5 - Operations and Automation
 
@@ -197,9 +244,10 @@ Delivered:
 - exact allowlists;
 - trusted result refresh;
 - idempotent result/evaluation persistence;
-- manual reconciliation path in Git;
+- manual reconciliation path applied to production and stage;
 - canonical result-refresh aliases;
-- stage bootstrap and V1 import operations.
+- stage bootstrap and V1 import operations;
+- latest five-result API-Football batch persisted, verified, evaluated, and publicly checked.
 
 Remaining:
 
@@ -261,16 +309,29 @@ Remaining:
 
 ## Exact next sequence
 
+Canonical handoff:
+
 1. apply this documentation checkpoint;
 2. replace the shared ChatGPT source set;
-3. start Task 2A - V2 Signal Baseline Database Load;
-4. prove lineage, counts, coverage, and idempotency;
-5. perform incremental current-data refresh;
-6. produce the first V2 shadow candidate;
-7. create fair historical replays;
-8. compare V1/V2 and decide release mode;
-9. continue Epic 4 in parallel;
-10. promote only after stage acceptance.
+3. perform one Codex consistency review of the authored replacements;
+4. start a fresh ChatGPT conversation for the parallel MVP1 track.
+
+Primary V2 track:
+
+1. start Task 2A - V2 Signal Baseline Database Load;
+2. prove lineage, counts, coverage, and idempotency;
+3. perform incremental current-data refresh;
+4. produce the first V2 shadow candidate;
+5. create fair historical replays;
+6. compare V1/V2 and decide release mode;
+7. promote only after stage acceptance.
+
+Parallel MVP1 track:
+
+1. start Task 4C - Football-first premium terminology from current `main`;
+2. keep the implementation to one bounded PR;
+3. verify production;
+4. merge the accepted `main` change into the V2 branch through normal Git history.
 
 ## Delivery rule
 

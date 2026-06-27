@@ -1,6 +1,6 @@
 # Workflow Guardrails and Documentation Policy
 
-_Last refreshed: 2026-06-27 after Task 1C completion and the transition to active V2 data work._
+_Last refreshed: 2026-06-27 after PR #117 production verification, trusted-result completion, and `main` to V2 synchronization._
 
 ## Source hierarchy
 
@@ -94,11 +94,13 @@ The operator:
 - `main` is the production baseline;
 - production-safe V1/product changes branch from current `main`;
 - active V2 work uses `integration/prediction-intelligence-v2` and Draft PR #114;
-- current checkpoint HEAD is `bce9999`;
+- production `main` checkpoint HEAD is `3aff0e4`;
+- V2 integration checkpoint HEAD is `5007de7`;
 - old V2 branch and PR #106 are preservation only;
 - accepted `main` changes flow into the integration branch through normal merge/rebase history;
 - do not manually implement the same product change in both branches;
-- use worktrees when two owners need parallel dirty workspaces.
+- use worktrees when two owners need parallel dirty workspaces;
+- the merged PR #117 feature branch was deleted locally and remotely after synchronization.
 
 ## Environment safety
 
@@ -127,7 +129,11 @@ The following are closed:
 - immutable V1 model/prediction/market import;
 - V1 activation and publication;
 - exact-complete verification;
-- stage `/predictions` smoke.
+- stage `/predictions` smoke;
+- Task 4A V1 information inventory;
+- Task 4B Public Expert Read;
+- PR #117 production smoke;
+- latest exact five-result production applies and public verification.
 
 **No repetir:** do not reopen them without a concrete defect, mismatch, or approved recovery task.
 
@@ -159,6 +165,23 @@ A local verification failure after a remotely confirmed atomic commit does not a
 - a correction does not restart the full reconnaissance;
 - successful evidence is not re-proved merely because the conversation changed;
 - no review of the review unless new evidence contradicts the prior verdict.
+
+## Routine result-operation rule
+
+The established production result path is owner-operated:
+
+```text
+one provider dry-run
+-> one exact API-Football fixture allowlist
+-> one apply
+-> one public/admin verification
+```
+
+Trusted terminal results may be persisted, verified, and evaluated by the apply itself. An empty pending-review queue is therefore expected.
+
+The manual reconciliation form enabled by migration 0039 is an exception fallback, not the normal workflow.
+
+Codex is not required for routine execution of this protocol.
 
 ## Technical contracts learned from Task 1C
 
@@ -226,15 +249,23 @@ Codex is not a required intermediary for routine operator actions.
 
 ## Active next-task rule
 
-The active next task is:
+Primary V2 track:
 
 ```text
-V2 Signal Baseline Database Load
+Task 2A - V2 Signal Baseline Database Load
 ```
 
 It uses the preserved 2026-06-20 package as a reproducible baseline, then hands off to incremental current-data refresh and the first V2 shadow candidate.
 
-Do not turn this into another environment-normalization, full-repository audit, or all-source perfection task.
+Parallel MVP1 track:
+
+```text
+Task 4C - Football-first premium terminology
+```
+
+It starts from current `main`, preserves probabilities and authorization, and is implemented in one small production-safe PR before normal synchronization into V2.
+
+Do not mix the two tracks. Do not turn either task into another environment-normalization, full-repository audit, or all-source perfection exercise.
 
 ## Documentation triggers
 

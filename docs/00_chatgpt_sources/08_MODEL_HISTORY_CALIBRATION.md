@@ -1,6 +1,6 @@
 # Model History and Calibration
 
-_Last refreshed: 2026-06-27 after the immutable V1 baseline became visible in stage._
+_Last refreshed: 2026-06-27 after the production `Lectura UFO` release and latest verified-result batch._
 
 ## Purpose
 
@@ -40,6 +40,32 @@ pending publications = 0
 This closes the missing-stage-baseline gap.
 
 **Decision:** all V2 comparisons use the stored V1 versions, never a reconstructed strawman.
+
+## Presentation changes are not model changes
+
+PR #117 introduced a deterministic `Lectura UFO` derived from the existing V1 probability output and authorized confidence/risk presentation.
+
+It did not:
+
+- create a new model version;
+- recalculate any prediction;
+- move any probability;
+- alter calibration;
+- change confidence or risk values;
+- use post-kickoff evidence;
+- establish a V2 accuracy claim.
+
+The helper is a presentation layer. Its release must not be counted as model-performance progress.
+
+The latest verified results remain evaluation evidence for the original immutable V1 versions:
+
+```text
+Egypt 1-1 Iran
+New Zealand 1-5 Belgium
+Uruguay 0-1 Spain
+Cape Verde 0-0 Saudi Arabia
+Panama 0-1 Croatia
+```
 
 ## Historical calibration closeout
 

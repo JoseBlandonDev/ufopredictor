@@ -1,6 +1,6 @@
 # V2 Stage and Release Plan
 
-_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
+_Last refreshed: 2026-06-27 after PR #117 was synchronized into the V2 integration branch at HEAD `5007de7`._
 
 ## Goal
 
@@ -31,7 +31,7 @@ Move from a stable V1-visible stage to a fair, source-backed V2 shadow candidate
 ```text
 branch: integration/prediction-intelligence-v2
 Draft PR: #114
-HEAD: bce9999
+HEAD: 5007de7
 stage: yfmklapgjrupctgxaako
 production denied: gcpdffkgsdomzyoenalg
 ```
@@ -177,15 +177,33 @@ Promotion requires:
 
 ## Parallel V1/product work
 
-Production-safe UI and V1 improvements may continue from current `main` under a separate owner.
+Production-safe UI and V1 improvements continue from current `main` under a separate owner.
 
-They flow into the V2 integration branch through normal Git history.
+Completed example:
+
+```text
+Task 4A - V1 Information Inventory
+Task 4B - Public Expert Read
+PR #117 -> main 3aff0e4
+main -> V2 integration 5007de7
+production smoke -> passed
+```
+
+The next parallel slice is:
+
+```text
+Task 4C - Football-first premium terminology
+```
+
+These changes flow into the V2 integration branch through normal Git history.
 
 They must not:
 
 - change probabilities without model governance;
 - duplicate V2 data/model implementation;
-- depend on unfinished stage-only V2 data for production availability.
+- depend on unfinished stage-only V2 data for production availability;
+- broaden premium authorization;
+- be implemented independently in both branches.
 
 ## Process decisions
 

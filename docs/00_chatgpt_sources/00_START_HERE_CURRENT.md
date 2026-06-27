@@ -1,6 +1,6 @@
 # Start Here - UFO Predictor Current
 
-_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
+_Last refreshed: 2026-06-27 after PR #117 production verification, the latest trusted-result batch, and the `main` to V2 synchronization checkpoint._
 
 ## Current truth
 
@@ -10,6 +10,8 @@ UFO Predictor has:
 - a separate, stable stage environment;
 - an active Prediction Intelligence v2 integration track in Draft PR #114;
 - the original V1 prediction baseline visible and queryable in stage;
+- the production `Lectura UFO` presentation layer from PR #117;
+- the latest trusted API-Football result batch persisted, verified, evaluated, and publicly checked;
 - no V2 probability candidate released to production.
 
 Production remains on the V1-compatible probability layer. V2 work continues behind the existing product surface in stage.
@@ -23,13 +25,16 @@ Production remains on the V1-compatible probability layer. V2 work continues beh
 ## Repository and PR baseline
 
 ```text
-active branch: integration/prediction-intelligence-v2
-active Draft PR: #114
-reviewed checkpoint HEAD: bce9999
-worktree at checkpoint: clean and synchronized
+production branch: main
+production main HEAD: 3aff0e4
+active V2 branch: integration/prediction-intelligence-v2
+active V2 Draft PR: #114
+active V2 HEAD: 5007de7
+parallel MVP1 feature branch: deleted after merge
+operator worktree checkpoint: main synchronized; only local untracked operational JSON artifacts remain
 ```
 
-The active integration branch already includes the accepted `main` changes from PR #115 and PR #116 through normal Git history.
+The active integration branch includes accepted `main` changes from PR #115, PR #116, and PR #117 through normal Git history.
 
 Preserved historical source:
 
@@ -147,7 +152,42 @@ The integration branch also contains:
 0039_manual_world_cup_result_reconciliation.sql
 ```
 
-Its presence in Git is confirmed. This checkpoint does not claim that migration 0039 was applied to stage or production.
+Its presence in Git is confirmed. The migration was applied successfully to both production and stage. It enables exact admin-only manual reconciliation as an exception path; it is not the normal trusted-provider result flow.
+
+## Parallel MVP1 checkpoint
+
+Epic 4 continues independently from the V2 data/model track.
+
+Completed:
+
+```text
+Task 4A - V1 Information Inventory
+Task 4B - Public Expert Read
+PR #117 - merged to main
+production smoke - passed
+main -> V2 synchronization - passed
+```
+
+The production UI now renders:
+
+- `Probabilidad del resultado` on the touched public surfaces;
+- a deterministic `Lectura UFO` on prediction cards and match detail;
+- confidence/uncertainty wording only when the viewer is already authorized to see confidence and risk;
+- unchanged premium xG, scenarios, BTTS, totals, and entitlement behavior.
+
+The presentation helper does not change probabilities, model behavior, persisted predictions, premium authorization, or V2 data.
+
+Parallel MVP1 next task:
+
+```text
+Task 4C - Football-first premium terminology
+```
+
+Bounded intent:
+
+- translate `BTTS`, totals, and market-oriented labels into clearer football-analysis language;
+- preserve the underlying values and authorization boundaries;
+- keep the slice small, deterministic, and independent from V2 data.
 
 ## Data freshness decision
 
@@ -167,10 +207,12 @@ It is historical relative to 2026-06-27, but it remains an approved reproducible
 
 **Consecuencia operativa:** documents and UI must not describe the 2026-06-20 data as current, but its age does not block the next V2 engineering slice.
 
-## Exact next task
+## Exact next tasks by workstream
+
+Primary V2 track:
 
 ```text
-V2 Signal Baseline Database Load
+Task 2A - V2 Signal Baseline Database Load
 ```
 
 Bounded result:
@@ -182,12 +224,20 @@ Bounded result:
 5. prove row accounting and fixture signal coverage;
 6. stop before candidate generation.
 
-The immediate transition after that task is:
+Immediate V2 transition:
 
 ```text
 Current-data incremental refresh
 -> First V2 shadow candidate run
 ```
+
+Parallel MVP1 track:
+
+```text
+Task 4C - Football-first premium terminology
+```
+
+This task starts from current `main`, uses its own short-lived feature branch, does not alter probabilities or entitlements, and flows back into the V2 branch only after its production PR is merged.
 
 ## Working responsibility split
 

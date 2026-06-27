@@ -1,6 +1,6 @@
 # Architecture, Data, and Security - UFO Predictor
 
-_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
+_Last refreshed: 2026-06-27 after PR #117 production verification, result-operation completion, and synchronization into the V2 integration branch._
 
 ## System overview
 
@@ -52,9 +52,49 @@ Production continues to provide:
 - trusted result refresh and verification;
 - idempotent evaluations;
 - admin operational queues;
-- public-safe `torneo-ufo-export-v1`.
+- public-safe `torneo-ufo-export-v1`;
+- a deterministic public presentation helper for `Lectura UFO` that consumes only viewer-authorized V1 fields.
 
 No stage V2 task authorizes production writes.
+
+## Public presentation architecture checkpoint
+
+PR #117 added a deterministic presentation-only helper:
+
+```text
+lib/presentation/public-expert-read.ts
+```
+
+The helper contract is intentionally narrower than the prediction contract.
+
+Anonymous base input:
+
+```text
+home team name
+away team name
+home win probability
+draw probability
+away win probability
+```
+
+Optional registered/premium augmentation:
+
+```text
+confidence score
+risk level
+```
+
+The optional augmentation is rendered only where those values are already authorized and visible.
+
+The helper:
+
+- does not query premium markets;
+- does not read xG or scorelines for anonymous/free interpretation;
+- does not change persisted probabilities;
+- does not change entitlement resolution;
+- does not create a new model version;
+- is shared by prediction cards and public match detail;
+- is now present in both `main` and the V2 integration branch.
 
 ## Prediction Intelligence stage foundation
 
@@ -273,6 +313,7 @@ No result, later lineup, later injury, or later table state may leak into a live
 - production apply fails closed;
 - started-fixture publications remain immutable;
 - changed verified results become reconciliation events, not silent overwrites;
+- trusted result applies use exact provider fixture allowlists and are verified publicly after the write;
 - Auth, payments, entitlements, Wompi, webhooks, and sessions are outside V2 data tasks;
 - migration presence in Git does not prove remote application.
 
@@ -280,7 +321,7 @@ No result, later lineup, later injury, or later table state may leak into a live
 
 Manually installed Task 1C migrations are operational. Formal migration-ledger reconciliation remains a separate, non-blocking maintenance task.
 
-Migration `0039_manual_world_cup_result_reconciliation.sql` is present in the integrated repository. This checkpoint does not assert its remote application state.
+Migration `0039_manual_world_cup_result_reconciliation.sql` is present in the integrated repository and was applied successfully to both production and stage. It remains an admin-only exception path; ordinary trusted API-Football results use exact allowlisted refresh and automatic verification.
 
 ## Responsibility split
 

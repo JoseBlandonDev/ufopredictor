@@ -1,6 +1,6 @@
 # Product and Commercial MVP1 - Current
 
-_Last refreshed: 2026-06-27 after the complete Task 1C V1 stage baseline checkpoint._
+_Last refreshed: 2026-06-27 after PR #117 reached production and the latest trusted-result batch was publicly verified._
 
 ## Product
 
@@ -29,7 +29,7 @@ MVP1 remains live while MVP2 is developed and validated separately.
 
 ### Registered free
 
-- full published 1X2 probabilities;
+- full published home/draw/away result probabilities;
 - confidence and risk context;
 - eligible public history;
 - premium upgrade paths.
@@ -64,7 +64,48 @@ MVP1 remains live while MVP2 is developed and validated separately.
 - exact fixture publication queue;
 - Matchday 3 fixture registry and publication continuity;
 - trusted-provider result refresh and automatic evaluation;
-- public-safe Torneo Mundialista JSON export.
+- public-safe Torneo Mundialista JSON export;
+- deterministic `Lectura UFO` on prediction cards and public match detail;
+- clearer `Probabilidad del resultado` labeling on the touched surfaces.
+
+## Public Expert Read production checkpoint
+
+Task 4A inventoried the existing V1 product fields and access boundaries.
+
+Task 4B delivered PR #117:
+
+```text
+feature: Public Expert Read
+source branch: feature/mvp1-expert-product-experience
+feature commit: 3d647b2
+main merge commit: 3aff0e4
+V2 integration sync HEAD: 5007de7
+production smoke: passed
+```
+
+Behavior:
+
+- anonymous viewers receive a deterministic reading based only on public home/draw/away probabilities;
+- registered-free viewers may receive an additional stability/uncertainty sentence only from confidence and risk already visible to them;
+- premium and admin viewers retain the existing advanced projection;
+- xG, scorelines, BTTS, totals, narratives, and premium authorization are not leaked or broadened;
+- the helper is presentation-only and does not change persisted probabilities, confidence, risk, models, or results.
+
+The legacy static uncertainty sentence on match detail was removed because it could contradict the dynamic reading.
+
+## Latest verified production result checkpoint
+
+The latest trusted API-Football operation added and publicly verified:
+
+```text
+Egypt 1-1 Iran
+New Zealand 1-5 Belgium
+Uruguay 0-1 Spain
+Cape Verde 0-0 Saudi Arabia
+Panama 0-1 Croatia
+```
+
+All five were persisted through exact allowlisted applies, auto-verified, evaluated, and confirmed in the public recent/history views. Manual score entry was not used.
 
 ## Matchday 3 production baseline
 
@@ -127,6 +168,14 @@ These are incremental releases, not reasons to reopen MVP1 architecture.
 
 ## Parallel expert-experience work
 
+Status:
+
+```text
+Task 4A - V1 Information Inventory: DONE
+Task 4B - Public Expert Read: DONE
+Task 4C - Football-first premium terminology: NEXT
+```
+
 A separate MVP2 epic may be assigned to another owner while the primary owner continues data and model work.
 
 That parallel epic may improve production and stage by:
@@ -147,7 +196,7 @@ It must not:
 - depend on unfinished stage-only tables for production rendering;
 - duplicate the primary data/model workstream.
 
-Independent production-safe UI improvements should branch from current `main`, merge through a normal PR, and then be incorporated into the V2 integration branch through normal Git history.
+Independent production-safe UI improvements branch from current `main`, merge through a normal PR, receive a production smoke, and then flow into the V2 integration branch through normal Git history. PR #117 proved this path.
 
 ## MVP2 explanation-first direction
 
@@ -237,4 +286,8 @@ A second payment provider is not a V2 blocker.
 
 ## MVP1 verdict
 
-The production product remains commercially usable. MVP2 is an incremental intelligence and data release, not a replacement of the validated Auth, payment, entitlement, and publication foundations.
+The production product remains commercially usable.
+
+The first parallel expert-experience slice is live and verified. The next MVP1 slice should improve premium terminology and explanation without changing data, probability calculations, premium authorization, or the V2 workstream.
+
+MVP2 remains an incremental intelligence and data release, not a replacement of the validated Auth, payment, entitlement, result, and publication foundations.
