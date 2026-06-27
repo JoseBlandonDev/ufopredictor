@@ -13,6 +13,7 @@
     "prediction-intelligence-v2:task1-2": "npx tsx scripts/prediction-intelligence-v2/run-task1-2.ts",
     "prediction-intelligence-v2:task1c": "npx tsx scripts/prediction-intelligence-v2/run-task1c-frozen-v1-source-package.ts",
     "prediction-intelligence-v2:task1c-stage-v1-fixture-linkage": "npx tsx scripts/prediction-intelligence-v2/run-task1c-stage-v1-fixture-linkage.ts",
+    "prediction-intelligence-v2:task1c-stage-v1-import": "npx tsx scripts/prediction-intelligence-v2/run-task1c-stage-v1-import.ts",
     "prediction-intelligence-v2:task2": "npx tsx scripts/prediction-intelligence-v2/run-task2.ts",
     "prediction-intelligence-v2:task2-1": "npx tsx scripts/prediction-intelligence-v2/run-task2-1.ts",
     "prediction-intelligence-v2:task2-2": "npx tsx scripts/prediction-intelligence-v2/run-task2-2.ts",
