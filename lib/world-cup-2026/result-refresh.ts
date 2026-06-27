@@ -1,8 +1,11 @@
 import { evaluatePrediction } from "../model-evaluation";
 import type { ProviderFixture } from "../football-api/api-football-types";
 import { buildApiFootballFixtureExternalId } from "../football-api/ingest/external-ids";
-import { arePredictionReviewTeamNamesEquivalent } from "../prediction-review/team-display-names";
-import { WORLD_CUP_2026_FIXTURES, WORLD_CUP_2026_TEAMS } from "./index";
+import { WORLD_CUP_2026_FIXTURES } from "./index";
+import {
+  isWorldCup2026TeamNameMatch,
+  resolveWorldCup2026TeamKey,
+} from "./canonical-team-resolver";
 
 export const WORLD_CUP_RESULT_REFRESH_ARTIFACT_VERSION = 1 as const;
 export const WORLD_CUP_RESULT_REFRESH_COMPETITION_SLUG = "world-cup-2026" as const;
@@ -302,8 +305,6 @@ export type WorldCupResultRefreshWriteAdapter = {
   ) => Promise<void>;
 };
 
-const TEAM_BY_KEY = new Map(WORLD_CUP_2026_TEAMS.map((team) => [team.teamKey, team]));
-
 function parseApiFootballFixtureId(externalId: string | null) {
   if (!externalId) {
     return null;
@@ -357,15 +358,6 @@ function inferMatchday(matchNumber: number) {
   return null;
 }
 
-function getCanonicalTeamName(teamKey: (typeof WORLD_CUP_2026_TEAMS)[number]["teamKey"]) {
-  const team = TEAM_BY_KEY.get(teamKey);
-  if (!team) {
-    throw new Error(`Unknown canonical World Cup team key: ${teamKey}`);
-  }
-
-  return team.displayName;
-}
-
 function resolveCanonicalFixture(args: {
   storedKickoffAt: string;
   storedHomeTeamName: string;
@@ -381,12 +373,10 @@ function resolveCanonicalFixture(args: {
 
     if (byProviderId.length === 1) {
       const fixture = byProviderId[0]!;
-      const canonicalHome = getCanonicalTeamName(fixture.homeTeamKey);
-      const canonicalAway = getCanonicalTeamName(fixture.awayTeamKey);
 
       if (
-        !arePredictionReviewTeamNamesEquivalent(canonicalHome, providerFixture.homeTeam.name) ||
-        !arePredictionReviewTeamNamesEquivalent(canonicalAway, providerFixture.awayTeam.name)
+        !isWorldCup2026TeamNameMatch(fixture.homeTeamKey, providerFixture.homeTeam.name) ||
+        !isWorldCup2026TeamNameMatch(fixture.awayTeamKey, providerFixture.awayTeam.name)
       ) {
         return {
           status: "conflict",
@@ -409,12 +399,10 @@ function resolveCanonicalFixture(args: {
   }
 
   const matches = WORLD_CUP_2026_FIXTURES.filter((fixture) => {
-    const canonicalHome = getCanonicalTeamName(fixture.homeTeamKey);
-    const canonicalAway = getCanonicalTeamName(fixture.awayTeamKey);
     return (
       sameUtcInstant(fixture.kickoffAt, storedKickoffAt) &&
-      arePredictionReviewTeamNamesEquivalent(canonicalHome, storedHomeTeamName) &&
-      arePredictionReviewTeamNamesEquivalent(canonicalAway, storedAwayTeamName)
+      resolveWorldCup2026TeamKey(storedHomeTeamName) === fixture.homeTeamKey &&
+      resolveWorldCup2026TeamKey(storedAwayTeamName) === fixture.awayTeamKey
     );
   });
 
@@ -892,14 +880,8 @@ export function planWorldCupResultRefresh(args: {
     } else {
       const canonicalFixtureResolved = canonicalResolution.fixture;
       const providerIdentityMatchesCanonical =
-        arePredictionReviewTeamNamesEquivalent(
-          getCanonicalTeamName(canonicalFixtureResolved.homeTeamKey),
-          providerFixture.homeTeam.name,
-        ) &&
-        arePredictionReviewTeamNamesEquivalent(
-          getCanonicalTeamName(canonicalFixtureResolved.awayTeamKey),
-          providerFixture.awayTeam.name,
-        ) &&
+        isWorldCup2026TeamNameMatch(canonicalFixtureResolved.homeTeamKey, providerFixture.homeTeam.name) &&
+        isWorldCup2026TeamNameMatch(canonicalFixtureResolved.awayTeamKey, providerFixture.awayTeam.name) &&
         sameUtcInstant(canonicalFixtureResolved.kickoffAt, providerFixture.kickoffAt);
       const providerScoresPresent =
         typeof providerHomeGoals === "number" && typeof providerAwayGoals === "number";
