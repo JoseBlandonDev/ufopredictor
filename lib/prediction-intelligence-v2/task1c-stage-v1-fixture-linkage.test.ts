@@ -511,7 +511,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("dry-run should not write");
           },
         },
@@ -607,7 +607,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -652,7 +652,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -712,7 +712,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -805,7 +805,7 @@ describe("task1c stage v1 fixture linkage", () => {
             async rereadMatchesByIds() {
               return [];
             },
-            async updateMatchLinkage() {
+            async applyMatchLinkageBatch() {
               throw new Error("not reached");
             },
           },
@@ -842,7 +842,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -890,7 +890,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -918,7 +918,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -956,14 +956,21 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return driftedRow;
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
       }),
     ).rejects.toThrow(/drifted before apply/i);
 
-    const writes: Array<{ matchId: string; patch: Record<string, unknown> }> = [];
+    const writes: Array<
+      Array<{
+        stageMatchId: string;
+        expectedExternalId: string | null;
+        expectedIntakeSource: string | null;
+        patch: Record<string, unknown>;
+      }>
+    > = [];
     await applyTask1cStageV1FixtureLinkagePlan({
       authorization: assertTask1cStageV1LinkageAuthorization({
         projectRef: "yfmklapgjrupctgxaako",
@@ -983,14 +990,19 @@ describe("task1c stage v1 fixture linkage", () => {
         async rereadMatchesByIds(matchIds) {
           return buildSnapshot(workspace.manifest).matches.filter((match) => matchIds.includes(match.id));
         },
-        async updateMatchLinkage(matchId, patch) {
-          writes.push({ matchId, patch });
+        async applyMatchLinkageBatch(rows) {
+          writes.push(rows);
+          return {
+            requestedCount: rows.length,
+            updatedCount: rows.length,
+          };
         },
       },
     });
 
-    expect(writes).toHaveLength(24);
-    expect(Object.keys(writes[0]!.patch).sort()).toEqual(["external_id", "intake_source"]);
+    expect(writes).toHaveLength(1);
+    expect(writes[0]).toHaveLength(24);
+    expect(Object.keys(writes[0]![0]!.patch).sort()).toEqual(["external_id", "intake_source"]);
   });
 
   it("rejects reviewed artifact tampering when the out-of-scope evidence record is removed or altered", async () => {
@@ -1013,7 +1025,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds(matchIds) {
             return buildSnapshot(workspace.manifest).matches.filter((match) => matchIds.includes(match.id));
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -1062,7 +1074,7 @@ describe("task1c stage v1 fixture linkage", () => {
           async rereadMatchesByIds() {
             return [];
           },
-          async updateMatchLinkage() {
+          async applyMatchLinkageBatch() {
             throw new Error("not reached");
           },
         },
@@ -1147,7 +1159,7 @@ describe("task1c stage v1 fixture linkage", () => {
             async rereadMatchesByIds() {
               return [];
             },
-            async updateMatchLinkage() {
+            async applyMatchLinkageBatch() {
               throw new Error("not reached");
             },
           },
@@ -1155,6 +1167,218 @@ describe("task1c stage v1 fixture linkage", () => {
         testCase.label,
       ).rejects.toThrow(testCase.error);
     }
+  });
+
+  it("treats an ambiguous atomic batch failure as recovered success when all rows reread as post-apply", async () => {
+    const workspace = prepareManifestWorkspace();
+    const dryRun = await runTask1cStageV1FixtureLinkage(
+      {
+        repoRoot: process.cwd(),
+        artifactsDir: registerCleanup(path.join(os.tmpdir(), `task1c-linkage-atomic-success-${Date.now()}`)),
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        supabaseUrl: "https://yfmklapgjrupctgxaako.supabase.co",
+        sourceManifestPath: workspace.manifestPath,
+        packageSha256: workspace.packageSha256,
+      },
+      {
+        databaseAdapter: {
+          async readSnapshot() {
+            return buildSnapshot(workspace.manifest);
+          },
+          async rereadMatchesByIds() {
+            return [];
+          },
+          async applyMatchLinkageBatch() {
+            throw new Error("not reached");
+          },
+        },
+        providerReader: {
+          async readFixtureById(fixtureId) {
+            return buildDetailedProviderResult(
+              buildProviderFixture(workspace.manifest.fixtures.find((fixture) => fixture.apiFootballFixtureId === fixtureId)!),
+            );
+          },
+        },
+      },
+    );
+
+    let rereadCount = 0;
+    await expect(
+      applyTask1cStageV1FixtureLinkagePlan({
+        authorization: assertTask1cStageV1LinkageAuthorization({
+          projectRef: "yfmklapgjrupctgxaako",
+          denyProjectRef: "gcpdffkgsdomzyoenalg",
+          supabaseUrl: "https://yfmklapgjrupctgxaako.supabase.co",
+          apply: true,
+        }),
+        currentPlan: {
+          ...dryRun.plan,
+          mode: "apply",
+        },
+        reviewArtifact: structuredClone(dryRun.plan),
+        databaseAdapter: {
+          async readSnapshot() {
+            return buildSnapshot(workspace.manifest);
+          },
+          async rereadMatchesByIds(matchIds) {
+            rereadCount += 1;
+            if (rereadCount === 1) {
+              return buildSnapshot(workspace.manifest).matches.filter((match) => matchIds.includes(match.id));
+            }
+
+            return buildSnapshot(workspace.manifest, { alreadyLinked: true }).matches.filter((match) => matchIds.includes(match.id));
+          },
+          async applyMatchLinkageBatch() {
+            throw new Error("simulated transport timeout");
+          },
+        },
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(rereadCount).toBe(2);
+  });
+
+  it("reports safe retry when an atomic batch failure leaves all rows in pre-apply state", async () => {
+    const workspace = prepareManifestWorkspace();
+    const dryRun = await runTask1cStageV1FixtureLinkage(
+      {
+        repoRoot: process.cwd(),
+        artifactsDir: registerCleanup(path.join(os.tmpdir(), `task1c-linkage-atomic-pre-${Date.now()}`)),
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        supabaseUrl: "https://yfmklapgjrupctgxaako.supabase.co",
+        sourceManifestPath: workspace.manifestPath,
+        packageSha256: workspace.packageSha256,
+      },
+      {
+        databaseAdapter: {
+          async readSnapshot() {
+            return buildSnapshot(workspace.manifest);
+          },
+          async rereadMatchesByIds() {
+            return [];
+          },
+          async applyMatchLinkageBatch() {
+            throw new Error("not reached");
+          },
+        },
+        providerReader: {
+          async readFixtureById(fixtureId) {
+            return buildDetailedProviderResult(
+              buildProviderFixture(workspace.manifest.fixtures.find((fixture) => fixture.apiFootballFixtureId === fixtureId)!),
+            );
+          },
+        },
+      },
+    );
+
+    await expect(
+      applyTask1cStageV1FixtureLinkagePlan({
+        authorization: assertTask1cStageV1LinkageAuthorization({
+          projectRef: "yfmklapgjrupctgxaako",
+          denyProjectRef: "gcpdffkgsdomzyoenalg",
+          supabaseUrl: "https://yfmklapgjrupctgxaako.supabase.co",
+          apply: true,
+        }),
+        currentPlan: {
+          ...dryRun.plan,
+          mode: "apply",
+        },
+        reviewArtifact: structuredClone(dryRun.plan),
+        databaseAdapter: {
+          async readSnapshot() {
+            return buildSnapshot(workspace.manifest);
+          },
+          async rereadMatchesByIds(matchIds) {
+            return buildSnapshot(workspace.manifest).matches.filter((match) => matchIds.includes(match.id));
+          },
+          async applyMatchLinkageBatch() {
+            throw new Error("simulated transport timeout");
+          },
+        },
+      }),
+    ).rejects.toThrow(/safe to retry the same reviewed artifact/i);
+  });
+
+  it("fails closed when an atomic batch failure leaves a mixed reread state", async () => {
+    const workspace = prepareManifestWorkspace();
+    const dryRun = await runTask1cStageV1FixtureLinkage(
+      {
+        repoRoot: process.cwd(),
+        artifactsDir: registerCleanup(path.join(os.tmpdir(), `task1c-linkage-atomic-mixed-${Date.now()}`)),
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        supabaseUrl: "https://yfmklapgjrupctgxaako.supabase.co",
+        sourceManifestPath: workspace.manifestPath,
+        packageSha256: workspace.packageSha256,
+      },
+      {
+        databaseAdapter: {
+          async readSnapshot() {
+            return buildSnapshot(workspace.manifest);
+          },
+          async rereadMatchesByIds() {
+            return [];
+          },
+          async applyMatchLinkageBatch() {
+            throw new Error("not reached");
+          },
+        },
+        providerReader: {
+          async readFixtureById(fixtureId) {
+            return buildDetailedProviderResult(
+              buildProviderFixture(workspace.manifest.fixtures.find((fixture) => fixture.apiFootballFixtureId === fixtureId)!),
+            );
+          },
+        },
+      },
+    );
+
+    const mixedRows = buildSnapshot(workspace.manifest).matches.map((match, index) => {
+      if (index === 0) {
+        return {
+          ...match,
+          external_id: "api-football:fixture:1539009",
+          intake_source: "api_football" as const,
+        };
+      }
+
+      return match;
+    });
+
+    let rereadCount = 0;
+    await expect(
+      applyTask1cStageV1FixtureLinkagePlan({
+        authorization: assertTask1cStageV1LinkageAuthorization({
+          projectRef: "yfmklapgjrupctgxaako",
+          denyProjectRef: "gcpdffkgsdomzyoenalg",
+          supabaseUrl: "https://yfmklapgjrupctgxaako.supabase.co",
+          apply: true,
+        }),
+        currentPlan: {
+          ...dryRun.plan,
+          mode: "apply",
+        },
+        reviewArtifact: structuredClone(dryRun.plan),
+        databaseAdapter: {
+          async readSnapshot() {
+            return buildSnapshot(workspace.manifest);
+          },
+          async rereadMatchesByIds(matchIds) {
+            rereadCount += 1;
+            if (rereadCount === 1) {
+              return buildSnapshot(workspace.manifest).matches.filter((match) => matchIds.includes(match.id));
+            }
+
+            return mixedRows.filter((match) => matchIds.includes(match.id));
+          },
+          async applyMatchLinkageBatch() {
+            throw new Error("simulated transport timeout");
+          },
+        },
+      }),
+    ).rejects.toThrow(/manual reconciliation required before retry/i);
   });
 
   it("supports zero-update idempotent apply plans when the reviewed artifact is already_linked", async () => {
@@ -1195,8 +1419,12 @@ describe("task1c stage v1 fixture linkage", () => {
         async rereadMatchesByIds() {
           return [];
         },
-        async updateMatchLinkage(matchId, patch) {
-          writes.push({ matchId, patch });
+        async applyMatchLinkageBatch(rows) {
+          writes.push(rows);
+          return {
+            requestedCount: rows.length,
+            updatedCount: rows.length,
+          };
         },
       },
     });

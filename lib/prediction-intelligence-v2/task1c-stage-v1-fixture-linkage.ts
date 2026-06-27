@@ -179,6 +179,18 @@ type LinkagePatch = {
   intake_source: "api_football";
 };
 
+type ReviewedLinkageUpdateRow = {
+  stageMatchId: string;
+  expectedExternalId: string | null;
+  expectedIntakeSource: Task1cStageMatchRow["intake_source"] | null;
+  patch: LinkagePatch;
+};
+
+type Task1cStageApplyBatchResult = {
+  requestedCount: number;
+  updatedCount: number;
+};
+
 export type Task1cStageFixtureLinkageRow = {
   matchNumber: number;
   slug: string;
@@ -278,7 +290,7 @@ type LinkageAuthorization = {
 type Task1cStageDatabaseAdapter = {
   readSnapshot(slugs: string[], externalIds: string[]): Promise<Task1cStageDatabaseSnapshot>;
   rereadMatchesByIds(matchIds: string[]): Promise<Task1cStageMatchRow[]>;
-  updateMatchLinkage(matchId: string, patch: LinkagePatch): Promise<void>;
+  applyMatchLinkageBatch(rows: ReviewedLinkageUpdateRow[]): Promise<Task1cStageApplyBatchResult>;
 };
 
 type Task1cStageProviderReader = {
@@ -539,6 +551,89 @@ function assertAllowedPatchShape(patch: Record<string, unknown>): asserts patch 
   if (patch.intake_source !== "api_football") {
     throw new Error("Task 1C linkage patch intake_source must be api_football.");
   }
+}
+
+function buildReviewedUpdateRows(reviewArtifact: Task1cStageFixtureApplyReviewArtifact): ReviewedLinkageUpdateRow[] {
+  return reviewArtifact.rows
+    .filter((row) => row.action === "update_linkage")
+    .map((row) => {
+      if (!row.resolvedStageMatchUuid || !row.exactProposedPatch) {
+        throw new Error("Task 1C linkage apply refused because a reviewed update row was incomplete.");
+      }
+
+      return {
+        stageMatchId: row.resolvedStageMatchUuid,
+        expectedExternalId: row.stageIdentityEvidence.existingExternalId,
+        expectedIntakeSource: row.stageIdentityEvidence.existingIntakeSource,
+        patch: row.exactProposedPatch,
+      };
+    });
+}
+
+function assertCurrentRowsMatchReviewedUpdates(
+  reviewedUpdates: ReviewedLinkageUpdateRow[],
+  currentRows: Task1cStageMatchRow[],
+): void {
+  const rowsById = new Map(currentRows.map((row) => [row.id, row]));
+
+  for (const reviewedUpdate of reviewedUpdates) {
+    const current = rowsById.get(reviewedUpdate.stageMatchId);
+    if (!current) {
+      throw new Error(`Task 1C linkage apply refused because stage row ${reviewedUpdate.stageMatchId} disappeared.`);
+    }
+
+    if (
+      current.external_id !== reviewedUpdate.expectedExternalId ||
+      current.intake_source !== reviewedUpdate.expectedIntakeSource
+    ) {
+      throw new Error(`Task 1C linkage apply refused because stage row ${current.id} drifted before apply.`);
+    }
+  }
+}
+
+function classifyReviewedUpdateState(
+  reviewedUpdates: ReviewedLinkageUpdateRow[],
+  currentRows: Task1cStageMatchRow[],
+): "all_pre" | "all_post" | "mixed" {
+  const rowsById = new Map(currentRows.map((row) => [row.id, row]));
+  let preCount = 0;
+  let postCount = 0;
+
+  for (const reviewedUpdate of reviewedUpdates) {
+    const current = rowsById.get(reviewedUpdate.stageMatchId);
+    if (!current) {
+      return "mixed";
+    }
+
+    const isPre =
+      current.external_id === reviewedUpdate.expectedExternalId &&
+      current.intake_source === reviewedUpdate.expectedIntakeSource;
+    const isPost =
+      current.external_id === reviewedUpdate.patch.external_id &&
+      current.intake_source === reviewedUpdate.patch.intake_source;
+
+    if (isPre) {
+      preCount += 1;
+      continue;
+    }
+
+    if (isPost) {
+      postCount += 1;
+      continue;
+    }
+
+    return "mixed";
+  }
+
+  if (preCount === reviewedUpdates.length) {
+    return "all_pre";
+  }
+
+  if (postCount === reviewedUpdates.length) {
+    return "all_post";
+  }
+
+  return "mixed";
 }
 
 export function resolveTask1cStageV1FixtureLinkageDefaults(repoRoot: string): {
@@ -1406,29 +1501,43 @@ export async function applyTask1cStageV1FixtureLinkagePlan(input: {
 }): Promise<void> {
   assertReviewedApplyArtifact(input);
 
-  const updateRows = input.reviewArtifact.rows.filter((row) => row.action === "update_linkage");
-  const matchIds = updateRows.map((row) => row.resolvedStageMatchUuid).filter((value): value is string => value !== null);
+  const reviewedUpdates = buildReviewedUpdateRows(input.reviewArtifact);
+  const matchIds = reviewedUpdates.map((row) => row.stageMatchId);
   const currentRows = await input.databaseAdapter.rereadMatchesByIds(matchIds);
-  const rowsById = new Map(currentRows.map((row) => [row.id, row]));
+  assertCurrentRowsMatchReviewedUpdates(reviewedUpdates, currentRows);
 
-  for (const row of updateRows) {
-    if (!row.resolvedStageMatchUuid || !row.exactProposedPatch) {
-      throw new Error("Task 1C linkage apply refused because a reviewed update row was incomplete.");
+  if (reviewedUpdates.length === 0) {
+    return;
+  }
+
+  try {
+    const result = await input.databaseAdapter.applyMatchLinkageBatch(reviewedUpdates);
+    if (result.requestedCount !== reviewedUpdates.length || result.updatedCount !== reviewedUpdates.length) {
+      throw new Error(
+        `Task 1C linkage apply refused because the atomic batch reported ${result.updatedCount}/${result.requestedCount} updates.`,
+      );
+    }
+  } catch (error) {
+    const recoveryRows = await input.databaseAdapter.rereadMatchesByIds(matchIds);
+    const recoveryState = classifyReviewedUpdateState(reviewedUpdates, recoveryRows);
+
+    if (recoveryState === "all_post") {
+      return;
     }
 
-    const current = rowsById.get(row.resolvedStageMatchUuid);
-    if (!current) {
-      throw new Error(`Task 1C linkage apply refused because stage row ${row.resolvedStageMatchUuid} disappeared.`);
+    if (recoveryState === "all_pre") {
+      throw new Error(
+        `Task 1C linkage apply failed before any stage rows changed. Safe to retry the same reviewed artifact. Cause: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
 
-    if (
-      current.external_id !== row.stageIdentityEvidence.existingExternalId ||
-      current.intake_source !== row.stageIdentityEvidence.existingIntakeSource
-    ) {
-      throw new Error(`Task 1C linkage apply refused because stage row ${current.id} drifted before apply.`);
-    }
-
-    await input.databaseAdapter.updateMatchLinkage(current.id, row.exactProposedPatch);
+    throw new Error(
+      `Task 1C linkage apply entered an unrecoverable mixed state after atomic batch failure. Manual reconciliation required before retry. Cause: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
   }
 }
 
@@ -1511,12 +1620,33 @@ function createLiveDatabaseAdapter(): Task1cStageDatabaseAdapter {
       }
       return (data ?? []) as Task1cStageMatchRow[];
     },
-    async updateMatchLinkage(matchId, patch) {
-      assertAllowedPatchShape(patch);
-      const { error } = await supabase.from("matches").update(patch).eq("id", matchId);
+    async applyMatchLinkageBatch(rows) {
+      const payload = rows.map((row) => {
+        assertAllowedPatchShape(row.patch);
+        return {
+          stage_match_id: row.stageMatchId,
+          expected_external_id: row.expectedExternalId,
+          expected_intake_source: row.expectedIntakeSource,
+          next_external_id: row.patch.external_id,
+          next_intake_source: row.patch.intake_source,
+        };
+      });
+      const { data, error } = await supabase.rpc("apply_task1c_stage_v1_fixture_linkage", {
+        p_rows: payload,
+      });
       if (error) {
-        throw new Error(`Failed to update stage linkage for ${matchId}: ${error.message}`);
+        throw new Error(`Failed to apply atomic stage linkage batch: ${error.message}`);
       }
+      if (
+        !data ||
+        typeof data !== "object" ||
+        typeof (data as Record<string, unknown>).requestedCount !== "number" ||
+        typeof (data as Record<string, unknown>).updatedCount !== "number"
+      ) {
+        throw new Error("Failed to apply atomic stage linkage batch: RPC returned an invalid result.");
+      }
+
+      return data as Task1cStageApplyBatchResult;
     },
   };
 }
