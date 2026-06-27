@@ -140,6 +140,8 @@ describe("MatchDetailPage", () => {
 
     expect(html).toContain("Escenario cumplido");
     expect(html).toContain("Este escenario coincidió exactamente con el resultado final verificado.");
+    expect(html).toContain("Lectura UFO");
+    expect(html).toContain("Probabilidad del resultado");
   });
 
   it("shows the neutral no-match disclosure when the exact score does not match", async () => {
@@ -207,8 +209,11 @@ describe("MatchDetailPage", () => {
 
     expect(html).toContain("Continúa con una cuenta gratis");
     expect(html).toContain("Crear cuenta gratis");
+    expect(html).toContain("Lectura UFO");
+    expect(html).toContain("El modelo le da a Alemania la probabilidad más alta en su lectura del partido.");
     expect(html).not.toContain("Goles esperados (xG)");
     expect(html).not.toContain("Escenarios representativos del partido");
+    expect(html).not.toContain("Dentro del modelo, esta lectura");
   });
 
   it("shows historical premium preview for eligible registered free users without hiding the upgrade path", async () => {
@@ -235,6 +240,7 @@ describe("MatchDetailPage", () => {
     expect(html).toContain("Este análisis fue publicado antes del partido.");
     expect(html).toContain("Consulta este nivel de análisis antes del próximo partido");
     expect(html).toContain("Goles esperados (xG)");
+    expect(html).toContain("Dentro del modelo, esta lectura todavía deja espacio para varios desenlaces.");
   });
 
   it("does not unlock historical premium content for unverified results", async () => {
@@ -278,5 +284,31 @@ describe("MatchDetailPage", () => {
     expect(html).toContain("Guardar partido en tu lista");
     expect(html).toContain("Guarda este partido en tu lista para seguirlo más tarde desde tu cuenta.");
     expect(html).not.toContain("watchlist");
+  });
+
+  it("keeps the public expert read separate from premium narrative content for free users", async () => {
+    getPublicMatchDetailDataMock.mockResolvedValue({
+      status: "ready",
+      match: buildMatch({
+        premiumAccess: { status: "locked", reason: "no_entitlement" },
+        premiumProjection: { status: "locked", reason: "no_entitlement" },
+      }),
+    });
+
+    const html = renderToStaticMarkup(
+      await MatchDetailPage({
+        params: Promise.resolve({ slug: "world-cup-2026-germany-vs-saudi-arabia-2026-06-22" }),
+      }),
+    );
+
+    expect(html).toContain("Lectura UFO");
+    expect(html).toContain("El modelo le da a Alemania la probabilidad más alta en su lectura del partido.");
+    expect(html).toContain("Dentro del modelo, esta lectura todavía deja espacio para varios desenlaces.");
+    expect(html).toContain("Las probabilidades reflejan una lectura del modelo, no una promesa de resultado.");
+    expect(html).not.toContain(
+      "Alta incertidumbre: probabilidades cercanas. Una ventaja ligera no implica certeza.",
+    );
+    expect(html).not.toContain("Alemania mantiene una ligera ventaja base.");
+    expect(html).not.toContain("Goles esperados (xG)");
   });
 });

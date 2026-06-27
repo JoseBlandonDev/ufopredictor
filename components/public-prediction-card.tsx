@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
+import { buildPublicExpertReadView } from "../lib/presentation/public-expert-read";
 import {
   formatMatchKickoffLabel,
   formatVenueLabel,
@@ -44,6 +45,22 @@ export function PublicPredictionCard({
     { label: "Empate", value: prediction.drawProb },
     { label: awayTeamName, value: prediction.awayWinProb },
   ].sort((left, right) => right.value - left.value)[0];
+  const expertRead = buildPublicExpertReadView({
+    base: {
+      homeTeamName,
+      awayTeamName,
+      homeWinProb: prediction.homeWinProb,
+      drawProb: prediction.drawProb,
+      awayWinProb: prediction.awayWinProb,
+    },
+    confidence:
+      isRegisteredViewer
+        ? {
+            confidenceScore: prediction.confidenceScore,
+            riskLevel: prediction.riskLevel,
+          }
+        : null,
+  });
   const detailHref = `/matches/${prediction.matchSlug}`;
   const detailLabel = isRegisteredViewer
     ? premiumAccessActive
@@ -109,6 +126,7 @@ export function PublicPredictionCard({
         </div>
       ) : (
         <div className="mt-5">
+          <p className="mb-3 text-sm font-medium text-white">Probabilidad del resultado</p>
           <ProbabilityBar
             probabilities={{
               homeWin: prediction.homeWinProb,
@@ -118,6 +136,15 @@ export function PublicPredictionCard({
           />
         </div>
       )}
+      <div className="mt-5 rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/6 p-4">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+          Lectura UFO
+        </p>
+        <p className="mt-2 text-sm text-white">{expertRead.summary}</p>
+        {expertRead.confidenceNote ? (
+          <p className="mt-2 text-sm text-[var(--muted)]">{expertRead.confidenceNote}</p>
+        ) : null}
+      </div>
       {prediction.verifiedResult ? (
         <div className="mt-5 rounded-lg border border-emerald-400/25 bg-emerald-500/8 p-4">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-emerald-300">

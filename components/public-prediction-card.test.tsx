@@ -40,6 +40,8 @@ describe("PublicPredictionCard", () => {
 
     expect(html).toContain("Pase Mundial 2026");
     expect(html).toContain("Ver análisis completo");
+    expect(html).toContain("Lectura UFO");
+    expect(html).toContain("Dentro del modelo, esta lectura todavía deja espacio para varios desenlaces.");
   });
 
   it("keeps registered-free copy for registered viewers without premium access", () => {
@@ -47,6 +49,10 @@ describe("PublicPredictionCard", () => {
 
     expect(html).toContain("Incluye contexto completo de confianza y riesgo.");
     expect(html).toContain("Ver detalle público");
+    expect(html).toContain("Probabilidad del resultado");
+    expect(html).toContain(
+      "El modelo le da a México la probabilidad más alta en su lectura del partido.",
+    );
   });
 
   it("prioritizes the stadium over the city when both are present", () => {
@@ -102,5 +108,7 @@ describe("PublicPredictionCard", () => {
 
     expect(html).toContain("Vista previa limitada");
     expect(html).toContain("Crear cuenta para ver más");
+    expect(html).not.toContain("Dentro del modelo, esta lectura aparece relativamente estable.");
+    expect(html).not.toContain("65% confianza");
   });
 });
