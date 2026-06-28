@@ -32,8 +32,7 @@ type ScenarioInput = {
   } | null;
 };
 
-const SCENARIO_DISCLAIMER =
-  "Estos marcadores representan caminos plausibles del partido. No son resultados garantizados ni una recomendación de apuesta.";
+const SCENARIO_DISCLAIMER = "Son escenarios representativos basados en probabilidades.";
 
 function parseScore(score: string) {
   const match = score.match(/^(\d+)\s*-\s*(\d+)$/);
@@ -113,20 +112,24 @@ function buildSupportSignals(input: ScenarioInput, parsedScore: { homeGoals: num
   if (input.btts) {
     if (parsedScore.homeGoals > 0 && parsedScore.awayGoals > 0) {
       signals.push(
-        `Ambos equipos marcan: ${formatProbability(input.btts.yesProbability)}`,
+        `Probabilidad de que anoten ambos equipos: ${formatProbability(input.btts.yesProbability)}`,
       );
     } else {
       signals.push(
-        `Ambos equipos no marcan: ${formatProbability(input.btts.noProbability)}`,
+        `Probabilidad de que al menos uno no marque: ${formatProbability(input.btts.noProbability)}`,
       );
     }
   }
 
   if (input.totalGoals25) {
     if (totalGoals >= 3) {
-      signals.push(`Más de 2,5 goles: ${formatProbability(input.totalGoals25.overProbability)}`);
+      signals.push(
+        `Probabilidad de 3 o más goles: ${formatProbability(input.totalGoals25.overProbability)}`,
+      );
     } else {
-      signals.push(`Menos de 2,5 goles: ${formatProbability(input.totalGoals25.underProbability)}`);
+      signals.push(
+        `Probabilidad de 2 o menos goles: ${formatProbability(input.totalGoals25.underProbability)}`,
+      );
     }
   }
 
