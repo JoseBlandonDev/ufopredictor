@@ -1,86 +1,111 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-29._
 
-## Goal
+## Current status
 
-Rebuild Prediction Intelligence v2 on top of the current production baseline without losing the nine v2-only commits or rolling back MVP1 product and operations changes.
+The original normalization is complete.
 
-## Live-state source
-
-Before work, read and verify:
+Current V2 work uses:
 
 ```text
-docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
-docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
+integration/prediction-intelligence-v2
+Draft PR #114
+stage.ufopredictor.com
+stage Supabase yfmklapgjrupctgxaako
 ```
 
-Do not trust hardcoded SHAs or divergence counts from an old prompt. Recompute them read-only.
+Old branch and PR #106 remain preservation only.
 
-Stable references:
+Do not repeat the original nine-commit normalization unless a concrete recovery task requires it.
+
+## Ongoing purpose
+
+Preserve the V2 branch on top of current production behavior as `main` continues to receive:
+
+- production operations;
+- bounded fixes;
+- MVP 1.5 product releases;
+- security/commercial updates.
+
+## Main synchronization procedure
+
+1. verify clean V2 worktree;
+2. fetch remote refs;
+3. verify current V2 HEAD and expected Draft PR;
+4. inspect `main..V2` and `V2..main`;
+5. merge current `main` into V2 using repository policy;
+6. resolve shared files manually;
+7. preserve stage-only data/model work;
+8. run affected production and V2 tests;
+9. lint/build;
+10. record synchronization SHA;
+11. confirm no production write.
+
+## Shared conflict zones
+
+Review carefully:
+
+- public display helpers;
+- prediction cards;
+- match detail;
+- public query helpers;
+- pricing/panel/navigation;
+- shared database types;
+- venue ingestion types;
+- time-zone presentation helpers;
+- docs.
+
+Do not accept V2 copies that roll back newer production/MVP 1.5 behavior.
+
+## MVP 1.5 interaction
+
+MVP 1.5 does not merge unfinished V2 model work.
+
+Flow:
 
 ```text
-old v2 branch: feature/prediction-intelligence-v2-data-foundation
-Draft PR: #106
-known old v2 head at last refresh: eefcff709e80209215b25b90fb870aa5c080d735
-known merge base: 1dca9bf91000c089927452941a009117b622103f
+MVP 1.5 -> main
+main -> V2
 ```
 
-## Required strategy
-
-1. Verify clean current `main` and `origin/main`.
-2. Preserve the old branch and PR #106 unchanged.
-3. Create `integration/prediction-intelligence-v2` from current `origin/main`.
-4. Produce a nine-commit/file preservation matrix.
-5. Port changes in this order:
-   - migration/types/contracts;
-   - source data/manifests/parsers;
-   - model/replay/calibration;
-   - scripts/artifact generation;
-   - tests;
-   - Task 3A/3B runbooks.
-6. Do not port stale frontend/shared queries/docs blindly.
-7. Resolve conflicts manually against current MVP1 behavior.
-8. Validate after each group.
-9. Open a replacement Draft PR.
-10. Close/supersede #106 only after all required concerns are preserved.
-
-## Suggested worktrees
+not:
 
 ```text
-D:\Projects\ufo-predictor
-D:\Projects\ufo-predictor-v2
-D:\Projects\ufo-predictor-ui
+V2 -> broad MVP 1.5 merge
 ```
 
-Additional worktrees are optional. Do not create duplicate source snapshots merely to run parallel conversations.
+Shared changes are preserved through current `main`.
 
-## Validation after each group
+## Validation after synchronization
 
-- focused imported tests;
-- current public query/lifecycle tests;
-- result/fixture operation tests if shared code is touched;
-- Auth/pricing/entitlement tests if shared code is touched;
+- public prediction/lifecycle tests;
+- match detail tests;
+- Auth/pricing/entitlement tests if touched;
+- fixture/result tests if shared ingest code touched;
+- venue/time tests if added;
+- V2 focused tests;
 - lint;
 - production build;
-- diff-check;
+- stage target guard;
 - no production write.
 
-## Current production concerns that must survive
+## Environment contract
 
-- PR #111 fixture registry behavior;
-- PR #112 trusted result refresh behavior;
-- immutable v1 Matchday 3 publications;
-- Torneo `torneo-ufo-export-v1` compatibility;
-- Wompi/Auth/entitlement behavior;
-- public lifecycle and history.
+```text
+production: ufopredictor.com / gcpdffkgsdomzyoenalg
+stage: stage.ufopredictor.com / yfmklapgjrupctgxaako
+```
+
+Do not create another normal stage environment.
+
+Do not clone production users/payments/entitlements into stage.
 
 ## Required output
 
-- old commit -> new commit/file mapping;
-- intentionally excluded files and rationale;
-- conflicts and resolutions;
-- tests/build evidence;
-- replacement Draft PR URL;
-- confirmation PR #106 remained Draft/unchanged;
-- confirmation no production write occurred.
+- pre-sync branch/HEAD;
+- main HEAD merged;
+- conflict list/resolutions;
+- tests/build;
+- post-sync HEAD;
+- no-production-write confirmation.

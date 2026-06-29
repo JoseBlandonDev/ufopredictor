@@ -1,293 +1,399 @@
 # Product and Commercial MVP1 - Current
 
-_Last refreshed: 2026-06-27 after PR #117 reached production and the latest trusted-result batch was publicly verified._
+_Last refreshed: 2026-06-29 after the Round-of-32 publication batch and the Free/Premium MVP 1.5 surface review._
 
 ## Product
 
-UFO Predictor is a football-intelligence product that publishes probabilistic World Cup readings. It is not a sportsbook, does not accept bets, and does not guarantee results.
+UFO Predictor is a football-intelligence product that publishes probabilistic World Cup readings.
+
+It:
+
+- is not a sportsbook;
+- does not accept bets;
+- does not guarantee results;
+- explains uncertainty instead of presenting certainty;
+- preserves predictions and verified outcomes for review.
 
 ## Production MVP1 status
 
-The commercial production loop remains operational:
+The commercial production loop is operational:
 
 ```text
-visitor -> account -> checkout -> Wompi approval webhook -> entitlement -> premium access
+visitor
+-> account
+-> checkout
+-> Wompi approval webhook
+-> entitlement grant
+-> Premium access
 ```
 
-The payment return page is informational. Premium activation is granted only by the validated server-side webhook and idempotent entitlement flow.
+The return page is informational. Premium access is granted by the validated server-side flow, not by browser state.
 
-MVP1 remains live while MVP2 is developed and validated separately.
+MVP1 remains live while V2 is developed separately.
+
+## Owner-approved commercial target and operator-observed production presentation
+
+Owner-approved and operator-confirmed production presentation:
+
+```text
+name: Pase Mundial 2026
+base commercial price: US$10
+current production/Wompi display observed by the owner: COP 35,000
+payment model: one-time
+coverage: published World Cup 2026 matches supported by the product
+```
+
+Repository implementation is not yet fully reconciled: migration history, UI fallback, and pricing tests still contain the previous US$20 / COP 68,700 contract. Treat that as MVP 1.5 implementation debt, not as the desired commercial decision.
+
+Currency references outside the actual Wompi charge are estimates only.
+
+Recommended public wording after repository reconciliation:
+
+```text
+US$10 one-time
+Owner-observed production/Wompi display: COP 35,000
+Reference values may vary with exchange rate and bank conversion.
+```
+
+Until repository code, fallback paths, and pricing tests are reconciled, this remains owner-approved commercial/product truth plus operator evidence, not tracked-repository implementation truth.
+
+Do not imply that an approximate local value is the final charged amount unless checkout supports that currency.
 
 ## Access tiers
 
 ### Anonymous
 
-- limited public preview;
-- public fixture browsing;
-- responsible product explanation;
-- authentication required before purchase.
+- limited public browsing;
+- public prediction preview;
+- product and responsibility explanation;
+- authentication required before purchase;
+- visible but non-invasive upgrade path.
 
 ### Registered free
 
-- full published home/draw/away result probabilities;
-- confidence and risk context;
-- eligible public history;
-- premium upgrade paths.
+- published 1X2 probabilities;
+- public confidence/risk context where allowed;
+- public fixture detail;
+- eligible verified history;
+- saved matches;
+- strong, clear upgrade path to Pase Mundial 2026.
 
 ### Premium
 
 - representative scenarios;
-- xG and score-distribution context;
-- BTTS and over/under where available;
-- broader confidence/risk interpretation;
-- full advanced detail where an advanced publication exists;
-- no repurchase while the Pase Mundial entitlement remains active.
+- expected goals;
+- BTTS and total-goals context;
+- expanded confidence and risk explanation;
+- full Premium match reading where published;
+- saved matches and account status;
+- Premium identity visible without repeating entitlement copy inside every card.
 
 ### Admin
 
-- explicit protected operational routes;
-- admin authorization remains separate from commercial premium access;
-- approved server-side bypasses are administrative only.
+- fixture publication queue;
+- result review;
+- evaluation operations;
+- controlled entitlement and payment inspection;
+- no public service-role path.
 
-## MVP1 features completed
+## Current production coverage
 
-- dynamic World Cup homepage;
-- Spanish production presentation;
-- freemium segmentation;
-- premium scenario explanations and glossary;
-- Pase Mundial 2026 commercial page;
-- dashboard, transparency, prediction, history, and match-detail surfaces;
-- anonymous pricing CTA through Auth;
-- verified result history and scenario-hit highlighting;
-- kickoff-derived public lifecycle classification;
-- production Wompi purchase and webhook entitlement activation;
-- exact fixture publication queue;
-- Matchday 3 fixture registry and publication continuity;
-- trusted-provider result refresh and automatic evaluation;
-- public-safe Torneo Mundialista JSON export;
-- deterministic `Lectura UFO` on prediction cards and public match detail;
-- clearer `Probabilidad del resultado` labeling on the touched surfaces.
+The following is operator-confirmed production evidence rather than a fact independently provable from tracked Git state alone.
 
-## Public Expert Read production checkpoint
+The current public product includes 15 future Round-of-32 predictions.
 
-Task 4A inventoried the existing V1 product fields and access boundaries.
+The latest verified result corrections include:
 
-Task 4B delivered PR #117:
+- Croatia 2-1 Ghana, preserving and evaluating the original prediction;
+- South Africa 0-1 Canada, stored as an official verified result without a retrospective prediction.
 
-```text
-feature: Public Expert Read
-source branch: feature/mvp1-expert-product-experience
-feature commit: 3d647b2
-main merge commit: 3aff0e4
-V2 integration sync HEAD: 5007de7
-production smoke: passed
-```
+A verified result without a prior prediction is valid match history but must not be presented as a UFO prediction or included in model accuracy.
 
-Behavior:
+## Current Free/Premium surface assessment
 
-- anonymous viewers receive a deterministic reading based only on public home/draw/away probabilities;
-- registered-free viewers may receive an additional stability/uncertainty sentence only from confidence and risk already visible to them;
-- premium and admin viewers retain the existing advanced projection;
-- xG, scorelines, BTTS, totals, narratives, and premium authorization are not leaked or broadened;
-- the helper is presentation-only and does not change persisted probabilities, confidence, risk, models, or results.
+The product is functional and coherent, but the current surfaces need a conversion and hierarchy pass before broader advertising.
 
-The legacy static uncertainty sentence on match detail was removed because it could contradict the dynamic reading.
+### Confirmed issues
 
-## Latest verified production result checkpoint
+- Premium status is communicated repeatedly but not strongly branded.
+- `/predictions` contains redundant calls to actions for users already on the page.
+- cards repeat account-status text that should be global or contextual;
+- `Estadio pendiente de confirmación` currently hides an ingestion limitation;
+- kickoff is presented only in Bogotá/COT;
+- the Free offer does not surface the US$10 price often enough;
+- the Premium pass page and dashboard feel administrative rather than valuable;
+- the Premium match response repeats scenario explanation;
+- Transparency is accurate but too text-heavy;
+- English/Spanish product names are inconsistent in places;
+- `Sin vencimiento` may describe a technical grant but not the intended commercial promise.
 
-The latest trusted API-Football operation added and publicly verified:
+## MVP 1.5 product objective
 
-```text
-Egypt 1-1 Iran
-New Zealand 1-5 Belgium
-Uruguay 0-1 Spain
-Cape Verde 0-0 Saudi Arabia
-Panama 0-1 Croatia
-```
+MVP 1.5 should make the current product polished enough to advertise while V2 remains in development.
 
-All five were persisted through exact allowlisted applies, auto-verified, evaluated, and confirmed in the public recent/history views. Manual score entry was not used.
+The product must answer quickly:
 
-## Matchday 3 production baseline
+- what is available free;
+- what Premium unlocks;
+- why the pass is useful;
+- what it costs;
+- how long the commercial offer applies;
+- what the model believes;
+- what could make the reading fail.
 
-Current production v1 coverage:
+## Premium identity
 
-- 24/24 Matchday 3 fixtures stored;
-- 24/24 Matchday 3 predictions published;
-- no pending rows in the exact publish queue at the recorded milestone;
-- partner export generated with 24 unique fixtures and no duplicates.
-
-These original V1 publications are immutable historical baselines. A later V2 candidate or replay never replaces them.
-
-## Verified-result and historical behavior
-
-A verified final result is shown as historical truth while the original pre-match prediction remains immutable.
-
-Normal valid API-Football `FT` results may be verified automatically when:
-
-- stored fixture and provider identity match;
-- home and away scores are present;
-- the state is supported;
-- no duplicate or reconciliation conflict exists.
-
-Human review is reserved for exceptions.
-
-For eligible premium historical details:
-
-- the full pre-match analysis may remain visible;
-- an exact scenario match may be highlighted as `Escenario cumplido`;
-- when no scenario matches exactly, the UI says so honestly;
-- old scenarios are never rewritten after the result.
-
-## Torneo Mundialista partner contract
-
-The approved partner artifact is JSON:
+Recommended persistent product badge:
 
 ```text
-schemaVersion: torneo-ufo-export-v1
+Pase Mundial 2026 · Activo
 ```
 
-Partner joins use stable fixture or external IDs, not localized team names.
+Use it in a bounded location such as navigation, account identity, or the Premium panel.
 
-PDF is not required for the current integration.
+Do not repeat “Tu Pase Mundial 2026 está activo” inside every prediction card.
 
-## MVP1 closeout meaning
+Premium access should be visible through:
 
-MVP1 is commercially usable. Its closeout does not freeze production.
+- a badge;
+- unlocked actions;
+- clear Premium sections;
+- a useful account summary.
 
-Allowed bounded work includes:
+## Registered-free conversion strategy
 
-- current tournament operations;
-- UI/UX, accessibility, mobile, and conversion improvements;
-- clearer use of information already stored by V1;
-- safe operational automation;
-- documentation maintenance;
-- locale-neutral presentation contracts;
-- integration and stage validation of V2.
+The pass should be visible across Free surfaces without becoming an advertisement on every line.
 
-These are incremental releases, not reasons to reopen MVP1 architecture.
+### Home
 
-## Parallel expert-experience work
+Show:
 
-Status:
+- free value;
+- Premium difference;
+- US$10 one-time price;
+- direct CTA to the pass;
+- next published match.
+
+### Predictions
+
+Replace account-state copy with a compact commercial summary.
+
+Avoid a button that links to the page the user is already viewing.
+
+### Prediction cards
+
+Keep public value visible.
+
+Use a small contextual line such as:
 
 ```text
-Task 4A - V1 Information Inventory: DONE
-Task 4B - Public Expert Read: DONE
-Task 4C - Football-first premium terminology: NEXT
+Pase Mundial: scenarios, xG, and the complete reading.
 ```
 
-A separate MVP2 epic may be assigned to another owner while the primary owner continues data and model work.
+Do not place identical sales copy in every card when one section-level explanation is sufficient.
 
-That parallel epic may improve production and stage by:
+### Match detail
 
-- inventorying V1 data that exists but is not displayed;
-- converting probabilities, xG, BTTS, totals, confidence, and scenarios into understandable football language;
-- presenting likely match scripts rather than three isolated exact scores;
-- showing evidence, contradictions, freshness, and uncertainty;
-- preparing components for tournament form, rankings, attack, defense, squads, and players;
-- making components tolerant of missing data;
-- preparing ES/EN/PT localization contracts.
+The locked Premium block should show:
 
-It must not:
+- exactly what unlocks;
+- US$10 one-time price;
+- current charge currency;
+- coverage;
+- purchase CTA.
 
-- change V1 calculations;
-- generate V2;
-- invent missing statistics;
-- depend on unfinished stage-only tables for production rendering;
-- duplicate the primary data/model workstream.
+### Panel
 
-Independent production-safe UI improvements branch from current `main`, merge through a normal PR, receive a production smoke, and then flow into the V2 integration branch through normal Git history. PR #117 proved this path.
+Show:
 
-## MVP2 explanation-first direction
+- current account tier;
+- saved matches;
+- pass value;
+- next action;
+- consistent product naming.
 
-The product should not require users to understand betting terminology before receiving value.
+### Transparency
 
-The preferred public reading explains:
+Use a soft conversion block that links interpretation to a real match and the Premium depth, without turning a methodology page into a checkout funnel.
 
-- who arrives stronger and why;
-- tournament points and form;
-- goals scored and conceded;
-- offensive and defensive tendencies;
-- rankings and opponent quality;
-- plausible controlled, tight, open, or upset match scripts;
-- what supports the primary reading;
-- what could make it fail;
-- how reliable and current the evidence is.
+## Premium match-response direction
 
-Probabilities remain available as quantitative support.
+The Premium detail should be organized as:
 
-## Future squad and player intelligence
+1. main UFO reading;
+2. key indicators;
+3. principal scenario;
+4. compact alternatives;
+5. what could change the reading;
+6. model/cutoff/update metadata.
 
-The product and data contracts should be prepared to receive later:
+Avoid repeating the same explanatory paragraph across three scenario cards.
 
-- tournament squads and call-ups;
-- likely and confirmed lineups;
-- injuries, suspensions, doubts, and expected minutes;
-- top scorers and assists in the current tournament;
-- percentage contribution to team goals;
-- individual shots and xG when reliable;
-- penalty and set-piece roles;
-- offensive dependency;
-- replacement quality;
-- estimated impact of a key absence;
-- likely scoring candidates.
-
-This future capability should be represented as structured facts and localized explanations, not stored only as a Spanish paragraph.
-
-It is not required to finish V2.0.
-
-## Internationalization
-
-Core target languages:
+Example structure:
 
 ```text
-ES
-EN
-PT
+Main reading
+Brazil begins with a clear advantage because of stronger expected attacking output.
+The draw remains the main alternative.
+
+Key indicators
+Home / Draw / Away
+xG
+BTTS
+Over/Under 2.5
+
+Main scenario
+2-0
+
+Alternative scenarios
+1-0
+2-1
+
+What could change the reading
+A lower-tempo game or efficient defensive block can increase the draw probability.
 ```
 
-- Spanish remains the current production language;
-- English and Portuguese are first-class roadmap targets;
-- canonical football facts and identities remain locale-neutral;
-- translation keys and localized renderers should be designed before broad rollout;
-- French and German remain later possibilities.
+## Venue display
 
-## Stage product state
+The tournament venues and kickoff times are not inherently unknown.
 
-Task 3B and Task 1C completed the stable stage baseline without changing production.
+The current product lacks venues because the ingestion pipeline ignores provider venue fields.
 
-Stage currently has:
+MVP 1.5 venue work should:
+
+- read provider venue ID/name/city;
+- upsert the existing `venues` table;
+- set `matches.venue_id`;
+- show stadium and city;
+- use an honest fallback only when provider data is truly missing.
+
+## Time presentation
+
+Preferred behavior:
+
+1. display the viewer-local kickoff time when available from browser time-zone detection;
+2. provide a small expandable reference set;
+3. fall back to:
+   - Mexico;
+   - Colombia / Peru;
+   - Argentina / Chile;
+   - Spain.
+
+Use IANA zones and the actual match date.
+
+Only group country labels when the rendered local time matches.
+
+Do not request GPS for this feature.
+
+## Localized price presentation
+
+Preferred behavior:
+
+1. display the actual commercial base and charge;
+2. show one local approximation when country/locale can be inferred safely;
+3. keep the actual charged currency explicit;
+4. label approximations.
+
+Country detection priority:
+
+- stored profile country when implemented;
+- explicit user choice;
+- trusted request country/edge metadata when already available;
+- browser locale only as a weak fallback;
+- otherwise US$10.
+
+Do not infer country from language alone as an authoritative billing decision.
+
+## Terms and commercial clarity
+
+MVP 1.5 should add or clarify:
+
+- one-time payment;
+- covered product and tournament;
+- commercial validity;
+- actual charge currency;
+- approximate conversion disclaimer;
+- refund/support path;
+- no guaranteed results;
+- no sportsbook relationship.
+
+The technical entitlement may remain active without an expiry timestamp, but public copy should describe the purchased product honestly. Do not promise “lifetime” access merely because a current row has no end date.
+
+## Public history behavior
+
+Prediction history must contain only matches with a genuine public prediction version.
+
+A separate future surface may show:
 
 ```text
-active V1 models = 1
-prediction versions = 24
-prediction-market rows = 240
-public fixtures = 24
-state = exact_complete
+Official verified results without a UFO prediction
 ```
 
-The `/predictions` page visibly renders the immutable V1 baseline, confidence, risk, pending-result fixtures, upcoming fixtures, and public detail links.
+That surface must not create:
 
-**Decision:** the stage UI may continue to present the V1-compatible experience while V2 data, signals, candidates, and evaluations are built behind it.
+- a prediction version;
+- an evaluation;
+- a success/failure claim;
+- retrospective accuracy.
 
-**Consecuencia operativa:** production-safe V1 and expert-experience improvements may continue in parallel, but they must not duplicate or override the V2 data/model workstream.
+## MVP 1.5 priorities
 
-## Commercial roadmap boundaries
+### P0 before advertising
 
-A second payment provider remains later work.
+- improve Free pass visibility;
+- make US$10 explicit;
+- add a Premium badge;
+- remove redundant account-state text from cards;
+- remove redundant `/predictions` actions;
+- clarify pass coverage and validity;
+- simplify Premium scenario hierarchy;
+- unify Spanish product terminology;
+- replace ambiguous venue copy.
 
-Potential options include:
+### P1
 
-- PayPal Business for direct international checkout;
-- another regional provider with reliable webhook, refund, and reconciliation behavior;
-- Hotmart only if product strategy intentionally changes toward marketplace or course distribution.
+- persist and display venues;
+- viewer-local kickoff plus compact references;
+- stronger pricing and panel presentation;
+- redesign Transparency for scanning;
+- improve landing conversion;
+- mobile/accessibility pass;
+- better empty states.
 
-A second payment provider is not a V2 blocker.
+### P2
 
-## MVP1 verdict
+- explicit country/time preference;
+- local price approximation service;
+- public results without prediction;
+- model-change history display;
+- annotated Transparency example.
 
-The production product remains commercially usable.
+## Boundaries with V2
 
-The first parallel expert-experience slice is live and verified. The next MVP1 slice should improve premium terminology and explanation without changing data, probability calculations, premium authorization, or the V2 workstream.
+MVP 1.5 may change:
 
-MVP2 remains an incremental intelligence and data release, not a replacement of the validated Auth, payment, entitlement, result, and publication foundations.
+- copy;
+- layout;
+- component hierarchy;
+- badges;
+- pricing presentation;
+- venue ingestion/display;
+- time formatting;
+- public product explanations.
+
+It must not change:
+
+- prediction calculations;
+- signal selection;
+- calibration;
+- V2 storage;
+- candidate generation;
+- original prediction history.
+
+## Product verdict
+
+MVP1 is operational.
+
+MVP 1.5 is now the declared polish and conversion track needed before broad advertising.
+
+V2 remains a separate model-development and release track.
