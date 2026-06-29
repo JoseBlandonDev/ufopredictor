@@ -1,0 +1,495 @@
+{
+  "previousTask2SelectionBug": {
+    "selectedCandidate": "structural_only_ablation",
+    "lowerCompositeScore": 0.786066,
+    "butWorseThanBaseline": {
+      "brier": true,
+      "logLoss": true,
+      "accuracy": true
+    }
+  },
+  "selectionRule": {
+    "primary": "lowest_multiclass_brier",
+    "brierTolerance": 0.0005,
+    "secondary": "lowest_log_loss_within_brier_tolerance",
+    "logLossTolerance": 0.001,
+    "tertiary": [
+      "lowest_total_goals_mae",
+      "lowest_goal_difference_mae"
+    ],
+    "tieBreakers": [
+      "highest_outcome_accuracy",
+      "highest_favorite_accuracy",
+      "stable_key_order"
+    ]
+  },
+  "rankedCandidates": [
+    {
+      "candidate": {
+        "key": "structural_only_ablation",
+        "label": "Structural-only ablation",
+        "calibrationVersion": "task2-calibration-v1",
+        "modelFamily": "legacy_formula",
+        "effectiveStrengthWeights": {
+          "structural": 0.72,
+          "recentForm": 0.08,
+          "tournamentForm": 0.04,
+          "attack": 0.06,
+          "defense": 0.05,
+          "expectation": 0.03,
+          "reliability": 0.02
+        },
+        "expectedGoalDifference": {
+          "structuralGap": 1.35,
+          "recentGap": 0.15,
+          "tournamentGap": 0.08,
+          "attackDefenseGap": 0.22,
+          "expectationGap": 0.15,
+          "reliabilityTilt": 0.08
+        },
+        "expectedTotalGoals": {
+          "base": 2.28,
+          "combinedAttack": 0.38,
+          "combinedDefense": 0.18,
+          "combinedOpenPlay": 0.22,
+          "combinedTournamentOpenPlay": 0.08,
+          "favoriteControl": -0.16,
+          "reliabilityDrag": -0.1
+        },
+        "drawLift": 0.03,
+        "maxGoals": 8
+      },
+      "validationMetrics": {
+        "fixtureCount": 319,
+        "oneXTwo": {
+          "multiclassBrier": 0.19657,
+          "logLoss": 0.989611,
+          "outcomeAccuracy": 0.576803,
+          "favoriteAccuracy": 0.576803,
+          "calibrationByBucket": [
+            {
+              "bucket": "0.00-0.39",
+              "fixtureCount": 146,
+              "averagePredicted": 0.376553,
+              "actualHitRate": 0.438356
+            },
+            {
+              "bucket": "0.40-0.49",
+              "fixtureCount": 140,
+              "averagePredicted": 0.435656,
+              "actualHitRate": 0.642857
+            },
+            {
+              "bucket": "0.50-0.59",
+              "fixtureCount": 31,
+              "averagePredicted": 0.538936,
+              "actualHitRate": 0.903226
+            },
+            {
+              "bucket": "0.60+",
+              "fixtureCount": 2,
+              "averagePredicted": 0.671984,
+              "actualHitRate": 1
+            }
+          ]
+        },
+        "goalsAndMarkets": {
+          "totalGoalsMae": 1.389015,
+          "goalDifferenceMae": 1.484877,
+          "bttsBrier": 0.249487,
+          "bttsAccuracy": 0.498433,
+          "over25Brier": 0.249468,
+          "over25Accuracy": 0.53605
+        },
+        "scoreDistribution": {
+          "exactScoreTop1Coverage": 0.115987,
+          "exactScoreTop3Coverage": 0.329154,
+          "exactScoreTop5Coverage": 0.476489,
+          "actualScoreProbability": 0.058162,
+          "scoreMatrixTailMass": 0.000033
+        }
+      },
+      "selectionAudit": {
+        "multiclassBrier": 0.19657,
+        "brierFromBest": 0,
+        "withinBrierTolerance": true,
+        "logLoss": 0.989611,
+        "logLossFromBestWithinToleranceSet": 0,
+        "withinLogLossTolerance": true,
+        "totalGoalsMae": 1.389015,
+        "goalDifferenceMae": 1.484877,
+        "outcomeAccuracy": 0.576803,
+        "favoriteAccuracy": 0.576803,
+        "tieBreakOrder": [
+          0.19657,
+          0.989611,
+          1.389015,
+          1.484877,
+          -0.576803,
+          -0.576803
+        ],
+        "validationSelectionScore": 0.764842
+      }
+    },
+    {
+      "candidate": {
+        "key": "v1_plus_bounded_signals",
+        "label": "V1 plus bounded signals",
+        "calibrationVersion": "task2-1-calibration-v1",
+        "modelFamily": "bounded_hybrid",
+        "effectiveStrengthWeights": {
+          "structural": 0.5,
+          "recentForm": 0.15,
+          "tournamentForm": 0.08,
+          "attack": 0.1,
+          "defense": 0.08,
+          "expectation": 0.05,
+          "reliability": 0.04
+        },
+        "expectedGoalDifference": {
+          "structuralGap": 1.05,
+          "recentGap": 0.3,
+          "tournamentGap": 0.12,
+          "attackDefenseGap": 0.2,
+          "expectationGap": 0.18,
+          "reliabilityTilt": 0.08
+        },
+        "expectedTotalGoals": {
+          "base": 2.38,
+          "combinedAttack": 0.4,
+          "combinedDefense": 0.18,
+          "combinedOpenPlay": 0.24,
+          "combinedTournamentOpenPlay": 0.06,
+          "favoriteControl": -0.08,
+          "reliabilityDrag": -0.1
+        },
+        "drawLift": 0.01,
+        "maxGoals": 8,
+        "hybridAdjustments": {
+          "structuralDisagreement": 0.28,
+          "recentForm": 0.36,
+          "attack": 0.18,
+          "defense": 0.16,
+          "opponentAdjustment": 0.2,
+          "tournamentForm": 0.18,
+          "venueContext": 0.14
+        },
+        "reliabilityShrinkage": {
+          "base": 0.55,
+          "recentFormMultiplier": 0.28,
+          "tournamentMultiplier": 0.17
+        },
+        "boundedCaps": {
+          "expectedGoalDifferenceDelta": 0.42,
+          "expectedTotalGoalsDelta": 0.36,
+          "oneXTwoDelta": 0.1
+        }
+      },
+      "validationMetrics": {
+        "fixtureCount": 319,
+        "oneXTwo": {
+          "multiclassBrier": 0.199094,
+          "logLoss": 1.001865,
+          "outcomeAccuracy": 0.557994,
+          "favoriteAccuracy": 0.557994,
+          "calibrationByBucket": [
+            {
+              "bucket": "0.00-0.39",
+              "fixtureCount": 108,
+              "averagePredicted": 0.382151,
+              "actualHitRate": 0.324074
+            },
+            {
+              "bucket": "0.40-0.49",
+              "fixtureCount": 178,
+              "averagePredicted": 0.433853,
+              "actualHitRate": 0.640449
+            },
+            {
+              "bucket": "0.50-0.59",
+              "fixtureCount": 31,
+              "averagePredicted": 0.525899,
+              "actualHitRate": 0.870968
+            },
+            {
+              "bucket": "0.60+",
+              "fixtureCount": 2,
+              "averagePredicted": 0.635668,
+              "actualHitRate": 1
+            }
+          ]
+        },
+        "goalsAndMarkets": {
+          "totalGoalsMae": 1.374697,
+          "goalDifferenceMae": 1.506441,
+          "bttsBrier": 0.252105,
+          "bttsAccuracy": 0.492163,
+          "over25Brier": 0.24669,
+          "over25Accuracy": 0.532915
+        },
+        "scoreDistribution": {
+          "exactScoreTop1Coverage": 0.112853,
+          "exactScoreTop3Coverage": 0.329154,
+          "exactScoreTop5Coverage": 0.45768,
+          "actualScoreProbability": 0.055408,
+          "scoreMatrixTailMass": 0.000041
+        }
+      },
+      "selectionAudit": {
+        "multiclassBrier": 0.199094,
+        "brierFromBest": 0.002524,
+        "withinBrierTolerance": false,
+        "logLoss": 1.001865,
+        "logLossFromBestWithinToleranceSet": 0.012254,
+        "withinLogLossTolerance": false,
+        "totalGoalsMae": 1.374697,
+        "goalDifferenceMae": 1.506441,
+        "outcomeAccuracy": 0.557994,
+        "favoriteAccuracy": 0.557994,
+        "tieBreakOrder": [
+          0.199094,
+          1.001865,
+          1.374697,
+          1.506441,
+          -0.557994,
+          -0.557994
+        ],
+        "validationSelectionScore": 0.771292
+      }
+    },
+    {
+      "candidate": {
+        "key": "v1_plus_bounded_signals_conservative",
+        "label": "V1 plus bounded signals conservative",
+        "calibrationVersion": "task2-1-calibration-v1",
+        "modelFamily": "bounded_hybrid",
+        "effectiveStrengthWeights": {
+          "structural": 0.5,
+          "recentForm": 0.15,
+          "tournamentForm": 0.08,
+          "attack": 0.1,
+          "defense": 0.08,
+          "expectation": 0.05,
+          "reliability": 0.04
+        },
+        "expectedGoalDifference": {
+          "structuralGap": 1.05,
+          "recentGap": 0.3,
+          "tournamentGap": 0.12,
+          "attackDefenseGap": 0.2,
+          "expectationGap": 0.18,
+          "reliabilityTilt": 0.08
+        },
+        "expectedTotalGoals": {
+          "base": 2.38,
+          "combinedAttack": 0.4,
+          "combinedDefense": 0.18,
+          "combinedOpenPlay": 0.24,
+          "combinedTournamentOpenPlay": 0.06,
+          "favoriteControl": -0.08,
+          "reliabilityDrag": -0.1
+        },
+        "drawLift": 0.012,
+        "maxGoals": 8,
+        "hybridAdjustments": {
+          "structuralDisagreement": 0.2,
+          "recentForm": 0.24,
+          "attack": 0.12,
+          "defense": 0.1,
+          "opponentAdjustment": 0.14,
+          "tournamentForm": 0.1,
+          "venueContext": 0.12
+        },
+        "reliabilityShrinkage": {
+          "base": 0.42,
+          "recentFormMultiplier": 0.2,
+          "tournamentMultiplier": 0.12
+        },
+        "boundedCaps": {
+          "expectedGoalDifferenceDelta": 0.28,
+          "expectedTotalGoalsDelta": 0.24,
+          "oneXTwoDelta": 0.07
+        }
+      },
+      "validationMetrics": {
+        "fixtureCount": 319,
+        "oneXTwo": {
+          "multiclassBrier": 0.200504,
+          "logLoss": 1.007679,
+          "outcomeAccuracy": 0.573668,
+          "favoriteAccuracy": 0.573668,
+          "calibrationByBucket": [
+            {
+              "bucket": "0.00-0.39",
+              "fixtureCount": 132,
+              "averagePredicted": 0.382439,
+              "actualHitRate": 0.409091
+            },
+            {
+              "bucket": "0.40-0.49",
+              "fixtureCount": 168,
+              "averagePredicted": 0.432968,
+              "actualHitRate": 0.672619
+            },
+            {
+              "bucket": "0.50-0.59",
+              "fixtureCount": 17,
+              "averagePredicted": 0.520211,
+              "actualHitRate": 0.823529
+            },
+            {
+              "bucket": "0.60+",
+              "fixtureCount": 2,
+              "averagePredicted": 0.609396,
+              "actualHitRate": 1
+            }
+          ]
+        },
+        "goalsAndMarkets": {
+          "totalGoalsMae": 1.376281,
+          "goalDifferenceMae": 1.512955,
+          "bttsBrier": 0.252497,
+          "bttsAccuracy": 0.479624,
+          "over25Brier": 0.246986,
+          "over25Accuracy": 0.529781
+        },
+        "scoreDistribution": {
+          "exactScoreTop1Coverage": 0.112853,
+          "exactScoreTop3Coverage": 0.332288,
+          "exactScoreTop5Coverage": 0.451411,
+          "actualScoreProbability": 0.055329,
+          "scoreMatrixTailMass": 0.000038
+        }
+      },
+      "selectionAudit": {
+        "multiclassBrier": 0.200504,
+        "brierFromBest": 0.003934,
+        "withinBrierTolerance": false,
+        "logLoss": 1.007679,
+        "logLossFromBestWithinToleranceSet": 0.018068,
+        "withinLogLossTolerance": false,
+        "totalGoalsMae": 1.376281,
+        "goalDifferenceMae": 1.512955,
+        "outcomeAccuracy": 0.573668,
+        "favoriteAccuracy": 0.573668,
+        "tieBreakOrder": [
+          0.200504,
+          1.007679,
+          1.376281,
+          1.512955,
+          -0.573668,
+          -0.573668
+        ],
+        "validationSelectionScore": 0.772851
+      }
+    },
+    {
+      "candidate": {
+        "key": "v1_compatible_baseline",
+        "label": "V1-compatible baseline",
+        "calibrationVersion": "task2-1-calibration-v1",
+        "modelFamily": "v1_baseline",
+        "effectiveStrengthWeights": {
+          "structural": 0.5,
+          "recentForm": 0.15,
+          "tournamentForm": 0.05,
+          "attack": 0.1,
+          "defense": 0.1,
+          "expectation": 0.05,
+          "reliability": 0.05
+        },
+        "expectedGoalDifference": {
+          "structuralGap": 1.05,
+          "recentGap": 0.3,
+          "tournamentGap": 0.12,
+          "attackDefenseGap": 0.2,
+          "expectationGap": 0.18,
+          "reliabilityTilt": 0.08
+        },
+        "expectedTotalGoals": {
+          "base": 2.38,
+          "combinedAttack": 0.4,
+          "combinedDefense": 0.18,
+          "combinedOpenPlay": 0.24,
+          "combinedTournamentOpenPlay": 0.06,
+          "favoriteControl": -0.08,
+          "reliabilityDrag": -0.1
+        },
+        "drawLift": 0.01,
+        "maxGoals": 8
+      },
+      "validationMetrics": {
+        "fixtureCount": 319,
+        "oneXTwo": {
+          "multiclassBrier": 0.202012,
+          "logLoss": 1.014069,
+          "outcomeAccuracy": 0.576803,
+          "favoriteAccuracy": 0.576803,
+          "calibrationByBucket": [
+            {
+              "bucket": "0.00-0.39",
+              "fixtureCount": 162,
+              "averagePredicted": 0.383241,
+              "actualHitRate": 0.425926
+            },
+            {
+              "bucket": "0.40-0.49",
+              "fixtureCount": 147,
+              "averagePredicted": 0.435029,
+              "actualHitRate": 0.721088
+            },
+            {
+              "bucket": "0.50-0.59",
+              "fixtureCount": 10,
+              "averagePredicted": 0.529689,
+              "actualHitRate": 0.9
+            },
+            {
+              "bucket": "0.60+",
+              "fixtureCount": 0,
+              "averagePredicted": null,
+              "actualHitRate": null
+            }
+          ]
+        },
+        "goalsAndMarkets": {
+          "totalGoalsMae": 1.380738,
+          "goalDifferenceMae": 1.520675,
+          "bttsBrier": 0.253435,
+          "bttsAccuracy": 0.476489,
+          "over25Brier": 0.247794,
+          "over25Accuracy": 0.532915
+        },
+        "scoreDistribution": {
+          "exactScoreTop1Coverage": 0.109718,
+          "exactScoreTop3Coverage": 0.329154,
+          "exactScoreTop5Coverage": 0.438871,
+          "actualScoreProbability": 0.054972,
+          "scoreMatrixTailMass": 0.000036
+        }
+      },
+      "selectionAudit": {
+        "multiclassBrier": 0.202012,
+        "brierFromBest": 0.005442,
+        "withinBrierTolerance": false,
+        "logLoss": 1.014069,
+        "logLossFromBestWithinToleranceSet": 0.024458,
+        "withinLogLossTolerance": false,
+        "totalGoalsMae": 1.380738,
+        "goalDifferenceMae": 1.520675,
+        "outcomeAccuracy": 0.576803,
+        "favoriteAccuracy": 0.576803,
+        "tieBreakOrder": [
+          0.202012,
+          1.014069,
+          1.380738,
+          1.520675,
+          -0.576803,
+          -0.576803
+        ],
+        "validationSelectionScore": 0.776423
+      }
+    }
+  ],
+  "selectedCandidate": "structural_only_ablation"
+}

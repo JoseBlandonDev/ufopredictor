@@ -1,0 +1,37 @@
+{
+  "schemaName": "ufo-frozen-v1-source-checksums-v1",
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "files": [
+    {
+      "filename": "ufo-frozen-v1-source-package-v1.json",
+      "firstReadBytes": 223605,
+      "secondReadBytes": 223605,
+      "firstReadSha256": "bdb8a3bc57734f97f826a6988c009c646a62e3a0036f6f10fb214e113dbc8416",
+      "secondReadSha256": "bdb8a3bc57734f97f826a6988c009c646a62e3a0036f6f10fb214e113dbc8416",
+      "byteSizeEqual": true,
+      "hashEqual": true,
+      "equal": true
+    },
+    {
+      "filename": "frozen-source-manifest.json",
+      "firstReadBytes": 26554,
+      "secondReadBytes": 26554,
+      "firstReadSha256": "f144309e67050438aada06bbc0dbad95de63e17a6f204b9abbb15423e66c4958",
+      "secondReadSha256": "f144309e67050438aada06bbc0dbad95de63e17a6f204b9abbb15423e66c4958",
+      "byteSizeEqual": true,
+      "hashEqual": true,
+      "equal": true
+    },
+    {
+      "filename": "validation-report.json",
+      "firstReadBytes": 19665,
+      "secondReadBytes": 19665,
+      "firstReadSha256": "7039af6bb2079bc988943c117175da7ed34a0c64da3401b1f21a2f343326cedf",
+      "secondReadSha256": "7039af6bb2079bc988943c117175da7ed34a0c64da3401b1f21a2f343326cedf",
+      "byteSizeEqual": true,
+      "hashEqual": true,
+      "equal": true
+    }
+  ]
+}

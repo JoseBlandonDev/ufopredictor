@@ -1,0 +1,67 @@
+{
+  "generationCutoff": "2026-06-22T02:09:07.444Z",
+  "newlyCompletedFixtures": [
+    {
+      "providerFixtureId": 1489392,
+      "fixture": "ecuador vs curacao",
+      "scoreline": "0-0",
+      "officialMatchNumber": 34
+    },
+    {
+      "providerFixtureId": 1489394,
+      "fixture": "tunisia vs japan",
+      "scoreline": "0-4",
+      "officialMatchNumber": 36
+    },
+    {
+      "providerFixtureId": 1489397,
+      "fixture": "spain vs saudi_arabia",
+      "scoreline": "4-0",
+      "officialMatchNumber": 38
+    },
+    {
+      "providerFixtureId": 1489395,
+      "fixture": "belgium vs iran",
+      "scoreline": "0-0",
+      "officialMatchNumber": 39
+    },
+    {
+      "providerFixtureId": 1489398,
+      "fixture": "uruguay vs cape_verde",
+      "scoreline": "2-2",
+      "officialMatchNumber": 37
+    }
+  ],
+  "scoreOrStatusCorrections": [],
+  "missingOrConflictingStatuses": [],
+  "futureFixtureIds": [
+    "26453f76-c60f-468c-8a1d-983559bd98f3",
+    "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+    "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+    "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+    "b8bef336-5c1c-491c-8ba4-075c536234cc",
+    "90984bad-656e-466e-9f20-d1ec58c41144",
+    "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+    "0e31f8a1-5e00-4b25-a994-f95c90229aa0"
+  ],
+  "futureFixtureCount": 8,
+  "releaseCandidateDecision": "gated_v2_probability_v2_analysis",
+  "releaseCandidateFixtureCount": 8,
+  "fixturesExcludedSinceTask2_3": [
+    "2d7bc089-1eda-4f91-b1a0-e596a00dda59",
+    "8cb53b3c-56fc-4560-a605-ec75261f3bae",
+    "5e4b5138-a1f2-4edd-96ec-47629baa839f"
+  ],
+  "affectedTeamsRequiringSignalRecomputation": [
+    "belgium",
+    "cape_verde",
+    "curacao",
+    "ecuador",
+    "iran",
+    "japan",
+    "saudi_arabia",
+    "spain",
+    "tunisia",
+    "uruguay"
+  ]
+}

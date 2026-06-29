@@ -1,0 +1,42 @@
+[
+  {
+    "source": "elo_current",
+    "live_extraction_status": "unsupported",
+    "row_count": 0,
+    "latest_effective_date": "2026-06-20",
+    "changed_rows": null,
+    "fallback_used": "prepared_seed",
+    "chosen_mode": "prepared_seed",
+    "failure_reason": "Static fetch returned only the public shell and did not expose ranking rows or a stable payload."
+  },
+  {
+    "source": "elo_latest_results",
+    "live_extraction_status": "unsupported",
+    "row_count": 0,
+    "latest_effective_date": "2026-06-20",
+    "changed_rows": null,
+    "fallback_used": "local_fallback",
+    "chosen_mode": "local_fallback",
+    "failure_reason": "Static fetch returned only the public shell and did not expose rendered result rows."
+  },
+  {
+    "source": "elo_fixtures",
+    "live_extraction_status": "unsupported",
+    "row_count": 0,
+    "latest_effective_date": "2026-06-20",
+    "changed_rows": null,
+    "fallback_used": "local_fallback",
+    "chosen_mode": "local_fallback",
+    "failure_reason": "Static fetch returned only the public shell and did not expose rendered fixture expectancy rows."
+  },
+  {
+    "source": "fifa_men_ranking",
+    "live_extraction_status": "unsupported",
+    "row_count": 6,
+    "latest_effective_date": "2026-06-11",
+    "changed_rows": null,
+    "fallback_used": "prepared_seed",
+    "chosen_mode": "prepared_seed",
+    "failure_reason": "The live page exposes metadata and top cards via __NEXT_DATA__, but not the full ranking rows without a deeper client-only fetch path."
+  }
+]

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "prediction-intelligence-v2-task3a-preservation-manifest-v1",
+  "sourceCommit": "6967fd6b22a49e23ab9963345f1a1437b1d6b668",
+  "snapshotDate": "2026-06-22",
+  "historicalOnly": true,
+  "currentCandidateEligible": false,
+  "currentReleaseDecisionEligible": false,
+  "currentPublicationEligible": false,
+  "currentExecutionEligible": false,
+  "authorityBoundary": {
+    "environmentHostsAuthorizeCurrentExecution": false,
+    "historicalCommandsAuthorizeCurrentExecution": false,
+    "predictionVersionIdsAuthorizeCurrentPublication": false,
+    "migrationPlansAuthorizeCurrentMigration": false,
+    "importPlansAuthorizeCurrentImport": false,
+    "signalPersistencePlansAuthorizeCurrentPersistence": false,
+    "publicationPlansAuthorizeCurrentPublication": false,
+    "torneoExportPayloadsAuthorizeCurrentExportReplacement": false,
+    "remoteExecutionAuthorized": false,
+    "stageExecutionAuthorized": false,
+    "productionExecutionAuthorized": false
+  },
+  "artifacts": [
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/README.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "F94E995F344A2F8842435A48F3ADECBAA05E6B7BEF08FEF7E52BB77B5B931BFE",
+      "restoredSha256": "F94E995F344A2F8842435A48F3ADECBAA05E6B7BEF08FEF7E52BB77B5B931BFE",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/current-cutoff-release-review.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "59A3ED52F36FD091DD910565A81F38F7414729ACF795E5C6265343E71CBE1D20",
+      "restoredSha256": "59A3ED52F36FD091DD910565A81F38F7414729ACF795E5C6265343E71CBE1D20",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/database-target-status.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "4F1EAA9AE9A63861B495886210576FF7C923C3BE9AB528CB26DF2766E33997D7",
+      "restoredSha256": "4F1EAA9AE9A63861B495886210576FF7C923C3BE9AB528CB26DF2766E33997D7",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/environment-guard.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "9E97130B2543C9A2889791402C8BE61BD72F4E9770C7D901747702954B747CDB",
+      "restoredSha256": "9E97130B2543C9A2889791402C8BE61BD72F4E9770C7D901747702954B747CDB",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/future-safe-development-command.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "9307F87A9A133E596273F2110F6BC2F73588634C62C2A6C105B3FF6757118DBE",
+      "restoredSha256": "9307F87A9A133E596273F2110F6BC2F73588634C62C2A6C105B3FF6757118DBE",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/idempotent-import-plan.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "C1AF0AE0BE0774569D9423B466F7160F2BB321CD924E6DD75BA4BAC373B35705",
+      "restoredSha256": "C1AF0AE0BE0774569D9423B466F7160F2BB321CD924E6DD75BA4BAC373B35705",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/immutable-publication-plan.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "F3CAFEBC1C0C136793A6C2CB15DF522FF9FB67442926A222333AEFBAB4CE5D35",
+      "restoredSha256": "F3CAFEBC1C0C136793A6C2CB15DF522FF9FB67442926A222333AEFBAB4CE5D35",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/migration-planner.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "5BD97804CD2BD916860925794BD518526A29846AF7DF3F94B35EE3B3F42CD512",
+      "restoredSha256": "5BD97804CD2BD916860925794BD518526A29846AF7DF3F94B35EE3B3F42CD512",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/signal-persistence-plan.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "7AA567081A48A23A6EEF5331B298D1E3D99783AEF656E8D2F6D89A1814DEFEDF",
+      "restoredSha256": "7AA567081A48A23A6EEF5331B298D1E3D99783AEF656E8D2F6D89A1814DEFEDF",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task3a/2026-06-22/torneo-mundialista-export-dry-run.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "C3BFBC22B770DF721C5C46FFA73F08139C57D8BD2258835715BD6E8905DC5FC6",
+      "restoredSha256": "C3BFBC22B770DF721C5C46FFA73F08139C57D8BD2258835715BD6E8905DC5FC6",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "6967fd6b22a49e23ab9963345f1a1437b1d6b668"
+    }
+  ]
+}

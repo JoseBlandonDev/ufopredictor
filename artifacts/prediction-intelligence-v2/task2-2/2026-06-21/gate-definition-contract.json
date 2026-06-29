@@ -1,0 +1,7 @@
+{
+  "repeated_over_or_underperformance": "Requires at least five recent matches and opponent-adjusted expectation gap.",
+  "current_tournament_form": "No tournament move at zero matches, strong shrink at one match, meaningful weight from two matches onward.",
+  "scoring_conversion_deterioration": "Targets total-goals and scoring side adjustments when failed-to-score evidence repeats.",
+  "defensive_overperformance": "Requires repeated clean-sheet or goals-conceded suppression evidence.",
+  "structural_vs_current_disagreement": "Uses Elo and FIFA disagreement as anchor-versus-current correction."
+}

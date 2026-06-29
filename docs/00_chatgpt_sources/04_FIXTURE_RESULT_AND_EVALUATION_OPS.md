@@ -1,6 +1,6 @@
 # Fixture, Result, and Evaluation Operations
 
-_Last refreshed: 2026-06-27 after the latest five-result trusted-provider batch, public verification, and PR #117 production checkpoint._
+_Last refreshed: 2026-06-27 after Task 2A established the exact stage signal baseline, PR #119 was synchronized, and the next V2 operation moved to current fixture/result refresh._
 
 ## Operational truth
 
@@ -173,6 +173,27 @@ The importer is atomic, exact-state, service-role-only, and idempotent.
 
 The `/predictions` smoke passed on stage.
 
+## Stage Task 2A signal-baseline checkpoint
+
+Task 2A completed the baseline signal persistence path in stage:
+
+```text
+prepared cutoff = 2026-06-20
+persisted signal rows = 48
+state = exact_complete
+verification inserts = 0
+verification identical rows = 48
+conflicts = 0
+unexpected existing rows = 0
+runtime fixture coverage = 72/72
+candidate-ready fixtures = 0
+production writes = 0
+```
+
+The operation did not mutate fixtures, results, prediction publications, evaluations, Auth, payments, or entitlements. It generated no V2 candidate.
+
+The 72 covered fixtures remain baseline-ready only. They require incremental current fixture/result, ranking, standings, form, and context refreshes before candidate eligibility.
+
 ## Evaluation contract
 
 A persisted evaluation references:
@@ -219,13 +240,13 @@ discover/read
 
 Codex is not required for routine executions of this established runbook.
 
-For V2 stage data work:
+For the V2 stage track:
 
 ```text
-source snapshot
--> canonical linkage
--> cutoff validation
--> idempotent signal persistence
+Task 2A baseline persistence - complete
+-> Task 2B current fixture/result refresh
+-> Task 2C rankings, standings, form, and pressure context
+-> Task 2D current source-backed signal snapshots
 -> shadow candidate or historical replay
 -> evaluation
 ```
@@ -253,16 +274,17 @@ A local script or formatting failure after a confirmed remote commit does not au
 
 Routine production result operations remain available under the established exact-allowlist protocol.
 
-The primary V2 transition remains:
+Primary V2 transition:
 
 ```text
-Task 2A - V2 Signal Baseline Database Load
+Task 2B - Current fixture and result refresh
 ```
 
-The parallel MVP1 transition is:
+Task 2B must preserve the immutable V1 publications and the exact Task 2A baseline while refreshing only newer or changed fixture/result facts.
+
+Parallel MVP1 checkpoint:
 
 ```text
-Task 4C - Football-first premium terminology
+Task 4A, Task 4B, and Task 4C are complete.
+No new parallel product task is declared active here.
 ```
-
-Neither transition requires repeating the closed result applies above.

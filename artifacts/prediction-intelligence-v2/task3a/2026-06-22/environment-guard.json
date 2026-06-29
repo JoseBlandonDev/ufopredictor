@@ -1,0 +1,25 @@
+{
+  "writeIntent": "dry_run",
+  "targetKind": "hosted_unproven",
+  "supabaseUrlHost": "gcpdffkgsdomzyoenalg.supabase.co",
+  "appUrlHost": "localhost:3000",
+  "serviceRolePresent": true,
+  "anonKeyPresent": true,
+  "apiFootballConfigured": true,
+  "writesAllowed": false,
+  "productionWritesImpossible": true,
+  "safeguards": [
+    "write mode requires PREDICTION_INTELLIGENCE_V2_ENABLE_WRITES=true",
+    "write mode requires SUPABASE_SERVICE_ROLE_KEY",
+    "hosted Supabase writes require PREDICTION_INTELLIGENCE_V2_TARGET_ENV=development",
+    "hosted Supabase writes require PREDICTION_INTELLIGENCE_V2_CONFIRMED_SAFE_SUPABASE_HOST to exactly match NEXT_PUBLIC_SUPABASE_URL host",
+    "unproven hosted Supabase targets are always forced to dry-run",
+    "physical migration, seed, and publication execution remain blocked without a proven safe development target"
+  ],
+  "templateAppUrl": "https://ufopredictor.com",
+  "localSupabaseConfigPresent": true,
+  "localSupabaseSeedPaths": [
+    "./seed/seed.sql"
+  ],
+  "localSupabaseGitignoreSafe": true
+}

@@ -1,0 +1,7 @@
+Prediction Intelligence v2 Task 2.3 artifacts
+artifact_date=2026-06-21
+generation_cutoff=2026-06-21T00:00:00Z
+remaining_future_fixtures=11
+analysis_layer_decision=release
+probability_engine_decision=release_gated_v2
+fixtures_requiring_human_review=0

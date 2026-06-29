@@ -1,0 +1,57 @@
+{
+  "schemaName": "ufo-frozen-v1-source-run-report-v1",
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-26T10:59:51.325Z",
+  "sourceProjectRef": "gcpdffkgsdomzyoenalg",
+  "deniedProjectRef": "yfmklapgjrupctgxaako",
+  "artifactDirectory": "D:\\Projects\\ufo-predictor\\artifacts\\prediction-intelligence-v2\\task1c\\2026-06-26\\2026-06-26T10-59-46-686Z",
+  "reads": {
+    "first": {
+      "status": "success",
+      "selectionMode": "exact_bounded_source_scope",
+      "packageSha256": "bdb8a3bc57734f97f826a6988c009c646a62e3a0036f6f10fb214e113dbc8416",
+      "manifestSha256": "f144309e67050438aada06bbc0dbad95de63e17a6f204b9abbb15423e66c4958",
+      "validationSha256": "7039af6bb2079bc988943c117175da7ed34a0c64da3401b1f21a2f343326cedf"
+    },
+    "second": {
+      "status": "success",
+      "selectionMode": "frozen_source_references",
+      "packageSha256": "bdb8a3bc57734f97f826a6988c009c646a62e3a0036f6f10fb214e113dbc8416",
+      "manifestSha256": "f144309e67050438aada06bbc0dbad95de63e17a6f204b9abbb15423e66c4958",
+      "validationSha256": "7039af6bb2079bc988943c117175da7ed34a0c64da3401b1f21a2f343326cedf"
+    }
+  },
+  "expectedCounts": {
+    "models": 1,
+    "fixtures": 24,
+    "predictions": 24,
+    "markets": 240,
+    "exactScoreMarkets": 72,
+    "narratives": 0,
+    "publicSourceSummaries": 24
+  },
+  "observedCounts": {
+    "models": 1,
+    "fixtures": 24,
+    "predictions": 24,
+    "markets": 240,
+    "exactScoreMarkets": 72,
+    "narratives": 0,
+    "publicSourceSummaries": 24
+  },
+  "artifacts": {
+    "packagePath": "D:\\Projects\\ufo-predictor\\artifacts\\prediction-intelligence-v2\\task1c\\2026-06-26\\2026-06-26T10-59-46-686Z\\ufo-frozen-v1-source-package-v1.json",
+    "manifestPath": "D:\\Projects\\ufo-predictor\\artifacts\\prediction-intelligence-v2\\task1c\\2026-06-26\\2026-06-26T10-59-46-686Z\\frozen-source-manifest.json",
+    "validationReportPath": "D:\\Projects\\ufo-predictor\\artifacts\\prediction-intelligence-v2\\task1c\\2026-06-26\\2026-06-26T10-59-46-686Z\\validation-report.json",
+    "checksumReportPath": "D:\\Projects\\ufo-predictor\\artifacts\\prediction-intelligence-v2\\task1c\\2026-06-26\\2026-06-26T10-59-46-686Z\\checksums.json",
+    "packageSha256": "bdb8a3bc57734f97f826a6988c009c646a62e3a0036f6f10fb214e113dbc8416",
+    "manifestSha256": "f144309e67050438aada06bbc0dbad95de63e17a6f204b9abbb15423e66c4958",
+    "validationReportSha256": "7039af6bb2079bc988943c117175da7ed34a0c64da3401b1f21a2f343326cedf"
+  },
+  "byteEquality": true,
+  "fieldEquality": true,
+  "productionDatabaseWrites": 0,
+  "stageDatabaseWrites": 0,
+  "stageBrowserUsage": 0,
+  "productionBrowserUsage": 0
+}

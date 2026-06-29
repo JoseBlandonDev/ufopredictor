@@ -1,6 +1,6 @@
 # Documentation Refresh Manifest
 
-_Last refreshed: 2026-06-24 after PR #111, PR #112, Matchday 3 publication, Torneo export validation, MVP2 scope decisions, and active-backlog consistency review._
+_Last refreshed: 2026-06-25 after Task 3A completion and final M2-01 implementation checkpoint approval._
 
 ## Canonical structure
 
@@ -23,61 +23,41 @@ docs/00_chatgpt_sources/
 
 are uploaded as the shared ChatGPT project source set.
 
-They own current truth.
+They own current truth, including the distinction between production `main`, the active integration branch, and the preserved historical branch.
 
-If a runbook, Markdown tracker, XLSX, prompt, or archived file conflicts with the shared source set, the shared source set wins.
-
-## Current product and branch truth
-
-- production `main` at this refresh: `130ffc8b6728ccccfdb9f29ecc4244ec1cd019b6`;
-- PR #111 merged: bounded World Cup group-stage fixture registry;
-- PR #112 merged: trusted World Cup result refresh;
-- old v2 branch and Draft PR #106 remain preservation/reference;
-- current audited divergence: 19 main-only commits, 9 v2-only commits;
-- next core task: M2-01 integration normalization;
-- Task 3B begins only after selective port and read-only stage audit.
-
-## Current tournament operations truth
-
-- Matchday 3 fixtures stored: 24/24;
-- Matchday 3 v1 predictions published: 24/24;
-- exact publish queue: empty;
-- real trusted result auto-refresh executed;
-- Colombia 1-0 Congo DR created, verified, and evaluated automatically;
-- normal valid API-Football `FT` results no longer require manual verification;
-- exceptions and changed-score reconciliation remain reviewable;
-- provider absence may be transient and should use retry/backoff;
-- routine polling should target recent pending/relevant fixtures.
-
-## Torneo Mundialista truth
-
-Approved artifact:
+## Current repository truth
 
 ```text
-schemaVersion: torneo-ufo-export-v1
-format: JSON
+production main: e771de3c39c480f05d026075e5e553fb75207468
+active integration branch: integration/prediction-intelligence-v2
+active Draft PR: #114
+active integration head: 0db9ac8867eae344e56237ac028cc32255ff1a3d
+preserved old branch: feature/prediction-intelligence-v2-data-foundation
+preserved Draft PR: #106
+preserved old head: eefcff709e80209215b25b90fb870aa5c080d735
 ```
 
-Validated Matchday 3 export:
+## Current Prediction Intelligence v2 truth
 
-- range: 2026-06-24 to 2026-06-30;
-- fixtures: 24;
-- unique fixture IDs: 24;
-- duplicates: 0.
+Completed on the integration branch:
 
-PDF is not required.
+- Task 1 data foundation;
+- Task 1.1 replay readiness;
+- Task 1.2 historical Elo reconstruction;
+- Task 2A challenger/replay;
+- Task 2B calibration stabilization;
+- Task 2C signal gates and candidate eligibility;
+- Task 2D historical release-candidate packaging;
+- strict runner-specific Task 2 local-run output containment;
+- Task 3A local-only planner/dry-run;
+- accumulated Task 2 checkpoint with verdict `TASK2_CHECKPOINT_READY`;
+- final M2-01 implementation checkpoint with verdict `M2_01_IMPLEMENTATION_CHECKPOINT_READY`.
 
-## MVP2 scope decisions
+M2-01 is implementation-complete.
 
-- core release: Prediction Intelligence v2;
-- planned milestones: v2.0 Tournament Candidate and v2.1 Knockout Context;
-- tournament-current form and qualification pressure are immediate scope;
-- predictions remain immutable;
-- finished-fixture comparison uses fair `historical_replay`;
-- premium direction emphasizes evidence, contradictions, scenarios, provenance, and post-match explanation;
-- core target languages: ES, EN, PT;
-- French and German are later;
-- lineups, player props, news automation, and market odds are later tracks.
+No useful old-branch implementation remains to be ported. Task 3A historical evidence remains byte-exact and non-authorizing. Migration 0038 is committed and structurally tested but unapplied.
+
+Task 3B has not started. Its first phase is a read-only Supabase stage audit. Stage writes require a later explicit owner approval. Production writes remain unauthorized.
 
 ## Updated files in this refresh
 
@@ -85,81 +65,104 @@ PDF is not required.
 
 - `00_START_HERE_CURRENT.md`
 - `01_PRODUCT_MVP1_CURRENT.md`
-- `02_ARCHITECTURE_DATA_SECURITY.md`
-- `03_AUTH_PAYMENTS_ENTITLEMENTS.md`
-- `04_FIXTURE_RESULT_AND_EVALUATION_OPS.md`
 - `05_PREDICTION_INTELLIGENCE_V2_CURRENT.md`
 - `06_V2_STAGE_RELEASE_PLAN.md`
 - `07_ROADMAP_EPICS_DECISIONS.md`
-- `08_MODEL_HISTORY_CALIBRATION.md`
-- `09_WORKFLOW_GUARDRAILS_DOC_POLICY.md`
 
 ### Updated active runbooks
 
 - `00_CODEX_HANDOFF_CURRENT.md`
-- `02_API_FOOTBALL_FIXTURE_RESULT_RUNBOOK.md`
-- `03_SIGNAL_REFRESH_AND_MODEL_OPS_RUNBOOK.md`
 - `08_V2_BRANCH_ENVIRONMENT_NORMALIZATION_RUNBOOK.md`
-- `09_MVP2_PARALLEL_DELIVERY_AND_AUTOMATION_RUNBOOK.md`
-- `06_FRONTEND_COMMERCIAL_BACKLOG.md`
 
 ### Updated derived project-management Markdown
 
 - `MVP2_SCOPE_AND_DELIVERY_TRACKER.md`
 
-## No-change decisions
+### Updated refresh manifest
 
-- do not update `UFO_Predictor_MVP2_Backlog_Tracker.xlsx` in this refresh;
-- treat the XLSX as a derived visual tracker that may lag;
-- do not rewrite `docs/90_archive/`;
-- do not modify the active entitlement SQL;
-- do not modify unrelated stable Wompi, entitlement, stage, validation, or source-snapshot runbooks;
-- do not modify the creative master in this refresh.
+- `DOCS_REFRESH_MANIFEST.md`
 
-## Documentation refresh protocol
-
-The authoritative protocol is in:
+Total replacement files:
 
 ```text
-docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
+9
 ```
 
-Summary:
+## No-change decisions
 
-1. Codex performs read-only recognition.
-2. ChatGPT authors exact replacement files.
-3. Codex applies the files without editorial changes.
-4. Codex validates a docs-only diff and stale references.
-5. After merge, replace the ChatGPT project source set with the exact refreshed 10 files.
+Canonical shared sources intentionally unchanged:
+
+- `02_ARCHITECTURE_DATA_SECURITY.md`;
+- `03_AUTH_PAYMENTS_ENTITLEMENTS.md`;
+- `04_FIXTURE_RESULT_AND_EVALUATION_OPS.md`;
+- `08_MODEL_HISTORY_CALIBRATION.md`;
+- `09_WORKFLOW_GUARDRAILS_DOC_POLICY.md`.
+
+Other no-change decisions:
+
+- do not update `docs/10_codex_runbooks/01_TASK3B_STAGE_SYNC_RUNBOOK.md`; its read-only/write-gated separation is already correct;
+- do not update `UFO_Predictor_MVP2_Backlog_Tracker.xlsx`;
+- do not rewrite `docs/90_archive/`;
+- do not modify historical artifacts;
+- do not modify active entitlement SQL;
+- do not modify unrelated Wompi, entitlement, API-Football, creative, frontend, or operations runbooks;
+- do not apply migration 0038;
+- do not access or write stage/production during documentation apply;
+- do not modify app code, tests, package files, generated artifacts, or secrets;
+- do not update Draft PR #114 description in this docs-only apply unless separately authorized.
+
+## Apply target for this checkpoint
+
+Apply this refresh to:
+
+```text
+integration/prediction-intelligence-v2
+```
+
+This is a branch-local final M2-01 checkpoint refresh so the long-running integration branch and next conversations remain self-describing.
+
+After PR #114 eventually merges, perform another final canonical refresh from updated `main`.
+
+## Apply protocol
+
+1. verify the active integration branch at `0db9ac8867eae344e56237ac028cc32255ff1a3d` and a clean worktree;
+2. replace exactly the 9 files listed in this manifest;
+3. do not editorialize, summarize, or merge with older content;
+4. confirm a documentation-only diff;
+5. confirm exactly 9 changed files;
+6. search active docs for stale claims including:
+   - Task 3A pending or remaining;
+   - M2-01 `In Progress`;
+   - final M2-01 checkpoint still pending;
+   - active integration head `1b746f9` or `927cb1b`;
+   - more code to port from the old branch;
+   - Task 3B already writing or synchronizing stage;
+   - Migration 0038 already applied;
+   - PR #114 no longer Draft;
+7. validate paths, filenames, cross-file SHAs, statuses, and sequence;
+8. run `git diff --check`;
+9. owner reviews, stages, commits, and pushes.
 
 ## ChatGPT upload rule
 
-After the docs PR merges:
+After the documentation commit is accepted:
 
 1. remove superseded project sources;
 2. upload only the exact 10 files in `docs/00_chatgpt_sources/`;
 3. do not keep old and new canonical copies together;
-4. start the next conversation from `00_START_HERE_CURRENT.md`.
+4. start the next conversation from `00_START_HERE_CURRENT.md`;
+5. keep Codex runbooks in the repository rather than the shared ChatGPT source set unless specifically needed.
 
-## Archive rule
+## Archive and source snapshot rule
 
 Do not delete or rewrite:
 
 ```text
 docs/90_archive/source_snapshot_2026-06-22/
-```
-
-It is historical evidence, not current truth.
-
-## Source snapshot rule
-
-The prepared-v2 workspace remains:
-
-```text
 D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
 ```
 
-Keep it until stage import, lineage, checksums, and idempotency are proven.
+They remain historical/source evidence until stage import, lineage, checksums, and idempotency are proven.
 
 ## Active SQL rule
 

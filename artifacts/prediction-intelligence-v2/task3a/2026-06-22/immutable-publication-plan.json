@@ -1,0 +1,78 @@
+{
+  "candidateIdentifier": "gated_v2_probability_v2_analysis",
+  "publicationExecution": "not_executed_no_safe_target",
+  "fixtures": [
+    {
+      "fixtureId": "26453f76-c60f-468c-8a1d-983559bd98f3",
+      "currentPredictionVersionId": "98659368-ce3d-4853-8a87-ea3a551431bd",
+      "immutableVersionKey": "26453f76-c60f-468c-8a1d-983559bd98f3:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    },
+    {
+      "fixtureId": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+      "currentPredictionVersionId": "f18fbb65-f85a-428c-8b69-24525f4d3eb4",
+      "immutableVersionKey": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    },
+    {
+      "fixtureId": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+      "currentPredictionVersionId": "5287dc08-e4c1-4599-935a-a90d8ba32b29",
+      "immutableVersionKey": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    },
+    {
+      "fixtureId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+      "currentPredictionVersionId": "b8ac856d-6d9b-45f1-b024-a04130366edd",
+      "immutableVersionKey": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    },
+    {
+      "fixtureId": "b8bef336-5c1c-491c-8ba4-075c536234cc",
+      "currentPredictionVersionId": "696ea48d-b30c-481b-a467-e2df1751fe19",
+      "immutableVersionKey": "b8bef336-5c1c-491c-8ba4-075c536234cc:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    },
+    {
+      "fixtureId": "90984bad-656e-466e-9f20-d1ec58c41144",
+      "currentPredictionVersionId": "bb1557a5-e78b-42af-be6e-6363367ecc6b",
+      "immutableVersionKey": "90984bad-656e-466e-9f20-d1ec58c41144:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    },
+    {
+      "fixtureId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "currentPredictionVersionId": "0e2a0df2-efe2-474a-9ed3-a1df30d7ed45",
+      "immutableVersionKey": "b6bf39f7-8448-4249-b0b5-e0d031de15bb:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    },
+    {
+      "fixtureId": "0e31f8a1-5e00-4b25-a994-f95c90229aa0",
+      "currentPredictionVersionId": "dec4f19e-9d38-473a-856c-34a0ffb1f587",
+      "immutableVersionKey": "0e31f8a1-5e00-4b25-a994-f95c90229aa0:gated_v2_probability_v2_analysis:2026-06-21T00:00:00Z",
+      "createNewImmutableVersion": true,
+      "preserveOriginalVersion": true,
+      "sourceCutoff": "2026-06-21T00:00:00Z",
+      "status": "not_executed_no_safe_target"
+    }
+  ]
+}

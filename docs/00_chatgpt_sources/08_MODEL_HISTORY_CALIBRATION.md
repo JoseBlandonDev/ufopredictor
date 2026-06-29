@@ -1,6 +1,6 @@
 # Model History and Calibration
 
-_Last refreshed: 2026-06-27 after the production `Lectura UFO` release and latest verified-result batch._
+_Last refreshed: 2026-06-27 after Task 2A closed the baseline-storage gap and PR #119 changed premium terminology without changing model or calibration behavior._
 
 ## Purpose
 
@@ -43,19 +43,21 @@ This closes the missing-stage-baseline gap.
 
 ## Presentation changes are not model changes
 
-PR #117 introduced a deterministic `Lectura UFO` derived from the existing V1 probability output and authorized confidence/risk presentation.
+PR #117 introduced deterministic `Lectura UFO` output derived from existing V1 probability fields and authorized confidence/risk presentation.
 
-It did not:
+PR #119 introduced football-first premium terminology for existing BTTS/totals-oriented information.
 
-- create a new model version;
-- recalculate any prediction;
-- move any probability;
-- alter calibration;
-- change confidence or risk values;
-- use post-kickoff evidence;
-- establish a V2 accuracy claim.
+Neither change:
 
-The helper is a presentation layer. Its release must not be counted as model-performance progress.
+- creates a model version;
+- recalculates a prediction;
+- moves any probability;
+- alters calibration;
+- changes confidence or risk values;
+- uses post-kickoff evidence;
+- establishes a V2 accuracy claim.
+
+These are presentation layers. Their release must not be counted as model-performance progress.
 
 The latest verified results remain evaluation evidence for the original immutable V1 versions:
 
@@ -128,25 +130,39 @@ Prepared workspace cutoff:
 2026-06-20
 ```
 
-**Decision:** store the preserved baseline in the real V2 signal database before refreshing every source.
+Task 2A has now stored that preserved baseline in the real stage signal database.
 
-**Motivo:** calibration needs a reproducible, queryable source lineage and feature assembly path. Freshness can then improve incrementally without changing historical identity.
+Verified result:
 
-**Consequence:** baseline data may be used for storage and pipeline validation, but current candidate generation must meet an explicit current-data gate.
+```text
+signal rows = 48
+state = exact_complete
+verification identical = 48
+verification inserts = 0
+runtime fixture coverage = 72/72
+candidate-ready fixtures = 0
+```
+
+**Decision:** preserve this baseline as reproducible calibration and lineage evidence, then append/version current refreshes.
+
+**Motivo:** calibration now has a queryable source lineage and feature-assembly path without rewriting historical identity.
+
+**Consequence:** baseline storage is no longer a gap, but the data is not sufficient for a current candidate until the explicit freshness gate passes.
 
 ## Current calibration gaps
 
 Before a real V2.0 release decision:
 
-1. load the 2026-06-20 signal baseline with lineage;
-2. refresh current fixture and result state;
-3. append current Elo;
-4. capture the latest available official FIFA ranking;
-5. calculate current standings, form, points, and goal difference;
-6. derive source-backed signal snapshots;
-7. generate live shadow candidates;
-8. create fair historical replays;
-9. compare with immutable V1 and verified results.
+1. refresh current fixture identity, kickoff state, and verified results;
+2. append current World Football Elo;
+3. capture the latest available official FIFA ranking;
+4. calculate current standings, form, points, and goal difference;
+5. derive current source-backed signal snapshots;
+6. generate live shadow candidates;
+7. create fair historical replays;
+8. compare with immutable V1 and verified results.
+
+The baseline-storage gap is closed. Current-data coverage, candidate generation, and evaluation remain open.
 
 ## Versioned comparison contract
 

@@ -1,6 +1,6 @@
 # V2 Stage and Release Plan
 
-_Last refreshed: 2026-06-27 after PR #117 was synchronized into the V2 integration branch at HEAD `5007de7`._
+_Last refreshed: 2026-06-27 after Task 2A passed its exact stage acceptance gate and PR #119 was synchronized into the V2 integration branch at HEAD `4f758b2`._
 
 ## Goal
 
@@ -20,8 +20,11 @@ Move from a stable V1-visible stage to a fair, source-backed V2 shadow candidate
 | V1 activation and public visibility | Passed |
 | Post-apply exact-complete verification | Passed |
 | Stage `/predictions` visual smoke | Passed |
-| V2 signal baseline in real tables | Next |
-| Current-data incremental refresh | Pending |
+| V2 signal baseline in real tables | Passed |
+| Task 2A zero-growth verification | Passed |
+| Current fixture and result refresh | Active next |
+| Current ranking/standings/context refresh | Pending |
+| Repeatable current signal snapshots | Pending |
 | First V2 shadow candidate | Pending |
 | V1/V2 evaluation | Pending |
 | Production release decision | Pending |
@@ -31,9 +34,12 @@ Move from a stable V1-visible stage to a fair, source-backed V2 shadow candidate
 ```text
 branch: integration/prediction-intelligence-v2
 Draft PR: #114
-HEAD: 5007de7
+production main HEAD: 9f89d62
+V2 HEAD: 4f758b2
+Task 2A commit: 9491fd8
 stage: yfmklapgjrupctgxaako
 production denied: gcpdffkgsdomzyoenalg
+worktree/upstream divergence: clean, 0 0
 ```
 
 Stage V1 state:
@@ -46,6 +52,15 @@ narratives = 0
 public fixtures = 24
 state = exact_complete
 pending publications = 0
+```
+
+Stage V2 signal state:
+
+```text
+signal rows = 48
+state = exact_complete
+runtime fixture coverage = 72/72
+candidate-ready fixtures = 0
 ```
 
 ## Completed phase: foundation and visible V1
@@ -62,7 +77,7 @@ Closed work:
 
 **No repetir:** do not rerun bootstrap, fixture linkage, V1 import, or SQL installation without a concrete recovery requirement.
 
-## Active phase: V2 Signal Baseline Database Load
+## Completed phase: V2 Signal Baseline Database Load
 
 Prepared cutoff:
 
@@ -70,40 +85,49 @@ Prepared cutoff:
 2026-06-20
 ```
 
-The active slice is intentionally bounded.
+Task 2A completed:
 
-Required steps:
+```text
+persisted signal rows = 48
+manifest status = verified
+post-state = exact_complete
+verification inserts = 0
+verification identical rows = 48
+conflicts = 0
+unexpected existing rows = 0
+runtime fixtures = 72
+baseline-ready fixtures = 72
+candidate-ready fixtures = 0
+production writes = 0
+```
 
-1. read the prepared workspace and committed equivalents;
-2. map existing baseline records to current tables;
-3. retain source, checksum, observed time, cutoff, and version lineage;
-4. classify missing and optional signals explicitly;
-5. run one dry-run/preflight;
-6. apply once to stage under production denial;
-7. verify counts, conflicts, and fixture coverage;
-8. rerun once only to prove idempotency;
-9. stop before candidate generation.
+The load retains source identity, checksum, cutoff, signal version, canonical team linkage, missing/optional metadata, contradiction flags, sample sizes, and reliability metadata.
 
-**Decision:** a one-week-old reproducible baseline is sufficient to establish the real database and pipeline.
-
-**Motivo:** current data becomes an incremental refresh once the canonical storage and lineage path exists.
+**No repetir:** Task 2A dry-run, apply, and verification are closed unless a concrete recovery requirement is approved.
 
 ## Baseline-load acceptance gate
 
-The task passes when:
+Task 2A passed because:
 
-- every inserted row maps to a canonical team, fixture, competition, season, or source snapshot;
+- every inserted row maps to a canonical team and source-snapshot lineage;
 - source and cutoff lineage are queryable;
-- row accounting balances;
-- no production writes occur;
-- no Auth, Wompi, entitlement, webhook, session, or personal-data scope is touched;
-- fixture signal coverage can be queried;
-- a second exact run produces zero duplicate growth;
-- no V2 prediction is published.
+- row accounting balances at 48 rows;
+- the exact-complete verification returned 48 identical rows and zero inserts;
+- no duplicate growth occurred;
+- no production writes occurred;
+- no Auth, Wompi, entitlement, webhook, session, or personal-data scope was touched;
+- fixture signal coverage is 72/72;
+- no V2 prediction or candidate was generated.
 
-## Current-data incremental refresh
+## Active phase: current-data incremental refresh
 
-After baseline load, refresh only changed or newer source families:
+Start with:
+
+```text
+Task 2B - Current fixture and result refresh
+```
+
+Then refresh only changed or newer source families:
 
 - future fixture identities and kickoffs;
 - verified results;
@@ -113,9 +137,9 @@ After baseline load, refresh only changed or newer source families:
 - qualification and pressure context;
 - source-backed derived signals.
 
-Each refresh records observed time and explicit cutoff. Historical snapshots are preserved.
+Each refresh records observed time and explicit cutoff. Historical snapshots and the 2026-06-20 baseline are preserved.
 
-Ordinary refresh must not require another Task 3B bootstrap.
+Ordinary refresh must not require another Task 3B bootstrap or Task 2A baseline apply.
 
 ## First V2 shadow candidate
 
@@ -177,33 +201,22 @@ Promotion requires:
 
 ## Parallel V1/product work
 
-Production-safe UI and V1 improvements continue from current `main` under a separate owner.
+Production-safe UI and V1 improvements continue from `main` under a separate owner and flow into the V2 branch through normal Git history.
 
-Completed example:
+Completed:
 
 ```text
 Task 4A - V1 Information Inventory
 Task 4B - Public Expert Read
 PR #117 -> main 3aff0e4
-main -> V2 integration 5007de7
-production smoke -> passed
-```
-
-The next parallel slice is:
-
-```text
 Task 4C - Football-first premium terminology
+PR #119 -> main 9f89d62
+main -> V2 integration 4f758b2
 ```
 
-These changes flow into the V2 integration branch through normal Git history.
+Task 4C changed labels and explanations only. It did not change probabilities, premium authorization, payment/entitlement behavior, or V2 data/model logic.
 
-They must not:
-
-- change probabilities without model governance;
-- duplicate V2 data/model implementation;
-- depend on unfinished stage-only V2 data for production availability;
-- broaden premium authorization;
-- be implemented independently in both branches.
+No new parallel MVP1 task is declared active in this checkpoint.
 
 ## Process decisions
 

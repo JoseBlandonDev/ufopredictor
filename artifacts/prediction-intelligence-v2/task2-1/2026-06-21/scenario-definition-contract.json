@@ -1,0 +1,58 @@
+[
+  {
+    "familyCode": "low_scoring_draw",
+    "outcome": "draw",
+    "winningMargin": "draw_margin",
+    "totalGoalRange": "low_total",
+    "btts": "either"
+  },
+  {
+    "familyCode": "scoring_draw",
+    "outcome": "draw",
+    "winningMargin": "draw_margin",
+    "totalGoalRange": "medium_total",
+    "btts": "yes"
+  },
+  {
+    "familyCode": "controlled_low_total_match",
+    "outcome": "non_draw",
+    "winningMargin": "non_draw_any",
+    "totalGoalRange": "low_total",
+    "btts": "no"
+  },
+  {
+    "familyCode": "favorite_narrow_win",
+    "outcome": "favorite",
+    "winningMargin": "one_goal_margin",
+    "totalGoalRange": "medium_total",
+    "btts": "either"
+  },
+  {
+    "familyCode": "favorite_clear_win",
+    "outcome": "favorite",
+    "winningMargin": "multi_goal_margin",
+    "totalGoalRange": "medium_total",
+    "btts": "either"
+  },
+  {
+    "familyCode": "underdog_narrow_win",
+    "outcome": "underdog",
+    "winningMargin": "one_goal_margin",
+    "totalGoalRange": "medium_total",
+    "btts": "either"
+  },
+  {
+    "familyCode": "underdog_clear_win",
+    "outcome": "underdog",
+    "winningMargin": "multi_goal_margin",
+    "totalGoalRange": "medium_total",
+    "btts": "either"
+  },
+  {
+    "familyCode": "open_high_scoring_match",
+    "outcome": "non_draw",
+    "winningMargin": "non_draw_any",
+    "totalGoalRange": "high_total",
+    "btts": "either"
+  }
+]

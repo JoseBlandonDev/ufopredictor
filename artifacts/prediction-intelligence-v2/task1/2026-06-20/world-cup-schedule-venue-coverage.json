@@ -1,0 +1,631 @@
+{
+  "schedule_rows": 104,
+  "venue_rows": 16,
+  "match_numbers_complete": true,
+  "provider_links": [
+    {
+      "official_match_number": 1,
+      "provider_fixture_id": 1489369,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 2,
+      "provider_fixture_id": 1538999,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 3,
+      "provider_fixture_id": 1539000,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 4,
+      "provider_fixture_id": 1489370,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 5,
+      "provider_fixture_id": 1489372,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 6,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 7,
+      "provider_fixture_id": 1489371,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 8,
+      "provider_fixture_id": 1489373,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 9,
+      "provider_fixture_id": 1489375,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 10,
+      "provider_fixture_id": 1489374,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 11,
+      "provider_fixture_id": 1489376,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 12,
+      "provider_fixture_id": 1539002,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 13,
+      "provider_fixture_id": 1489379,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 14,
+      "provider_fixture_id": 1489380,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 15,
+      "provider_fixture_id": 1489378,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 16,
+      "provider_fixture_id": 1489377,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 17,
+      "provider_fixture_id": 1489383,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 18,
+      "provider_fixture_id": 1539016,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 19,
+      "provider_fixture_id": 1489381,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 20,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 21,
+      "provider_fixture_id": 1489385,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 22,
+      "provider_fixture_id": 1489384,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 23,
+      "provider_fixture_id": 1539003,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 24,
+      "provider_fixture_id": 1489386,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 25,
+      "provider_fixture_id": 1539004,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 26,
+      "provider_fixture_id": 1539005,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 27,
+      "provider_fixture_id": 1489387,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 28,
+      "provider_fixture_id": 1489388,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 29,
+      "provider_fixture_id": 1489389,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 30,
+      "provider_fixture_id": 1489390,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 31,
+      "provider_fixture_id": 1539006,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 32,
+      "provider_fixture_id": 1489391,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 33,
+      "provider_fixture_id": 1489393,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 34,
+      "provider_fixture_id": 1489392,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 35,
+      "provider_fixture_id": 1539007,
+      "provider_status": "FT",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 36,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 37,
+      "provider_fixture_id": 1489398,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 38,
+      "provider_fixture_id": 1489397,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 39,
+      "provider_fixture_id": 1489395,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 40,
+      "provider_fixture_id": 1489396,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 41,
+      "provider_fixture_id": 1489401,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 42,
+      "provider_fixture_id": 1539017,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 43,
+      "provider_fixture_id": 1489399,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 44,
+      "provider_fixture_id": 1489400,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 45,
+      "provider_fixture_id": 1489402,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 46,
+      "provider_fixture_id": 1489403,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 47,
+      "provider_fixture_id": 1489404,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 48,
+      "provider_fixture_id": 1539008,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 49,
+      "provider_fixture_id": 1489406,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 50,
+      "provider_fixture_id": 1489405,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 51,
+      "provider_fixture_id": 1489408,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 52,
+      "provider_fixture_id": 1539009,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 53,
+      "provider_fixture_id": 1539010,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 54,
+      "provider_fixture_id": 1489407,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 55,
+      "provider_fixture_id": 1489409,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 56,
+      "provider_fixture_id": 1489410,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 57,
+      "provider_fixture_id": 1539011,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 58,
+      "provider_fixture_id": 1489412,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 59,
+      "provider_fixture_id": 1539012,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 60,
+      "provider_fixture_id": 1489411,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 61,
+      "provider_fixture_id": 1489416,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 62,
+      "provider_fixture_id": 1539074,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 63,
+      "provider_fixture_id": 1489414,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 64,
+      "provider_fixture_id": 1489415,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 65,
+      "provider_fixture_id": 1489413,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 66,
+      "provider_fixture_id": 1489417,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 67,
+      "provider_fixture_id": 1489422,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 68,
+      "provider_fixture_id": 1489420,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 69,
+      "provider_fixture_id": 1489418,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 70,
+      "provider_fixture_id": 1489421,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 71,
+      "provider_fixture_id": 1489419,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 72,
+      "provider_fixture_id": 1539013,
+      "provider_status": "NS",
+      "linked_by": "kickoff_and_teams"
+    },
+    {
+      "official_match_number": 73,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 74,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 75,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 76,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 77,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 78,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 79,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 80,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 81,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 82,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 83,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 84,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 85,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 86,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 87,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 88,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 89,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 90,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 91,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 92,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 93,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 94,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 95,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 96,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 97,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 98,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 99,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 100,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 101,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 102,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 103,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    },
+    {
+      "official_match_number": 104,
+      "provider_fixture_id": null,
+      "provider_status": null,
+      "linked_by": "unresolved"
+    }
+  ]
+}

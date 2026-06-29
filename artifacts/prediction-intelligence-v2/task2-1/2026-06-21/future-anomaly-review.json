@@ -1,0 +1,128 @@
+[
+  {
+    "fixture": "Spain vs Saudi Arabia",
+    "deltas": {
+      "homeWinDelta": -0.223931,
+      "drawDelta": 0.111233,
+      "awayWinDelta": 0.112698,
+      "expectedHomeGoalsDelta": -0.6052,
+      "expectedAwayGoalsDelta": 0.3657
+    },
+    "venueContext": {
+      "fixtureContext": "neutral",
+      "appliesTo": null,
+      "hostTeamKey": null,
+      "venueCountryCode": "USA",
+      "reasonCode": "world_cup_neutral_override"
+    },
+    "capsApplied": [],
+    "coherenceWarnings": [],
+    "flaggedUnexplainedShift": true,
+    "conclusion": "flagged_shift_above_threshold"
+  },
+  {
+    "fixture": "Argentina vs Austria",
+    "deltas": {
+      "homeWinDelta": -0.328163,
+      "drawDelta": 0.143958,
+      "awayWinDelta": 0.184203,
+      "expectedHomeGoalsDelta": -1.2687,
+      "expectedAwayGoalsDelta": 0.2927
+    },
+    "venueContext": {
+      "fixtureContext": "neutral",
+      "appliesTo": null,
+      "hostTeamKey": null,
+      "venueCountryCode": "USA",
+      "reasonCode": "world_cup_neutral_override"
+    },
+    "capsApplied": [],
+    "coherenceWarnings": [],
+    "flaggedUnexplainedShift": true,
+    "conclusion": "flagged_shift_above_threshold"
+  },
+  {
+    "fixture": "Norway vs Senegal",
+    "deltas": {
+      "homeWinDelta": 0.181458,
+      "drawDelta": 0.022577,
+      "awayWinDelta": -0.204035,
+      "expectedHomeGoalsDelta": 0.613,
+      "expectedAwayGoalsDelta": -0.2137
+    },
+    "venueContext": {
+      "fixtureContext": "neutral",
+      "appliesTo": null,
+      "hostTeamKey": null,
+      "venueCountryCode": "USA",
+      "reasonCode": "world_cup_neutral_override"
+    },
+    "capsApplied": [],
+    "coherenceWarnings": [],
+    "flaggedUnexplainedShift": true,
+    "conclusion": "flagged_shift_above_threshold"
+  },
+  {
+    "fixture": "England vs Ghana",
+    "deltas": {
+      "homeWinDelta": -0.278525,
+      "drawDelta": 0.153953,
+      "awayWinDelta": 0.124572,
+      "expectedHomeGoalsDelta": -1.1921,
+      "expectedAwayGoalsDelta": 0.2808
+    },
+    "venueContext": {
+      "fixtureContext": "neutral",
+      "appliesTo": null,
+      "hostTeamKey": null,
+      "venueCountryCode": "USA",
+      "reasonCode": "world_cup_neutral_override"
+    },
+    "capsApplied": [],
+    "coherenceWarnings": [],
+    "flaggedUnexplainedShift": true,
+    "conclusion": "flagged_shift_above_threshold"
+  },
+  {
+    "fixture": "Panama vs Croatia",
+    "deltas": {
+      "homeWinDelta": 0.207384,
+      "drawDelta": 0.145759,
+      "awayWinDelta": -0.353143,
+      "expectedHomeGoalsDelta": 0.59,
+      "expectedAwayGoalsDelta": -1.0131
+    },
+    "venueContext": {
+      "fixtureContext": "neutral",
+      "appliesTo": null,
+      "hostTeamKey": null,
+      "venueCountryCode": "CAN",
+      "reasonCode": "world_cup_neutral_override"
+    },
+    "capsApplied": [],
+    "coherenceWarnings": [],
+    "flaggedUnexplainedShift": true,
+    "conclusion": "flagged_shift_above_threshold"
+  },
+  {
+    "fixture": "Belgium vs Iran",
+    "deltas": {
+      "homeWinDelta": 0.309889,
+      "drawDelta": 0.106783,
+      "awayWinDelta": -0.416672,
+      "expectedHomeGoalsDelta": 0.7143,
+      "expectedAwayGoalsDelta": -1.0974
+    },
+    "venueContext": {
+      "fixtureContext": "neutral",
+      "appliesTo": null,
+      "hostTeamKey": null,
+      "venueCountryCode": "USA",
+      "reasonCode": "world_cup_neutral_override"
+    },
+    "capsApplied": [],
+    "coherenceWarnings": [],
+    "flaggedUnexplainedShift": true,
+    "conclusion": "flagged_shift_above_threshold"
+  }
+]

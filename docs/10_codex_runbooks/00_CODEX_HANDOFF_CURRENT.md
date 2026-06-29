@@ -1,112 +1,153 @@
 # Codex Handoff Current
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-27 after Task 1C completion._
 
 ## Canonical-source rule
 
-Before implementation, read:
+Before implementation read:
 
 ```text
 docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
+docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
+docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
 docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
 docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
-Those files own live product, branch, roadmap, and workflow truth.
+These own live truth. This runbook owns the immediate technical handoff.
 
-This handoff contains the current immediate sequence and hard execution boundaries. Verify live SHAs rather than assuming this snapshot remains current.
-
-## Reference baseline at this refresh
+## Current baseline
 
 ```text
-main: 130ffc8b6728ccccfdb9f29ecc4244ec1cd019b6
-PR #111: merged
-PR #112: merged
-
-old v2 branch:
-feature/prediction-intelligence-v2-data-foundation
-
-Draft PR #106 head:
-eefcff709e80209215b25b90fb870aa5c080d735
+repo: D:\Projects\ufo-predictor
+branch: integration/prediction-intelligence-v2
+Draft PR: #114
+checkpoint HEAD: bce9999
+stage project: yfmklapgjrupctgxaako
+production deny project: gcpdffkgsdomzyoenalg
+stage env: .env.stage.local
 ```
 
-PR #106 remains Draft and must not receive new implementation work.
+Verify actual HEAD and worktree before implementation.
 
-## Immediate next sequence
+## Completed checkpoint
 
-1. Start from clean current `origin/main`.
-2. Create `integration/prediction-intelligence-v2`.
-3. Preserve the old branch and PR #106 unchanged.
-4. Audit the nine v2-only commits by file and concern.
-5. Selectively port valid data, migration, model, replay, script, artifact, and test work.
-6. Exclude stale frontend, docs, and shared-runtime changes.
-7. Validate MVP1 tests, lint, build, and diff-check after bounded groups.
-8. Open a replacement Draft PR.
-9. Perform Task 3B read-only stage audit.
-10. Stop for owner approval before stage writes.
+Closed and not to be repeated:
 
-## Current production continuity
+- Task 3B stage foundation bootstrap;
+- migration 0038 stage apply;
+- exact 24-fixture linkage;
+- frozen V1 source verification;
+- one active V1 model import;
+- 24 immutable V1 prediction imports;
+- 240 market imports;
+- 24 fixture publications;
+- exact-complete readback;
+- stage `/predictions` smoke;
+- checkpoint push.
 
-Already delivered:
+Stage current product state:
 
-- 24/24 Matchday 3 fixtures stored;
-- 24/24 v1 predictions published;
-- trusted World Cup result refresh;
-- automatic valid `FT` verification/evaluation;
-- validated 24-fixture Torneo JSON export.
+```text
+active V1 models = 1
+prediction versions = 24
+market rows = 240
+narratives = 0
+public fixtures = 24
+post-state = exact_complete
+```
 
-Parallel production work should now focus on:
+Production writes remained zero.
 
-- relevant recent result/status polling;
-- retry/backoff and scheduler hardening;
-- bounded product fixes;
-- independent UI/UX improvements;
-- no re-opening of completed Matchday 3 registry/publication work.
+## Immediate next task
+
+```text
+V2 Signal Baseline Database Load
+```
+
+Do not begin with another general reconnaissance of Task 1, Task 3B, fixture linkage, or V1 import.
+
+### Bounded goal
+
+1. inspect the prepared 2026-06-20 workspace and committed equivalents;
+2. identify only the records required for the first V2 signal baseline;
+3. map them to existing Prediction Intelligence tables;
+4. preserve source, checksum, observed time, cutoff, parser/feature version, and reliability;
+5. implement a dry-run-first idempotent stage load;
+6. prove balanced counts and fixture signal coverage;
+7. stop before candidate generation.
 
 ## Source workspace
-
-External prepared source workspace:
 
 ```text
 D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
 ```
 
-Committed equivalents exist under `data/`, `artifacts/prediction-intelligence-v2/`, `lib/prediction-intelligence-v2/`, and `scripts/prediction-intelligence-v2/`.
-
-Do not report the data as lost merely because the external path is unavailable in one environment.
-
-## Environment contract
+Committed equivalents include:
 
 ```text
-ufopredictor.com       -> production Railway/Supabase
-stage.ufopredictor.com -> development Railway/Supabase stage
+data/prediction-engine/national-team-signals/2026-06-19/
+artifacts/prediction-intelligence-v2/
+lib/prediction-intelligence-v2/
+scripts/prediction-intelligence-v2/
+supabase/migrations/0038_prediction_intelligence_v2_data_foundation.sql
+types/database.ts
 ```
 
-Do not create another environment. Do not require Docker.
+The cutoff is historical. Do not describe it as current and do not reject it merely because a later refresh is needed.
+
+## Decision to preserve
+
+**Decision:** load the preserved baseline first, then perform current-data incremental refresh.
+
+**Do not:** turn the task into a complete refresh of every external source before storage and lineage are proven.
 
 ## Hard boundaries
 
-- no production writes during v2 normalization or Task 3B;
-- no merge of PR #106;
-- no blanket merge/cherry-pick of all nine old commits;
-- no production migration 0038;
-- no production user/payment/entitlement cloning;
-- no secrets in output;
-- no post-kickoff prediction generation;
-- no reopening completed MVP1 commercial work;
-- no rewriting original v1 Matchday 3 publications;
-- no claim that v2 is already more accurate.
+- no production writes;
+- no Auth, Wompi, payment, entitlement, webhook, session, or personal-data scope;
+- no new stage environment;
+- no rerun of Task 3B, linkage, or V1 import;
+- no V2 publication;
+- no post-kickoff evidence;
+- no fabricated source values or checksums;
+- no broad documentation rewrite;
+- no commit or push unless the owner delegates it.
 
-## Reporting contract
+## Process contract
+
+Use:
+
+```text
+one preflight
+one apply
+one verification
+```
+
+A second exact run may be used only to prove idempotency of the new baseline load.
+
+If a concrete defect appears, fix that defect without restarting the full audit.
+
+## Responsibility
+
+- Codex: inspect, implement, test, and report exact evidence.
+- ChatGPT: owns canonical documentation, roadmap, and process decisions.
+- Operator: owns Git, PowerShell, Supabase, SQL, Railway, APIs, and remote-write approval.
+
+## Required response
 
 Return:
 
-- branch/status/base SHA;
-- divergence/commit inventory;
-- files inspected/changed;
-- exact before/after behavior;
-- tests/lint/build/diff-check;
-- environment/write scope;
-- blockers only when concrete;
-- final verdict;
-- commit SHA when committed.
+- branch, HEAD, and worktree;
+- source inventory used and excluded;
+- exact destination tables and natural keys;
+- source/cutoff/version lineage;
+- dry-run counts;
+- apply counts if authorized;
+- conflicts and blockers;
+- fixture coverage query/result;
+- idempotency proof;
+- production no-write proof;
+- exact changed files;
+- focused test and lint results;
+- next transition only.

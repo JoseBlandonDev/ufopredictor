@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "ebd7bdf",
+  "snapshotDate": "2026-06-21",
+  "historicalOnly": true,
+  "currentCandidateEligible": false,
+  "artifacts": [
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1-2/2026-06-21/README.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "dd7dcff34c426ccbc73a03ae0c591c5aab405067a3b6eec237732e22d4579cd5",
+      "restoredSha256": "dd7dcff34c426ccbc73a03ae0c591c5aab405067a3b6eec237732e22d4579cd5",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "ebd7bdf:artifacts/prediction-intelligence-v2/task1-2/2026-06-21/README.txt"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1-2/2026-06-21/corrected-evidence-previews.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "16f3792398f61122e97e707164148e501beb818215a7f6311281100b30cb5e4b",
+      "restoredSha256": "16f3792398f61122e97e707164148e501beb818215a7f6311281100b30cb5e4b",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "ebd7bdf:artifacts/prediction-intelligence-v2/task1-2/2026-06-21/corrected-evidence-previews.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1-2/2026-06-21/elo-resolution-audit.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "b7ae8f535109686a1642fb79600a71084a0b46dc2efb6172f7051bad7e58f137",
+      "restoredSha256": "b7ae8f535109686a1642fb79600a71084a0b46dc2efb6172f7051bad7e58f137",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "ebd7bdf:artifacts/prediction-intelligence-v2/task1-2/2026-06-21/elo-resolution-audit.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1-2/2026-06-21/historical-elo-timeline-summary.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "413d9b1341bdcf18d762af6201f3d9e26f82f2be44a1eb8268393e097915bddc",
+      "restoredSha256": "413d9b1341bdcf18d762af6201f3d9e26f82f2be44a1eb8268393e097915bddc",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "ebd7bdf:artifacts/prediction-intelligence-v2/task1-2/2026-06-21/historical-elo-timeline-summary.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1-2/2026-06-21/missing-signal-coverage.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "4cf7a930ee14ed99b8e8d7f3a5d512e849ff38744cd2ed9791803c9d6529fa70",
+      "restoredSha256": "4cf7a930ee14ed99b8e8d7f3a5d512e849ff38744cd2ed9791803c9d6529fa70",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "ebd7bdf:artifacts/prediction-intelligence-v2/task1-2/2026-06-21/missing-signal-coverage.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1-2/2026-06-21/replay-coverage-manifest.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "a81b26aacad9a1b7605d30a1659436ab0940fe98b47346e213159457e785c008",
+      "restoredSha256": "a81b26aacad9a1b7605d30a1659436ab0940fe98b47346e213159457e785c008",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "ebd7bdf:artifacts/prediction-intelligence-v2/task1-2/2026-06-21/replay-coverage-manifest.json"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task1-2/2026-06-21/replay-ready-input-samples.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "65400d2c36f89879e225a03531a689ea2d760540569fb4ab31cde9af93a1de8c",
+      "restoredSha256": "65400d2c36f89879e225a03531a689ea2d760540569fb4ab31cde9af93a1de8c",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "ebd7bdf:artifacts/prediction-intelligence-v2/task1-2/2026-06-21/replay-ready-input-samples.json"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "predictionCount": 332,
+  "byAdjustment": {
+    "structuralDisagreement": {
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "recentForm": {
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "attack": {
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "defense": {
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "opponentAdjustment": {
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "tournamentForm": {
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "venueContext": {
+      "mean": null,
+      "min": null,
+      "max": null
+    },
+    "reliabilityShrinkage": {
+      "mean": null,
+      "min": null,
+      "max": null
+    }
+  },
+  "capsAppliedCounts": {},
+  "aggregateMeanGoalDifferenceAdjustment": null,
+  "aggregateMeanTotalGoalAdjustment": null
+}

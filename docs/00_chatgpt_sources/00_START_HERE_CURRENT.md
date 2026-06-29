@@ -1,6 +1,6 @@
 # Start Here - UFO Predictor Current
 
-_Last refreshed: 2026-06-27 after PR #117 production verification, the latest trusted-result batch, and the `main` to V2 synchronization checkpoint._
+_Last refreshed: 2026-06-27 after Task 2A reached `exact_complete`, PR #119 completed football-first premium terminology, and `main` was synchronized into the V2 integration branch at `4f758b2`._
 
 ## Current truth
 
@@ -9,10 +9,12 @@ UFO Predictor has:
 - a commercially usable MVP1 in production;
 - a separate, stable stage environment;
 - an active Prediction Intelligence v2 integration track in Draft PR #114;
-- the original V1 prediction baseline visible and queryable in stage;
+- the original immutable V1 prediction baseline visible and queryable in stage;
+- a persisted V2 signal baseline with 48 exact team rows and 72/72 runtime fixtures covered;
 - the production `Lectura UFO` presentation layer from PR #117;
+- football-first premium terminology from PR #119;
 - the latest trusted API-Football result batch persisted, verified, evaluated, and publicly checked;
-- no V2 probability candidate released to production.
+- no V2 probability candidate generated, published, or released to production.
 
 Production remains on the V1-compatible probability layer. V2 work continues behind the existing product surface in stage.
 
@@ -20,21 +22,22 @@ Production remains on the V1-compatible probability layer. V2 work continues beh
 
 **Motivo:** the team needs a fair, immutable predecessor for comparison and must not block the live product while research continues.
 
-**Consecuencia operativa:** stage may look like V1 in the UI while its database, source lineage, signal tables, candidate versions, and evaluation paths evolve toward V2.
+**Consecuencia operativa:** stage may present the V1-compatible UI while its source lineage, signal tables, candidate versions, and evaluation paths evolve toward V2.
 
 ## Repository and PR baseline
 
 ```text
 production branch: main
-production main HEAD: 3aff0e4
+production main HEAD: 9f89d62
 active V2 branch: integration/prediction-intelligence-v2
 active V2 Draft PR: #114
-active V2 HEAD: 5007de7
-parallel MVP1 feature branch: deleted after merge
-operator worktree checkpoint: main synchronized; only local untracked operational JSON artifacts remain
+active V2 HEAD: 4f758b2
+Task 2A implementation commit: 9491fd8
+operator worktree checkpoint: clean and synchronized
+local/remote divergence: 0 0
 ```
 
-The active integration branch includes accepted `main` changes from PR #115, PR #116, and PR #117 through normal Git history.
+The active integration branch contains accepted `main` changes from PR #115, PR #116, PR #117, and PR #119 through normal Git history, plus the completed Task 2A signal-baseline loader.
 
 Preserved historical source:
 
@@ -156,7 +159,7 @@ Its presence in Git is confirmed. The migration was applied successfully to both
 
 ## Parallel MVP1 checkpoint
 
-Epic 4 continues independently from the V2 data/model track.
+Epic 4 remains independent from the V2 data/model track.
 
 Completed:
 
@@ -164,80 +167,87 @@ Completed:
 Task 4A - V1 Information Inventory
 Task 4B - Public Expert Read
 PR #117 - merged to main
-production smoke - passed
-main -> V2 synchronization - passed
+Task 4C - Football-first premium terminology
+PR #119 - merged to main
+main -> V2 synchronization - 4f758b2
 ```
 
-The production UI now renders:
+The product now includes:
 
 - `Probabilidad del resultado` on the touched public surfaces;
 - a deterministic `Lectura UFO` on prediction cards and match detail;
-- confidence/uncertainty wording only when the viewer is already authorized to see confidence and risk;
-- unchanged premium xG, scenarios, BTTS, totals, and entitlement behavior.
+- confidence/uncertainty wording only where the viewer is already authorized to see confidence and risk;
+- football-first labels and explanations for premium BTTS/totals-oriented information;
+- unchanged underlying probabilities, xG, scenarios, premium authorization, payments, and entitlements.
 
-The presentation helper does not change probabilities, model behavior, persisted predictions, premium authorization, or V2 data.
+Task 4C was presentation-only. It did not create V2 data, alter model calculations, broaden premium access, or change Wompi behavior.
 
-Parallel MVP1 next task:
+No additional parallel MVP1 task is declared active in this checkpoint.
 
-```text
-Task 4C - Football-first premium terminology
-```
+## Task 2A baseline completion and freshness decision
 
-Bounded intent:
-
-- translate `BTTS`, totals, and market-oriented labels into clearer football-analysis language;
-- preserve the underlying values and authorization boundaries;
-- keep the slice small, deterministic, and independent from V2 data.
-
-## Data freshness decision
-
-The prepared foundation workspace has cutoff:
+Prepared workspace cutoff:
 
 ```text
 2026-06-20
 ```
 
-It is historical relative to 2026-06-27, but it remains an approved reproducible baseline.
+Task 2A loaded that preserved baseline into the real stage signal table and closed with:
 
-**Decision:** load the 2026-06-20 signal baseline into the real V2 tables first, then refresh incrementally.
+```text
+signal rows = 48
+state = exact_complete
+manifest status = verified
+verification inserts = 0
+verification identical rows = 48
+conflicts = 0
+unexpected existing rows = 0
+runtime fixtures = 72
+baseline-ready fixtures = 72
+candidate-ready fixtures = 0
+production writes = 0
+```
 
-**Alternativa descartada:** waiting for every source to be perfectly current before building the database and pipeline.
+**Decision:** the 2026-06-20 package is the canonical reproducible V2 signal baseline. Newer data is appended or versioned incrementally.
 
-**Motivo:** the schema, lineage, idempotency, fixture coverage, and candidate flow can be proven with the preserved baseline; later refreshes should be ordinary incremental operations rather than another foundation rebuild.
+**Alternativa descartada:** rebuilding the foundation or waiting for every source to become perfectly current before proving persistence and lineage.
 
-**Consecuencia operativa:** documents and UI must not describe the 2026-06-20 data as current, but its age does not block the next V2 engineering slice.
+**Motivo:** schema mapping, source identity, cutoff, reliability metadata, idempotency, and fixture coverage are now proven in the real stage database.
+
+**Consecuencia operativa:** the stored baseline must not be described as current. Candidate generation remains blocked until the explicit incremental current-data gate passes.
+
+**No repetir:** do not rerun Task 2A dry-run, apply, or verification without a concrete recovery requirement.
 
 ## Exact next tasks by workstream
 
 Primary V2 track:
 
 ```text
-Task 2A - V2 Signal Baseline Database Load
+Task 2B - Current fixture and result refresh
 ```
 
 Bounded result:
 
-1. inspect only the existing prepared 2026-06-20 signal package and committed equivalents;
-2. map approved baseline records to the existing Prediction Intelligence tables;
-3. persist source, observed time, cutoff, version, and lineage;
-4. perform one idempotent stage load;
-5. prove row accounting and fixture signal coverage;
-6. stop before candidate generation.
+1. refresh not-started fixture identity and kickoff state;
+2. persist new verified results through the established exact-identity path;
+3. preserve immutable V1 publications and the 48-row Task 2A baseline;
+4. report conflicts and unsupported states instead of overwriting them;
+5. stop before ranking/context synthesis or V2 candidate generation.
 
-Immediate V2 transition:
+Then continue in order:
 
 ```text
-Current-data incremental refresh
--> First V2 shadow candidate run
+Task 2C - Ranking, standings, and tournament context
+-> Task 2D - Repeatable current signal snapshots
+-> Task 3A - First live V2 shadow candidate
 ```
 
 Parallel MVP1 track:
 
 ```text
-Task 4C - Football-first premium terminology
+Task 4A, Task 4B, and Task 4C are complete.
+No new parallel MVP1 task is active in this checkpoint.
 ```
-
-This task starts from current `main`, uses its own short-lived feature branch, does not alter probabilities or entitlements, and flows back into the V2 branch only after its production PR is merged.
 
 ## Working responsibility split
 

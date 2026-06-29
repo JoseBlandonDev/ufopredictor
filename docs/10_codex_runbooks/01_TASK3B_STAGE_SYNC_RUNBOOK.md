@@ -1,74 +1,101 @@
 # Task 3B Stage Synchronization Runbook
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-27 after Task 1C completion._
 
-## Prerequisite: normalized branch
+## Status
 
-Do not execute Task 3B from `feature/prediction-intelligence-v2-data-foundation`.
-
-Required branch:
+Task 3B is a closed historical checkpoint.
 
 ```text
-integration/prediction-intelligence-v2
+branch: integration/prediction-intelligence-v2
+stage: yfmklapgjrupctgxaako
+production denied: gcpdffkgsdomzyoenalg
+foundation source cutoff: 2026-06-20
 ```
 
-It must be based on current `origin/main` and contain a reviewed selective port of the nine old v2 commits.
+Do not use this runbook as the active next-task handoff.
 
-## Stage target
+## Completed Task 3B import
+
+| Destination | Count |
+|---|---:|
+| competitions | 1 |
+| seasons | 1 |
+| teams | 48 |
+| venues | 16 |
+| matches | 72 |
+| source snapshots | 8 |
+| canonical aliases | 309 |
+| localizations | 488 |
+| canonical links | 48 |
+| rating snapshots | 699 |
+| historical match facts | 1,392 |
+| schedule snapshots | 1 |
+| venue catalog | 16 |
+| official schedule matches | 104 |
+| official schedule links | 72 |
+
+Knockout schedule rows 73-104 remain deferred from runtime linkage until participants are known.
+
+## Idempotency and preservation proof
+
+- first apply succeeded;
+- second exact apply planned zero inserts and zero updates;
+- Auth user and admin profile were preserved;
+- no production, payment, entitlement, webhook, session, or personal-data write occurred.
+
+## Later checkpoints completed after Task 3B
+
+- 24 Matchday 3 fixtures linked to API-Football identity;
+- 1 V1 model imported and activated;
+- 24 V1 prediction versions imported;
+- 240 markets imported;
+- 24 fixtures published;
+- stage state verified as `exact_complete`;
+- `/predictions` visual smoke passed.
+
+The empty prediction state described by the original Task 3B checkpoint is historical and no longer current.
+
+## Historical command
+
+The original Task 3B command remains evidence only:
+
+```powershell
+npx tsx scripts/prediction-intelligence-v2/run-task3b-stage-bootstrap.ts `
+  --env-file .env.stage.local `
+  --project-ref yfmklapgjrupctgxaako `
+  --deny-project-ref gcpdffkgsdomzyoenalg `
+  --expected-migration-count 46 `
+  --accept-external-migration-verification `
+  --prepared-dir "D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2" `
+  --dry-run
+```
+
+Do not reuse the historical `46` count as a claim about the current migration ledger without a new dedicated inventory. Later manual migrations exist.
+
+## Rerun gate
+
+Task 3B may be rerun only for an approved recovery when:
+
+- foundation tables are missing or corrupted;
+- source checksums prove an unintended divergence;
+- an environment restore requires replay;
+- owner approves exact target, scope, and recovery plan.
+
+A desire to “verify again” is not a rerun reason.
+
+## Migration debt
+
+Manual Task 1C migrations are operational. Formal migration-ledger reconciliation remains separate, non-blocking housekeeping.
+
+Migration `0039_manual_world_cup_result_reconciliation.sql` is present in Git; this runbook does not assert remote application.
+
+## Active next procedure
+
+Use:
 
 ```text
-stage.ufopredictor.com -> Railway development -> separate Supabase stage
+docs/10_codex_runbooks/03_SIGNAL_REFRESH_AND_MODEL_OPS_RUNBOOK.md
 ```
 
-Production writes are forbidden.
-
-## Phase A - read-only target audit
-
-1. Confirm clean branch/worktree and expected integration SHA.
-2. Validate ignored environment variables without printing values.
-3. Resolve Supabase project identity and prove it is stage.
-4. Inspect migration history/schema/RLS/functions/views/indexes.
-5. Compare against repository migrations.
-6. Identify drift/manual objects/dependencies.
-7. Confirm stage Auth users will be preserved.
-8. Resolve the prepared-v2 source workspace or committed equivalents.
-9. Verify manifests/checksums/cutoffs.
-10. Generate a non-destructive ordered plan.
-11. Stop for human approval.
-
-## Phase B - authorized writes
-
-1. Snapshot pre-write counts/schema/migrations.
-2. Reconcile approved missing canonical migrations.
-3. Apply migration 0038.
-4. Run idempotent non-sensitive imports.
-5. Validate row counts, FK/link integrity, indexes, and RLS.
-6. Rerun import and prove zero duplicates.
-7. Persist signal snapshots with source/cutoff.
-8. Refresh the not-started fixture manifest.
-9. Create immutable development prediction versions only before kickoff.
-10. Generate development Torneo export.
-11. Validate stage public/admin projections and UI.
-12. Capture post-write evidence and rollback notes.
-
-## Seed exclusions
-
-Never clone:
-
-- production users/sessions;
-- Wompi transactions/webhook payloads;
-- production entitlements/subscriptions;
-- secrets/personal data.
-
-## Exit gate
-
-- current-main-based integration branch;
-- old v2 preservation proof;
-- stage migration chain synchronized;
-- migration 0038 applied in stage;
-- idempotent import proven;
-- signals and immutable predictions persisted;
-- RLS/localization/venue/public UI validated;
-- v1/v2 comparison captured;
-- no production write;
-- owner approval for any later promotion.
+for the V2 signal baseline and incremental refresh path.

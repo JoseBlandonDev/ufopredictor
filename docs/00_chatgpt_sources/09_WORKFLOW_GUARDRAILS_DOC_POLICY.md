@@ -1,6 +1,6 @@
 # Workflow Guardrails and Documentation Policy
 
-_Last refreshed: 2026-06-27 after PR #117 production verification, trusted-result completion, and `main` to V2 synchronization._
+_Last refreshed: 2026-06-27 after Task 2A reached `exact_complete`, PR #119 merged, and the synchronized V2 integration checkpoint moved to `4f758b2`._
 
 ## Source hierarchy
 
@@ -94,13 +94,14 @@ The operator:
 - `main` is the production baseline;
 - production-safe V1/product changes branch from current `main`;
 - active V2 work uses `integration/prediction-intelligence-v2` and Draft PR #114;
-- production `main` checkpoint HEAD is `3aff0e4`;
-- V2 integration checkpoint HEAD is `5007de7`;
+- production `main` checkpoint HEAD is `9f89d62`;
+- V2 integration checkpoint HEAD is `4f758b2`;
+- Task 2A implementation commit is `9491fd8`;
 - old V2 branch and PR #106 are preservation only;
 - accepted `main` changes flow into the integration branch through normal merge/rebase history;
 - do not manually implement the same product change in both branches;
 - use worktrees when two owners need parallel dirty workspaces;
-- the merged PR #117 feature branch was deleted locally and remotely after synchronization.
+- PR #117 and PR #119 are merged and synchronized into V2.
 
 ## Environment safety
 
@@ -130,12 +131,16 @@ The following are closed:
 - V1 activation and publication;
 - exact-complete verification;
 - stage `/predictions` smoke;
+- Task 2A V2 Signal Baseline Database Load;
+- Task 2A reviewed apply and exact-complete zero-growth verification;
 - Task 4A V1 information inventory;
 - Task 4B Public Expert Read;
-- PR #117 production smoke;
+- PR #117 production checkpoint;
+- Task 4C football-first premium terminology;
+- PR #119 main merge and V2 synchronization;
 - latest exact five-result production applies and public verification.
 
-**No repetir:** do not reopen them without a concrete defect, mismatch, or approved recovery task.
+**No repetir:** do not reopen them without a concrete defect, mismatch, or approved recovery task. In particular, do not rerun Task 2A dry-run, apply, or verification ceremonially.
 
 ## Bounded-operation rule
 
@@ -183,13 +188,25 @@ The manual reconciliation form enabled by migration 0039 is an exception fallbac
 
 Codex is not required for routine execution of this protocol.
 
-## Technical contracts learned from Task 1C
+## Technical contracts learned from Task 1C and Task 2A
 
 ### Semantic reviewed-plan binding
 
-Stable authorization excludes only volatile report metadata such as generated time, local paths, and run mode.
+Stable authorization excludes only volatile execution/report metadata such as generated time, local paths, run mode, and zero-write display flags.
 
-It still recomputes and binds semantic payload, target refs, source checksums, stage IDs, publication actions, prior state, and expected counts.
+It still recomputes and binds semantic payload, target refs, source hashes, canonical identities, actions, prior state, blockers, conflicts, and expected counts.
+
+A stored checksum is never trusted without independently recomputing the reviewed artifact and current canonical projections.
+
+### Manifest and registry verification
+
+Root package-manifest and source-registry files verify against authoritative root hashes and are not required to contain self-entries. Non-root required files must appear in the manifest contract with exact matching hashes.
+
+Blocked plans print explicit blockers, are ineligible for apply, and exit non-zero.
+
+### Timestamp semantic equality
+
+Database-returned timestamp formatting must be compared by represented instant, not raw string form. `Z` and equivalent offsets compare equal. Invalid timestamps fail closed, and a genuinely different instant remains a conflict. Timestamp fields remain semantically bound.
 
 ### TypeScript/SQL JSON contract
 
@@ -197,7 +214,7 @@ Canonical RPC payload keys must match SQL extraction exactly. Publication payloa
 
 ### Atomicity
 
-Multi-table model/prediction/market/publication imports use one PostgreSQL transaction. No client-side partial write chain, upsert repair, or automatic retry after ambiguous failure.
+Multi-table model/prediction/market/publication imports use one PostgreSQL transaction. Task 2A uses one full-batch insert statement under exact-state authorization. There is no client-side partial repair, upsert overwrite, or automatic retry after ambiguity.
 
 ## Prediction immutability
 
@@ -252,20 +269,19 @@ Codex is not a required intermediary for routine operator actions.
 Primary V2 track:
 
 ```text
-Task 2A - V2 Signal Baseline Database Load
+Task 2B - Current fixture and result refresh
 ```
 
-It uses the preserved 2026-06-20 package as a reproducible baseline, then hands off to incremental current-data refresh and the first V2 shadow candidate.
+It preserves the completed 48-row Task 2A baseline and refreshes only newer or changed fixture/result facts before Task 2C and Task 2D.
 
 Parallel MVP1 track:
 
 ```text
-Task 4C - Football-first premium terminology
+Task 4A, Task 4B, and Task 4C are complete.
+No new parallel task is active in this checkpoint.
 ```
 
-It starts from current `main`, preserves probabilities and authorization, and is implemented in one small production-safe PR before normal synchronization into V2.
-
-Do not mix the two tracks. Do not turn either task into another environment-normalization, full-repository audit, or all-source perfection exercise.
+Do not mix the tracks. Do not turn Task 2B into another foundation rebuild, all-source perfection exercise, candidate-generation task, or production write path.
 
 ## Documentation triggers
 

@@ -1,86 +1,137 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-27 after Epic 1 completion._
 
 ## Goal
 
-Rebuild Prediction Intelligence v2 on top of the current production baseline without losing the nine v2-only commits or rolling back MVP1 product and operations changes.
+Preserve the normalized V2 integration track and stable stage while moving directly into V2 data and candidate work.
 
 ## Live-state source
 
-Before work, read and verify:
+Read:
 
 ```text
 docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
 docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
+docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
+docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
-Do not trust hardcoded SHAs or divergence counts from an old prompt. Recompute them read-only.
-
-Stable references:
+## Stable references
 
 ```text
-old v2 branch: feature/prediction-intelligence-v2-data-foundation
-Draft PR: #106
-known old v2 head at last refresh: eefcff709e80209215b25b90fb870aa5c080d735
-known merge base: 1dca9bf91000c089927452941a009117b622103f
+active branch: integration/prediction-intelligence-v2
+active Draft PR: #114
+reviewed checkpoint HEAD: bce9999
+canonical stage env: .env.stage.local
+stage project: yfmklapgjrupctgxaako
+production project: gcpdffkgsdomzyoenalg
+old branch: feature/prediction-intelligence-v2-data-foundation
+old Draft PR: #106
 ```
 
-## Required strategy
+Verify actual HEAD and worktree before implementation.
 
-1. Verify clean current `main` and `origin/main`.
-2. Preserve the old branch and PR #106 unchanged.
-3. Create `integration/prediction-intelligence-v2` from current `origin/main`.
-4. Produce a nine-commit/file preservation matrix.
-5. Port changes in this order:
-   - migration/types/contracts;
-   - source data/manifests/parsers;
-   - model/replay/calibration;
-   - scripts/artifact generation;
-   - tests;
-   - Task 3A/3B runbooks.
-6. Do not port stale frontend/shared queries/docs blindly.
-7. Resolve conflicts manually against current MVP1 behavior.
-8. Validate after each group.
-9. Open a replacement Draft PR.
-10. Close/supersede #106 only after all required concerns are preserved.
+## Completed normalization map
 
-## Suggested worktrees
+Completed:
+
+- selective old-V2 normalization;
+- data foundation and replay readiness;
+- historical Elo and challenger research;
+- calibration, gates, eligibility, and packaging;
+- Task 3A safety planning;
+- Task 3B stage synchronization;
+- exact 24-fixture linkage;
+- V1 model/prediction/market import;
+- V1 activation/publication;
+- exact-complete and UI smoke verification.
+
+No useful implementation remains to be ported wholesale from the old branch.
+
+## Environment rule
 
 ```text
-D:\Projects\ufo-predictor
-D:\Projects\ufo-predictor-v2
-D:\Projects\ufo-predictor-ui
+production: ufopredictor.com -> gcpdffkgsdomzyoenalg
+stage: stage.ufopredictor.com -> yfmklapgjrupctgxaako
 ```
 
-Additional worktrees are optional. Do not create duplicate source snapshots merely to run parallel conversations.
+Do not create another stage environment.
 
-## Validation after each group
+Do not use production credentials for stage.
 
-- focused imported tests;
-- current public query/lifecycle tests;
-- result/fixture operation tests if shared code is touched;
-- Auth/pricing/entitlement tests if shared code is touched;
-- lint;
-- production build;
-- diff-check;
+Do not revive the Docker path for normal stage work.
+
+## Current stage result
+
+```text
+runtime matches = 72
+linked V1 fixtures = 24
+active V1 models = 1
+V1 predictions = 24
+markets = 240
+public fixtures = 24
+state = exact_complete
+```
+
+Stage is no longer empty of prediction content.
+
+## Integrated parallel work
+
+PR #115 and PR #116 were merged to `main` and brought into the integration branch through normal history before checkpoint `bce9999`.
+
+Do not reimplement those changes manually in the integration branch.
+
+## Migration notes
+
+Operational stage migrations include foundation and Task 1C functions.
+
+Manual migration-ledger reconciliation remains non-blocking housekeeping.
+
+`0039_manual_world_cup_result_reconciliation.sql` exists in Git; remote application is not asserted by this runbook.
+
+## Next transition
+
+```text
+Task 2A - V2 Signal Baseline Database Load
+```
+
+Required sequence:
+
+1. use the preserved 2026-06-20 package;
+2. map to existing V2 tables;
+3. retain lineage and cutoff;
+4. load idempotently in stage;
+5. prove fixture coverage;
+6. refresh current sources incrementally;
+7. generate the first V2 shadow candidate.
+
+Do not redo normalization, Task 3B, linkage, or V1 import.
+
+## Parallel branch rule
+
+A separate owner may improve production-safe V1/expert-product work from current `main`.
+
+Those changes:
+
+- must not change model calculations casually;
+- must not depend on unfinished V2 data;
+- merge normally to `main`;
+- flow into the integration branch through merge/rebase;
+- are not manually duplicated.
+
+## Responsibility
+
+- ChatGPT owns canonical branch/environment decisions and handoffs.
+- Codex implements bounded technical slices.
+- The operator handles Git, stage SQL, Railway, and remote operations.
+
+## Validation
+
+- branch/HEAD/worktree;
+- exact target and deny refs;
+- task-specific tests;
+- relevant protected regressions;
+- lint and diff-check;
+- zero new task-local diagnostics;
 - no production write.
-
-## Current production concerns that must survive
-
-- PR #111 fixture registry behavior;
-- PR #112 trusted result refresh behavior;
-- immutable v1 Matchday 3 publications;
-- Torneo `torneo-ufo-export-v1` compatibility;
-- Wompi/Auth/entitlement behavior;
-- public lifecycle and history.
-
-## Required output
-
-- old commit -> new commit/file mapping;
-- intentionally excluded files and rationale;
-- conflicts and resolutions;
-- tests/build evidence;
-- replacement Draft PR URL;
-- confirmation PR #106 remained Draft/unchanged;
-- confirmation no production write occurred.

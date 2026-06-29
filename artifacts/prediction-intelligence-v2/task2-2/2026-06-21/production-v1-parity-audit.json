@@ -1,0 +1,4368 @@
+{
+  "tolerance": 0.001,
+  "holdout": [
+    {
+      "fixtureId": "world-cup-2026-mexico-vs-south-africa-2026-06-11",
+      "storedPredictionVersionId": "5787306d-ee3a-4167-88ab-ce669f1ed644",
+      "originalStoredV1": {
+        "homeWin": 0.37839500000000004,
+        "draw": 0.258141,
+        "awayWin": 0.363464,
+        "expectedHomeGoals": 1.3662,
+        "expectedAwayGoals": 1.3338,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.122467
+          },
+          {
+            "score": "1-0",
+            "probability": 0.091818
+          },
+          {
+            "score": "0-1",
+            "probability": 0.089641
+          },
+          {
+            "score": "2-1",
+            "probability": 0.083658
+          },
+          {
+            "score": "1-2",
+            "probability": 0.081674
+          },
+          {
+            "score": "0-0",
+            "probability": 0.067207
+          },
+          {
+            "score": "2-0",
+            "probability": 0.062721
+          },
+          {
+            "score": "0-2",
+            "probability": 0.059782
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00002464,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.652449,
+        "draw": 0.224395,
+        "awayWin": 0.123156,
+        "expectedHomeGoals": 1.7578,
+        "expectedAwayGoals": 0.6076,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.165078
+          },
+          {
+            "score": "2-0",
+            "probability": 0.145087
+          },
+          {
+            "score": "1-1",
+            "probability": 0.100302
+          }
+        ],
+        "bttsYes": 0.376831,
+        "bttsNo": 0.623169,
+        "over25": 0.421224,
+        "under25": 0.578776,
+        "scoreMatrixTailMass": 0.0000025,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.274054,
+        "draw": -0.033746,
+        "awayWin": -0.240308,
+        "expectedHomeGoals": 0.3916,
+        "expectedAwayGoals": -0.7262
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-south-korea-vs-czech-republic-2026-06-12",
+      "storedPredictionVersionId": "499cd214-bfce-4be0-9301-a23f842124f9",
+      "originalStoredV1": {
+        "homeWin": 0.37839500000000004,
+        "draw": 0.258141,
+        "awayWin": 0.363464,
+        "expectedHomeGoals": 1.3662,
+        "expectedAwayGoals": 1.3338,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.122467
+          },
+          {
+            "score": "1-0",
+            "probability": 0.091818
+          },
+          {
+            "score": "0-1",
+            "probability": 0.089641
+          },
+          {
+            "score": "2-1",
+            "probability": 0.083658
+          },
+          {
+            "score": "1-2",
+            "probability": 0.081674
+          },
+          {
+            "score": "0-0",
+            "probability": 0.067207
+          },
+          {
+            "score": "2-0",
+            "probability": 0.062721
+          },
+          {
+            "score": "0-2",
+            "probability": 0.059782
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00002464,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.536209,
+        "draw": 0.239682,
+        "awayWin": 0.224109,
+        "expectedHomeGoals": 1.706,
+        "expectedAwayGoals": 1.0131,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.113957
+          },
+          {
+            "score": "1-0",
+            "probability": 0.112484
+          },
+          {
+            "score": "2-1",
+            "probability": 0.097206
+          }
+        ],
+        "bttsYes": 0.521251,
+        "bttsNo": 0.478749,
+        "over25": 0.511042,
+        "under25": 0.488958,
+        "scoreMatrixTailMass": 0.0000019,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.157814,
+        "draw": -0.018459,
+        "awayWin": -0.139355,
+        "expectedHomeGoals": 0.3398,
+        "expectedAwayGoals": -0.3207
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-canada-vs-bosnia-herzegovina-2026-06-12",
+      "storedPredictionVersionId": "98c9ceb5-0880-43fc-8105-a17c6fd09641",
+      "originalStoredV1": {
+        "homeWin": 0.408709,
+        "draw": 0.257747,
+        "awayWin": 0.333544,
+        "expectedHomeGoals": 1.4264,
+        "expectedAwayGoals": 1.2634,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.122357
+          },
+          {
+            "score": "1-0",
+            "probability": 0.096847
+          },
+          {
+            "score": "2-1",
+            "probability": 0.087265
+          },
+          {
+            "score": "0-1",
+            "probability": 0.08578
+          },
+          {
+            "score": "1-2",
+            "probability": 0.077293
+          },
+          {
+            "score": "2-0",
+            "probability": 0.069071
+          },
+          {
+            "score": "0-0",
+            "probability": 0.067896
+          },
+          {
+            "score": "2-2",
+            "probability": 0.055125
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00002612,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.428546,
+        "draw": 0.275873,
+        "awayWin": 0.295581,
+        "expectedHomeGoals": 1.3182,
+        "expectedAwayGoals": 1.045,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.12965
+          },
+          {
+            "score": "1-0",
+            "probability": 0.124067
+          },
+          {
+            "score": "0-1",
+            "probability": 0.098354
+          }
+        ],
+        "bttsYes": 0.47481,
+        "bttsNo": 0.52519,
+        "over25": 0.420648,
+        "under25": 0.579352,
+        "scoreMatrixTailMass": 1.7e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.019837,
+        "draw": 0.018126,
+        "awayWin": -0.037963,
+        "expectedHomeGoals": -0.1082,
+        "expectedAwayGoals": -0.2184
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-usa-vs-paraguay-2026-06-13",
+      "storedPredictionVersionId": "1b07e364-195b-481d-9f45-291e00a146c6",
+      "originalStoredV1": {
+        "homeWin": 0.35335900000000003,
+        "draw": 0.254227,
+        "awayWin": 0.392414,
+        "expectedHomeGoals": 1.3411,
+        "expectedAwayGoals": 1.4268,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.120158
+          },
+          {
+            "score": "0-1",
+            "probability": 0.089597
+          },
+          {
+            "score": "1-2",
+            "probability": 0.085721
+          },
+          {
+            "score": "1-0",
+            "probability": 0.084215
+          },
+          {
+            "score": "2-1",
+            "probability": 0.080572
+          },
+          {
+            "score": "0-2",
+            "probability": 0.063918
+          },
+          {
+            "score": "0-0",
+            "probability": 0.062796
+          },
+          {
+            "score": "2-2",
+            "probability": 0.05748
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00003052,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.48987,
+        "draw": 0.26056,
+        "awayWin": 0.24957,
+        "expectedHomeGoals": 1.4952,
+        "expectedAwayGoals": 0.9869,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.12495
+          },
+          {
+            "score": "1-1",
+            "probability": 0.123313
+          },
+          {
+            "score": "2-0",
+            "probability": 0.093413
+          }
+        ],
+        "bttsYes": 0.486633,
+        "bttsNo": 0.513367,
+        "over25": 0.451587,
+        "under25": 0.548413,
+        "scoreMatrixTailMass": 5.4e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.136511,
+        "draw": 0.006333,
+        "awayWin": -0.142844,
+        "expectedHomeGoals": 0.1541,
+        "expectedAwayGoals": -0.4399
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-australia-vs-turkiye-2026-06-14",
+      "storedPredictionVersionId": "137a8d14-9fc4-42cd-9051-d1820cad255c",
+      "originalStoredV1": {
+        "homeWin": 0.6961390000000001,
+        "draw": 0.17630600000000002,
+        "awayWin": 0.127555,
+        "expectedHomeGoals": 2.3436,
+        "expectedAwayGoals": 0.8987,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.107385
+          },
+          {
+            "score": "2-1",
+            "probability": 0.096507
+          },
+          {
+            "score": "1-0",
+            "probability": 0.091641
+          },
+          {
+            "score": "3-0",
+            "probability": 0.083889
+          },
+          {
+            "score": "1-1",
+            "probability": 0.082357
+          },
+          {
+            "score": "3-1",
+            "probability": 0.075391
+          },
+          {
+            "score": "4-0",
+            "probability": 0.04915
+          },
+          {
+            "score": "4-1",
+            "probability": 0.044172
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00073166,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.759434,
+        "draw": 0.147856,
+        "awayWin": 0.09271,
+        "expectedHomeGoals": 2.6173,
+        "expectedAwayGoals": 0.813,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.110906
+          },
+          {
+            "score": "3-0",
+            "probability": 0.096758
+          },
+          {
+            "score": "2-1",
+            "probability": 0.090167
+          }
+        ],
+        "bttsYes": 0.515848,
+        "bttsNo": 0.484152,
+        "over25": 0.666038,
+        "under25": 0.333962,
+        "scoreMatrixTailMass": 0.00009184,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.063295,
+        "draw": -0.02845,
+        "awayWin": -0.034845,
+        "expectedHomeGoals": 0.2737,
+        "expectedAwayGoals": -0.0857
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-qatar-vs-switzerland-2026-06-13",
+      "storedPredictionVersionId": "55f9f9b0-6a62-4089-896e-622ce651c13e",
+      "originalStoredV1": {
+        "homeWin": 0.330984,
+        "draw": 0.256724,
+        "awayWin": 0.412293,
+        "expectedHomeGoals": 1.2642,
+        "expectedAwayGoals": 1.441,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.121798
+          },
+          {
+            "score": "0-1",
+            "probability": 0.096344
+          },
+          {
+            "score": "1-2",
+            "probability": 0.087755
+          },
+          {
+            "score": "1-0",
+            "probability": 0.084523
+          },
+          {
+            "score": "2-1",
+            "probability": 0.076988
+          },
+          {
+            "score": "0-2",
+            "probability": 0.069416
+          },
+          {
+            "score": "0-0",
+            "probability": 0.066859
+          },
+          {
+            "score": "2-2",
+            "probability": 0.05547
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.0000277,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.371065,
+        "draw": 0.256586,
+        "awayWin": 0.372349,
+        "expectedHomeGoals": 1.3631,
+        "expectedAwayGoals": 1.3659,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.121551
+          },
+          {
+            "score": "0-1",
+            "probability": 0.089172
+          },
+          {
+            "score": "1-0",
+            "probability": 0.088989
+          }
+        ],
+        "bttsYes": 0.554267,
+        "bttsNo": 0.445733,
+        "over25": 0.513452,
+        "under25": 0.486548,
+        "scoreMatrixTailMass": 4.4e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.040081,
+        "draw": -0.000138,
+        "awayWin": -0.039944,
+        "expectedHomeGoals": 0.0989,
+        "expectedAwayGoals": -0.0751
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-brazil-vs-morocco-2026-06-13",
+      "storedPredictionVersionId": "64534dc2-6610-4f05-a8bf-6f025fbcaffe",
+      "originalStoredV1": {
+        "homeWin": 0.5901700000000001,
+        "draw": 0.247257,
+        "awayWin": 0.162573,
+        "expectedHomeGoals": 1.6084,
+        "expectedAwayGoals": 0.7078,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.158673
+          },
+          {
+            "score": "2-0",
+            "probability": 0.127604
+          },
+          {
+            "score": "1-1",
+            "probability": 0.112308
+          },
+          {
+            "score": "0-0",
+            "probability": 0.098652
+          },
+          {
+            "score": "2-1",
+            "probability": 0.090318
+          },
+          {
+            "score": "0-1",
+            "probability": 0.069826
+          },
+          {
+            "score": "3-0",
+            "probability": 0.068413
+          },
+          {
+            "score": "3-1",
+            "probability": 0.048423
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00004728,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.553339,
+        "draw": 0.260432,
+        "awayWin": 0.186229,
+        "expectedHomeGoals": 1.5107,
+        "expectedAwayGoals": 0.7529,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.157076
+          },
+          {
+            "score": "2-0",
+            "probability": 0.118647
+          },
+          {
+            "score": "1-1",
+            "probability": 0.118262
+          }
+        ],
+        "bttsYes": 0.412221,
+        "bttsNo": 0.587779,
+        "over25": 0.394286,
+        "under25": 0.605714,
+        "scoreMatrixTailMass": 5.9e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.036831,
+        "draw": 0.013175,
+        "awayWin": 0.023656,
+        "expectedHomeGoals": -0.0977,
+        "expectedAwayGoals": 0.0451
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-haiti-vs-scotland-2026-06-14",
+      "storedPredictionVersionId": "d5478db0-7b77-41a4-b07c-e261d7ca1a8f",
+      "originalStoredV1": {
+        "homeWin": 0.19779699999999997,
+        "draw": 0.21295999999999998,
+        "awayWin": 0.589242,
+        "expectedHomeGoals": 1.0752,
+        "expectedAwayGoals": 2.0062,
+        "mostLikelyScore": "1-2",
+        "topScorelines": [
+          {
+            "score": "1-2",
+            "probability": 0.09933
+          },
+          {
+            "score": "1-1",
+            "probability": 0.099023
+          },
+          {
+            "score": "0-2",
+            "probability": 0.092383
+          },
+          {
+            "score": "0-1",
+            "probability": 0.092097
+          },
+          {
+            "score": "1-3",
+            "probability": 0.066425
+          },
+          {
+            "score": "0-3",
+            "probability": 0.061779
+          },
+          {
+            "score": "2-2",
+            "probability": 0.0534
+          },
+          {
+            "score": "2-1",
+            "probability": 0.053235
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00024484,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.217356,
+        "draw": 0.220388,
+        "awayWin": 0.562256,
+        "expectedHomeGoals": 1.1189,
+        "expectedAwayGoals": 1.9288,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.102443
+          },
+          {
+            "score": "1-2",
+            "probability": 0.098796
+          },
+          {
+            "score": "0-1",
+            "probability": 0.091557
+          }
+        ],
+        "bttsYes": 0.575506,
+        "bttsNo": 0.424494,
+        "over25": 0.587409,
+        "under25": 0.412591,
+        "scoreMatrixTailMass": 0.00000598,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.019559,
+        "draw": 0.007428,
+        "awayWin": -0.026986,
+        "expectedHomeGoals": 0.0437,
+        "expectedAwayGoals": -0.0774
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-germany-vs-curacao-2026-06-14",
+      "storedPredictionVersionId": "ccca7e13-409d-4915-ae9c-bf465dcd2c25",
+      "originalStoredV1": {
+        "homeWin": 0.8753759999999999,
+        "draw": 0.083157,
+        "awayWin": 0.041468,
+        "expectedHomeGoals": 3.5,
+        "expectedAwayGoals": 0.7248,
+        "mostLikelyScore": "3-0",
+        "topScorelines": [
+          {
+            "score": "3-0",
+            "probability": 0.105574
+          },
+          {
+            "score": "4-0",
+            "probability": 0.092377
+          },
+          {
+            "score": "2-0",
+            "probability": 0.090492
+          },
+          {
+            "score": "3-1",
+            "probability": 0.07652
+          },
+          {
+            "score": "4-1",
+            "probability": 0.066955
+          },
+          {
+            "score": "2-1",
+            "probability": 0.065588
+          },
+          {
+            "score": "5-0",
+            "probability": 0.064664
+          },
+          {
+            "score": "1-0",
+            "probability": 0.051709
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00987374,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.864961,
+        "draw": 0.08771,
+        "awayWin": 0.047329,
+        "expectedHomeGoals": 3.5,
+        "expectedAwayGoals": 0.7934,
+        "mostLikelyScore": "3-0",
+        "topScorelines": [
+          {
+            "score": "3-0",
+            "probability": 0.0977
+          },
+          {
+            "score": "4-0",
+            "probability": 0.085488
+          },
+          {
+            "score": "2-0",
+            "probability": 0.083743
+          }
+        ],
+        "bttsYes": 0.53114,
+        "bttsNo": 0.46886,
+        "over25": 0.801614,
+        "under25": 0.198386,
+        "scoreMatrixTailMass": 0.0010194,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.010415,
+        "draw": 0.004553,
+        "awayWin": 0.005861,
+        "expectedHomeGoals": 0,
+        "expectedAwayGoals": 0.0686
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-netherlands-vs-japan-2026-06-14",
+      "storedPredictionVersionId": "dd018039-39f7-45b0-abb5-4d5efffae918",
+      "originalStoredV1": {
+        "homeWin": 0.474929,
+        "draw": 0.22281800000000002,
+        "awayWin": 0.302253,
+        "expectedHomeGoals": 1.8917,
+        "expectedAwayGoals": 1.4755,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.096275
+          },
+          {
+            "score": "2-1",
+            "probability": 0.091062
+          },
+          {
+            "score": "1-2",
+            "probability": 0.071027
+          },
+          {
+            "score": "2-2",
+            "probability": 0.067181
+          },
+          {
+            "score": "1-0",
+            "probability": 0.065249
+          },
+          {
+            "score": "2-0",
+            "probability": 0.061716
+          },
+          {
+            "score": "3-1",
+            "probability": 0.057421
+          },
+          {
+            "score": "0-1",
+            "probability": 0.050893
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00018272,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.4398,
+        "draw": 0.226138,
+        "awayWin": 0.334062,
+        "expectedHomeGoals": 1.8066,
+        "expectedAwayGoals": 1.553,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.097494
+          },
+          {
+            "score": "2-1",
+            "probability": 0.088067
+          },
+          {
+            "score": "1-2",
+            "probability": 0.075704
+          }
+        ],
+        "bttsYes": 0.658925,
+        "bttsNo": 0.341075,
+        "over25": 0.652401,
+        "under25": 0.347599,
+        "scoreMatrixTailMass": 0.000004,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.035129,
+        "draw": 0.00332,
+        "awayWin": 0.031809,
+        "expectedHomeGoals": -0.0851,
+        "expectedAwayGoals": 0.0775
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-ivory-coast-vs-ecuador-2026-06-14",
+      "storedPredictionVersionId": "d30fab46-5982-408c-8826-15a73a9ef097",
+      "originalStoredV1": {
+        "homeWin": 0.673453,
+        "draw": 0.207011,
+        "awayWin": 0.119536,
+        "expectedHomeGoals": 1.9181,
+        "expectedAwayGoals": 0.6587,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.145834
+          },
+          {
+            "score": "2-0",
+            "probability": 0.139862
+          },
+          {
+            "score": "1-1",
+            "probability": 0.096061
+          },
+          {
+            "score": "2-1",
+            "probability": 0.092127
+          },
+          {
+            "score": "3-0",
+            "probability": 0.089423
+          },
+          {
+            "score": "0-0",
+            "probability": 0.07603
+          },
+          {
+            "score": "3-1",
+            "probability": 0.058903
+          },
+          {
+            "score": "0-1",
+            "probability": 0.050081
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00017522,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.735245,
+        "draw": 0.176793,
+        "awayWin": 0.087962,
+        "expectedHomeGoals": 2.1441,
+        "expectedAwayGoals": 0.5862,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.149869
+          },
+          {
+            "score": "1-0",
+            "probability": 0.139797
+          },
+          {
+            "score": "3-0",
+            "probability": 0.107112
+          }
+        ],
+        "bttsYes": 0.391588,
+        "bttsNo": 0.608412,
+        "over25": 0.513761,
+        "under25": 0.486239,
+        "scoreMatrixTailMass": 0.00001568,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.061792,
+        "draw": -0.030218,
+        "awayWin": -0.031574,
+        "expectedHomeGoals": 0.226,
+        "expectedAwayGoals": -0.0725
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-sweden-vs-tunisia-2026-06-15",
+      "storedPredictionVersionId": "312769eb-d88a-465f-8f48-eae19fd0db11",
+      "originalStoredV1": {
+        "homeWin": 0.554893,
+        "draw": 0.232577,
+        "awayWin": 0.21253,
+        "expectedHomeGoals": 1.7799,
+        "expectedAwayGoals": 1.008,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.110441
+          },
+          {
+            "score": "1-0",
+            "probability": 0.109565
+          },
+          {
+            "score": "2-1",
+            "probability": 0.098287
+          },
+          {
+            "score": "2-0",
+            "probability": 0.097507
+          },
+          {
+            "score": "0-1",
+            "probability": 0.062049
+          },
+          {
+            "score": "0-0",
+            "probability": 0.061557
+          },
+          {
+            "score": "3-1",
+            "probability": 0.058314
+          },
+          {
+            "score": "3-0",
+            "probability": 0.057851
+          }
+        ],
+        "bttsYes": null,
+        "bttsNo": null,
+        "over25": null,
+        "under25": null,
+        "scoreMatrixTailMass": 0.00010217,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.572493,
+        "draw": 0.227245,
+        "awayWin": 0.200261,
+        "expectedHomeGoals": 1.8324,
+        "expectedAwayGoals": 0.9852,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.109485
+          },
+          {
+            "score": "1-1",
+            "probability": 0.107864
+          },
+          {
+            "score": "2-0",
+            "probability": 0.10031
+          }
+        ],
+        "bttsYes": 0.526355,
+        "bttsNo": 0.473645,
+        "over25": 0.534729,
+        "under25": 0.465271,
+        "scoreMatrixTailMass": 0.0000037,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.0176,
+        "draw": -0.005332,
+        "awayWin": -0.012269,
+        "expectedHomeGoals": 0.0525,
+        "expectedAwayGoals": -0.0228
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-spain-vs-cape-verde-islands-2026-06-15",
+      "storedPredictionVersionId": "895cbb07-b05c-4782-bc4b-6f8098d56eda",
+      "originalStoredV1": {
+        "homeWin": 0.7408459999999999,
+        "draw": 0.164849,
+        "awayWin": 0.094304,
+        "expectedHomeGoals": 2.3411,
+        "expectedAwayGoals": 0.7029,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.130657
+          },
+          {
+            "score": "1-0",
+            "probability": 0.11162
+          },
+          {
+            "score": "3-0",
+            "probability": 0.10196
+          },
+          {
+            "score": "2-1",
+            "probability": 0.091839
+          },
+          {
+            "score": "1-1",
+            "probability": 0.078458
+          },
+          {
+            "score": "3-1",
+            "probability": 0.071668
+          },
+          {
+            "score": "4-0",
+            "probability": 0.059675
+          },
+          {
+            "score": "0-0",
+            "probability": 0.047679
+          }
+        ],
+        "bttsYes": 0.456273,
+        "bttsNo": 0.5437270000000001,
+        "over25": 0.586581,
+        "under25": 0.41341900000000004,
+        "scoreMatrixTailMass": 0.00072585,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.844043,
+        "draw": 0.118614,
+        "awayWin": 0.037343,
+        "expectedHomeGoals": 2.5524,
+        "expectedAwayGoals": 0.3769,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.174069
+          },
+          {
+            "score": "3-0",
+            "probability": 0.148098
+          },
+          {
+            "score": "1-0",
+            "probability": 0.136396
+          }
+        ],
+        "bttsYes": 0.289553,
+        "bttsNo": 0.710447,
+        "over25": 0.560753,
+        "under25": 0.439247,
+        "scoreMatrixTailMass": 0.00007386,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.103197,
+        "draw": -0.046235,
+        "awayWin": -0.056961,
+        "expectedHomeGoals": 0.2113,
+        "expectedAwayGoals": -0.326
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-belgium-vs-egypt-2026-06-15",
+      "storedPredictionVersionId": "c6c99bc2-dec0-473d-8252-a719e01a7bb2",
+      "originalStoredV1": {
+        "homeWin": 0.33346899999999996,
+        "draw": 0.234696,
+        "awayWin": 0.431835,
+        "expectedHomeGoals": 1.4611,
+        "expectedAwayGoals": 1.6902,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.105698
+          },
+          {
+            "score": "1-2",
+            "probability": 0.089325
+          },
+          {
+            "score": "2-1",
+            "probability": 0.077217
+          },
+          {
+            "score": "0-1",
+            "probability": 0.072341
+          },
+          {
+            "score": "2-2",
+            "probability": 0.065256
+          },
+          {
+            "score": "1-0",
+            "probability": 0.062536
+          },
+          {
+            "score": "0-2",
+            "probability": 0.061136
+          },
+          {
+            "score": "1-3",
+            "probability": 0.050326
+          }
+        ],
+        "bttsYes": 0.626333,
+        "bttsNo": 0.373667,
+        "over25": 0.609839,
+        "under25": 0.39016100000000004,
+        "scoreMatrixTailMass": 0.00009129,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.303079,
+        "draw": 0.231069,
+        "awayWin": 0.465853,
+        "expectedHomeGoals": 1.3947,
+        "expectedAwayGoals": 1.7762,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.103961
+          },
+          {
+            "score": "1-2",
+            "probability": 0.092328
+          },
+          {
+            "score": "0-1",
+            "probability": 0.07454
+          }
+        ],
+        "bttsYes": 0.624778,
+        "bttsNo": 0.375222,
+        "over25": 0.613989,
+        "under25": 0.386011,
+        "scoreMatrixTailMass": 0.00000303,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.03039,
+        "draw": -0.003627,
+        "awayWin": 0.034018,
+        "expectedHomeGoals": -0.0664,
+        "expectedAwayGoals": 0.086
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-saudi-arabia-vs-uruguay-2026-06-15",
+      "storedPredictionVersionId": "f4d46fbc-f282-411b-965e-ab08347d7e96",
+      "originalStoredV1": {
+        "homeWin": 0.287649,
+        "draw": 0.273197,
+        "awayWin": 0.439154,
+        "expectedHomeGoals": 1.0374,
+        "expectedAwayGoals": 1.3504,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.128649
+          },
+          {
+            "score": "0-1",
+            "probability": 0.124011
+          },
+          {
+            "score": "1-0",
+            "probability": 0.095267
+          },
+          {
+            "score": "0-0",
+            "probability": 0.091833
+          },
+          {
+            "score": "1-2",
+            "probability": 0.086864
+          },
+          {
+            "score": "0-2",
+            "probability": 0.083732
+          },
+          {
+            "score": "2-1",
+            "probability": 0.06673
+          },
+          {
+            "score": "2-0",
+            "probability": 0.049415
+          }
+        ],
+        "bttsYes": 0.47832,
+        "bttsNo": 0.52168,
+        "over25": 0.42710000000000004,
+        "under25": 0.5729,
+        "scoreMatrixTailMass": 0.00001382,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.341343,
+        "draw": 0.342343,
+        "awayWin": 0.316314,
+        "expectedHomeGoals": 1.1536,
+        "expectedAwayGoals": 1.2366,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.130687
+          },
+          {
+            "score": "0-1",
+            "probability": 0.113287
+          },
+          {
+            "score": "1-0",
+            "probability": 0.105683
+          }
+        ],
+        "bttsYes": 0.485743,
+        "bttsNo": 0.514257,
+        "over25": 0.427729,
+        "under25": 0.572271,
+        "scoreMatrixTailMass": 1.3e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.053694,
+        "draw": 0.069146,
+        "awayWin": -0.12284,
+        "expectedHomeGoals": 0.1162,
+        "expectedAwayGoals": -0.1138
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-iran-vs-new-zealand-2026-06-16",
+      "storedPredictionVersionId": "46b301de-32f4-4464-8a9c-22b26e91b985",
+      "originalStoredV1": {
+        "homeWin": 0.883617,
+        "draw": 0.082569,
+        "awayWin": 0.033814000000000004,
+        "expectedHomeGoals": 3.2938,
+        "expectedAwayGoals": 0.5604,
+        "mostLikelyScore": "3-0",
+        "topScorelines": [
+          {
+            "score": "3-0",
+            "probability": 0.127075
+          },
+          {
+            "score": "2-0",
+            "probability": 0.11574
+          },
+          {
+            "score": "4-0",
+            "probability": 0.10464
+          },
+          {
+            "score": "3-1",
+            "probability": 0.071213
+          },
+          {
+            "score": "1-0",
+            "probability": 0.070278
+          },
+          {
+            "score": "5-0",
+            "probability": 0.068933
+          },
+          {
+            "score": "2-1",
+            "probability": 0.064861
+          },
+          {
+            "score": "4-1",
+            "probability": 0.05864
+          }
+        ],
+        "bttsYes": 0.41308700000000004,
+        "bttsNo": 0.586913,
+        "over25": 0.7395820000000001,
+        "under25": 0.260418,
+        "scoreMatrixTailMass": 0.00683241,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.848018,
+        "draw": 0.103718,
+        "awayWin": 0.048264,
+        "expectedHomeGoals": 3.0276,
+        "expectedAwayGoals": 0.625,
+        "mostLikelyScore": "3-0",
+        "topScorelines": [
+          {
+            "score": "3-0",
+            "probability": 0.119944
+          },
+          {
+            "score": "2-0",
+            "probability": 0.11885
+          },
+          {
+            "score": "4-0",
+            "probability": 0.090785
+          }
+        ],
+        "bttsYes": 0.442223,
+        "bttsNo": 0.557777,
+        "over25": 0.706365,
+        "under25": 0.293635,
+        "scoreMatrixTailMass": 0.00031543,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.035599,
+        "draw": 0.021149,
+        "awayWin": 0.01445,
+        "expectedHomeGoals": -0.2662,
+        "expectedAwayGoals": 0.0646
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-austria-vs-jordan-2026-06-17",
+      "storedPredictionVersionId": "c18a32bd-124e-4e01-950d-cf6a7af9d773",
+      "originalStoredV1": {
+        "homeWin": 0.671435,
+        "draw": 0.193269,
+        "awayWin": 0.135295,
+        "expectedHomeGoals": 2.1274,
+        "expectedAwayGoals": 0.834,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.117141
+          },
+          {
+            "score": "1-0",
+            "probability": 0.110126
+          },
+          {
+            "score": "2-1",
+            "probability": 0.097696
+          },
+          {
+            "score": "1-1",
+            "probability": 0.091845
+          },
+          {
+            "score": "3-0",
+            "probability": 0.083069
+          },
+          {
+            "score": "3-1",
+            "probability": 0.069279
+          },
+          {
+            "score": "0-0",
+            "probability": 0.051766
+          },
+          {
+            "score": "4-0",
+            "probability": 0.04418
+          }
+        ],
+        "bttsYes": 0.49829,
+        "bttsNo": 0.50171,
+        "over25": 0.5681,
+        "under25": 0.43189999999999995,
+        "scoreMatrixTailMass": 0.00037027,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.640033,
+        "draw": 0.205178,
+        "awayWin": 0.154789,
+        "expectedHomeGoals": 2.0281,
+        "expectedAwayGoals": 0.8819,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.112036
+          },
+          {
+            "score": "1-0",
+            "probability": 0.110483
+          },
+          {
+            "score": "2-1",
+            "probability": 0.098804
+          }
+        ],
+        "bttsYes": 0.508894,
+        "bttsNo": 0.491106,
+        "over25": 0.556343,
+        "under25": 0.443657,
+        "scoreMatrixTailMass": 0.00000945,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.031402,
+        "draw": 0.011909,
+        "awayWin": 0.019494,
+        "expectedHomeGoals": -0.0993,
+        "expectedAwayGoals": 0.0479
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-france-vs-senegal-2026-06-16",
+      "storedPredictionVersionId": "2ad8c1bd-4007-4b07-81e0-545895eae1ab",
+      "originalStoredV1": {
+        "homeWin": 0.435515,
+        "draw": 0.270211,
+        "awayWin": 0.294274,
+        "expectedHomeGoals": 1.3676,
+        "expectedAwayGoals": 1.0732,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.127826
+          },
+          {
+            "score": "1-0",
+            "probability": 0.119108
+          },
+          {
+            "score": "0-1",
+            "probability": 0.093468
+          },
+          {
+            "score": "2-1",
+            "probability": 0.087408
+          },
+          {
+            "score": "0-0",
+            "probability": 0.087093
+          },
+          {
+            "score": "2-0",
+            "probability": 0.081446
+          },
+          {
+            "score": "1-2",
+            "probability": 0.068592
+          },
+          {
+            "score": "0-2",
+            "probability": 0.050155
+          }
+        ],
+        "bttsYes": 0.49046100000000004,
+        "bttsNo": 0.509539,
+        "over25": 0.44091400000000003,
+        "under25": 0.559086,
+        "scoreMatrixTailMass": 0.00001557,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.436472,
+        "draw": 0.269699,
+        "awayWin": 0.293829,
+        "expectedHomeGoals": 1.3726,
+        "expectedAwayGoals": 1.0749,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.127637
+          },
+          {
+            "score": "1-0",
+            "probability": 0.118743
+          },
+          {
+            "score": "0-1",
+            "probability": 0.092989
+          }
+        ],
+        "bttsYes": 0.491731,
+        "bttsNo": 0.508269,
+        "over25": 0.442651,
+        "under25": 0.557349,
+        "scoreMatrixTailMass": 2.5e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000957,
+        "draw": -0.000512,
+        "awayWin": -0.000445,
+        "expectedHomeGoals": 0.005,
+        "expectedAwayGoals": 0.0017
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-iraq-vs-norway-2026-06-16",
+      "storedPredictionVersionId": "f7dcf019-818c-4baa-b756-d3cad9ac16b1",
+      "originalStoredV1": {
+        "homeWin": 0.551798,
+        "draw": 0.23950500000000002,
+        "awayWin": 0.20869700000000002,
+        "expectedHomeGoals": 1.7045,
+        "expectedAwayGoals": 0.9479,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.120145
+          },
+          {
+            "score": "1-1",
+            "probability": 0.113886
+          },
+          {
+            "score": "2-0",
+            "probability": 0.102394
+          },
+          {
+            "score": "2-1",
+            "probability": 0.097059
+          },
+          {
+            "score": "0-0",
+            "probability": 0.070487
+          },
+          {
+            "score": "0-1",
+            "probability": 0.066815
+          },
+          {
+            "score": "3-0",
+            "probability": 0.058177
+          },
+          {
+            "score": "3-1",
+            "probability": 0.055146
+          }
+        ],
+        "bttsYes": 0.501064,
+        "bttsNo": 0.498936,
+        "over25": 0.494643,
+        "under25": 0.505357,
+        "scoreMatrixTailMass": 0.00007384,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.580922,
+        "draw": 0.230048,
+        "awayWin": 0.18903,
+        "expectedHomeGoals": 1.7921,
+        "expectedAwayGoals": 0.9134,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.119779
+          },
+          {
+            "score": "1-1",
+            "probability": 0.109406
+          },
+          {
+            "score": "2-0",
+            "probability": 0.107328
+          }
+        ],
+        "bttsYes": 0.499069,
+        "bttsNo": 0.500931,
+        "over25": 0.50772,
+        "under25": 0.49228,
+        "scoreMatrixTailMass": 0.000003,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.029124,
+        "draw": -0.009457,
+        "awayWin": -0.019667,
+        "expectedHomeGoals": 0.0876,
+        "expectedAwayGoals": -0.0345
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-argentina-vs-algeria-2026-06-17",
+      "storedPredictionVersionId": "948c7eed-e74e-437f-bccd-5daddd6b8965",
+      "originalStoredV1": {
+        "homeWin": 0.6500879999999999,
+        "draw": 0.215381,
+        "awayWin": 0.13453099999999998,
+        "expectedHomeGoals": 1.8667,
+        "expectedAwayGoals": 0.7069,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.142376
+          },
+          {
+            "score": "2-0",
+            "probability": 0.132887
+          },
+          {
+            "score": "1-1",
+            "probability": 0.100646
+          },
+          {
+            "score": "2-1",
+            "probability": 0.093938
+          },
+          {
+            "score": "3-0",
+            "probability": 0.082686
+          },
+          {
+            "score": "0-0",
+            "probability": 0.076271
+          },
+          {
+            "score": "3-1",
+            "probability": 0.058451
+          },
+          {
+            "score": "0-1",
+            "probability": 0.053916
+          }
+        ],
+        "bttsYes": 0.42845599999999995,
+        "bttsNo": 0.571544,
+        "over25": 0.474921,
+        "under25": 0.525079,
+        "scoreMatrixTailMass": 0.00014362,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.628207,
+        "draw": 0.224175,
+        "awayWin": 0.147618,
+        "expectedHomeGoals": 1.8019,
+        "expectedAwayGoals": 0.7363,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.142366
+          },
+          {
+            "score": "2-0",
+            "probability": 0.128265
+          },
+          {
+            "score": "1-1",
+            "probability": 0.104824
+          }
+        ],
+        "bttsYes": 0.435141,
+        "bttsNo": 0.564859,
+        "over25": 0.465946,
+        "under25": 0.534054,
+        "scoreMatrixTailMass": 0.00000316,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.021881,
+        "draw": 0.008794,
+        "awayWin": 0.013087,
+        "expectedHomeGoals": -0.0648,
+        "expectedAwayGoals": 0.0294
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-portugal-vs-congo-dr-2026-06-17",
+      "storedPredictionVersionId": "80a9afb0-a5df-477f-a618-b6b2fb48a03e",
+      "originalStoredV1": {
+        "homeWin": 0.649713,
+        "draw": 0.209522,
+        "awayWin": 0.140765,
+        "expectedHomeGoals": 1.9436,
+        "expectedAwayGoals": 0.7722,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.128598
+          },
+          {
+            "score": "2-0",
+            "probability": 0.124971
+          },
+          {
+            "score": "1-1",
+            "probability": 0.099303
+          },
+          {
+            "score": "2-1",
+            "probability": 0.096503
+          },
+          {
+            "score": "3-0",
+            "probability": 0.080965
+          },
+          {
+            "score": "0-0",
+            "probability": 0.066165
+          },
+          {
+            "score": "3-1",
+            "probability": 0.062521
+          },
+          {
+            "score": "0-1",
+            "probability": 0.051092
+          }
+        ],
+        "bttsYes": 0.46096800000000004,
+        "bttsNo": 0.539032,
+        "over25": 0.510235,
+        "under25": 0.489765,
+        "scoreMatrixTailMass": 0.00019304,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.586724,
+        "draw": 0.23249,
+        "awayWin": 0.180787,
+        "expectedHomeGoals": 1.7593,
+        "expectedAwayGoals": 0.86,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.128172
+          },
+          {
+            "score": "2-0",
+            "probability": 0.112747
+          },
+          {
+            "score": "1-1",
+            "probability": 0.110228
+          }
+        ],
+        "bttsYes": 0.477526,
+        "bttsNo": 0.522474,
+        "over25": 0.486403,
+        "under25": 0.513597,
+        "scoreMatrixTailMass": 0.00000252,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.062989,
+        "draw": 0.022968,
+        "awayWin": 0.040022,
+        "expectedHomeGoals": -0.1843,
+        "expectedAwayGoals": 0.0878
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-england-vs-croatia-2026-06-17",
+      "storedPredictionVersionId": "24d5d4bf-8883-467b-b921-581fa99da7c9",
+      "originalStoredV1": {
+        "homeWin": 0.687095,
+        "draw": 0.18421800000000002,
+        "awayWin": 0.128688,
+        "expectedHomeGoals": 2.2286,
+        "expectedAwayGoals": 0.8484,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.114534
+          },
+          {
+            "score": "1-0",
+            "probability": 0.102785
+          },
+          {
+            "score": "2-1",
+            "probability": 0.09717
+          },
+          {
+            "score": "1-1",
+            "probability": 0.087203
+          },
+          {
+            "score": "3-0",
+            "probability": 0.085083
+          },
+          {
+            "score": "3-1",
+            "probability": 0.072185
+          },
+          {
+            "score": "4-0",
+            "probability": 0.047404
+          },
+          {
+            "score": "0-0",
+            "probability": 0.046121
+          }
+        ],
+        "bttsYes": 0.5103179999999999,
+        "bttsNo": 0.489682,
+        "over25": 0.5938289999999999,
+        "under25": 0.406171,
+        "scoreMatrixTailMass": 0.0005146,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.692263,
+        "draw": 0.181834,
+        "awayWin": 0.125903,
+        "expectedHomeGoals": 2.2517,
+        "expectedAwayGoals": 0.8444,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.114652
+          },
+          {
+            "score": "1-0",
+            "probability": 0.101836
+          },
+          {
+            "score": "2-1",
+            "probability": 0.096812
+          }
+        ],
+        "bttsYes": 0.510188,
+        "bttsNo": 0.489812,
+        "over25": 0.597982,
+        "under25": 0.402018,
+        "scoreMatrixTailMass": 0.00002439,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.005168,
+        "draw": -0.002384,
+        "awayWin": -0.002785,
+        "expectedHomeGoals": 0.0231,
+        "expectedAwayGoals": -0.004
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-ghana-vs-panama-2026-06-17",
+      "storedPredictionVersionId": "e407f963-a46c-4fcf-80f0-d16fd9af85fe",
+      "originalStoredV1": {
+        "homeWin": 0.580619,
+        "draw": 0.239985,
+        "awayWin": 0.179396,
+        "expectedHomeGoals": 1.6847,
+        "expectedAwayGoals": 0.8149,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.138353
+          },
+          {
+            "score": "2-0",
+            "probability": 0.116542
+          },
+          {
+            "score": "1-1",
+            "probability": 0.112744
+          },
+          {
+            "score": "2-1",
+            "probability": 0.09497
+          },
+          {
+            "score": "0-0",
+            "probability": 0.082123
+          },
+          {
+            "score": "0-1",
+            "probability": 0.066922
+          },
+          {
+            "score": "3-0",
+            "probability": 0.065446
+          },
+          {
+            "score": "3-1",
+            "probability": 0.053332
+          }
+        ],
+        "bttsYes": 0.453934,
+        "bttsNo": 0.546066,
+        "over25": 0.456083,
+        "under25": 0.543917,
+        "scoreMatrixTailMass": 0.00006718,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.656936,
+        "draw": 0.210309,
+        "awayWin": 0.132756,
+        "expectedHomeGoals": 1.9162,
+        "expectedAwayGoals": 0.7212,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.137099
+          },
+          {
+            "score": "2-0",
+            "probability": 0.131355
+          },
+          {
+            "score": "1-1",
+            "probability": 0.098876
+          }
+        ],
+        "bttsYes": 0.438213,
+        "bttsNo": 0.561787,
+        "over25": 0.490916,
+        "under25": 0.509084,
+        "scoreMatrixTailMass": 0.0000056,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.076317,
+        "draw": -0.029676,
+        "awayWin": -0.04664,
+        "expectedHomeGoals": 0.2315,
+        "expectedAwayGoals": -0.0937
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-uzbekistan-vs-colombia-2026-06-18",
+      "storedPredictionVersionId": "07485089-4448-4e6b-b625-269366d3a0f4",
+      "originalStoredV1": {
+        "homeWin": 0.391465,
+        "draw": 0.287063,
+        "awayWin": 0.321472,
+        "expectedHomeGoals": 1.1915,
+        "expectedAwayGoals": 1.0512,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.132981
+          },
+          {
+            "score": "1-0",
+            "probability": 0.126504
+          },
+          {
+            "score": "0-1",
+            "probability": 0.111608
+          },
+          {
+            "score": "0-0",
+            "probability": 0.106172
+          },
+          {
+            "score": "2-1",
+            "probability": 0.079223
+          },
+          {
+            "score": "2-0",
+            "probability": 0.075365
+          },
+          {
+            "score": "1-2",
+            "probability": 0.069895
+          },
+          {
+            "score": "0-2",
+            "probability": 0.058661
+          }
+        ],
+        "bttsYes": 0.452888,
+        "bttsNo": 0.5471119999999999,
+        "over25": 0.388712,
+        "under25": 0.6112879999999999,
+        "scoreMatrixTailMass": 0.00000628,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.403717,
+        "draw": 0.285167,
+        "awayWin": 0.311115,
+        "expectedHomeGoals": 1.2224,
+        "expectedAwayGoals": 1.0361,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.132361
+          },
+          {
+            "score": "1-0",
+            "probability": 0.12775
+          },
+          {
+            "score": "0-1",
+            "probability": 0.10828
+          }
+        ],
+        "bttsYes": 0.455149,
+        "bttsNo": 0.544851,
+        "over25": 0.392927,
+        "under25": 0.607073,
+        "scoreMatrixTailMass": 9e-8,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.012252,
+        "draw": -0.001896,
+        "awayWin": -0.010357,
+        "expectedHomeGoals": 0.0309,
+        "expectedAwayGoals": -0.0151
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-czechia-vs-south-africa-2026-06-18",
+      "storedPredictionVersionId": "8d9c61d1-a6d7-484e-8fa9-bc0a79645bf7",
+      "originalStoredV1": {
+        "homeWin": 0.550848,
+        "draw": 0.249262,
+        "awayWin": 0.19989,
+        "expectedHomeGoals": 1.608,
+        "expectedAwayGoals": 0.8578,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.136591
+          },
+          {
+            "score": "1-1",
+            "probability": 0.117168
+          },
+          {
+            "score": "2-0",
+            "probability": 0.109819
+          },
+          {
+            "score": "2-1",
+            "probability": 0.094203
+          },
+          {
+            "score": "0-0",
+            "probability": 0.084945
+          },
+          {
+            "score": "0-1",
+            "probability": 0.072866
+          },
+          {
+            "score": "3-0",
+            "probability": 0.058863
+          },
+          {
+            "score": "3-1",
+            "probability": 0.050493
+          }
+        ],
+        "bttsYes": 0.460559,
+        "bttsNo": 0.539441,
+        "over25": 0.447384,
+        "under25": 0.552616,
+        "scoreMatrixTailMass": 0.00004745,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.508608,
+        "draw": 0.260775,
+        "awayWin": 0.230616,
+        "expectedHomeGoals": 1.5027,
+        "expectedAwayGoals": 0.9187,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.133436
+          },
+          {
+            "score": "1-1",
+            "probability": 0.122587
+          },
+          {
+            "score": "2-0",
+            "probability": 0.100257
+          }
+        ],
+        "bttsYes": 0.467231,
+        "bttsNo": 0.532769,
+        "over25": 0.435872,
+        "under25": 0.564128,
+        "scoreMatrixTailMass": 5.7e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.04224,
+        "draw": 0.011513,
+        "awayWin": 0.030726,
+        "expectedHomeGoals": -0.1053,
+        "expectedAwayGoals": 0.0609
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-switzerland-vs-bosnia-herzegovina-2026-06-18",
+      "storedPredictionVersionId": "b958ba65-9ae6-48db-9578-36001c7ce544",
+      "originalStoredV1": {
+        "homeWin": 0.407033,
+        "draw": 0.246056,
+        "awayWin": 0.34691099999999997,
+        "expectedHomeGoals": 1.5287,
+        "expectedAwayGoals": 1.3935,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.114645
+          },
+          {
+            "score": "2-1",
+            "probability": 0.087629
+          },
+          {
+            "score": "1-0",
+            "probability": 0.082271
+          },
+          {
+            "score": "1-2",
+            "probability": 0.079879
+          },
+          {
+            "score": "0-1",
+            "probability": 0.074995
+          },
+          {
+            "score": "2-0",
+            "probability": 0.062884
+          },
+          {
+            "score": "2-2",
+            "probability": 0.061055
+          },
+          {
+            "score": "0-0",
+            "probability": 0.053818
+          }
+        ],
+        "bttsYes": 0.588793,
+        "bttsNo": 0.411207,
+        "over25": 0.5591550000000001,
+        "under25": 0.440845,
+        "scoreMatrixTailMass": 0.00004778,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.42699,
+        "draw": 0.243922,
+        "awayWin": 0.329088,
+        "expectedHomeGoals": 1.5833,
+        "expectedAwayGoals": 1.3621,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.113397
+          },
+          {
+            "score": "2-1",
+            "probability": 0.089771
+          },
+          {
+            "score": "1-0",
+            "probability": 0.083252
+          }
+        ],
+        "bttsYes": 0.591162,
+        "bttsNo": 0.408838,
+        "over25": 0.564466,
+        "under25": 0.435534,
+        "scoreMatrixTailMass": 0.00000114,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.019957,
+        "draw": -0.002134,
+        "awayWin": -0.017823,
+        "expectedHomeGoals": 0.0546,
+        "expectedAwayGoals": -0.0314
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-canada-vs-qatar-2026-06-18",
+      "storedPredictionVersionId": "1d4ec53b-496d-4adb-a631-56f5dcefbca6",
+      "originalStoredV1": {
+        "homeWin": 0.414962,
+        "draw": 0.290763,
+        "awayWin": 0.294275,
+        "expectedHomeGoals": 1.2056,
+        "expectedAwayGoals": 0.9665,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.137365
+          },
+          {
+            "score": "1-1",
+            "probability": 0.132763
+          },
+          {
+            "score": "0-0",
+            "probability": 0.113939
+          },
+          {
+            "score": "0-1",
+            "probability": 0.110122
+          },
+          {
+            "score": "2-0",
+            "probability": 0.082803
+          },
+          {
+            "score": "2-1",
+            "probability": 0.080029
+          },
+          {
+            "score": "1-2",
+            "probability": 0.064158
+          },
+          {
+            "score": "0-2",
+            "probability": 0.053216
+          }
+        ],
+        "bttsYes": 0.434014,
+        "bttsNo": 0.565986,
+        "over25": 0.36979599999999996,
+        "under25": 0.630204,
+        "scoreMatrixTailMass": 0.00000589,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.393276,
+        "draw": 0.291238,
+        "awayWin": 0.315486,
+        "expectedHomeGoals": 1.1704,
+        "expectedAwayGoals": 1.0161,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.133563
+          },
+          {
+            "score": "1-0",
+            "probability": 0.131447
+          },
+          {
+            "score": "0-1",
+            "probability": 0.114117
+          }
+        ],
+        "bttsYes": 0.440062,
+        "bttsNo": 0.559938,
+        "over25": 0.373664,
+        "under25": 0.626336,
+        "scoreMatrixTailMass": 6e-8,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.021686,
+        "draw": 0.000475,
+        "awayWin": 0.021211,
+        "expectedHomeGoals": -0.0352,
+        "expectedAwayGoals": 0.0496
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-mexico-vs-south-korea-2026-06-19",
+      "storedPredictionVersionId": "6fba1b73-372d-44b2-9d96-1b8bdca1853b",
+      "originalStoredV1": {
+        "homeWin": 0.374797,
+        "draw": 0.276032,
+        "awayWin": 0.34917000000000004,
+        "expectedHomeGoals": 1.2299,
+        "expectedAwayGoals": 1.177,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.130421
+          },
+          {
+            "score": "1-0",
+            "probability": 0.110808
+          },
+          {
+            "score": "0-1",
+            "probability": 0.106042
+          },
+          {
+            "score": "0-0",
+            "probability": 0.090095
+          },
+          {
+            "score": "2-1",
+            "probability": 0.080202
+          },
+          {
+            "score": "1-2",
+            "probability": 0.076753
+          },
+          {
+            "score": "2-0",
+            "probability": 0.068141
+          },
+          {
+            "score": "0-2",
+            "probability": 0.062406
+          }
+        ],
+        "bttsYes": 0.48957,
+        "bttsNo": 0.5104299999999999,
+        "over25": 0.432093,
+        "under25": 0.567907,
+        "scoreMatrixTailMass": 0.00001007,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.378204,
+        "draw": 0.276215,
+        "awayWin": 0.345581,
+        "expectedHomeGoals": 1.2352,
+        "expectedAwayGoals": 1.1679,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.130464
+          },
+          {
+            "score": "1-0",
+            "probability": 0.111708
+          },
+          {
+            "score": "0-1",
+            "probability": 0.105622
+          }
+        ],
+        "bttsYes": 0.488641,
+        "bttsNo": 0.511359,
+        "over25": 0.431101,
+        "under25": 0.568899,
+        "scoreMatrixTailMass": 1.3e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.003407,
+        "draw": 0.000183,
+        "awayWin": -0.003589,
+        "expectedHomeGoals": 0.0053,
+        "expectedAwayGoals": -0.0091
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-usa-vs-australia-2026-06-19",
+      "storedPredictionVersionId": "cbbee71d-ae31-4054-b911-6834fadf9b65",
+      "originalStoredV1": {
+        "homeWin": 0.151949,
+        "draw": 0.19508,
+        "awayWin": 0.6529699999999999,
+        "expectedHomeGoals": 0.9337,
+        "expectedAwayGoals": 2.1549,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.105837
+          },
+          {
+            "score": "1-2",
+            "probability": 0.09882
+          },
+          {
+            "score": "0-1",
+            "probability": 0.098229
+          },
+          {
+            "score": "1-1",
+            "probability": 0.091717
+          },
+          {
+            "score": "0-3",
+            "probability": 0.076023
+          },
+          {
+            "score": "1-3",
+            "probability": 0.070983
+          },
+          {
+            "score": "2-2",
+            "probability": 0.046134
+          },
+          {
+            "score": "0-0",
+            "probability": 0.045584
+          }
+        ],
+        "bttsYes": 0.536553,
+        "bttsNo": 0.46344700000000005,
+        "over25": 0.596358,
+        "under25": 0.40364199999999995,
+        "scoreMatrixTailMass": 0.00040607,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.138907,
+        "draw": 0.187036,
+        "awayWin": 0.674057,
+        "expectedHomeGoals": 0.9027,
+        "expectedAwayGoals": 2.2271,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.108444
+          },
+          {
+            "score": "1-2",
+            "probability": 0.097892
+          },
+          {
+            "score": "0-1",
+            "probability": 0.097386
+          }
+        ],
+        "bttsYes": 0.530411,
+        "bttsNo": 0.469589,
+        "over25": 0.605244,
+        "under25": 0.394756,
+        "scoreMatrixTailMass": 0.0000221,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.013042,
+        "draw": -0.008044,
+        "awayWin": 0.021087,
+        "expectedHomeGoals": -0.031,
+        "expectedAwayGoals": 0.0722
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-scotland-vs-morocco-2026-06-19",
+      "storedPredictionVersionId": "dfc71cea-656d-49a5-b1a6-0c087fee1894",
+      "originalStoredV1": {
+        "homeWin": 0.275646,
+        "draw": 0.279997,
+        "awayWin": 0.44435699999999995,
+        "expectedHomeGoals": 0.9677,
+        "expectedAwayGoals": 1.3096,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.134315
+          },
+          {
+            "score": "1-1",
+            "probability": 0.129977
+          },
+          {
+            "score": "0-0",
+            "probability": 0.102562
+          },
+          {
+            "score": "1-0",
+            "probability": 0.099249
+          },
+          {
+            "score": "0-2",
+            "probability": 0.087949
+          },
+          {
+            "score": "1-2",
+            "probability": 0.085109
+          },
+          {
+            "score": "2-1",
+            "probability": 0.062889
+          },
+          {
+            "score": "2-0",
+            "probability": 0.048022
+          }
+        ],
+        "bttsYes": 0.452677,
+        "bttsNo": 0.547323,
+        "over25": 0.39793300000000004,
+        "under25": 0.602067,
+        "scoreMatrixTailMass": 0.00001054,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.276623,
+        "draw": 0.28028,
+        "awayWin": 0.443097,
+        "expectedHomeGoals": 0.9691,
+        "expectedAwayGoals": 1.3063,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.13423
+          },
+          {
+            "score": "1-1",
+            "probability": 0.130082
+          },
+          {
+            "score": "0-0",
+            "probability": 0.102756
+          }
+        ],
+        "bttsYes": 0.452511,
+        "bttsNo": 0.547489,
+        "over25": 0.397427,
+        "under25": 0.602573,
+        "scoreMatrixTailMass": 1.5e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000977,
+        "draw": 0.000283,
+        "awayWin": -0.00126,
+        "expectedHomeGoals": 0.0014,
+        "expectedAwayGoals": -0.0033
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-brazil-vs-haiti-2026-06-20",
+      "storedPredictionVersionId": "16c98d09-3ca1-4ed0-934a-b359caa6eaa7",
+      "originalStoredV1": {
+        "homeWin": 0.8956440000000001,
+        "draw": 0.07369200000000001,
+        "awayWin": 0.030663999999999997,
+        "expectedHomeGoals": 3.5,
+        "expectedAwayGoals": 0.5871,
+        "mostLikelyScore": "3-0",
+        "topScorelines": [
+          {
+            "score": "3-0",
+            "probability": 0.121159
+          },
+          {
+            "score": "4-0",
+            "probability": 0.106015
+          },
+          {
+            "score": "2-0",
+            "probability": 0.103851
+          },
+          {
+            "score": "5-0",
+            "probability": 0.07421
+          },
+          {
+            "score": "3-1",
+            "probability": 0.071133
+          },
+          {
+            "score": "4-1",
+            "probability": 0.062241
+          },
+          {
+            "score": "2-1",
+            "probability": 0.060971
+          },
+          {
+            "score": "1-0",
+            "probability": 0.059343
+          }
+        ],
+        "bttsYes": 0.43064,
+        "bttsNo": 0.56936,
+        "over25": 0.774153,
+        "under25": 0.22584700000000002,
+        "scoreMatrixTailMass": 0.00987367,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.888112,
+        "draw": 0.077718,
+        "awayWin": 0.03417,
+        "expectedHomeGoals": 3.4709,
+        "expectedAwayGoals": 0.6237,
+        "mostLikelyScore": "3-0",
+        "topScorelines": [
+          {
+            "score": "3-0",
+            "probability": 0.116232
+          },
+          {
+            "score": "4-0",
+            "probability": 0.100858
+          },
+          {
+            "score": "2-0",
+            "probability": 0.100463
+          }
+        ],
+        "bttsYes": 0.449602,
+        "bttsNo": 0.550398,
+        "over25": 0.775218,
+        "under25": 0.224782,
+        "scoreMatrixTailMass": 0.00095437,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.007532,
+        "draw": 0.004026,
+        "awayWin": 0.003506,
+        "expectedHomeGoals": -0.0291,
+        "expectedAwayGoals": 0.0366
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-turkiye-vs-paraguay-2026-06-20",
+      "storedPredictionVersionId": "f0668356-2109-4c28-9e25-6efdd02adf56",
+      "originalStoredV1": {
+        "homeWin": 0.43314300000000006,
+        "draw": 0.263317,
+        "awayWin": 0.30354,
+        "expectedHomeGoals": 1.4175,
+        "expectedAwayGoals": 1.1419,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.125207
+          },
+          {
+            "score": "1-0",
+            "probability": 0.109648
+          },
+          {
+            "score": "2-1",
+            "probability": 0.08874
+          },
+          {
+            "score": "0-1",
+            "probability": 0.088329
+          },
+          {
+            "score": "2-0",
+            "probability": 0.077713
+          },
+          {
+            "score": "0-0",
+            "probability": 0.077353
+          },
+          {
+            "score": "1-2",
+            "probability": 0.071487
+          },
+          {
+            "score": "2-2",
+            "probability": 0.050666
+          }
+        ],
+        "bttsYes": 0.5158200000000001,
+        "bttsNo": 0.48418,
+        "over25": 0.471331,
+        "under25": 0.5286690000000001,
+        "scoreMatrixTailMass": 0.00002121,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.436127,
+        "draw": 0.262583,
+        "awayWin": 0.30129,
+        "expectedHomeGoals": 1.4273,
+        "expectedAwayGoals": 1.1401,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.124868
+          },
+          {
+            "score": "1-0",
+            "probability": 0.109524
+          },
+          {
+            "score": "2-1",
+            "probability": 0.089112
+          }
+        ],
+        "bttsYes": 0.516992,
+        "bttsNo": 0.483008,
+        "over25": 0.473356,
+        "under25": 0.526644,
+        "scoreMatrixTailMass": 3.8e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.002984,
+        "draw": -0.000734,
+        "awayWin": -0.00225,
+        "expectedHomeGoals": 0.0098,
+        "expectedAwayGoals": -0.0018
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-tunisia-vs-japan-2026-06-21",
+      "storedPredictionVersionId": "6ca057c5-4c3d-4bc1-9ae4-2b4bda54db92",
+      "originalStoredV1": {
+        "homeWin": 0.192823,
+        "draw": 0.244225,
+        "awayWin": 0.562952,
+        "expectedHomeGoals": 0.8532,
+        "expectedAwayGoals": 1.6523,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.134893
+          },
+          {
+            "score": "1-1",
+            "probability": 0.115091
+          },
+          {
+            "score": "0-2",
+            "probability": 0.111442
+          },
+          {
+            "score": "1-2",
+            "probability": 0.095082
+          },
+          {
+            "score": "0-0",
+            "probability": 0.08164
+          },
+          {
+            "score": "1-0",
+            "probability": 0.069655
+          },
+          {
+            "score": "0-3",
+            "probability": 0.061378
+          },
+          {
+            "score": "1-3",
+            "probability": 0.052368
+          }
+        ],
+        "bttsYes": 0.46397700000000003,
+        "bttsNo": 0.536023,
+        "over25": 0.457596,
+        "under25": 0.542404,
+        "scoreMatrixTailMass": 0.00005818,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.192996,
+        "draw": 0.244254,
+        "awayWin": 0.56275,
+        "expectedHomeGoals": 0.8538,
+        "expectedAwayGoals": 1.6521,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.134815
+          },
+          {
+            "score": "1-1",
+            "probability": 0.115105
+          },
+          {
+            "score": "0-2",
+            "probability": 0.111364
+          }
+        ],
+        "bttsYes": 0.464161,
+        "bttsNo": 0.535839,
+        "over25": 0.457699,
+        "under25": 0.542301,
+        "scoreMatrixTailMass": 0.00000139,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000173,
+        "draw": 0.000029,
+        "awayWin": -0.000202,
+        "expectedHomeGoals": 0.0006,
+        "expectedAwayGoals": -0.0002
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "world-cup-2026-netherlands-vs-sweden-2026-06-20",
+      "storedPredictionVersionId": "215d7505-4ec9-4cbe-8f0f-440abdd858f3",
+      "originalStoredV1": {
+        "homeWin": 0.501613,
+        "draw": 0.20549499999999998,
+        "awayWin": 0.292892,
+        "expectedHomeGoals": 2.1787,
+        "expectedAwayGoals": 1.6438,
+        "mostLikelyScore": "2-1",
+        "topScorelines": [
+          {
+            "score": "2-1",
+            "probability": 0.085376
+          },
+          {
+            "score": "1-1",
+            "probability": 0.078374
+          },
+          {
+            "score": "2-2",
+            "probability": 0.070171
+          },
+          {
+            "score": "1-2",
+            "probability": 0.064415
+          },
+          {
+            "score": "3-1",
+            "probability": 0.062003
+          },
+          {
+            "score": "2-0",
+            "probability": 0.051938
+          },
+          {
+            "score": "3-2",
+            "probability": 0.05096
+          },
+          {
+            "score": "1-0",
+            "probability": 0.047678
+          }
+        ],
+        "bttsYes": 0.715438,
+        "bttsNo": 0.284562,
+        "over25": 0.734713,
+        "under25": 0.265287,
+        "scoreMatrixTailMass": 0.00049392,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.501656,
+        "draw": 0.205445,
+        "awayWin": 0.292898,
+        "expectedHomeGoals": 2.1796,
+        "expectedAwayGoals": 1.6445,
+        "mostLikelyScore": "2-1",
+        "topScorelines": [
+          {
+            "score": "2-1",
+            "probability": 0.085306
+          },
+          {
+            "score": "1-1",
+            "probability": 0.078277
+          },
+          {
+            "score": "2-2",
+            "probability": 0.070143
+          }
+        ],
+        "bttsYes": 0.71564,
+        "bttsNo": 0.28436,
+        "over25": 0.734969,
+        "under25": 0.265031,
+        "scoreMatrixTailMass": 0.00001952,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000043,
+        "draw": -0.00005,
+        "awayWin": 0.000006,
+        "expectedHomeGoals": 0.0009,
+        "expectedAwayGoals": 0.0007
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "world-cup-2026-germany-vs-ivory-coast-2026-06-20",
+      "storedPredictionVersionId": "91e95dcf-e819-4bac-a9de-2a8cd8ca50a8",
+      "originalStoredV1": {
+        "homeWin": 0.5818099999999999,
+        "draw": 0.21863,
+        "awayWin": 0.19956,
+        "expectedHomeGoals": 1.9349,
+        "expectedAwayGoals": 1.0415,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.102746
+          },
+          {
+            "score": "2-1",
+            "probability": 0.099402
+          },
+          {
+            "score": "1-0",
+            "probability": 0.098652
+          },
+          {
+            "score": "2-0",
+            "probability": 0.095441
+          },
+          {
+            "score": "3-1",
+            "probability": 0.064111
+          },
+          {
+            "score": "3-0",
+            "probability": 0.061556
+          },
+          {
+            "score": "1-2",
+            "probability": 0.053505
+          },
+          {
+            "score": "0-1",
+            "probability": 0.053102
+          }
+        ],
+        "bttsYes": 0.553612,
+        "bttsNo": 0.446388,
+        "over25": 0.571499,
+        "under25": 0.42850099999999997,
+        "scoreMatrixTailMass": 0.00018826,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.582096,
+        "draw": 0.218519,
+        "awayWin": 0.199385,
+        "expectedHomeGoals": 1.9361,
+        "expectedAwayGoals": 1.0414,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.102668
+          },
+          {
+            "score": "2-1",
+            "probability": 0.099388
+          },
+          {
+            "score": "1-0",
+            "probability": 0.098587
+          }
+        ],
+        "bttsYes": 0.553694,
+        "bttsNo": 0.446306,
+        "over25": 0.571747,
+        "under25": 0.428253,
+        "scoreMatrixTailMass": 0.00000617,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000286,
+        "draw": -0.000111,
+        "awayWin": -0.000175,
+        "expectedHomeGoals": 0.0012,
+        "expectedAwayGoals": -0.0001
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "world-cup-2026-ecuador-vs-curacao-2026-06-21",
+      "storedPredictionVersionId": "e96a9252-5df2-427a-a9a0-60df6d059f26",
+      "originalStoredV1": {
+        "homeWin": 0.359861,
+        "draw": 0.24269200000000002,
+        "awayWin": 0.397447,
+        "expectedHomeGoals": 1.458,
+        "expectedAwayGoals": 1.5435,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.11188
+          },
+          {
+            "score": "1-2",
+            "probability": 0.086344
+          },
+          {
+            "score": "2-1",
+            "probability": 0.081561
+          },
+          {
+            "score": "0-1",
+            "probability": 0.076736
+          },
+          {
+            "score": "1-0",
+            "probability": 0.072485
+          },
+          {
+            "score": "2-2",
+            "probability": 0.062945
+          },
+          {
+            "score": "0-2",
+            "probability": 0.059221
+          },
+          {
+            "score": "2-0",
+            "probability": 0.052841
+          }
+        ],
+        "bttsYes": 0.603379,
+        "bttsNo": 0.396621,
+        "over25": 0.577145,
+        "under25": 0.422855,
+        "scoreMatrixTailMass": 0.00005681,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.359705,
+        "draw": 0.242618,
+        "awayWin": 0.397677,
+        "expectedHomeGoals": 1.4583,
+        "expectedAwayGoals": 1.5447,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.111816
+          },
+          {
+            "score": "1-2",
+            "probability": 0.086361
+          },
+          {
+            "score": "2-1",
+            "probability": 0.081531
+          }
+        ],
+        "bttsYes": 0.60363,
+        "bttsNo": 0.39637,
+        "over25": 0.577481,
+        "under25": 0.422519,
+        "scoreMatrixTailMass": 0.00000115,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000156,
+        "draw": -0.000074,
+        "awayWin": 0.00023,
+        "expectedHomeGoals": 0.0003,
+        "expectedAwayGoals": 0.0012
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    }
+  ],
+  "future": [
+    {
+      "fixtureId": "d54a9495-e60f-4864-9e4c-421e6626be0c",
+      "storedPredictionVersionId": "6ca057c5-4c3d-4bc1-9ae4-2b4bda54db92",
+      "originalStoredV1": {
+        "homeWin": 0.192823,
+        "draw": 0.244225,
+        "awayWin": 0.562952,
+        "expectedHomeGoals": 0.8532,
+        "expectedAwayGoals": 1.6523,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.134893
+          },
+          {
+            "score": "1-1",
+            "probability": 0.115091
+          },
+          {
+            "score": "0-2",
+            "probability": 0.111442
+          },
+          {
+            "score": "1-2",
+            "probability": 0.095082
+          },
+          {
+            "score": "0-0",
+            "probability": 0.08164
+          },
+          {
+            "score": "1-0",
+            "probability": 0.069655
+          },
+          {
+            "score": "0-3",
+            "probability": 0.061378
+          },
+          {
+            "score": "1-3",
+            "probability": 0.052368
+          }
+        ],
+        "bttsYes": 0.46397700000000003,
+        "bttsNo": 0.536023,
+        "over25": 0.457596,
+        "under25": 0.542404,
+        "scoreMatrixTailMass": 0.00005818,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.192996,
+        "draw": 0.244254,
+        "awayWin": 0.56275,
+        "expectedHomeGoals": 0.8538,
+        "expectedAwayGoals": 1.6521,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.134815
+          },
+          {
+            "score": "1-1",
+            "probability": 0.115105
+          },
+          {
+            "score": "0-2",
+            "probability": 0.111364
+          }
+        ],
+        "bttsYes": 0.464161,
+        "bttsNo": 0.535839,
+        "over25": 0.457699,
+        "under25": 0.542301,
+        "scoreMatrixTailMass": 0.00000139,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000173,
+        "draw": 0.000029,
+        "awayWin": -0.000202,
+        "expectedHomeGoals": 0.0006,
+        "expectedAwayGoals": -0.0002
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "2d05905b-910a-4652-be9b-9ddbf0cede80",
+      "storedPredictionVersionId": "6d8423bd-c100-485c-9c15-b74fdd95e414",
+      "originalStoredV1": {
+        "homeWin": 0.7737470000000001,
+        "draw": 0.154188,
+        "awayWin": 0.072065,
+        "expectedHomeGoals": 2.3482,
+        "expectedAwayGoals": 0.5664,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.149612
+          },
+          {
+            "score": "1-0",
+            "probability": 0.127427
+          },
+          {
+            "score": "3-0",
+            "probability": 0.117107
+          },
+          {
+            "score": "2-1",
+            "probability": 0.08474
+          },
+          {
+            "score": "1-1",
+            "probability": 0.072175
+          },
+          {
+            "score": "4-0",
+            "probability": 0.068747
+          },
+          {
+            "score": "3-1",
+            "probability": 0.066329
+          },
+          {
+            "score": "0-0",
+            "probability": 0.054266
+          }
+        ],
+        "bttsYes": 0.391118,
+        "bttsNo": 0.6088819999999999,
+        "over25": 0.557391,
+        "under25": 0.442609,
+        "scoreMatrixTailMass": 0.00074122,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.773886,
+        "draw": 0.1541,
+        "awayWin": 0.072014,
+        "expectedHomeGoals": 2.3491,
+        "expectedAwayGoals": 0.5664,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.149487
+          },
+          {
+            "score": "1-0",
+            "probability": 0.127272
+          },
+          {
+            "score": "3-0",
+            "probability": 0.117053
+          }
+        ],
+        "bttsYes": 0.391155,
+        "bttsNo": 0.608845,
+        "over25": 0.557599,
+        "under25": 0.442401,
+        "scoreMatrixTailMass": 0.00003559,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000139,
+        "draw": -0.000088,
+        "awayWin": -0.000051,
+        "expectedHomeGoals": 0.0009,
+        "expectedAwayGoals": 0
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "2d7bc089-1eda-4f91-b1a0-e596a00dda59",
+      "storedPredictionVersionId": "964d0a11-9cd4-43f7-96af-0fda4b6ed8d0",
+      "originalStoredV1": {
+        "homeWin": 0.52306,
+        "draw": 0.28396899999999997,
+        "awayWin": 0.192971,
+        "expectedHomeGoals": 1.3393,
+        "expectedAwayGoals": 0.692,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.175671
+          },
+          {
+            "score": "0-0",
+            "probability": 0.131166
+          },
+          {
+            "score": "1-1",
+            "probability": 0.121564
+          },
+          {
+            "score": "2-0",
+            "probability": 0.117638
+          },
+          {
+            "score": "0-1",
+            "probability": 0.090767
+          },
+          {
+            "score": "2-1",
+            "probability": 0.081406
+          },
+          {
+            "score": "3-0",
+            "probability": 0.052518
+          },
+          {
+            "score": "1-2",
+            "probability": 0.042061
+          }
+        ],
+        "bttsYes": 0.368562,
+        "bttsNo": 0.6314379999999999,
+        "over25": 0.33179499999999995,
+        "under25": 0.6682049999999999,
+        "scoreMatrixTailMass": 0.00001159,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.522868,
+        "draw": 0.283991,
+        "awayWin": 0.193141,
+        "expectedHomeGoals": 1.3391,
+        "expectedAwayGoals": 0.6925,
+        "mostLikelyScore": "1-0",
+        "topScorelines": [
+          {
+            "score": "1-0",
+            "probability": 0.17559
+          },
+          {
+            "score": "0-0",
+            "probability": 0.131126
+          },
+          {
+            "score": "1-1",
+            "probability": 0.121596
+          }
+        ],
+        "bttsYes": 0.36872,
+        "bttsNo": 0.63128,
+        "over25": 0.331876,
+        "under25": 0.668124,
+        "scoreMatrixTailMass": 1.8e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000192,
+        "draw": 0.000022,
+        "awayWin": 0.00017,
+        "expectedHomeGoals": -0.0002,
+        "expectedAwayGoals": 0.0005
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "8cb53b3c-56fc-4560-a605-ec75261f3bae",
+      "storedPredictionVersionId": "8f5c606b-f13a-45ab-adcb-de4cb8e44e58",
+      "originalStoredV1": {
+        "homeWin": 0.144822,
+        "draw": 0.18814499999999998,
+        "awayWin": 0.667032,
+        "expectedHomeGoals": 0.9368,
+        "expectedAwayGoals": 2.2321,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.104806
+          },
+          {
+            "score": "1-2",
+            "probability": 0.098183
+          },
+          {
+            "score": "0-1",
+            "probability": 0.093908
+          },
+          {
+            "score": "1-1",
+            "probability": 0.087973
+          },
+          {
+            "score": "0-3",
+            "probability": 0.077979
+          },
+          {
+            "score": "1-3",
+            "probability": 0.073051
+          },
+          {
+            "score": "2-2",
+            "probability": 0.045989
+          },
+          {
+            "score": "0-4",
+            "probability": 0.043514
+          }
+        ],
+        "bttsYes": 0.542866,
+        "bttsNo": 0.457134,
+        "over25": 0.613559,
+        "under25": 0.38644100000000003,
+        "scoreMatrixTailMass": 0.00052068,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.144887,
+        "draw": 0.18814,
+        "awayWin": 0.666972,
+        "expectedHomeGoals": 0.9373,
+        "expectedAwayGoals": 2.2324,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.104699
+          },
+          {
+            "score": "1-2",
+            "probability": 0.098134
+          },
+          {
+            "score": "0-1",
+            "probability": 0.093799
+          }
+        ],
+        "bttsYes": 0.54306,
+        "bttsNo": 0.45694,
+        "over25": 0.613728,
+        "under25": 0.386272,
+        "scoreMatrixTailMass": 0.00002258,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000065,
+        "draw": -0.000005,
+        "awayWin": -0.00006,
+        "expectedHomeGoals": 0.0005,
+        "expectedAwayGoals": 0.0003
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "26453f76-c60f-468c-8a1d-983559bd98f3",
+      "storedPredictionVersionId": "98659368-ce3d-4853-8a87-ea3a551431bd",
+      "originalStoredV1": {
+        "homeWin": 0.772929,
+        "draw": 0.136667,
+        "awayWin": 0.090405,
+        "expectedHomeGoals": 2.8282,
+        "expectedAwayGoals": 0.8927,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.097085
+          },
+          {
+            "score": "3-0",
+            "probability": 0.091526
+          },
+          {
+            "score": "2-1",
+            "probability": 0.086668
+          },
+          {
+            "score": "3-1",
+            "probability": 0.081705
+          },
+          {
+            "score": "1-0",
+            "probability": 0.068655
+          },
+          {
+            "score": "4-0",
+            "probability": 0.064713
+          },
+          {
+            "score": "1-1",
+            "probability": 0.061289
+          },
+          {
+            "score": "4-1",
+            "probability": 0.057769
+          }
+        ],
+        "bttsYes": 0.555538,
+        "bttsNo": 0.44446199999999997,
+        "over25": 0.718037,
+        "under25": 0.281963,
+        "scoreMatrixTailMass": 0.00259817,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.773195,
+        "draw": 0.136519,
+        "awayWin": 0.090286,
+        "expectedHomeGoals": 2.8303,
+        "expectedAwayGoals": 0.8928,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.096781
+          },
+          {
+            "score": "3-0",
+            "probability": 0.091307
+          },
+          {
+            "score": "2-1",
+            "probability": 0.086406
+          }
+        ],
+        "bttsYes": 0.55565,
+        "bttsNo": 0.44435,
+        "over25": 0.718405,
+        "under25": 0.281595,
+        "scoreMatrixTailMass": 0.00017937,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000266,
+        "draw": -0.000148,
+        "awayWin": -0.000119,
+        "expectedHomeGoals": 0.0021,
+        "expectedAwayGoals": 0.0001
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "c31621e8-69c3-499d-a8e3-bcb5aabab4f7",
+      "storedPredictionVersionId": "f18fbb65-f85a-428c-8b69-24525f4d3eb4",
+      "originalStoredV1": {
+        "homeWin": 0.222089,
+        "draw": 0.255978,
+        "awayWin": 0.521933,
+        "expectedHomeGoals": 0.9117,
+        "expectedAwayGoals": 1.5475,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.132321
+          },
+          {
+            "score": "1-1",
+            "probability": 0.120637
+          },
+          {
+            "score": "0-2",
+            "probability": 0.102383
+          },
+          {
+            "score": "1-2",
+            "probability": 0.093343
+          },
+          {
+            "score": "0-0",
+            "probability": 0.085506
+          },
+          {
+            "score": "1-0",
+            "probability": 0.077956
+          },
+          {
+            "score": "2-1",
+            "probability": 0.054992
+          },
+          {
+            "score": "0-3",
+            "probability": 0.052813
+          }
+        ],
+        "bttsYes": 0.47088299999999994,
+        "bttsNo": 0.5291170000000001,
+        "over25": 0.445679,
+        "under25": 0.554321,
+        "scoreMatrixTailMass": 0.00003574,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.221927,
+        "draw": 0.255859,
+        "awayWin": 0.522214,
+        "expectedHomeGoals": 0.9117,
+        "expectedAwayGoals": 1.5486,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.132265
+          },
+          {
+            "score": "1-1",
+            "probability": 0.120586
+          },
+          {
+            "score": "0-2",
+            "probability": 0.102413
+          }
+        ],
+        "bttsYes": 0.471023,
+        "bttsNo": 0.528977,
+        "over25": 0.445963,
+        "under25": 0.554037,
+        "scoreMatrixTailMass": 7.5e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000162,
+        "draw": -0.000119,
+        "awayWin": 0.000281,
+        "expectedHomeGoals": 0,
+        "expectedAwayGoals": 0.0011
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "4e722eb9-07df-4bf5-8ff3-fa002b61ae41",
+      "storedPredictionVersionId": "5287dc08-e4c1-4599-935a-a90d8ba32b29",
+      "originalStoredV1": {
+        "homeWin": 0.14957499999999999,
+        "draw": 0.253029,
+        "awayWin": 0.597396,
+        "expectedHomeGoals": 0.6305,
+        "expectedAwayGoals": 1.5533,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.174928
+          },
+          {
+            "score": "0-2",
+            "probability": 0.135858
+          },
+          {
+            "score": "0-0",
+            "probability": 0.112617
+          },
+          {
+            "score": "1-1",
+            "probability": 0.110292
+          },
+          {
+            "score": "1-2",
+            "probability": 0.085658
+          },
+          {
+            "score": "1-0",
+            "probability": 0.071005
+          },
+          {
+            "score": "0-3",
+            "probability": 0.070343
+          },
+          {
+            "score": "1-3",
+            "probability": 0.044351
+          }
+        ],
+        "bttsYes": 0.368738,
+        "bttsNo": 0.631262,
+        "over25": 0.372939,
+        "under25": 0.627061,
+        "scoreMatrixTailMass": 0.00003625,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.149688,
+        "draw": 0.253052,
+        "awayWin": 0.59726,
+        "expectedHomeGoals": 0.6309,
+        "expectedAwayGoals": 1.5532,
+        "mostLikelyScore": "0-1",
+        "topScorelines": [
+          {
+            "score": "0-1",
+            "probability": 0.174858
+          },
+          {
+            "score": "0-2",
+            "probability": 0.135795
+          },
+          {
+            "score": "0-0",
+            "probability": 0.112579
+          }
+        ],
+        "bttsYes": 0.368896,
+        "bttsNo": 0.631104,
+        "over25": 0.373019,
+        "under25": 0.626981,
+        "scoreMatrixTailMass": 7.7e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000113,
+        "draw": 0.000023,
+        "awayWin": -0.000136,
+        "expectedHomeGoals": 0.0004,
+        "expectedAwayGoals": -0.0001
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "4dedd091-7aa3-44cd-99ce-bc04c7c7fdbb",
+      "storedPredictionVersionId": "b8ac856d-6d9b-45f1-b024-a04130366edd",
+      "originalStoredV1": {
+        "homeWin": 0.8407389999999999,
+        "draw": 0.108292,
+        "awayWin": 0.050969,
+        "expectedHomeGoals": 2.9623,
+        "expectedAwayGoals": 0.627,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.121602
+          },
+          {
+            "score": "3-0",
+            "probability": 0.120074
+          },
+          {
+            "score": "4-0",
+            "probability": 0.088924
+          },
+          {
+            "score": "1-0",
+            "probability": 0.0821
+          },
+          {
+            "score": "2-1",
+            "probability": 0.076244
+          },
+          {
+            "score": "3-1",
+            "probability": 0.075286
+          },
+          {
+            "score": "4-1",
+            "probability": 0.055755
+          },
+          {
+            "score": "5-0",
+            "probability": 0.052684
+          }
+        ],
+        "bttsYes": 0.44171900000000003,
+        "bttsNo": 0.558281,
+        "over25": 0.695274,
+        "under25": 0.304726,
+        "scoreMatrixTailMass": 0.00350705,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.840818,
+        "draw": 0.108237,
+        "awayWin": 0.050945,
+        "expectedHomeGoals": 2.9632,
+        "expectedAwayGoals": 0.6271,
+        "mostLikelyScore": "2-0",
+        "topScorelines": [
+          {
+            "score": "2-0",
+            "probability": 0.12116
+          },
+          {
+            "score": "3-0",
+            "probability": 0.119674
+          },
+          {
+            "score": "4-0",
+            "probability": 0.088654
+          }
+        ],
+        "bttsYes": 0.441792,
+        "bttsNo": 0.558208,
+        "over25": 0.695452,
+        "under25": 0.304548,
+        "scoreMatrixTailMass": 0.00026377,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": 0.000079,
+        "draw": -0.000055,
+        "awayWin": -0.000024,
+        "expectedHomeGoals": 0.0009,
+        "expectedAwayGoals": 0.0001
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "b8bef336-5c1c-491c-8ba4-075c536234cc",
+      "storedPredictionVersionId": "696ea48d-b30c-481b-a467-e2df1751fe19",
+      "originalStoredV1": {
+        "homeWin": 0.062453,
+        "draw": 0.133894,
+        "awayWin": 0.8036530000000001,
+        "expectedHomeGoals": 0.5865,
+        "expectedAwayGoals": 2.5875,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.140251
+          },
+          {
+            "score": "0-3",
+            "probability": 0.120966
+          },
+          {
+            "score": "0-1",
+            "probability": 0.108406
+          },
+          {
+            "score": "1-2",
+            "probability": 0.082257
+          },
+          {
+            "score": "0-4",
+            "probability": 0.07825
+          },
+          {
+            "score": "1-3",
+            "probability": 0.070947
+          },
+          {
+            "score": "1-1",
+            "probability": 0.06358
+          },
+          {
+            "score": "1-4",
+            "probability": 0.045894
+          }
+        ],
+        "bttsYes": 0.41035400000000005,
+        "bttsNo": 0.589646,
+        "over25": 0.6146119999999999,
+        "under25": 0.385388,
+        "scoreMatrixTailMass": 0.0014395,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.062374,
+        "draw": 0.13374,
+        "awayWin": 0.803886,
+        "expectedHomeGoals": 0.5866,
+        "expectedAwayGoals": 2.5894,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.139986
+          },
+          {
+            "score": "0-3",
+            "probability": 0.120827
+          },
+          {
+            "score": "0-1",
+            "probability": 0.108123
+          }
+        ],
+        "bttsYes": 0.410469,
+        "bttsNo": 0.589531,
+        "over25": 0.615033,
+        "under25": 0.384967,
+        "scoreMatrixTailMass": 0.0000837,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000079,
+        "draw": -0.000154,
+        "awayWin": 0.000233,
+        "expectedHomeGoals": 0.0001,
+        "expectedAwayGoals": 0.0019
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "5e4b5138-a1f2-4edd-96ec-47629baa839f",
+      "storedPredictionVersionId": "f11a35e8-87f0-429e-bc3f-9bd43f5473e4",
+      "originalStoredV1": {
+        "homeWin": 0.116646,
+        "draw": 0.171401,
+        "awayWin": 0.7119530000000001,
+        "expectedHomeGoals": 0.8475,
+        "expectedAwayGoals": 2.3673,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.112628
+          },
+          {
+            "score": "1-2",
+            "probability": 0.095452
+          },
+          {
+            "score": "0-1",
+            "probability": 0.095153
+          },
+          {
+            "score": "0-3",
+            "probability": 0.088875
+          },
+          {
+            "score": "1-1",
+            "probability": 0.080642
+          },
+          {
+            "score": "1-3",
+            "probability": 0.075322
+          },
+          {
+            "score": "0-4",
+            "probability": 0.052598
+          },
+          {
+            "score": "1-4",
+            "probability": 0.044577
+          }
+        ],
+        "bttsYes": 0.517943,
+        "bttsNo": 0.482057,
+        "over25": 0.623162,
+        "under25": 0.376838,
+        "scoreMatrixTailMass": 0.00078431,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.116281,
+        "draw": 0.171092,
+        "awayWin": 0.712627,
+        "expectedHomeGoals": 0.8468,
+        "expectedAwayGoals": 2.3703,
+        "mostLikelyScore": "0-2",
+        "topScorelines": [
+          {
+            "score": "0-2",
+            "probability": 0.112571
+          },
+          {
+            "score": "1-2",
+            "probability": 0.095325
+          },
+          {
+            "score": "0-1",
+            "probability": 0.094984
+          }
+        ],
+        "bttsYes": 0.517832,
+        "bttsNo": 0.482168,
+        "over25": 0.623639,
+        "under25": 0.376361,
+        "scoreMatrixTailMass": 0.00003855,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000365,
+        "draw": -0.000309,
+        "awayWin": 0.000674,
+        "expectedHomeGoals": -0.0007,
+        "expectedAwayGoals": 0.003
+      },
+      "parityStatus": "runtime_drift",
+      "mismatchReason": "snapshot_or_runtime_input_drift"
+    },
+    {
+      "fixtureId": "90984bad-656e-466e-9f20-d1ec58c41144",
+      "storedPredictionVersionId": "bb1557a5-e78b-42af-be6e-6363367ecc6b",
+      "originalStoredV1": {
+        "homeWin": 0.42808300000000005,
+        "draw": 0.26104099999999997,
+        "awayWin": 0.310877,
+        "expectedHomeGoals": 1.429,
+        "expectedAwayGoals": 1.1779,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.124162
+          },
+          {
+            "score": "1-0",
+            "probability": 0.10541
+          },
+          {
+            "score": "2-1",
+            "probability": 0.088714
+          },
+          {
+            "score": "0-1",
+            "probability": 0.086887
+          },
+          {
+            "score": "2-0",
+            "probability": 0.075315
+          },
+          {
+            "score": "0-0",
+            "probability": 0.073765
+          },
+          {
+            "score": "1-2",
+            "probability": 0.073125
+          },
+          {
+            "score": "2-2",
+            "probability": 0.052248
+          }
+        ],
+        "bttsYes": 0.5262899999999999,
+        "bttsNo": 0.47371,
+        "over25": 0.48330100000000004,
+        "under25": 0.516699,
+        "scoreMatrixTailMass": 0.00002328,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.428024,
+        "draw": 0.261006,
+        "awayWin": 0.31097,
+        "expectedHomeGoals": 1.4292,
+        "expectedAwayGoals": 1.1784,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.124142
+          },
+          {
+            "score": "1-0",
+            "probability": 0.105348
+          },
+          {
+            "score": "2-1",
+            "probability": 0.088712
+          }
+        ],
+        "bttsYes": 0.52644,
+        "bttsNo": 0.47356,
+        "over25": 0.483476,
+        "under25": 0.516524,
+        "scoreMatrixTailMass": 4e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000059,
+        "draw": -0.000035,
+        "awayWin": 0.000093,
+        "expectedHomeGoals": 0.0002,
+        "expectedAwayGoals": 0.0005
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "b6bf39f7-8448-4249-b0b5-e0d031de15bb",
+      "storedPredictionVersionId": "0e2a0df2-efe2-474a-9ed3-a1df30d7ed45",
+      "originalStoredV1": {
+        "homeWin": 0.502463,
+        "draw": 0.251104,
+        "awayWin": 0.246433,
+        "expectedHomeGoals": 1.5857,
+        "expectedAwayGoals": 1.0306,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.119422
+          },
+          {
+            "score": "1-0",
+            "probability": 0.115877
+          },
+          {
+            "score": "2-1",
+            "probability": 0.094684
+          },
+          {
+            "score": "2-0",
+            "probability": 0.091873
+          },
+          {
+            "score": "0-1",
+            "probability": 0.075312
+          },
+          {
+            "score": "0-0",
+            "probability": 0.073076
+          },
+          {
+            "score": "1-2",
+            "probability": 0.061538
+          },
+          {
+            "score": "3-1",
+            "probability": 0.050047
+          }
+        ],
+        "bttsYes": 0.511475,
+        "bttsNo": 0.488525,
+        "over25": 0.485654,
+        "under25": 0.5143460000000001,
+        "scoreMatrixTailMass": 0.00004382,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.50217,
+        "draw": 0.251134,
+        "awayWin": 0.246696,
+        "expectedHomeGoals": 1.5853,
+        "expectedAwayGoals": 1.0314,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.119432
+          },
+          {
+            "score": "1-0",
+            "probability": 0.115796
+          },
+          {
+            "score": "2-1",
+            "probability": 0.094668
+          }
+        ],
+        "bttsYes": 0.51165,
+        "bttsNo": 0.48835,
+        "over25": 0.485754,
+        "under25": 0.514246,
+        "scoreMatrixTailMass": 9.5e-7,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000293,
+        "draw": 0.00003,
+        "awayWin": 0.000263,
+        "expectedHomeGoals": -0.0004,
+        "expectedAwayGoals": 0.0008
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    },
+    {
+      "fixtureId": "0e31f8a1-5e00-4b25-a994-f95c90229aa0",
+      "storedPredictionVersionId": "dec4f19e-9d38-473a-856c-34a0ffb1f587",
+      "originalStoredV1": {
+        "homeWin": 0.376063,
+        "draw": 0.294522,
+        "awayWin": 0.329416,
+        "expectedHomeGoals": 1.1235,
+        "expectedAwayGoals": 1.0316,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.134319
+          },
+          {
+            "score": "1-0",
+            "probability": 0.130205
+          },
+          {
+            "score": "0-1",
+            "probability": 0.119554
+          },
+          {
+            "score": "0-0",
+            "probability": 0.115892
+          },
+          {
+            "score": "2-1",
+            "probability": 0.075454
+          },
+          {
+            "score": "2-0",
+            "probability": 0.073143
+          },
+          {
+            "score": "1-2",
+            "probability": 0.069282
+          },
+          {
+            "score": "0-2",
+            "probability": 0.061666
+          }
+        ],
+        "bttsYes": 0.43431600000000004,
+        "bttsNo": 0.565684,
+        "over25": 0.365224,
+        "under25": 0.634776,
+        "scoreMatrixTailMass": 0.00000432,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "replayedProductionV1": {
+        "homeWin": 0.375908,
+        "draw": 0.294471,
+        "awayWin": 0.329622,
+        "expectedHomeGoals": 1.1235,
+        "expectedAwayGoals": 1.0323,
+        "mostLikelyScore": "1-1",
+        "topScorelines": [
+          {
+            "score": "1-1",
+            "probability": 0.134316
+          },
+          {
+            "score": "1-0",
+            "probability": 0.130113
+          },
+          {
+            "score": "0-1",
+            "probability": 0.119551
+          }
+        ],
+        "bttsYes": 0.434484,
+        "bttsNo": 0.565516,
+        "over25": 0.365412,
+        "under25": 0.634588,
+        "scoreMatrixTailMass": 5e-8,
+        "scoreMatrixSource": "reconstructed_from_xg"
+      },
+      "deltas": {
+        "homeWin": -0.000155,
+        "draw": -0.000051,
+        "awayWin": 0.000206,
+        "expectedHomeGoals": 0,
+        "expectedAwayGoals": 0.0007
+      },
+      "parityStatus": "exact_match",
+      "mismatchReason": null
+    }
+  ]
+}

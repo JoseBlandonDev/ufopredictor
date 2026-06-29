@@ -1,6 +1,6 @@
 # Architecture, Data, and Security - UFO Predictor
 
-_Last refreshed: 2026-06-27 after PR #117 production verification, result-operation completion, and synchronization into the V2 integration branch._
+_Last refreshed: 2026-06-27 after the Task 2A stage signal-baseline load reached `exact_complete`, PR #119 was merged, and `main` was synchronized into the V2 integration branch at `4f758b2`._
 
 ## System overview
 
@@ -86,6 +86,8 @@ risk level
 
 The optional augmentation is rendered only where those values are already authorized and visible.
 
+PR #119 added football-first premium terminology on existing product surfaces. It changes labels and explanatory copy only; it does not change stored values, projections, or authorization.
+
 The helper:
 
 - does not query premium markets;
@@ -131,6 +133,33 @@ Populated foundation counts:
 | `world_cup_venue_catalog` | 16 |
 | `official_schedule_matches` | 104 |
 | `official_schedule_match_links` | 72 |
+
+## Task 2A V2 signal baseline in stage
+
+Task 2A persisted the prepared `2026-06-20` team-signal baseline into the real stage table.
+
+Verified state:
+
+```text
+signal rows = 48
+state = exact_complete
+manifest status = verified
+blockers = 0
+conflicts = 0
+verification inserts = 0
+verification identical rows = 48
+unexpected existing rows = 0
+runtime fixtures = 72
+baseline-ready fixtures = 72
+candidate-ready fixtures = 0
+production writes = 0
+```
+
+Each row retains canonical team identity, signal version, cutoff, source-snapshot lineage, persisted missing/optional-signal metadata, contradiction flags, sample sizes, and reliability metadata.
+
+Task 2A generated no prediction candidate, changed no result, and touched no Auth, payment, entitlement, webhook, session, or personal-data scope.
+
+**No repetir:** do not rerun the Task 2A dry-run, reviewed apply, or verification without a concrete recovery requirement.
 
 ## V1 baseline architecture in stage
 
@@ -215,26 +244,36 @@ There is no automatic repair, overwrite, or order-dependent duplicate selection.
 
 The stable plan checksum uses a canonical semantic projection.
 
-Excluded as non-semantic:
+Excluded as execution-only or report-only:
 
-- `generatedAt`;
+- `generatedAt` and other run timestamps;
 - local artifact paths and filenames;
-- dry-run/apply mode metadata;
-- zero-write report flags.
+- dry-run/apply/verification mode metadata;
+- coverage artifact paths;
+- zero-write reporting flags such as `summary.zeroWriteConfirmation`.
 
-Still bound and recomputed:
+Still bound and independently recomputed:
 
 - target stage ref and denied production ref;
-- frozen source checksums;
-- model, prediction, and market payloads;
-- exact stage match UUIDs and provider identities;
-- publication actions;
+- source manifests, registries, and authoritative checksums;
+- model/signal version and cutoff instant;
+- canonical team and source-snapshot identities;
+- all persisted row payloads, including missing and reliability metadata;
+- row actions and idempotency identities;
 - expected prior state;
-- expected mutation counts.
+- expected insert, identical, conflict, and unexpected-existing counts;
+- blockers and conflicts.
 
-**Decision:** a stored checksum is never trusted without recomputing the semantic projection.
+A stored checksum is never trusted without recomputing the reviewed artifact and current semantic projections independently.
 
-**Problema evitado:** a reviewed plan cannot be invalidated merely because time passed or an artifact path changed, while semantic tampering still fails closed.
+Persisted timestamp equality is semantic, not formatting-based. Equivalent encodings such as:
+
+```text
+2026-06-21T00:00:00Z
+2026-06-21T00:00:00+00:00
+```
+
+represent the same instant and compare equal. Invalid timestamps fail closed, and a genuinely different instant remains a conflict. The cutoff is canonicalized, not omitted.
 
 ## TypeScript-to-SQL JSON contract
 
@@ -279,19 +318,23 @@ Prepared workspace cutoff:
 2026-06-20
 ```
 
-**Decision:** load this preserved baseline into the real V2 data model before requiring current refreshes.
+The preserved package is now loaded as the first real V2 signal baseline in stage.
 
-Each stored source or derived signal must retain:
+Each stored row retains:
 
 - source family and identity;
-- acquisition or observed time;
+- source snapshot references and checksums;
+- acquisition or observed time where available;
 - evidence cutoff;
-- parser/feature version;
-- checksum or explicit non-file-backed treatment;
-- missing and reliability metadata;
-- fixture/team linkage.
+- signal/feature version;
+- canonical team linkage;
+- missing, contradiction, sample-size, and reliability metadata.
+
+Root package-manifest and source-registry files verify against authoritative root hashes and are not required to contain self-entries. Every non-root required file must remain present in the manifest contract with an exact matching hash.
 
 Later current data is appended or versioned incrementally. Historical rows are not overwritten to appear current.
+
+**Decision:** Task 2A closes baseline persistence. Task 2B begins current fixture/result refresh without rebuilding the foundation.
 
 ## Temporal safety
 
@@ -332,9 +375,9 @@ Migration `0039_manual_world_cup_result_reconciliation.sql` is present in the in
 ## Next architecture transition
 
 ```text
-prepared 2026-06-20 baseline
--> V2 table load with lineage
--> fixture coverage query
--> current-data incremental refresh
--> first shadow V2 candidate
+completed 2026-06-20 signal baseline (48 rows, exact_complete)
+-> Task 2B current fixture/result refresh
+-> Task 2C current Elo, FIFA ranking, standings, form, and pressure context
+-> Task 2D repeatable current signal snapshots
+-> first unpublished V2 shadow candidate
 ```

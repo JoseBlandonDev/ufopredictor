@@ -1,6 +1,6 @@
 # Product and Commercial MVP1 - Current
 
-_Last refreshed: 2026-06-27 after PR #117 reached production and the latest trusted-result batch was publicly verified._
+_Last refreshed: 2026-06-27 after PR #119 completed football-first premium terminology, Task 2A reached `exact_complete` in stage, and `main` was synchronized into the V2 integration branch._
 
 ## Product
 
@@ -66,7 +66,8 @@ MVP1 remains live while MVP2 is developed and validated separately.
 - trusted-provider result refresh and automatic evaluation;
 - public-safe Torneo Mundialista JSON export;
 - deterministic `Lectura UFO` on prediction cards and public match detail;
-- clearer `Probabilidad del resultado` labeling on the touched surfaces.
+- clearer `Probabilidad del resultado` labeling on the touched surfaces;
+- football-first premium terminology for BTTS/totals-oriented information without changing underlying values.
 
 ## Public Expert Read production checkpoint
 
@@ -79,7 +80,7 @@ feature: Public Expert Read
 source branch: feature/mvp1-expert-product-experience
 feature commit: 3d647b2
 main merge commit: 3aff0e4
-V2 integration sync HEAD: 5007de7
+V2 integration sync HEAD: 4f758b2
 production smoke: passed
 ```
 
@@ -173,30 +174,26 @@ Status:
 ```text
 Task 4A - V1 Information Inventory: DONE
 Task 4B - Public Expert Read: DONE
-Task 4C - Football-first premium terminology: NEXT
+Task 4C - Football-first premium terminology: DONE
 ```
 
-A separate MVP2 epic may be assigned to another owner while the primary owner continues data and model work.
+Task 4C release history:
 
-That parallel epic may improve production and stage by:
+```text
+feature commit: af7e260
+main merge: 9f89d62 (PR #119)
+V2 integration sync: 4f758b2
+```
 
-- inventorying V1 data that exists but is not displayed;
-- converting probabilities, xG, BTTS, totals, confidence, and scenarios into understandable football language;
-- presenting likely match scripts rather than three isolated exact scores;
-- showing evidence, contradictions, freshness, and uncertainty;
-- preparing components for tournament form, rankings, attack, defense, squads, and players;
-- making components tolerant of missing data;
-- preparing ES/EN/PT localization contracts.
+Task 4C changed presentation terminology only:
 
-It must not:
+- replaced or explained betting-first labels with clearer football-analysis language;
+- preserved probabilities, xG, score distributions, BTTS/totals values, confidence, and risk;
+- preserved premium gating and server-side entitlement authority;
+- did not depend on unfinished V2 signal or candidate data;
+- did not create a model version or calibration claim.
 
-- change V1 calculations;
-- generate V2;
-- invent missing statistics;
-- depend on unfinished stage-only tables for production rendering;
-- duplicate the primary data/model workstream.
-
-Independent production-safe UI improvements branch from current `main`, merge through a normal PR, receive a production smoke, and then flow into the V2 integration branch through normal Git history. PR #117 proved this path.
+The product should continue moving toward explanation-first football intelligence, but no additional parallel MVP1 task is declared active in this checkpoint.
 
 ## MVP2 explanation-first direction
 
@@ -254,23 +251,27 @@ PT
 
 ## Stage product state
 
-Task 3B and Task 1C completed the stable stage baseline without changing production.
+Stage preserves the visible V1-compatible product while V2 data is developed behind it.
 
-Stage currently has:
+Current stage baseline:
 
 ```text
 active V1 models = 1
 prediction versions = 24
 prediction-market rows = 240
 public fixtures = 24
-state = exact_complete
+V1 state = exact_complete
+V2 signal rows = 48
+V2 signal state = exact_complete
+runtime fixtures with baseline signals = 72/72
+candidate-ready fixtures = 0
 ```
 
-The `/predictions` page visibly renders the immutable V1 baseline, confidence, risk, pending-result fixtures, upcoming fixtures, and public detail links.
+The `/predictions` page continues to render the immutable V1 baseline, confidence, risk, pending-result fixtures, upcoming fixtures, `Lectura UFO`, and football-first terminology from accepted production work.
 
-**Decision:** the stage UI may continue to present the V1-compatible experience while V2 data, signals, candidates, and evaluations are built behind it.
+**Decision:** stage may continue to present the V1-compatible experience while current-data refreshes, signal snapshots, candidates, and evaluations are built behind it.
 
-**Consecuencia operativa:** production-safe V1 and expert-experience improvements may continue in parallel, but they must not duplicate or override the V2 data/model workstream.
+**Consecuencia operativa:** Task 2A storage completion is not a public product release and does not authorize V2 probability claims.
 
 ## Commercial roadmap boundaries
 
@@ -288,6 +289,6 @@ A second payment provider is not a V2 blocker.
 
 The production product remains commercially usable.
 
-The first parallel expert-experience slice is live and verified. The next MVP1 slice should improve premium terminology and explanation without changing data, probability calculations, premium authorization, or the V2 workstream.
+The completed expert-experience slices now include Public Expert Read and football-first premium terminology. They improve comprehension without changing data, probability calculations, premium authorization, Wompi, entitlements, or the V2 workstream.
 
 MVP2 remains an incremental intelligence and data release, not a replacement of the validated Auth, payment, entitlement, result, and publication foundations.

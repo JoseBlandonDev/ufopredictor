@@ -1,6 +1,6 @@
 # Roadmap, MVP2 Epics, and Decisions
 
-_Last refreshed: 2026-06-27 after PR #117 production release, latest trusted results, and synchronization into the V2 integration branch._
+_Last refreshed: 2026-06-27 after Task 2A completed its exact stage baseline load, Task 4C merged through PR #119, and `main` synchronized into V2 at `4f758b2`._
 
 ## MVP2 objective
 
@@ -32,9 +32,9 @@ Old `M2-xx` labels remain historical only.
 
 ```text
 Epic 1  Foundation and Stage          - DONE
-Epic 2  Current Football Data         - ACTIVE
-Epic 3  V2 Candidate and Evaluation   - NEXT
-Epic 4  Expert Product Experience     - PARALLEL / TASKS 4A-4B DONE
+Epic 2  Current Football Data         - ACTIVE (Task 2A DONE, Task 2B NEXT)
+Epic 3  V2 Candidate and Evaluation   - NEXT AFTER CURRENT-DATA GATE
+Epic 4  Expert Product Experience     - TASKS 4A-4C DONE
 Epic 5  Operations and Automation     - PARTIALLY DELIVERED
 ```
 
@@ -86,28 +86,42 @@ Purpose: turn the preserved foundation into a repeatable, independently refresha
 
 ### Task 2A - V2 Signal Baseline Database Load
 
-Status: `Next`
+Status: `Done`
 
-Use the prepared `2026-06-20` package as a reproducible baseline.
+Delivered:
 
-Deliver:
+- prepared `2026-06-20` package mapped into the real stage signal table;
+- 48 canonical team-signal rows persisted;
+- source, checksum, cutoff, signal-version, and source-snapshot lineage retained;
+- missing, optional, contradiction, sample-size, and reliability metadata persisted;
+- manifest and source-registry verification;
+- reviewed-plan semantic binding and fail-closed apply authorization;
+- exact-complete verification with 48 identical rows and zero inserts;
+- zero duplicate growth;
+- 72/72 runtime fixtures baseline-ready;
+- 0 candidate-ready fixtures;
+- no production writes and no V2 candidate generation.
 
-- bounded source inventory;
-- mapping to existing V2 tables;
-- source/cutoff/version lineage;
-- idempotent stage load;
-- balanced row accounting;
-- fixture-level signal coverage query.
+Implementation checkpoint:
 
-Do not generate a V2 candidate in this task.
+```text
+commit = 9491fd8
+V2 integration HEAD after parallel sync = 4f758b2
+```
+
+**No repetir:** do not rerun Task 2A without a concrete recovery requirement.
 
 ### Task 2B - Current fixture and result refresh
+
+Status: `Next`
 
 - refresh not-started fixture identity and kickoff;
 - persist new verified results;
 - retain exact provider links;
 - report conflicts and unsupported states;
-- preserve prediction immutability.
+- preserve prediction immutability;
+- preserve the exact Task 2A baseline;
+- stop before rankings/context synthesis or candidate generation.
 
 ### Task 2C - Ranking, standings, and tournament context
 
@@ -219,22 +233,31 @@ Release evidence:
 PR #117
 feature commit = 3d647b2
 main merge commit = 3aff0e4
-V2 integration sync HEAD = 5007de7
+PR #117-era V2 integration sync = 5007de7
 production smoke = passed
 ```
 
 ### Task 4C - Football-first premium terminology
 
-Status: `Next`
+Status: `Done`
 
-Bounded goal:
+Delivered:
 
-- replace or explain `BTTS`, `Más/Menos de 2,5`, and market-oriented labels with clearer football-analysis language;
-- preserve underlying values;
-- preserve premium gating;
-- avoid broad copy rewrites;
-- keep the change small enough for one PR;
-- branch from current `main` and flow into V2 only after merge and production verification.
+- football-first labels and explanatory copy for premium BTTS/totals-oriented information;
+- unchanged underlying values and V1 calculations;
+- unchanged premium gating and entitlement authority;
+- deterministic presentation behavior independent of unfinished V2 tables;
+- focused tests across match detail, predictions helpers, pricing, and public presentation.
+
+Release evidence:
+
+```text
+feature commit = af7e260
+PR #119 main merge = 9f89d62
+V2 integration sync = 4f758b2
+```
+
+Task 4C is presentation work, not model or calibration progress.
 
 ## Epic 5 - Operations and Automation
 
@@ -297,7 +320,6 @@ Remaining:
 
 ## Decisions still required
 
-- exact Task 2A destination coverage after inspecting the prepared package;
 - current source refresh cadence;
 - minimum current-data gate for the first shadow candidate;
 - final V1-probabilities versus gated-V2 release mode;
@@ -309,29 +331,31 @@ Remaining:
 
 ## Exact next sequence
 
-Canonical handoff:
-
-1. apply this documentation checkpoint;
-2. replace the shared ChatGPT source set;
-3. perform one Codex consistency review of the authored replacements;
-4. start a fresh ChatGPT conversation for the parallel MVP1 track.
-
 Primary V2 track:
 
-1. start Task 2A - V2 Signal Baseline Database Load;
-2. prove lineage, counts, coverage, and idempotency;
-3. perform incremental current-data refresh;
-4. produce the first V2 shadow candidate;
+1. start Task 2B - Current fixture and result refresh;
+2. complete Task 2C - current Elo, FIFA ranking, standings, form, and pressure context;
+3. complete Task 2D - repeatable current signal snapshots;
+4. produce the first unpublished V2 shadow candidate;
 5. create fair historical replays;
 6. compare V1/V2 and decide release mode;
 7. promote only after stage acceptance.
 
 Parallel MVP1 track:
 
-1. start Task 4C - Football-first premium terminology from current `main`;
-2. keep the implementation to one bounded PR;
-3. verify production;
-4. merge the accepted `main` change into the V2 branch through normal Git history.
+```text
+Task 4A: DONE
+Task 4B: DONE
+Task 4C: DONE
+No new parallel task is active in this checkpoint.
+```
+
+Documentation/Git checkpoint:
+
+1. replace the exact 10 canonical source files with this refreshed set;
+2. run one consistency review;
+3. commit and push the documentation-only checkpoint;
+4. begin Task 2B from the synchronized V2 branch.
 
 ## Delivery rule
 

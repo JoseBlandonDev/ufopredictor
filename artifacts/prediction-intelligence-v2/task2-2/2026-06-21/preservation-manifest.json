@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "prediction-intelligence-v2-task2-2-preservation-manifest-v1",
+  "sourceCommit": "cf28875fb82b6929e337cd18ff45b0a2848243ed",
+  "snapshotDate": "2026-06-21",
+  "historicalOnly": true,
+  "currentCandidateEligible": false,
+  "currentReleaseDecisionEligible": false,
+  "artifacts": [
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/README.txt",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "3094e57b29db1244a52c64a29d401f115c04a1f1ebe9ac20f102dbe09f469569",
+      "restoredSha256": "3094e57b29db1244a52c64a29d401f115c04a1f1ebe9ac20f102dbe09f469569",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/blocked-validation-results.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "d0c0e7ba3ee99bdf21886d1c0a1a241954dd9110dfd7ddca57a45f4526851ac3",
+      "restoredSha256": "d0c0e7ba3ee99bdf21886d1c0a1a241954dd9110dfd7ddca57a45f4526851ac3",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/candidate-eligibility-contract.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "13c83764089ec8d8e3212c3229b55b974cd55606c657f1030503ceabcc4cd5db",
+      "restoredSha256": "13c83764089ec8d8e3212c3229b55b974cd55606c657f1030503ceabcc4cd5db",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/future-shadow-predictions.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "008c203a84ccc43d9cfd2123b4af449b4f2e3cbe1f2d853f56370df8390563f9",
+      "restoredSha256": "008c203a84ccc43d9cfd2123b4af449b4f2e3cbe1f2d853f56370df8390563f9",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/gate-activation-audit.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "7f638f80d447120736377ccab8db99541c6337e87485e5a4ffa8e0a6f2f71a20",
+      "restoredSha256": "7f638f80d447120736377ccab8db99541c6337e87485e5a4ffa8e0a6f2f71a20",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/gate-definition-contract.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "fd5129d3c0877d2a63ab21da72ff530f928b24354dcdefbc43314ea5dff346cb",
+      "restoredSha256": "fd5129d3c0877d2a63ab21da72ff530f928b24354dcdefbc43314ea5dff346cb",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/holdout-comparison.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "96fa3b5049144044327fcb507c1595573db9fd903022f26a98aad185effe777a",
+      "restoredSha256": "96fa3b5049144044327fcb507c1595573db9fd903022f26a98aad185effe777a",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/production-candidate-selection.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "13c83764089ec8d8e3212c3229b55b974cd55606c657f1030503ceabcc4cd5db",
+      "restoredSha256": "13c83764089ec8d8e3212c3229b55b974cd55606c657f1030503ceabcc4cd5db",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/production-v1-parity-audit.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "1d6cb9c9d620dba9f9f3e52eeae6fd958b7a9b85c5b5cb1482c3298c55342e5d",
+      "restoredSha256": "1d6cb9c9d620dba9f9f3e52eeae6fd958b7a9b85c5b5cb1482c3298c55342e5d",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/release-recommendation.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "f1a55f3dce84db09399a4d4d82cf782ce7e3dc47c97f44c1d2b40ca4eae66409",
+      "restoredSha256": "f1a55f3dce84db09399a4d4d82cf782ce7e3dc47c97f44c1d2b40ca4eae66409",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/scenario-engine-comparison.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "21d9dd726170278f123e762e2655d87c0b53e23c29855ca0d6e964d06e932c5f",
+      "restoredSha256": "21d9dd726170278f123e762e2655d87c0b53e23c29855ca0d6e964d06e932c5f",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/six-anomaly-case-review.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "ca27395bf4f39edb5919d64589b9344aac60f3377f0840d1b9614974d2b2efb7",
+      "restoredSha256": "ca27395bf4f39edb5919d64589b9344aac60f3377f0840d1b9614974d2b2efb7",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    },
+    {
+      "path": "artifacts/prediction-intelligence-v2/task2-2/2026-06-21/time-series-fold-manifest.json",
+      "classification": "RESTORE_EXACT",
+      "originalSha256": "11c4fecba5e111263a2aea839a55b563a518ed1c5a9613aea46e6470976e7e8e",
+      "restoredSha256": "11c4fecba5e111263a2aea839a55b563a518ed1c5a9613aea46e6470976e7e8e",
+      "byteExact": true,
+      "modifiedFields": [],
+      "modificationReason": null,
+      "preservedSourceReference": "cf28875fb82b6929e337cd18ff45b0a2848243ed"
+    }
+  ]
+}
