@@ -1,99 +1,214 @@
 # Frontend and Commercial Backlog
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-29._
 
 ## Canonical-status note
 
-This document is a derived backlog aid, not the source of live product truth.
+This is a derived execution backlog.
 
-Current scope, priorities, release state, and language decisions are owned by:
+Current truth is owned by:
 
-- `docs/00_chatgpt_sources/01_PRODUCT_MVP1_CURRENT.md`
-- `docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md`
-- `docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md`
-- `docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md`
+```text
+docs/00_chatgpt_sources/01_PRODUCT_MVP1_CURRENT.md
+docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
+docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
+```
 
-If this backlog conflicts with those shared canonical sources, the shared sources win.
+## MVP 1.5 objective
 
-## Completed MVP1 baseline
+Polish the existing product for advertising while Prediction Intelligence V2 continues separately.
 
-- polished landing, predictions, pricing, dashboard, and transparency views;
-- Spanish production terminology;
-- anonymous registration and Auth-safe purchase CTAs;
-- free, premium, and admin separation;
-- premium scenarios, xG, BTTS, and over/under presentation;
-- verified-result history and scenario-hit highlighting;
-- public lifecycle buckets;
-- responsive baseline;
-- production purchase, webhook, and entitlement proof;
-- bounded fixture publication operations;
-- trusted API-Football `FT` result refresh with exception handling.
+MVP 1.5 is not a model release.
 
-## Parallel MVP1 microreleases
+## Product states reviewed
 
-These may ship from current `main` while v2 remains isolated:
+- registered Premium;
+- registered Free;
+- landing;
+- predictions;
+- match detail;
+- Pase Mundial/pricing;
+- panel;
+- Transparency;
+- public history.
 
-- remaining spacing, hierarchy, blur, and glow polish without redesigning architecture;
-- mobile and accessibility pass;
-- loading, empty, and error states;
-- reduced repeated copy;
-- trusted venue display;
-- CTA and conversion analytics;
-- admin queue ergonomics;
-- saved-match UX;
-- historical premium demonstration clarity.
+Anonymous and mobile should receive a final focused pass before release.
 
-They must not depend on migration `0038` or unfinished v2 analytical tables.
+## P0 - Before advertising
 
-## V2 UX
+### Premium identity
 
-- general statistical reading;
-- principal, risk, and alternate scenario families;
-- supporting and contradicting evidence;
-- source, cutoff, provenance, and reliability display;
-- full score-distribution reveal;
-- structured localization;
-- tournament-current form and qualification-pressure context;
-- post-match path and family evaluation;
-- clear proprietary boundary.
+- add persistent `Pase Mundial 2026 · Activo` badge;
+- remove repeated pass-active copy from cards;
+- make Premium access visible through unlocked behavior;
+- keep authorization server-side.
 
-## Internationalization
+### Free conversion
 
-Core product target languages are:
+- after pricing reconciliation, show the owner-approved US$10 one-time offer on home;
+- strengthen predictions-page pass banner;
+- strengthen locked match-detail block;
+- improve panel upgrade block;
+- use a clear purchase CTA;
+- avoid repeated identical sales copy in every card.
 
-- Spanish (`ES`);
-- English (`EN`);
-- Portuguese (`PT`).
+### Pricing clarity
 
-Implementation principles:
+- owner-confirmed production presentation: US$10;
+- owner-observed production/Wompi display: COP 35,000;
+- reconcile stale repository references to US$20 / COP 68,700;
+- approximate local display only when available;
+- label exchange/bank variation;
+- clarify one-time coverage;
+- remove stale US$20 / COP 68,700 fallback and test expectations through an approved forward implementation;
+- remove or qualify `Sin vencimiento`.
 
-- keep canonical entities and prediction payloads locale-neutral;
-- separate structured signal keys from translated copy;
-- preserve Spanish regression coverage;
-- add English and Portuguese through the same localization contracts;
-- do not hardcode market, team, or scenario labels inside model outputs.
+### Copy cleanup
 
-French and German are later expansion tracks, not part of the immediate MVP2 release.
+- remove redundant `Explorar predicciones` on `/predictions`;
+- remove `Tu Pase Mundial 2026 está activo` from each card;
+- replace internal/ambiguous state copy;
+- unify `Pase Mundial 2026`;
+- localize `Round of 32` where product style requires Spanish;
+- avoid technical/run-scope wording.
 
-## Commercial
+### Premium response hierarchy
 
-- keep one Pase Mundial product until evidence justifies additional offers;
-- use historical premium examples as proof of depth;
-- emphasize evidence, scenarios, contradictions, provenance, and post-match explanation;
-- never imply guaranteed results;
-- PayPal or another payment provider remains a separate epic;
-- Hotmart remains a strategic channel decision, not a drop-in checkout;
-- international recurring subscription work follows product and legal validation.
+- main reading;
+- key indicators;
+- principal scenario;
+- compact alternatives;
+- what can change the reading;
+- model/cutoff/update metadata;
+- no repeated scenario paragraph.
 
-## Deferred or separate tracks
+## P1 - Utility and trust
 
-- PWA and offline support;
-- broad visual redesign;
-- French and German localization;
-- second payment-provider implementation;
-- player-level scorer props;
-- full lineup, injury, and news automation;
-- market-odds integration pending product and legal review;
-- v3 model branding.
+### Venues
 
-Trusted automatic result verification is no longer deferred. It is part of the current production operations baseline, with human review reserved for exceptions and reconciliation.
+- normalize API-Football venue ID/name/city;
+- upsert `venues`;
+- link matches;
+- display stadium and city;
+- distinguish provider-missing from ingestion-missing.
+
+### Time zones
+
+Primary:
+
+- viewer-local time.
+
+Compact references:
+
+- Mexico;
+- Colombia/Peru;
+- Argentina/Chile;
+- Spain.
+
+Requirements:
+
+- IANA zones;
+- actual kickoff date;
+- conditional grouping;
+- no GPS;
+- no long country list.
+
+### Pricing personalization
+
+- explicit user/profile country first;
+- trusted request country when available;
+- browser locale only as weak fallback;
+- show one relevant approximate value;
+- retain actual charge currency.
+
+### Pase Mundial page
+
+- stronger price hierarchy;
+- clearer benefits;
+- actual charge;
+- coverage;
+- one-time payment;
+- comparison with Free;
+- support/terms link.
+
+### Panel
+
+Premium:
+
+- pass badge;
+- coverage/validity;
+- benefits;
+- saved matches;
+- quick links.
+
+Free:
+
+- account state;
+- saved matches;
+- next recommended action;
+- owner-approved US$10 pass value after repository reconciliation.
+
+### Transparency
+
+Reorganize into:
+
+1. what UFO calculates;
+2. what data it uses now;
+3. what it does not use yet;
+4. how to read a prediction;
+5. confidence and risk;
+6. verified history;
+7. limitations;
+8. model/version changes;
+9. FAQ.
+
+Add:
+
+- annotated card example;
+- glossary;
+- update/version date;
+- soft product CTA.
+
+## P2 - Follow-up
+
+- explicit time-zone/country preference;
+- official verified results without prediction;
+- model change history;
+- conversion analytics;
+- advanced empty/loading/error states;
+- ES/EN/PT localization rollout;
+- richer saved-match experience.
+
+## Surface matrix
+
+| Surface | Free priority | Premium priority | Main cleanup |
+|---|---|---|---|
+| Home | show value and US$10 pass | next match and active badge | reduce oversized branding/redundant CTAs |
+| Predictions | stronger upgrade banner | compact active-pass state | remove current-route CTA and repeated card copy |
+| Match detail | sell locked depth | clearer reading hierarchy | venue/time and metadata |
+| Pase Mundial | price/benefits/coverage | active pass summary | clarify actual charge and validity |
+| Panel | upgrade next step | pass identity and benefits | improve empty states |
+| Transparency | education plus soft CTA | same methodology | reduce text density |
+| History | show genuine predictions | same plus Premium detail | separate results without prediction |
+
+## Boundaries
+
+Do not touch:
+
+- model probabilities;
+- calibration;
+- V2 signal generation;
+- original predictions;
+- entitlement authority;
+- Wompi webhook semantics
+
+unless the task is explicitly a backend task.
+
+## Branch/release rule
+
+- create from current `main`;
+- small bounded PRs;
+- sync `main` regularly;
+- merge accepted changes to `main`;
+- sync updated `main` into V2;
+- do not wait for one large final merge.

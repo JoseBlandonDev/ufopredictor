@@ -1,347 +1,323 @@
-# Roadmap, MVP2 Epics, and Decisions
+# Roadmap, Epics, and Decisions
 
-_Last refreshed: 2026-06-27 after PR #117 production release, latest trusted results, and synchronization into the V2 integration branch._
+_Last refreshed: 2026-06-29 after the Round-of-32 production operations and the MVP 1.5 Free/Premium surface review._
 
-## MVP2 objective
+## Product objective
 
-MVP2 is the shortest safe path from the sellable MVP1 to an explanation-first football-intelligence product with:
+Maintain a usable, honest production product while:
 
-- normalized football history and reference data;
-- repeatable source and signal operations;
-- immutable V1/V2 comparison;
-- current and historical candidate evaluation;
-- tournament context;
-- lower manual operational burden;
-- ES/EN/PT-ready structured facts;
-- uninterrupted production delivery.
-
-It is not a frontend rewrite and not a promise of result certainty.
-
-## Naming convention
-
-Use:
-
-```text
-Epic 1, Epic 2, Epic 3...
-Task 1A, 1B, 1C...
-```
-
-Old `M2-xx` labels remain historical only.
+- improving current commercial presentation through MVP 1.5;
+- developing Prediction Intelligence V2 in stage;
+- preserving original predictions and evaluation integrity;
+- automating bounded provider operations.
 
 ## Current status
 
 ```text
-Epic 1  Foundation and Stage          - DONE
-Epic 2  Current Football Data         - ACTIVE
-Epic 3  V2 Candidate and Evaluation   - NEXT
-Epic 4  Expert Product Experience     - PARALLEL / TASKS 4A-4B DONE
-Epic 5  Operations and Automation     - PARTIALLY DELIVERED
+MVP1 production: operational
+Round-of-32 future predictions published: 15
+latest exact result correction: Croatia 2-1 Ghana
+official result without prediction: South Africa 0-1 Canada
+V2 integration: active in Draft PR #114
+V2 release: not approved
+MVP 1.5: declared/planning
 ```
 
-## Epic 1 - Foundation and Stage
+## Epic 1 - V2 Foundation and Stage
 
-Status: `Done`
+Status: complete.
 
-### Task 1A - Integration normalization
+Completed:
 
-Delivered:
+- integration normalization;
+- separate stage environment;
+- schema/data foundation;
+- source snapshot preservation;
+- exact runtime linkage;
+- immutable V1 stage baseline;
+- stage public smoke;
+- stored V2 baseline.
 
-- active integration branch and Draft PR #114;
-- selective normalization from the old V2 branch;
-- preserved historical evidence;
-- production-denial and local-run guards.
-
-### Task 1B - Stage schema and data bootstrap
-
-Delivered:
-
-- separate stage identity;
-- migration 0038;
-- analytical foundation;
-- reference and historical data;
-- Auth/admin preservation;
-- idempotent rerun.
-
-### Task 1C - Visible immutable V1 baseline
-
-Delivered:
-
-- exact 24-fixture API-Football linkage;
-- frozen immutable V1 source;
-- 1 active model;
-- 24 prediction versions;
-- 240 markets;
-- 0 narratives;
-- 24 public fixtures;
-- atomic import and publication;
-- exact-complete verification;
-- stage `/predictions` smoke;
-- checkpoint commit `bce9999`.
-
-**No repetir:** Epic 1 is closed. Reopen only for a concrete recovery or schema defect.
+Do not repeat without a concrete recovery need.
 
 ## Epic 2 - Current Football Data
 
-Purpose: turn the preserved foundation into a repeatable, independently refreshable V2 signal database.
-
 ### Task 2A - V2 Signal Baseline Database Load
 
-Status: `Next`
+Status: complete.
 
-Use the prepared `2026-06-20` package as a reproducible baseline.
+Outcome:
 
-Deliver:
-
-- bounded source inventory;
-- mapping to existing V2 tables;
-- source/cutoff/version lineage;
-- idempotent stage load;
-- balanced row accounting;
-- fixture-level signal coverage query.
-
-Do not generate a V2 candidate in this task.
+- reproducible baseline persisted;
+- exact team rows;
+- runtime coverage;
+- idempotency proof;
+- no production write.
 
 ### Task 2B - Current fixture and result refresh
 
-- refresh not-started fixture identity and kickoff;
-- persist new verified results;
-- retain exact provider links;
-- report conflicts and unsupported states;
-- preserve prediction immutability.
+Status: next/active V2 sequence.
+
+Scope:
+
+- exact fixture identity;
+- not-started kickoff/status refresh;
+- new verified results;
+- conflict reporting;
+- preservation of V1 and baseline;
+- no candidate generation.
 
 ### Task 2C - Ranking, standings, and tournament context
 
-- current World Football Elo;
-- latest available official FIFA ranking;
-- group standings and points;
-- goals for/against and goal difference;
-- tournament form and opponent quality;
-- qualification/pressure context;
-- source, observed time, cutoff, and reliability.
+Status: pending after 2B.
 
-### Task 2D - Repeatable signal snapshots
+### Task 2D - Repeatable current signal snapshots
 
-- derive source-backed signals;
-- persist explicit pre-kickoff cutoffs;
-- record missing and contradictory inputs;
-- apply reliability shrinkage;
-- prove idempotent incremental refresh;
-- hand off a candidate-ready fixture set.
+Status: pending after 2C.
 
 ## Epic 3 - V2 Candidate and Evaluation
 
-Purpose: generate, compare, and release V2 honestly.
+### Task 3A - First unpublished V2 shadow candidate
 
-### Task 3A - First live V2 shadow candidate
-
-- not-started fixture;
-- V1 predecessor;
-- current source/signal snapshots;
-- movement and reliability gates;
-- structured evidence and scenario families;
-- unpublished development state.
+Status: pending current-data gate.
 
 ### Task 3B - Historical replay
 
-- completed fixtures only;
-- pre-kickoff evidence only;
-- labeled `historical_replay`;
-- original V1 remains immutable.
+Status: pending candidate contract.
 
 ### Task 3C - V1/V2 evaluation
 
-- probability metrics;
-- goals and markets;
-- scenario quality;
-- explanation quality;
-- freshness and reliability;
-- model error versus football variance.
+Status: pending.
 
 ### Task 3D - Release decision
 
-Choose:
+Status: pending owner approval.
 
-```text
-V1 probabilities + V2 analysis
-```
+## Epic 4 - Current Product Experience
 
-or:
+Completed production checkpoints include:
 
-```text
-gated V2 probabilities + V2 analysis
-```
+- V1 information inventory;
+- public expert reading;
+- football-first premium terminology;
+- Task 4D / PR #120 production closeout and smoke.
 
-Production requires stage acceptance, rollback, and owner approval.
-
-## Epic 4 - Expert Product Experience
-
-Status: `Parallel, separate owner`
-
-Purpose:
-
-- improve use of existing V1 information;
-- translate betting-centric fields into football language;
-- support confidence, uncertainty, scenarios, and evidence;
-- prepare locale-neutral ES/EN/PT contracts;
-- tolerate missing future data.
-
-This epic does not own V2 data pipelines or probability changes.
-
-### Task 4A - V1 Information Inventory
-
-Status: `Done`
-
-Delivered:
-
-- inventory of public, free, premium, and admin prediction surfaces;
-- inventory of persisted V1 probabilities, xG, confidence, risk, markets, scorelines, and narratives;
-- authorization-boundary review;
-- identification of hidden, duplicated, unclear, and betting-centric language;
-- exclusion of unfinished V2-only data and causal claims.
-
-### Task 4B - Public Expert Read
-
-Status: `Done`
-
-Delivered:
-
-- deterministic `Lectura UFO` on `/predictions` cards;
-- deterministic `Lectura UFO` on `/matches/[slug]`;
-- `Probabilidad del resultado` label on the touched surfaces;
-- anonymous reading based only on public home/draw/away probabilities;
-- optional confidence/risk sentence only where already authorized;
-- unchanged premium xG, scenarios, BTTS, totals, narratives, and entitlement behavior;
-- focused tests and production smoke.
-
-Release evidence:
-
-```text
-PR #117
-feature commit = 3d647b2
-main merge commit = 3aff0e4
-V2 integration sync HEAD = 5007de7
-production smoke = passed
-```
-
-### Task 4C - Football-first premium terminology
-
-Status: `Next`
-
-Bounded goal:
-
-- replace or explain `BTTS`, `Más/Menos de 2,5`, and market-oriented labels with clearer football-analysis language;
-- preserve underlying values;
-- preserve premium gating;
-- avoid broad copy rewrites;
-- keep the change small enough for one PR;
-- branch from current `main` and flow into V2 only after merge and production verification.
+Current production is usable, but additional polish is now grouped under MVP 1.5 rather than reopening completed tasks.
 
 ## Epic 5 - Operations and Automation
 
 Delivered:
 
-- fixture registry;
-- exact allowlists;
-- trusted result refresh;
-- idempotent result/evaluation persistence;
-- manual reconciliation path applied to production and stage;
-- canonical result-refresh aliases;
-- stage bootstrap and V1 import operations;
-- latest five-result API-Football batch persisted, verified, evaluated, and publicly checked.
+- exact fixture registry behavior;
+- exact trusted result refresh;
+- automatic valid terminal result verification/evaluation;
+- idempotent operator artifacts;
+- exact publication queue;
+- manual reconciliation exception path.
 
-Remaining:
+Pending:
 
-- scheduler around match windows;
+- scheduled recent-pending polling;
 - retry/backoff;
-- run summaries and notifications;
-- persistent reconciliation workflow;
-- recurring ranking and signal refresh;
-- operational metrics.
+- provider observability;
+- official-result-without-prediction supported path;
+- venue ingestion;
+- reconciliation alerts.
 
-## Decisions already made
+## Epic 6 - MVP 1.5 Product and Commercial Polish
 
-### Architecture and model
+Status: declared; implementation not started in this checkpoint.
 
-- V1 remains live and immutable during V2 work.
-- V2 runs in shadow before promotion.
-- Stage is the same product surface, not a separate prototype.
-- Production and stage remain separate.
-- No third environment is created.
-- Finished-fixture comparison uses `historical_replay`.
-- Historical research does not authorize current release.
-- V2 probability superiority is not yet established.
+### Task 6A - Free/Premium surface inventory
 
-### Data
+Status: completed as owner/ChatGPT review evidence.
 
-- The 2026-06-20 workspace is an approved reproducible baseline.
-- It is not described as current.
-- Baseline load precedes broad current refresh.
-- Current refresh is incremental and versioned.
-- Source, observed time, cutoff, version, checksum, and reliability are preserved.
-- No post-kickoff leakage.
+Surfaces reviewed:
 
-### Process
+- landing;
+- predictions;
+- match detail;
+- pricing/Pase Mundial;
+- panel;
+- Transparency;
+- Premium and registered-Free states.
 
-- One bounded review is sufficient unless a concrete defect appears.
-- One preflight, one apply, and one verification is the default.
-- After repeated equivalent tooling failure, use one safe direct owner-operated path.
-- A focused defect correction does not reopen completed reconnaissance.
-- A migration file in Git is not proof of remote application.
-- Completed Task 3B, linkage, and V1 import are not rerun ceremonially.
+### Task 6B - P0 conversion and copy cleanup
 
-### Ownership
+Scope:
 
-- ChatGPT owns canonical sources, runbooks, roadmap, and decision wording.
-- Codex owns repository inspection, bounded implementation, tests, and evidence.
-- The operator owns approved remote operations, Git, SQL, and deployment actions.
+- stronger Free pass visibility;
+- US$10 one-time price;
+- current Wompi charge clarity;
+- Premium badge;
+- remove redundant account-state copy;
+- remove redundant CTAs;
+- consistent Spanish terminology;
+- coverage and validity wording.
 
-## Decisions still required
+### Task 6C - Premium response hierarchy
 
-- exact Task 2A destination coverage after inspecting the prepared package;
-- current source refresh cadence;
-- minimum current-data gate for the first shadow candidate;
-- final V1-probabilities versus gated-V2 release mode;
-- public/free/premium V2 signal matrix;
-- deterministic narrative versus optional LLM polish;
-- scheduler and notification architecture;
-- player, squad, lineup, and injury source strategy;
-- timing of broad EN/PT rollout.
+Scope:
+
+- main reading first;
+- compact key indicators;
+- principal scenario;
+- shorter alternatives;
+- what-could-change block;
+- model/cutoff/update metadata.
+
+### Task 6D - Venue and time presentation
+
+Scope:
+
+- provider venue normalization;
+- upsert existing venues;
+- match venue linkage;
+- viewer-local kickoff;
+- compact references:
+  - Mexico;
+  - Colombia/Peru;
+  - Argentina/Chile;
+  - Spain.
+
+### Task 6E - Pricing, panel, and terms
+
+Scope:
+
+- pass page conversion;
+- panel identity;
+- remove misleading `Sin vencimiento` copy;
+- approximate local-price display;
+- actual charge currency;
+- product terms/support/refund wording.
+
+### Task 6F - Transparency and public history
+
+Scope:
+
+- more scannable Transparency;
+- annotated product example;
+- model/version/update explanation;
+- separate official results without prediction.
+
+### Task 6G - Mobile, accessibility, and analytics
+
+Scope:
+
+- responsive polish;
+- keyboard/focus checks;
+- conversion event analytics;
+- empty/loading/error states.
+
+## Branch strategy decision
+
+**Decision:** MVP 1.5 starts from current `main`.
+
+**Decision:** MVP 1.5 receives current `main` regularly.
+
+**Decision:** reviewed MVP 1.5 slices merge to `main`.
+
+**Decision:** V2 then synchronizes the updated `main`.
+
+**Rejected alternative:** allow MVP 1.5 and V2 to evolve independently until a final large merge.
+
+**Reason:** shared frontend and presentation files would accumulate avoidable conflicts.
+
+**Operational consequence:** use small PRs and synchronization checkpoints.
+
+## Provider/source decision
+
+**Decision:** API-Football is operational write authority for fixture identity, kickoff, status, venue when supplied, and score.
+
+**Decision:** official FIFA data may be used as tournament cross-check.
+
+**Decision:** Wikipedia and secondary sources are not write authority.
+
+**Decision:** routine provider operations are PowerShell/admin tasks, not Codex tasks.
+
+## Prediction-history decision
+
+**Decision:** no retrospective prediction is created merely to make a verified match appear in history.
+
+**Decision:** official verified results without prediction may receive a separate product surface.
+
+**Reason:** prediction integrity is more important than filling every card.
+
+## Pricing decision
+
+**Owner decision / operator-observed production presentation, pending tracked-repository reconciliation:** US$10 one-time.
+
+**Owner-observed production/Wompi display, not yet fully reflected by tracked code/tests:** COP 35,000.
+
+**Repository status:** stale US$20 / COP 68,700 references remain in migration history, UI fallback, and tests and must be reconciled as a bounded MVP 1.5 implementation task.
+
+**Decision:** other currencies are approximate references only unless checkout charges them.
+
+## Time-zone decision
+
+**Decision:** prefer viewer-local time.
+
+**Fallback references:**
+
+- Mexico;
+- Colombia/Peru;
+- Argentina/Chile;
+- Spain.
+
+Country pairs are grouped only when their rendered local times match for that kickoff date.
+
+## Documentation decision
+
+**Decision:** ChatGPT authors canonical sources and affected runbooks.
+
+Codex may inspect, review, implement, and validate, but does not own canonical documentation authoring.
 
 ## Exact next sequence
 
-Canonical handoff:
+Production:
 
-1. apply this documentation checkpoint;
-2. replace the shared ChatGPT source set;
-3. perform one Codex consistency review of the authored replacements;
-4. start a fresh ChatGPT conversation for the parallel MVP1 track.
+```text
+continue exact API-Football result operations as fixtures finish
+```
 
-Primary V2 track:
+MVP 1.5:
 
-1. start Task 2A - V2 Signal Baseline Database Load;
-2. prove lineage, counts, coverage, and idempotency;
-3. perform incremental current-data refresh;
-4. produce the first V2 shadow candidate;
-5. create fair historical replays;
-6. compare V1/V2 and decide release mode;
-7. promote only after stage acceptance.
+```text
+package documentation
+-> create branch from current main
+-> Task 6B P0 cleanup
+-> Task 6C Premium hierarchy
+-> Task 6D venue/time
+-> Task 6E pricing/panel/terms
+-> bounded releases to main
+```
 
-Parallel MVP1 track:
+V2:
 
-1. start Task 4C - Football-first premium terminology from current `main`;
-2. keep the implementation to one bounded PR;
-3. verify production;
-4. merge the accepted `main` change into the V2 branch through normal Git history.
+```text
+Task 2B
+-> Task 2C
+-> Task 2D
+-> first shadow candidate
+```
+
+After each accepted MVP 1.5 shared-code release:
+
+```text
+main -> V2 integration synchronization
+```
 
 ## Delivery rule
 
-Every bounded task declares:
+Each task must be independently useful, testable, and reversible.
 
-- branch and HEAD;
-- environment and production denial;
-- exact read/write scope;
-- acceptance evidence;
-- rollback boundary;
-- concrete blockers only.
+Do not bundle:
 
-Avoid giant tasks that combine model, data, payments, UI, migrations, operations, and documentation.
+- model release;
+- payment-provider redesign;
+- venue ingestion;
+- complete frontend redesign;
+- internationalization;
+- automation infrastructure
+
+into one PR.

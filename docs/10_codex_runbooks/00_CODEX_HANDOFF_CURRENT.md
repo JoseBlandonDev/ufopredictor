@@ -1,6 +1,6 @@
 # Codex Handoff Current
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-29._
 
 ## Canonical-source rule
 
@@ -14,99 +14,127 @@ docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 
 Those files own live product, branch, roadmap, and workflow truth.
 
-This handoff contains the current immediate sequence and hard execution boundaries. Verify live SHAs rather than assuming this snapshot remains current.
+Verify live SHAs before work.
 
-## Reference baseline at this refresh
-
-```text
-main: 130ffc8b6728ccccfdb9f29ecc4244ec1cd019b6
-PR #111: merged
-PR #112: merged
-
-old v2 branch:
-feature/prediction-intelligence-v2-data-foundation
-
-Draft PR #106 head:
-eefcff709e80209215b25b90fb870aa5c080d735
-```
-
-PR #106 remains Draft and must not receive new implementation work.
-
-## Immediate next sequence
-
-1. Start from clean current `origin/main`.
-2. Create `integration/prediction-intelligence-v2`.
-3. Preserve the old branch and PR #106 unchanged.
-4. Audit the nine v2-only commits by file and concern.
-5. Selectively port valid data, migration, model, replay, script, artifact, and test work.
-6. Exclude stale frontend, docs, and shared-runtime changes.
-7. Validate MVP1 tests, lint, build, and diff-check after bounded groups.
-8. Open a replacement Draft PR.
-9. Perform Task 3B read-only stage audit.
-10. Stop for owner approval before stage writes.
-
-## Current production continuity
-
-Already delivered:
-
-- 24/24 Matchday 3 fixtures stored;
-- 24/24 v1 predictions published;
-- trusted World Cup result refresh;
-- automatic valid `FT` verification/evaluation;
-- validated 24-fixture Torneo JSON export.
-
-Parallel production work should now focus on:
-
-- relevant recent result/status polling;
-- retry/backoff and scheduler hardening;
-- bounded product fixes;
-- independent UI/UX improvements;
-- no re-opening of completed Matchday 3 registry/publication work.
-
-## Source workspace
-
-External prepared source workspace:
+## Last confirmed reference baseline
 
 ```text
-D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
+production main HEAD:
+6e43cb0e6575bff42372d021c8c35628e912a1e7
+
+active V2 branch:
+integration/prediction-intelligence-v2
+
+active V2 Draft PR:
+#114
+
+last confirmed V2 HEAD:
+dc0187e31770e7a03d57db25d3887967bdaef09a
 ```
 
-Committed equivalents exist under `data/`, `artifacts/prediction-intelligence-v2/`, `lib/prediction-intelligence-v2/`, and `scripts/prediction-intelligence-v2/`.
+Old branch and PR #106 remain preservation only.
 
-Do not report the data as lost merely because the external path is unavailable in one environment.
+## Production checkpoint
 
-## Environment contract
+The following is operator-confirmed production evidence supported by local operational artifacts, not tracked-Git proof by itself.
+
+Completed:
+
+- 15 future Round-of-32 fixtures ingested;
+- 15 internal predictions saved;
+- 15 public predictions published;
+- publish queue cleared;
+- Croatia 2-1 Ghana verified/evaluated/idempotent;
+- South Africa 0-1 Canada verified without a retrospective prediction;
+- tracked `main` worktree clean.
+
+Do not reopen this checkpoint without a concrete defect.
+
+## Routine provider boundary
+
+Do not use Codex for:
+
+- fixture discovery;
+- schedule lookup;
+- score lookup;
+- venue lookup;
+- routine provider dry-runs;
+- routine exact applies;
+- admin publication;
+- admin verification.
+
+These are operator PowerShell/admin tasks.
+
+Do not consult Wikipedia or secondary pages as write authority.
+
+Use Codex only for:
+
+- code defects;
+- missing supported paths;
+- bounded implementation;
+- migrations;
+- tests;
+- complex debugging.
+
+## Pricing reconciliation note
+
+Owner-approved commercial target and operator-observed production presentation are US$10 / COP 35,000; tracked repository implementation remains unreconciled.
+
+The repository still contains stale US$20 / COP 68,700 references in migration history, pricing fallback, and tests. Treat pricing reconciliation as a bounded implementation task. Do not rewrite canonical documentation independently.
+
+## MVP 1.5 track
+
+Future MVP 1.5 work:
+
+- starts from current `main`;
+- ships in small bounded PRs;
+- regularly receives `main`;
+- merges accepted work to `main`;
+- is then synchronized into V2.
+
+Do not build MVP 1.5 independently until the end.
+
+Expected early tasks:
+
+- Free/Premium copy cleanup;
+- US$10 offer presentation;
+- Premium badge;
+- venue ingestion/display;
+- viewer-local and compact reference times;
+- Premium response hierarchy;
+- pricing/panel/Transparency polish.
+
+## V2 sequence
 
 ```text
-ufopredictor.com       -> production Railway/Supabase
-stage.ufopredictor.com -> development Railway/Supabase stage
+Task 2B current fixture/result refresh
+-> Task 2C rankings/standings/context
+-> Task 2D repeatable current signals
+-> first unpublished V2 shadow candidate
 ```
 
-Do not create another environment. Do not require Docker.
+Production writes are forbidden from V2 tasks.
 
 ## Hard boundaries
 
-- no production writes during v2 normalization or Task 3B;
-- no merge of PR #106;
-- no blanket merge/cherry-pick of all nine old commits;
-- no production migration 0038;
-- no production user/payment/entitlement cloning;
+- no post-kickoff public prediction generation;
+- no original V1 rewrite;
+- no broad merge of old PR #106;
+- no production migration from V2 without approved release;
 - no secrets in output;
-- no post-kickoff prediction generation;
-- no reopening completed MVP1 commercial work;
-- no rewriting original v1 Matchday 3 publications;
-- no claim that v2 is already more accurate.
+- no canonical-document authorship by Codex;
+- no `git add artifacts/`;
+- no broad cross-branch copy without review.
 
 ## Reporting contract
 
 Return:
 
 - branch/status/base SHA;
-- divergence/commit inventory;
-- files inspected/changed;
-- exact before/after behavior;
-- tests/lint/build/diff-check;
-- environment/write scope;
-- blockers only when concrete;
-- final verdict;
-- commit SHA when committed.
+- target environment/write scope;
+- exact files changed;
+- exact behavior before/after;
+- tests/lint/build;
+- conflicts/blockers;
+- commit SHA when committed;
+- no unsupported claims.

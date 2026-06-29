@@ -1,147 +1,245 @@
 # Auth, Payments, and Entitlements - Current
 
-_Last refreshed: 2026-06-27 after PR #117 premium regression smoke and permanent test-entitlement verification._
+_Last refreshed: 2026-06-29 after the Free/Premium surface review and the owner-approved US$10 pricing decision._
 
 ## Authentication baseline
 
-- Supabase Auth;
-- email/password registration;
-- confirmation and recovery flows;
-- supported OAuth login;
-- safe `next` redirects;
-- server-side access projection.
+The production authentication flow is operational.
 
-Production and stage Auth universes are separate. A production user may need to register independently in stage.
+Users may be:
+
+- anonymous;
+- registered free;
+- Premium through entitlement;
+- admin through protected authorization.
+
+Authentication and commercial entitlement remain separate concerns.
 
 ## Access rules
 
-- anonymous: limited public preview;
-- registered free: full public probability and context layer;
-- premium: entitlement-protected advanced projection;
-- admin: explicit operational authorization.
+Premium access is resolved server-side.
 
-A payment or subscription row alone does not reveal premium content. The active entitlement is the access authority.
+Do not authorize Premium content from:
+
+- browser state;
+- URL parameters;
+- return-page state;
+- profile display labels;
+- an unverified payment status.
+
+The source of access is a current server-side entitlement or approved match unlock, with explicit admin behavior only where supported.
 
 ## Pase Mundial 2026 flow
 
 ```text
-Authenticated user
--> server creates constrained Wompi intent
--> user pays in Wompi
--> Wompi sends event
--> server validates signature/event
--> approved payment is processed idempotently
--> Pase Mundial entitlement is granted
--> premium projection becomes available
+authenticated user
+-> constrained checkout intent
+-> Wompi payment
+-> validated webhook
+-> idempotent approved transaction processing
+-> entitlement grant
+-> server-side Premium projection
 ```
 
-The return page does not grant premium access.
+The return page is informational only.
 
-## Pricing
+Repeated approved webhook delivery must not double-grant.
 
-- canonical price is stored in USD;
-- server uses configured `WOMPI_USD_COP_RATE` for COP checkout;
-- current production example remains USD 20 with the configured conversion;
-- pricing and admin update logic must preserve the canonical-source contract.
+Pending, failed, cancelled, or unverified transactions do not activate Premium.
+
+## Owner-approved pricing decision and repository reconciliation status
+
+Owner-approved and operator-confirmed production presentation:
+
+```text
+Pase Mundial 2026
+US$10 one-time
+current production/Wompi display observed by the owner: COP 35,000
+```
+
+This is the owner-approved commercial target and operator-observed production presentation, but the tracked repository is not yet fully reconciled. Existing migration, fallback, and pricing-test references still encode US$20 / COP 68,700.
+
+Therefore:
+
+- documentation must distinguish owner-confirmed operational truth from repository implementation state;
+- the repository pricing implementation/tests must be updated before the next pricing-related release;
+- historical migrations should not be silently rewritten if already applied; use the approved forward-change strategy.
+
+## Currency display
+
+The actual Wompi charge must remain explicit.
+
+Recommended hierarchy after repository reconciliation:
+
+```text
+Base commercial reference: US$10
+Owner-observed production/Wompi display: COP 35,000
+Optional viewer-local estimate: approximate only
+```
+
+The actual checkout amount must be read from the authoritative runtime pricing path before release; documentation must not infer it from stale fallback code or tests.
+
+Viewer-local estimates may be shown when country/locale is available, but:
+
+- they must be labeled as estimates;
+- they do not change the charged currency;
+- they must not promise an exchange rate;
+- bank conversion may differ;
+- browser language alone is not authoritative country detection.
+
+Do not require GPS for pricing.
+
+## Country/locale preference order
+
+Preferred future order:
+
+1. explicit user country choice;
+2. stored profile country when implemented;
+3. trusted request/edge country metadata already available;
+4. browser locale as a weak presentation fallback;
+5. US$10 default.
+
+The user should be able to see the actual Wompi currency before payment.
+
+## Product coverage and validity
+
+Public copy should describe the commercial product honestly:
+
+- one-time purchase;
+- access to Premium analysis for supported published World Cup 2026 matches;
+- coverage for the tournament product;
+- no guaranteed result.
+
+Do not use `Sin vencimiento` as a commercial promise merely because a current entitlement row has no `ends_at`.
+
+Technical entitlement state and product marketing validity are related but not identical.
+
+Before changing backend expiration behavior, confirm:
+
+- current Wompi grant payload;
+- current entitlement resolver;
+- existing active customer impact;
+- support/revocation policy.
+
+A copy-only MVP 1.5 change may describe tournament coverage without changing the technical grant.
+
+## Free and Premium presentation
+
+### Registered free
+
+Should see:
+
+- account active state once;
+- public predictions;
+- public context;
+- saved matches;
+- clear pass value;
+- US$10 one-time price;
+- purchase CTA.
+
+### Premium
+
+Should see:
+
+- persistent Premium/pass badge;
+- unlocked Premium content;
+- coverage summary;
+- account/panel access;
+- no repeated entitlement sentence inside every prediction card.
+
+A visual Premium badge is not an authorization mechanism.
+
+## Purchase prevention and idempotency
+
+An already entitled user must not repurchase accidentally.
+
+Required behavior:
+
+- active entitlement preflight;
+- idempotent payment event processing;
+- deterministic grant reference;
+- server-side resolver;
+- auditable activation and revocation.
 
 ## Production proof
 
-The production commercial flow has been smoke-tested:
+The production Wompi path has been smoke-tested successfully.
 
-- authenticated checkout opened;
-- Wompi showed the expected merchant and amount;
-- approved payment activated premium;
-- premium persisted after refresh and login;
-- premium UI showed premium content instead of free-only upgrade prompts.
+Do not trigger another real payment for routine regression unless a payment-path change requires it.
 
-Do not repeat a paid transaction merely because documentation or frontend copy changed.
+Use non-destructive inspection for:
 
-A non-payment test account may receive a direct, auditable admin entitlement for UI smoke work. That grant must use the existing entitlement authority, must not fabricate a Wompi payment, and must remain clearly identified as test/admin-originated.
+- price/configuration;
+- intent creation;
+- webhook validation;
+- entitlement resolver;
+- active-user checkout blocking.
 
-## Entitlement operations
+## Admin entitlement operations
 
-Required properties:
+Manual admin activation remains a controlled support/recovery path.
 
-- idempotent grant;
-- no activation for pending, failed, or cancelled payment;
-- explicit revocation path;
-- auditability of event, payment intent, and grant;
-- admin visibility without exposing secrets.
+It:
 
-## PR #117 entitlement regression proof
+- does not replace Wompi;
+- requires admin authorization;
+- uses idempotent grant keys;
+- preserves history;
+- supports explicit revocation;
+- never exposes service role through browser code.
 
-The production smoke for `Lectura UFO` confirmed:
+## Terms and commercial policy backlog
 
-- premium access remained server-validated;
-- premium xG, scenarios, BTTS, totals, and confidence/risk detail remained visible;
-- the new public reading supplemented rather than replaced premium analysis;
-- anonymous/free boundaries were not broadened;
-- no role change was required;
-- no payment or subscription row was used as a substitute for entitlement authority.
+MVP 1.5 should provide a clear user-facing policy surface for:
 
-The test premium account was granted an entitlement with no expiry for ongoing UI validation. Personal identifiers are intentionally not part of canonical documentation.
+- one-time payment;
+- covered tournament/product;
+- actual charge currency;
+- approximate local conversion;
+- support/refund path;
+- access validity;
+- no sportsbook relationship;
+- no guaranteed outcome.
+
+Do not invent a refund promise or legal right that has not been approved.
 
 ## Stage policy
 
-Stage uses its own:
+Stage must not receive:
 
-- Supabase project;
-- Auth users and roles;
-- test entitlements when explicitly needed;
-- safe payment configuration when intentionally introduced.
+- production payment payloads;
+- production users;
+- production entitlement rows;
+- Wompi secrets;
+- personal payment data.
 
-Current stage state:
+Stage may use controlled non-sensitive test access.
 
-- one Auth user exists;
-- the corresponding profile is `admin`;
-- the authenticated Codex browser session may be used for stage smoke checks;
-- Wompi is intentionally not configured for this checkpoint;
-- the optional AI provider is intentionally not configured for this checkpoint.
+## Relationship to V2
 
-Do not copy production Wompi transactions, webhook payloads, users, personal data, sessions, subscriptions, or entitlements into stage.
+V2 may enrich Premium content, but it must not change the entitlement authority.
 
-## Task 3B preservation proof
+Model release and payment authorization remain separate gates.
 
-Task 3B preserved:
+MVP 1.5 pricing/presentation changes must be synchronized into `main`, then preserved when `main` is merged into the V2 integration branch.
 
-- Auth user count: 1;
-- profile count: 1;
-- admin role: unchanged.
+## Responsibility split
 
-Task 3B did not write to:
+### ChatGPT
 
-- Auth;
-- profiles;
-- Wompi payment intents or events;
-- subscriptions;
-- entitlements;
-- webhook payloads;
-- sessions;
-- personal-data tables.
+- canonical pricing and entitlement documentation;
+- owner-decision recording;
+- user-facing terminology policy.
 
-Production remained untouched.
+### Codex
 
-## Relationship to MVP2
+- bounded repository inspection;
+- payment/entitlement implementation and tests when requested;
+- no canonical-document authorship.
 
-Prediction Intelligence v2 must not regress:
+### Operator
 
-- Auth;
-- purchase routing;
-- webhook validation;
-- entitlement authority;
-- premium projection;
-- admin authorization.
-
-MVP2 may enrich analytical content, but it does not replace the payment and entitlement authority model.
-
-Parallel expert-experience improvements may change how premium information is presented, but they must not change who is authorized to see it.
-
-## Future payment-provider decision
-
-A second provider is later commercial work and is not an immediate V2 blocker.
-
-Before implementation, define a provider-neutral payment and entitlement contract and decide whether the goal is:
-
-- direct international checkout;
-- regional payment coverage;
-- or marketplace/course distribution, which would imply a different operating model.
+- real payment actions;
+- environment variables;
+- Wompi dashboard;
+- production release approval.

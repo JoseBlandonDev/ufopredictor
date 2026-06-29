@@ -1,63 +1,152 @@
 # Implementation, Validation, and Release Checklist
 
-_Last refreshed: 2026-06-23._
+_Last refreshed: 2026-06-29._
 
 ## Every task
 
-- start from the declared base branch/SHA;
-- prove worktree status;
+- verify branch/base/upstream;
+- prove tracked worktree status;
 - declare environment/write scope;
-- keep changes bounded to the requested concern;
+- keep scope bounded;
 - add focused tests;
-- run lint/build/diff-check when applicable;
-- report exact behavior and commit SHA.
+- run lint/build where applicable;
+- inspect diff;
+- report exact behavior and commit SHA;
+- do not include operational artifacts accidentally.
 
-## MVP1 microrelease
+## Production operator task
+
+- API-Football exact lookup;
+- exact dry-run;
+- exact allowlist;
+- one apply;
+- one idempotency verification;
+- admin/public smoke;
+- no Codex unless path is broken;
+- no secondary-source write authority.
+
+## MVP 1.5 branch creation
 
 - branch from current `main`;
-- no migration 0038 dependency;
-- no regression to Auth/Wompi/entitlements/public history;
-- mobile/basic accessibility smoke;
-- production deploy only after PR validation.
+- no unfinished V2 dependency;
+- declare intended shared files;
+- define synchronization checkpoint;
+- avoid broad redesign in one PR.
 
-## V2 branch normalization
+## MVP 1.5 P0 release
 
-- preserve old v2 branch and PR #106;
-- create integration branch from current main;
-- audit nine commits;
-- port by bounded concern;
-- exclude stale frontend/docs unless manually reconciled;
-- run current MVP1 tests after each port group;
-- capture preservation matrix;
-- open replacement Draft PR.
+Validate:
 
-## Task 3B
+- anonymous;
+- registered free;
+- Premium;
+- admin;
+- desktop;
+- mobile;
+- keyboard/focus basics;
+- no entitlement regression;
+- no Wompi regression;
+- no public history regression;
+- no prediction recalculation.
 
-- read-only stage audit first;
-- human-approved sync plan;
-- stage-only migration/import;
-- zero production writes;
-- idempotency proof;
-- RLS/localization/venue/public UI validation;
-- immutable not-started development predictions;
-- v1/v2 comparison.
+## Pricing/copy release
 
-## Ops automation
+- owner-approved US$10 / operator-observed COP 35,000 presentation reconciled with authoritative runtime pricing, repository code, fallback paths, and tests;
+- stale US$20 / COP 68,700 migration/fallback/test references resolved through an approved forward change;
+- actual Wompi charge currency/amount shown;
+- approximate currencies labeled;
+- no false lifetime claim;
+- no duplicated CTA to current route;
+- no repeated entitlement sentence in every card;
+- Spanish product naming consistent.
 
-- dry-run/report mode;
-- exact target/fixture scope;
-- run logging;
-- idempotent retries;
-- terminal scores only to pending review;
-- human verification retained;
-- no prediction rewrite.
+## Venue release
+
+- provider venue fields optional;
+- exact provider venue identity;
+- venue upsert idempotent;
+- match linkage correct;
+- provider-missing venue remains null;
+- public projection returns stadium/city;
+- no model/V2 probability change;
+- shared types synchronized to V2 after main merge.
+
+## Time-zone release
+
+- UTC source unchanged;
+- viewer-local detection safe;
+- no GPS;
+- Mexico reference correct;
+- Colombia/Peru grouping conditional;
+- Argentina/Chile grouping conditional;
+- Spain uses Madrid;
+- DST tests cover relevant match dates;
+- hydration/server-client output stable;
+- fallback works without browser time zone.
+
+## Premium response release
+
+- main reading first;
+- indicators correct;
+- scenario probabilities unchanged;
+- no duplicated explanatory paragraphs;
+- locked Free view still protects Premium fields;
+- Premium access remains server-authorized.
+
+## Transparency/panel release
+
+- no internal table/run-scope terminology;
+- no ambiguous venue state;
+- no misleading access validity;
+- conversion path visible but not invasive;
+- responsible-product language retained.
+
+## Main synchronization into MVP 1.5
+
+After meaningful `main` change:
+
+- fetch;
+- inspect divergence;
+- merge/rebase according to repository policy;
+- resolve manually;
+- rerun affected tests/build;
+- record synchronization SHA.
+
+## MVP 1.5 merge to main
+
+- current main merged into branch first;
+- PR focused and reviewable;
+- production-safe migration policy;
+- smoke plan;
+- rollback notes;
+- owner approval.
+
+## Main synchronization into V2
+
+After accepted shared product changes:
+
+- merge current `main` into V2 integration;
+- preserve V2 stage-only boundaries;
+- resolve shared frontend/types manually;
+- run public prediction tests;
+- run V2 focused tests;
+- lint/build;
+- no production write.
+
+## V2 task
+
+- expected V2 branch/SHA;
+- stage target proof;
+- production deny ref;
+- source/cutoff proof;
+- no original V1 mutation;
+- idempotency;
+- candidate unpublished unless approved.
 
 ## Production promotion
 
-- accepted stage state;
-- selected probability mode;
-- current-fixture cutoff audit;
+- accepted stage/product state;
 - rollback plan;
-- regression suite for commercial/public/admin flows;
-- owner approval;
-- docs refresh after merge.
+- commercial/public/admin regression suite;
+- documentation refresh;
+- owner approval.
