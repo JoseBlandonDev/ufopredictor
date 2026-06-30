@@ -4,10 +4,12 @@ import type {
   FetchFixtureRoundsParams,
   FetchLeaguesParams,
   FetchFixturesByLeagueParams,
+  ProviderFixtureDecision,
   ProviderFixture,
   ProviderFixtureStatus,
   ProviderFixtureRoundsResult,
   ProviderLeague,
+  ProviderScore,
   ProviderStandingsGroup,
   ProviderStandingsResult,
   ProviderStandingsRow,
@@ -62,6 +64,24 @@ type ApiFootballFixtureEnvelope = {
   goals?: {
     home?: number | null;
     away?: number | null;
+  };
+  score?: {
+    halftime?: {
+      home?: number | null;
+      away?: number | null;
+    };
+    fulltime?: {
+      home?: number | null;
+      away?: number | null;
+    };
+    extratime?: {
+      home?: number | null;
+      away?: number | null;
+    };
+    penalty?: {
+      home?: number | null;
+      away?: number | null;
+    };
   };
 };
 
@@ -275,6 +295,26 @@ function toProviderStatus(shortCode: string | undefined): ProviderFixtureStatus 
   }
 }
 
+function normalizeProviderScore(input: { home?: number | null; away?: number | null } | undefined): ProviderScore {
+  return {
+    home: input?.home ?? null,
+    away: input?.away ?? null,
+  };
+}
+
+function toProviderDecision(shortCode: string | undefined): ProviderFixtureDecision {
+  switch (shortCode) {
+    case "FT":
+      return "regulation";
+    case "AET":
+      return "extra_time";
+    case "PEN":
+      return "penalties";
+    default:
+      return "unknown";
+  }
+}
+
 function normalizeFixture(input: ApiFootballFixtureEnvelope): ProviderFixture | null {
   const fixtureId = input.fixture?.id;
   const kickoffAt = input.fixture?.date;
@@ -329,6 +369,13 @@ function normalizeFixture(input: ApiFootballFixtureEnvelope): ProviderFixture | 
       home: input.goals?.home ?? null,
       away: input.goals?.away ?? null,
     },
+    scoreBreakdown: {
+      halftime: normalizeProviderScore(input.score?.halftime),
+      fulltime: normalizeProviderScore(input.score?.fulltime),
+      extratime: normalizeProviderScore(input.score?.extratime),
+      penalty: normalizeProviderScore(input.score?.penalty),
+    },
+    decision: toProviderDecision(statusShort),
   };
 }
 

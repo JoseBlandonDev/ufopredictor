@@ -52,6 +52,7 @@ export type Task2BSanitizedProviderRow = {
   normalizedStatus: Task2BProviderStatusClassification;
   providerStatus: ProviderFixture["status"];
   providerStatusShort: string;
+  decision: ProviderFixture["decision"];
   elapsedMinutes: number | null;
   competition: {
     providerCompetitionId: number;
@@ -63,14 +64,34 @@ export type Task2BSanitizedProviderRow = {
   homeTeam: {
     providerTeamId: number;
     name: string;
+    winner: boolean | null;
   };
   awayTeam: {
     providerTeamId: number;
     name: string;
+    winner: boolean | null;
   };
   goals: {
     home: number | null;
     away: number | null;
+  };
+  scoreBreakdown: {
+    halftime: {
+      home: number | null;
+      away: number | null;
+    };
+    fulltime: {
+      home: number | null;
+      away: number | null;
+    };
+    extratime: {
+      home: number | null;
+      away: number | null;
+    };
+    penalty: {
+      home: number | null;
+      away: number | null;
+    };
   };
 };
 
@@ -160,6 +181,8 @@ export function classifyTask2BProviderStatus(fixture: ProviderFixture): Task2BPr
     case "LIVE":
       return "live_or_in_progress";
     case "FT":
+    case "AET":
+    case "PEN":
       return "terminal_ft";
     case "PST":
       return "postponed";
@@ -192,6 +215,7 @@ export function sanitizeProviderSnapshot(args: {
       normalizedStatus: classifyTask2BProviderStatus(fixture),
       providerStatus: fixture.status,
       providerStatusShort: fixture.statusShort,
+      decision: fixture.decision ?? null,
       elapsedMinutes: fixture.elapsedMinutes,
       competition: {
         providerCompetitionId: fixture.competition.providerCompetitionId,
@@ -203,14 +227,34 @@ export function sanitizeProviderSnapshot(args: {
       homeTeam: {
         providerTeamId: fixture.homeTeam.providerTeamId,
         name: fixture.homeTeam.name,
+        winner: fixture.homeTeam.winner,
       },
       awayTeam: {
         providerTeamId: fixture.awayTeam.providerTeamId,
         name: fixture.awayTeam.name,
+        winner: fixture.awayTeam.winner,
       },
       goals: {
         home: fixture.goals.home,
         away: fixture.goals.away,
+      },
+      scoreBreakdown: {
+        halftime: {
+          home: fixture.scoreBreakdown?.halftime.home ?? null,
+          away: fixture.scoreBreakdown?.halftime.away ?? null,
+        },
+        fulltime: {
+          home: fixture.scoreBreakdown?.fulltime.home ?? null,
+          away: fixture.scoreBreakdown?.fulltime.away ?? null,
+        },
+        extratime: {
+          home: fixture.scoreBreakdown?.extratime.home ?? null,
+          away: fixture.scoreBreakdown?.extratime.away ?? null,
+        },
+        penalty: {
+          home: fixture.scoreBreakdown?.penalty.home ?? null,
+          away: fixture.scoreBreakdown?.penalty.away ?? null,
+        },
       },
     }))
     .sort((left, right) => left.providerFixtureId - right.providerFixtureId);

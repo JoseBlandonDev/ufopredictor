@@ -27,6 +27,15 @@ export type ProviderScore = {
   away: number | null;
 };
 
+export type ProviderScoreBreakdown = {
+  halftime: ProviderScore;
+  fulltime: ProviderScore;
+  extratime: ProviderScore;
+  penalty: ProviderScore;
+};
+
+export type ProviderFixtureDecision = "regulation" | "extra_time" | "penalties" | "unknown";
+
 export type ProviderFixture = {
   provider: "api-football";
   providerFixtureId: number;
@@ -39,6 +48,8 @@ export type ProviderFixture = {
   homeTeam: ProviderTeam;
   awayTeam: ProviderTeam;
   goals: ProviderScore;
+  scoreBreakdown?: ProviderScoreBreakdown | null;
+  decision?: ProviderFixtureDecision | null;
 };
 
 export type FetchFixturesByLeagueParams = {

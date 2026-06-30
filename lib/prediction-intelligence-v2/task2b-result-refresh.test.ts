@@ -21,6 +21,19 @@ const artifactsRoot = path.join(repoRoot, "artifacts", "prediction-intelligence-
 const stageUrl = "https://yfmklapgjrupctgxaako.supabase.co";
 let artifactsDir = path.join(artifactsRoot, "initial");
 
+type ProviderFixtureTestOverrides = Partial<Omit<ProviderFixture, "competition" | "homeTeam" | "awayTeam" | "goals" | "scoreBreakdown">> & {
+  competition?: Partial<ProviderFixture["competition"]>;
+  homeTeam?: Partial<ProviderFixture["homeTeam"]>;
+  awayTeam?: Partial<ProviderFixture["awayTeam"]>;
+  goals?: Partial<ProviderFixture["goals"]>;
+  scoreBreakdown?: Partial<{
+    halftime: Partial<NonNullable<ProviderFixture["scoreBreakdown"]>["halftime"]>;
+    fulltime: Partial<NonNullable<ProviderFixture["scoreBreakdown"]>["fulltime"]>;
+    extratime: Partial<NonNullable<ProviderFixture["scoreBreakdown"]>["extratime"]>;
+    penalty: Partial<NonNullable<ProviderFixture["scoreBreakdown"]>["penalty"]>;
+  }>;
+};
+
 function fixtureByKey(fixtureKey: string) {
   const fixture = WORLD_CUP_2026_FIXTURES.find((candidate) => candidate.fixtureKey === fixtureKey);
   if (!fixture) {
@@ -33,8 +46,38 @@ function teamName(teamKey: string) {
   return WORLD_CUP_2026_TEAMS.find((team) => team.teamKey === teamKey)?.displayName ?? teamKey;
 }
 
-function buildProviderFixture(fixtureKey: string, overrides: Partial<ProviderFixture> = {}): ProviderFixture {
+function pickScoreValue(
+  score: Partial<{ home: number | null; away: number | null }> | undefined,
+  key: "home" | "away",
+  fallback: number | null,
+) {
+  return score && Object.prototype.hasOwnProperty.call(score, key) ? score[key] ?? null : fallback;
+}
+
+function buildProviderFixture(fixtureKey: string, overrides: ProviderFixtureTestOverrides = {}): ProviderFixture {
   const fixture = fixtureByKey(fixtureKey);
+  const defaultGoals = {
+    home: overrides.goals?.home ?? 2,
+    away: overrides.goals?.away ?? 1,
+  };
+  const defaultScoreBreakdown = {
+    halftime: {
+      home: pickScoreValue(overrides.scoreBreakdown?.halftime, "home", 1),
+      away: pickScoreValue(overrides.scoreBreakdown?.halftime, "away", 0),
+    },
+    fulltime: {
+      home: pickScoreValue(overrides.scoreBreakdown?.fulltime, "home", defaultGoals.home),
+      away: pickScoreValue(overrides.scoreBreakdown?.fulltime, "away", defaultGoals.away),
+    },
+    extratime: {
+      home: pickScoreValue(overrides.scoreBreakdown?.extratime, "home", null),
+      away: pickScoreValue(overrides.scoreBreakdown?.extratime, "away", null),
+    },
+    penalty: {
+      home: pickScoreValue(overrides.scoreBreakdown?.penalty, "home", null),
+      away: pickScoreValue(overrides.scoreBreakdown?.penalty, "away", null),
+    },
+  };
   return {
     provider: "api-football",
     providerFixtureId: overrides.providerFixtureId ?? fixture.apiFootballFixtureId ?? 900000 + fixture.matchNumber,
@@ -62,9 +105,12 @@ function buildProviderFixture(fixtureKey: string, overrides: Partial<ProviderFix
       winner: overrides.awayTeam?.winner ?? false,
     },
     goals: {
-      home: overrides.goals?.home ?? 2,
-      away: overrides.goals?.away ?? 1,
+      ...defaultGoals,
     },
+    scoreBreakdown: defaultScoreBreakdown,
+    decision:
+      overrides.decision ??
+      (overrides.statusShort === "PEN" ? "penalties" : overrides.statusShort === "AET" ? "extra_time" : "regulation"),
   };
 }
 
@@ -421,6 +467,286 @@ describe("task2b result refresh", () => {
     expect(result.plan.rows[0]?.evaluationClassification).toBe("evaluation_create");
     expect(result.plan.rows[0]?.eligiblePredictionVersionId).toBe(`prediction-match-${fixtureKey}`);
     expect(evaluateTask2B2Eligibility(result.plan)).toEqual({ eligible: true, reasons: [] });
+  });
+
+  it("treats PEN as terminal, keeps the regular score, and preserves the shootout winner separately", async () => {
+    const fixtureKey = "wc2026-match-053";
+    const snapshot = buildStageSnapshot(fixtureKey, {
+      predictionVersions: [
+        {
+          ...buildPrediction(`match-${fixtureKey}`),
+          home_win_prob: 28,
+          draw_prob: 46,
+          away_win_prob: 26,
+          most_likely_score: "1-1",
+          top_scores_json: [
+            { score: "1-1", probability: 0.22 },
+            { score: "1-0", probability: 0.14 },
+          ],
+        },
+      ],
+      predictionMarkets: [
+        { id: "m1", prediction_version_id: `prediction-match-${fixtureKey}`, market: "btts", selection: "yes", probability: 0.62 },
+        { id: "m2", prediction_version_id: `prediction-match-${fixtureKey}`, market: "btts", selection: "no", probability: 0.38 },
+        { id: "m3", prediction_version_id: `prediction-match-${fixtureKey}`, market: "over_2_5", selection: "over", probability: 0.31 },
+        { id: "m4", prediction_version_id: `prediction-match-${fixtureKey}`, market: "over_2_5", selection: "under", probability: 0.69 },
+      ],
+    });
+
+    const result = await runTask2B2ResultRefresh(
+      {
+        repoRoot,
+        artifactsDir,
+        envSupabaseUrl: stageUrl,
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        dryRun: true,
+        apply: false,
+        verify: false,
+        selection: { canonicalFixtureIds: [fixtureKey] },
+      },
+      {
+        databaseAdapter: buildMemoryAdapter(snapshot),
+        providerFetcher: async () => [
+          buildProviderFixture(fixtureKey, {
+            statusShort: "PEN",
+            goals: { home: 1, away: 1 },
+            scoreBreakdown: {
+              halftime: { home: 0, away: 1 },
+              fulltime: { home: 1, away: 1 },
+              extratime: { home: 0, away: 0 },
+              penalty: { home: 3, away: 4 },
+            },
+            homeTeam: { winner: false },
+            awayTeam: { winner: true },
+            decision: "penalties",
+          }),
+        ],
+      },
+    );
+
+    expect(result.plan.summary.safeActionCount).toBe(1);
+    expect(result.plan.rows[0]).toMatchObject({
+      providerStatusShort: "PEN",
+      providerHomeGoals: 1,
+      providerAwayGoals: 1,
+      resultClassification: "result_create_and_verify",
+      evaluationClassification: "evaluation_create",
+      safeAction: true,
+    });
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.home_goals).toBe(1);
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.away_goals).toBe(1);
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.source_note).toContain("result_decision=penalties");
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.source_note).toContain("penalty_score=3-4");
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.source_note).toContain("away_winner=true");
+
+    const providerSnapshot = JSON.parse(fs.readFileSync(result.providerSnapshotPath, "utf8"));
+    expect(providerSnapshot.fixtures[0]).toMatchObject({
+      providerStatusShort: "PEN",
+      decision: "penalties",
+      homeTeam: { winner: false },
+      awayTeam: { winner: true },
+      scoreBreakdown: {
+        fulltime: { home: 1, away: 1 },
+        penalty: { home: 3, away: 4 },
+      },
+    });
+  });
+
+  it("treats AET as terminal but evaluates and persists the regular score period", async () => {
+    process.env.PREDICTION_INTELLIGENCE_ALLOW_REMOTE_DEV_WRITE = "true";
+    const fixtureKey = "wc2026-match-053";
+    const predictionId = `prediction-match-${fixtureKey}`;
+    const snapshot = buildStageSnapshot(fixtureKey, {
+      predictionVersions: [
+        {
+          ...buildPrediction(`match-${fixtureKey}`),
+          id: predictionId,
+          home_win_prob: 24,
+          draw_prob: 51,
+          away_win_prob: 25,
+          most_likely_score: "1-1",
+          top_scores_json: [
+            { score: "1-1", probability: 0.26 },
+            { score: "1-0", probability: 0.12 },
+          ],
+        },
+      ],
+      predictionMarkets: [
+        { id: "m1", prediction_version_id: predictionId, market: "btts", selection: "yes", probability: 0.67 },
+        { id: "m2", prediction_version_id: predictionId, market: "btts", selection: "no", probability: 0.33 },
+        { id: "m3", prediction_version_id: predictionId, market: "over_2_5", selection: "over", probability: 0.24 },
+        { id: "m4", prediction_version_id: predictionId, market: "over_2_5", selection: "under", probability: 0.76 },
+      ],
+    });
+
+    const result = await runTask2B2ResultRefresh(
+      {
+        repoRoot,
+        artifactsDir,
+        envSupabaseUrl: stageUrl,
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        dryRun: true,
+        apply: false,
+        verify: false,
+        selection: { canonicalFixtureIds: [fixtureKey] },
+      },
+      {
+        databaseAdapter: buildMemoryAdapter(snapshot),
+        providerFetcher: async () => [
+          buildProviderFixture(fixtureKey, {
+            statusShort: "AET",
+            goals: { home: 2, away: 1 },
+            scoreBreakdown: {
+              halftime: { home: 0, away: 0 },
+              fulltime: { home: 1, away: 1 },
+              extratime: { home: 1, away: 0 },
+              penalty: { home: null, away: null },
+            },
+            homeTeam: { winner: true },
+            awayTeam: { winner: false },
+            decision: "extra_time",
+          }),
+        ],
+      },
+    );
+
+    expect(result.plan.summary.safeActionCount).toBe(1);
+    expect(result.plan.rows[0]).toMatchObject({
+      providerStatusShort: "AET",
+      providerHomeGoals: 1,
+      providerAwayGoals: 1,
+      resultClassification: "result_create_and_verify",
+      evaluationClassification: "evaluation_create",
+    });
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.home_goals).toBe(1);
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.away_goals).toBe(1);
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.source_note).toContain("result_decision=extra_time");
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.source_note).toContain("extra_time_score=1-0");
+    expect(result.plan.rows[0]?.eligiblePredictionVersionId).toBe(predictionId);
+
+    const adapter = buildMemoryAdapter(snapshot);
+    const applyResult = await applyTask2B2Plan({
+      reviewedPlan: result.plan,
+      currentPlan: result.plan,
+      reviewedStablePlanSha256: result.plan.stablePlanSha256,
+      reviewedSnapshotSha256: result.providerSnapshotSha256,
+      authorization: {
+        mode: "apply",
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        supabaseUrlHost: "yfmklapgjrupctgxaako.supabase.co",
+        targetEnvironment: "development",
+        productionDenied: true,
+        allowRemoteDevWrite: true,
+      },
+      databaseAdapter: adapter,
+      now: "2026-06-30T12:00:00Z",
+      snapshot,
+    });
+
+    expect(applyResult.completedActionKeys).toHaveLength(1);
+    expect(adapter.insertedPredictionResults).toEqual([
+      expect.objectContaining({
+        prediction_version_id: predictionId,
+        actual_home_goals: 1,
+        actual_away_goals: 1,
+        winner_correct: true,
+        btts_correct: true,
+        over_2_5_correct: true,
+        exact_score_correct: true,
+        goal_error: 0,
+      }),
+    ]);
+  });
+
+  it("fails closed for PEN when the fulltime regulation score is missing", async () => {
+    const fixtureKey = "wc2026-match-053";
+    const snapshot = buildStageSnapshot(fixtureKey);
+
+    const result = await runTask2B2ResultRefresh(
+      {
+        repoRoot,
+        artifactsDir,
+        envSupabaseUrl: stageUrl,
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        dryRun: true,
+        apply: false,
+        verify: false,
+        selection: { canonicalFixtureIds: [fixtureKey] },
+      },
+      {
+        databaseAdapter: buildMemoryAdapter(snapshot),
+        providerFetcher: async () => [
+          buildProviderFixture(fixtureKey, {
+            statusShort: "PEN",
+            goals: { home: 1, away: 1 },
+            scoreBreakdown: {
+              halftime: { home: 0, away: 1 },
+              fulltime: { home: null, away: null },
+              extratime: { home: 0, away: 0 },
+              penalty: { home: 3, away: 4 },
+            },
+            homeTeam: { winner: false },
+            awayTeam: { winner: true },
+            decision: "penalties",
+          }),
+        ],
+      },
+    );
+
+    expect(result.plan.summary.safeActionCount).toBe(0);
+    expect(result.plan.rows[0]).toMatchObject({
+      providerStatusShort: "PEN",
+      resultClassification: "terminal_without_score",
+      evaluationClassification: "evaluation_not_eligible",
+      safeAction: false,
+    });
+    expect(result.plan.rows[0]?.exclusionReason).toContain("fulltime regulation scores");
+  });
+
+  it("keeps PEN rows evaluation-pending when no eligible pre-kickoff prediction exists", async () => {
+    const fixtureKey = "wc2026-match-053";
+    const snapshot = buildStageSnapshot(fixtureKey, { predictionVersions: [] });
+
+    const result = await runTask2B2ResultRefresh(
+      {
+        repoRoot,
+        artifactsDir,
+        envSupabaseUrl: stageUrl,
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        dryRun: true,
+        apply: false,
+        verify: false,
+        selection: { canonicalFixtureIds: [fixtureKey] },
+      },
+      {
+        databaseAdapter: buildMemoryAdapter(snapshot),
+        providerFetcher: async () => [
+          buildProviderFixture(fixtureKey, {
+            statusShort: "PEN",
+            goals: { home: 1, away: 1 },
+            scoreBreakdown: {
+              halftime: { home: 0, away: 1 },
+              fulltime: { home: 1, away: 1 },
+              extratime: { home: 0, away: 0 },
+              penalty: { home: 3, away: 4 },
+            },
+            homeTeam: { winner: false },
+            awayTeam: { winner: true },
+            decision: "penalties",
+          }),
+        ],
+      },
+    );
+
+    expect(result.plan.rows[0]?.resultClassification).toBe("result_create_and_verify");
+    expect(result.plan.rows[0]?.evaluationClassification).toBe("evaluation_pending");
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.home_goals).toBe(1);
+    expect(result.plan.rows[0]?.resultPatch?.matchResult.away_goals).toBe(1);
   });
 
   it("backfills selected exact fixture ids that are missing from the reviewed league snapshot", async () => {

@@ -653,8 +653,14 @@ function buildVerifiedSourceNote(args: {
   providerFixtureId: number;
   providerStatusShort: string;
   providerResponseAt: string;
+  resultDecision: string | null;
+  persistedScore: { home: number; away: number };
+  penaltyScore?: { home: number; away: number } | null;
+  extraTimeScore?: { home: number; away: number } | null;
+  homeWinner?: boolean | null;
+  awayWinner?: boolean | null;
 }) {
-  return [
+  const noteParts = [
     "task2b_result_refresh",
     "provider=api_football",
     "verification_status=verified",
@@ -662,7 +668,63 @@ function buildVerifiedSourceNote(args: {
     `provider_fixture_id=${args.providerFixtureId}`,
     `provider_status_short=${args.providerStatusShort}`,
     `provider_response_at=${args.providerResponseAt}`,
-  ].join(" ");
+    `result_decision=${args.resultDecision ?? "unknown"}`,
+    `regular_score=${args.persistedScore.home}-${args.persistedScore.away}`,
+  ];
+
+  if (args.extraTimeScore) {
+    noteParts.push(`extra_time_score=${args.extraTimeScore.home}-${args.extraTimeScore.away}`);
+  }
+  if (args.penaltyScore) {
+    noteParts.push(`penalty_score=${args.penaltyScore.home}-${args.penaltyScore.away}`);
+  }
+  if (typeof args.homeWinner === "boolean") {
+    noteParts.push(`home_winner=${args.homeWinner}`);
+  }
+  if (typeof args.awayWinner === "boolean") {
+    noteParts.push(`away_winner=${args.awayWinner}`);
+  }
+
+  return noteParts.join(" ");
+}
+
+function isResolvedScore(value: { home: number | null; away: number | null } | null | undefined): value is {
+  home: number;
+  away: number;
+} {
+  return Boolean(value && typeof value.home === "number" && typeof value.away === "number");
+}
+
+function resolveTerminalOrdinaryScore(providerFixture: Task2BProviderSnapshot["fixtures"][number]) {
+  const regularScore = isResolvedScore(providerFixture.scoreBreakdown.fulltime)
+    ? providerFixture.scoreBreakdown.fulltime
+    : providerFixture.providerStatusShort === "FT" && isResolvedScore(providerFixture.goals)
+      ? providerFixture.goals
+      : null;
+
+  if (!regularScore) {
+    return {
+      status: "incomplete" as const,
+      reason:
+        providerFixture.providerStatusShort === "FT"
+          ? "Terminal provider row did not include both regular scores."
+          : `Terminal provider row did not include both fulltime regulation scores for ${providerFixture.providerStatusShort}.`,
+    };
+  }
+
+  return {
+    status: "ready" as const,
+    regularScore,
+    decision: providerFixture.decision ?? null,
+    extraTimeScore: isResolvedScore(providerFixture.scoreBreakdown.extratime)
+      ? providerFixture.scoreBreakdown.extratime
+      : null,
+    penaltyScore: isResolvedScore(providerFixture.scoreBreakdown.penalty)
+      ? providerFixture.scoreBreakdown.penalty
+      : null,
+    homeWinner: providerFixture.homeTeam.winner,
+    awayWinner: providerFixture.awayTeam.winner,
+  };
 }
 
 function resolveCanonicalProviderFixtureEvidence(
@@ -876,8 +938,9 @@ function planTask2B2FromSnapshot(args: {
     } else {
       providerStatus = providerFixture.normalizedStatus;
       providerStatusShort = providerFixture.providerStatusShort;
-      providerHomeGoals = providerFixture.goals.home;
-      providerAwayGoals = providerFixture.goals.away;
+      const terminalScore = resolveTerminalOrdinaryScore(providerFixture);
+      providerHomeGoals = terminalScore.status === "ready" ? terminalScore.regularScore.home : null;
+      providerAwayGoals = terminalScore.status === "ready" ? terminalScore.regularScore.away : null;
       const identity = verifyWorldCupProviderFixtureIdentity({
         canonicalFixture: {
           fixtureKey: canonicalFixture.fixtureKey,
@@ -905,20 +968,17 @@ function planTask2B2FromSnapshot(args: {
         exclusionReason = identity.ok ? "Stored home/away team identity was invalid." : identity.conflictReason;
       } else if (providerFixture.normalizedStatus !== "terminal_ft") {
         resultClassification = "not_terminal";
-        exclusionReason = `Provider status ${providerFixture.providerStatusShort} is not a supported terminal FT result.`;
-      } else if (
-        typeof providerFixture.goals.home !== "number" ||
-        typeof providerFixture.goals.away !== "number"
-      ) {
+        exclusionReason = `Provider status ${providerFixture.providerStatusShort} is not a supported terminal result.`;
+      } else if (terminalScore.status !== "ready") {
         resultClassification = "terminal_without_score";
-        exclusionReason = "Terminal provider row did not include both scores.";
+        exclusionReason = terminalScore.reason;
       } else if (
         currentResult?.verification_status === "verified" &&
-        (currentResult.home_goals !== providerFixture.goals.home ||
-          currentResult.away_goals !== providerFixture.goals.away)
+        (currentResult.home_goals !== terminalScore.regularScore.home ||
+          currentResult.away_goals !== terminalScore.regularScore.away)
       ) {
         resultClassification = "verified_result_conflict";
-        exclusionReason = `Stored verified score ${currentResult.home_goals}-${currentResult.away_goals} differed from provider ${providerFixture.goals.home}-${providerFixture.goals.away}.`;
+        exclusionReason = `Stored verified score ${currentResult.home_goals}-${currentResult.away_goals} differed from provider ${terminalScore.regularScore.home}-${terminalScore.regularScore.away}.`;
       } else {
         resultClassification =
           currentResult?.verification_status === "verified"
@@ -939,14 +999,20 @@ function planTask2B2FromSnapshot(args: {
         resultPatch = {
           matchStatus: "finished",
           matchResult: {
-            home_goals: providerFixture.goals.home,
-            away_goals: providerFixture.goals.away,
+            home_goals: terminalScore.regularScore.home,
+            away_goals: terminalScore.regularScore.away,
             verification_status: "verified",
             intake_source: "api_football",
             source_note: buildVerifiedSourceNote({
               providerFixtureId,
               providerStatusShort: providerFixture.providerStatusShort,
               providerResponseAt: args.providerSnapshot.observedAt,
+              resultDecision: terminalScore.decision,
+              persistedScore: terminalScore.regularScore,
+              penaltyScore: terminalScore.penaltyScore,
+              extraTimeScore: terminalScore.extraTimeScore,
+              homeWinner: terminalScore.homeWinner,
+              awayWinner: terminalScore.awayWinner,
             }),
             reviewed_at: args.providerSnapshot.observedAt,
             reviewed_by: null,
@@ -972,8 +1038,8 @@ function planTask2B2FromSnapshot(args: {
           const evaluation = buildEvaluationPayload({
             prediction,
             markets: marketsByPredictionId.get(prediction.id) ?? [],
-            actualHomeGoals: providerFixture.goals.home,
-            actualAwayGoals: providerFixture.goals.away,
+            actualHomeGoals: terminalScore.regularScore.home,
+            actualAwayGoals: terminalScore.regularScore.away,
           });
           if (evaluation.status === "failure") {
             evaluationClassification = "evaluation_failed";
