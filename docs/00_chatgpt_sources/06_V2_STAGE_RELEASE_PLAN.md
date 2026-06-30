@@ -1,215 +1,255 @@
 # V2 Stage and Release Plan
 
-_Last refreshed: 2026-06-29 after the production Round-of-32 checkpoint and the declaration of a synchronized MVP 1.5 track._
+_Last refreshed: 2026-06-29 after Task 2B passed its fixture/result verification gates and `main` was integrated into V2 at `9672b55644d8a2bd3818ecd08086ab3ebf111398`._
 
 ## Goal
 
-Build and evaluate Prediction Intelligence V2 in stage without disrupting the live V1-compatible commercial product.
+Move from a stable V1-visible stage to a fair, source-backed V2 shadow candidate without disrupting production or repeating completed foundation and current-result work.
 
 ## Current gate status
 
-```text
-production V1 product: live
-stage environment: live and separate
-V2 integration branch: active
-V2 Draft PR: #114
-V2 foundation: complete
-stored V2 baseline: complete
-current-data gate: still required
-V2 public release: not approved
-```
+| Gate | Status |
+|---|---|
+| Separate stage and production identity | Passed |
+| Prediction Intelligence schema in stage | Passed |
+| Foundation data bootstrap | Passed |
+| Bootstrap idempotency | Passed |
+| Exact V1 fixture linkage/import/publication | Passed |
+| Stage `/predictions` visual smoke | Passed |
+| V2 signal baseline in real tables | Passed |
+| Task 2A zero-growth verification | Passed |
+| Task 2B.1 current fixture refresh | Passed |
+| Task 2B.1 post-state verification | Passed, 41/41 |
+| Task 2B.2 trusted result refresh | Passed |
+| Task 2B.2 result verification | Passed, 69/69 |
+| Task 2B.2 evaluation verification | Passed, 24/24 |
+| Public History capability and smoke | Passed |
+| Current ranking/standings/context refresh | Active next |
+| Repeatable current signal snapshots | Pending |
+| First V2 shadow candidate | Pending |
+| V1/V2 evaluation | Pending |
+| Production release decision | Pending |
 
-Production writes remain forbidden from V2 workflows.
-
-## Stable stage checkpoint
-
-Stage contains:
-
-- V2 schema/data foundation;
-- canonical aliases/localizations/links;
-- source snapshots;
-- historical facts and ratings;
-- official schedule reference data;
-- exact runtime linkage;
-- immutable V1 comparison publications;
-- stored V2 baseline signal rows;
-- RLS and stage-only operational boundaries.
-
-Do not rerun completed foundation/import work merely to restate idempotency.
-
-## Active phase
-
-Current V2 phase:
+## Stable integrated checkpoint
 
 ```text
-current fixture/result refresh
--> current rankings/standings/context
--> repeatable current signal snapshots
--> first unpublished shadow candidate
+branch: integration/prediction-intelligence-v2
+Draft PR: #114
+main source merged: 3d4b036d20df44027d8927a9a90cb546e7553e64
+V2 checkpoint: 9672b55644d8a2bd3818ecd08086ab3ebf111398
+Task 2B implementation: 6d3fb7485b5a7dc1467812466107359daccdc902
+Task 2B evidence: 1cdaa8b6384d02854c3bd2dce321b85ea71c869d
+stage: yfmklapgjrupctgxaako
+production denied: gcpdffkgsdomzyoenalg
+tracked worktree: clean
+remote push: pending after documentation checkpoint
 ```
 
-Each task remains bounded.
+Stage comparison state:
 
-## Current-data acceptance gate
+```text
+active V1 models = 1
+predictions = 24
+markets = 240
+public fixtures = 24
+V1 state = exact_complete
 
-Before a live V2 candidate:
+V2 baseline signal rows = 48
+runtime fixture coverage = 72/72
+Task 2B fixture actions satisfied = 41/41
+Task 2B result actions satisfied = 69/69
+Task 2B evaluations satisfied = 24/24
+candidate-ready fixtures = 0
+```
 
-- exact not-started fixture identity;
-- current kickoff state;
-- verified recent result state;
-- current eligible ratings/rankings;
-- pre-kickoff standings/pressure context;
-- source snapshots and observed times;
-- reliability metadata;
-- conflict-free linking;
-- idempotent persistence.
+## Completed phase: foundation and visible V1
 
-## First shadow candidate
+Closed:
 
-Requirements:
+- legacy Task 3B schema/data foundation;
+- exact fixture linkage;
+- frozen V1 source selection;
+- atomic V1 import;
+- publication and activation;
+- exact-state verification;
+- stage UI smoke.
 
-- not-started target;
-- exact cutoff;
-- immutable development prediction;
-- source/cutoff lineage;
-- no public publication;
-- no V1 mutation;
-- stage-only storage;
-- comparison artifact.
+**No repetir:** do not rerun these without a concrete recovery requirement.
 
-## Historical replay
+## Completed phase: V2 signal baseline
 
-Replay must:
+Task 2A closed with:
 
-- use only data available before the historical kickoff;
-- remain labeled `historical_replay`;
-- preserve the original V1 publication;
-- exclude verified matches with no original prediction from accuracy;
-- not convert South Africa vs Canada into a retrospective success/failure record.
+```text
+prepared cutoff = 2026-06-20
+persisted signal rows = 48
+manifest status = verified
+post-state = exact_complete
+verification identical = 48
+duplicate growth = 0
+runtime fixture coverage = 72/72
+candidate-ready fixtures = 0
+production writes = 0
+```
+
+The baseline retains source identity, checksum, observed time, cutoff, signal version, canonical team linkage, missing/optional metadata, contradictions, sample sizes, and reliability.
+
+## Completed phase: current fixture and result refresh
+
+Task 2B.1:
+
+```text
+selected fixtures = 72
+reviewed safe actions = 41
+verified satisfied = 41/41
+blocked kickoff conflicts = 3
+verification passed = true
+```
+
+Task 2B.2:
+
+```text
+reviewed result actions = 69
+verified result actions = 69/69
+reviewed evaluation actions = 24
+verified evaluations = 24/24
+evaluation pending = 45
+excluded rows = 3
+verification passed = true
+```
+
+The accepted result apply is closed and must never be rerun.
+
+The phase preserved:
+
+- immutable V1 predictions;
+- Task 2A baseline rows;
+- exact provider identity;
+- three kickoff-conflict exclusions;
+- atomic result/evaluation writes;
+- timestamp equality by represented instant;
+- post-state verification.
+
+## Active phase: Task 2C current rankings and context
+
+Task 2C must append or version:
+
+- effective-dated World Football Elo;
+- latest available official FIFA ranking;
+- current standings and points;
+- wins, draws, losses, goals, and goal difference;
+- tournament form and opponent quality;
+- qualification and pressure state;
+- reliability, missing-data, disagreement, and cutoff metadata.
+
+Acceptance requires:
+
+- explicit source and observed time;
+- canonical team identity;
+- no history overwrite;
+- no post-kickoff leakage into pre-match evidence;
+- balanced source/insert/update/skip/conflict accounting;
+- stage and production-denial guards;
+- no candidate generation.
+
+There is no dedicated Task 2C runner yet. Begin with bounded repository/source-contract reconnaissance.
+
+## Next phase: Task 2D repeatable signal snapshots
+
+Task 2D will:
+
+- derive source-backed current signals;
+- persist explicit pre-kickoff cutoffs;
+- record missing and contradictory inputs;
+- apply reliability shrinkage;
+- prove idempotent incremental refresh;
+- produce a candidate-ready fixture set.
+
+Ordinary refresh must not require another foundation bootstrap, Task 2A apply, or Task 2B apply.
+
+## First V2 shadow candidate
+
+Generate only after Task 2C and Task 2D acceptance.
+
+Required properties:
+
+- fixture not started;
+- explicit model and feature version;
+- calculation time and evidence cutoff;
+- V1 predecessor reference;
+- source and signal snapshot references;
+- reliability and missing-signal report;
+- bounded probability movement;
+- coherent scenario families;
+- unpublished/development state.
+
+Completed fixtures use labeled `historical_replay` with pre-kickoff evidence only.
 
 ## Evaluation gate
 
-Evaluate:
+Compare separately:
 
-- 1X2 calibration;
-- score/scenario behavior;
-- BTTS/totals families;
-- confidence/risk usefulness;
-- missing-source behavior;
-- reliability;
-- explanation coherence;
-- regressions against V1.
+- 1X2 probability and calibration;
+- log loss and Brier;
+- xG and total-goal error;
+- BTTS and over/under;
+- scenario-family quality;
+- explanation and evidence usefulness;
+- source freshness and reliability;
+- data limitation, model error, and football variance.
 
-Do not release based on one favorable match.
+A better explanation does not prove better probability calibration.
 
 ## Release decision gate
 
-Required:
-
-- stage candidate evidence;
-- replay evidence;
-- V1/V2 comparison;
-- product compatibility;
-- entitlement compatibility;
-- public/admin query compatibility;
-- rollback plan;
-- owner approval;
-- documentation refresh.
-
-## Production promotion boundaries
-
-A V2 promotion must not:
-
-- rewrite V1 versions;
-- change verified scores;
-- regenerate completed matches as original predictions;
-- expose internal source payloads;
-- bypass Premium authorization;
-- depend on stage Auth/payment rows;
-- merge unrelated MVP 1.5 work accidentally.
-
-## MVP 1.5 parallel work
-
-MVP 1.5 may ship while V2 remains in stage.
-
-Allowed:
-
-- Free/Premium copy and hierarchy;
-- Premium badge;
-- conversion CTAs;
-- price presentation;
-- panel/pricing/Transparency polish;
-- venue ingestion/display;
-- kickoff time presentation;
-- accessibility/mobile;
-- public result-without-prediction surface.
-
-Not allowed:
-
-- V2 probability output;
-- V2 signal consumption;
-- calibration change;
-- broad V2 table dependency.
-
-## Synchronization plan
+Choose explicitly between:
 
 ```text
-MVP 1.5 branch from current main
--> bounded PR to main
--> production validation
--> merge updated main into V2 integration
--> rerun affected V1/public/V2 integration tests
+V1 probabilities + V2 analysis
 ```
 
-Synchronization should happen after each accepted MVP 1.5 slice that touches shared code, not only at the end.
+and:
 
-## Shared conflict zones
+```text
+gated V2 probabilities + V2 analysis
+```
 
-Expect review in:
+Promotion requires:
 
-- `lib/presentation/*`;
-- public prediction query helpers;
-- prediction cards;
-- match detail;
-- pricing/panel routes;
-- navigation;
-- shared database types if venue fields change.
+- accepted stage state;
+- immutable version and cutoff proof;
+- no post-kickoff leakage;
+- fair current-sample comparison;
+- rollback plan;
+- Auth/Wompi/entitlement regression protection;
+- public, premium, admin, and export compatibility;
+- owner approval.
 
-Resolve manually against current production behavior.
+## Parallel product and pricing track
 
-## Validation after main synchronization
+Accepted product wording from `main` is integrated.
 
-At minimum:
+Pricing remains unresolved:
 
-- public prediction query tests;
-- match detail tests;
-- Auth/entitlement regression;
-- pricing route smoke;
-- venue/time formatting tests when touched;
-- V2 type/build tests;
-- lint;
-- production build;
-- no production write from V2 branch.
+```text
+owner-approved target = US$10
+observed Wompi production display = COP 35,000
+tracked repository behavior = US$20 / COP 68,700
+```
+
+Pricing reconciliation is separate from V2 model release and must use a forward implementation. Do not edit applied historical migrations.
 
 ## Process decisions
 
-- stage is the V2 proving environment;
-- `main` remains production authority;
-- MVP 1.5 must not become a separate product line;
-- no blanket cross-branch merges;
-- small reviewed slices beat a final large reconciliation;
-- canonical documentation is authored by ChatGPT.
+- one implementation review, not repeated general scrutiny;
+- one preflight, one apply, one verification per bounded operation;
+- a concrete defect permits focused correction, not a restart;
+- migration files in Git and remote migration application are separate facts;
+- canonical docs preserve state and decisions;
+- Codex inspects/implements; ChatGPT authors canonical docs; the operator owns remote actions.
 
 ## Responsibility
 
-### ChatGPT
-
-- gates, roadmap, documentation, release interpretation.
-
-### Codex
-
-- implementation and focused validation.
-
-### Operator
-
-- branch/remote operations, deployment, and approval.
+- ChatGPT defines and documents gates, decisions, and handoffs.
+- Codex implements bounded slices and returns evidence.
+- The operator authorizes and executes remote stage and Git actions.

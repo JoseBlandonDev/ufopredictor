@@ -1,111 +1,175 @@
 # V2 Branch and Environment Normalization Runbook
 
-_Last refreshed: 2026-06-29._
+_Last refreshed: 2026-06-29 after Task 2B completion and the accepted `main` synchronization at `9672b55644d8a2bd3818ecd08086ab3ebf111398`._
 
-## Current status
+## Goal
 
-The original normalization is complete.
+Keep the active V2 branch, environments, accepted `main` changes, and next-task handoff normalized without reopening historical work.
 
-Current V2 work uses:
+## Live-state source
 
-```text
-integration/prediction-intelligence-v2
-Draft PR #114
-stage.ufopredictor.com
-stage Supabase yfmklapgjrupctgxaako
-```
-
-Old branch and PR #106 remain preservation only.
-
-Do not repeat the original nine-commit normalization unless a concrete recovery task requires it.
-
-## Ongoing purpose
-
-Preserve the V2 branch on top of current production behavior as `main` continues to receive:
-
-- production operations;
-- bounded fixes;
-- MVP 1.5 product releases;
-- security/commercial updates.
-
-## Main synchronization procedure
-
-1. verify clean V2 worktree;
-2. fetch remote refs;
-3. verify current V2 HEAD and expected Draft PR;
-4. inspect `main..V2` and `V2..main`;
-5. merge current `main` into V2 using repository policy;
-6. resolve shared files manually;
-7. preserve stage-only data/model work;
-8. run affected production and V2 tests;
-9. lint/build;
-10. record synchronization SHA;
-11. confirm no production write.
-
-## Shared conflict zones
-
-Review carefully:
-
-- public display helpers;
-- prediction cards;
-- match detail;
-- public query helpers;
-- pricing/panel/navigation;
-- shared database types;
-- venue ingestion types;
-- time-zone presentation helpers;
-- docs.
-
-Do not accept V2 copies that roll back newer production/MVP 1.5 behavior.
-
-## MVP 1.5 interaction
-
-MVP 1.5 does not merge unfinished V2 model work.
-
-Flow:
+Read first:
 
 ```text
-MVP 1.5 -> main
-main -> V2
+docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
+docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
+docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
+docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
-not:
+This runbook does not override those sources.
+
+## Stable references
 
 ```text
-V2 -> broad MVP 1.5 merge
+active branch: integration/prediction-intelligence-v2
+active Draft PR: #114
+integrated checkpoint HEAD: 9672b55644d8a2bd3818ecd08086ab3ebf111398
+accepted main source: 3d4b036d20df44027d8927a9a90cb546e7553e64
+Task 2B implementation: 6d3fb7485b5a7dc1467812466107359daccdc902
+Task 2B evidence: 1cdaa8b6384d02854c3bd2dce321b85ea71c869d
+canonical stage env: .env.stage.local
+stage project: yfmklapgjrupctgxaako
+production project denied: gcpdffkgsdomzyoenalg
+old branch: feature/prediction-intelligence-v2-data-foundation
+old Draft PR: #106
 ```
 
-Shared changes are preserved through current `main`.
+Verify actual HEAD, upstream, and worktree before implementation. The checkpoint above precedes the documentation-only commit and push.
 
-## Validation after synchronization
+## Completed normalization map
 
-- public prediction/lifecycle tests;
-- match detail tests;
-- Auth/pricing/entitlement tests if touched;
-- fixture/result tests if shared ingest code touched;
-- venue/time tests if added;
-- V2 focused tests;
-- lint;
-- production build;
-- stage target guard;
+Completed:
+
+- selective old-V2 normalization;
+- data foundation and replay readiness;
+- historical Elo/challenger research;
+- calibration, gates, eligibility, and packaging;
+- legacy Task 3B stage synchronization;
+- exact 24-fixture linkage;
+- immutable V1 import/publication;
+- Task 2A exact signal baseline;
+- Task 2B.1 fixture refresh;
+- Task 2B.2 result/evaluation refresh;
+- public History smoke;
+- accepted `main` product/documentation synchronization;
+- full build/type/test integration fixes.
+
+No useful implementation remains to be ported wholesale from the old branch.
+
+## Environment rule
+
+```text
+production: ufopredictor.com -> gcpdffkgsdomzyoenalg
+stage: stage.ufopredictor.com -> yfmklapgjrupctgxaako
+```
+
+Do not create another stage environment.
+
+Do not use production credentials for stage.
+
+Do not revive the Docker path for normal stage work.
+
+## Current stage result
+
+```text
+runtime matches = 72
+linked V1 fixtures = 24
+active V1 models = 1
+V1 predictions = 24
+markets = 240
+public fixtures = 24
+Task 2A signals = 48
+Task 2B fixture actions verified = 41/41
+Task 2B result actions verified = 69/69
+Task 2B evaluations verified = 24/24
+evaluation pending = 45
+kickoff-conflict exclusions = 3
+candidate-ready fixtures = 0
+```
+
+Stage is not empty and Task 2B is not active work.
+
+## Integrated parallel work
+
+Accepted `main` product/documentation work was merged normally into the integration branch.
+
+The integration included football-first premium scenario wording and did not change V2 probabilities, payment authority, or entitlements.
+
+Do not reimplement those changes manually.
+
+## Merge validation lessons
+
+The accepted merge also fixed:
+
+- Task 1C snake_case stable publication payload;
+- sanitized provider fixture resolution;
+- nullable timestamp comparison;
+- canonical `verification` mode;
+- isolated Task 2B test artifact directories.
+
+Final validation passed focused tests, ESLint, TypeScript, and Next.js build.
+
+## Migration notes
+
+Operational stage migrations include foundation, Task 1C, and Task 2B result-core functions.
+
+Manual migration-ledger reconciliation remains non-blocking housekeeping.
+
+A migration file in Git is not proof of remote application.
+
+Do not edit applied historical pricing migrations to force the US$10 target.
+
+## Next transition
+
+```text
+Task 2C - Ranking, standings, and tournament context
+```
+
+Required first step:
+
+1. inspect current relevant schema/types/loaders;
+2. inventory official/approved sources;
+3. define exact destinations and natural keys;
+4. define lineage, cutoff, reliability, and conflict behavior;
+5. design one dry-run/apply/verification path;
+6. stop before candidate generation.
+
+Then:
+
+```text
+Task 2D repeatable current signal snapshots
+-> Task 3A first V2 shadow candidate
+```
+
+Do not redo normalization, legacy Task 3B, Task 1C, Task 2A, or Task 2B.
+
+## Parallel branch rule
+
+A separate owner may improve production-safe product work from current `main`.
+
+Those changes:
+
+- must not casually change model calculations;
+- must not depend on unfinished V2 data;
+- merge normally to `main`;
+- flow into V2 through normal history;
+- are not manually duplicated.
+
+## Responsibility
+
+- ChatGPT owns canonical branch/environment decisions and handoffs.
+- Codex implements bounded technical slices.
+- The operator handles Git, stage SQL, Railway, APIs, and remote operations.
+
+## Validation
+
+For each synchronization or task:
+
+- branch/HEAD/upstream/worktree;
+- exact target and deny refs;
+- task-specific tests;
+- protected regressions;
+- lint, diff-check, and build when relevant;
+- zero unresolved conflicts;
 - no production write.
-
-## Environment contract
-
-```text
-production: ufopredictor.com / gcpdffkgsdomzyoenalg
-stage: stage.ufopredictor.com / yfmklapgjrupctgxaako
-```
-
-Do not create another normal stage environment.
-
-Do not clone production users/payments/entitlements into stage.
-
-## Required output
-
-- pre-sync branch/HEAD;
-- main HEAD merged;
-- conflict list/resolutions;
-- tests/build;
-- post-sync HEAD;
-- no-production-write confirmation.
