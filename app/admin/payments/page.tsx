@@ -148,7 +148,7 @@ export default async function AdminPaymentsPage({ searchParams }: AdminPaymentsP
                 name="basePriceUsd"
                 inputMode="decimal"
                 defaultValue={formatUsdInputValue(price.basePriceUsdCents)}
-                placeholder="20.00"
+                placeholder="10.00"
                 required
               />
             </label>

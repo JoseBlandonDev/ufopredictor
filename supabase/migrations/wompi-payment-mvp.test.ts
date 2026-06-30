@@ -54,6 +54,12 @@ const returnPage = readFileSync(
   join(process.cwd(), "app/payments/wompi/return/page.tsx"),
   "utf8",
 );
+const pricingReconciliationMigrationName = readdirSync(join(process.cwd(), "supabase/migrations")).find((fileName) =>
+  fileName.endsWith("_mvp15_pricing_reconciliation.sql"),
+);
+const pricingReconciliationMigration = pricingReconciliationMigrationName
+  ? readFileSync(join(process.cwd(), "supabase/migrations", pricingReconciliationMigrationName), "utf8")
+  : "";
 
 describe("0037 Wompi payment MVP migration", () => {
   it("creates the Wompi intent and event ledgers without storing card data", () => {
@@ -240,6 +246,30 @@ describe("0037 Wompi payment MVP migration", () => {
     expect(checkoutRoute).not.toContain("WOMPI_WORLD_CUP_PASS_AMOUNT_COP");
     expect(checkoutRoute).not.toContain('.from("wompi_payment_intents").insert');
     expect(checkoutRoute).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
+  });
+
+  it("keeps the MVP 1.5 repurchase guard scoped to an exact active full-pass competition entitlement", () => {
+    expect(pricingReconciliationMigrationName).toBeDefined();
+    expect(pricingReconciliationMigration).toContain("from public.user_entitlements ent");
+    expect(pricingReconciliationMigration).toContain("ent.user_id = v_user_id");
+    expect(pricingReconciliationMigration).toContain("ent.source_plan_id = v_plan_id");
+    expect(pricingReconciliationMigration).toContain("ent.entitlement_type = 'competition_access'");
+    expect(pricingReconciliationMigration).toContain("ent.resource_type = 'competition'");
+    expect(pricingReconciliationMigration).toContain("ent.resource_id = 'world_cup_2026'");
+    expect(pricingReconciliationMigration).toContain("ent.quantity is null");
+    expect(pricingReconciliationMigration).toContain("(ent.starts_at is null or ent.starts_at <= now())");
+    expect(pricingReconciliationMigration).toContain("(ent.ends_at is null or ent.ends_at > now())");
+    expect(pricingReconciliationMigration).toContain(
+      "raise exception 'world-cup-pass already active for this account' using errcode = 'P0001'",
+    );
+  });
+
+  it("does not let expired or future full-pass entitlements count as active, and never treats single-match unlocks as a full pass", () => {
+    expect(pricingReconciliationMigration).toContain("(ent.starts_at is null or ent.starts_at <= now())");
+    expect(pricingReconciliationMigration).toContain("(ent.ends_at is null or ent.ends_at > now())");
+    expect(pricingReconciliationMigration).not.toContain("from public.user_match_unlocks");
+    expect(pricingReconciliationMigration).not.toContain("unlocks.source_plan_id = v_plan_id");
+    expect(pricingReconciliationMigration).not.toContain("using errcode = '23505'");
   });
 
   it("keeps browser redirect pages informational", () => {

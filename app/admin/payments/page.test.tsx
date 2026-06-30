@@ -31,18 +31,18 @@ describe("AdminPaymentsPage", () => {
     requireAdminMock.mockResolvedValue({ user: { id: "admin-1" } });
     getWompiWorldCupPassPriceMock.mockResolvedValue({
       status: "available",
-      amountInCents: 5150000,
-      amountCop: 51500,
+      amountInCents: 3500000,
+      amountCop: 35000,
       currency: "COP",
-      displayPrice: "US$15.00",
-      checkoutDisplay: "COP 51.500",
-      priceUsdCents: 1500,
-      basePriceUsdCents: 2000,
-      offerPriceUsdCents: 1500,
-      usdCopRate: 3435,
+      displayPrice: "US$10",
+      checkoutDisplay: "COP 35.000",
+      priceUsdCents: 1000,
+      basePriceUsdCents: 1000,
+      offerPriceUsdCents: null,
+      usdCopRate: 3500,
       convertedAt: "2026-06-19T00:45:00.000Z",
-      offerEndsAt: "2026-06-19T01:00:00.000Z",
-      isOfferActive: true,
+      offerEndsAt: null,
+      isOfferActive: false,
       updatedAt: "2026-06-19T00:45:00.000Z",
     });
   });
@@ -56,11 +56,11 @@ describe("AdminPaymentsPage", () => {
 
     expect(requireAdminMock).toHaveBeenCalledWith("/admin/payments");
     expect(html).toContain("Precio World Cup Pass");
-    expect(html).toContain("US$15.00");
+    expect(html).toContain("US$10");
     expect(html).toContain("name=\"basePriceUsd\"");
     expect(html).toContain("name=\"offerPriceUsd\"");
     expect(html).toContain("name=\"offerMinutes\"");
-    expect(html).toContain("COP 51.500");
+    expect(html).toContain("COP 35.000");
     expect(html).not.toContain("name=\"basePriceLabel\"");
     expect(html).not.toContain("name=\"offerPriceLabel\"");
     expect(html).not.toContain("name=\"baseAmountCop\"");

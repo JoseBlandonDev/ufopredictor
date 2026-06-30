@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { WompiPaymentIntentRow } from "@/types/database";
 
 export const runtime = "nodejs";
+const ACTIVE_PREMIUM_ACCESS_ERROR = "world-cup-pass already active for this account";
 
 export async function POST() {
   const supabase = await createSupabaseServerClient();
@@ -35,6 +36,10 @@ export async function POST() {
       p_expires_at: expirationTime,
     },
   );
+
+  if (intentError?.message === ACTIVE_PREMIUM_ACCESS_ERROR) {
+    return NextResponse.json({ error: "World Cup Pass already active for this account." }, { status: 409 });
+  }
 
   if (intentError || !intentData) {
     return NextResponse.json({ error: "Could not create Wompi payment intent." }, { status: 500 });
