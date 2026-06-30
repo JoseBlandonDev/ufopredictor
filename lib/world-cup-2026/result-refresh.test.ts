@@ -21,6 +21,13 @@ function buildSnapshot(
         usage_scope: "public_product",
       },
     ],
+    seasons: [
+      {
+        id: "season-2026",
+        competition_id: "competition-1",
+        year: 2026,
+      },
+    ],
     teams: [
       { id: "team-home", name: "France" },
       { id: "team-away", name: "Senegal" },
@@ -31,6 +38,7 @@ function buildSnapshot(
         external_id: "api-football:fixture:1489383",
         slug: "world-cup-2026-france-vs-senegal-2026-06-16",
         competition_id: "competition-1",
+        season_id: "season-2026",
         home_team_id: "team-home",
         away_team_id: "team-away",
         kickoff_at: "2026-06-16T19:00:00Z",
@@ -96,6 +104,90 @@ function buildProviderFixture(
     awayTeam: {
       providerTeamId: 2,
       name: "Senegal",
+      winner: false,
+    },
+    goals: {
+      home: 2,
+      away: 1,
+    },
+    ...overrides,
+  };
+}
+
+function buildKnockoutSnapshot(
+  overrides: Partial<WorldCupResultRefreshDatabaseSnapshot> = {},
+): WorldCupResultRefreshDatabaseSnapshot {
+  return {
+    competitions: [
+      {
+        id: "competition-1",
+        slug: "world-cup-2026",
+        name: "World Cup",
+        usage_scope: "public_product",
+      },
+    ],
+    seasons: [
+      {
+        id: "season-2026",
+        competition_id: "competition-1",
+        year: 2026,
+      },
+    ],
+    teams: [
+      { id: "team-home", name: "Brazil" },
+      { id: "team-away", name: "Japan" },
+    ],
+    matches: [
+      {
+        id: "match-knockout-1",
+        external_id: "api-football:fixture:1562344",
+        slug: "world-cup-2026-brazil-vs-japan-2026-06-29",
+        competition_id: "competition-1",
+        season_id: "season-2026",
+        home_team_id: "team-home",
+        away_team_id: "team-away",
+        kickoff_at: "2026-06-29T17:00:00Z",
+        stage: "Round of 32",
+        status: "scheduled",
+        access_scope: "public",
+        intake_source: "api_football",
+        source_note: null,
+      },
+    ],
+    matchResults: [],
+    predictionVersions: [],
+    predictionMarkets: [],
+    predictionResults: [],
+    ...overrides,
+  };
+}
+
+function buildKnockoutProviderFixture(
+  overrides: Partial<ProviderFixture> = {},
+): ProviderFixture {
+  return {
+    provider: "api-football",
+    providerFixtureId: 1562344,
+    kickoffAt: "2026-06-29T17:00:00Z",
+    timezone: "UTC",
+    status: "finished",
+    statusShort: "FT",
+    elapsedMinutes: 90,
+    competition: {
+      providerCompetitionId: 1,
+      name: "World Cup",
+      country: "World",
+      season: 2026,
+      round: "Round of 32",
+    },
+    homeTeam: {
+      providerTeamId: 101,
+      name: "Brazil",
+      winner: true,
+    },
+    awayTeam: {
+      providerTeamId: 102,
+      name: "Japan",
       winner: false,
     },
     goals: {
@@ -293,6 +385,7 @@ describe("world cup result refresh", () => {
           external_id: "api-football:fixture:1538999",
           slug: "world-cup-2026-south-korea-vs-czech-republic-2026-06-12",
           competition_id: "competition-1",
+          season_id: "season-2026",
           home_team_id: "team-home",
           away_team_id: "team-away",
           kickoff_at: "2026-06-12T02:00:00Z",
@@ -358,6 +451,7 @@ describe("world cup result refresh", () => {
           external_id: "api-football:fixture:1539010",
           slug: "world-cup-2026-czechia-vs-mexico-2026-06-25",
           competition_id: "competition-1",
+          season_id: "season-2026",
           home_team_id: "team-home",
           away_team_id: "team-away",
           kickoff_at: "2026-06-25T01:00:00Z",
@@ -424,6 +518,7 @@ describe("world cup result refresh", () => {
           external_id: "api-football:fixture:1489409",
           slug: "world-cup-2026-curacao-vs-ivory-coast-2026-06-25",
           competition_id: "competition-1",
+          season_id: "season-2026",
           home_team_id: "team-home",
           away_team_id: "team-away",
           kickoff_at: "2026-06-25T20:00:00Z",
@@ -490,6 +585,7 @@ describe("world cup result refresh", () => {
           external_id: "api-football:fixture:1539010",
           slug: "world-cup-2026-mexico-vs-czechia-2026-06-25",
           competition_id: "competition-1",
+          season_id: "season-2026",
           home_team_id: "team-home",
           away_team_id: "team-away",
           kickoff_at: "2026-06-25T01:00:00Z",
@@ -540,7 +636,7 @@ describe("world cup result refresh", () => {
     });
 
     expect(reversedReport.rows[0]?.trustedAutoVerifyEligible).toBe(false);
-    expect(reversedReport.rows[0]?.conflictSummary).toContain("does not resolve to a canonical World Cup fixture");
+    expect(reversedReport.rows[0]?.conflictSummary).toContain("reverses the stored home/away team order");
 
     const unrelatedSnapshot = buildSnapshot({
       teams: [
@@ -553,6 +649,7 @@ describe("world cup result refresh", () => {
           external_id: "api-football:fixture:1539010",
           slug: "world-cup-2026-atlantis-vs-mexico-2026-06-25",
           competition_id: "competition-1",
+          season_id: "season-2026",
           home_team_id: "team-home",
           away_team_id: "team-away",
           kickoff_at: "2026-06-25T01:00:00Z",
@@ -603,7 +700,7 @@ describe("world cup result refresh", () => {
     });
 
     expect(unrelatedReport.rows[0]?.trustedAutoVerifyEligible).toBe(false);
-    expect(unrelatedReport.rows[0]?.conflictSummary).toContain("does not resolve to a canonical World Cup fixture");
+    expect(unrelatedReport.rows[0]?.conflictSummary).toContain("does not map cleanly to canonical World Cup team identities");
   });
 
   it("is idempotent on a second apply for the same trusted FT result", async () => {
@@ -662,5 +759,357 @@ describe("world cup result refresh", () => {
     expect(secondAdapter.operations.matchResultUpdates).toHaveLength(0);
     expect(secondAdapter.operations.predictionResultInserts).toHaveLength(0);
     expect(secondAdapter.operations.predictionResultUpdates).toHaveLength(0);
+  });
+
+  it("resolves runtime knockout identity through the stored provider-linked match contract", () => {
+    const snapshot = buildKnockoutSnapshot();
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [buildKnockoutProviderFixture()],
+    });
+
+    expect(report.rows[0]).toMatchObject({
+      storedStage: "Round of 32",
+      providerRound: "Round of 32",
+      canonicalFixtureId: null,
+      trustedAutoVerifyEligible: true,
+      resultAction: "create_verified",
+    });
+  });
+
+  it("fails closed when the knockout provider id does not match the stored external link", () => {
+    const snapshot = buildKnockoutSnapshot();
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [buildKnockoutProviderFixture({ providerFixtureId: 1999999 })],
+    });
+
+    expect(report.rows[0]?.trustedAutoVerifyEligible).toBe(false);
+    expect(report.rows[0]?.exceptionReason).toBe("provider_fixture_not_found");
+  });
+
+  it("fails closed when a knockout provider fixture reverses home and away teams", () => {
+    const snapshot = buildKnockoutSnapshot();
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [
+        buildKnockoutProviderFixture({
+          homeTeam: { providerTeamId: 101, name: "Japan", winner: false },
+          awayTeam: { providerTeamId: 102, name: "Brazil", winner: true },
+        }),
+      ],
+    });
+
+    expect(report.rows[0]?.trustedAutoVerifyEligible).toBe(false);
+    expect(report.rows[0]?.conflictSummary).toContain("reverses the stored home/away team order");
+  });
+
+  it("fails closed when a knockout provider kickoff conflicts with the stored runtime match", () => {
+    const snapshot = buildKnockoutSnapshot();
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [buildKnockoutProviderFixture({ kickoffAt: "2026-06-29T18:00:00Z" })],
+    });
+
+    expect(report.rows[0]?.trustedAutoVerifyEligible).toBe(false);
+    expect(report.rows[0]?.conflictSummary).toContain("does not match stored kickoff");
+  });
+
+  it("keeps a scheduled knockout fixture read-only without reporting a result conflict", () => {
+    const snapshot = buildKnockoutSnapshot();
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [
+        buildKnockoutProviderFixture({
+          status: "scheduled",
+          statusShort: "NS",
+          elapsedMinutes: null,
+          goals: { home: null, away: null },
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: null },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: null },
+        }),
+      ],
+    });
+
+    expect(report.rows[0]).toMatchObject({
+      storedStage: "Round of 32",
+      providerRound: "Round of 32",
+      statusAction: "none",
+      resultAction: "none",
+      conflictSummary: null,
+      exceptionReason: null,
+    });
+  });
+
+  it("does not persist a PEN knockout fixture as an ordinary draw", async () => {
+    const snapshot = buildKnockoutSnapshot();
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const providerFixtures = [
+      buildKnockoutProviderFixture({
+        statusShort: "PEN",
+        elapsedMinutes: 120,
+        homeTeam: { providerTeamId: 101, name: "Brazil", winner: true },
+        awayTeam: { providerTeamId: 102, name: "Japan", winner: false },
+        goals: { home: 1, away: 1 },
+      }),
+    ];
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures,
+    });
+
+    expect(report.rows[0]).toMatchObject({
+      trustedAutoVerifyEligible: false,
+      resultAction: "none",
+      evaluationAction: "none",
+      exceptionReason: "unsupported_penalty_semantics",
+    });
+
+    const { adapter, operations } = createMemoryWriteAdapter(snapshot);
+    const applySelection = resolveWorldCupResultRefreshApplySelection({
+      selectedMatches: selection.matches,
+      allowExternalIds: ["api-football:fixture:1562344"],
+    });
+
+    const counts = await applyWorldCupResultRefreshPlan({
+      report,
+      snapshot,
+      providerFixtures,
+      applySelection,
+      providerResponseAt: "2026-06-30T01:00:00Z",
+      verifiedAt: "2026-06-30T01:00:00Z",
+      writeAdapter: adapter,
+    });
+
+    expect(counts.resultsCreated).toBe(0);
+    expect(counts.resultsUpdated).toBe(0);
+    expect(operations.matchResultInserts).toHaveLength(0);
+    expect(operations.matchResultUpdates).toHaveLength(0);
+  });
+
+  it("keeps the current active-state contract for future and expired knockout entitlements by failing closed on unsupported score semantics", () => {
+    const snapshot = buildKnockoutSnapshot({
+      matches: [
+        {
+          id: "match-brazil-japan",
+          external_id: "api-football:fixture:1562344",
+          slug: "world-cup-2026-brazil-vs-japan-2026-06-29",
+          competition_id: "competition-1",
+          season_id: "season-2026",
+          home_team_id: "team-home",
+          away_team_id: "team-away",
+          kickoff_at: "2026-06-29T17:00:00Z",
+          stage: "Round of 32",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+        {
+          id: "match-germany-paraguay",
+          external_id: "api-football:fixture:1565176",
+          slug: "world-cup-2026-germany-vs-paraguay-2026-06-29",
+          competition_id: "competition-1",
+          season_id: "season-2026",
+          home_team_id: "team-germany",
+          away_team_id: "team-paraguay",
+          kickoff_at: "2026-06-29T20:30:00Z",
+          stage: "Round of 32",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+        {
+          id: "match-netherlands-morocco",
+          external_id: "api-football:fixture:1562345",
+          slug: "world-cup-2026-netherlands-vs-morocco-2026-06-30",
+          competition_id: "competition-1",
+          season_id: "season-2026",
+          home_team_id: "team-netherlands",
+          away_team_id: "team-morocco",
+          kickoff_at: "2026-06-30T01:00:00Z",
+          stage: "Round of 32",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+        {
+          id: "match-ivorycoast-norway",
+          external_id: "api-football:fixture:1564789",
+          slug: "world-cup-2026-ivory-coast-vs-norway-2026-06-30",
+          competition_id: "competition-1",
+          season_id: "season-2026",
+          home_team_id: "team-ivory-coast",
+          away_team_id: "team-norway",
+          kickoff_at: "2026-06-30T17:00:00Z",
+          stage: "Round of 32",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+        {
+          id: "match-france-sweden",
+          external_id: "api-football:fixture:1565177",
+          slug: "world-cup-2026-france-vs-sweden-2026-06-30",
+          competition_id: "competition-1",
+          season_id: "season-2026",
+          home_team_id: "team-france",
+          away_team_id: "team-sweden",
+          kickoff_at: "2026-06-30T21:00:00Z",
+          stage: "Round of 32",
+          status: "scheduled",
+          access_scope: "public",
+          intake_source: "api_football",
+          source_note: null,
+        },
+      ],
+      teams: [
+        { id: "team-home", name: "Brazil" },
+        { id: "team-away", name: "Japan" },
+        { id: "team-germany", name: "Germany" },
+        { id: "team-paraguay", name: "Paraguay" },
+        { id: "team-netherlands", name: "Netherlands" },
+        { id: "team-morocco", name: "Morocco" },
+        { id: "team-ivory-coast", name: "Ivory Coast" },
+        { id: "team-norway", name: "Norway" },
+        { id: "team-france", name: "France" },
+        { id: "team-sweden", name: "Sweden" },
+      ],
+    });
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      from: "2026-06-29",
+      to: "2026-06-30",
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T09:24:51.128Z",
+      selection,
+      snapshot,
+      providerFixtures: [
+        buildKnockoutProviderFixture(),
+        {
+          ...buildKnockoutProviderFixture(),
+          providerFixtureId: 1565176,
+          kickoffAt: "2026-06-29T20:30:00Z",
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 201, name: "Germany", winner: true },
+          awayTeam: { providerTeamId: 202, name: "Paraguay", winner: false },
+          goals: { home: 1, away: 1 },
+        },
+        {
+          ...buildKnockoutProviderFixture(),
+          providerFixtureId: 1562345,
+          kickoffAt: "2026-06-30T01:00:00Z",
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 301, name: "Netherlands", winner: true },
+          awayTeam: { providerTeamId: 302, name: "Morocco", winner: false },
+          goals: { home: 1, away: 1 },
+        },
+        {
+          ...buildKnockoutProviderFixture(),
+          providerFixtureId: 1564789,
+          kickoffAt: "2026-06-30T17:00:00Z",
+          status: "scheduled",
+          statusShort: "NS",
+          elapsedMinutes: null,
+          homeTeam: { providerTeamId: 401, name: "Ivory Coast", winner: null },
+          awayTeam: { providerTeamId: 402, name: "Norway", winner: null },
+          goals: { home: null, away: null },
+        },
+        {
+          ...buildKnockoutProviderFixture(),
+          providerFixtureId: 1565177,
+          kickoffAt: "2026-06-30T21:00:00Z",
+          status: "scheduled",
+          statusShort: "NS",
+          elapsedMinutes: null,
+          homeTeam: { providerTeamId: 501, name: "France", winner: null },
+          awayTeam: { providerTeamId: 502, name: "Sweden", winner: null },
+          goals: { home: null, away: null },
+        },
+      ],
+    });
+
+    expect(report.summary.selectedFixtures).toBe(5);
+    expect(report.summary.providerTerminalResults).toBe(3);
+    expect(report.summary.resultsCreated).toBe(1);
+    expect(report.summary.resultsVerified).toBe(1);
+    expect(report.summary.exceptionsOrConflicts).toBe(2);
+    expect(report.rows.map((row) => ({
+      externalId: row.externalId,
+      resultAction: row.resultAction,
+      exceptionReason: row.exceptionReason,
+      conflictSummary: row.conflictSummary,
+      nextStoredStatus: row.nextStoredStatus,
+    }))).toEqual([
+      {
+        externalId: "api-football:fixture:1562344",
+        resultAction: "create_verified",
+        exceptionReason: null,
+        conflictSummary: null,
+        nextStoredStatus: "finished",
+      },
+      {
+        externalId: "api-football:fixture:1565176",
+        resultAction: "none",
+        exceptionReason: "unsupported_penalty_semantics",
+        conflictSummary: null,
+        nextStoredStatus: "finished",
+      },
+      {
+        externalId: "api-football:fixture:1562345",
+        resultAction: "none",
+        exceptionReason: "unsupported_penalty_semantics",
+        conflictSummary: null,
+        nextStoredStatus: "finished",
+      },
+      {
+        externalId: "api-football:fixture:1564789",
+        resultAction: "none",
+        exceptionReason: null,
+        conflictSummary: null,
+        nextStoredStatus: "scheduled",
+      },
+      {
+        externalId: "api-football:fixture:1565177",
+        resultAction: "none",
+        exceptionReason: null,
+        conflictSummary: null,
+        nextStoredStatus: "scheduled",
+      },
+    ]);
   });
 });

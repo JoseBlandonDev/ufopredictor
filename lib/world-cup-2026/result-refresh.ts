@@ -2,6 +2,7 @@ import { evaluatePrediction } from "../model-evaluation";
 import type { ProviderFixture } from "../football-api/api-football-types";
 import { buildApiFootballFixtureExternalId } from "../football-api/ingest/external-ids";
 import { WORLD_CUP_2026_FIXTURES } from "./index";
+import { WORLD_CUP_PROVIDER_LEAGUE_ID, WORLD_CUP_PROVIDER_SEASON } from "./fixture-registry";
 import {
   isWorldCup2026TeamNameMatch,
   resolveWorldCup2026TeamKey,
@@ -24,6 +25,7 @@ type StoredMatchRow = {
   external_id: string | null;
   slug: string;
   competition_id: string;
+  season_id: string;
   home_team_id: string;
   away_team_id: string;
   kickoff_at: string;
@@ -44,6 +46,12 @@ type StoredCompetitionRow = {
   slug: string;
   name: string;
   usage_scope: string;
+};
+
+type StoredSeasonRow = {
+  id: string;
+  competition_id: string;
+  year: number;
 };
 
 type StoredMatchResultRow = {
@@ -95,6 +103,7 @@ type StoredPredictionResultRow = {
 
 export type WorldCupResultRefreshDatabaseSnapshot = {
   competitions: StoredCompetitionRow[];
+  seasons: StoredSeasonRow[];
   teams: StoredTeamRow[];
   matches: StoredMatchRow[];
   matchResults: StoredMatchResultRow[];
@@ -143,6 +152,24 @@ type CanonicalResolution =
       reason: string;
     };
 
+type FixtureIdentityResolution =
+  | {
+      status: "resolved";
+      mode: "group_stage_canonical";
+      canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number];
+      stageLabel: string;
+    }
+  | {
+      status: "resolved";
+      mode: "knockout_runtime";
+      canonicalFixture: null;
+      stageLabel: string;
+    }
+  | {
+      status: "conflict";
+      reason: string;
+    };
+
 type ResultAction =
   | "none"
   | "create_verified"
@@ -166,6 +193,8 @@ export type WorldCupResultRefreshRow = {
   homeTeamName: string;
   awayTeamName: string;
   kickoffAt: string;
+  storedStage: string | null;
+  providerRound: string | null;
   storedStatus: MatchStatus;
   canonicalFixtureId: string | null;
   matchday: number | null;
@@ -342,6 +371,40 @@ function dateOnly(value: string) {
   return value.slice(0, 10);
 }
 
+function normalizeText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}+/gu, "")
+    .replace(/[’']/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function normalizeStageLabel(stage: string | null | undefined) {
+  return normalizeText(stage ?? "");
+}
+
+function resolveSupportedKnockoutStage(stage: string | null | undefined) {
+  const normalized = normalizeStageLabel(stage);
+
+  if (
+    normalized === "round of 32" ||
+    normalized === "round of 16" ||
+    normalized === "quarter finals" ||
+    normalized === "quarter final" ||
+    normalized === "semi finals" ||
+    normalized === "semi final" ||
+    normalized === "third place" ||
+    normalized === "final"
+  ) {
+    return normalized;
+  }
+
+  return null;
+}
+
 function inferMatchday(matchNumber: number) {
   if (matchNumber >= 1 && matchNumber <= 24) {
     return 1;
@@ -426,6 +489,152 @@ function resolveCanonicalFixture(args: {
   };
 }
 
+function resolveFixtureIdentity(args: {
+  match: StoredMatchRow;
+  competition: StoredCompetitionRow | null;
+  season: StoredSeasonRow | null;
+  storedHomeTeamName: string;
+  storedAwayTeamName: string;
+  providerFixture: ProviderFixture | null;
+}): FixtureIdentityResolution {
+  const canonicalResolution = resolveCanonicalFixture({
+    storedKickoffAt: args.match.kickoff_at,
+    storedHomeTeamName: args.storedHomeTeamName,
+    storedAwayTeamName: args.storedAwayTeamName,
+    providerFixture: args.providerFixture,
+  });
+
+  if (canonicalResolution.status === "resolved") {
+    return {
+      status: "resolved",
+      mode: "group_stage_canonical",
+      canonicalFixture: canonicalResolution.fixture,
+      stageLabel: canonicalResolution.fixture.roundLabel,
+    };
+  }
+
+  if (!args.providerFixture) {
+    return {
+      status: "conflict",
+      reason: canonicalResolution.reason,
+    };
+  }
+
+  const providerExternalId = buildApiFootballFixtureExternalId(args.providerFixture.providerFixtureId);
+  if (args.match.external_id !== providerExternalId) {
+    return {
+      status: "conflict",
+      reason: `Stored external id ${args.match.external_id ?? "null"} does not match provider fixture ${providerExternalId}.`,
+    };
+  }
+
+  if (args.match.intake_source !== "api_football") {
+    return {
+      status: "conflict",
+      reason: `Stored fixture ${args.match.slug} is not authored by api_football intake.`,
+    };
+  }
+
+  if (!args.competition || args.competition.slug !== WORLD_CUP_RESULT_REFRESH_COMPETITION_SLUG) {
+    return {
+      status: "conflict",
+      reason: `Stored fixture ${args.match.slug} is not linked to the authoritative World Cup competition.`,
+    };
+  }
+
+  if (!args.season || args.season.competition_id !== args.competition.id || args.season.year !== WORLD_CUP_PROVIDER_SEASON) {
+    return {
+      status: "conflict",
+      reason: `Stored fixture ${args.match.slug} is not linked to the authoritative ${WORLD_CUP_PROVIDER_SEASON} World Cup season.`,
+    };
+  }
+
+  if (args.providerFixture.competition.providerCompetitionId !== WORLD_CUP_PROVIDER_LEAGUE_ID) {
+    return {
+      status: "conflict",
+      reason: `Provider fixture ${args.providerFixture.providerFixtureId} is not part of the World Cup competition.`,
+    };
+  }
+
+  if (args.providerFixture.competition.season !== WORLD_CUP_PROVIDER_SEASON) {
+    return {
+      status: "conflict",
+      reason: `Provider fixture ${args.providerFixture.providerFixtureId} is not part of the ${WORLD_CUP_PROVIDER_SEASON} World Cup season.`,
+    };
+  }
+
+  const storedHomeTeamKey = resolveWorldCup2026TeamKey(args.storedHomeTeamName);
+  const storedAwayTeamKey = resolveWorldCup2026TeamKey(args.storedAwayTeamName);
+
+  if (!storedHomeTeamKey || !storedAwayTeamKey) {
+    return {
+      status: "conflict",
+      reason: `Stored fixture ${args.match.slug} does not map cleanly to canonical World Cup team identities.`,
+    };
+  }
+
+  if (
+    isWorldCup2026TeamNameMatch(storedHomeTeamKey, args.providerFixture.awayTeam.name) &&
+    isWorldCup2026TeamNameMatch(storedAwayTeamKey, args.providerFixture.homeTeam.name)
+  ) {
+    return {
+      status: "conflict",
+      reason: `Provider fixture ${args.providerFixture.providerFixtureId} reverses the stored home/away team order.`,
+    };
+  }
+
+  if (!isWorldCup2026TeamNameMatch(storedHomeTeamKey, args.providerFixture.homeTeam.name)) {
+    return {
+      status: "conflict",
+      reason: `Provider fixture ${args.providerFixture.providerFixtureId} home team does not match stored home team ${args.storedHomeTeamName}.`,
+    };
+  }
+
+  if (!isWorldCup2026TeamNameMatch(storedAwayTeamKey, args.providerFixture.awayTeam.name)) {
+    return {
+      status: "conflict",
+      reason: `Provider fixture ${args.providerFixture.providerFixtureId} away team does not match stored away team ${args.storedAwayTeamName}.`,
+    };
+  }
+
+  if (!sameUtcInstant(args.match.kickoff_at, args.providerFixture.kickoffAt)) {
+    return {
+      status: "conflict",
+      reason: `Provider fixture ${args.providerFixture.providerFixtureId} kickoff ${args.providerFixture.kickoffAt} does not match stored kickoff ${args.match.kickoff_at}.`,
+    };
+  }
+
+  const storedStage = resolveSupportedKnockoutStage(args.match.stage);
+  if (!storedStage) {
+    return {
+      status: "conflict",
+      reason: `Stored stage "${args.match.stage ?? "null"}" is not a supported knockout stage.`,
+    };
+  }
+
+  const providerStage = resolveSupportedKnockoutStage(args.providerFixture.competition.round);
+  if (!providerStage) {
+    return {
+      status: "conflict",
+      reason: `Provider round "${args.providerFixture.competition.round ?? "null"}" is not a supported knockout stage.`,
+    };
+  }
+
+  if (storedStage !== providerStage) {
+    return {
+      status: "conflict",
+      reason: `Stored stage "${args.match.stage ?? "null"}" does not match provider round "${args.providerFixture.competition.round ?? "null"}".`,
+    };
+  }
+
+  return {
+    status: "resolved",
+    mode: "knockout_runtime",
+    canonicalFixture: null,
+    stageLabel: args.match.stage ?? args.providerFixture.competition.round ?? "knockout",
+  };
+}
+
 function mapProviderStatusShortToStoredStatus(statusShort: string): MatchStatus | null {
   switch (statusShort) {
     case "NS":
@@ -458,10 +667,14 @@ function mapProviderStatusShortToStoredStatus(statusShort: string): MatchStatus 
 }
 
 function isSupportedTrustedTerminalStatus(args: {
-  canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number];
+  fixtureIdentity: Extract<FixtureIdentityResolution, { status: "resolved" }>;
   providerFixture: ProviderFixture;
 }) {
-  if (args.canonicalFixture.stage === "group_stage") {
+  if (args.fixtureIdentity.mode === "group_stage_canonical") {
+    return args.providerFixture.statusShort === "FT";
+  }
+
+  if (args.fixtureIdentity.mode === "knockout_runtime") {
     return args.providerFixture.statusShort === "FT";
   }
 
@@ -808,6 +1021,7 @@ export function planWorldCupResultRefresh(args: {
   providerFixtures: ProviderFixture[];
 }): WorldCupResultRefreshReport {
   const competitionById = new Map(args.snapshot.competitions.map((competition) => [competition.id, competition]));
+  const seasonById = new Map(args.snapshot.seasons.map((season) => [season.id, season]));
   const teamById = new Map(args.snapshot.teams.map((team) => [team.id, team]));
   const resultByMatchId = new Map(args.snapshot.matchResults.map((result) => [result.match_id, result]));
   const predictionVersionsByMatchId = new Map<string, StoredPredictionVersionRow[]>();
@@ -838,17 +1052,25 @@ export function planWorldCupResultRefresh(args: {
     const awayTeamName = teamById.get(match.away_team_id)?.name ?? "Unknown away team";
     const providerFixtureId = parseApiFootballFixtureId(match.external_id);
     const providerFixture = providerFixtureId === null ? null : providerFixtureById.get(providerFixtureId) ?? null;
-    const canonicalResolution = resolveCanonicalFixture({
-      storedKickoffAt: match.kickoff_at,
+    const competition = competitionById.get(match.competition_id) ?? null;
+    const season = seasonById.get(match.season_id) ?? null;
+    const fixtureIdentity = resolveFixtureIdentity({
+      match,
+      competition,
+      season,
       storedHomeTeamName: homeTeamName,
       storedAwayTeamName: awayTeamName,
       providerFixture,
     });
-    const canonicalFixture = canonicalResolution.status === "resolved" ? canonicalResolution.fixture : null;
+    const canonicalFixture =
+      fixtureIdentity.status === "resolved" && fixtureIdentity.mode === "group_stage_canonical"
+        ? fixtureIdentity.canonicalFixture
+        : null;
     const existingResult = resultByMatchId.get(match.id) ?? null;
-    const competitionName = competitionById.get(match.competition_id)?.name ?? "Unknown competition";
+    const competitionName = competition?.name ?? "Unknown competition";
     const providerStatus = providerFixture?.status ?? null;
     const providerStatusShort = providerFixture?.statusShort ?? null;
+    const providerRound = providerFixture?.competition.round ?? null;
     const providerHomeGoals = providerFixture?.goals.home ?? null;
     const providerAwayGoals = providerFixture?.goals.away ?? null;
     const providerTerminalResult =
@@ -875,28 +1097,20 @@ export function planWorldCupResultRefresh(args: {
       exceptionReason = "stored_fixture_missing_api_football_link";
     } else if (!providerFixture) {
       exceptionReason = "provider_fixture_not_found";
-    } else if (canonicalResolution.status === "conflict") {
-      conflictSummary = canonicalResolution.reason;
+    } else if (fixtureIdentity.status === "conflict") {
+      conflictSummary = fixtureIdentity.reason;
     } else {
-      const canonicalFixtureResolved = canonicalResolution.fixture;
-      const providerIdentityMatchesCanonical =
-        isWorldCup2026TeamNameMatch(canonicalFixtureResolved.homeTeamKey, providerFixture.homeTeam.name) &&
-        isWorldCup2026TeamNameMatch(canonicalFixtureResolved.awayTeamKey, providerFixture.awayTeam.name) &&
-        sameUtcInstant(canonicalFixtureResolved.kickoffAt, providerFixture.kickoffAt);
       const providerScoresPresent =
         typeof providerHomeGoals === "number" && typeof providerAwayGoals === "number";
       trustedAutoVerifyEligible =
-        providerIdentityMatchesCanonical &&
         providerFixture.status === "finished" &&
         providerScoresPresent &&
         isSupportedTrustedTerminalStatus({
-          canonicalFixture: canonicalFixtureResolved,
+          fixtureIdentity,
           providerFixture,
         });
 
-      if (!providerIdentityMatchesCanonical) {
-        conflictSummary = "provider_fixture_identity_mismatch";
-      } else if (trustedAutoVerifyEligible) {
+      if (trustedAutoVerifyEligible) {
         if (existingResult?.verification_status === "verified") {
           if (sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!)) {
             resultAction = "already_identical";
@@ -914,32 +1128,38 @@ export function planWorldCupResultRefresh(args: {
           resultAction = "create_verified";
         }
       } else if (providerFixture.status === "finished" && providerScoresPresent) {
-        exceptionReason =
-          providerFixture.statusShort === "FT"
-            ? "auto_verify_blocked_by_conflict"
-            : "unsupported_terminal_status_for_group_stage";
-
-        if (existingResult?.verification_status === "verified") {
-          if (!sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!)) {
-            resultAction = "verified_conflict";
-            conflictSummary = `stored_verified_score=${existingResult.home_goals}-${existingResult.away_goals} provider_score=${providerHomeGoals}-${providerAwayGoals}`;
-          } else {
-            resultAction = "already_identical";
-            resultAlreadyIdentical = true;
-          }
-        } else if (existingResult?.verification_status === "rejected") {
-          resultAction = "rejected_conflict";
-        } else if (existingResult?.verification_status === "pending_review") {
-          if (
-            sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!) &&
-            existingResult.intake_source === "api_football"
-          ) {
-            resultAction = "already_pending_review_exception";
-          } else {
-            resultAction = "update_pending_review_exception";
-          }
+        if (fixtureIdentity.mode === "knockout_runtime" && providerFixture.statusShort === "AET") {
+          exceptionReason = "unsupported_extra_time_semantics";
+        } else if (fixtureIdentity.mode === "knockout_runtime" && providerFixture.statusShort === "PEN") {
+          exceptionReason = "unsupported_penalty_semantics";
         } else {
-          resultAction = "create_pending_review_exception";
+          exceptionReason =
+            providerFixture.statusShort === "FT"
+              ? "auto_verify_blocked_by_conflict"
+              : "unsupported_terminal_status_for_group_stage";
+
+          if (existingResult?.verification_status === "verified") {
+            if (!sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!)) {
+              resultAction = "verified_conflict";
+              conflictSummary = `stored_verified_score=${existingResult.home_goals}-${existingResult.away_goals} provider_score=${providerHomeGoals}-${providerAwayGoals}`;
+            } else {
+              resultAction = "already_identical";
+              resultAlreadyIdentical = true;
+            }
+          } else if (existingResult?.verification_status === "rejected") {
+            resultAction = "rejected_conflict";
+          } else if (existingResult?.verification_status === "pending_review") {
+            if (
+              sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!) &&
+              existingResult.intake_source === "api_football"
+            ) {
+              resultAction = "already_pending_review_exception";
+            } else {
+              resultAction = "update_pending_review_exception";
+            }
+          } else {
+            resultAction = "create_pending_review_exception";
+          }
         }
       } else if (providerFixture.status === "finished" && !providerScoresPresent) {
         exceptionReason = "provider_finished_missing_score";
@@ -1013,6 +1233,8 @@ export function planWorldCupResultRefresh(args: {
       homeTeamName,
       awayTeamName,
       kickoffAt: match.kickoff_at,
+      storedStage: match.stage,
+      providerRound,
       storedStatus: match.status,
       canonicalFixtureId: canonicalFixture?.fixtureKey ?? null,
       matchday: canonicalFixture ? inferMatchday(canonicalFixture.matchNumber) : null,

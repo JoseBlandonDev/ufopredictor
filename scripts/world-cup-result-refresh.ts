@@ -144,6 +144,15 @@ async function loadDatabaseSnapshot(): Promise<WorldCupResultRefreshDatabaseSnap
   const competitions = (competitionData ?? []) as WorldCupResultRefreshDatabaseSnapshot["competitions"];
   const competitionIds = competitions.map((competition) => competition.id);
 
+  const { data: seasonData, error: seasonError } = await supabase
+    .from("seasons")
+    .select("id, competition_id, year")
+    .in("competition_id", competitionIds.length > 0 ? competitionIds : ["00000000-0000-0000-0000-000000000000"]);
+
+  if (seasonError) {
+    throw new Error(`Failed to read seasons: ${seasonError.message}`);
+  }
+
   const { data: teamData, error: teamError } = await supabase.from("teams").select("id, name");
   if (teamError) {
     throw new Error(`Failed to read teams: ${teamError.message}`);
@@ -151,7 +160,7 @@ async function loadDatabaseSnapshot(): Promise<WorldCupResultRefreshDatabaseSnap
 
   const { data: matchData, error: matchError } = await supabase
     .from("matches")
-    .select("id, external_id, slug, competition_id, home_team_id, away_team_id, kickoff_at, stage, status, access_scope, intake_source, source_note")
+    .select("id, external_id, slug, competition_id, season_id, home_team_id, away_team_id, kickoff_at, stage, status, access_scope, intake_source, source_note")
     .in("competition_id", competitionIds.length > 0 ? competitionIds : ["00000000-0000-0000-0000-000000000000"])
     .eq("intake_source", "api_football")
     .order("kickoff_at", { ascending: true });
@@ -223,6 +232,7 @@ async function loadDatabaseSnapshot(): Promise<WorldCupResultRefreshDatabaseSnap
 
   return {
     competitions,
+    seasons: (seasonData ?? []) as WorldCupResultRefreshDatabaseSnapshot["seasons"],
     teams: (teamData ?? []) as WorldCupResultRefreshDatabaseSnapshot["teams"],
     matches,
     matchResults: (resultData ?? []) as WorldCupResultRefreshDatabaseSnapshot["matchResults"],
