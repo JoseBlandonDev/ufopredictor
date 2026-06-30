@@ -270,6 +270,7 @@ type ProviderResolution =
       state: "conflict";
       conflictCode: FixtureRegistryConflictCode;
       conflictReason: string;
+      providerFixture: ProviderFixture | null;
     };
 
 type InternalMatchResolution =
@@ -319,6 +320,29 @@ export type ProviderFixtureIdentityCheck =
         | "provider_reversed_teams"
         | "provider_team_mismatch"
         | "provider_kickoff_mismatch";
+      conflictReason: string;
+    };
+
+export type WorldCupProviderFixtureResolution =
+  | {
+      state: "linked";
+      providerFixture: ProviderFixture;
+      evidence: string;
+      conflictCode: null;
+      conflictReason: null;
+    }
+  | {
+      state: "missing_link";
+      providerFixture: null;
+      evidence: null;
+      conflictCode: null;
+      conflictReason: null;
+    }
+  | {
+      state: "conflict";
+      providerFixture: ProviderFixture | null;
+      evidence: null;
+      conflictCode: FixtureRegistryConflictCode;
       conflictReason: string;
     };
 
@@ -461,6 +485,7 @@ function resolveProviderFixture(
         state: "conflict",
         conflictCode: "provider_team_mismatch",
         conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} references API-Football fixture ${canonicalFixture.apiFootballFixtureId}, but that fixture was not present in the provider response.`,
+        providerFixture: null,
       };
     }
 
@@ -483,6 +508,7 @@ function resolveProviderFixture(
       state: "conflict",
       conflictCode: "provider_match_ambiguous",
       conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} matched multiple provider fixtures with the same kickoff and team pair.`,
+      providerFixture: null,
     };
   }
 
@@ -493,6 +519,7 @@ function resolveProviderFixture(
         state: "conflict",
         conflictCode: "provider_group_stage_mismatch",
         conflictReason: `Provider fixture ${match.providerFixtureId} matched ${canonicalFixture.fixtureKey}, but its round "${match.competition.round}" is not group-stage.`,
+        providerFixture: match,
       };
     }
 
@@ -509,6 +536,7 @@ function resolveProviderFixture(
       state: "conflict",
       conflictCode: "provider_reversed_teams",
       conflictReason: `Provider returned a reversed home/away team order for canonical fixture ${canonicalFixture.fixtureKey}.`,
+      providerFixture: reverseKickoffMatches.length === 1 ? reverseKickoffMatches[0]! : null,
     };
   }
 
@@ -518,6 +546,7 @@ function resolveProviderFixture(
       state: "conflict",
       conflictCode: "provider_match_ambiguous",
       conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} matched multiple provider fixtures by team pair without a unique kickoff match.`,
+      providerFixture: null,
     };
   }
 
@@ -528,6 +557,7 @@ function resolveProviderFixture(
         state: "conflict",
         conflictCode: "provider_group_stage_mismatch",
         conflictReason: `Provider fixture ${match.providerFixtureId} matched ${canonicalFixture.fixtureKey}, but its round "${match.competition.round}" is not group-stage.`,
+        providerFixture: match,
       };
     }
 
@@ -536,6 +566,7 @@ function resolveProviderFixture(
         state: "conflict",
         conflictCode: "provider_kickoff_mismatch",
         conflictReason: `Provider fixture ${match.providerFixtureId} matched ${canonicalFixture.fixtureKey} by teams, but kickoff ${match.kickoffAt} differs from canonical kickoff ${canonicalFixture.kickoffAt}.`,
+        providerFixture: match,
       };
     }
 
@@ -552,6 +583,7 @@ function resolveProviderFixture(
       state: "conflict",
       conflictCode: "provider_reversed_teams",
       conflictReason: `Provider returned at least one reversed team-pair candidate for canonical fixture ${canonicalFixture.fixtureKey}.`,
+      providerFixture: reversePairMatches.length === 1 ? reversePairMatches[0]! : null,
     };
   }
 
@@ -571,6 +603,7 @@ function resolveProviderFixtureIdentityConflict(
       state: "conflict",
       conflictCode: "provider_group_stage_mismatch",
       conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} references provider fixture ${providerFixture.providerFixtureId}, but its round "${providerFixture.competition.round}" is not group-stage.`,
+      providerFixture,
     };
   }
 
@@ -583,6 +616,7 @@ function resolveProviderFixtureIdentityConflict(
       state: "conflict",
       conflictCode: "provider_reversed_teams",
       conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} references provider fixture ${providerFixture.providerFixtureId}, but the provider teams are reversed.`,
+      providerFixture,
     };
   }
 
@@ -594,6 +628,7 @@ function resolveProviderFixtureIdentityConflict(
       state: "conflict",
       conflictCode: "provider_team_mismatch",
       conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} references provider fixture ${providerFixture.providerFixtureId}, but the provider teams do not match the canonical home/away teams.`,
+      providerFixture,
     };
   }
 
@@ -602,6 +637,7 @@ function resolveProviderFixtureIdentityConflict(
       state: "conflict",
       conflictCode: "provider_kickoff_mismatch",
       conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} references provider fixture ${providerFixture.providerFixtureId}, but kickoff ${providerFixture.kickoffAt} differs from canonical kickoff ${canonicalFixture.kickoffAt}.`,
+      providerFixture,
     };
   }
 
@@ -643,6 +679,50 @@ export function verifyWorldCupProviderFixtureIdentity(args: {
     ok: false,
     conflictCode: conflict.conflictCode,
     conflictReason: conflict.conflictReason,
+  };
+}
+
+export function resolveWorldCupProviderFixture(args: {
+  canonicalFixture: {
+    fixtureKey: string;
+    homeTeamKey: string;
+    awayTeamKey: string;
+    kickoffAt: string;
+    apiFootballFixtureId: number | null;
+  };
+  providerFixtures: ProviderFixture[];
+}): WorldCupProviderFixtureResolution {
+  const resolution = resolveProviderFixture(
+    args.canonicalFixture as (typeof WORLD_CUP_2026_FIXTURES)[number],
+    args.providerFixtures,
+  );
+
+  if (resolution.state === "linked") {
+    return {
+      state: "linked",
+      providerFixture: resolution.providerFixture,
+      evidence: resolution.evidence,
+      conflictCode: null,
+      conflictReason: null,
+    };
+  }
+
+  if (resolution.state === "missing_link") {
+    return {
+      state: "missing_link",
+      providerFixture: null,
+      evidence: null,
+      conflictCode: null,
+      conflictReason: null,
+    };
+  }
+
+  return {
+    state: "conflict",
+    providerFixture: resolution.providerFixture,
+    evidence: null,
+    conflictCode: resolution.conflictCode,
+    conflictReason: resolution.conflictReason,
   };
 }
 
