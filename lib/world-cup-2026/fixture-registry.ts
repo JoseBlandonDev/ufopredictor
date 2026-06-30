@@ -255,10 +255,16 @@ type TeamResolution = {
   conflictReason: string | null;
 };
 
-type ProviderResolution =
+type WorldCupProviderFixtureLike = Pick<ProviderFixture, "providerFixtureId" | "kickoffAt"> & {
+  competition: Pick<ProviderFixture["competition"], "providerCompetitionId" | "season" | "round">;
+  homeTeam: Pick<ProviderFixture["homeTeam"], "name">;
+  awayTeam: Pick<ProviderFixture["awayTeam"], "name">;
+};
+
+type ProviderResolution<TProviderFixture extends WorldCupProviderFixtureLike> =
   | {
       state: "linked";
-      providerFixture: ProviderFixture;
+      providerFixture: TProviderFixture;
       evidence: string;
     }
   | {
@@ -270,7 +276,7 @@ type ProviderResolution =
       state: "conflict";
       conflictCode: FixtureRegistryConflictCode;
       conflictReason: string;
-      providerFixture: ProviderFixture | null;
+      providerFixture: TProviderFixture | null;
     };
 
 type InternalMatchResolution =
@@ -341,6 +347,29 @@ export type WorldCupProviderFixtureResolution =
   | {
       state: "conflict";
       providerFixture: ProviderFixture | null;
+      evidence: null;
+      conflictCode: FixtureRegistryConflictCode;
+      conflictReason: string;
+    };
+
+export type WorldCupProviderFixtureResolutionFor<TProviderFixture extends WorldCupProviderFixtureLike> =
+  | {
+      state: "linked";
+      providerFixture: TProviderFixture;
+      evidence: string;
+      conflictCode: null;
+      conflictReason: null;
+    }
+  | {
+      state: "missing_link";
+      providerFixture: null;
+      evidence: null;
+      conflictCode: null;
+      conflictReason: null;
+    }
+  | {
+      state: "conflict";
+      providerFixture: TProviderFixture | null;
       evidence: null;
       conflictCode: FixtureRegistryConflictCode;
       conflictReason: string;
@@ -430,11 +459,11 @@ function resolveProviderTeamKey(
   return aliasToTeamKey.get(normalizeText(providerName)) ?? null;
 }
 
-function buildProviderFixtureIndexes(fixtures: ProviderFixture[]) {
+function buildProviderFixtureIndexes<TProviderFixture extends WorldCupProviderFixtureLike>(fixtures: TProviderFixture[]) {
   const { aliasToTeamKey } = CANONICAL_TEAM_INDEXES;
-  const byId = new Map<number, ProviderFixture>();
-  const byCanonicalPair = new Map<string, ProviderFixture[]>();
-  const byCanonicalKickoffPair = new Map<string, ProviderFixture[]>();
+  const byId = new Map<number, TProviderFixture>();
+  const byCanonicalPair = new Map<string, TProviderFixture[]>();
+  const byCanonicalKickoffPair = new Map<string, TProviderFixture[]>();
 
   for (const fixture of fixtures) {
     byId.set(fixture.providerFixtureId, fixture);
@@ -463,10 +492,10 @@ function buildProviderFixtureIndexes(fixtures: ProviderFixture[]) {
   };
 }
 
-function resolveProviderFixture(
+function resolveProviderFixture<TProviderFixture extends WorldCupProviderFixtureLike>(
   canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number],
-  providerFixtures: ProviderFixture[],
-): ProviderResolution {
+  providerFixtures: TProviderFixture[],
+): ProviderResolution<TProviderFixture> {
   const worldCupFixtures = providerFixtures.filter(
     (fixture) =>
       fixture.competition.providerCompetitionId === WORLD_CUP_PROVIDER_LEAGUE_ID &&
@@ -594,10 +623,10 @@ function resolveProviderFixture(
   };
 }
 
-function resolveProviderFixtureIdentityConflict(
+function resolveProviderFixtureIdentityConflict<TProviderFixture extends WorldCupProviderFixtureLike>(
   canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number],
-  providerFixture: ProviderFixture,
-): ProviderResolution | null {
+  providerFixture: TProviderFixture,
+): ProviderResolution<TProviderFixture> | null {
   if (!isProviderGroupStageRound(providerFixture.competition.round)) {
     return {
       state: "conflict",
@@ -692,6 +721,50 @@ export function resolveWorldCupProviderFixture(args: {
   };
   providerFixtures: ProviderFixture[];
 }): WorldCupProviderFixtureResolution {
+  const resolution = resolveProviderFixture(
+    args.canonicalFixture as (typeof WORLD_CUP_2026_FIXTURES)[number],
+    args.providerFixtures,
+  );
+
+  if (resolution.state === "linked") {
+    return {
+      state: "linked",
+      providerFixture: resolution.providerFixture,
+      evidence: resolution.evidence,
+      conflictCode: null,
+      conflictReason: null,
+    };
+  }
+
+  if (resolution.state === "missing_link") {
+    return {
+      state: "missing_link",
+      providerFixture: null,
+      evidence: null,
+      conflictCode: null,
+      conflictReason: null,
+    };
+  }
+
+  return {
+    state: "conflict",
+    providerFixture: resolution.providerFixture,
+    evidence: null,
+    conflictCode: resolution.conflictCode,
+    conflictReason: resolution.conflictReason,
+  };
+}
+
+export function resolveWorldCupProviderFixtureFromSanitizedSnapshot<TProviderFixture extends WorldCupProviderFixtureLike>(args: {
+  canonicalFixture: {
+    fixtureKey: string;
+    homeTeamKey: string;
+    awayTeamKey: string;
+    kickoffAt: string;
+    apiFootballFixtureId: number | null;
+  };
+  providerFixtures: TProviderFixture[];
+}): WorldCupProviderFixtureResolutionFor<TProviderFixture> {
   const resolution = resolveProviderFixture(
     args.canonicalFixture as (typeof WORLD_CUP_2026_FIXTURES)[number],
     args.providerFixtures,
@@ -1027,7 +1100,7 @@ function determinePersistenceState(args: {
     "persistenceState" | "proposedAction" | "conflictCode" | "conflictReason"
   >;
   canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number];
-  providerResolution: ProviderResolution;
+  providerResolution: ProviderResolution<ProviderFixture>;
   internalResolution: InternalMatchResolution;
   competitionResolution: CompetitionResolution;
   seasonResolution: SeasonResolution;

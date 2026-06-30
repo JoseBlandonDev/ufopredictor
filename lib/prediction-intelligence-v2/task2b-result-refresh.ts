@@ -613,7 +613,11 @@ function sameEvaluationPayload(existing: Task2B2StageSnapshot["predictionResults
     existing.error_summary === payload.error_summary;
 }
 
-function sameVerifiedInstant(left: string, right: string) {
+function sameVerifiedInstant(left: string | null | undefined, right: string | null | undefined) {
+  if (typeof left !== "string" || typeof right !== "string") {
+    return false;
+  }
+
   try {
     return normalizeUtcInstant(left) === normalizeUtcInstant(right);
   } catch {

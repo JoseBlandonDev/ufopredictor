@@ -759,12 +759,15 @@ function buildStablePlanPayload(
     modelPayload: plan.modelPayload,
     predictionPayloads: plan.predictionPayloads,
     marketPayloads: plan.marketPayloads,
-    accessScopePublications: plan.accessScopePublications.map((publication) => ({
-      matchId: normalizePublicationPayloadRow(publication).match_id,
-      slug: normalizePublicationPayloadRow(publication).slug,
-      currentAccessScope: normalizePublicationPayloadRow(publication).current_access_scope,
-      nextAccessScope: normalizePublicationPayloadRow(publication).next_access_scope,
-    })),
+    accessScopePublications: plan.accessScopePublications.map((publication) => {
+      const normalizedPublication = normalizePublicationPayloadRow(publication);
+      return {
+        match_id: normalizedPublication.match_id,
+        slug: normalizedPublication.slug,
+        current_access_scope: normalizedPublication.current_access_scope,
+        next_access_scope: normalizedPublication.next_access_scope,
+      };
+    }),
     rows: plan.rows,
     blockers: plan.blockers,
     conflicts: plan.conflicts,

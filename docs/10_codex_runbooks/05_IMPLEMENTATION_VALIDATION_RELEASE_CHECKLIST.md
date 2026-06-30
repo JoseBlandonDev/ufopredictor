@@ -1,132 +1,152 @@
 # Implementation, Validation, and Release Checklist
 
-_Last refreshed: 2026-06-27 after Epic 1 completion._
+_Last refreshed: 2026-06-29._
 
 ## Every task
 
-- verify branch, HEAD, and worktree;
-- declare environment, read scope, write scope, and production denial;
-- state the exact completed checkpoint that must not be reopened;
-- identify source cutoff and freshness status;
-- keep implementation bounded;
-- add focused tests for code changes;
-- run lint and diff-check;
-- classify typecheck/build failures as task-local or preexisting;
-- report exact behavior, evidence, changed files, and final state;
-- record important technical/process decisions in the authoritative docs;
-- do not mix unrelated cleanup, product work, payments, and broad documentation rewrites.
+- verify branch/base/upstream;
+- prove tracked worktree status;
+- declare environment/write scope;
+- keep scope bounded;
+- add focused tests;
+- run lint/build where applicable;
+- inspect diff;
+- report exact behavior and commit SHA;
+- do not include operational artifacts accidentally.
 
-## Review and execution rule
+## Production operator task
 
-```text
-one reconnaissance
-one focused implementation review
-one preflight
-one apply
-one verification
-```
+- API-Football exact lookup;
+- exact dry-run;
+- exact allowlist;
+- one apply;
+- one idempotency verification;
+- admin/public smoke;
+- no Codex unless path is broken;
+- no secondary-source write authority.
 
-Repeat only for a concrete defect, mismatch, ambiguous result, or approved recovery.
-
-A focused correction does not restart reconnaissance.
-
-After repeated equivalent tooling failure, switch once to a safe direct owner-operated path.
-
-## Closed Epic 1 checkpoint
-
-Confirmed:
-
-- separate stage and production projects;
-- migration 0038 and foundation data in stage;
-- Task 3B idempotency;
-- 24 exact fixture links;
-- 1 active V1 model;
-- 24 immutable predictions;
-- 240 markets;
-- 24 public fixtures;
-- state `exact_complete`;
-- `/predictions` smoke;
-- production untouched.
-
-Do not rerun Task 3B, fixture linkage, or V1 import without a recovery task.
-
-## V2 Signal Baseline Database Load
-
-Before apply:
-
-- prepared 2026-06-20 package identified;
-- baseline explicitly labeled historical;
-- committed equivalents inspected;
-- exact destination tables and natural keys defined;
-- source/checksum/cutoff/version lineage mapped;
-- optional and missing signals classified;
-- stage and production-deny refs explicit;
-- balanced dry-run;
-- no candidate publication in scope.
-
-After apply:
-
-- exact counts verified;
-- conflicts and rejects explained;
-- fixture signal coverage query passes;
-- lineage is queryable;
-- no Auth/payment/entitlement scope;
-- production untouched;
-- second exact run produces zero duplicate growth.
-
-## Current-data incremental refresh
-
-- source and observed time recorded;
-- explicit evidence cutoff;
-- fixture/result scope bounded;
-- Elo/FIFA mappings deterministic;
-- standings and tournament form tested;
-- source hashes/provenance retained;
-- historical snapshots not overwritten;
-- no later evidence used for earlier fixture.
-
-## V2 shadow candidate
-
-- predecessor V1 preserved;
-- not-started fixture;
-- model/feature/purpose/lineage stored;
-- cutoff and calculation time explicit;
-- source/signal snapshots linked;
-- movement bounded;
-- missing/contradictory signals reported;
-- scenario families coherent;
-- candidate unpublished.
-
-## Historical replay
-
-- completed fixture only;
-- pre-kickoff evidence only;
-- labeled `historical_replay`;
-- original V1 publication untouched;
-- no release claim from replay alone.
-
-## Production microrelease
+## MVP 1.5 branch creation
 
 - branch from current `main`;
-- no dependency on unfinished stage-only data;
-- no regression to Auth, Wompi, entitlements, public history, or partner export;
-- mobile/basic accessibility smoke;
-- merge accepted `main` changes normally into the V2 integration branch.
+- no unfinished V2 dependency;
+- declare intended shared files;
+- define synchronization checkpoint;
+- avoid broad redesign in one PR.
+
+## MVP 1.5 P0 release
+
+Validate:
+
+- anonymous;
+- registered free;
+- Premium;
+- admin;
+- desktop;
+- mobile;
+- keyboard/focus basics;
+- no entitlement regression;
+- no Wompi regression;
+- no public history regression;
+- no prediction recalculation.
+
+## Pricing/copy release
+
+- owner-approved US$10 / operator-observed COP 35,000 presentation reconciled with authoritative runtime pricing, repository code, fallback paths, and tests;
+- stale US$20 / COP 68,700 migration/fallback/test references resolved through an approved forward change;
+- actual Wompi charge currency/amount shown;
+- approximate currencies labeled;
+- no false lifetime claim;
+- no duplicated CTA to current route;
+- no repeated entitlement sentence in every card;
+- Spanish product naming consistent.
+
+## Venue release
+
+- provider venue fields optional;
+- exact provider venue identity;
+- venue upsert idempotent;
+- match linkage correct;
+- provider-missing venue remains null;
+- public projection returns stadium/city;
+- no model/V2 probability change;
+- shared types synchronized to V2 after main merge.
+
+## Time-zone release
+
+- UTC source unchanged;
+- viewer-local detection safe;
+- no GPS;
+- Mexico reference correct;
+- Colombia/Peru grouping conditional;
+- Argentina/Chile grouping conditional;
+- Spain uses Madrid;
+- DST tests cover relevant match dates;
+- hydration/server-client output stable;
+- fallback works without browser time zone.
+
+## Premium response release
+
+- main reading first;
+- indicators correct;
+- scenario probabilities unchanged;
+- no duplicated explanatory paragraphs;
+- locked Free view still protects Premium fields;
+- Premium access remains server-authorized.
+
+## Transparency/panel release
+
+- no internal table/run-scope terminology;
+- no ambiguous venue state;
+- no misleading access validity;
+- conversion path visible but not invasive;
+- responsible-product language retained.
+
+## Main synchronization into MVP 1.5
+
+After meaningful `main` change:
+
+- fetch;
+- inspect divergence;
+- merge/rebase according to repository policy;
+- resolve manually;
+- rerun affected tests/build;
+- record synchronization SHA.
+
+## MVP 1.5 merge to main
+
+- current main merged into branch first;
+- PR focused and reviewable;
+- production-safe migration policy;
+- smoke plan;
+- rollback notes;
+- owner approval.
+
+## Main synchronization into V2
+
+After accepted shared product changes:
+
+- merge current `main` into V2 integration;
+- preserve V2 stage-only boundaries;
+- resolve shared frontend/types manually;
+- run public prediction tests;
+- run V2 focused tests;
+- lint/build;
+- no production write.
+
+## V2 task
+
+- expected V2 branch/SHA;
+- stage target proof;
+- production deny ref;
+- source/cutoff proof;
+- no original V1 mutation;
+- idempotency;
+- candidate unpublished unless approved.
 
 ## Production promotion
 
-- accepted stage state;
-- current-data cutoff audit;
-- V1/V2 comparison;
-- selected release mode;
-- immutable version proof;
+- accepted stage/product state;
 - rollback plan;
-- commercial/public/admin/partner regressions covered;
-- owner approval;
-- documentation refresh after merge.
-
-## Documentation ownership
-
-- ChatGPT authors canonical sources and runbooks.
-- Codex reviews once or applies exact accepted files when delegated.
-- The operator commits, pushes, and replaces uploaded canonical sources.
+- commercial/public/admin regression suite;
+- documentation refresh;
+- owner approval.

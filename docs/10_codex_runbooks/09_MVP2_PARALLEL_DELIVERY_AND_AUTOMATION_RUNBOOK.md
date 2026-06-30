@@ -1,135 +1,213 @@
-# MVP2 Parallel Delivery and Operations Automation Runbook
+# Parallel Delivery and Operations Automation Runbook
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-29._
 
 ## Purpose
 
-Allow production, model, operations, and bounded product work to advance simultaneously without forcing production to wait for v2.
+Allow production operations, MVP 1.5 product polish, and V2 development to move in parallel without becoming separate incompatible products.
 
-Live epic status belongs in:
+## Tracks
+
+### Production continuity
+
+Base:
 
 ```text
-docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
+main
 ```
 
-## Track ownership
+Owns:
 
-### Production continuity track
-
-Base: current `main`
-
-- relevant fixture/result operations;
-- current-model publications;
-- trusted result refresh;
-- partner export continuity;
+- current public product;
+- API-Football operations;
+- current predictions/results;
+- payment/entitlement;
 - bounded production fixes.
 
-### V2 integration track
+### MVP 1.5 product-polish
 
-Base: `integration/prediction-intelligence-v2`
-
-- normalized data/schema;
-- model/replay/calibration;
-- tournament-context signals;
-- stage sync;
-- development predictions;
-- release decision.
-
-### UI/UX track
-
-Base: current `main`
-
-- independent microreleases;
-- no migration 0038 dependency;
-- no v2 table consumption until approved.
-
-### Operations automation track
-
-Base: current `main` unless a task requires v2 schema.
-
-- recent-pending selection;
-- status/result polling;
-- trusted auto-verification;
-- run logs/notifications;
-- retry/backoff;
-- reconciliation alerts.
-
-## Automation increments
-
-### Increment 1 - fixture registry
-
-Status: `Delivered in PR #111`
-
-- canonical/provider discovery;
-- exact allowlist apply;
-- conflict reporting;
-- idempotency;
-- Matchday 3 24/24 coverage.
-
-### Increment 2 - trusted bounded result refresh
-
-Status: `Delivered in PR #112`
-
-- exact stored-fixture selection;
-- dry-run/report/apply;
-- exact allowlist requirement;
-- trusted valid `FT` auto-verification;
-- idempotent evaluation;
-- exception path;
-- no prediction mutation.
-
-### Increment 3 - scheduled relevant polling
-
-Status: `Pending`
-
-- automatically select recent relevant fixtures;
-- run once/twice daily and around kickoff blocks;
-- retry transient provider absence with backoff;
-- avoid historical completed batches;
-- emit concise operator notification.
-
-### Increment 4 - reconciliation and observability
-
-Status: `Pending`
-
-- changed-score reconciliation;
-- persistent exception classification;
-- provider-failure metrics;
-- retry history;
-- evaluation failure reporting;
-- audit-safe operator actions.
-
-### Increment 5 - recurring signal refresh
-
-Status: `After v2 stage stabilization`
-
-- refresh current structural/recent/tournament signals;
-- persist provenance/reliability;
-- generate only not-started immutable versions;
-- create labeled historical replay where approved;
-- compare v1/v2.
-
-## Torneo Mundialista continuity
-
-Current production partner contract:
+Base:
 
 ```text
-torneo-ufo-export-v1
+current main
 ```
 
-- JSON is the delivery artifact;
-- 24 Matchday 3 fixtures were validated;
-- future v2 fields must be added compatibly;
-- partner identity uses stable IDs.
+Owns:
 
-## Internationalization track
+- Free/Premium conversion;
+- copy and hierarchy;
+- Premium response presentation;
+- panel/pricing/Transparency;
+- venue ingestion/display;
+- public time presentation;
+- accessibility/mobile;
+- product terms presentation.
 
-- canonical contracts prepare ES/EN/PT now;
-- full public translation rollout follows stable v2 contracts;
-- do not block v2 data/model integration on complete UI translation.
+Does not own:
 
-## Release discipline
+- V2 probabilities;
+- V2 signals;
+- calibration;
+- release decision.
 
-Each increment must be independently deployable and useful.
+### V2 integration
 
-Do not bundle worker infrastructure, new model, internationalization, payment providers, and frontend redesign into one PR.
+Base:
+
+```text
+integration/prediction-intelligence-v2
+```
+
+Owns:
+
+- V2 data/model;
+- current signal snapshots;
+- shadow candidates;
+- replay/evaluation;
+- stage release evidence.
+
+### Operations automation
+
+Base:
+
+```text
+main
+```
+
+unless a task explicitly requires V2 schema.
+
+Owns:
+
+- recent-pending selection;
+- provider polling;
+- retry/backoff;
+- run logs;
+- alerts;
+- reconciliation.
+
+## Synchronization contract
+
+### Create MVP 1.5
+
+```text
+current main
+-> bounded MVP 1.5 branch
+```
+
+### Keep current
+
+Merge/rebase current `main` into MVP 1.5:
+
+- after meaningful production changes;
+- before each MVP 1.5 PR;
+- before release.
+
+### Release MVP 1.5
+
+```text
+reviewed MVP 1.5 PR
+-> main
+-> production validation
+```
+
+### Preserve in V2
+
+```text
+updated main
+-> integration/prediction-intelligence-v2
+```
+
+Do this after accepted shared-code product releases.
+
+## Forbidden patterns
+
+- long-lived unsynchronized MVP 1.5 branch;
+- broad unfinished V2 merge into MVP 1.5;
+- manual duplicate implementation in both branches;
+- final mega-merge after weeks of divergence;
+- model and commercial redesign in one PR.
+
+## Operations increments
+
+### Delivered
+
+- exact fixture registry;
+- exact result refresh;
+- trusted terminal result verification/evaluation;
+- exact publication queue;
+- manual reconciliation exception;
+- Round-of-32 publication batch.
+
+### Pending
+
+- scheduled recent-pending polling;
+- retry/backoff;
+- provider observability;
+- official-result-without-prediction path;
+- venue ingestion;
+- reconciliation metrics.
+
+## Routine provider execution
+
+Operator path:
+
+```text
+PowerShell read
+-> exact dry-run
+-> exact allowlist apply
+-> verification
+-> admin/public smoke
+```
+
+Codex is not part of routine execution.
+
+No Wikipedia/secondary-source write authority.
+
+## MVP 1.5 release slices
+
+Recommended order:
+
+1. P0 copy/CTA/Premium badge;
+2. pricing/pass/panel;
+3. Premium response hierarchy;
+4. venue ingestion/display;
+5. time-zone display;
+6. Transparency/history;
+7. mobile/accessibility/analytics.
+
+Each slice should be deployable independently.
+
+## Main-to-V2 validation
+
+After synchronization:
+
+- public prediction tests;
+- entitlement/pricing tests;
+- fixture/result tests if touched;
+- venue/time tests;
+- V2 focused tests;
+- lint/build;
+- no production write.
+
+## Documentation
+
+ChatGPT authors:
+
+- canonical sources;
+- runbooks;
+- roadmap updates.
+
+Codex may inspect or apply accepted files exactly when delegated.
+
+## Reporting
+
+Every parallel release reports:
+
+- source branch/HEAD;
+- target branch;
+- shared files;
+- conflicts;
+- tests;
+- environment/write scope;
+- deployment result;
+- synchronization follow-up.

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -16,8 +17,9 @@ import {
 } from "./task2b-result-refresh";
 
 const repoRoot = process.cwd();
-const artifactsDir = path.join(repoRoot, "artifacts", "prediction-intelligence-v2", "task2b-2", "local-run", "unit-test");
+const artifactsRoot = path.join(repoRoot, "artifacts", "prediction-intelligence-v2", "task2b-2", "local-run", "unit-test");
 const stageUrl = "https://yfmklapgjrupctgxaako.supabase.co";
+let artifactsDir = path.join(artifactsRoot, "initial");
 
 function fixtureByKey(fixtureKey: string) {
   const fixture = WORLD_CUP_2026_FIXTURES.find((candidate) => candidate.fixtureKey === fixtureKey);
@@ -385,7 +387,8 @@ describe("task2b result refresh", () => {
   beforeEach(() => {
     process.env.PREDICTION_INTELLIGENCE_TARGET = "development";
     delete process.env.PREDICTION_INTELLIGENCE_ALLOW_REMOTE_DEV_WRITE;
-    fs.rmSync(artifactsDir, { recursive: true, force: true });
+    artifactsDir = path.join(artifactsRoot, randomUUID());
+    fs.mkdirSync(artifactsDir, { recursive: true });
   });
 
   afterEach(() => {

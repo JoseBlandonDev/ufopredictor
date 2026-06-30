@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import type { ProviderFixture } from "@/lib/football-api/api-football-types";
+import { sanitizeProviderSnapshot } from "../prediction-intelligence-v2/task2b-shared";
 import { WORLD_CUP_2026_FIXTURES, WORLD_CUP_2026_TEAMS } from "./index";
 import {
   applyWorldCupGroupStageFixtureRegistryPlan,
   buildFixtureRegistryApplyCounts,
   buildFixtureRegistrySelection,
   planWorldCupGroupStageFixtureRegistry,
+  resolveWorldCupProviderFixtureFromSanitizedSnapshot,
   resolveFixtureRegistryApplyPlan,
   type FixtureRegistryMatchInsert,
   type FixtureRegistryMatchUpdate,
@@ -332,6 +334,44 @@ describe("world cup fixture registry planner", () => {
 
     expect(report.rows).toHaveLength(72);
     expect(selection?.total).toBe(24);
+  });
+
+  it("resolves the same canonical fixture from sanitized provider snapshot evidence without rehydrating full provider rows", () => {
+    const canonicalFixture = WORLD_CUP_2026_FIXTURES.find((fixture) => fixture.fixtureKey === "wc2026-match-001");
+    if (!canonicalFixture) {
+      throw new Error("Missing canonical fixture wc2026-match-001");
+    }
+
+    const sanitizedSnapshot = sanitizeProviderSnapshot({
+      fixtures: [buildProviderFixture("wc2026-match-001")],
+      acquiredAt: "2026-06-23T12:00:00.000Z",
+      from: "2026-06-11",
+      to: "2026-06-28",
+    });
+
+    expect(Object.prototype.hasOwnProperty.call(sanitizedSnapshot.fixtures[0] ?? {}, "provider")).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(sanitizedSnapshot.fixtures[0] ?? {}, "statusShort")).toBe(false);
+    expect(sanitizedSnapshot.fixtures[0]?.providerStatusShort).toBe("NS");
+
+    const resolution = resolveWorldCupProviderFixtureFromSanitizedSnapshot({
+      canonicalFixture: {
+        fixtureKey: canonicalFixture.fixtureKey,
+        homeTeamKey: canonicalFixture.homeTeamKey,
+        awayTeamKey: canonicalFixture.awayTeamKey,
+        kickoffAt: canonicalFixture.kickoffAt,
+        apiFootballFixtureId: canonicalFixture.apiFootballFixtureId,
+      },
+      providerFixtures: sanitizedSnapshot.fixtures,
+    });
+
+    expect(resolution).toMatchObject({
+      state: "linked",
+      evidence: "canonical_verified_provider_id",
+      providerFixture: {
+        providerFixtureId: canonicalFixture.apiFootballFixtureId,
+        providerStatusShort: "NS",
+      },
+    });
   });
 });
 

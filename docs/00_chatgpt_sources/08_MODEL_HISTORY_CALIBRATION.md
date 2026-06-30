@@ -1,256 +1,191 @@
 # Model History and Calibration
 
-_Last refreshed: 2026-06-27 after Task 2A closed the baseline-storage gap and PR #119 changed premium terminology without changing model or calibration behavior._
+_Last refreshed: 2026-06-29 after the first Round-of-32 production publications and verified result updates._
 
 ## Purpose
 
-Preserve model history so current work does not reinterpret old baselines, rewrite published predictions, or manufacture progress.
+Preserve the history, evaluation, and calibration rules for UFO Predictor.
 
 ## V1-compatible baseline
 
-V1 established:
+Production remains on the V1-compatible probability layer.
 
-- expected-goal inputs;
-- score matrix;
-- 1X2, BTTS, over/under, and exact-score probabilities;
-- confidence and risk presentation;
-- immutable pre-match publication.
+The original public prediction version is the baseline for:
 
-Known limitations include thinner provenance, weaker tournament context, and less developed evidence/scenario explanation.
+- result evaluation;
+- historical review;
+- V1/V2 comparison;
+- calibration analysis.
+
+UI copy, layout, badges, venue display, and time-zone formatting do not create a new model version.
+
+## Current production evaluation set
+
+The production history now includes newly verified/evaluated matches such as Croatia 2-1 Ghana.
+
+The 15 future Round-of-32 publications are valid future evaluation candidates when they finish.
+
+South Africa 0-1 Canada is not part of prediction calibration because no prediction existed before kickoff.
+
+## No retrospective prediction rule
+
+A prediction generated after kickoff cannot be inserted into normal public history as if it were original.
+
+Even when the operator intends not to look at the result, later source data may already contain post-match information.
+
+A retrospective model run is allowed only as an explicitly labeled replay with:
+
+- pre-kickoff data reconstruction;
+- exact cutoff;
+- model/feature version;
+- no public-original claim;
+- exclusion from live accuracy.
 
 ## Stage V1 comparison baseline
 
-The immutable V1 baseline is now present in stage:
+Stage preserves immutable V1 prediction versions for comparison.
 
-```text
-1 active model
-24 prediction versions
-240 market rows
-0 narratives
-24 public fixtures
-```
+V2 may create:
 
-The post-import read returned:
+- unpublished shadow candidates;
+- historical replay versions;
+- new immutable future predictions.
 
-```text
-state = exact_complete
-pending publications = 0
-```
-
-This closes the missing-stage-baseline gap.
-
-**Decision:** all V2 comparisons use the stored V1 versions, never a reconstructed strawman.
+It may not mutate V1.
 
 ## Presentation changes are not model changes
 
-PR #117 introduced deterministic `Lectura UFO` output derived from existing V1 probability fields and authorized confidence/risk presentation.
+MVP 1.5 may:
 
-PR #119 introduced football-first premium terminology for existing BTTS/totals-oriented information.
+- simplify scenario cards;
+- rewrite explanation copy;
+- add a main-reading hierarchy;
+- expose model/cutoff metadata;
+- show stadiums;
+- show viewer-local kickoff;
+- improve Premium layout.
 
-Neither change:
-
-- creates a model version;
-- recalculates a prediction;
-- moves any probability;
-- alters calibration;
-- changes confidence or risk values;
-- uses post-kickoff evidence;
-- establishes a V2 accuracy claim.
-
-These are presentation layers. Their release must not be counted as model-performance progress.
-
-The latest verified results remain evaluation evidence for the original immutable V1 versions:
-
-```text
-Egypt 1-1 Iran
-New Zealand 1-5 Belgium
-Uruguay 0-1 Spain
-Cape Verde 0-0 Saudi Arabia
-Panama 0-1 Croatia
-```
-
-## Historical calibration closeout
-
-Preserved historical work includes:
-
-- exact and runtime-compatible V1 references;
-- challenger candidates;
-- expanded calibration rows;
-- neutral-context correction;
-- candidate-selection correction;
-- train, validation, and holdout separation;
-- reliability shrinkage and contradiction penalties;
-- movement caps;
-- time-series evaluation;
-- eligibility and blocked states;
-- stored/runtime drift classification;
-- historical safe-analysis and gated-V2 packaging.
-
-Historical labels include:
-
-```text
-v1_plus_high_confidence_signals
-gated_v2_probability_v2_analysis
-```
-
-They remain research history, not release approval.
+None of these prove improved calibration.
 
 ## Honest probability interpretation
 
-Historical gated V2 work was near parity with exact V1:
+Probabilities:
 
-- small favorable log-loss movement;
-- flat or slightly worse Brier behavior;
-- no established outcome-accuracy advantage;
-- no established goals-error advantage.
+- represent model belief;
+- do not guarantee outcomes;
+- may be close;
+- require calibration review over enough samples;
+- should not be described as certainty because confidence is high.
 
-Therefore:
-
-- do not claim V2 is more accurate yet;
-- do not force probability movement;
-- assess explanation, provenance, scenarios, reliability, and tournament context separately;
-- require a fair current sample for stronger claims.
+Risk labels are product interpretation, not an outcome promise.
 
 ## Calibration corrections that remain binding
 
-- World Cup fixtures are neutral by default except host-country cases;
-- historical evidence resolves strictly before fixture cutoff;
-- validation and holdout remain separate;
-- candidate selection uses explicit auditable metrics;
-- low-confidence and contradictory signals are shrunk or blocked;
-- probability movement is capped;
-- diagnostic-only candidates cannot silently become release candidates;
-- eligibility is distinct from promotion and publication.
+- separate outcome error from data limitation;
+- do not overweight tiny tournament samples;
+- use pre-kickoff information only;
+- preserve original versions;
+- distinguish structural strength from recent form;
+- record missing optional sources;
+- avoid forcing probabilities to move;
+- evaluate scenario families, not only one exact score.
 
 ## Baseline-first decision
 
-Prepared workspace cutoff:
+The reproducible V2 baseline remains valid for pipeline proof.
 
-```text
-2026-06-20
-```
+It is not current enough by itself for a live candidate.
 
-Task 2A has now stored that preserved baseline in the real stage signal database.
-
-Verified result:
-
-```text
-signal rows = 48
-state = exact_complete
-verification identical = 48
-verification inserts = 0
-runtime fixture coverage = 72/72
-candidate-ready fixtures = 0
-```
-
-**Decision:** preserve this baseline as reproducible calibration and lineage evidence, then append/version current refreshes.
-
-**Motivo:** calibration now has a queryable source lineage and feature-assembly path without rewriting historical identity.
-
-**Consequence:** baseline storage is no longer a gap, but the data is not sufficient for a current candidate until the explicit freshness gate passes.
+Newer results and signals are appended/versioned.
 
 ## Current calibration gaps
 
-Before a real V2.0 release decision:
+Before a V2 release:
 
-1. refresh current fixture identity, kickoff state, and verified results;
-2. append current World Football Elo;
-3. capture the latest available official FIFA ranking;
-4. calculate current standings, form, points, and goal difference;
-5. derive current source-backed signal snapshots;
-6. generate live shadow candidates;
-7. create fair historical replays;
-8. compare with immutable V1 and verified results.
-
-The baseline-storage gap is closed. Current-data coverage, candidate generation, and evaluation remain open.
+- current fixture/result refresh;
+- current rankings;
+- current standings and pressure;
+- repeatable signal snapshots;
+- live shadow candidate;
+- replay;
+- V1/V2 comparison;
+- calibration diagnostics;
+- reliability review.
 
 ## Versioned comparison contract
 
-Each compared version identifies:
+Every compared version must record:
 
-- fixture;
+- prediction version;
 - model version;
 - feature version;
-- calculation time;
-- evidence cutoff;
-- purpose;
-- source and signal snapshots;
-- predecessor lineage.
+- generated time;
+- cutoff;
+- fixture identity;
+- source lineage;
+- intended scope;
+- evaluation status.
 
-For finished fixtures:
-
-```text
-original V1 publication
-vs V2 historical_replay
-vs verified result
-```
-
-For not-started fixtures:
-
-```text
-stored V1 baseline
-vs V2 shadow candidate under explicit cutoff
-```
+Do not compare a post-match replay to an original pre-match prediction without labeling the difference.
 
 ## First shadow-candidate calibration gate
 
-A candidate is eligible for evaluation when:
+A first shadow candidate must be:
 
-- fixture has not started;
-- required identity and source lineage resolve;
-- minimum current-data coverage is met;
-- missing optional signals are explicit;
-- no post-kickoff evidence is present;
-- movement caps and reliability gates pass;
-- predecessor V1 is linked;
-- candidate remains unpublished.
+- generated before kickoff;
+- unpublished;
+- source-complete enough for its declared scope;
+- cutoff-safe;
+- internally coherent;
+- preserved for later evaluation.
+
+One candidate does not authorize a release claim.
 
 ## Evaluation dimensions
 
-Evaluate separately:
-
-- 1X2 direction and calibration;
-- log loss and Brier;
-- xG and total-goal error;
-- BTTS and totals;
-- exact-score and scenario-family hit;
-- margin and surprise severity;
-- explanation usefulness;
-- evidence correctness and freshness;
-- confidence calibration;
-- missing-data and reliability behavior.
-
-A better explanation does not prove better probabilities. Better probabilities do not excuse weak provenance.
+- 1X2 probability calibration;
+- Brier/log-style diagnostics where supported;
+- predicted winner behavior;
+- score distribution;
+- BTTS;
+- totals;
+- scenario coverage;
+- confidence/risk usefulness;
+- missing-data behavior;
+- explanation coherence.
 
 ## Explanation-first output
 
-V2 analysis should express:
+A stronger V2 product should explain:
 
-- structural rating strength;
-- tournament attack and defense profile;
-- points and qualification context;
-- controlled, tight, open, or upset match scripts;
-- supporting and contradicting evidence;
-- uncertainty and data limitations.
+- the main reading;
+- supporting evidence;
+- contradictory evidence;
+- alternative scenarios;
+- uncertainty;
+- provenance;
+- cutoff;
+- reliability.
 
-Exact scores remain representative anchors inside scenario families.
+MVP 1.5 may improve the current visual hierarchy before V2 produces richer evidence.
 
-## Future player and squad signals
+## Post-match learning
 
-Later versions may add:
+Post-match analysis may classify:
 
-- squad and lineup availability;
-- injuries and suspensions;
-- expected minutes;
-- player goals, assists, shots, and xG;
-- offensive dependency;
-- replacement quality;
-- likely scoring candidates.
+- model error;
+- data limitation;
+- tactical path;
+- finishing variance;
+- late-goal sensitivity;
+- unsupported confidence.
 
-Every player signal requires source, observed time, cutoff, and reliability. These are not first-candidate blockers.
+It never rewrites the original prediction.
 
-## Post-match learning contract
+## Decisions that must persist
 
-Learning artifacts may inform V2.1, V3, or later versions, but they never rewrite the original publication.
-
-Classify model error, data limitation, tactical path, late-goal sensitivity, and football variance separately where evidence permits.
+- South Africa vs Canada remains a verified result without prediction evaluation;
+- Croatia vs Ghana evaluates its original stored prediction;
+- future Round-of-32 results must use exact provider identity;
+- no UI polish is represented as calibration improvement;
+- no retrospective public prediction is used to fill history.

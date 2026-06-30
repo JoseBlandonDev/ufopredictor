@@ -85,7 +85,7 @@ export function buildTask2B1RunnerOutput(result: RunTask2B1Result): string[] {
     `stable_plan_sha256=${result.plan.stablePlanSha256}`,
   ];
 
-  if (result.plan.mode === "verify") {
+  if (result.plan.mode === "verification") {
     lines.unshift("mode=verification");
     lines.push(`reviewed_action_count=${result.verifyResult?.reviewedActionCount ?? 0}`);
     lines.push(`satisfied_action_count=${result.verifyResult?.satisfiedActionCount ?? 0}`);
@@ -115,7 +115,7 @@ export function buildTask2B1RunnerOutput(result: RunTask2B1Result): string[] {
 }
 
 export function getTask2B1RunnerExitCode(result: RunTask2B1Result): number {
-  if (result.plan.mode === "verify") {
+  if (result.plan.mode === "verification") {
     return result.verifyResult?.verificationPassed === true ? 0 : 1;
   }
 

@@ -6,7 +6,7 @@ import { buildApiFootballFixtureExternalId } from "../football-api/ingest/extern
 import { createSupabaseScriptAdminClient } from "../supabase/script-admin";
 import { WORLD_CUP_2026_FIXTURES } from "../world-cup-2026";
 import {
-  resolveWorldCupProviderFixture,
+  resolveWorldCupProviderFixtureFromSanitizedSnapshot,
   verifyWorldCupProviderFixtureIdentity,
 } from "../world-cup-2026/fixture-registry";
 import {
@@ -525,7 +525,7 @@ function planTask2B1FromSnapshot(args: {
     const currentExternalId = match.external_id;
     const storedKickoffAt = normalizeUtcInstant(match.kickoff_at);
     const officialKickoffAt = normalizeUtcInstant(officialScheduleMatch.scheduled_at_utc);
-    const providerResolution = resolveWorldCupProviderFixture({
+    const providerResolution = resolveWorldCupProviderFixtureFromSanitizedSnapshot({
       canonicalFixture: {
         fixtureKey: canonicalFixture.fixtureKey,
         homeTeamKey: canonicalFixture.homeTeamKey,

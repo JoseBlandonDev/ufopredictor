@@ -1,153 +1,140 @@
 # Codex Handoff Current
 
-_Last refreshed: 2026-06-27 after Task 1C completion._
+_Last refreshed: 2026-06-29._
 
 ## Canonical-source rule
 
-Before implementation read:
+Before implementation, read:
 
 ```text
 docs/00_chatgpt_sources/00_START_HERE_CURRENT.md
-docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
-docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
 docs/00_chatgpt_sources/07_ROADMAP_EPICS_DECISIONS.md
 docs/00_chatgpt_sources/09_WORKFLOW_GUARDRAILS_DOC_POLICY.md
 ```
 
-These own live truth. This runbook owns the immediate technical handoff.
+Those files own live product, branch, roadmap, and workflow truth.
 
-## Current baseline
+Verify live SHAs before work.
 
-```text
-repo: D:\Projects\ufo-predictor
-branch: integration/prediction-intelligence-v2
-Draft PR: #114
-checkpoint HEAD: bce9999
-stage project: yfmklapgjrupctgxaako
-production deny project: gcpdffkgsdomzyoenalg
-stage env: .env.stage.local
-```
-
-Verify actual HEAD and worktree before implementation.
-
-## Completed checkpoint
-
-Closed and not to be repeated:
-
-- Task 3B stage foundation bootstrap;
-- migration 0038 stage apply;
-- exact 24-fixture linkage;
-- frozen V1 source verification;
-- one active V1 model import;
-- 24 immutable V1 prediction imports;
-- 240 market imports;
-- 24 fixture publications;
-- exact-complete readback;
-- stage `/predictions` smoke;
-- checkpoint push.
-
-Stage current product state:
+## Last confirmed reference baseline
 
 ```text
-active V1 models = 1
-prediction versions = 24
-market rows = 240
-narratives = 0
-public fixtures = 24
-post-state = exact_complete
+production main HEAD:
+6e43cb0e6575bff42372d021c8c35628e912a1e7
+
+active V2 branch:
+integration/prediction-intelligence-v2
+
+active V2 Draft PR:
+#114
+
+last confirmed V2 HEAD:
+dc0187e31770e7a03d57db25d3887967bdaef09a
 ```
 
-Production writes remained zero.
+Old branch and PR #106 remain preservation only.
 
-## Immediate next task
+## Production checkpoint
+
+The following is operator-confirmed production evidence supported by local operational artifacts, not tracked-Git proof by itself.
+
+Completed:
+
+- 15 future Round-of-32 fixtures ingested;
+- 15 internal predictions saved;
+- 15 public predictions published;
+- publish queue cleared;
+- Croatia 2-1 Ghana verified/evaluated/idempotent;
+- South Africa 0-1 Canada verified without a retrospective prediction;
+- tracked `main` worktree clean.
+
+Do not reopen this checkpoint without a concrete defect.
+
+## Routine provider boundary
+
+Do not use Codex for:
+
+- fixture discovery;
+- schedule lookup;
+- score lookup;
+- venue lookup;
+- routine provider dry-runs;
+- routine exact applies;
+- admin publication;
+- admin verification.
+
+These are operator PowerShell/admin tasks.
+
+Do not consult Wikipedia or secondary pages as write authority.
+
+Use Codex only for:
+
+- code defects;
+- missing supported paths;
+- bounded implementation;
+- migrations;
+- tests;
+- complex debugging.
+
+## Pricing reconciliation note
+
+Owner-approved commercial target and operator-observed production presentation are US$10 / COP 35,000; tracked repository implementation remains unreconciled.
+
+The repository still contains stale US$20 / COP 68,700 references in migration history, pricing fallback, and tests. Treat pricing reconciliation as a bounded implementation task. Do not rewrite canonical documentation independently.
+
+## MVP 1.5 track
+
+Future MVP 1.5 work:
+
+- starts from current `main`;
+- ships in small bounded PRs;
+- regularly receives `main`;
+- merges accepted work to `main`;
+- is then synchronized into V2.
+
+Do not build MVP 1.5 independently until the end.
+
+Expected early tasks:
+
+- Free/Premium copy cleanup;
+- US$10 offer presentation;
+- Premium badge;
+- venue ingestion/display;
+- viewer-local and compact reference times;
+- Premium response hierarchy;
+- pricing/panel/Transparency polish.
+
+## V2 sequence
 
 ```text
-V2 Signal Baseline Database Load
+Task 2B current fixture/result refresh
+-> Task 2C rankings/standings/context
+-> Task 2D repeatable current signals
+-> first unpublished V2 shadow candidate
 ```
 
-Do not begin with another general reconnaissance of Task 1, Task 3B, fixture linkage, or V1 import.
-
-### Bounded goal
-
-1. inspect the prepared 2026-06-20 workspace and committed equivalents;
-2. identify only the records required for the first V2 signal baseline;
-3. map them to existing Prediction Intelligence tables;
-4. preserve source, checksum, observed time, cutoff, parser/feature version, and reliability;
-5. implement a dry-run-first idempotent stage load;
-6. prove balanced counts and fixture signal coverage;
-7. stop before candidate generation.
-
-## Source workspace
-
-```text
-D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
-```
-
-Committed equivalents include:
-
-```text
-data/prediction-engine/national-team-signals/2026-06-19/
-artifacts/prediction-intelligence-v2/
-lib/prediction-intelligence-v2/
-scripts/prediction-intelligence-v2/
-supabase/migrations/0038_prediction_intelligence_v2_data_foundation.sql
-types/database.ts
-```
-
-The cutoff is historical. Do not describe it as current and do not reject it merely because a later refresh is needed.
-
-## Decision to preserve
-
-**Decision:** load the preserved baseline first, then perform current-data incremental refresh.
-
-**Do not:** turn the task into a complete refresh of every external source before storage and lineage are proven.
+Production writes are forbidden from V2 tasks.
 
 ## Hard boundaries
 
-- no production writes;
-- no Auth, Wompi, payment, entitlement, webhook, session, or personal-data scope;
-- no new stage environment;
-- no rerun of Task 3B, linkage, or V1 import;
-- no V2 publication;
-- no post-kickoff evidence;
-- no fabricated source values or checksums;
-- no broad documentation rewrite;
-- no commit or push unless the owner delegates it.
+- no post-kickoff public prediction generation;
+- no original V1 rewrite;
+- no broad merge of old PR #106;
+- no production migration from V2 without approved release;
+- no secrets in output;
+- no canonical-document authorship by Codex;
+- no `git add artifacts/`;
+- no broad cross-branch copy without review.
 
-## Process contract
-
-Use:
-
-```text
-one preflight
-one apply
-one verification
-```
-
-A second exact run may be used only to prove idempotency of the new baseline load.
-
-If a concrete defect appears, fix that defect without restarting the full audit.
-
-## Responsibility
-
-- Codex: inspect, implement, test, and report exact evidence.
-- ChatGPT: owns canonical documentation, roadmap, and process decisions.
-- Operator: owns Git, PowerShell, Supabase, SQL, Railway, APIs, and remote-write approval.
-
-## Required response
+## Reporting contract
 
 Return:
 
-- branch, HEAD, and worktree;
-- source inventory used and excluded;
-- exact destination tables and natural keys;
-- source/cutoff/version lineage;
-- dry-run counts;
-- apply counts if authorized;
-- conflicts and blockers;
-- fixture coverage query/result;
-- idempotency proof;
-- production no-write proof;
-- exact changed files;
-- focused test and lint results;
-- next transition only.
+- branch/status/base SHA;
+- target environment/write scope;
+- exact files changed;
+- exact behavior before/after;
+- tests/lint/build;
+- conflicts/blockers;
+- commit SHA when committed;
+- no unsupported claims.

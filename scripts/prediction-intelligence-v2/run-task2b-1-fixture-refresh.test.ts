@@ -91,7 +91,7 @@ describe("task2b.1 runner exit semantics", () => {
 
   it("verification with verificationPassed=true exits zero even when safeActionCount=0", () => {
     const result = buildResult({
-      plan: buildPlan("verify"),
+      plan: buildPlan("verification"),
       verifyResult: {
         verificationPassed: true,
         reviewedActionCount: 41,
@@ -119,7 +119,7 @@ describe("task2b.1 runner exit semantics", () => {
 
   it("verification with missing actions exits nonzero", () => {
     const result = buildResult({
-      plan: buildPlan("verify"),
+      plan: buildPlan("verification"),
       verifyResult: {
         verificationPassed: false,
         reviewedActionCount: 41,
@@ -141,7 +141,7 @@ describe("task2b.1 runner exit semantics", () => {
 
   it("verification with mismatches exits nonzero", () => {
     const result = buildResult({
-      plan: buildPlan("verify"),
+      plan: buildPlan("verification"),
       verifyResult: {
         verificationPassed: false,
         reviewedActionCount: 41,
@@ -163,7 +163,7 @@ describe("task2b.1 runner exit semantics", () => {
 
   it("verification with ambiguous ownership exits nonzero", () => {
     const result = buildResult({
-      plan: buildPlan("verify"),
+      plan: buildPlan("verification"),
       verifyResult: {
         verificationPassed: false,
         reviewedActionCount: 41,
@@ -185,7 +185,7 @@ describe("task2b.1 runner exit semantics", () => {
 
   it("verification with pending reviewed actions exits nonzero", () => {
     const result = buildResult({
-      plan: buildPlan("verify"),
+      plan: buildPlan("verification"),
       verifyResult: {
         verificationPassed: false,
         reviewedActionCount: 41,
