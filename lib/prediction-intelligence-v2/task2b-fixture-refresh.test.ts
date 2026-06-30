@@ -20,6 +20,20 @@ const artifactsRoot = path.join(repoRoot, "artifacts", "prediction-intelligence-
 const stageUrl = "https://yfmklapgjrupctgxaako.supabase.co";
 let artifactsDir = path.join(artifactsRoot, "initial");
 
+function expectedProviderRound(matchNumber: number) {
+  if (matchNumber <= 24) {
+    return "Group Stage - 1";
+  }
+  if (matchNumber <= 48) {
+    return "Group Stage - 2";
+  }
+  if (matchNumber <= 72) {
+    return "Group Stage - 3";
+  }
+
+  return "Round of 32";
+}
+
 function canonicalFixture(fixtureKey: string) {
   const fixture = WORLD_CUP_2026_FIXTURES.find((candidate) => candidate.fixtureKey === fixtureKey);
   if (!fixture) {
@@ -47,7 +61,7 @@ function buildProviderFixture(fixtureKey: string, overrides: Partial<ProviderFix
       name: "World Cup",
       country: "World",
       season: 2026,
-      round: `Group Stage - ${fixture.matchNumber <= 24 ? 1 : fixture.matchNumber <= 48 ? 2 : 3}`,
+      round: expectedProviderRound(fixture.matchNumber),
       ...overrides.competition,
     },
     homeTeam: {
@@ -156,6 +170,33 @@ describe("task2b fixture refresh", () => {
 
   afterEach(() => {
     fs.rmSync(artifactsDir, { recursive: true, force: true });
+  });
+
+  it("honors an explicit bounded provider date selection instead of the legacy group-stage range", async () => {
+    const requestedRanges: Array<{ from?: string; to?: string }> = [];
+
+    await runTask2B1FixtureRefresh(
+      {
+        repoRoot,
+        artifactsDir,
+        envSupabaseUrl: stageUrl,
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        dryRun: true,
+        apply: false,
+        verify: false,
+        selection: { from: "2026-06-28", to: "2026-07-04" },
+      },
+      {
+        databaseAdapter: buildMemoryAdapter(buildStageSnapshot("wc2026-match-069")),
+        providerFetcher: async (params) => {
+          requestedRanges.push({ from: params.from, to: params.to });
+          return [];
+        },
+      },
+    );
+
+    expect(requestedRanges).toEqual([{ from: "2026-06-28", to: "2026-07-04" }]);
   });
 
   it("creates a reviewed dry-run with a safe provider-link-only action for an exact not-started fixture", async () => {
@@ -717,7 +758,7 @@ describe("task2b fixture refresh", () => {
       reviewedStablePlanSha256: dryRun.plan.stablePlanSha256,
       reviewedSnapshotSha256: dryRun.providerSnapshotSha256,
       authorization: {
-        mode: "verify",
+        mode: "verification",
         projectRef: "yfmklapgjrupctgxaako",
         denyProjectRef: "gcpdffkgsdomzyoenalg",
         supabaseUrlHost: "yfmklapgjrupctgxaako.supabase.co",
@@ -759,7 +800,7 @@ describe("task2b fixture refresh", () => {
       reviewedStablePlanSha256: dryRun.plan.stablePlanSha256,
       reviewedSnapshotSha256: dryRun.providerSnapshotSha256,
       authorization: {
-        mode: "verify",
+        mode: "verification",
         projectRef: "yfmklapgjrupctgxaako",
         denyProjectRef: "gcpdffkgsdomzyoenalg",
         supabaseUrlHost: "yfmklapgjrupctgxaako.supabase.co",
@@ -807,7 +848,7 @@ describe("task2b fixture refresh", () => {
       reviewedStablePlanSha256: dryRun.plan.stablePlanSha256,
       reviewedSnapshotSha256: dryRun.providerSnapshotSha256,
       authorization: {
-        mode: "verify",
+        mode: "verification",
         projectRef: "yfmklapgjrupctgxaako",
         denyProjectRef: "gcpdffkgsdomzyoenalg",
         supabaseUrlHost: "yfmklapgjrupctgxaako.supabase.co",
@@ -868,7 +909,7 @@ describe("task2b fixture refresh", () => {
       reviewedStablePlanSha256: dryRun.plan.stablePlanSha256,
       reviewedSnapshotSha256: dryRun.providerSnapshotSha256,
       authorization: {
-        mode: "verify",
+        mode: "verification",
         projectRef: "yfmklapgjrupctgxaako",
         denyProjectRef: "gcpdffkgsdomzyoenalg",
         supabaseUrlHost: "yfmklapgjrupctgxaako.supabase.co",

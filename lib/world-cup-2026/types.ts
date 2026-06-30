@@ -1,8 +1,10 @@
 export type WorldCup2026SourceAuthority = "fifa_official_schedule_pdf";
 
-export type WorldCup2026CoverageStatus = "group_stage_complete_from_pdf_grid";
+export type WorldCup2026CoverageStatus =
+  | "group_stage_complete_from_pdf_grid"
+  | "round_of_32_complete_from_verified_schedule_and_provider";
 
-export type WorldCup2026Stage = "group_stage";
+export type WorldCup2026Stage = "group_stage" | "round_of_32";
 
 export type WorldCup2026CatalogMetadata = {
   sourceAuthority: WorldCup2026SourceAuthority;

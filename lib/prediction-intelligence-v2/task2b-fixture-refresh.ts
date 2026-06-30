@@ -6,6 +6,8 @@ import { buildApiFootballFixtureExternalId } from "../football-api/ingest/extern
 import { createSupabaseScriptAdminClient } from "../supabase/script-admin";
 import { WORLD_CUP_2026_FIXTURES } from "../world-cup-2026";
 import {
+  getWorldCupFixtureDateRange,
+  getWorldCupFixtures,
   resolveWorldCupProviderFixtureFromSanitizedSnapshot,
   verifyWorldCupProviderFixtureIdentity,
 } from "../world-cup-2026/fixture-registry";
@@ -268,9 +270,7 @@ export type RunTask2B1Result = {
 };
 
 function buildCanonicalFixtureMap() {
-  return new Map(
-    WORLD_CUP_2026_FIXTURES.slice(0, 72).map((fixture) => [fixture.fixtureKey, fixture]),
-  );
+  return new Map(WORLD_CUP_2026_FIXTURES.map((fixture) => [fixture.fixtureKey, fixture]));
 }
 
 const CANONICAL_FIXTURES_BY_ID = buildCanonicalFixtureMap();
@@ -279,6 +279,57 @@ function inferCanonicalFixtureId(
   matchNumber: number,
 ): (typeof WORLD_CUP_2026_FIXTURES)[number]["fixtureKey"] {
   return `wc2026-match-${String(matchNumber).padStart(3, "0")}` as (typeof WORLD_CUP_2026_FIXTURES)[number]["fixtureKey"];
+}
+
+function resolveTask2B1ProviderRequestRange(
+  selectionInput: Partial<Task2BSelectionSpec>,
+  stageSnapshot: Task2B1StageSnapshot,
+) {
+  const normalized = normalizeSelectionSpec(selectionInput);
+  const selectedFixtures = getWorldCupFixtures({
+    canonicalFixtureIds: normalized.canonicalFixtureIds,
+    from: normalized.from ?? undefined,
+    to: normalized.to ?? undefined,
+  }).filter((fixture) =>
+    normalized.matchday === null
+      ? true
+      : normalized.matchday === 1
+        ? fixture.matchNumber <= 24
+        : normalized.matchday === 2
+          ? fixture.matchNumber >= 25 && fixture.matchNumber <= 48
+          : fixture.matchNumber >= 49 && fixture.matchNumber <= 72,
+  );
+
+  if (selectedFixtures.length > 0) {
+    const derived = getWorldCupFixtureDateRange(selectedFixtures);
+    return {
+      from: normalized.from ?? derived.from,
+      to: normalized.to ?? derived.to,
+    };
+  }
+
+  if (normalized.matchIds.length > 0) {
+    const selectedMatches = stageSnapshot.matches
+      .filter((match) => normalized.matchIds.includes(match.id))
+      .sort((left, right) => normalizeUtcInstant(left.kickoff_at).localeCompare(normalizeUtcInstant(right.kickoff_at)));
+    const first = selectedMatches[0];
+    const last = selectedMatches.at(-1);
+    if (first && last) {
+      return {
+        from: normalized.from ?? normalizeUtcInstant(first.kickoff_at).slice(0, 10),
+        to: normalized.to ?? normalizeUtcInstant(last.kickoff_at).slice(0, 10),
+      };
+    }
+  }
+
+  if (normalized.from || normalized.to) {
+    return {
+      from: normalized.from ?? TASK2B_WORLD_CUP_DATE_RANGE.from,
+      to: normalized.to ?? TASK2B_WORLD_CUP_DATE_RANGE.to,
+    };
+  }
+
+  return TASK2B_WORLD_CUP_DATE_RANGE;
 }
 
 function parseProviderFixtureId(externalId: string | null): number | null {
@@ -734,7 +785,8 @@ function planTask2B1FromSnapshot(args: {
           homeTeamName: fixture.homeTeam.name,
           awayTeamName: fixture.awayTeam.name,
           classification: "provider_only_unknown",
-          exclusionReason: "Provider row is outside the stored canonical group-stage fixture set and is never insertable.",
+          exclusionReason:
+            "Provider row is outside the exact canonical fixture selection for this bounded run and was not considered insertable here.",
         }) satisfies Task2B1ProviderOnlyRow,
     );
 
@@ -1105,22 +1157,24 @@ export async function runTask2B1FixtureRefresh(
   });
   const databaseAdapter = dependencies?.databaseAdapter ?? createLiveTask2B1DatabaseAdapter();
   const now = new Date().toISOString();
+  const stageSnapshot = await databaseAdapter.readStageSnapshot();
 
   let providerSnapshotPath = input.providerSnapshotPath ? path.resolve(input.providerSnapshotPath) : null;
   let providerSnapshot: Task2BProviderSnapshot;
   if (authorization.mode === "dry_run") {
     const providerFetcher = dependencies?.providerFetcher ?? fetchApiFootballFixturesByLeague;
+    const providerRequestRange = resolveTask2B1ProviderRequestRange(input.selection, stageSnapshot);
     const providerFixtures = await providerFetcher({
       leagueId: TASK2B_PROVIDER_LEAGUE_ID,
       season: TASK2B_PROVIDER_SEASON,
-      from: TASK2B_WORLD_CUP_DATE_RANGE.from,
-      to: TASK2B_WORLD_CUP_DATE_RANGE.to,
+      from: providerRequestRange.from,
+      to: providerRequestRange.to,
     });
     providerSnapshot = sanitizeProviderSnapshot({
       fixtures: providerFixtures,
       acquiredAt: now,
-      from: TASK2B_WORLD_CUP_DATE_RANGE.from,
-      to: TASK2B_WORLD_CUP_DATE_RANGE.to,
+      from: providerRequestRange.from,
+      to: providerRequestRange.to,
     });
     providerSnapshotPath = buildProviderSnapshotPath(input.artifactsDir);
     writeJsonFile(providerSnapshotPath, providerSnapshot);
@@ -1132,7 +1186,6 @@ export async function runTask2B1FixtureRefresh(
   }
 
   const providerSnapshotSha256 = sha256File(providerSnapshotPath!);
-  const stageSnapshot = await databaseAdapter.readStageSnapshot();
   const currentPlan = planTask2B1FromSnapshot({
     authorization,
     stageSnapshot,

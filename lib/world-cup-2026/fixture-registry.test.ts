@@ -4,7 +4,9 @@ import type { ProviderFixture } from "@/lib/football-api/api-football-types";
 import { sanitizeProviderSnapshot } from "../prediction-intelligence-v2/task2b-shared";
 import { WORLD_CUP_2026_FIXTURES, WORLD_CUP_2026_TEAMS } from "./index";
 import {
+  getWorldCupFixtures,
   applyWorldCupGroupStageFixtureRegistryPlan,
+  planWorldCupFixtureRegistry,
   buildFixtureRegistryApplyCounts,
   buildFixtureRegistrySelection,
   planWorldCupGroupStageFixtureRegistry,
@@ -20,6 +22,20 @@ import {
 } from "./fixture-registry";
 
 const FIXED_NOW = new Date("2026-06-23T12:00:00.000Z");
+
+function expectedProviderRound(matchNumber: number) {
+  if (matchNumber <= 24) {
+    return "Group Stage - 1";
+  }
+  if (matchNumber <= 48) {
+    return "Group Stage - 2";
+  }
+  if (matchNumber <= 72) {
+    return "Group Stage - 3";
+  }
+
+  return "Round of 32";
+}
 
 function buildTeams(): WorldCupRegistryTeamRow[] {
   return WORLD_CUP_2026_TEAMS.map((team) => ({
@@ -77,7 +93,7 @@ function buildProviderFixture(
       name: overrides.competition?.name ?? "World Cup",
       country: overrides.competition?.country ?? "World",
       season: overrides.competition?.season ?? 2026,
-      round: overrides.competition?.round ?? `Group Stage - ${canonicalFixture.matchNumber <= 24 ? 1 : canonicalFixture.matchNumber <= 48 ? 2 : 3}`,
+      round: overrides.competition?.round ?? expectedProviderRound(canonicalFixture.matchNumber),
     },
     homeTeam: {
       providerTeamId: overrides.homeTeam?.providerTeamId ?? canonicalFixture.matchNumber * 10 + 1,
@@ -117,7 +133,7 @@ function buildMatchRow(fixtureKey: string, overrides: Partial<WorldCupRegistryMa
     home_team_id: overrides.home_team_id ?? `team-${canonicalFixture.homeTeamKey}`,
     away_team_id: overrides.away_team_id ?? `team-${canonicalFixture.awayTeamKey}`,
     kickoff_at: overrides.kickoff_at ?? canonicalFixture.kickoffAt,
-    stage: overrides.stage ?? `Group Stage - ${canonicalFixture.matchNumber <= 24 ? 1 : canonicalFixture.matchNumber <= 48 ? 2 : 3}`,
+    stage: overrides.stage ?? expectedProviderRound(canonicalFixture.matchNumber),
     status: overrides.status ?? "scheduled",
     access_scope: overrides.access_scope ?? "admin_only",
     intake_source: overrides.intake_source ?? "manual",
@@ -138,6 +154,115 @@ describe("world cup fixture registry planner", () => {
     const ordering = report.rows.map((row) => `${row.canonicalKickoffUtc}|${row.canonicalFixtureId}`);
     expect(ordering).toEqual([...ordering].sort());
     expect(report.summary.canonicalFixtureTotal).toBe(72);
+  });
+
+  it("keeps 88 canonical fixtures with unique round-of-32 identities", () => {
+    expect(WORLD_CUP_2026_FIXTURES).toHaveLength(88);
+
+    const knockoutFixtures = WORLD_CUP_2026_FIXTURES.filter((fixture) => fixture.stage === "round_of_32");
+    expect(knockoutFixtures).toHaveLength(16);
+    expect(new Set(knockoutFixtures.map((fixture) => fixture.fixtureKey)).size).toBe(16);
+    expect(new Set(knockoutFixtures.map((fixture) => fixture.matchNumber)).size).toBe(16);
+    expect(new Set(knockoutFixtures.map((fixture) => fixture.matchSlug)).size).toBe(16);
+    expect(new Set(knockoutFixtures.map((fixture) => fixture.apiFootballFixtureId)).size).toBe(16);
+    expect(new Set(knockoutFixtures.map((fixture) => fixture.apiFootballExternalId)).size).toBe(16);
+  });
+
+  it("classifies all 16 round-of-32 fixtures as create candidates in a bounded dry-run", () => {
+    const canonicalFixtures = getWorldCupFixtures({ stage: "round_of_32" });
+    const providerFixtures = canonicalFixtures.map((fixture) => buildProviderFixture(fixture.fixtureKey));
+
+    const report = planWorldCupFixtureRegistry({
+      canonicalFixtures,
+      providerFixtures,
+      databaseSnapshot: buildSnapshot(),
+      now: new Date("2026-06-28T12:00:00.000Z"),
+    });
+
+    expect(report.rows).toHaveLength(16);
+    expect(report.summary.createCandidates).toBe(16);
+    expect(report.summary.conflicts).toBe(0);
+    expect(report.rows.every((row) => row.persistenceState === "create_candidate")).toBe(true);
+  });
+
+  it("treats a simulated post-apply round-of-32 rerun as fully already stored", () => {
+    const canonicalFixtures = getWorldCupFixtures({ stage: "round_of_32" });
+    const providerFixtures = canonicalFixtures.map((fixture) => buildProviderFixture(fixture.fixtureKey));
+    const snapshot = buildSnapshot({
+      matches: canonicalFixtures.map((fixture) =>
+        buildMatchRow(fixture.fixtureKey, {
+          external_id: fixture.apiFootballExternalId,
+          intake_source: "api_football",
+          stage: "Round of 32",
+        }),
+      ),
+    });
+
+    const report = planWorldCupFixtureRegistry({
+      canonicalFixtures,
+      providerFixtures,
+      databaseSnapshot: snapshot,
+      now: new Date("2026-06-28T12:00:00.000Z"),
+    });
+
+    expect(report.summary.alreadyStored).toBe(16);
+    expect(report.summary.createCandidates).toBe(0);
+    expect(report.rows.every((row) => row.persistenceState === "already_stored")).toBe(true);
+  });
+
+  it("resolves the verified round-of-32 provider aliases through existing canonical team identity", () => {
+    const canonicalFixtureIds = [
+      "wc2026-match-078",
+      "wc2026-match-080",
+      "wc2026-match-081",
+      "wc2026-match-086",
+    ];
+    const aliasFixtures = [
+      buildProviderFixture("wc2026-match-078", {
+        homeTeam: { providerTeamId: 781, name: "Ivory Coast", winner: null },
+      }),
+      buildProviderFixture("wc2026-match-080", {
+        awayTeam: { providerTeamId: 802, name: "Congo DR", winner: null },
+      }),
+      buildProviderFixture("wc2026-match-081", {
+        awayTeam: { providerTeamId: 812, name: "Bosnia & Herzegovina", winner: null },
+      }),
+      buildProviderFixture("wc2026-match-086", {
+        awayTeam: { providerTeamId: 862, name: "Cape Verde Islands", winner: null },
+      }),
+    ];
+
+    const report = planWorldCupFixtureRegistry({
+      canonicalFixtures: getWorldCupFixtures({ canonicalFixtureIds }),
+      providerFixtures: aliasFixtures,
+      databaseSnapshot: buildSnapshot(),
+      now: new Date("2026-06-28T12:00:00.000Z"),
+    });
+
+    expect(report.rows).toHaveLength(4);
+    expect(report.rows.every((row) => row.registryLinkState === "linked")).toBe(true);
+  });
+
+  it("rejects a round-of-32 fixture when the provider round is unsupported", () => {
+    const row = planWorldCupFixtureRegistry({
+      canonicalFixtures: getWorldCupFixtures({ canonicalFixtureIds: ["wc2026-match-073"] }),
+      providerFixtures: [
+        buildProviderFixture("wc2026-match-073", {
+          competition: {
+            providerCompetitionId: 1,
+            name: "World Cup",
+            country: "World",
+            season: 2026,
+            round: "Quarter-finals",
+          },
+        }),
+      ],
+      databaseSnapshot: buildSnapshot(),
+      now: new Date("2026-06-28T12:00:00.000Z"),
+    }).rows[0];
+
+    expect(row?.registryLinkState).toBe("conflict");
+    expect(row?.conflictCode).toBe("provider_stage_mismatch");
   });
 
   it("marks an existing exact provider link as already stored", () => {

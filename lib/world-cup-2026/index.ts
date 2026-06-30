@@ -13,14 +13,14 @@ export * from "./types";
 export const WORLD_CUP_2026_CATALOG_METADATA = {
   sourceAuthority: "fifa_official_schedule_pdf",
   sourceFileName: "FWC26 Match Schedule_v17_10042026_EN.pdf",
-  sourceDate: "2026-04-10",
-  catalogGeneratedAt: "2026-06-12T19:54:35.241343Z",
-  coverageStatus: "group_stage_complete_from_pdf_grid",
+  sourceDate: "2026-06-30",
+  catalogGeneratedAt: "2026-06-30T12:00:00.000000Z",
+  coverageStatus: "round_of_32_complete_from_verified_schedule_and_provider",
   sourceNotes: [
     "Extracted from the uploaded FIFA match schedule PDF grid dated 10 April 2026.",
     "The PDF states all times are Eastern Time (ET) and the schedule is subject to change.",
     "This source file captures the 72 group-stage fixtures, 48 teams, 12 groups, and 16 host venues/host cities from the PDF grid.",
-    "Knockout fixtures are intentionally not expanded here because many participants are placeholders such as W73, 1A, 2B, etc.",
+    "Round of 32 fixtures 73 through 88 use the official FIFA schedule rows plus the verified 2026-06-30 operator-captured API-Football participant identities and fixture ids.",
     "API-Football IDs are included only where UFO Predictor has already verified/publicly used them.",
   ],
 } as const satisfies WorldCup2026CatalogMetadata;

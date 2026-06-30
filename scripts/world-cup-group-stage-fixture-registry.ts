@@ -4,11 +4,12 @@ import path from "node:path";
 import { fetchApiFootballFixturesByLeague } from "@/lib/football-api/api-football-client";
 import { createSupabaseScriptAdminClient } from "@/lib/supabase/script-admin";
 import {
-  applyWorldCupGroupStageFixtureRegistryPlan,
+  applyWorldCupFixtureRegistryPlan,
   buildFixtureRegistrySelection,
   buildFixtureRegistryAllowlistManifest,
-  getWorldCupGroupStageDateRange,
-  planWorldCupGroupStageFixtureRegistry,
+  getWorldCupFixtureDateRange,
+  getWorldCupFixtures,
+  planWorldCupFixtureRegistry,
   resolveFixtureRegistryApplyPlan,
   summarizeFixtureRegistryReport,
   withFixtureRegistrySelection,
@@ -94,9 +95,9 @@ async function readAllowlistManifest(
   return JSON.parse(raw) as FixtureRegistryAllowlistManifest;
 }
 
-async function loadDatabaseSnapshot(): Promise<WorldCupRegistryDatabaseSnapshot> {
+async function loadDatabaseSnapshot(dateRange: { from: string; to: string }): Promise<WorldCupRegistryDatabaseSnapshot> {
   const supabase = createSupabaseScriptAdminClient();
-  const { from, to } = getWorldCupGroupStageDateRange();
+  const { from, to } = dateRange;
 
   const { data: competitionData, error: competitionError } = await supabase
     .from("competitions")
@@ -184,13 +185,35 @@ function buildSelectionInput(args: Args): FixtureRegistrySelectionInput {
   };
 }
 
+function resolveSelectedFixtures(args: Args) {
+  if (args.matchday !== null) {
+    return getWorldCupFixtures({ stage: "group_stage" }).filter((fixture) =>
+      args.matchday === 1
+        ? fixture.matchNumber <= 24
+        : args.matchday === 2
+          ? fixture.matchNumber >= 25 && fixture.matchNumber <= 48
+          : fixture.matchNumber >= 49 && fixture.matchNumber <= 72,
+    );
+  }
+
+  if (args.from || args.to) {
+    return getWorldCupFixtures({
+      from: args.from ?? undefined,
+      to: args.to ?? undefined,
+    });
+  }
+
+  return getWorldCupFixtures({ stage: "group_stage" });
+}
+
 async function run() {
   loadEnvConfig(process.cwd());
   const args = parseArgs();
   const allowlistManifest = await readAllowlistManifest(args.allowlistManifestPath);
   const artifactPath = buildArtifactPath(args);
+  const selectedFixtures = resolveSelectedFixtures(args);
+  const dateRange = getWorldCupFixtureDateRange(selectedFixtures);
 
-  const dateRange = getWorldCupGroupStageDateRange();
   const [providerFixtures, databaseSnapshot] = await Promise.all([
     fetchApiFootballFixturesByLeague({
       leagueId: WORLD_CUP_PROVIDER_LEAGUE_ID,
@@ -198,12 +221,13 @@ async function run() {
       from: dateRange.from,
       to: dateRange.to,
     }),
-    loadDatabaseSnapshot(),
+    loadDatabaseSnapshot(dateRange),
   ]);
 
-  const baseReport = planWorldCupGroupStageFixtureRegistry({
+  const baseReport = planWorldCupFixtureRegistry({
     providerFixtures,
     databaseSnapshot,
+    canonicalFixtures: selectedFixtures,
   });
   const selection = buildSelectionInput(args);
   const selectedReport = withFixtureRegistrySelection(
@@ -235,11 +259,12 @@ async function run() {
     }
 
     const supabase = createSupabaseScriptAdminClient();
-    applyCounts = await applyWorldCupGroupStageFixtureRegistryPlan({
+    applyCounts = await applyWorldCupFixtureRegistryPlan({
       report: baseReport,
       databaseSnapshot,
       providerFixtures,
       applyPlan,
+      canonicalFixtures: selectedFixtures,
       writeAdapter: {
         async insertMatch(payload) {
           const { data, error } = await supabase

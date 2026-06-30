@@ -6,6 +6,7 @@ import {
   WORLD_CUP_2026_FIXTURES,
   WORLD_CUP_2026_TEAMS,
 } from "./index";
+import type { WorldCup2026Fixture, WorldCup2026Stage } from "./types";
 
 export const WORLD_CUP_GROUP_STAGE_FIXTURE_TOTAL = 72;
 export const WORLD_CUP_GROUP_STAGE_MATCHDAYS = [1, 2, 3] as const;
@@ -31,6 +32,7 @@ export type FixtureRegistryConflictCode =
   | "provider_reversed_teams"
   | "provider_kickoff_mismatch"
   | "provider_group_stage_mismatch"
+  | "provider_stage_mismatch"
   | "stored_external_id_duplicate"
   | "stored_external_id_conflict"
   | "internal_match_duplicate"
@@ -322,6 +324,7 @@ export type ProviderFixtureIdentityCheck =
   | {
       ok: false;
       conflictCode:
+        | "provider_stage_mismatch"
         | "provider_group_stage_mismatch"
         | "provider_reversed_teams"
         | "provider_team_mismatch"
@@ -411,6 +414,90 @@ function isProviderGroupStageRound(round: string | null): boolean {
   return normalizeStageLabel(round).startsWith("group stage");
 }
 
+function isProviderRoundOf32Round(round: string | null): boolean {
+  const normalized = normalizeStageLabel(round);
+  return normalized === "round of 32" || normalized === "round_of_32";
+}
+
+function isProviderRoundCompatible(
+  canonicalFixture: Pick<WorldCup2026Fixture, "fixtureKey" | "stage">,
+  providerRound: string | null,
+): boolean {
+  if (canonicalFixture.stage === "group_stage") {
+    return isProviderGroupStageRound(providerRound);
+  }
+
+  if (canonicalFixture.stage === "round_of_32") {
+    return isProviderRoundOf32Round(providerRound);
+  }
+
+  return false;
+}
+
+function buildProviderStageMismatchCode(
+  canonicalFixture: Pick<WorldCup2026Fixture, "stage">,
+): "provider_group_stage_mismatch" | "provider_stage_mismatch" {
+  return canonicalFixture.stage === "group_stage"
+    ? "provider_group_stage_mismatch"
+    : "provider_stage_mismatch";
+}
+
+function buildProviderStageMismatchReason(
+  canonicalFixture: Pick<WorldCup2026Fixture, "fixtureKey" | "stage">,
+  providerRound: string | null,
+): string {
+  const expectedStageLabel =
+    canonicalFixture.stage === "group_stage" ? "group-stage" : canonicalFixture.stage.replace(/_/g, " ");
+
+  return `Provider fixture matched ${canonicalFixture.fixtureKey}, but its round "${providerRound}" is not ${expectedStageLabel}.`;
+}
+
+function resolveCanonicalFixtureReference(
+  fixture: {
+    fixtureKey: string;
+    homeTeamKey: string;
+    awayTeamKey: string;
+    kickoffAt: string;
+    apiFootballFixtureId?: number | null;
+    stage?: WorldCup2026Stage;
+  },
+): WorldCup2026Fixture {
+  const canonicalFixture = WORLD_CUP_2026_FIXTURES.find(
+    (candidate) => candidate.fixtureKey === fixture.fixtureKey,
+  );
+
+  if (canonicalFixture) {
+    return canonicalFixture;
+  }
+
+  return {
+    fixtureKey: fixture.fixtureKey,
+    matchNumber: 0,
+    matchSlug: fixture.fixtureKey,
+    stage: fixture.stage ?? "group_stage",
+    groupKey: fixture.stage === "round_of_32" ? "" : "group-stage-unknown",
+    roundLabel: fixture.stage === "round_of_32" ? "Round of 32" : "Group Stage",
+    kickoffDateET: fixture.kickoffAt.slice(0, 10),
+    kickoffTimeET: "",
+    kickoffAt: fixture.kickoffAt,
+    timezone: "UTC",
+    homeTeamKey: fixture.homeTeamKey,
+    awayTeamKey: fixture.awayTeamKey,
+    homeTeamFifaCode: "",
+    awayTeamFifaCode: "",
+    venueKey: "",
+    hostCity: "",
+    hostCountry: "",
+    apiFootballFixtureId: fixture.apiFootballFixtureId ?? null,
+    apiFootballExternalId:
+      fixture.apiFootballFixtureId != null
+        ? buildApiFootballFixtureExternalId(fixture.apiFootballFixtureId)
+        : null,
+    statusHint: "scheduled",
+    sourceNotes: "Synthetic canonical fixture reference for registry validation.",
+  };
+}
+
 function parseStoredExternalFixtureId(externalId: string | null): number | null {
   if (!externalId) {
     return null;
@@ -493,7 +580,7 @@ function buildProviderFixtureIndexes<TProviderFixture extends WorldCupProviderFi
 }
 
 function resolveProviderFixture<TProviderFixture extends WorldCupProviderFixtureLike>(
-  canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number],
+  canonicalFixture: WorldCup2026Fixture,
   providerFixtures: TProviderFixture[],
 ): ProviderResolution<TProviderFixture> {
   const worldCupFixtures = providerFixtures.filter(
@@ -543,11 +630,11 @@ function resolveProviderFixture<TProviderFixture extends WorldCupProviderFixture
 
   if (kickoffPairMatches.length === 1) {
     const match = kickoffPairMatches[0]!;
-    if (!isProviderGroupStageRound(match.competition.round)) {
+    if (!isProviderRoundCompatible(canonicalFixture, match.competition.round)) {
       return {
         state: "conflict",
-        conflictCode: "provider_group_stage_mismatch",
-        conflictReason: `Provider fixture ${match.providerFixtureId} matched ${canonicalFixture.fixtureKey}, but its round "${match.competition.round}" is not group-stage.`,
+        conflictCode: buildProviderStageMismatchCode(canonicalFixture),
+        conflictReason: buildProviderStageMismatchReason(canonicalFixture, match.competition.round),
         providerFixture: match,
       };
     }
@@ -581,11 +668,11 @@ function resolveProviderFixture<TProviderFixture extends WorldCupProviderFixture
 
   if (pairMatches.length === 1) {
     const match = pairMatches[0]!;
-    if (!isProviderGroupStageRound(match.competition.round)) {
+    if (!isProviderRoundCompatible(canonicalFixture, match.competition.round)) {
       return {
         state: "conflict",
-        conflictCode: "provider_group_stage_mismatch",
-        conflictReason: `Provider fixture ${match.providerFixtureId} matched ${canonicalFixture.fixtureKey}, but its round "${match.competition.round}" is not group-stage.`,
+        conflictCode: buildProviderStageMismatchCode(canonicalFixture),
+        conflictReason: buildProviderStageMismatchReason(canonicalFixture, match.competition.round),
         providerFixture: match,
       };
     }
@@ -624,14 +711,14 @@ function resolveProviderFixture<TProviderFixture extends WorldCupProviderFixture
 }
 
 function resolveProviderFixtureIdentityConflict<TProviderFixture extends WorldCupProviderFixtureLike>(
-  canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number],
+  canonicalFixture: WorldCup2026Fixture,
   providerFixture: TProviderFixture,
 ): ProviderResolution<TProviderFixture> | null {
-  if (!isProviderGroupStageRound(providerFixture.competition.round)) {
+  if (!isProviderRoundCompatible(canonicalFixture, providerFixture.competition.round)) {
     return {
       state: "conflict",
-      conflictCode: "provider_group_stage_mismatch",
-      conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} references provider fixture ${providerFixture.providerFixtureId}, but its round "${providerFixture.competition.round}" is not group-stage.`,
+      conflictCode: buildProviderStageMismatchCode(canonicalFixture),
+      conflictReason: `Canonical fixture ${canonicalFixture.fixtureKey} references provider fixture ${providerFixture.providerFixtureId}, but its round "${providerFixture.competition.round}" is not compatible with stage ${canonicalFixture.stage}.`,
       providerFixture,
     };
   }
@@ -679,11 +766,12 @@ export function verifyWorldCupProviderFixtureIdentity(args: {
     homeTeamKey: string;
     awayTeamKey: string;
     kickoffAt: string;
+    stage?: WorldCup2026Stage;
   };
   providerFixture: ProviderFixture;
 }): ProviderFixtureIdentityCheck {
   const conflict = resolveProviderFixtureIdentityConflict(
-    args.canonicalFixture as (typeof WORLD_CUP_2026_FIXTURES)[number],
+    resolveCanonicalFixtureReference(args.canonicalFixture),
     args.providerFixture,
   );
 
@@ -696,6 +784,7 @@ export function verifyWorldCupProviderFixtureIdentity(args: {
   }
 
   if (
+    conflict.conflictCode !== "provider_stage_mismatch" &&
     conflict.conflictCode !== "provider_group_stage_mismatch" &&
     conflict.conflictCode !== "provider_reversed_teams" &&
     conflict.conflictCode !== "provider_team_mismatch" &&
@@ -718,11 +807,12 @@ export function resolveWorldCupProviderFixture(args: {
     awayTeamKey: string;
     kickoffAt: string;
     apiFootballFixtureId: number | null;
+    stage?: WorldCup2026Stage;
   };
   providerFixtures: ProviderFixture[];
 }): WorldCupProviderFixtureResolution {
   const resolution = resolveProviderFixture(
-    args.canonicalFixture as (typeof WORLD_CUP_2026_FIXTURES)[number],
+    resolveCanonicalFixtureReference(args.canonicalFixture),
     args.providerFixtures,
   );
 
@@ -762,11 +852,12 @@ export function resolveWorldCupProviderFixtureFromSanitizedSnapshot<TProviderFix
     awayTeamKey: string;
     kickoffAt: string;
     apiFootballFixtureId: number | null;
+    stage?: WorldCup2026Stage;
   };
   providerFixtures: TProviderFixture[];
 }): WorldCupProviderFixtureResolutionFor<TProviderFixture> {
   const resolution = resolveProviderFixture(
-    args.canonicalFixture as (typeof WORLD_CUP_2026_FIXTURES)[number],
+    resolveCanonicalFixtureReference(args.canonicalFixture),
     args.providerFixtures,
   );
 
@@ -910,7 +1001,7 @@ function resolveTeam(
 }
 
 function resolveInternalMatch(
-  canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number],
+  canonicalFixture: WorldCup2026Fixture,
   snapshot: WorldCupRegistryDatabaseSnapshot,
   homeTeamResolution: TeamResolution,
   awayTeamResolution: TeamResolution,
@@ -1099,7 +1190,7 @@ function determinePersistenceState(args: {
     FixtureRegistryRow,
     "persistenceState" | "proposedAction" | "conflictCode" | "conflictReason"
   >;
-  canonicalFixture: (typeof WORLD_CUP_2026_FIXTURES)[number];
+  canonicalFixture: WorldCup2026Fixture;
   providerResolution: ProviderResolution<ProviderFixture>;
   internalResolution: InternalMatchResolution;
   competitionResolution: CompetitionResolution;
@@ -1244,8 +1335,8 @@ function inferMatchday(matchNumber: number): 1 | 2 | 3 {
   return 3;
 }
 
-export function getWorldCupGroupStageFixtures() {
-  return [...WORLD_CUP_2026_FIXTURES].sort((left, right) => {
+function sortCanonicalFixtures(fixtures: readonly WorldCup2026Fixture[]) {
+  return [...fixtures].sort((left, right) => {
     const kickoffCompare = left.kickoffAt.localeCompare(right.kickoffAt);
     if (kickoffCompare !== 0) {
       return kickoffCompare;
@@ -1255,13 +1346,41 @@ export function getWorldCupGroupStageFixtures() {
   });
 }
 
-export function getWorldCupGroupStageDateRange() {
-  const fixtures = getWorldCupGroupStageFixtures();
+export function getWorldCupFixtures(input: {
+  stage?: WorldCup2026Stage;
+  canonicalFixtureIds?: readonly string[];
+  from?: string;
+  to?: string;
+} = {}) {
+  const explicitCanonicalIds = new Set(input.canonicalFixtureIds ?? []);
+  return sortCanonicalFixtures(
+    WORLD_CUP_2026_FIXTURES.filter((fixture) => {
+      if (input.stage && fixture.stage !== input.stage) {
+        return false;
+      }
+      if (explicitCanonicalIds.size > 0 && !explicitCanonicalIds.has(fixture.fixtureKey)) {
+        return false;
+      }
+
+      const kickoffDate = fixture.kickoffAt.slice(0, 10);
+      if (input.from && kickoffDate < input.from) {
+        return false;
+      }
+      if (input.to && kickoffDate > input.to) {
+        return false;
+      }
+
+      return true;
+    }),
+  );
+}
+
+export function getWorldCupFixtureDateRange(fixtures: readonly WorldCup2026Fixture[]) {
   const first = fixtures[0];
   const last = fixtures[fixtures.length - 1];
 
   if (!first || !last) {
-    throw new Error("World Cup group-stage fixture catalog is empty.");
+    throw new Error("World Cup fixture catalog selection is empty.");
   }
 
   return {
@@ -1270,16 +1389,23 @@ export function getWorldCupGroupStageDateRange() {
   };
 }
 
-export function planWorldCupGroupStageFixtureRegistry(args: {
+export function getWorldCupGroupStageFixtures() {
+  return getWorldCupFixtures({ stage: "group_stage" });
+}
+
+export function getWorldCupGroupStageDateRange() {
+  return getWorldCupFixtureDateRange(getWorldCupGroupStageFixtures());
+}
+
+export function planWorldCupFixtureRegistry(args: {
   providerFixtures: ProviderFixture[];
   databaseSnapshot: WorldCupRegistryDatabaseSnapshot;
+  canonicalFixtures?: readonly WorldCup2026Fixture[];
   now?: Date;
 }): FixtureRegistryReport {
-  const fixtures = getWorldCupGroupStageFixtures();
-  if (fixtures.length !== WORLD_CUP_GROUP_STAGE_FIXTURE_TOTAL) {
-    throw new Error(
-      `Expected ${WORLD_CUP_GROUP_STAGE_FIXTURE_TOTAL} canonical group-stage fixtures, received ${fixtures.length}.`,
-    );
+  const fixtures = sortCanonicalFixtures(args.canonicalFixtures ?? WORLD_CUP_2026_FIXTURES);
+  if (fixtures.length === 0) {
+    throw new Error("Expected at least one canonical fixture.");
   }
 
   const now = args.now ?? new Date();
@@ -1336,7 +1462,7 @@ export function planWorldCupGroupStageFixtureRegistry(args: {
       competition: WORLD_CUP_COMPETITION_SLUG,
       season: WORLD_CUP_PROVIDER_SEASON,
       stage: canonicalFixture.stage,
-      group: normalizeGroupKey(canonicalFixture.groupKey),
+      group: canonicalFixture.groupKey ? normalizeGroupKey(canonicalFixture.groupKey) : canonicalFixture.stage,
       apiFootballFixtureId: providerFixture?.providerFixtureId ?? canonicalFixture.apiFootballFixtureId,
       apiFootballStatus: providerFixture?.status ?? null,
       apiFootballKickoffUtc: providerFixture?.kickoffAt ?? null,
@@ -1421,6 +1547,24 @@ export function planWorldCupGroupStageFixtureRegistry(args: {
     selection: null,
     rows: finalRows,
   };
+}
+
+export function planWorldCupGroupStageFixtureRegistry(args: {
+  providerFixtures: ProviderFixture[];
+  databaseSnapshot: WorldCupRegistryDatabaseSnapshot;
+  now?: Date;
+}): FixtureRegistryReport {
+  const fixtures = getWorldCupGroupStageFixtures();
+  if (fixtures.length !== WORLD_CUP_GROUP_STAGE_FIXTURE_TOTAL) {
+    throw new Error(
+      `Expected ${WORLD_CUP_GROUP_STAGE_FIXTURE_TOTAL} canonical group-stage fixtures, received ${fixtures.length}.`,
+    );
+  }
+
+  return planWorldCupFixtureRegistry({
+    ...args,
+    canonicalFixtures: fixtures,
+  });
 }
 
 export function buildFixtureRegistrySelection(
@@ -1608,7 +1752,7 @@ export function buildFixtureRegistrySourceNote(input: {
   canonicalFixtureId: string;
   providerFixtureId: number;
 }): string {
-  return `world_cup_group_stage_fixture_registry generated_at=${input.generatedAt}; canonical_fixture=${input.canonicalFixtureId}; provider_fixture_id=${input.providerFixtureId}`;
+  return `world_cup_fixture_registry generated_at=${input.generatedAt}; canonical_fixture=${input.canonicalFixtureId}; provider_fixture_id=${input.providerFixtureId}`;
 }
 
 export function buildFixtureRegistryApplyCounts(): FixtureRegistryApplyCounts {
@@ -1639,11 +1783,13 @@ function resolveRegistryWriteContext(args: {
   report: FixtureRegistryReport;
   databaseSnapshot: WorldCupRegistryDatabaseSnapshot;
   providerFixtures: ProviderFixture[];
+  canonicalFixtures?: readonly WorldCup2026Fixture[];
   now?: Date;
 }) {
-  const freshReport = planWorldCupGroupStageFixtureRegistry({
+  const freshReport = planWorldCupFixtureRegistry({
     providerFixtures: args.providerFixtures,
     databaseSnapshot: args.databaseSnapshot,
+    canonicalFixtures: args.canonicalFixtures,
     now: args.now,
   });
   const row = freshReport.rows.find(
@@ -1680,12 +1826,13 @@ function resolveRegistryWriteContext(args: {
   };
 }
 
-export async function applyWorldCupGroupStageFixtureRegistryPlan(args: {
+export async function applyWorldCupFixtureRegistryPlan(args: {
   report: FixtureRegistryReport;
   databaseSnapshot: WorldCupRegistryDatabaseSnapshot;
   providerFixtures: ProviderFixture[];
   applyPlan: FixtureRegistryApplyPlan;
   writeAdapter: FixtureRegistryWriteAdapter;
+  canonicalFixtures?: readonly WorldCup2026Fixture[];
   now?: Date;
 }): Promise<FixtureRegistryApplyCounts> {
   const counts = buildFixtureRegistryApplyCounts();
@@ -1716,6 +1863,7 @@ export async function applyWorldCupGroupStageFixtureRegistryPlan(args: {
       report: args.report,
       databaseSnapshot: args.databaseSnapshot,
       providerFixtures: args.providerFixtures,
+      canonicalFixtures: args.canonicalFixtures,
       now: args.now,
     });
 
@@ -1819,4 +1967,18 @@ export async function applyWorldCupGroupStageFixtureRegistryPlan(args: {
   }
 
   return counts;
+}
+
+export async function applyWorldCupGroupStageFixtureRegistryPlan(args: {
+  report: FixtureRegistryReport;
+  databaseSnapshot: WorldCupRegistryDatabaseSnapshot;
+  providerFixtures: ProviderFixture[];
+  applyPlan: FixtureRegistryApplyPlan;
+  writeAdapter: FixtureRegistryWriteAdapter;
+  now?: Date;
+}): Promise<FixtureRegistryApplyCounts> {
+  return applyWorldCupFixtureRegistryPlan({
+    ...args,
+    canonicalFixtures: getWorldCupGroupStageFixtures(),
+  });
 }
