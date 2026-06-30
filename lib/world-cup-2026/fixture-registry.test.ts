@@ -97,6 +97,12 @@ function buildProviderFixture(
       home: overrides.goals?.home ?? null,
       away: overrides.goals?.away ?? null,
     },
+    score: overrides.score ?? {
+      halftime: { home: null, away: null },
+      fulltime: { home: null, away: null },
+      extratime: { home: null, away: null },
+      penalty: { home: null, away: null },
+    },
   };
 }
 

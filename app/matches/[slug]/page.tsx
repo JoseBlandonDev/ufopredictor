@@ -19,7 +19,10 @@ import {
 import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ProbabilityBar } from "@/components/probability-bar";
 import { RiskBadge } from "@/components/risk-badge";
-import { getPublicMatchDetailData } from "@/lib/supabase/public-match-detail-queries";
+import {
+  getPublicMatchDetailData,
+  type PublicMatchDetailView,
+} from "@/lib/supabase/public-match-detail-queries";
 import { getSavedMatchStateBySlug } from "@/lib/supabase/saved-matches-queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { removeSavedMatchAction, saveMatchAction } from "./actions";
@@ -43,6 +46,42 @@ function parseScoreline(scoreline: string) {
   return {
     homeGoals: Number.parseInt(match[1], 10),
     awayGoals: Number.parseInt(match[2], 10),
+  };
+}
+
+function buildVerifiedResultCopy(
+  verifiedResult: NonNullable<PublicMatchDetailView["verifiedResult"]>,
+  homeTeamName: string,
+  awayTeamName: string,
+) {
+  const headline = `${homeTeamName} ${verifiedResult.homeGoals} - ${verifiedResult.awayGoals} ${awayTeamName}`;
+
+  if (verifiedResult.decisionMethod === "pen") {
+    const advancingTeamName = verifiedResult.advancingTeamName ?? "Un equipo";
+    const penaltyScore =
+      verifiedResult.penaltyHomeGoals !== null && verifiedResult.penaltyAwayGoals !== null
+        ? `${verifiedResult.penaltyHomeGoals}-${verifiedResult.penaltyAwayGoals}`
+        : null;
+
+    return {
+      headline,
+      detail: penaltyScore
+        ? `${advancingTeamName} avanzó ${penaltyScore} en penales.`
+        : `${advancingTeamName} avanzó en penales.`,
+    };
+  }
+
+  if (verifiedResult.decisionMethod === "aet") {
+    const advancingTeamName = verifiedResult.advancingTeamName ?? "El ganador";
+    return {
+      headline,
+      detail: `${advancingTeamName} avanzó después del tiempo extra.`,
+    };
+  }
+
+  return {
+    headline,
+    detail: "Este partido ya tiene marcador final verificado. La predicción pública se conserva como referencia histórica del producto.",
   };
 }
 
@@ -147,6 +186,7 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
       parsed !== null &&
       match.verifiedResult !== null &&
       match.verifiedResult.verificationStatus === "verified" &&
+      match.verifiedResult.decisionMethod === "ft" &&
       parsed.homeGoals === match.verifiedResult.homeGoals &&
       parsed.awayGoals === match.verifiedResult.awayGoals;
 
@@ -156,6 +196,9 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
     };
   });
   const anyExactScenarioMatch = scenarioMatches.some((entry) => entry.fulfilled);
+  const verifiedResultCopy = match.verifiedResult
+    ? buildVerifiedResultCopy(match.verifiedResult, homeTeamName, awayTeamName)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -191,11 +234,10 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
             Resultado final verificado
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
-            {homeTeamName} {match.verifiedResult.homeGoals} - {match.verifiedResult.awayGoals} {awayTeamName}
+            {verifiedResultCopy?.headline}
           </h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Este partido ya tiene marcador final verificado. La predicción pública se conserva como
-            referencia histórica del producto.
+            {verifiedResultCopy?.detail}
           </p>
           {predictionPublishedBeforeKickoff ? (
             <p className="mt-3 text-xs text-[var(--muted)]">

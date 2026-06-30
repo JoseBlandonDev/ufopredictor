@@ -22,6 +22,42 @@ type PublicPredictionCardProps = {
   showPreMatchDisclaimer?: boolean;
 };
 
+function buildVerifiedResultCopy(
+  verifiedResult: NonNullable<PublicPredictionCardView["verifiedResult"]>,
+  homeTeamName: string,
+  awayTeamName: string,
+) {
+  const headline = `${homeTeamName} ${verifiedResult.homeGoals} - ${verifiedResult.awayGoals} ${awayTeamName}`;
+
+  if (verifiedResult.decisionMethod === "pen") {
+    const advancingTeamName = verifiedResult.advancingTeamName ?? "Un equipo";
+    const penaltyScore =
+      verifiedResult.penaltyHomeGoals !== null && verifiedResult.penaltyAwayGoals !== null
+        ? `${verifiedResult.penaltyHomeGoals}-${verifiedResult.penaltyAwayGoals}`
+        : null;
+
+    return {
+      headline,
+      detail: penaltyScore
+        ? `${advancingTeamName} avanzó ${penaltyScore} en penales.`
+        : `${advancingTeamName} avanzó en penales.`,
+    };
+  }
+
+  if (verifiedResult.decisionMethod === "aet") {
+    const advancingTeamName = verifiedResult.advancingTeamName ?? "El ganador";
+    return {
+      headline,
+      detail: `${advancingTeamName} avanzó después del tiempo extra.`,
+    };
+  }
+
+  return {
+    headline,
+    detail: "Este resultado final ya fue verificado y la predicción pública se conserva como referencia histórica.",
+  };
+}
+
 export function PublicPredictionCard({
   prediction,
   detailMode = "full",
@@ -69,6 +105,9 @@ export function PublicPredictionCard({
     : isPreviewMode
       ? "Crear cuenta para ver más"
       : "Ver vista previa";
+  const verifiedResultCopy = prediction.verifiedResult
+    ? buildVerifiedResultCopy(prediction.verifiedResult, homeTeamName, awayTeamName)
+    : null;
 
   return (
     <article className="ufo-card rounded-2xl p-5 sm:p-6">
@@ -151,12 +190,10 @@ export function PublicPredictionCard({
             Resultado final verificado
           </p>
           <p className="mt-2 text-lg font-semibold text-white">
-            {homeTeamName} {prediction.verifiedResult.homeGoals} - {prediction.verifiedResult.awayGoals}{" "}
-            {awayTeamName}
+            {verifiedResultCopy?.headline}
           </p>
           <p className="mt-2 text-xs text-[var(--muted)]">
-            Este resultado final ya fue verificado y la predicción pública se conserva como
-            referencia histórica.
+            {verifiedResultCopy?.detail}
           </p>
         </div>
       ) : null}

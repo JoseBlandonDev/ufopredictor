@@ -178,7 +178,7 @@ async function loadDatabaseSnapshot(): Promise<WorldCupResultRefreshDatabaseSnap
   ] = await Promise.all([
     supabase
       .from("match_results")
-      .select("id, match_id, home_goals, away_goals, verification_status, intake_source, source_note, reviewed_at, reviewed_by, recorded_at")
+      .select("id, match_id, home_goals, away_goals, decision_method, regulation_home_goals, regulation_away_goals, after_extra_time_home_goals, after_extra_time_away_goals, penalty_home_goals, penalty_away_goals, advancing_team_id, verification_status, intake_source, source_note, reviewed_at, reviewed_by, recorded_at")
       .in("match_id", matchIds.length > 0 ? matchIds : ["00000000-0000-0000-0000-000000000000"]),
     supabase
       .from("prediction_versions")
@@ -358,7 +358,7 @@ async function run() {
 
   if (applyCounts) {
     console.log(
-      `apply_counts selected=${applyCounts.selected} statuses_updated=${applyCounts.statusesUpdated} results_created=${applyCounts.resultsCreated} results_updated=${applyCounts.resultsUpdated} results_verified=${applyCounts.resultsVerified} evaluations_created=${applyCounts.evaluationsCreated} evaluations_updated=${applyCounts.evaluationsUpdated} evaluations_already_stored=${applyCounts.evaluationsAlreadyStored} exceptions_or_conflicts=${applyCounts.exceptionsOrConflicts} skipped=${applyCounts.skipped} evaluation_failures=${applyCounts.evaluationFailures}`,
+      `apply_counts selected=${applyCounts.selected} statuses_updated=${applyCounts.statusesUpdated} results_created=${applyCounts.resultsCreated} results_updated=${applyCounts.resultsUpdated} results_verified=${applyCounts.resultsVerified} evaluations_created=${applyCounts.evaluationsCreated} evaluations_updated=${applyCounts.evaluationsUpdated} evaluations_already_stored=${applyCounts.evaluationsAlreadyStored} evaluations_ineligible=${applyCounts.evaluationsIneligible} exceptions_or_conflicts=${applyCounts.exceptionsOrConflicts} skipped=${applyCounts.skipped} evaluation_failures=${applyCounts.evaluationFailures}`,
     );
   } else {
     console.log("zero_write_confirmation=true");

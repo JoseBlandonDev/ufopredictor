@@ -50,6 +50,12 @@ function buildFixture(overrides: Partial<ProviderFixture> = {}): ProviderFixture
       home: null,
       away: null,
     },
+    score: {
+      halftime: { home: null, away: null },
+      fulltime: { home: null, away: null },
+      extratime: { home: null, away: null },
+      penalty: { home: null, away: null },
+    },
     ...overrides,
   };
 }

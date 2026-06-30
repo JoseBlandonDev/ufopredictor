@@ -64,6 +64,7 @@ type SaveStatus = "saved" | "invalid" | "not_found" | "duplicate" | "no_model" |
 type EvaluationStatus =
   | "saved"
   | "refreshed"
+  | "policy_unconfirmed"
   | "invalid"
   | "not_found"
   | "no_result"
@@ -83,6 +84,7 @@ type ManualResultStatus =
   | "created"
   | "already_pending"
   | "already_verified"
+  | "unsupported_knockout"
   | "invalid"
   | "future"
   | "conflict"
@@ -115,6 +117,7 @@ type RealFixtureLabProtectedMatch = {
   id: string;
   competition_id: string;
   external_id: string;
+  stage?: string | null;
   access_scope: "admin_only" | "public" | "premium" | "lab_only";
   intake_source: "mock" | "manual" | "csv_import" | "api_football";
   status: "scheduled" | "live" | "finished" | "postponed" | "cancelled";
@@ -133,6 +136,20 @@ const ADMIN_REAL_FIXTURE_RETURN_PATHS = new Set([
   "/admin/real-fixture-result-review-queue",
   "/admin/real-fixture-evaluation-queue",
 ]);
+
+function isSupportedWorldCupKnockoutStage(stage: string | null | undefined) {
+  const normalized = (stage ?? "").trim().toLowerCase();
+  return (
+    normalized === "round of 32" ||
+    normalized === "round of 16" ||
+    normalized === "quarter finals" ||
+    normalized === "quarter final" ||
+    normalized === "semi finals" ||
+    normalized === "semi final" ||
+    normalized === "third place" ||
+    normalized === "final"
+  );
+}
 
 function normalizeAdminReturnTo(value: FormDataEntryValue | null, fallback = DEFAULT_REAL_FIXTURE_LAB_RETURN_TO) {
   if (typeof value !== "string") {
@@ -811,7 +828,7 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
   ] = await Promise.all([
     supabase
       .from("match_results")
-      .select("match_id, home_goals, away_goals, verification_status")
+      .select("match_id, home_goals, away_goals, decision_method, verification_status")
       .eq("match_id", match.id)
       .maybeSingle(),
     supabase
@@ -861,6 +878,10 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
     redirectWithEvaluationStatus("unverified", externalId, returnTo);
   }
 
+  if (result.decision_method === "aet" || result.decision_method === "pen") {
+    redirectWithEvaluationStatus("policy_unconfirmed", externalId, returnTo);
+  }
+
   const markets = resolveEvaluationMarkets((marketData ?? []) as StoredEvaluationMarket[]);
   const topScorelines = topScorelinesSchema.safeParse(prediction.top_scores_json);
 
@@ -888,6 +909,7 @@ export async function persistRealFixtureEvaluationAction(formData: FormData) {
       matchId: result.match_id,
       homeGoals: result.home_goals,
       awayGoals: result.away_goals,
+      decisionMethod: result.decision_method,
       verificationStatus: result.verification_status,
     },
   );
@@ -966,7 +988,7 @@ export async function createManualRealFixtureResultAction(formData: FormData) {
 
   const { data: match, error: matchError } = await supabase
     .from("matches")
-    .select("id, competition_id, external_id, access_scope, intake_source, status, kickoff_at")
+    .select("id, competition_id, external_id, stage, access_scope, intake_source, status, kickoff_at")
     .eq("id", matchId)
     .eq("external_id", externalId)
     .maybeSingle();
@@ -1011,6 +1033,10 @@ export async function createManualRealFixtureResultAction(formData: FormData) {
 
   if (!Number.isFinite(kickoffTime) || kickoffTime > Date.now()) {
     redirectWithManualResultStatus("future", externalId, returnTo);
+  }
+
+  if (isSupportedWorldCupKnockoutStage(match.stage)) {
+    redirectWithManualResultStatus("unsupported_knockout", externalId, returnTo);
   }
 
   const { data: existingResult, error: existingResultError } = await supabase

@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { MatchRow, PredictionVersionRow } from "@/types/database";
 
 const PUBLIC_PREDICTION_SUMMARY_SELECT =
-  "match_slug, kickoff_at, stage, status, competition_name, competition_slug, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, venue_name, venue_city, verified_home_goals, verified_away_goals, result_verification_status, prediction_created_at, home_win_prob, draw_prob, away_win_prob, confidence_score, risk_level";
+  "match_slug, kickoff_at, stage, status, competition_name, competition_slug, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, venue_name, venue_city, verified_home_goals, verified_away_goals, result_decision_method, verified_regulation_home_goals, verified_regulation_away_goals, verified_after_extra_time_home_goals, verified_after_extra_time_away_goals, verified_penalty_home_goals, verified_penalty_away_goals, verified_advancing_team_name, result_verification_status, prediction_created_at, home_win_prob, draw_prob, away_win_prob, confidence_score, risk_level";
 
 const WORLD_CUP_2026_SLUG = "world-cup-2026";
 const WORLD_CUP_2026_MATCH_PREFIX = "world-cup-2026-%";
@@ -59,6 +59,14 @@ type PublicPredictionSummaryRow = {
   venue_city: string | null;
   verified_home_goals: number | null;
   verified_away_goals: number | null;
+  result_decision_method: "ft" | "aet" | "pen" | null;
+  verified_regulation_home_goals: number | null;
+  verified_regulation_away_goals: number | null;
+  verified_after_extra_time_home_goals: number | null;
+  verified_after_extra_time_away_goals: number | null;
+  verified_penalty_home_goals: number | null;
+  verified_penalty_away_goals: number | null;
+  verified_advancing_team_name: string | null;
   result_verification_status: "verified" | null;
   prediction_created_at: string;
   home_win_prob: number;
@@ -71,6 +79,14 @@ type PublicPredictionSummaryRow = {
 export type PublicVerifiedResultView = {
   homeGoals: number;
   awayGoals: number;
+  decisionMethod: "ft" | "aet" | "pen";
+  regulationHomeGoals: number | null;
+  regulationAwayGoals: number | null;
+  afterExtraTimeHomeGoals: number | null;
+  afterExtraTimeAwayGoals: number | null;
+  penaltyHomeGoals: number | null;
+  penaltyAwayGoals: number | null;
+  advancingTeamName: string | null;
   verificationStatus: "verified";
 };
 
@@ -267,6 +283,14 @@ function toCardBaseView(
       ? {
           homeGoals: prediction.verified_home_goals!,
           awayGoals: prediction.verified_away_goals!,
+          decisionMethod: prediction.result_decision_method ?? "ft",
+          regulationHomeGoals: prediction.verified_regulation_home_goals,
+          regulationAwayGoals: prediction.verified_regulation_away_goals,
+          afterExtraTimeHomeGoals: prediction.verified_after_extra_time_home_goals,
+          afterExtraTimeAwayGoals: prediction.verified_after_extra_time_away_goals,
+          penaltyHomeGoals: prediction.verified_penalty_home_goals,
+          penaltyAwayGoals: prediction.verified_penalty_away_goals,
+          advancingTeamName: prediction.verified_advancing_team_name,
           verificationStatus: "verified" as const,
         }
       : null;

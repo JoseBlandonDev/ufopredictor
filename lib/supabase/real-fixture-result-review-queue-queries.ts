@@ -11,6 +11,14 @@ type ResultReviewQueueResultRow = Pick<
   | "match_id"
   | "home_goals"
   | "away_goals"
+  | "decision_method"
+  | "regulation_home_goals"
+  | "regulation_away_goals"
+  | "after_extra_time_home_goals"
+  | "after_extra_time_away_goals"
+  | "penalty_home_goals"
+  | "penalty_away_goals"
+  | "advancing_team_id"
   | "verification_status"
   | "intake_source"
   | "source_note"
@@ -55,6 +63,14 @@ export type RealFixtureResultReviewQueueRow = {
   awayTeamName: string;
   homeGoals: number;
   awayGoals: number;
+  decisionMethod: MatchResultRow["decision_method"];
+  regulationHomeGoals: number | null;
+  regulationAwayGoals: number | null;
+  afterExtraTimeHomeGoals: number | null;
+  afterExtraTimeAwayGoals: number | null;
+  penaltyHomeGoals: number | null;
+  penaltyAwayGoals: number | null;
+  advancingTeamName: string | null;
   verificationStatus: "pending_review";
   resultIntakeSource: MatchResultRow["intake_source"];
   sourceNote: string | null;
@@ -95,7 +111,7 @@ export async function getRealFixtureResultReviewQueueData(): Promise<RealFixture
 
   const { data: resultData, error: resultError } = await supabase
     .from("match_results")
-    .select("id, match_id, home_goals, away_goals, verification_status, intake_source, source_note, recorded_at")
+    .select("id, match_id, home_goals, away_goals, decision_method, regulation_home_goals, regulation_away_goals, after_extra_time_home_goals, after_extra_time_away_goals, penalty_home_goals, penalty_away_goals, advancing_team_id, verification_status, intake_source, source_note, recorded_at")
     .eq("verification_status", "pending_review")
     .order("recorded_at", { ascending: false });
 
@@ -151,7 +167,7 @@ export async function getRealFixtureResultReviewQueueData(): Promise<RealFixture
     supabase.from("teams").select("id, name").in("id", teamIds),
     supabase
       .from("match_results")
-      .select("id, match_id, home_goals, away_goals, verification_status, intake_source, source_note, recorded_at")
+      .select("id, match_id, home_goals, away_goals, decision_method, regulation_home_goals, regulation_away_goals, after_extra_time_home_goals, after_extra_time_away_goals, penalty_home_goals, penalty_away_goals, advancing_team_id, verification_status, intake_source, source_note, recorded_at")
       .in(
         "match_id",
         manualCandidateMatches.length > 0
@@ -202,6 +218,15 @@ export async function getRealFixtureResultReviewQueueData(): Promise<RealFixture
         awayTeamName: teamById.get(match.away_team_id)?.name ?? "Equipo visitante no disponible",
         homeGoals: result.home_goals,
         awayGoals: result.away_goals,
+        decisionMethod: result.decision_method,
+        regulationHomeGoals: result.regulation_home_goals,
+        regulationAwayGoals: result.regulation_away_goals,
+        afterExtraTimeHomeGoals: result.after_extra_time_home_goals,
+        afterExtraTimeAwayGoals: result.after_extra_time_away_goals,
+        penaltyHomeGoals: result.penalty_home_goals,
+        penaltyAwayGoals: result.penalty_away_goals,
+        advancingTeamName:
+          result.advancing_team_id ? teamById.get(result.advancing_team_id)?.name ?? null : null,
         verificationStatus: "pending_review",
         resultIntakeSource: result.intake_source,
         sourceNote: result.source_note,

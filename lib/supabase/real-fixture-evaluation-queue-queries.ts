@@ -17,7 +17,20 @@ const PUBLIC_RUN_SCOPE = "public_product";
 
 type EvaluationQueueResultRow = Pick<
   MatchResultRow,
-  "id" | "match_id" | "home_goals" | "away_goals" | "verification_status" | "reviewed_at"
+  | "id"
+  | "match_id"
+  | "home_goals"
+  | "away_goals"
+  | "decision_method"
+  | "regulation_home_goals"
+  | "regulation_away_goals"
+  | "after_extra_time_home_goals"
+  | "after_extra_time_away_goals"
+  | "penalty_home_goals"
+  | "penalty_away_goals"
+  | "advancing_team_id"
+  | "verification_status"
+  | "reviewed_at"
 > & {
   verification_status: "verified";
 };
@@ -63,11 +76,20 @@ export type RealFixtureEvaluationQueueRow = {
   awayTeamName: string;
   homeGoals: number;
   awayGoals: number;
+  decisionMethod: MatchResultRow["decision_method"];
+  regulationHomeGoals: number | null;
+  regulationAwayGoals: number | null;
+  afterExtraTimeHomeGoals: number | null;
+  afterExtraTimeAwayGoals: number | null;
+  penaltyHomeGoals: number | null;
+  penaltyAwayGoals: number | null;
+  advancingTeamName: string | null;
   verificationStatus: "verified";
   reviewedAt: string | null;
   internalPredictionId: string;
   latestPublicPredictionId: string | null;
-  evaluationStatus: "pending";
+  evaluationStatus: "pending" | "ineligible";
+  evaluationIneligibleReason: string | null;
 };
 
 export type RealFixtureEvaluationQueueData = {
@@ -107,7 +129,7 @@ export async function getRealFixtureEvaluationQueueData(): Promise<RealFixtureEv
 
   const { data: resultData, error: resultError } = await supabase
     .from("match_results")
-    .select("id, match_id, home_goals, away_goals, verification_status, reviewed_at")
+    .select("id, match_id, home_goals, away_goals, decision_method, regulation_home_goals, regulation_away_goals, after_extra_time_home_goals, after_extra_time_away_goals, penalty_home_goals, penalty_away_goals, advancing_team_id, verification_status, reviewed_at")
     .eq("verification_status", "verified")
     .order("reviewed_at", { ascending: false });
 
@@ -222,11 +244,22 @@ export async function getRealFixtureEvaluationQueueData(): Promise<RealFixtureEv
         awayTeamName: teamById.get(match.away_team_id)?.name ?? "Equipo visitante no disponible",
         homeGoals: result.home_goals,
         awayGoals: result.away_goals,
+        decisionMethod: result.decision_method,
+        regulationHomeGoals: result.regulation_home_goals,
+        regulationAwayGoals: result.regulation_away_goals,
+        afterExtraTimeHomeGoals: result.after_extra_time_home_goals,
+        afterExtraTimeAwayGoals: result.after_extra_time_away_goals,
+        penaltyHomeGoals: result.penalty_home_goals,
+        penaltyAwayGoals: result.penalty_away_goals,
+        advancingTeamName:
+          result.advancing_team_id ? teamById.get(result.advancing_team_id)?.name ?? null : null,
         verificationStatus: "verified",
         reviewedAt: result.reviewed_at,
         internalPredictionId: internalPrediction.id,
         latestPublicPredictionId: latestPublicPrediction?.id ?? null,
-        evaluationStatus: "pending",
+        evaluationStatus: result.decision_method === "ft" ? "pending" : "ineligible",
+        evaluationIneligibleReason:
+          result.decision_method === "ft" ? null : "knockout_evaluation_policy_unconfirmed",
       } satisfies RealFixtureEvaluationQueueRow;
     })
     .filter((row): row is RealFixtureEvaluationQueueRow => row !== null)

@@ -44,6 +44,24 @@ type ApiFootballFixtureEnvelope = {
     home?: number | null;
     away?: number | null;
   };
+  score?: {
+    halftime?: {
+      home?: number | null;
+      away?: number | null;
+    };
+    fulltime?: {
+      home?: number | null;
+      away?: number | null;
+    };
+    extratime?: {
+      home?: number | null;
+      away?: number | null;
+    };
+    penalty?: {
+      home?: number | null;
+      away?: number | null;
+    };
+  };
 };
 
 type ApiFootballResponse = {
@@ -241,6 +259,24 @@ function normalizeFixture(input: ApiFootballFixtureEnvelope): ProviderFixture | 
     goals: {
       home: input.goals?.home ?? null,
       away: input.goals?.away ?? null,
+    },
+    score: {
+      halftime: {
+        home: input.score?.halftime?.home ?? null,
+        away: input.score?.halftime?.away ?? null,
+      },
+      fulltime: {
+        home: input.score?.fulltime?.home ?? null,
+        away: input.score?.fulltime?.away ?? null,
+      },
+      extratime: {
+        home: input.score?.extratime?.home ?? null,
+        away: input.score?.extratime?.away ?? null,
+      },
+      penalty: {
+        home: input.score?.penalty?.home ?? null,
+        away: input.score?.penalty?.away ?? null,
+      },
     },
   };
 }

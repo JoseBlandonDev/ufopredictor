@@ -479,6 +479,8 @@ function canPersistRealFixtureEvaluationControl(fixture: RealFixtureLabFixtureVi
   return (
     fixture.intakeSource === "api_football" &&
     fixture.savedPrediction !== null &&
+    fixture.result?.decision_method !== "aet" &&
+    fixture.result?.decision_method !== "pen" &&
     (fixture.accessScope === "admin_only" ||
       (fixture.accessScope === "public" &&
         (fixture.status === "finished" || isWorldCupPastKickoffPublicFixture)))
@@ -670,6 +672,12 @@ function getEvaluationStatusMessage(status: string | undefined) {
       return {
         title: "Evaluacion interna refrescada",
         body: "La evaluacion interna se actualizo usando el resultado verificado mas reciente para este fixture.",
+        tone: "info" as const,
+      };
+    case "policy_unconfirmed":
+      return {
+        title: "Evaluacion knockout no habilitada",
+        body: "Los resultados AET/PEN se almacenan y se muestran, pero la evaluacion sigue bloqueada hasta confirmar la politica de settlement.",
         tone: "info" as const,
       };
     case "no_result":

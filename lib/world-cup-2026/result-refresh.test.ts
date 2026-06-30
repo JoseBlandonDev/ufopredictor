@@ -110,6 +110,12 @@ function buildProviderFixture(
       home: 2,
       away: 1,
     },
+    score: {
+      halftime: { home: 1, away: 0 },
+      fulltime: { home: 2, away: 1 },
+      extratime: { home: null, away: null },
+      penalty: { home: null, away: null },
+    },
     ...overrides,
   };
 }
@@ -194,8 +200,68 @@ function buildKnockoutProviderFixture(
       home: 2,
       away: 1,
     },
+    score: {
+      halftime: { home: 1, away: 0 },
+      fulltime: { home: 2, away: 1 },
+      extratime: { home: null, away: null },
+      penalty: { home: null, away: null },
+    },
     ...overrides,
   };
+}
+
+function buildStoredMatchResult(
+  overrides: Partial<WorldCupResultRefreshDatabaseSnapshot["matchResults"][number]> = {},
+): WorldCupResultRefreshDatabaseSnapshot["matchResults"][number] {
+  return {
+    id: "result-1",
+    match_id: "match-1",
+    home_goals: 2,
+    away_goals: 1,
+    decision_method: "ft",
+    regulation_home_goals: 2,
+    regulation_away_goals: 1,
+    after_extra_time_home_goals: null,
+    after_extra_time_away_goals: null,
+    penalty_home_goals: null,
+    penalty_away_goals: null,
+    advancing_team_id: null,
+    verification_status: "verified",
+    intake_source: "api_football",
+    source_note: "trusted provider",
+    reviewed_at: "2026-06-16T21:00:00Z",
+    reviewed_by: null,
+    recorded_at: "2026-06-16T20:59:00Z",
+    ...overrides,
+  };
+}
+
+function buildKnockoutPredictionSnapshot(
+  overrides: Partial<WorldCupResultRefreshDatabaseSnapshot> = {},
+): WorldCupResultRefreshDatabaseSnapshot {
+  return buildKnockoutSnapshot({
+    predictionVersions: [
+      {
+        id: "prediction-knockout-1",
+        match_id: "match-knockout-1",
+        run_scope: "internal_lab",
+        prediction_type: "pre_match_24h",
+        created_at: "2026-06-29T12:00:00Z",
+        home_win_prob: 48.1,
+        draw_prob: 28.4,
+        away_win_prob: 23.5,
+        most_likely_score: "1-0",
+        top_scores_json: [{ score: "1-0", probability: 15.1 }],
+      },
+    ],
+    predictionMarkets: [
+      { prediction_version_id: "prediction-knockout-1", market: "btts", selection: "yes", probability: 44.2 },
+      { prediction_version_id: "prediction-knockout-1", market: "btts", selection: "no", probability: 55.8 },
+      { prediction_version_id: "prediction-knockout-1", market: "over_2_5", selection: "over", probability: 37.5 },
+      { prediction_version_id: "prediction-knockout-1", market: "over_2_5", selection: "under", probability: 62.5 },
+    ],
+    ...overrides,
+  });
 }
 
 function createMemoryWriteAdapter(snapshot: WorldCupResultRefreshDatabaseSnapshot) {
@@ -296,20 +362,13 @@ describe("world cup result refresh", () => {
 
   it("does not overwrite a previously verified result with a different provider score", () => {
     const snapshot = buildSnapshot({
-      matchResults: [
-        {
-          id: "result-1",
-          match_id: "match-1",
-          home_goals: 1,
-          away_goals: 0,
-          verification_status: "verified",
-          intake_source: "api_football",
-          source_note: "manual verified",
-          reviewed_at: "2026-06-16T21:00:00Z",
-          reviewed_by: null,
-          recorded_at: "2026-06-16T20:59:00Z",
-        },
-      ],
+      matchResults: [buildStoredMatchResult({
+        home_goals: 1,
+        away_goals: 0,
+        regulation_home_goals: 1,
+        regulation_away_goals: 0,
+        source_note: "manual verified",
+      })],
     });
     const selection = buildWorldCupResultRefreshSelection(snapshot, {
       externalIds: ["api-football:fixture:1489383"],
@@ -325,9 +384,11 @@ describe("world cup result refresh", () => {
     expect(report.summary.resultsVerified).toBe(0);
     expect(report.rows[0]?.resultAction).toBe("verified_conflict");
     expect(report.rows[0]?.conflictSummary).toContain("stored_verified_score=1-0");
+    expect(report.rows[0]?.conflictSummary).toContain("provider_score=2-1");
+    expect(report.rows[0]?.conflictSummary).toContain("stored_method=ft");
   });
 
-  it("keeps unsupported terminal group-stage states in pending review instead of auto-verifying", () => {
+  it("keeps unsupported terminal group-stage states in pending review instead of auto-verifying", async () => {
     const snapshot = buildSnapshot();
     const selection = buildWorldCupResultRefreshSelection(snapshot, {
       externalIds: ["api-football:fixture:1489383"],
@@ -347,6 +408,60 @@ describe("world cup result refresh", () => {
     expect(report.rows[0]?.trustedAutoVerifyEligible).toBe(false);
     expect(report.rows[0]?.resultAction).toBe("create_pending_review_exception");
     expect(report.rows[0]?.exceptionReason).toBe("unsupported_terminal_status_for_group_stage");
+    expect(report.rows[0]?.evaluationAction).toBe("none");
+    expect(report.rows[0]?.structuredResult).toMatchObject({
+      decisionMethod: "ft",
+      homeGoals: 2,
+      awayGoals: 1,
+      regulationHomeGoals: 2,
+      regulationAwayGoals: 1,
+      afterExtraTimeHomeGoals: null,
+      afterExtraTimeAwayGoals: null,
+      penaltyHomeGoals: null,
+      penaltyAwayGoals: null,
+      advancingTeamId: null,
+    });
+
+    const { adapter, operations } = createMemoryWriteAdapter(snapshot);
+    const applySelection = resolveWorldCupResultRefreshApplySelection({
+      selectedMatches: selection.matches,
+      allowExternalIds: ["api-football:fixture:1489383"],
+    });
+
+    const counts = await applyWorldCupResultRefreshPlan({
+      report,
+      snapshot,
+      providerFixtures: [
+        buildProviderFixture({
+          statusShort: "AET",
+          elapsedMinutes: 120,
+        }),
+      ],
+      applySelection,
+      providerResponseAt: "2026-06-23T01:00:00Z",
+      verifiedAt: "2026-06-23T01:00:00Z",
+      writeAdapter: adapter,
+    });
+
+    expect(counts.resultsCreated).toBe(1);
+    expect(counts.resultsVerified).toBe(0);
+    expect(counts.evaluationsCreated).toBe(0);
+    expect(counts.evaluationsUpdated).toBe(0);
+    expect(operations.matchResultInserts).toHaveLength(1);
+    expect(operations.predictionResultInserts).toHaveLength(0);
+    expect(snapshot.matchResults[0]).toMatchObject({
+      verification_status: "pending_review",
+      decision_method: "ft",
+      home_goals: 2,
+      away_goals: 1,
+      regulation_home_goals: 2,
+      regulation_away_goals: 1,
+      after_extra_time_home_goals: null,
+      after_extra_time_away_goals: null,
+      penalty_home_goals: null,
+      penalty_away_goals: null,
+      advancing_team_id: null,
+    });
   });
 
   it("updates postponed status metadata without creating a result", () => {
@@ -866,74 +981,94 @@ describe("world cup result refresh", () => {
     });
   });
 
-  it("does not persist a PEN knockout fixture as an ordinary draw", async () => {
+  it("derives knockout terminal football score from fulltime plus extra time", () => {
     const snapshot = buildKnockoutSnapshot();
     const selection = buildWorldCupResultRefreshSelection(snapshot, {
       externalIds: ["api-football:fixture:1562344"],
     });
-    const providerFixtures = [
-      buildKnockoutProviderFixture({
-        statusShort: "PEN",
-        elapsedMinutes: 120,
-        homeTeam: { providerTeamId: 101, name: "Brazil", winner: true },
-        awayTeam: { providerTeamId: 102, name: "Japan", winner: false },
-        goals: { home: 1, away: 1 },
-      }),
-    ];
     const report = planWorldCupResultRefresh({
       generatedAt: "2026-06-30T00:00:00Z",
       selection,
       snapshot,
-      providerFixtures,
+      providerFixtures: [
+        buildKnockoutProviderFixture({
+          statusShort: "AET",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: true },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: false },
+          goals: { home: 2, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 1, away: 0 },
+            penalty: { home: null, away: null },
+          },
+        }),
+      ],
     });
 
     expect(report.rows[0]).toMatchObject({
-      trustedAutoVerifyEligible: false,
-      resultAction: "none",
-      evaluationAction: "none",
-      exceptionReason: "unsupported_penalty_semantics",
+      providerFulltimeHomeGoals: 1,
+      providerFulltimeAwayGoals: 1,
+      providerExtratimeHomeGoals: 1,
+      providerExtratimeAwayGoals: 0,
+      resultAction: "create_verified",
+      evaluationAction: "ineligible",
+      evaluationIneligibleReason: "knockout_evaluation_policy_unconfirmed",
+      structuredResult: {
+        decisionMethod: "aet",
+        regulationHomeGoals: 1,
+        regulationAwayGoals: 1,
+        afterExtraTimeHomeGoals: 2,
+        afterExtraTimeAwayGoals: 1,
+        homeGoals: 2,
+        awayGoals: 1,
+        advancingTeamId: "team-home",
+      },
     });
-
-    const { adapter, operations } = createMemoryWriteAdapter(snapshot);
-    const applySelection = resolveWorldCupResultRefreshApplySelection({
-      selectedMatches: selection.matches,
-      allowExternalIds: ["api-football:fixture:1562344"],
-    });
-
-    const counts = await applyWorldCupResultRefreshPlan({
-      report,
-      snapshot,
-      providerFixtures,
-      applySelection,
-      providerResponseAt: "2026-06-30T01:00:00Z",
-      verifiedAt: "2026-06-30T01:00:00Z",
-      writeAdapter: adapter,
-    });
-
-    expect(counts.resultsCreated).toBe(0);
-    expect(counts.resultsUpdated).toBe(0);
-    expect(operations.matchResultInserts).toHaveLength(0);
-    expect(operations.matchResultUpdates).toHaveLength(0);
   });
 
-  it("keeps the current active-state contract for future and expired knockout entitlements by failing closed on unsupported score semantics", () => {
+  it("keeps PEN football scores at the post-extra-time draw before penalties", () => {
+    const snapshot = buildKnockoutSnapshot();
+    const selection = buildWorldCupResultRefreshSelection(snapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const report = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot,
+      providerFixtures: [
+        buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: false },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+          goals: { home: 1, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 0, away: 0 },
+            penalty: { home: 3, away: 4 },
+          },
+        }),
+      ],
+    });
+
+    expect(report.rows[0]?.structuredResult).toMatchObject({
+      decisionMethod: "pen",
+      homeGoals: 1,
+      awayGoals: 1,
+      afterExtraTimeHomeGoals: 1,
+      afterExtraTimeAwayGoals: 1,
+      penaltyHomeGoals: 3,
+      penaltyAwayGoals: 4,
+      advancingTeamId: "team-away",
+    });
+  });
+
+  it("maps the proven Germany vs Paraguay and Netherlands vs Morocco PEN fixtures exactly", () => {
     const snapshot = buildKnockoutSnapshot({
       matches: [
-        {
-          id: "match-brazil-japan",
-          external_id: "api-football:fixture:1562344",
-          slug: "world-cup-2026-brazil-vs-japan-2026-06-29",
-          competition_id: "competition-1",
-          season_id: "season-2026",
-          home_team_id: "team-home",
-          away_team_id: "team-away",
-          kickoff_at: "2026-06-29T17:00:00Z",
-          stage: "Round of 32",
-          status: "scheduled",
-          access_scope: "public",
-          intake_source: "api_football",
-          source_note: null,
-        },
         {
           id: "match-germany-paraguay",
           external_id: "api-football:fixture:1565176",
@@ -964,48 +1099,12 @@ describe("world cup result refresh", () => {
           intake_source: "api_football",
           source_note: null,
         },
-        {
-          id: "match-ivorycoast-norway",
-          external_id: "api-football:fixture:1564789",
-          slug: "world-cup-2026-ivory-coast-vs-norway-2026-06-30",
-          competition_id: "competition-1",
-          season_id: "season-2026",
-          home_team_id: "team-ivory-coast",
-          away_team_id: "team-norway",
-          kickoff_at: "2026-06-30T17:00:00Z",
-          stage: "Round of 32",
-          status: "scheduled",
-          access_scope: "public",
-          intake_source: "api_football",
-          source_note: null,
-        },
-        {
-          id: "match-france-sweden",
-          external_id: "api-football:fixture:1565177",
-          slug: "world-cup-2026-france-vs-sweden-2026-06-30",
-          competition_id: "competition-1",
-          season_id: "season-2026",
-          home_team_id: "team-france",
-          away_team_id: "team-sweden",
-          kickoff_at: "2026-06-30T21:00:00Z",
-          stage: "Round of 32",
-          status: "scheduled",
-          access_scope: "public",
-          intake_source: "api_football",
-          source_note: null,
-        },
       ],
       teams: [
-        { id: "team-home", name: "Brazil" },
-        { id: "team-away", name: "Japan" },
         { id: "team-germany", name: "Germany" },
         { id: "team-paraguay", name: "Paraguay" },
         { id: "team-netherlands", name: "Netherlands" },
         { id: "team-morocco", name: "Morocco" },
-        { id: "team-ivory-coast", name: "Ivory Coast" },
-        { id: "team-norway", name: "Norway" },
-        { id: "team-france", name: "France" },
-        { id: "team-sweden", name: "Sweden" },
       ],
     });
     const selection = buildWorldCupResultRefreshSelection(snapshot, {
@@ -1017,99 +1116,390 @@ describe("world cup result refresh", () => {
       selection,
       snapshot,
       providerFixtures: [
-        buildKnockoutProviderFixture(),
-        {
-          ...buildKnockoutProviderFixture(),
+        buildKnockoutProviderFixture({
           providerFixtureId: 1565176,
           kickoffAt: "2026-06-29T20:30:00Z",
+          homeTeam: { providerTeamId: 201, name: "Germany", winner: false },
+          awayTeam: { providerTeamId: 202, name: "Paraguay", winner: true },
           statusShort: "PEN",
           elapsedMinutes: 120,
-          homeTeam: { providerTeamId: 201, name: "Germany", winner: true },
-          awayTeam: { providerTeamId: 202, name: "Paraguay", winner: false },
           goals: { home: 1, away: 1 },
-        },
-        {
-          ...buildKnockoutProviderFixture(),
+          score: {
+            halftime: { home: 0, away: 1 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 0, away: 0 },
+            penalty: { home: 3, away: 4 },
+          },
+        }),
+        buildKnockoutProviderFixture({
           providerFixtureId: 1562345,
           kickoffAt: "2026-06-30T01:00:00Z",
+          homeTeam: { providerTeamId: 301, name: "Netherlands", winner: false },
+          awayTeam: { providerTeamId: 302, name: "Morocco", winner: true },
           statusShort: "PEN",
           elapsedMinutes: 120,
-          homeTeam: { providerTeamId: 301, name: "Netherlands", winner: true },
-          awayTeam: { providerTeamId: 302, name: "Morocco", winner: false },
           goals: { home: 1, away: 1 },
-        },
-        {
-          ...buildKnockoutProviderFixture(),
-          providerFixtureId: 1564789,
-          kickoffAt: "2026-06-30T17:00:00Z",
-          status: "scheduled",
-          statusShort: "NS",
-          elapsedMinutes: null,
-          homeTeam: { providerTeamId: 401, name: "Ivory Coast", winner: null },
-          awayTeam: { providerTeamId: 402, name: "Norway", winner: null },
-          goals: { home: null, away: null },
-        },
-        {
-          ...buildKnockoutProviderFixture(),
-          providerFixtureId: 1565177,
-          kickoffAt: "2026-06-30T21:00:00Z",
-          status: "scheduled",
-          statusShort: "NS",
-          elapsedMinutes: null,
-          homeTeam: { providerTeamId: 501, name: "France", winner: null },
-          awayTeam: { providerTeamId: 502, name: "Sweden", winner: null },
-          goals: { home: null, away: null },
-        },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 0, away: 0 },
+            penalty: { home: 2, away: 3 },
+          },
+        }),
       ],
     });
 
-    expect(report.summary.selectedFixtures).toBe(5);
-    expect(report.summary.providerTerminalResults).toBe(3);
-    expect(report.summary.resultsCreated).toBe(1);
-    expect(report.summary.resultsVerified).toBe(1);
-    expect(report.summary.exceptionsOrConflicts).toBe(2);
-    expect(report.rows.map((row) => ({
-      externalId: row.externalId,
-      resultAction: row.resultAction,
-      exceptionReason: row.exceptionReason,
-      conflictSummary: row.conflictSummary,
-      nextStoredStatus: row.nextStoredStatus,
-    }))).toEqual([
+    expect(report.rows.map((row) => row.structuredResult)).toEqual([
       {
-        externalId: "api-football:fixture:1562344",
-        resultAction: "create_verified",
-        exceptionReason: null,
-        conflictSummary: null,
-        nextStoredStatus: "finished",
+        decisionMethod: "pen",
+        homeGoals: 1,
+        awayGoals: 1,
+        regulationHomeGoals: 1,
+        regulationAwayGoals: 1,
+        afterExtraTimeHomeGoals: 1,
+        afterExtraTimeAwayGoals: 1,
+        penaltyHomeGoals: 3,
+        penaltyAwayGoals: 4,
+        advancingTeamId: "team-paraguay",
+        advancingTeamName: "Paraguay",
       },
       {
-        externalId: "api-football:fixture:1565176",
-        resultAction: "none",
-        exceptionReason: "unsupported_penalty_semantics",
-        conflictSummary: null,
-        nextStoredStatus: "finished",
-      },
-      {
-        externalId: "api-football:fixture:1562345",
-        resultAction: "none",
-        exceptionReason: "unsupported_penalty_semantics",
-        conflictSummary: null,
-        nextStoredStatus: "finished",
-      },
-      {
-        externalId: "api-football:fixture:1564789",
-        resultAction: "none",
-        exceptionReason: null,
-        conflictSummary: null,
-        nextStoredStatus: "scheduled",
-      },
-      {
-        externalId: "api-football:fixture:1565177",
-        resultAction: "none",
-        exceptionReason: null,
-        conflictSummary: null,
-        nextStoredStatus: "scheduled",
+        decisionMethod: "pen",
+        homeGoals: 1,
+        awayGoals: 1,
+        regulationHomeGoals: 1,
+        regulationAwayGoals: 1,
+        afterExtraTimeHomeGoals: 1,
+        afterExtraTimeAwayGoals: 1,
+        penaltyHomeGoals: 2,
+        penaltyAwayGoals: 3,
+        advancingTeamId: "team-morocco",
+        advancingTeamName: "Morocco",
       },
     ]);
+  });
+
+  it("fails closed on incomplete or contradictory structured knockout provider data", () => {
+    const cases = [
+      {
+        name: "missing extra-time fields for PEN",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: false },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+          goals: { home: 1, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: null, away: null },
+            penalty: { home: 3, away: 4 },
+          },
+        }),
+        reason: "incomplete_pen_data_missing_extratime_score",
+      },
+      {
+        name: "aggregate goals inconsistent with fulltime plus extratime",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: false },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+          goals: { home: 2, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 0, away: 0 },
+            penalty: { home: 3, away: 4 },
+          },
+        }),
+        reason: "incomplete_pen_data_extratime_mismatch",
+      },
+      {
+        name: "AET regulation score not drawn",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "AET",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: true },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: false },
+          goals: { home: 2, away: 1 },
+          score: {
+            halftime: { home: 1, away: 0 },
+            fulltime: { home: 1, away: 0 },
+            extratime: { home: 1, away: 1 },
+            penalty: { home: null, away: null },
+          },
+        }),
+        reason: "aet_regulation_score_not_draw",
+      },
+      {
+        name: "PEN regulation score not drawn",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: false },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+          goals: { home: 2, away: 2 },
+          score: {
+            halftime: { home: 1, away: 0 },
+            fulltime: { home: 2, away: 1 },
+            extratime: { home: 0, away: 1 },
+            penalty: { home: 3, away: 4 },
+          },
+        }),
+        reason: "pen_regulation_score_not_draw",
+      },
+      {
+        name: "PEN terminal football score not drawn",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: true },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: false },
+          goals: { home: 2, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 1, away: 0 },
+            penalty: { home: 4, away: 3 },
+          },
+        }),
+        reason: "penalty_terminal_score_not_draw",
+      },
+      {
+        name: "equal penalty shootout",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: false },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+          goals: { home: 1, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 0, away: 0 },
+            penalty: { home: 3, away: 3 },
+          },
+        }),
+        reason: "equal_penalty_score",
+      },
+      {
+        name: "contradictory provider winner flags",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: true },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+          goals: { home: 1, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 0, away: 0 },
+            penalty: { home: 3, away: 4 },
+          },
+        }),
+        reason: "incomplete_pen_data_contradictory_winner_flags",
+      },
+      {
+        name: "advancing team inconsistent with penalty score",
+        fixture: buildKnockoutProviderFixture({
+          statusShort: "PEN",
+          elapsedMinutes: 120,
+          homeTeam: { providerTeamId: 101, name: "Brazil", winner: true },
+          awayTeam: { providerTeamId: 102, name: "Japan", winner: false },
+          goals: { home: 1, away: 1 },
+          score: {
+            halftime: { home: 0, away: 0 },
+            fulltime: { home: 1, away: 1 },
+            extratime: { home: 0, away: 0 },
+            penalty: { home: 3, away: 4 },
+          },
+        }),
+        reason: "reversed_winner_data",
+      },
+    ];
+
+    for (const testCase of cases) {
+      const snapshot = buildKnockoutSnapshot();
+      const selection = buildWorldCupResultRefreshSelection(snapshot, {
+        externalIds: ["api-football:fixture:1562344"],
+      });
+      const report = planWorldCupResultRefresh({
+        generatedAt: "2026-06-30T00:00:00Z",
+        selection,
+        snapshot,
+        providerFixtures: [testCase.fixture],
+      });
+
+      expect(report.rows[0]?.exceptionReason, testCase.name).toBe(testCase.reason);
+      expect(report.rows[0]?.resultAction, testCase.name).toBe("none");
+    }
+  });
+
+  it("is idempotent for an identical structured PEN result and does not overwrite a conflicting one", async () => {
+    const identicalSnapshot = buildKnockoutSnapshot({
+      matchResults: [
+        buildStoredMatchResult({
+          match_id: "match-knockout-1",
+          home_goals: 1,
+          away_goals: 1,
+          decision_method: "pen",
+          regulation_home_goals: 1,
+          regulation_away_goals: 1,
+          after_extra_time_home_goals: 1,
+          after_extra_time_away_goals: 1,
+          penalty_home_goals: 3,
+          penalty_away_goals: 4,
+          advancing_team_id: "team-away",
+        }),
+      ],
+    });
+    const selection = buildWorldCupResultRefreshSelection(identicalSnapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const providerFixtures = [
+      buildKnockoutProviderFixture({
+        statusShort: "PEN",
+        elapsedMinutes: 120,
+        homeTeam: { providerTeamId: 101, name: "Brazil", winner: false },
+        awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+        goals: { home: 1, away: 1 },
+        score: {
+          halftime: { home: 0, away: 0 },
+          fulltime: { home: 1, away: 1 },
+          extratime: { home: 0, away: 0 },
+          penalty: { home: 3, away: 4 },
+        },
+      }),
+    ];
+    const identicalReport = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection,
+      snapshot: identicalSnapshot,
+      providerFixtures,
+    });
+
+    expect(identicalReport.rows[0]).toMatchObject({
+      resultAction: "already_identical",
+      evaluationAction: "ineligible",
+    });
+
+    const { adapter, operations } = createMemoryWriteAdapter(identicalSnapshot);
+    await applyWorldCupResultRefreshPlan({
+      report: identicalReport,
+      snapshot: identicalSnapshot,
+      providerFixtures,
+      applySelection: resolveWorldCupResultRefreshApplySelection({
+        selectedMatches: selection.matches,
+        allowExternalIds: ["api-football:fixture:1562344"],
+      }),
+      providerResponseAt: "2026-06-30T01:00:00Z",
+      verifiedAt: "2026-06-30T01:00:00Z",
+      writeAdapter: adapter,
+    });
+
+    expect(operations.matchResultUpdates).toHaveLength(0);
+    expect(operations.predictionResultInserts).toHaveLength(0);
+
+    const conflictingSnapshot = buildKnockoutSnapshot({
+      matchResults: [
+        buildStoredMatchResult({
+          match_id: "match-knockout-1",
+          home_goals: 1,
+          away_goals: 1,
+          decision_method: "pen",
+          regulation_home_goals: 1,
+          regulation_away_goals: 1,
+          after_extra_time_home_goals: 1,
+          after_extra_time_away_goals: 1,
+          penalty_home_goals: 5,
+          penalty_away_goals: 4,
+          advancing_team_id: "team-home",
+        }),
+      ],
+    });
+    const conflictingReport = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection: buildWorldCupResultRefreshSelection(conflictingSnapshot, {
+        externalIds: ["api-football:fixture:1562344"],
+      }),
+      snapshot: conflictingSnapshot,
+      providerFixtures,
+    });
+
+    expect(conflictingReport.rows[0]?.resultAction).toBe("verified_conflict");
+    expect(conflictingReport.rows[0]?.conflictSummary).toContain("stored_penalties=5-4");
+    expect(conflictingReport.rows[0]?.conflictSummary).toContain("provider_penalties=3-4");
+  });
+
+  it("keeps AET and PEN evaluations fail-closed and leaves Brazil vs Japan FT behavior unchanged", async () => {
+    const knockoutSnapshot = buildKnockoutPredictionSnapshot();
+    const knockoutSelection = buildWorldCupResultRefreshSelection(knockoutSnapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const knockoutFixtures = [
+      buildKnockoutProviderFixture({
+        statusShort: "PEN",
+        elapsedMinutes: 120,
+        homeTeam: { providerTeamId: 101, name: "Brazil", winner: false },
+        awayTeam: { providerTeamId: 102, name: "Japan", winner: true },
+        goals: { home: 1, away: 1 },
+        score: {
+          halftime: { home: 0, away: 0 },
+          fulltime: { home: 1, away: 1 },
+          extratime: { home: 0, away: 0 },
+          penalty: { home: 3, away: 4 },
+        },
+      }),
+    ];
+    const knockoutReport = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection: knockoutSelection,
+      snapshot: knockoutSnapshot,
+      providerFixtures: knockoutFixtures,
+    });
+    const knockoutAdapter = createMemoryWriteAdapter(knockoutSnapshot);
+    const knockoutCounts = await applyWorldCupResultRefreshPlan({
+      report: knockoutReport,
+      snapshot: knockoutSnapshot,
+      providerFixtures: knockoutFixtures,
+      applySelection: resolveWorldCupResultRefreshApplySelection({
+        selectedMatches: knockoutSelection.matches,
+        allowExternalIds: ["api-football:fixture:1562344"],
+      }),
+      providerResponseAt: "2026-06-30T01:00:00Z",
+      verifiedAt: "2026-06-30T01:00:00Z",
+      writeAdapter: knockoutAdapter.adapter,
+    });
+
+    expect(knockoutCounts.evaluationsCreated).toBe(0);
+    expect(knockoutCounts.evaluationsUpdated).toBe(0);
+    expect(knockoutCounts.evaluationsIneligible).toBe(1);
+    expect(knockoutAdapter.operations.predictionResultInserts).toHaveLength(0);
+    expect(knockoutAdapter.operations.predictionResultUpdates).toHaveLength(0);
+
+    const ftSnapshot = buildKnockoutSnapshot();
+    const ftSelection = buildWorldCupResultRefreshSelection(ftSnapshot, {
+      externalIds: ["api-football:fixture:1562344"],
+    });
+    const ftReport = planWorldCupResultRefresh({
+      generatedAt: "2026-06-30T00:00:00Z",
+      selection: ftSelection,
+      snapshot: ftSnapshot,
+      providerFixtures: [buildKnockoutProviderFixture()],
+    });
+
+    expect(ftReport.rows[0]).toMatchObject({
+      trustedAutoVerifyEligible: true,
+      resultAction: "create_verified",
+      evaluationAction: "none",
+      structuredResult: {
+        decisionMethod: "ft",
+        homeGoals: 2,
+        awayGoals: 1,
+        regulationHomeGoals: 2,
+        regulationAwayGoals: 1,
+      },
+    });
   });
 });
