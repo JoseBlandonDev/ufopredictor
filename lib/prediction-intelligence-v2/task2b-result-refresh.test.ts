@@ -423,6 +423,47 @@ describe("task2b result refresh", () => {
     expect(evaluateTask2B2Eligibility(result.plan)).toEqual({ eligible: true, reasons: [] });
   });
 
+  it("backfills selected exact fixture ids that are missing from the reviewed league snapshot", async () => {
+    const fixtureKey = "wc2026-match-053";
+    const fixture = fixtureByKey(fixtureKey);
+    const providerFixtureId = fixture.apiFootballFixtureId ?? 900000 + fixture.matchNumber;
+    const snapshot = buildStageSnapshot(fixtureKey);
+    const exactFixtureCalls: number[] = [];
+
+    const result = await runTask2B2ResultRefresh(
+      {
+        repoRoot,
+        artifactsDir,
+        envSupabaseUrl: stageUrl,
+        projectRef: "yfmklapgjrupctgxaako",
+        denyProjectRef: "gcpdffkgsdomzyoenalg",
+        dryRun: true,
+        apply: false,
+        verify: false,
+        selection: { canonicalFixtureIds: [fixtureKey] },
+      },
+      {
+        databaseAdapter: buildMemoryAdapter(snapshot),
+        providerFetcher: async () => [],
+        exactProviderFetcher: async (requestedFixtureId) => {
+          exactFixtureCalls.push(requestedFixtureId);
+          return buildProviderFixture(fixtureKey, { providerFixtureId: requestedFixtureId });
+        },
+      },
+    );
+
+    expect(exactFixtureCalls).toEqual([providerFixtureId]);
+    expect(result.plan.summary.safeActionCount).toBe(1);
+    expect(result.plan.rows[0]).toMatchObject({
+      apiFootballFixtureId: providerFixtureId,
+      resultClassification: "result_create_and_verify",
+      evaluationClassification: "evaluation_create",
+      safeAction: true,
+      exclusionReason: null,
+    });
+    expect(result.plan.providerSnapshotSha256).toBe(result.providerSnapshotSha256);
+  });
+
   it("keeps safe verified results when no exact immutable V1 prediction is eligible", async () => {
     const fixtureKey = "wc2026-match-053";
     const snapshot = buildStageSnapshot(fixtureKey, { predictionVersions: [] });

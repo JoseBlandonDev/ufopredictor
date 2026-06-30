@@ -8,7 +8,11 @@ import type {
   PredictionResultRow,
   PredictionVersionRow,
 } from "../../types/database";
-import { fetchApiFootballFixturesByLeague } from "../football-api/api-football-client";
+import type { ProviderFixture } from "../football-api/api-football-types";
+import {
+  fetchApiFootballFixtureById,
+  fetchApiFootballFixturesByLeague,
+} from "../football-api/api-football-client";
 import { createSupabaseScriptAdminClient } from "../supabase/script-admin";
 import { evaluatePrediction } from "../model-evaluation";
 import { WORLD_CUP_2026_FIXTURES } from "../world-cup-2026";
@@ -507,6 +511,26 @@ function buildSelection(snapshot: Task2B2StageSnapshot, selectionInput: Partial<
 function selectMatches(snapshot: Task2B2StageSnapshot, selection: Task2BSelectionSpec & { label: string }) {
   const selectedIds = new Set(selection.matchIds);
   return snapshot.matches.filter((match) => selectedIds.has(match.id));
+}
+
+function mergeProviderFixtures(
+  broadFixtures: ProviderFixture[],
+  exactFixtures: Array<ProviderFixture | null>,
+): ProviderFixture[] {
+  const fixturesById = new Map<number, ProviderFixture>();
+
+  for (const fixture of broadFixtures) {
+    fixturesById.set(fixture.providerFixtureId, fixture);
+  }
+
+  for (const fixture of exactFixtures) {
+    if (!fixture) {
+      continue;
+    }
+    fixturesById.set(fixture.providerFixtureId, fixture);
+  }
+
+  return [...fixturesById.values()].sort((left, right) => left.providerFixtureId - right.providerFixtureId);
 }
 
 function isPredictionTopScoresArray(value: unknown): value is Array<{ score: string; probability: number }> {
@@ -1601,6 +1625,7 @@ export async function runTask2B2ResultRefresh(
   dependencies?: {
     databaseAdapter?: Task2B2DatabaseAdapter;
     providerFetcher?: typeof fetchApiFootballFixturesByLeague;
+    exactProviderFetcher?: typeof fetchApiFootballFixtureById;
   },
 ): Promise<RunTask2B2Result> {
   assertTask2BLocalRunPreflight(input.repoRoot, input.artifactsDir, "task2b-2");
@@ -1619,13 +1644,30 @@ export async function runTask2B2ResultRefresh(
   let providerSnapshotPath = input.providerSnapshotPath ? path.resolve(input.providerSnapshotPath) : null;
   let providerSnapshot: Task2BProviderSnapshot;
   if (authorization.mode === "dry_run") {
+    const stageSnapshot = await databaseAdapter.readStageSnapshot();
+    const selection = buildSelection(stageSnapshot, input.selection);
+    const selectedMatches = selectMatches(stageSnapshot, selection);
+    const requiredProviderFixtureIds = selectedMatches
+      .map((match) => parseProviderFixtureId(match.external_id))
+      .filter((fixtureId): fixtureId is number => fixtureId !== null);
     const providerFetcher = dependencies?.providerFetcher ?? fetchApiFootballFixturesByLeague;
-    const providerFixtures = await providerFetcher({
+    const exactProviderFetcher = dependencies?.exactProviderFetcher ?? fetchApiFootballFixtureById;
+    const broadProviderFixtures = await providerFetcher({
       leagueId: TASK2B_PROVIDER_LEAGUE_ID,
       season: TASK2B_PROVIDER_SEASON,
       from: TASK2B_WORLD_CUP_DATE_RANGE.from,
       to: TASK2B_WORLD_CUP_DATE_RANGE.to,
     });
+    const broadProviderFixtureIds = new Set(
+      broadProviderFixtures.map((fixture) => fixture.providerFixtureId),
+    );
+    const missingProviderFixtureIds = requiredProviderFixtureIds.filter(
+      (fixtureId) => !broadProviderFixtureIds.has(fixtureId),
+    );
+    const exactProviderFixtures = await Promise.all(
+      missingProviderFixtureIds.map((fixtureId) => exactProviderFetcher(fixtureId)),
+    );
+    const providerFixtures = mergeProviderFixtures(broadProviderFixtures, exactProviderFixtures);
     providerSnapshot = sanitizeProviderSnapshot({
       fixtures: providerFixtures,
       acquiredAt: now,
@@ -1634,6 +1676,26 @@ export async function runTask2B2ResultRefresh(
     });
     providerSnapshotPath = buildProviderSnapshotPath(input.artifactsDir);
     writeJsonFile(providerSnapshotPath, providerSnapshot);
+    const providerSnapshotSha256 = sha256File(providerSnapshotPath);
+    const currentPlan = planTask2B2FromSnapshot({
+      authorization,
+      stageSnapshot,
+      providerSnapshot,
+      providerSnapshotPath,
+      providerSnapshotSha256,
+      selectionInput: input.selection,
+      now,
+    });
+    const artifactPath = buildPlanArtifactPath(input.artifactsDir, authorization.mode);
+    writeJsonFile(artifactPath, currentPlan);
+    return {
+      plan: currentPlan,
+      artifactPath,
+      providerSnapshotPath,
+      providerSnapshotSha256,
+      applyResult: null,
+      verificationResult: null,
+    };
   } else {
     if (!providerSnapshotPath) {
       throw new Error("Task 2B.2 apply/verify requires --provider-snapshot or a reviewed plan that references one.");
@@ -1655,34 +1717,32 @@ export async function runTask2B2ResultRefresh(
 
   let applyResult: Task2B2ApplyResult | null = null;
   let verificationResult: Task2B2VerificationResult | null = null;
-  if (authorization.mode !== "dry_run") {
-    if (!input.reviewedPlanPath || !input.reviewedStablePlanSha256) {
-      throw new Error("Task 2B.2 apply/verify requires --reviewed-plan and --reviewed-stable-plan-sha256.");
-    }
-    const reviewedPlan = readJsonFile<Task2B2Plan>(path.resolve(input.reviewedPlanPath));
-    const reviewedSnapshotPath = path.resolve(input.providerSnapshotPath ?? reviewedPlan.providerSnapshotPath);
-    const reviewedSnapshotSha256 = sha256File(reviewedSnapshotPath);
-    if (authorization.mode === "apply") {
-      applyResult = await applyTask2B2Plan({
-        reviewedPlan,
-        currentPlan,
-        reviewedStablePlanSha256: input.reviewedStablePlanSha256,
-        reviewedSnapshotSha256,
-        authorization,
-        databaseAdapter,
-        now,
-        snapshot: stageSnapshot,
-      });
-    } else {
-      verificationResult = verifyTask2B2ReviewedPlan({
-        reviewedPlan,
-        currentPlan,
-        reviewedStablePlanSha256: input.reviewedStablePlanSha256,
-        reviewedSnapshotSha256,
-        authorization,
-        stageSnapshot,
-      });
-    }
+  if (!input.reviewedPlanPath || !input.reviewedStablePlanSha256) {
+    throw new Error("Task 2B.2 apply/verify requires --reviewed-plan and --reviewed-stable-plan-sha256.");
+  }
+  const reviewedPlan = readJsonFile<Task2B2Plan>(path.resolve(input.reviewedPlanPath));
+  const reviewedSnapshotPath = path.resolve(input.providerSnapshotPath ?? reviewedPlan.providerSnapshotPath);
+  const reviewedSnapshotSha256 = sha256File(reviewedSnapshotPath);
+  if (authorization.mode === "apply") {
+    applyResult = await applyTask2B2Plan({
+      reviewedPlan,
+      currentPlan,
+      reviewedStablePlanSha256: input.reviewedStablePlanSha256,
+      reviewedSnapshotSha256,
+      authorization,
+      databaseAdapter,
+      now,
+      snapshot: stageSnapshot,
+    });
+  } else {
+    verificationResult = verifyTask2B2ReviewedPlan({
+      reviewedPlan,
+      currentPlan,
+      reviewedStablePlanSha256: input.reviewedStablePlanSha256,
+      reviewedSnapshotSha256,
+      authorization,
+      stageSnapshot,
+    });
   }
 
   const artifactPath = buildPlanArtifactPath(input.artifactsDir, authorization.mode);
