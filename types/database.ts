@@ -611,6 +611,33 @@ export type SignalSnapshotRow = {
   created_at: Timestamp;
 };
 
+export type TeamTournamentStandingSnapshotRow = {
+  id: string;
+  source_snapshot_id: string;
+  competition_id: string;
+  season_id: string;
+  stage_key: string;
+  group_key: string;
+  canonical_team_key: string;
+  position: number;
+  matches_played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goals_for: number;
+  goals_against: number;
+  goal_difference: number;
+  points: number;
+  source_reported_qualification_status: "qualified" | "eliminated" | null;
+  effective_at: Timestamp;
+  captured_at: Timestamp;
+  cutoff_at: Timestamp;
+  reliability_json: Json;
+  missing_data_json: Json;
+  disagreement_json: Json;
+  created_at: Timestamp;
+};
+
 export type WorkerRunRow = {
   id: string;
   worker_name: string;
@@ -664,6 +691,7 @@ export type DatabaseTables = {
   official_schedule_matches: OfficialScheduleMatchRow;
   official_schedule_match_links: OfficialScheduleMatchLinkRow;
   signal_snapshots: SignalSnapshotRow;
+  team_tournament_standing_snapshots: TeamTournamentStandingSnapshotRow;
   matches: MatchRow;
   team_form_snapshots: TeamFormSnapshotRow;
   lineups: LineupRow;
@@ -722,6 +750,27 @@ type DatabaseInserts = {
   >;
   official_schedule_match_links: Insert<OfficialScheduleMatchLinkRow, "official_schedule_match_id">;
   signal_snapshots: Insert<SignalSnapshotRow, "signal_version" | "cutoff_at" | "canonical_team_key">;
+  team_tournament_standing_snapshots: Insert<
+    TeamTournamentStandingSnapshotRow,
+    | "source_snapshot_id"
+    | "competition_id"
+    | "season_id"
+    | "stage_key"
+    | "group_key"
+    | "canonical_team_key"
+    | "position"
+    | "matches_played"
+    | "wins"
+    | "draws"
+    | "losses"
+    | "goals_for"
+    | "goals_against"
+    | "goal_difference"
+    | "points"
+    | "effective_at"
+    | "captured_at"
+    | "cutoff_at"
+  >;
   matches: Insert<MatchRow, "slug" | "competition_id" | "season_id" | "home_team_id" | "away_team_id" | "kickoff_at">;
   team_form_snapshots: Insert<TeamFormSnapshotRow, "team_id" | "snapshot_date" | "last_matches_count">;
   lineups: Insert<LineupRow, "match_id" | "team_id">;
@@ -760,6 +809,7 @@ export type AnalyticalTableRelationships = {
   official_schedule_matches: [DatabaseRelationship<"schedule_snapshots">, DatabaseRelationship<"world_cup_venue_catalog">, DatabaseRelationship<"source_snapshots">];
   official_schedule_match_links: [DatabaseRelationship<"official_schedule_matches">, DatabaseRelationship<"matches">];
   signal_snapshots: [];
+  team_tournament_standing_snapshots: [DatabaseRelationship<"source_snapshots">, DatabaseRelationship<"competitions">, DatabaseRelationship<"seasons">];
 };
 
 export type DatabaseTableName = keyof DatabaseTables;
