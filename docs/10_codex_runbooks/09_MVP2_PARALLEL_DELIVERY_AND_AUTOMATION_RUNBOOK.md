@@ -1,10 +1,10 @@
 # Parallel Delivery and Operations Automation Runbook
 
-_Last refreshed: 2026-06-29._
+_Last refreshed: 2026-06-29 after accepted `main` work was synchronized into V2 and Task 2B completed._
 
 ## Purpose
 
-Allow production operations, MVP 1.5 product polish, and V2 development to move in parallel without becoming separate incompatible products.
+Allow production operations, MVP 1.5 product polish, and V2 development to move in parallel without becoming incompatible products.
 
 ## Tracks
 
@@ -36,19 +36,14 @@ Owns:
 
 - Free/Premium conversion;
 - copy and hierarchy;
-- Premium response presentation;
+- premium response presentation;
 - panel/pricing/Transparency;
 - venue ingestion/display;
 - public time presentation;
 - accessibility/mobile;
 - product terms presentation.
 
-Does not own:
-
-- V2 probabilities;
-- V2 signals;
-- calibration;
-- release decision.
+Does not own V2 probabilities, V2 signals, calibration, or release decisions.
 
 ### V2 integration
 
@@ -65,6 +60,14 @@ Owns:
 - shadow candidates;
 - replay/evaluation;
 - stage release evidence.
+
+Current V2 state:
+
+```text
+Task 2A = complete
+Task 2B = complete
+Task 2C = next
+```
 
 ### Operations automation
 
@@ -87,45 +90,39 @@ Owns:
 
 ## Synchronization contract
 
-### Create MVP 1.5
+Create product work:
 
 ```text
 current main
--> bounded MVP 1.5 branch
+-> bounded product branch
 ```
 
-### Keep current
-
-Merge/rebase current `main` into MVP 1.5:
-
-- after meaningful production changes;
-- before each MVP 1.5 PR;
-- before release.
-
-### Release MVP 1.5
+Release:
 
 ```text
-reviewed MVP 1.5 PR
+reviewed product PR
 -> main
 -> production validation
 ```
 
-### Preserve in V2
+Preserve in V2:
 
 ```text
 updated main
 -> integration/prediction-intelligence-v2
+-> combined regressions
 ```
 
-Do this after accepted shared-code product releases.
+Accepted main checkpoint `3d4b036...` was integrated at V2 merge commit `9672b556...`.
 
 ## Forbidden patterns
 
-- long-lived unsynchronized MVP 1.5 branch;
-- broad unfinished V2 merge into MVP 1.5;
+- long-lived unsynchronized product branch;
+- broad unfinished V2 merge into product work;
 - manual duplicate implementation in both branches;
 - final mega-merge after weeks of divergence;
-- model and commercial redesign in one PR.
+- model and commercial redesign in one PR;
+- treating documentation conflicts as permission to discard either implementation history.
 
 ## Operations increments
 
@@ -136,7 +133,11 @@ Do this after accepted shared-code product releases.
 - trusted terminal result verification/evaluation;
 - exact publication queue;
 - manual reconciliation exception;
-- Round-of-32 publication batch.
+- Round-of-32 production publication batch;
+- Task 2B current fixture/result refresh;
+- public History capability and smoke.
+
+The Round-of-32 production publication batch does not mean V2 stage knockout participants are linked. Official schedule reference rows 73-104 remain deferred until participants are known.
 
 ### Pending
 
@@ -144,8 +145,10 @@ Do this after accepted shared-code product releases.
 - retry/backoff;
 - provider observability;
 - official-result-without-prediction path;
-- venue ingestion;
-- reconciliation metrics.
+- venue ingestion/display;
+- reconciliation metrics;
+- Task 2C ranking/context refresh;
+- repeatable current signal automation.
 
 ## Routine provider execution
 
@@ -161,33 +164,53 @@ PowerShell read
 
 Codex is not part of routine execution.
 
-No Wikipedia/secondary-source write authority.
+No Wikipedia or secondary-source write authority.
 
-## MVP 1.5 release slices
+## V2 current-data sequence
 
-Recommended order:
+```text
+Task 2A baseline - complete
+-> Task 2B fixture/result refresh - complete
+-> Task 2C rankings/context - next
+-> Task 2D repeatable signals
+-> Task 3A shadow candidate
+```
 
-1. P0 copy/CTA/Premium badge;
+Task 2C must not rerun Task 2B or rewrite the historical baseline.
+
+## Product release slices
+
+Recommended independent slices:
+
+1. copy/CTA/Premium identity;
 2. pricing/pass/panel;
-3. Premium response hierarchy;
+3. premium response hierarchy;
 4. venue ingestion/display;
 5. time-zone display;
 6. Transparency/history;
 7. mobile/accessibility/analytics.
 
-Each slice should be deployable independently.
+Pricing remains a separate unresolved implementation drift:
+
+```text
+owner target = US$10
+observed Wompi display = COP 35,000
+repo fallback/tests = US$20 / COP 68,700
+```
 
 ## Main-to-V2 validation
 
 After synchronization:
 
-- public prediction tests;
+- public prediction and History tests;
 - entitlement/pricing tests;
 - fixture/result tests if touched;
-- venue/time tests;
 - V2 focused tests;
-- lint/build;
+- lint/diff-check;
+- TypeScript/build;
 - no production write.
+
+The `9672b556...` integration passed the required combined validation.
 
 ## Documentation
 
@@ -197,7 +220,12 @@ ChatGPT authors:
 - runbooks;
 - roadmap updates.
 
-Codex may inspect or apply accepted files exactly when delegated.
+Codex may:
+
+- inspect repository truth;
+- identify stale files;
+- review authored replacements;
+- apply accepted files exactly only when delegated.
 
 ## Reporting
 
@@ -206,8 +234,8 @@ Every parallel release reports:
 - source branch/HEAD;
 - target branch;
 - shared files;
-- conflicts;
-- tests;
+- conflicts and resolution method;
+- tests/build;
 - environment/write scope;
 - deployment result;
 - synchronization follow-up.

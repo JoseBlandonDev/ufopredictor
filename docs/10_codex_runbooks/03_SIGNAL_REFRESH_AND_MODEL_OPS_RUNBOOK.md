@@ -1,116 +1,196 @@
 # Signal Refresh and Model Operations Runbook
 
-_Last refreshed: 2026-06-24._
+_Last refreshed: 2026-06-29 after Task 2A and Task 2B completed. Task 2C is now the active V2 data phase._
 
-## Canonical current-model sources
+## Purpose
 
-Read current candidate, release, and calibration truth from:
+Own the path from the preserved historical baseline through current source refresh, repeatable signals, and the first V2 shadow candidate.
+
+Current model and release truth lives in:
 
 ```text
 docs/00_chatgpt_sources/05_PREDICTION_INTELLIGENCE_V2_CURRENT.md
+docs/00_chatgpt_sources/06_V2_STAGE_RELEASE_PLAN.md
 docs/00_chatgpt_sources/08_MODEL_HISTORY_CALIBRATION.md
 ```
 
-This runbook owns stable procedure, not the current performance claim or roadmap status.
+## Phase A - Historical signal baseline
 
-## Source families
+Status: `Complete`
 
-- API-Football fixtures/results;
-- World Football Elo ratings/results/fixtures;
-- FIFA rankings;
-- official World Cup schedule/venues;
-- deterministic prepared snapshots;
-- current tournament standings and pre-kickoff qualification context.
+Prepared workspace:
 
-## Refresh triggers
+```text
+D:\Projects\ufo-predictor-source-snapshots\2026-06-20\prepared-v2
+```
 
-- new trusted verified results;
-- rating source updates;
-- newly published future fixtures;
-- alias/link correction;
-- group-table or qualification-state change before cutoff;
-- model/feature version change;
-- source disagreement requiring review.
+Accepted state:
 
-## Incremental strategy
+```text
+signal rows = 48
+state = exact_complete
+verification identical = 48
+runtime fixture coverage = 72/72
+candidate-ready fixtures = 0
+```
 
-### Historical facts
+The package is historical but approved as reproducible lineage evidence.
 
-- append or correct with lineage;
-- score is not part of match identity;
-- retain source snapshot and timestamps;
-- avoid duplicate natural identity.
+Do not rerun Task 2A without a concrete recovery requirement.
 
-### Ratings
+## Phase B1 - Fixture and result refresh
 
-- append effective-dated snapshots;
-- never overwrite history;
-- preserve source and capture time.
+Status: `Complete`
+
+Task 2B.1:
+
+```text
+fixture actions satisfied = 41/41
+kickoff-conflict exclusions = 3
+```
+
+Task 2B.2:
+
+```text
+result actions satisfied = 69/69
+evaluation actions satisfied = 24/24
+evaluation pending = 45
+excluded rows = 3
+```
+
+Preserved contracts:
+
+- exact provider identity;
+- reviewed-plan authorization;
+- sanitized provider evidence;
+- atomic result/evaluation apply;
+- timestamp equality by instant;
+- immutable predictions;
+- post-state verification.
+
+**Never rerun the accepted Task 2B.2 apply.**
+
+## Phase B2 - Task 2C rankings and tournament context
+
+Status: `Active next`
+
+### Ratings and rankings
+
+- effective-dated World Football Elo snapshots;
+- latest available official FIFA ranking;
+- no overwrite of history;
+- source and capture time retained;
+- canonical team resolution;
+- explicit source disagreement.
 
 ### Tournament context
 
-- capture standings and need-state at an explicit timestamp;
-- compute only from information available before kickoff;
-- shrink small tournament samples;
-- do not replace structural strength with two-match noise.
+- standings and points;
+- wins, draws, and losses;
+- goals for/against and difference;
+- scoring/conceding averages;
+- opponent quality;
+- qualification or pressure state;
+- small-sample reliability controls.
 
-### Signals
+### Required lineage
 
-- derive with exact cutoff;
-- record model/feature version;
-- record source IDs and missing optional inputs;
-- record reliability/sample metadata;
-- shrink or block weak signals;
-- persist idempotently.
+Each persisted row or derived context must retain:
+
+- source identity;
+- observed time;
+- evidence cutoff;
+- parser/feature version;
+- canonical team/competition/season identity;
+- missing optional inputs;
+- contradiction and reliability metadata.
+
+### First bounded step
+
+No Task 2C runner exists yet.
+
+Begin with:
+
+1. repository schema/type/loader inventory;
+2. source inventory and freshness review;
+3. exact destination/natural-key design;
+4. dry-run/apply/verification contract;
+5. focused test plan;
+6. stop before remote writes until approved.
+
+## Phase B3 - Task 2D repeatable current signals
+
+Status: `Pending`
+
+Task 2D must:
+
+- derive source-backed current signals;
+- persist explicit pre-kickoff cutoffs;
+- retain missing/contradictory inputs;
+- apply reliability shrinkage;
+- prove idempotent incremental refresh;
+- produce candidate-ready fixture coverage.
+
+## Phase C - First V2 shadow candidate
+
+Status: `Blocked`
+
+Generate only after Task 2C and Task 2D gates pass.
+
+Candidate requirements:
+
+- fixture not started;
+- predecessor V1 linked;
+- explicit calculation time and cutoff;
+- source/signal snapshots linked;
+- movement caps and reliability gates;
+- missing and contradictory signals reported;
+- coherent scenario families;
+- unpublished development purpose.
+
+Completed fixtures use `historical_replay` and pre-kickoff evidence only.
+
+## Source families
+
+- API-Football fixture/result state already persisted through Task 2B;
+- World Football Elo;
+- FIFA rankings;
+- official World Cup schedule and tournament standings;
+- preserved deterministic snapshots;
+- derived tournament form and qualification context.
+
+No secondary source has write authority when an official or approved primary source is required.
 
 ## Quality gates
 
-- observed time strictly before kickoff;
+- `observed_at < kickoff` for pre-match inputs;
 - canonical aliases resolve;
-- neutral/venue context correct;
-- source disagreement surfaced;
-- group/qualification context reflects the pre-kickoff table;
-- second run creates zero duplicates;
-- replay parity maintained;
-- immutable prediction publication.
+- neutral/host context is correct;
+- source disagreement is surfaced;
+- no history overwrite;
+- no full foundation bootstrap for ordinary refreshes;
+- no prediction rewrite;
+- no candidate from incomplete current-data coverage;
+- no release claim from historical replay alone.
 
-## Operational sequence
+## Decision rule
 
-```text
-refresh sources
--> normalize/link
--> capture pre-kickoff tournament context
--> validate cutoff
--> derive signals
--> run candidate/replay diagnostics
--> review
--> persist stage signals
--> publish immutable development version
-```
+**Decision:** baseline, fixture/result refresh, rankings/context, and derived signal snapshots remain separate bounded increments.
 
-## Versioning
+**Reason:** each layer has different sources, natural keys, cutoffs, and failure modes.
 
-Every output records:
+**Consequence:** completing Task 2B does not authorize candidate generation; Task 2C and Task 2D still must pass.
 
-- model version;
-- feature version;
-- calculated timestamp;
-- cutoff;
-- source/signal snapshots;
-- purpose;
-- predecessor lineage.
+## Responsibility
 
-Finished-fixture comparison uses `historical_replay` and never replaces the original publication.
+- Codex implements bounded loaders, refreshers, tests, and reports.
+- The operator authorizes stage applies and runs Git/Supabase/API operations.
+- ChatGPT owns model-state interpretation, decisions, roadmap, and documentation.
 
-## Release discipline
+## Process
 
-Do not force probability movement merely to make v2 look different.
+Use one preflight, one apply, and one verification.
 
-Prioritize:
+Add one exact rerun only when proving idempotency of a new loader.
 
-- evidence quality;
-- reliability;
-- scenario coherence;
-- tournament-context usefulness;
-- explanation quality;
-- regression safety.
+Do not reopen legacy Task 3B, Task 1C, Task 2A, or Task 2B as part of Task 2C.
