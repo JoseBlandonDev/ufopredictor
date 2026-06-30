@@ -18,6 +18,7 @@
     "prediction-intelligence-v2:task2a": "npx tsx scripts/prediction-intelligence-v2/run-task2a-signal-baseline.ts",
     "prediction-intelligence-v2:task2b-1": "npx tsx scripts/prediction-intelligence-v2/run-task2b-1-fixture-refresh.ts",
     "prediction-intelligence-v2:task2b-2": "npx tsx scripts/prediction-intelligence-v2/run-task2b-2-result-refresh.ts",
+    "prediction-intelligence-v2:task2c-3": "npx tsx scripts/prediction-intelligence-v2/run-task2c-standings-import.ts",
     "prediction-intelligence-v2:task2-1": "npx tsx scripts/prediction-intelligence-v2/run-task2-1.ts",
     "prediction-intelligence-v2:task2-2": "npx tsx scripts/prediction-intelligence-v2/run-task2-2.ts",
     "prediction-intelligence-v2:task2-3": "npx tsx scripts/prediction-intelligence-v2/run-task2-3.ts",

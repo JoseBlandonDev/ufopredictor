@@ -73,6 +73,11 @@ export type FetchFixtureRoundsParams = {
   timezone?: string;
 };
 
+export type FetchStandingsParams = {
+  leagueId: number;
+  season: number;
+};
+
 export type ProviderApiPaging = {
   current: number | null;
   total: number | null;
@@ -89,4 +94,70 @@ export type ProviderApiRequestDiagnostics = {
 export type ProviderFixtureRoundsResult = {
   rounds: string[];
   diagnostics: ProviderApiRequestDiagnostics;
+};
+
+export type ProviderStandingsScope = {
+  providerLeagueId: number;
+  name: string;
+  country: string | null;
+  season: number | null;
+};
+
+export type ProviderStandingsRow = {
+  rank: number;
+  team: {
+    providerTeamId: number;
+    name: string;
+    logo: string | null;
+  };
+  points: number;
+  goalsDiff: number;
+  group: string;
+  form: string | null;
+  status: string | null;
+  description: string | null;
+  all: {
+    played: number;
+    win: number;
+    draw: number;
+    lose: number;
+    goals: {
+      for: number;
+      against: number;
+    };
+  };
+  home: {
+    played: number;
+    win: number;
+    draw: number;
+    lose: number;
+    goals: {
+      for: number;
+      against: number;
+    };
+  };
+  away: {
+    played: number;
+    win: number;
+    draw: number;
+    lose: number;
+    goals: {
+      for: number;
+      against: number;
+    };
+  };
+  update: string | null;
+};
+
+export type ProviderStandingsGroup = {
+  groupLabel: string;
+  rows: ProviderStandingsRow[];
+};
+
+export type ProviderStandingsResult = {
+  league: ProviderStandingsScope;
+  groups: ProviderStandingsGroup[];
+  diagnostics: ProviderApiRequestDiagnostics;
+  httpStatus: number;
+  rawPayload: unknown;
 };

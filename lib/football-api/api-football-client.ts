@@ -1,5 +1,6 @@
 import type {
   ProviderApiRequestDiagnostics,
+  FetchStandingsParams,
   FetchFixtureRoundsParams,
   FetchLeaguesParams,
   FetchFixturesByLeagueParams,
@@ -7,6 +8,9 @@ import type {
   ProviderFixtureStatus,
   ProviderFixtureRoundsResult,
   ProviderLeague,
+  ProviderStandingsGroup,
+  ProviderStandingsResult,
+  ProviderStandingsRow,
 } from "./api-football-types";
 
 const DEFAULT_BASE_URL = "https://v3.football.api-sports.io";
@@ -104,6 +108,74 @@ type ApiFootballRoundsResponse = {
     total?: number;
   };
   response?: string[];
+};
+
+type ApiFootballStandingsRowEnvelope = {
+  rank?: number;
+  team?: {
+    id?: number;
+    name?: string;
+    logo?: string | null;
+  };
+  points?: number;
+  goalsDiff?: number;
+  group?: string;
+  form?: string | null;
+  status?: string | null;
+  description?: string | null;
+  all?: {
+    played?: number;
+    win?: number;
+    draw?: number;
+    lose?: number;
+    goals?: {
+      for?: number;
+      against?: number;
+    };
+  };
+  home?: {
+    played?: number;
+    win?: number;
+    draw?: number;
+    lose?: number;
+    goals?: {
+      for?: number;
+      against?: number;
+    };
+  };
+  away?: {
+    played?: number;
+    win?: number;
+    draw?: number;
+    lose?: number;
+    goals?: {
+      for?: number;
+      against?: number;
+    };
+  };
+  update?: string | null;
+};
+
+type ApiFootballStandingsLeagueEnvelope = {
+  id?: number;
+  name?: string;
+  country?: string | null;
+  season?: number | null;
+  standings?: ApiFootballStandingsRowEnvelope[][];
+};
+
+type ApiFootballStandingsEnvelope = {
+  league?: ApiFootballStandingsLeagueEnvelope;
+};
+
+type ApiFootballStandingsResponse = {
+  results?: number;
+  errors?: string[] | Record<string, string>;
+  paging?: {
+    current?: number;
+    total?: number;
+  };
+  response?: ApiFootballStandingsEnvelope[];
 };
 
 type ApiFootballBaseResponse = {
@@ -309,6 +381,95 @@ function normalizeLeague(input: ApiFootballLeagueEnvelope): ProviderLeague | nul
     country: input.country?.name ?? null,
     countryCode: input.country?.code ?? null,
     seasonYears,
+  };
+}
+
+function normalizeStandingsStatBlock(
+  input: ApiFootballStandingsRowEnvelope["all"] | ApiFootballStandingsRowEnvelope["home"] | ApiFootballStandingsRowEnvelope["away"],
+) {
+  return {
+    played: typeof input?.played === "number" ? input.played : 0,
+    win: typeof input?.win === "number" ? input.win : 0,
+    draw: typeof input?.draw === "number" ? input.draw : 0,
+    lose: typeof input?.lose === "number" ? input.lose : 0,
+    goals: {
+      for: typeof input?.goals?.for === "number" ? input.goals.for : 0,
+      against: typeof input?.goals?.against === "number" ? input.goals.against : 0,
+    },
+  };
+}
+
+function normalizeStandingsRow(input: ApiFootballStandingsRowEnvelope): ProviderStandingsRow | null {
+  const rank = input.rank;
+  const teamId = input.team?.id;
+  const teamName = input.team?.name;
+  const points = input.points;
+  const goalsDiff = input.goalsDiff;
+  const group = input.group;
+
+  if (
+    typeof rank !== "number" ||
+    typeof teamId !== "number" ||
+    typeof teamName !== "string" ||
+    typeof points !== "number" ||
+    typeof goalsDiff !== "number" ||
+    typeof group !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    rank,
+    team: {
+      providerTeamId: teamId,
+      name: teamName,
+      logo: input.team?.logo ?? null,
+    },
+    points,
+    goalsDiff,
+    group,
+    form: input.form ?? null,
+    status: input.status ?? null,
+    description: input.description ?? null,
+    all: normalizeStandingsStatBlock(input.all),
+    home: normalizeStandingsStatBlock(input.home),
+    away: normalizeStandingsStatBlock(input.away),
+    update: input.update ?? null,
+  };
+}
+
+function normalizeStandingsEnvelope(
+  input: ApiFootballStandingsEnvelope,
+): Omit<ProviderStandingsResult, "diagnostics" | "rawPayload" | "httpStatus"> | null {
+  const leagueId = input.league?.id;
+  const leagueName = input.league?.name;
+
+  if (typeof leagueId !== "number" || typeof leagueName !== "string") {
+    return null;
+  }
+
+  const standingsGroups = (input.league?.standings ?? [])
+    .map((groupRows): ProviderStandingsGroup | null => {
+      const rows = groupRows.map(normalizeStandingsRow).filter((row): row is ProviderStandingsRow => row !== null);
+      const groupLabel = rows[0]?.group ?? null;
+      if (!groupLabel || rows.length !== groupRows.length) {
+        return null;
+      }
+      return {
+        groupLabel,
+        rows,
+      };
+    })
+    .filter((group): group is ProviderStandingsGroup => group !== null);
+
+  return {
+    league: {
+      providerLeagueId: leagueId,
+      name: leagueName,
+      country: input.league?.country ?? null,
+      season: input.league?.season ?? null,
+    },
+    groups: standingsGroups,
   };
 }
 
@@ -524,4 +685,35 @@ export async function fetchApiFootballFixtureRounds(
     dates: typeof params.dates === "boolean" ? String(params.dates) : "",
     timezone: params.timezone ?? "",
   });
+}
+
+export async function fetchApiFootballStandings(
+  params: FetchStandingsParams,
+): Promise<ProviderStandingsResult> {
+  const pathname = "/standings";
+  const query = {
+    league: String(params.leagueId),
+    season: String(params.season),
+  };
+  const response = await performApiFootballJsonRequest<ApiFootballStandingsResponse>(pathname, query);
+  if (!response.ok) {
+    throw new Error(`API-Football request failed (${response.httpStatus}) for ${pathname}.`);
+  }
+
+  const payload = response.payload;
+  const normalized = (payload.response ?? [])
+    .map(normalizeStandingsEnvelope)
+    .filter((entry): entry is Omit<ProviderStandingsResult, "diagnostics" | "rawPayload"> => entry !== null);
+
+  const first = normalized[0];
+  if (!first) {
+    throw new Error("API-Football returned standings data that could not be normalized.");
+  }
+
+  return {
+    ...first,
+    diagnostics: buildDiagnostics(pathname, query, payload),
+    httpStatus: response.httpStatus,
+    rawPayload: payload,
+  };
 }
