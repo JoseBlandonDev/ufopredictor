@@ -1,0 +1,2553 @@
+{
+  "schemaName": "ufo-task2b-1-fixture-refresh-v1",
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-28T00:59:01.077Z",
+  "mode": "dry_run",
+  "taskSlice": "task2b.1",
+  "targetProjectRef": "yfmklapgjrupctgxaako",
+  "deniedProjectRef": "gcpdffkgsdomzyoenalg",
+  "competitionSlug": "world-cup-2026",
+  "season": 2026,
+  "selection": {
+    "canonicalFixtureIds": [],
+    "matchIds": [
+      "00869b0e-1bdd-424b-8300-aa7e55878711",
+      "015a9b07-16e6-49f0-a1ed-1857f3075dfe",
+      "0300f427-a761-44c0-8785-b30a3f74c248",
+      "04dfb73d-26b8-4116-9a49-9d857df8830c",
+      "0e764dcd-3735-4377-afc5-083a97b24592",
+      "10f60ebd-1c7b-40a4-aaf5-7b95ac03d4ee",
+      "11bd59c7-c72c-4cff-ab4d-752df7d0f830",
+      "15b01e7f-2021-40fd-bd3f-8c4ce5dea3ae",
+      "175ad663-ad61-4fe5-a899-d86d3f74e0da",
+      "1a3a5646-a95f-44c4-a6d0-1acfb4c0902c",
+      "20691416-a8af-4a73-9e57-43317b591474",
+      "210ee157-ea3c-4b7c-92fa-b7bb0f55ce7d",
+      "24145c1b-af57-4510-8b11-28110ca7c37c",
+      "26037fba-acdb-4dd8-a31b-083b4cf56bab",
+      "29f2b29a-f9be-4b9d-80ab-c4796c2449a1",
+      "2fdb30b7-ca15-45c9-95c7-4644741b736f",
+      "3581151c-9611-4c1f-8855-c5fb45650ab7",
+      "394b1141-71c0-4f9c-bfab-37a4df6a73d5",
+      "480d23e7-69a0-418e-8906-b6d5a13bd8d0",
+      "4ead9413-2eda-4a16-9c8d-5ab02a4de5a3",
+      "500afe47-5063-445b-b57f-088b67bd185f",
+      "53a063c7-bd29-4637-adb5-3b887cddc02b",
+      "53aa682e-2527-4bae-831a-58cfc5815110",
+      "5679fcc9-c6d9-449f-b9fb-d1ffc9af6ea0",
+      "5a015e5a-a158-40a5-96a1-b654ea92aca8",
+      "5bbaa4a2-d51f-4089-8c47-59fa08e1d26e",
+      "5bee3281-c7ef-4760-9c4f-035af9b8baf7",
+      "6c5f2b2b-4d28-46ea-bed7-67f7ba3fa6e2",
+      "6cff9369-289a-4027-be28-65abdea738b4",
+      "74c1b39a-f52b-4ae6-90c4-6e76c5b816f5",
+      "7acbef4e-436c-4eae-bd67-1263b6c322d7",
+      "7d0ea8ca-57d8-4c58-9a64-bbee7e166732",
+      "7e7f670b-b1fb-4331-8998-c0563132b056",
+      "80a5a760-4ca6-4345-a573-d2620f345cbc",
+      "8145878b-dc63-41bb-a791-b54035ae6452",
+      "81d35c62-1afc-4f2b-b220-e3da1ff3e5a6",
+      "81e1f5fe-16a4-43a7-bfb8-45b70074b46a",
+      "833d0798-a430-4bab-b438-4f0a9fecaa33",
+      "852428a4-c6a2-494e-8310-e878b97604c7",
+      "89ce35fe-cc4a-46e4-9b58-7e130ef92dff",
+      "8f541247-edfd-4ce8-a64d-5767d9433098",
+      "9090351e-fae4-4690-9650-fba1dcc6f0f3",
+      "948ef622-a46a-4070-9487-3cd8d2b7de98",
+      "9a52dc29-05e7-48f6-93f9-dfaf7c16450d",
+      "9dc5273b-87ca-4855-aae4-483e4cb52caf",
+      "9feb3980-66eb-4db1-a9da-7fbd9ac6a238",
+      "a1a6bc33-2df1-4f81-a767-83111101d4dc",
+      "a54b8642-503f-453e-a946-c473d585aacb",
+      "a5affbc8-d55d-49c8-910b-41bf3b1483e6",
+      "a8ba54ad-08e4-4e4b-b9d4-174c4017c57c",
+      "ac9e3767-0910-43fd-9ff0-7a66412fd9e9",
+      "adff3d19-6aa2-48d0-8c04-f36b8cda5298",
+      "ae73606c-df02-48e3-8dad-13cec2996eb7",
+      "b3ecaac5-7f4a-4ae7-bf28-0f043d2526c2",
+      "bda360b3-5899-41fd-8bc1-db7b128a9648",
+      "bddefe9e-a8ec-4c7a-9759-5af37ffbda60",
+      "be430863-a640-4cae-b865-72a55b46f7b0",
+      "bece5564-5c9f-449b-b6e3-c7cd11159823",
+      "c3eeb608-2387-47d2-a508-b212b18b91f4",
+      "c532dbb7-9b26-4020-ab61-d45a12b4dffd",
+      "c660e373-b6e2-4615-9153-d43e0137c0d6",
+      "c824b5e1-084d-4a2e-8e43-564c345321c7",
+      "d46e557d-aa5a-4107-af35-a78e78b892d1",
+      "d91effc9-8709-49fd-b830-1057c578f871",
+      "df07f866-f24a-4643-970a-e61f2d01a1aa",
+      "df56cf69-2209-467c-a088-e8d594202700",
+      "e3e612b9-2d22-40f7-9738-0320f986a0c1",
+      "ec03ed35-bbd2-4efe-b292-5e11d3a2241f",
+      "ec893646-bf04-4062-b8bc-ebb9d6e945f6",
+      "f1dedff0-2a3c-4cb2-9cc0-761dda10e205",
+      "faf5ec40-14b4-4cd9-97da-f419b74b5aee",
+      "ff695556-69d7-40d2-84cd-3ce43a5466dc"
+    ],
+    "apiFootballFixtureIds": [],
+    "matchday": null,
+    "from": "2026-06-11",
+    "to": "2026-06-28",
+    "label": "range_2026-06-11_2026-06-28"
+  },
+  "providerSnapshotPath": "D:\\Projects\\ufo-predictor\\artifacts\\prediction-intelligence-v2\\task2b-1\\local-run\\2026-06-27\\final-terminal-linkage-rerun\\task2b-1-provider-snapshot-2026-06-28T00-58-59-344Z.json",
+  "providerSnapshotSha256": "a310ca8494ba1744590cefbcecc650a475c39eb232e9df0d87fea6175e9b7325",
+  "snapshotNormalizationVersion": 1,
+  "observedAt": "2026-06-28T00:58:58.927Z",
+  "stageStateFingerprint": "3e1684710870705a60f096b53b8926fdf0ada36c86ebd45734b6121a6472689f",
+  "summary": {
+    "selectedFixtures": 72,
+    "safeActionCount": 41,
+    "alreadyIdenticalCount": 2,
+    "providerLinkOnlyCount": 41,
+    "kickoffOnlyCount": 0,
+    "providerLinkAndKickoffCount": 0,
+    "terminalResultReadyCount": 24,
+    "liveStateObservedCount": 2,
+    "postponedStateObservedCount": 0,
+    "cancelledStateObservedCount": 0,
+    "abandonedStateObservedCount": 0,
+    "blockedKickoffConflictCount": 3,
+    "duplicateProviderOwnershipCount": 0,
+    "identityConflictCount": 0,
+    "unsupportedProviderStateCount": 0,
+    "providerOnlyUnknownCount": 1,
+    "zeroWriteConfirmation": true
+  },
+  "globalBlockers": [],
+  "rowLevelExclusions": [
+    {
+      "key": "f1dedff0-2a3c-4cb2-9cc0-761dda10e205:wc2026-match-001",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "04dfb73d-26b8-4116-9a49-9d857df8830c:wc2026-match-002",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "adff3d19-6aa2-48d0-8c04-f36b8cda5298:wc2026-match-003",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "26037fba-acdb-4dd8-a31b-083b4cf56bab:wc2026-match-004",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "a1a6bc33-2df1-4f81-a767-83111101d4dc:wc2026-match-006",
+      "reason": "Provider fixture 1539001 matched wc2026-match-006 by teams, but kickoff 2026-06-14T04:00:00.000Z differs from canonical kickoff 2026-06-13T04:00:00.000Z."
+    },
+    {
+      "key": "9090351e-fae4-4690-9650-fba1dcc6f0f3:wc2026-match-020",
+      "reason": "Provider fixture 1489382 matched wc2026-match-020 by teams, but kickoff 2026-06-17T04:00:00.000Z differs from canonical kickoff 2026-06-16T04:00:00.000Z."
+    },
+    {
+      "key": "df56cf69-2209-467c-a088-e8d594202700:wc2026-match-036",
+      "reason": "Provider fixture 1489394 matched wc2026-match-036 by teams, but kickoff 2026-06-21T04:00:00.000Z differs from canonical kickoff 2026-06-20T04:00:00.000Z."
+    },
+    {
+      "key": "852428a4-c6a2-494e-8310-e878b97604c7:wc2026-match-051",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "9a52dc29-05e7-48f6-93f9-dfaf7c16450d:wc2026-match-052",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "0300f427-a761-44c0-8785-b30a3f74c248:wc2026-match-049",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "89ce35fe-cc4a-46e4-9b58-7e130ef92dff:wc2026-match-050",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "df07f866-f24a-4643-970a-e61f2d01a1aa:wc2026-match-053",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "7d0ea8ca-57d8-4c58-9a64-bbee7e166732:wc2026-match-054",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "7e7f670b-b1fb-4331-8998-c0563132b056:wc2026-match-055",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "8f541247-edfd-4ce8-a64d-5767d9433098:wc2026-match-056",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "faf5ec40-14b4-4cd9-97da-f419b74b5aee:wc2026-match-057",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "bda360b3-5899-41fd-8bc1-db7b128a9648:wc2026-match-058",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "6c5f2b2b-4d28-46ea-bed7-67f7ba3fa6e2:wc2026-match-059",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "5bee3281-c7ef-4760-9c4f-035af9b8baf7:wc2026-match-060",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "c3eeb608-2387-47d2-a508-b212b18b91f4:wc2026-match-061",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "5a015e5a-a158-40a5-96a1-b654ea92aca8:wc2026-match-062",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "4ead9413-2eda-4a16-9c8d-5ab02a4de5a3:wc2026-match-065",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "9feb3980-66eb-4db1-a9da-7fbd9ac6a238:wc2026-match-066",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "480d23e7-69a0-418e-8906-b6d5a13bd8d0:wc2026-match-063",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "bece5564-5c9f-449b-b6e3-c7cd11159823:wc2026-match-064",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "3581151c-9611-4c1f-8855-c5fb45650ab7:wc2026-match-067",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "1a3a5646-a95f-44c4-a6d0-1acfb4c0902c:wc2026-match-068",
+      "reason": "Trusted terminal result is ready for Task 2B.2."
+    },
+    {
+      "key": "8145878b-dc63-41bb-a791-b54035ae6452:wc2026-match-071",
+      "reason": "Live provider state is observed only and is excluded from durable fixture writes."
+    },
+    {
+      "key": "e3e612b9-2d22-40f7-9738-0320f986a0c1:wc2026-match-072",
+      "reason": "Live provider state is observed only and is excluded from durable fixture writes."
+    }
+  ],
+  "safeActions": [
+    {
+      "key": "a5affbc8-d55d-49c8-910b-41bf3b1483e6:wc2026-match-008:1489373:update_provider_link",
+      "matchId": "a5affbc8-d55d-49c8-910b-41bf3b1483e6",
+      "canonicalFixtureId": "wc2026-match-008",
+      "apiFootballFixtureId": 1489373,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489373"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-13T19:00:00.000Z",
+        "notStartedBefore": "2026-06-13T19:00:00.000Z"
+      }
+    },
+    {
+      "key": "c824b5e1-084d-4a2e-8e43-564c345321c7:wc2026-match-007:1489371:update_provider_link",
+      "matchId": "c824b5e1-084d-4a2e-8e43-564c345321c7",
+      "canonicalFixtureId": "wc2026-match-007",
+      "apiFootballFixtureId": 1489371,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489371"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-13T22:00:00.000Z",
+        "notStartedBefore": "2026-06-13T22:00:00.000Z"
+      }
+    },
+    {
+      "key": "a54b8642-503f-453e-a946-c473d585aacb:wc2026-match-005:1489372:update_provider_link",
+      "matchId": "a54b8642-503f-453e-a946-c473d585aacb",
+      "canonicalFixtureId": "wc2026-match-005",
+      "apiFootballFixtureId": 1489372,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489372"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T01:00:00.000Z",
+        "notStartedBefore": "2026-06-14T01:00:00.000Z"
+      }
+    },
+    {
+      "key": "d46e557d-aa5a-4107-af35-a78e78b892d1:wc2026-match-010:1489374:update_provider_link",
+      "matchId": "d46e557d-aa5a-4107-af35-a78e78b892d1",
+      "canonicalFixtureId": "wc2026-match-010",
+      "apiFootballFixtureId": 1489374,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489374"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T17:00:00.000Z",
+        "notStartedBefore": "2026-06-14T17:00:00.000Z"
+      }
+    },
+    {
+      "key": "ff695556-69d7-40d2-84cd-3ce43a5466dc:wc2026-match-011:1489376:update_provider_link",
+      "matchId": "ff695556-69d7-40d2-84cd-3ce43a5466dc",
+      "canonicalFixtureId": "wc2026-match-011",
+      "apiFootballFixtureId": 1489376,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489376"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T20:00:00.000Z",
+        "notStartedBefore": "2026-06-14T20:00:00.000Z"
+      }
+    },
+    {
+      "key": "be430863-a640-4cae-b865-72a55b46f7b0:wc2026-match-009:1489375:update_provider_link",
+      "matchId": "be430863-a640-4cae-b865-72a55b46f7b0",
+      "canonicalFixtureId": "wc2026-match-009",
+      "apiFootballFixtureId": 1489375,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489375"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T23:00:00.000Z",
+        "notStartedBefore": "2026-06-14T23:00:00.000Z"
+      }
+    },
+    {
+      "key": "948ef622-a46a-4070-9487-3cd8d2b7de98:wc2026-match-012:1539002:update_provider_link",
+      "matchId": "948ef622-a46a-4070-9487-3cd8d2b7de98",
+      "canonicalFixtureId": "wc2026-match-012",
+      "apiFootballFixtureId": 1539002,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539002"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T02:00:00.000Z",
+        "notStartedBefore": "2026-06-15T02:00:00.000Z"
+      }
+    },
+    {
+      "key": "015a9b07-16e6-49f0-a1ed-1857f3075dfe:wc2026-match-014:1489380:update_provider_link",
+      "matchId": "015a9b07-16e6-49f0-a1ed-1857f3075dfe",
+      "canonicalFixtureId": "wc2026-match-014",
+      "apiFootballFixtureId": 1489380,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489380"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T16:00:00.000Z",
+        "notStartedBefore": "2026-06-15T16:00:00.000Z"
+      }
+    },
+    {
+      "key": "394b1141-71c0-4f9c-bfab-37a4df6a73d5:wc2026-match-016:1489377:update_provider_link",
+      "matchId": "394b1141-71c0-4f9c-bfab-37a4df6a73d5",
+      "canonicalFixtureId": "wc2026-match-016",
+      "apiFootballFixtureId": 1489377,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489377"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T19:00:00.000Z",
+        "notStartedBefore": "2026-06-15T19:00:00.000Z"
+      }
+    },
+    {
+      "key": "00869b0e-1bdd-424b-8300-aa7e55878711:wc2026-match-013:1489379:update_provider_link",
+      "matchId": "00869b0e-1bdd-424b-8300-aa7e55878711",
+      "canonicalFixtureId": "wc2026-match-013",
+      "apiFootballFixtureId": 1489379,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489379"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T22:00:00.000Z",
+        "notStartedBefore": "2026-06-15T22:00:00.000Z"
+      }
+    },
+    {
+      "key": "2fdb30b7-ca15-45c9-95c7-4644741b736f:wc2026-match-015:1489378:update_provider_link",
+      "matchId": "2fdb30b7-ca15-45c9-95c7-4644741b736f",
+      "canonicalFixtureId": "wc2026-match-015",
+      "apiFootballFixtureId": 1489378,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489378"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-16T01:00:00.000Z",
+        "notStartedBefore": "2026-06-16T01:00:00.000Z"
+      }
+    },
+    {
+      "key": "6cff9369-289a-4027-be28-65abdea738b4:wc2026-match-017:1489383:update_provider_link",
+      "matchId": "6cff9369-289a-4027-be28-65abdea738b4",
+      "canonicalFixtureId": "wc2026-match-017",
+      "apiFootballFixtureId": 1489383,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489383"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-16T19:00:00.000Z",
+        "notStartedBefore": "2026-06-16T19:00:00.000Z"
+      }
+    },
+    {
+      "key": "bddefe9e-a8ec-4c7a-9759-5af37ffbda60:wc2026-match-018:1539016:update_provider_link",
+      "matchId": "bddefe9e-a8ec-4c7a-9759-5af37ffbda60",
+      "canonicalFixtureId": "wc2026-match-018",
+      "apiFootballFixtureId": 1539016,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539016"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-16T22:00:00.000Z",
+        "notStartedBefore": "2026-06-16T22:00:00.000Z"
+      }
+    },
+    {
+      "key": "a8ba54ad-08e4-4e4b-b9d4-174c4017c57c:wc2026-match-019:1489381:update_provider_link",
+      "matchId": "a8ba54ad-08e4-4e4b-b9d4-174c4017c57c",
+      "canonicalFixtureId": "wc2026-match-019",
+      "apiFootballFixtureId": 1489381,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489381"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T01:00:00.000Z",
+        "notStartedBefore": "2026-06-17T01:00:00.000Z"
+      }
+    },
+    {
+      "key": "5bbaa4a2-d51f-4089-8c47-59fa08e1d26e:wc2026-match-023:1539003:update_provider_link",
+      "matchId": "5bbaa4a2-d51f-4089-8c47-59fa08e1d26e",
+      "canonicalFixtureId": "wc2026-match-023",
+      "apiFootballFixtureId": 1539003,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539003"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T17:00:00.000Z",
+        "notStartedBefore": "2026-06-17T17:00:00.000Z"
+      }
+    },
+    {
+      "key": "0e764dcd-3735-4377-afc5-083a97b24592:wc2026-match-022:1489384:update_provider_link",
+      "matchId": "0e764dcd-3735-4377-afc5-083a97b24592",
+      "canonicalFixtureId": "wc2026-match-022",
+      "apiFootballFixtureId": 1489384,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489384"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T20:00:00.000Z",
+        "notStartedBefore": "2026-06-17T20:00:00.000Z"
+      }
+    },
+    {
+      "key": "20691416-a8af-4a73-9e57-43317b591474:wc2026-match-021:1489385:update_provider_link",
+      "matchId": "20691416-a8af-4a73-9e57-43317b591474",
+      "canonicalFixtureId": "wc2026-match-021",
+      "apiFootballFixtureId": 1489385,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489385"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T23:00:00.000Z",
+        "notStartedBefore": "2026-06-17T23:00:00.000Z"
+      }
+    },
+    {
+      "key": "833d0798-a430-4bab-b438-4f0a9fecaa33:wc2026-match-024:1489386:update_provider_link",
+      "matchId": "833d0798-a430-4bab-b438-4f0a9fecaa33",
+      "canonicalFixtureId": "wc2026-match-024",
+      "apiFootballFixtureId": 1489386,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489386"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T02:00:00.000Z",
+        "notStartedBefore": "2026-06-18T02:00:00.000Z"
+      }
+    },
+    {
+      "key": "74c1b39a-f52b-4ae6-90c4-6e76c5b816f5:wc2026-match-025:1539004:update_provider_link",
+      "matchId": "74c1b39a-f52b-4ae6-90c4-6e76c5b816f5",
+      "canonicalFixtureId": "wc2026-match-025",
+      "apiFootballFixtureId": 1539004,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539004"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T16:00:00.000Z",
+        "notStartedBefore": "2026-06-18T16:00:00.000Z"
+      }
+    },
+    {
+      "key": "ec893646-bf04-4062-b8bc-ebb9d6e945f6:wc2026-match-026:1539005:update_provider_link",
+      "matchId": "ec893646-bf04-4062-b8bc-ebb9d6e945f6",
+      "canonicalFixtureId": "wc2026-match-026",
+      "apiFootballFixtureId": 1539005,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539005"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T19:00:00.000Z",
+        "notStartedBefore": "2026-06-18T19:00:00.000Z"
+      }
+    },
+    {
+      "key": "53a063c7-bd29-4637-adb5-3b887cddc02b:wc2026-match-027:1489387:update_provider_link",
+      "matchId": "53a063c7-bd29-4637-adb5-3b887cddc02b",
+      "canonicalFixtureId": "wc2026-match-027",
+      "apiFootballFixtureId": 1489387,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489387"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T22:00:00.000Z",
+        "notStartedBefore": "2026-06-18T22:00:00.000Z"
+      }
+    },
+    {
+      "key": "ec03ed35-bbd2-4efe-b292-5e11d3a2241f:wc2026-match-028:1489388:update_provider_link",
+      "matchId": "ec03ed35-bbd2-4efe-b292-5e11d3a2241f",
+      "canonicalFixtureId": "wc2026-match-028",
+      "apiFootballFixtureId": 1489388,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489388"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-19T01:00:00.000Z",
+        "notStartedBefore": "2026-06-19T01:00:00.000Z"
+      }
+    },
+    {
+      "key": "10f60ebd-1c7b-40a4-aaf5-7b95ac03d4ee:wc2026-match-032:1489391:update_provider_link",
+      "matchId": "10f60ebd-1c7b-40a4-aaf5-7b95ac03d4ee",
+      "canonicalFixtureId": "wc2026-match-032",
+      "apiFootballFixtureId": 1489391,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489391"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-19T19:00:00.000Z",
+        "notStartedBefore": "2026-06-19T19:00:00.000Z"
+      }
+    },
+    {
+      "key": "500afe47-5063-445b-b57f-088b67bd185f:wc2026-match-030:1489390:update_provider_link",
+      "matchId": "500afe47-5063-445b-b57f-088b67bd185f",
+      "canonicalFixtureId": "wc2026-match-030",
+      "apiFootballFixtureId": 1489390,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489390"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-19T22:00:00.000Z",
+        "notStartedBefore": "2026-06-19T22:00:00.000Z"
+      }
+    },
+    {
+      "key": "b3ecaac5-7f4a-4ae7-bf28-0f043d2526c2:wc2026-match-029:1489389:update_provider_link",
+      "matchId": "b3ecaac5-7f4a-4ae7-bf28-0f043d2526c2",
+      "canonicalFixtureId": "wc2026-match-029",
+      "apiFootballFixtureId": 1489389,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489389"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T00:30:00.000Z",
+        "notStartedBefore": "2026-06-20T00:30:00.000Z"
+      }
+    },
+    {
+      "key": "80a5a760-4ca6-4345-a573-d2620f345cbc:wc2026-match-031:1539006:update_provider_link",
+      "matchId": "80a5a760-4ca6-4345-a573-d2620f345cbc",
+      "canonicalFixtureId": "wc2026-match-031",
+      "apiFootballFixtureId": 1539006,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539006"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T03:00:00.000Z",
+        "notStartedBefore": "2026-06-20T03:00:00.000Z"
+      }
+    },
+    {
+      "key": "24145c1b-af57-4510-8b11-28110ca7c37c:wc2026-match-035:1539007:update_provider_link",
+      "matchId": "24145c1b-af57-4510-8b11-28110ca7c37c",
+      "canonicalFixtureId": "wc2026-match-035",
+      "apiFootballFixtureId": 1539007,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539007"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T17:00:00.000Z",
+        "notStartedBefore": "2026-06-20T17:00:00.000Z"
+      }
+    },
+    {
+      "key": "c532dbb7-9b26-4020-ab61-d45a12b4dffd:wc2026-match-033:1489393:update_provider_link",
+      "matchId": "c532dbb7-9b26-4020-ab61-d45a12b4dffd",
+      "canonicalFixtureId": "wc2026-match-033",
+      "apiFootballFixtureId": 1489393,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489393"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T20:00:00.000Z",
+        "notStartedBefore": "2026-06-20T20:00:00.000Z"
+      }
+    },
+    {
+      "key": "11bd59c7-c72c-4cff-ab4d-752df7d0f830:wc2026-match-034:1489392:update_provider_link",
+      "matchId": "11bd59c7-c72c-4cff-ab4d-752df7d0f830",
+      "canonicalFixtureId": "wc2026-match-034",
+      "apiFootballFixtureId": 1489392,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489392"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T00:00:00.000Z",
+        "notStartedBefore": "2026-06-21T00:00:00.000Z"
+      }
+    },
+    {
+      "key": "ae73606c-df02-48e3-8dad-13cec2996eb7:wc2026-match-038:1489397:update_provider_link",
+      "matchId": "ae73606c-df02-48e3-8dad-13cec2996eb7",
+      "canonicalFixtureId": "wc2026-match-038",
+      "apiFootballFixtureId": 1489397,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489397"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T16:00:00.000Z",
+        "notStartedBefore": "2026-06-21T16:00:00.000Z"
+      }
+    },
+    {
+      "key": "53aa682e-2527-4bae-831a-58cfc5815110:wc2026-match-039:1489395:update_provider_link",
+      "matchId": "53aa682e-2527-4bae-831a-58cfc5815110",
+      "canonicalFixtureId": "wc2026-match-039",
+      "apiFootballFixtureId": 1489395,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489395"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T19:00:00.000Z",
+        "notStartedBefore": "2026-06-21T19:00:00.000Z"
+      }
+    },
+    {
+      "key": "d91effc9-8709-49fd-b830-1057c578f871:wc2026-match-037:1489398:update_provider_link",
+      "matchId": "d91effc9-8709-49fd-b830-1057c578f871",
+      "canonicalFixtureId": "wc2026-match-037",
+      "apiFootballFixtureId": 1489398,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489398"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T22:00:00.000Z",
+        "notStartedBefore": "2026-06-21T22:00:00.000Z"
+      }
+    },
+    {
+      "key": "29f2b29a-f9be-4b9d-80ab-c4796c2449a1:wc2026-match-040:1489396:update_provider_link",
+      "matchId": "29f2b29a-f9be-4b9d-80ab-c4796c2449a1",
+      "canonicalFixtureId": "wc2026-match-040",
+      "apiFootballFixtureId": 1489396,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489396"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-22T01:00:00.000Z",
+        "notStartedBefore": "2026-06-22T01:00:00.000Z"
+      }
+    },
+    {
+      "key": "81d35c62-1afc-4f2b-b220-e3da1ff3e5a6:wc2026-match-043:1489399:update_provider_link",
+      "matchId": "81d35c62-1afc-4f2b-b220-e3da1ff3e5a6",
+      "canonicalFixtureId": "wc2026-match-043",
+      "apiFootballFixtureId": 1489399,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489399"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-22T17:00:00.000Z",
+        "notStartedBefore": "2026-06-22T17:00:00.000Z"
+      }
+    },
+    {
+      "key": "ac9e3767-0910-43fd-9ff0-7a66412fd9e9:wc2026-match-042:1539017:update_provider_link",
+      "matchId": "ac9e3767-0910-43fd-9ff0-7a66412fd9e9",
+      "canonicalFixtureId": "wc2026-match-042",
+      "apiFootballFixtureId": 1539017,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539017"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-22T21:00:00.000Z",
+        "notStartedBefore": "2026-06-22T21:00:00.000Z"
+      }
+    },
+    {
+      "key": "81e1f5fe-16a4-43a7-bfb8-45b70074b46a:wc2026-match-041:1489401:update_provider_link",
+      "matchId": "81e1f5fe-16a4-43a7-bfb8-45b70074b46a",
+      "canonicalFixtureId": "wc2026-match-041",
+      "apiFootballFixtureId": 1489401,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489401"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T00:00:00.000Z",
+        "notStartedBefore": "2026-06-23T00:00:00.000Z"
+      }
+    },
+    {
+      "key": "15b01e7f-2021-40fd-bd3f-8c4ce5dea3ae:wc2026-match-044:1489400:update_provider_link",
+      "matchId": "15b01e7f-2021-40fd-bd3f-8c4ce5dea3ae",
+      "canonicalFixtureId": "wc2026-match-044",
+      "apiFootballFixtureId": 1489400,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489400"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T03:00:00.000Z",
+        "notStartedBefore": "2026-06-23T03:00:00.000Z"
+      }
+    },
+    {
+      "key": "c660e373-b6e2-4615-9153-d43e0137c0d6:wc2026-match-047:1489404:update_provider_link",
+      "matchId": "c660e373-b6e2-4615-9153-d43e0137c0d6",
+      "canonicalFixtureId": "wc2026-match-047",
+      "apiFootballFixtureId": 1489404,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489404"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T17:00:00.000Z",
+        "notStartedBefore": "2026-06-23T17:00:00.000Z"
+      }
+    },
+    {
+      "key": "9dc5273b-87ca-4855-aae4-483e4cb52caf:wc2026-match-045:1489402:update_provider_link",
+      "matchId": "9dc5273b-87ca-4855-aae4-483e4cb52caf",
+      "canonicalFixtureId": "wc2026-match-045",
+      "apiFootballFixtureId": 1489402,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489402"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T20:00:00.000Z",
+        "notStartedBefore": "2026-06-23T20:00:00.000Z"
+      }
+    },
+    {
+      "key": "5679fcc9-c6d9-449f-b9fb-d1ffc9af6ea0:wc2026-match-046:1489403:update_provider_link",
+      "matchId": "5679fcc9-c6d9-449f-b9fb-d1ffc9af6ea0",
+      "canonicalFixtureId": "wc2026-match-046",
+      "apiFootballFixtureId": 1489403,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489403"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T23:00:00.000Z",
+        "notStartedBefore": "2026-06-23T23:00:00.000Z"
+      }
+    },
+    {
+      "key": "7acbef4e-436c-4eae-bd67-1263b6c322d7:wc2026-match-048:1539008:update_provider_link",
+      "matchId": "7acbef4e-436c-4eae-bd67-1263b6c322d7",
+      "canonicalFixtureId": "wc2026-match-048",
+      "apiFootballFixtureId": 1539008,
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539008"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-24T02:00:00.000Z",
+        "notStartedBefore": "2026-06-24T02:00:00.000Z"
+      }
+    }
+  ],
+  "rows": [
+    {
+      "matchId": "f1dedff0-2a3c-4cb2-9cc0-761dda10e205",
+      "canonicalFixtureId": "wc2026-match-001",
+      "slug": "world-cup-2026-mexico-vs-south-africa-2026-06-11",
+      "officialMatchNumber": 1,
+      "apiFootballFixtureId": 1489369,
+      "currentExternalId": "api-football:fixture:1489369",
+      "storedKickoffAt": "2026-06-11T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-11T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-11T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Mexico",
+      "awayTeamName": "South Africa",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "04dfb73d-26b8-4116-9a49-9d857df8830c",
+      "canonicalFixtureId": "wc2026-match-002",
+      "slug": "world-cup-2026-south-korea-vs-czech-republic-2026-06-12",
+      "officialMatchNumber": 2,
+      "apiFootballFixtureId": 1538999,
+      "currentExternalId": "api-football:fixture:1538999",
+      "storedKickoffAt": "2026-06-12T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-12T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-12T02:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "South Korea",
+      "awayTeamName": "Czech Republic",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "adff3d19-6aa2-48d0-8c04-f36b8cda5298",
+      "canonicalFixtureId": "wc2026-match-003",
+      "slug": "world-cup-2026-canada-vs-bosnia-herzegovina-2026-06-12",
+      "officialMatchNumber": 3,
+      "apiFootballFixtureId": 1539000,
+      "currentExternalId": "api-football:fixture:1539000",
+      "storedKickoffAt": "2026-06-12T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-12T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-12T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Canada",
+      "awayTeamName": "Bosnia & Herzegovina",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "26037fba-acdb-4dd8-a31b-083b4cf56bab",
+      "canonicalFixtureId": "wc2026-match-004",
+      "slug": "world-cup-2026-usa-vs-paraguay-2026-06-13",
+      "officialMatchNumber": 4,
+      "apiFootballFixtureId": 1489370,
+      "currentExternalId": "api-football:fixture:1489370",
+      "storedKickoffAt": "2026-06-13T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-13T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-13T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "USA",
+      "awayTeamName": "Paraguay",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "a1a6bc33-2df1-4f81-a767-83111101d4dc",
+      "canonicalFixtureId": "wc2026-match-006",
+      "slug": "world-cup-2026-australia-vs-turkiye-2026-06-13",
+      "officialMatchNumber": 6,
+      "apiFootballFixtureId": 1539001,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-13T04:00:00.000Z",
+      "officialKickoffAt": "2026-06-13T04:00:00.000Z",
+      "providerKickoffAt": "2026-06-14T04:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Australia",
+      "awayTeamName": "Türkiye",
+      "classification": "blocked_kickoff_conflict",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Provider fixture 1539001 matched wc2026-match-006 by teams, but kickoff 2026-06-14T04:00:00.000Z differs from canonical kickoff 2026-06-13T04:00:00.000Z.",
+      "identityReason": "Provider fixture 1539001 matched wc2026-match-006 by teams, but kickoff 2026-06-14T04:00:00.000Z differs from canonical kickoff 2026-06-13T04:00:00.000Z."
+    },
+    {
+      "matchId": "a5affbc8-d55d-49c8-910b-41bf3b1483e6",
+      "canonicalFixtureId": "wc2026-match-008",
+      "slug": "world-cup-2026-qatar-vs-switzerland-2026-06-13",
+      "officialMatchNumber": 8,
+      "apiFootballFixtureId": 1489373,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-13T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-13T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-13T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Qatar",
+      "awayTeamName": "Switzerland",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489373"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-13T19:00:00.000Z",
+        "notStartedBefore": "2026-06-13T19:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "c824b5e1-084d-4a2e-8e43-564c345321c7",
+      "canonicalFixtureId": "wc2026-match-007",
+      "slug": "world-cup-2026-brazil-vs-morocco-2026-06-13",
+      "officialMatchNumber": 7,
+      "apiFootballFixtureId": 1489371,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-13T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-13T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-13T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Brazil",
+      "awayTeamName": "Morocco",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489371"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-13T22:00:00.000Z",
+        "notStartedBefore": "2026-06-13T22:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "a54b8642-503f-453e-a946-c473d585aacb",
+      "canonicalFixtureId": "wc2026-match-005",
+      "slug": "world-cup-2026-haiti-vs-scotland-2026-06-14",
+      "officialMatchNumber": 5,
+      "apiFootballFixtureId": 1489372,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-14T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-14T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-14T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Haiti",
+      "awayTeamName": "Scotland",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489372"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T01:00:00.000Z",
+        "notStartedBefore": "2026-06-14T01:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "d46e557d-aa5a-4107-af35-a78e78b892d1",
+      "canonicalFixtureId": "wc2026-match-010",
+      "slug": "world-cup-2026-germany-vs-curacao-2026-06-14",
+      "officialMatchNumber": 10,
+      "apiFootballFixtureId": 1489374,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-14T17:00:00.000Z",
+      "officialKickoffAt": "2026-06-14T17:00:00.000Z",
+      "providerKickoffAt": "2026-06-14T17:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Germany",
+      "awayTeamName": "Curaçao",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489374"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T17:00:00.000Z",
+        "notStartedBefore": "2026-06-14T17:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "ff695556-69d7-40d2-84cd-3ce43a5466dc",
+      "canonicalFixtureId": "wc2026-match-011",
+      "slug": "world-cup-2026-netherlands-vs-japan-2026-06-14",
+      "officialMatchNumber": 11,
+      "apiFootballFixtureId": 1489376,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-14T20:00:00.000Z",
+      "officialKickoffAt": "2026-06-14T20:00:00.000Z",
+      "providerKickoffAt": "2026-06-14T20:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Netherlands",
+      "awayTeamName": "Japan",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489376"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T20:00:00.000Z",
+        "notStartedBefore": "2026-06-14T20:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "be430863-a640-4cae-b865-72a55b46f7b0",
+      "canonicalFixtureId": "wc2026-match-009",
+      "slug": "world-cup-2026-cote-divoire-vs-ecuador-2026-06-14",
+      "officialMatchNumber": 9,
+      "apiFootballFixtureId": 1489375,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-14T23:00:00.000Z",
+      "officialKickoffAt": "2026-06-14T23:00:00.000Z",
+      "providerKickoffAt": "2026-06-14T23:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Côte d’Ivoire",
+      "awayTeamName": "Ecuador",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489375"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-14T23:00:00.000Z",
+        "notStartedBefore": "2026-06-14T23:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "948ef622-a46a-4070-9487-3cd8d2b7de98",
+      "canonicalFixtureId": "wc2026-match-012",
+      "slug": "world-cup-2026-sweden-vs-tunisia-2026-06-15",
+      "officialMatchNumber": 12,
+      "apiFootballFixtureId": 1539002,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-15T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-15T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-15T02:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Sweden",
+      "awayTeamName": "Tunisia",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539002"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T02:00:00.000Z",
+        "notStartedBefore": "2026-06-15T02:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "015a9b07-16e6-49f0-a1ed-1857f3075dfe",
+      "canonicalFixtureId": "wc2026-match-014",
+      "slug": "world-cup-2026-spain-vs-cabo-verde-2026-06-15",
+      "officialMatchNumber": 14,
+      "apiFootballFixtureId": 1489380,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-15T16:00:00.000Z",
+      "officialKickoffAt": "2026-06-15T16:00:00.000Z",
+      "providerKickoffAt": "2026-06-15T16:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Spain",
+      "awayTeamName": "Cabo Verde",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489380"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T16:00:00.000Z",
+        "notStartedBefore": "2026-06-15T16:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "394b1141-71c0-4f9c-bfab-37a4df6a73d5",
+      "canonicalFixtureId": "wc2026-match-016",
+      "slug": "world-cup-2026-belgium-vs-egypt-2026-06-15",
+      "officialMatchNumber": 16,
+      "apiFootballFixtureId": 1489377,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-15T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-15T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-15T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Belgium",
+      "awayTeamName": "Egypt",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489377"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T19:00:00.000Z",
+        "notStartedBefore": "2026-06-15T19:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "00869b0e-1bdd-424b-8300-aa7e55878711",
+      "canonicalFixtureId": "wc2026-match-013",
+      "slug": "world-cup-2026-saudi-arabia-vs-uruguay-2026-06-15",
+      "officialMatchNumber": 13,
+      "apiFootballFixtureId": 1489379,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-15T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-15T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-15T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Saudi Arabia",
+      "awayTeamName": "Uruguay",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489379"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-15T22:00:00.000Z",
+        "notStartedBefore": "2026-06-15T22:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "2fdb30b7-ca15-45c9-95c7-4644741b736f",
+      "canonicalFixtureId": "wc2026-match-015",
+      "slug": "world-cup-2026-iran-vs-new-zealand-2026-06-16",
+      "officialMatchNumber": 15,
+      "apiFootballFixtureId": 1489378,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-16T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-16T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-16T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "IR Iran",
+      "awayTeamName": "New Zealand",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489378"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-16T01:00:00.000Z",
+        "notStartedBefore": "2026-06-16T01:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "9090351e-fae4-4690-9650-fba1dcc6f0f3",
+      "canonicalFixtureId": "wc2026-match-020",
+      "slug": "world-cup-2026-austria-vs-jordan-2026-06-16",
+      "officialMatchNumber": 20,
+      "apiFootballFixtureId": 1489382,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-16T04:00:00.000Z",
+      "officialKickoffAt": "2026-06-16T04:00:00.000Z",
+      "providerKickoffAt": "2026-06-17T04:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Austria",
+      "awayTeamName": "Jordan",
+      "classification": "blocked_kickoff_conflict",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Provider fixture 1489382 matched wc2026-match-020 by teams, but kickoff 2026-06-17T04:00:00.000Z differs from canonical kickoff 2026-06-16T04:00:00.000Z.",
+      "identityReason": "Provider fixture 1489382 matched wc2026-match-020 by teams, but kickoff 2026-06-17T04:00:00.000Z differs from canonical kickoff 2026-06-16T04:00:00.000Z."
+    },
+    {
+      "matchId": "6cff9369-289a-4027-be28-65abdea738b4",
+      "canonicalFixtureId": "wc2026-match-017",
+      "slug": "world-cup-2026-france-vs-senegal-2026-06-16",
+      "officialMatchNumber": 17,
+      "apiFootballFixtureId": 1489383,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-16T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-16T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-16T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "France",
+      "awayTeamName": "Senegal",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489383"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-16T19:00:00.000Z",
+        "notStartedBefore": "2026-06-16T19:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "bddefe9e-a8ec-4c7a-9759-5af37ffbda60",
+      "canonicalFixtureId": "wc2026-match-018",
+      "slug": "world-cup-2026-iraq-vs-norway-2026-06-16",
+      "officialMatchNumber": 18,
+      "apiFootballFixtureId": 1539016,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-16T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-16T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-16T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Iraq",
+      "awayTeamName": "Norway",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539016"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-16T22:00:00.000Z",
+        "notStartedBefore": "2026-06-16T22:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "a8ba54ad-08e4-4e4b-b9d4-174c4017c57c",
+      "canonicalFixtureId": "wc2026-match-019",
+      "slug": "world-cup-2026-argentina-vs-algeria-2026-06-17",
+      "officialMatchNumber": 19,
+      "apiFootballFixtureId": 1489381,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-17T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-17T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-17T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Argentina",
+      "awayTeamName": "Algeria",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489381"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T01:00:00.000Z",
+        "notStartedBefore": "2026-06-17T01:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "5bbaa4a2-d51f-4089-8c47-59fa08e1d26e",
+      "canonicalFixtureId": "wc2026-match-023",
+      "slug": "world-cup-2026-portugal-vs-congo-dr-2026-06-17",
+      "officialMatchNumber": 23,
+      "apiFootballFixtureId": 1539003,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-17T17:00:00.000Z",
+      "officialKickoffAt": "2026-06-17T17:00:00.000Z",
+      "providerKickoffAt": "2026-06-17T17:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Portugal",
+      "awayTeamName": "Congo DR",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539003"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T17:00:00.000Z",
+        "notStartedBefore": "2026-06-17T17:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "0e764dcd-3735-4377-afc5-083a97b24592",
+      "canonicalFixtureId": "wc2026-match-022",
+      "slug": "world-cup-2026-england-vs-croatia-2026-06-17",
+      "officialMatchNumber": 22,
+      "apiFootballFixtureId": 1489384,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-17T20:00:00.000Z",
+      "officialKickoffAt": "2026-06-17T20:00:00.000Z",
+      "providerKickoffAt": "2026-06-17T20:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "England",
+      "awayTeamName": "Croatia",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489384"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T20:00:00.000Z",
+        "notStartedBefore": "2026-06-17T20:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "20691416-a8af-4a73-9e57-43317b591474",
+      "canonicalFixtureId": "wc2026-match-021",
+      "slug": "world-cup-2026-ghana-vs-panama-2026-06-17",
+      "officialMatchNumber": 21,
+      "apiFootballFixtureId": 1489385,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-17T23:00:00.000Z",
+      "officialKickoffAt": "2026-06-17T23:00:00.000Z",
+      "providerKickoffAt": "2026-06-17T23:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Ghana",
+      "awayTeamName": "Panama",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489385"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-17T23:00:00.000Z",
+        "notStartedBefore": "2026-06-17T23:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "833d0798-a430-4bab-b438-4f0a9fecaa33",
+      "canonicalFixtureId": "wc2026-match-024",
+      "slug": "world-cup-2026-uzbekistan-vs-colombia-2026-06-18",
+      "officialMatchNumber": 24,
+      "apiFootballFixtureId": 1489386,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-18T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-18T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-18T02:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Uzbekistan",
+      "awayTeamName": "Colombia",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489386"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T02:00:00.000Z",
+        "notStartedBefore": "2026-06-18T02:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "74c1b39a-f52b-4ae6-90c4-6e76c5b816f5",
+      "canonicalFixtureId": "wc2026-match-025",
+      "slug": "world-cup-2026-czech-republic-vs-south-africa-2026-06-18",
+      "officialMatchNumber": 25,
+      "apiFootballFixtureId": 1539004,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-18T16:00:00.000Z",
+      "officialKickoffAt": "2026-06-18T16:00:00.000Z",
+      "providerKickoffAt": "2026-06-18T16:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Czech Republic",
+      "awayTeamName": "South Africa",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539004"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T16:00:00.000Z",
+        "notStartedBefore": "2026-06-18T16:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "ec893646-bf04-4062-b8bc-ebb9d6e945f6",
+      "canonicalFixtureId": "wc2026-match-026",
+      "slug": "world-cup-2026-switzerland-vs-bosnia-herzegovina-2026-06-18",
+      "officialMatchNumber": 26,
+      "apiFootballFixtureId": 1539005,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-18T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-18T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-18T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Switzerland",
+      "awayTeamName": "Bosnia & Herzegovina",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539005"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T19:00:00.000Z",
+        "notStartedBefore": "2026-06-18T19:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "53a063c7-bd29-4637-adb5-3b887cddc02b",
+      "canonicalFixtureId": "wc2026-match-027",
+      "slug": "world-cup-2026-canada-vs-qatar-2026-06-18",
+      "officialMatchNumber": 27,
+      "apiFootballFixtureId": 1489387,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-18T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-18T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-18T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Canada",
+      "awayTeamName": "Qatar",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489387"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-18T22:00:00.000Z",
+        "notStartedBefore": "2026-06-18T22:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "ec03ed35-bbd2-4efe-b292-5e11d3a2241f",
+      "canonicalFixtureId": "wc2026-match-028",
+      "slug": "world-cup-2026-mexico-vs-south-korea-2026-06-19",
+      "officialMatchNumber": 28,
+      "apiFootballFixtureId": 1489388,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-19T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-19T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-19T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Mexico",
+      "awayTeamName": "South Korea",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489388"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-19T01:00:00.000Z",
+        "notStartedBefore": "2026-06-19T01:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "10f60ebd-1c7b-40a4-aaf5-7b95ac03d4ee",
+      "canonicalFixtureId": "wc2026-match-032",
+      "slug": "world-cup-2026-usa-vs-australia-2026-06-19",
+      "officialMatchNumber": 32,
+      "apiFootballFixtureId": 1489391,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-19T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-19T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-19T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "USA",
+      "awayTeamName": "Australia",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489391"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-19T19:00:00.000Z",
+        "notStartedBefore": "2026-06-19T19:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "500afe47-5063-445b-b57f-088b67bd185f",
+      "canonicalFixtureId": "wc2026-match-030",
+      "slug": "world-cup-2026-scotland-vs-morocco-2026-06-19",
+      "officialMatchNumber": 30,
+      "apiFootballFixtureId": 1489390,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-19T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-19T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-19T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Scotland",
+      "awayTeamName": "Morocco",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489390"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-19T22:00:00.000Z",
+        "notStartedBefore": "2026-06-19T22:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "b3ecaac5-7f4a-4ae7-bf28-0f043d2526c2",
+      "canonicalFixtureId": "wc2026-match-029",
+      "slug": "world-cup-2026-brazil-vs-haiti-2026-06-20",
+      "officialMatchNumber": 29,
+      "apiFootballFixtureId": 1489389,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-20T00:30:00.000Z",
+      "officialKickoffAt": "2026-06-20T00:30:00.000Z",
+      "providerKickoffAt": "2026-06-20T00:30:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Brazil",
+      "awayTeamName": "Haiti",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489389"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T00:30:00.000Z",
+        "notStartedBefore": "2026-06-20T00:30:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "80a5a760-4ca6-4345-a573-d2620f345cbc",
+      "canonicalFixtureId": "wc2026-match-031",
+      "slug": "world-cup-2026-turkiye-vs-paraguay-2026-06-20",
+      "officialMatchNumber": 31,
+      "apiFootballFixtureId": 1539006,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-20T03:00:00.000Z",
+      "officialKickoffAt": "2026-06-20T03:00:00.000Z",
+      "providerKickoffAt": "2026-06-20T03:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Türkiye",
+      "awayTeamName": "Paraguay",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539006"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T03:00:00.000Z",
+        "notStartedBefore": "2026-06-20T03:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "df56cf69-2209-467c-a088-e8d594202700",
+      "canonicalFixtureId": "wc2026-match-036",
+      "slug": "world-cup-2026-tunisia-vs-japan-2026-06-20",
+      "officialMatchNumber": 36,
+      "apiFootballFixtureId": 1489394,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-20T04:00:00.000Z",
+      "officialKickoffAt": "2026-06-20T04:00:00.000Z",
+      "providerKickoffAt": "2026-06-21T04:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Tunisia",
+      "awayTeamName": "Japan",
+      "classification": "blocked_kickoff_conflict",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Provider fixture 1489394 matched wc2026-match-036 by teams, but kickoff 2026-06-21T04:00:00.000Z differs from canonical kickoff 2026-06-20T04:00:00.000Z.",
+      "identityReason": "Provider fixture 1489394 matched wc2026-match-036 by teams, but kickoff 2026-06-21T04:00:00.000Z differs from canonical kickoff 2026-06-20T04:00:00.000Z."
+    },
+    {
+      "matchId": "24145c1b-af57-4510-8b11-28110ca7c37c",
+      "canonicalFixtureId": "wc2026-match-035",
+      "slug": "world-cup-2026-netherlands-vs-sweden-2026-06-20",
+      "officialMatchNumber": 35,
+      "apiFootballFixtureId": 1539007,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-20T17:00:00.000Z",
+      "officialKickoffAt": "2026-06-20T17:00:00.000Z",
+      "providerKickoffAt": "2026-06-20T17:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Netherlands",
+      "awayTeamName": "Sweden",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539007"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T17:00:00.000Z",
+        "notStartedBefore": "2026-06-20T17:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "c532dbb7-9b26-4020-ab61-d45a12b4dffd",
+      "canonicalFixtureId": "wc2026-match-033",
+      "slug": "world-cup-2026-germany-vs-cote-divoire-2026-06-20",
+      "officialMatchNumber": 33,
+      "apiFootballFixtureId": 1489393,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-20T20:00:00.000Z",
+      "officialKickoffAt": "2026-06-20T20:00:00.000Z",
+      "providerKickoffAt": "2026-06-20T20:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Germany",
+      "awayTeamName": "Côte d’Ivoire",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489393"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-20T20:00:00.000Z",
+        "notStartedBefore": "2026-06-20T20:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "11bd59c7-c72c-4cff-ab4d-752df7d0f830",
+      "canonicalFixtureId": "wc2026-match-034",
+      "slug": "world-cup-2026-ecuador-vs-curacao-2026-06-21",
+      "officialMatchNumber": 34,
+      "apiFootballFixtureId": 1489392,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-21T00:00:00.000Z",
+      "officialKickoffAt": "2026-06-21T00:00:00.000Z",
+      "providerKickoffAt": "2026-06-21T00:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Ecuador",
+      "awayTeamName": "Curaçao",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489392"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T00:00:00.000Z",
+        "notStartedBefore": "2026-06-21T00:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "ae73606c-df02-48e3-8dad-13cec2996eb7",
+      "canonicalFixtureId": "wc2026-match-038",
+      "slug": "world-cup-2026-spain-vs-saudi-arabia-2026-06-21",
+      "officialMatchNumber": 38,
+      "apiFootballFixtureId": 1489397,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-21T16:00:00.000Z",
+      "officialKickoffAt": "2026-06-21T16:00:00.000Z",
+      "providerKickoffAt": "2026-06-21T16:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Spain",
+      "awayTeamName": "Saudi Arabia",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489397"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T16:00:00.000Z",
+        "notStartedBefore": "2026-06-21T16:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "53aa682e-2527-4bae-831a-58cfc5815110",
+      "canonicalFixtureId": "wc2026-match-039",
+      "slug": "world-cup-2026-belgium-vs-iran-2026-06-21",
+      "officialMatchNumber": 39,
+      "apiFootballFixtureId": 1489395,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-21T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-21T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-21T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Belgium",
+      "awayTeamName": "IR Iran",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489395"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T19:00:00.000Z",
+        "notStartedBefore": "2026-06-21T19:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "d91effc9-8709-49fd-b830-1057c578f871",
+      "canonicalFixtureId": "wc2026-match-037",
+      "slug": "world-cup-2026-uruguay-vs-cabo-verde-2026-06-21",
+      "officialMatchNumber": 37,
+      "apiFootballFixtureId": 1489398,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-21T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-21T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-21T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Uruguay",
+      "awayTeamName": "Cabo Verde",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489398"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-21T22:00:00.000Z",
+        "notStartedBefore": "2026-06-21T22:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "29f2b29a-f9be-4b9d-80ab-c4796c2449a1",
+      "canonicalFixtureId": "wc2026-match-040",
+      "slug": "world-cup-2026-new-zealand-vs-egypt-2026-06-22",
+      "officialMatchNumber": 40,
+      "apiFootballFixtureId": 1489396,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-22T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-22T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-22T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "New Zealand",
+      "awayTeamName": "Egypt",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489396"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-22T01:00:00.000Z",
+        "notStartedBefore": "2026-06-22T01:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "81d35c62-1afc-4f2b-b220-e3da1ff3e5a6",
+      "canonicalFixtureId": "wc2026-match-043",
+      "slug": "world-cup-2026-argentina-vs-austria-2026-06-22",
+      "officialMatchNumber": 43,
+      "apiFootballFixtureId": 1489399,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-22T17:00:00.000Z",
+      "officialKickoffAt": "2026-06-22T17:00:00.000Z",
+      "providerKickoffAt": "2026-06-22T17:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Argentina",
+      "awayTeamName": "Austria",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489399"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-22T17:00:00.000Z",
+        "notStartedBefore": "2026-06-22T17:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "ac9e3767-0910-43fd-9ff0-7a66412fd9e9",
+      "canonicalFixtureId": "wc2026-match-042",
+      "slug": "world-cup-2026-france-vs-iraq-2026-06-22",
+      "officialMatchNumber": 42,
+      "apiFootballFixtureId": 1539017,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-22T21:00:00.000Z",
+      "officialKickoffAt": "2026-06-22T21:00:00.000Z",
+      "providerKickoffAt": "2026-06-22T21:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "France",
+      "awayTeamName": "Iraq",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539017"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-22T21:00:00.000Z",
+        "notStartedBefore": "2026-06-22T21:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "81e1f5fe-16a4-43a7-bfb8-45b70074b46a",
+      "canonicalFixtureId": "wc2026-match-041",
+      "slug": "world-cup-2026-norway-vs-senegal-2026-06-23",
+      "officialMatchNumber": 41,
+      "apiFootballFixtureId": 1489401,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-23T00:00:00.000Z",
+      "officialKickoffAt": "2026-06-23T00:00:00.000Z",
+      "providerKickoffAt": "2026-06-23T00:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Norway",
+      "awayTeamName": "Senegal",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489401"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T00:00:00.000Z",
+        "notStartedBefore": "2026-06-23T00:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "15b01e7f-2021-40fd-bd3f-8c4ce5dea3ae",
+      "canonicalFixtureId": "wc2026-match-044",
+      "slug": "world-cup-2026-jordan-vs-algeria-2026-06-23",
+      "officialMatchNumber": 44,
+      "apiFootballFixtureId": 1489400,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-23T03:00:00.000Z",
+      "officialKickoffAt": "2026-06-23T03:00:00.000Z",
+      "providerKickoffAt": "2026-06-23T03:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Jordan",
+      "awayTeamName": "Algeria",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489400"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T03:00:00.000Z",
+        "notStartedBefore": "2026-06-23T03:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "c660e373-b6e2-4615-9153-d43e0137c0d6",
+      "canonicalFixtureId": "wc2026-match-047",
+      "slug": "world-cup-2026-portugal-vs-uzbekistan-2026-06-23",
+      "officialMatchNumber": 47,
+      "apiFootballFixtureId": 1489404,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-23T17:00:00.000Z",
+      "officialKickoffAt": "2026-06-23T17:00:00.000Z",
+      "providerKickoffAt": "2026-06-23T17:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Portugal",
+      "awayTeamName": "Uzbekistan",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489404"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T17:00:00.000Z",
+        "notStartedBefore": "2026-06-23T17:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "9dc5273b-87ca-4855-aae4-483e4cb52caf",
+      "canonicalFixtureId": "wc2026-match-045",
+      "slug": "world-cup-2026-england-vs-ghana-2026-06-23",
+      "officialMatchNumber": 45,
+      "apiFootballFixtureId": 1489402,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-23T20:00:00.000Z",
+      "officialKickoffAt": "2026-06-23T20:00:00.000Z",
+      "providerKickoffAt": "2026-06-23T20:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "England",
+      "awayTeamName": "Ghana",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489402"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T20:00:00.000Z",
+        "notStartedBefore": "2026-06-23T20:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "5679fcc9-c6d9-449f-b9fb-d1ffc9af6ea0",
+      "canonicalFixtureId": "wc2026-match-046",
+      "slug": "world-cup-2026-panama-vs-croatia-2026-06-23",
+      "officialMatchNumber": 46,
+      "apiFootballFixtureId": 1489403,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-23T23:00:00.000Z",
+      "officialKickoffAt": "2026-06-23T23:00:00.000Z",
+      "providerKickoffAt": "2026-06-23T23:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Panama",
+      "awayTeamName": "Croatia",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1489403"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-23T23:00:00.000Z",
+        "notStartedBefore": "2026-06-23T23:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "7acbef4e-436c-4eae-bd67-1263b6c322d7",
+      "canonicalFixtureId": "wc2026-match-048",
+      "slug": "world-cup-2026-colombia-vs-congo-dr-2026-06-24",
+      "officialMatchNumber": 48,
+      "apiFootballFixtureId": 1539008,
+      "currentExternalId": null,
+      "storedKickoffAt": "2026-06-24T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-24T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-24T02:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Colombia",
+      "awayTeamName": "Congo DR",
+      "classification": "provider_link_only",
+      "safeAction": "update_provider_link",
+      "patch": {
+        "external_id": "api-football:fixture:1539008"
+      },
+      "expectedPriorState": {
+        "externalId": null,
+        "kickoffAt": "2026-06-24T02:00:00.000Z",
+        "notStartedBefore": "2026-06-24T02:00:00.000Z"
+      },
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "852428a4-c6a2-494e-8310-e878b97604c7",
+      "canonicalFixtureId": "wc2026-match-051",
+      "slug": "world-cup-2026-switzerland-vs-canada-2026-06-24",
+      "officialMatchNumber": 51,
+      "apiFootballFixtureId": 1489408,
+      "currentExternalId": "api-football:fixture:1489408",
+      "storedKickoffAt": "2026-06-24T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-24T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-24T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Switzerland",
+      "awayTeamName": "Canada",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "9a52dc29-05e7-48f6-93f9-dfaf7c16450d",
+      "canonicalFixtureId": "wc2026-match-052",
+      "slug": "world-cup-2026-bosnia-herzegovina-vs-qatar-2026-06-24",
+      "officialMatchNumber": 52,
+      "apiFootballFixtureId": 1539009,
+      "currentExternalId": "api-football:fixture:1539009",
+      "storedKickoffAt": "2026-06-24T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-24T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-24T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Bosnia & Herzegovina",
+      "awayTeamName": "Qatar",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "0300f427-a761-44c0-8785-b30a3f74c248",
+      "canonicalFixtureId": "wc2026-match-049",
+      "slug": "world-cup-2026-scotland-vs-brazil-2026-06-24",
+      "officialMatchNumber": 49,
+      "apiFootballFixtureId": 1489406,
+      "currentExternalId": "api-football:fixture:1489406",
+      "storedKickoffAt": "2026-06-24T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-24T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-24T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Scotland",
+      "awayTeamName": "Brazil",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "89ce35fe-cc4a-46e4-9b58-7e130ef92dff",
+      "canonicalFixtureId": "wc2026-match-050",
+      "slug": "world-cup-2026-morocco-vs-haiti-2026-06-24",
+      "officialMatchNumber": 50,
+      "apiFootballFixtureId": 1489405,
+      "currentExternalId": "api-football:fixture:1489405",
+      "storedKickoffAt": "2026-06-24T22:00:00.000Z",
+      "officialKickoffAt": "2026-06-24T22:00:00.000Z",
+      "providerKickoffAt": "2026-06-24T22:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Morocco",
+      "awayTeamName": "Haiti",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "df07f866-f24a-4643-970a-e61f2d01a1aa",
+      "canonicalFixtureId": "wc2026-match-053",
+      "slug": "world-cup-2026-czech-republic-vs-mexico-2026-06-25",
+      "officialMatchNumber": 53,
+      "apiFootballFixtureId": 1539010,
+      "currentExternalId": "api-football:fixture:1539010",
+      "storedKickoffAt": "2026-06-25T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-25T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-25T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Czech Republic",
+      "awayTeamName": "Mexico",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "7d0ea8ca-57d8-4c58-9a64-bbee7e166732",
+      "canonicalFixtureId": "wc2026-match-054",
+      "slug": "world-cup-2026-south-africa-vs-south-korea-2026-06-25",
+      "officialMatchNumber": 54,
+      "apiFootballFixtureId": 1489407,
+      "currentExternalId": "api-football:fixture:1489407",
+      "storedKickoffAt": "2026-06-25T01:00:00.000Z",
+      "officialKickoffAt": "2026-06-25T01:00:00.000Z",
+      "providerKickoffAt": "2026-06-25T01:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "South Africa",
+      "awayTeamName": "South Korea",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "7e7f670b-b1fb-4331-8998-c0563132b056",
+      "canonicalFixtureId": "wc2026-match-055",
+      "slug": "world-cup-2026-curacao-vs-cote-divoire-2026-06-25",
+      "officialMatchNumber": 55,
+      "apiFootballFixtureId": 1489409,
+      "currentExternalId": "api-football:fixture:1489409",
+      "storedKickoffAt": "2026-06-25T20:00:00.000Z",
+      "officialKickoffAt": "2026-06-25T20:00:00.000Z",
+      "providerKickoffAt": "2026-06-25T20:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Curaçao",
+      "awayTeamName": "Côte d’Ivoire",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "8f541247-edfd-4ce8-a64d-5767d9433098",
+      "canonicalFixtureId": "wc2026-match-056",
+      "slug": "world-cup-2026-ecuador-vs-germany-2026-06-25",
+      "officialMatchNumber": 56,
+      "apiFootballFixtureId": 1489410,
+      "currentExternalId": "api-football:fixture:1489410",
+      "storedKickoffAt": "2026-06-25T20:00:00.000Z",
+      "officialKickoffAt": "2026-06-25T20:00:00.000Z",
+      "providerKickoffAt": "2026-06-25T20:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Ecuador",
+      "awayTeamName": "Germany",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "faf5ec40-14b4-4cd9-97da-f419b74b5aee",
+      "canonicalFixtureId": "wc2026-match-057",
+      "slug": "world-cup-2026-japan-vs-sweden-2026-06-25",
+      "officialMatchNumber": 57,
+      "apiFootballFixtureId": 1539011,
+      "currentExternalId": "api-football:fixture:1539011",
+      "storedKickoffAt": "2026-06-25T23:00:00.000Z",
+      "officialKickoffAt": "2026-06-25T23:00:00.000Z",
+      "providerKickoffAt": "2026-06-25T23:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Japan",
+      "awayTeamName": "Sweden",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "bda360b3-5899-41fd-8bc1-db7b128a9648",
+      "canonicalFixtureId": "wc2026-match-058",
+      "slug": "world-cup-2026-tunisia-vs-netherlands-2026-06-25",
+      "officialMatchNumber": 58,
+      "apiFootballFixtureId": 1489412,
+      "currentExternalId": "api-football:fixture:1489412",
+      "storedKickoffAt": "2026-06-25T23:00:00.000Z",
+      "officialKickoffAt": "2026-06-25T23:00:00.000Z",
+      "providerKickoffAt": "2026-06-25T23:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Tunisia",
+      "awayTeamName": "Netherlands",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "6c5f2b2b-4d28-46ea-bed7-67f7ba3fa6e2",
+      "canonicalFixtureId": "wc2026-match-059",
+      "slug": "world-cup-2026-turkiye-vs-usa-2026-06-26",
+      "officialMatchNumber": 59,
+      "apiFootballFixtureId": 1539012,
+      "currentExternalId": "api-football:fixture:1539012",
+      "storedKickoffAt": "2026-06-26T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-26T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-26T02:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Türkiye",
+      "awayTeamName": "USA",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "5bee3281-c7ef-4760-9c4f-035af9b8baf7",
+      "canonicalFixtureId": "wc2026-match-060",
+      "slug": "world-cup-2026-paraguay-vs-australia-2026-06-26",
+      "officialMatchNumber": 60,
+      "apiFootballFixtureId": 1489411,
+      "currentExternalId": "api-football:fixture:1489411",
+      "storedKickoffAt": "2026-06-26T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-26T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-26T02:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Paraguay",
+      "awayTeamName": "Australia",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "c3eeb608-2387-47d2-a508-b212b18b91f4",
+      "canonicalFixtureId": "wc2026-match-061",
+      "slug": "world-cup-2026-norway-vs-france-2026-06-26",
+      "officialMatchNumber": 61,
+      "apiFootballFixtureId": 1489416,
+      "currentExternalId": "api-football:fixture:1489416",
+      "storedKickoffAt": "2026-06-26T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-26T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-26T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Norway",
+      "awayTeamName": "France",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "5a015e5a-a158-40a5-96a1-b654ea92aca8",
+      "canonicalFixtureId": "wc2026-match-062",
+      "slug": "world-cup-2026-senegal-vs-iraq-2026-06-26",
+      "officialMatchNumber": 62,
+      "apiFootballFixtureId": 1539074,
+      "currentExternalId": "api-football:fixture:1539074",
+      "storedKickoffAt": "2026-06-26T19:00:00.000Z",
+      "officialKickoffAt": "2026-06-26T19:00:00.000Z",
+      "providerKickoffAt": "2026-06-26T19:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Senegal",
+      "awayTeamName": "Iraq",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "4ead9413-2eda-4a16-9c8d-5ab02a4de5a3",
+      "canonicalFixtureId": "wc2026-match-065",
+      "slug": "world-cup-2026-cabo-verde-vs-saudi-arabia-2026-06-27",
+      "officialMatchNumber": 65,
+      "apiFootballFixtureId": 1489413,
+      "currentExternalId": "api-football:fixture:1489413",
+      "storedKickoffAt": "2026-06-27T00:00:00.000Z",
+      "officialKickoffAt": "2026-06-27T00:00:00.000Z",
+      "providerKickoffAt": "2026-06-27T00:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Cabo Verde",
+      "awayTeamName": "Saudi Arabia",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "9feb3980-66eb-4db1-a9da-7fbd9ac6a238",
+      "canonicalFixtureId": "wc2026-match-066",
+      "slug": "world-cup-2026-uruguay-vs-spain-2026-06-27",
+      "officialMatchNumber": 66,
+      "apiFootballFixtureId": 1489417,
+      "currentExternalId": "api-football:fixture:1489417",
+      "storedKickoffAt": "2026-06-27T00:00:00.000Z",
+      "officialKickoffAt": "2026-06-27T00:00:00.000Z",
+      "providerKickoffAt": "2026-06-27T00:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Uruguay",
+      "awayTeamName": "Spain",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "480d23e7-69a0-418e-8906-b6d5a13bd8d0",
+      "canonicalFixtureId": "wc2026-match-063",
+      "slug": "world-cup-2026-egypt-vs-iran-2026-06-27",
+      "officialMatchNumber": 63,
+      "apiFootballFixtureId": 1489414,
+      "currentExternalId": "api-football:fixture:1489414",
+      "storedKickoffAt": "2026-06-27T03:00:00.000Z",
+      "officialKickoffAt": "2026-06-27T03:00:00.000Z",
+      "providerKickoffAt": "2026-06-27T03:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Egypt",
+      "awayTeamName": "IR Iran",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "bece5564-5c9f-449b-b6e3-c7cd11159823",
+      "canonicalFixtureId": "wc2026-match-064",
+      "slug": "world-cup-2026-new-zealand-vs-belgium-2026-06-27",
+      "officialMatchNumber": 64,
+      "apiFootballFixtureId": 1489415,
+      "currentExternalId": "api-football:fixture:1489415",
+      "storedKickoffAt": "2026-06-27T03:00:00.000Z",
+      "officialKickoffAt": "2026-06-27T03:00:00.000Z",
+      "providerKickoffAt": "2026-06-27T03:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "New Zealand",
+      "awayTeamName": "Belgium",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "3581151c-9611-4c1f-8855-c5fb45650ab7",
+      "canonicalFixtureId": "wc2026-match-067",
+      "slug": "world-cup-2026-panama-vs-england-2026-06-27",
+      "officialMatchNumber": 67,
+      "apiFootballFixtureId": 1489422,
+      "currentExternalId": "api-football:fixture:1489422",
+      "storedKickoffAt": "2026-06-27T21:00:00.000Z",
+      "officialKickoffAt": "2026-06-27T21:00:00.000Z",
+      "providerKickoffAt": "2026-06-27T21:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Panama",
+      "awayTeamName": "England",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "1a3a5646-a95f-44c4-a6d0-1acfb4c0902c",
+      "canonicalFixtureId": "wc2026-match-068",
+      "slug": "world-cup-2026-croatia-vs-ghana-2026-06-27",
+      "officialMatchNumber": 68,
+      "apiFootballFixtureId": 1489420,
+      "currentExternalId": "api-football:fixture:1489420",
+      "storedKickoffAt": "2026-06-27T21:00:00.000Z",
+      "officialKickoffAt": "2026-06-27T21:00:00.000Z",
+      "providerKickoffAt": "2026-06-27T21:00:00.000Z",
+      "normalizedProviderStatus": "terminal_ft",
+      "homeTeamName": "Croatia",
+      "awayTeamName": "Ghana",
+      "classification": "terminal_result_ready",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Trusted terminal result is ready for Task 2B.2.",
+      "identityReason": null
+    },
+    {
+      "matchId": "8145878b-dc63-41bb-a791-b54035ae6452",
+      "canonicalFixtureId": "wc2026-match-071",
+      "slug": "world-cup-2026-colombia-vs-portugal-2026-06-27",
+      "officialMatchNumber": 71,
+      "apiFootballFixtureId": 1489419,
+      "currentExternalId": "api-football:fixture:1489419",
+      "storedKickoffAt": "2026-06-27T23:30:00.000Z",
+      "officialKickoffAt": "2026-06-27T23:30:00.000Z",
+      "providerKickoffAt": "2026-06-27T23:30:00.000Z",
+      "normalizedProviderStatus": "live_or_in_progress",
+      "homeTeamName": "Colombia",
+      "awayTeamName": "Portugal",
+      "classification": "live_state_observed",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Live provider state is observed only and is excluded from durable fixture writes.",
+      "identityReason": null
+    },
+    {
+      "matchId": "e3e612b9-2d22-40f7-9738-0320f986a0c1",
+      "canonicalFixtureId": "wc2026-match-072",
+      "slug": "world-cup-2026-congo-dr-vs-uzbekistan-2026-06-27",
+      "officialMatchNumber": 72,
+      "apiFootballFixtureId": 1539013,
+      "currentExternalId": "api-football:fixture:1539013",
+      "storedKickoffAt": "2026-06-27T23:30:00.000Z",
+      "officialKickoffAt": "2026-06-27T23:30:00.000Z",
+      "providerKickoffAt": "2026-06-27T23:30:00.000Z",
+      "normalizedProviderStatus": "live_or_in_progress",
+      "homeTeamName": "Congo DR",
+      "awayTeamName": "Uzbekistan",
+      "classification": "live_state_observed",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": "Live provider state is observed only and is excluded from durable fixture writes.",
+      "identityReason": null
+    },
+    {
+      "matchId": "175ad663-ad61-4fe5-a899-d86d3f74e0da",
+      "canonicalFixtureId": "wc2026-match-069",
+      "slug": "world-cup-2026-algeria-vs-austria-2026-06-28",
+      "officialMatchNumber": 69,
+      "apiFootballFixtureId": 1489418,
+      "currentExternalId": "api-football:fixture:1489418",
+      "storedKickoffAt": "2026-06-28T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-28T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-28T02:00:00.000Z",
+      "normalizedProviderStatus": "not_started",
+      "homeTeamName": "Algeria",
+      "awayTeamName": "Austria",
+      "classification": "already_identical",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": null,
+      "identityReason": null
+    },
+    {
+      "matchId": "210ee157-ea3c-4b7c-92fa-b7bb0f55ce7d",
+      "canonicalFixtureId": "wc2026-match-070",
+      "slug": "world-cup-2026-jordan-vs-argentina-2026-06-28",
+      "officialMatchNumber": 70,
+      "apiFootballFixtureId": 1489421,
+      "currentExternalId": "api-football:fixture:1489421",
+      "storedKickoffAt": "2026-06-28T02:00:00.000Z",
+      "officialKickoffAt": "2026-06-28T02:00:00.000Z",
+      "providerKickoffAt": "2026-06-28T02:00:00.000Z",
+      "normalizedProviderStatus": "not_started",
+      "homeTeamName": "Jordan",
+      "awayTeamName": "Argentina",
+      "classification": "already_identical",
+      "safeAction": "none",
+      "patch": null,
+      "expectedPriorState": null,
+      "exclusionReason": null,
+      "identityReason": null
+    }
+  ],
+  "providerOnlyRows": [
+    {
+      "providerFixtureId": 1561329,
+      "providerKickoffAt": "2026-06-28T19:00:00.000Z",
+      "normalizedProviderStatus": "not_started",
+      "homeTeamName": "South Africa",
+      "awayTeamName": "Canada",
+      "classification": "provider_only_unknown",
+      "exclusionReason": "Provider row is outside the stored canonical group-stage fixture set and is never insertable."
+    }
+  ],
+  "stablePlanSha256": "5ad51d1427c0583598e9a48838fc5da2ddc2efe93063b0f6aef0fcdfe9f4e692"
+}

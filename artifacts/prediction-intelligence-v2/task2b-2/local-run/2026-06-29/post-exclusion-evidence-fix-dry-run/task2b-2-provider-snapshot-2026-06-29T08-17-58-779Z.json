@@ -1,0 +1,2062 @@
+{
+  "schemaName": "ufo-task2b-provider-snapshot-v1",
+  "schemaVersion": 1,
+  "provider": "api-football",
+  "leagueId": 1,
+  "season": 2026,
+  "request": {
+    "from": "2026-06-11",
+    "to": "2026-06-28",
+    "status": null
+  },
+  "acquiredAt": "2026-06-29T08:17:58.292Z",
+  "observedAt": "2026-06-29T08:17:58.292Z",
+  "normalizationVersion": 1,
+  "rowCount": 73,
+  "fixtures": [
+    {
+      "providerFixtureId": 1489369,
+      "kickoffAt": "2026-06-11T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 16,
+        "name": "Mexico"
+      },
+      "awayTeam": {
+        "providerTeamId": 1531,
+        "name": "South Africa"
+      },
+      "goals": {
+        "home": 2,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489370,
+      "kickoffAt": "2026-06-13T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 2384,
+        "name": "USA"
+      },
+      "awayTeam": {
+        "providerTeamId": 2380,
+        "name": "Paraguay"
+      },
+      "goals": {
+        "home": 4,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489371,
+      "kickoffAt": "2026-06-13T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 6,
+        "name": "Brazil"
+      },
+      "awayTeam": {
+        "providerTeamId": 31,
+        "name": "Morocco"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489372,
+      "kickoffAt": "2026-06-14T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 2386,
+        "name": "Haiti"
+      },
+      "awayTeam": {
+        "providerTeamId": 1108,
+        "name": "Scotland"
+      },
+      "goals": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489373,
+      "kickoffAt": "2026-06-13T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 1569,
+        "name": "Qatar"
+      },
+      "awayTeam": {
+        "providerTeamId": 15,
+        "name": "Switzerland"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489374,
+      "kickoffAt": "2026-06-14T17:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 25,
+        "name": "Germany"
+      },
+      "awayTeam": {
+        "providerTeamId": 5530,
+        "name": "Curaçao"
+      },
+      "goals": {
+        "home": 7,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489375,
+      "kickoffAt": "2026-06-14T23:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 1501,
+        "name": "Ivory Coast"
+      },
+      "awayTeam": {
+        "providerTeamId": 2382,
+        "name": "Ecuador"
+      },
+      "goals": {
+        "home": 1,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489376,
+      "kickoffAt": "2026-06-14T20:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 1118,
+        "name": "Netherlands"
+      },
+      "awayTeam": {
+        "providerTeamId": 12,
+        "name": "Japan"
+      },
+      "goals": {
+        "home": 2,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489377,
+      "kickoffAt": "2026-06-15T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 1,
+        "name": "Belgium"
+      },
+      "awayTeam": {
+        "providerTeamId": 32,
+        "name": "Egypt"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489378,
+      "kickoffAt": "2026-06-16T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 22,
+        "name": "Iran"
+      },
+      "awayTeam": {
+        "providerTeamId": 4673,
+        "name": "New Zealand"
+      },
+      "goals": {
+        "home": 2,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489379,
+      "kickoffAt": "2026-06-15T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 23,
+        "name": "Saudi Arabia"
+      },
+      "awayTeam": {
+        "providerTeamId": 7,
+        "name": "Uruguay"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489380,
+      "kickoffAt": "2026-06-15T16:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 9,
+        "name": "Spain"
+      },
+      "awayTeam": {
+        "providerTeamId": 1533,
+        "name": "Cape Verde Islands"
+      },
+      "goals": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489381,
+      "kickoffAt": "2026-06-17T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 26,
+        "name": "Argentina"
+      },
+      "awayTeam": {
+        "providerTeamId": 1532,
+        "name": "Algeria"
+      },
+      "goals": {
+        "home": 3,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489382,
+      "kickoffAt": "2026-06-17T04:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 775,
+        "name": "Austria"
+      },
+      "awayTeam": {
+        "providerTeamId": 1548,
+        "name": "Jordan"
+      },
+      "goals": {
+        "home": 3,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489383,
+      "kickoffAt": "2026-06-16T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 2,
+        "name": "France"
+      },
+      "awayTeam": {
+        "providerTeamId": 13,
+        "name": "Senegal"
+      },
+      "goals": {
+        "home": 3,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489384,
+      "kickoffAt": "2026-06-17T20:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 10,
+        "name": "England"
+      },
+      "awayTeam": {
+        "providerTeamId": 3,
+        "name": "Croatia"
+      },
+      "goals": {
+        "home": 4,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489385,
+      "kickoffAt": "2026-06-17T23:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 1504,
+        "name": "Ghana"
+      },
+      "awayTeam": {
+        "providerTeamId": 11,
+        "name": "Panama"
+      },
+      "goals": {
+        "home": 1,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489386,
+      "kickoffAt": "2026-06-18T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 1568,
+        "name": "Uzbekistan"
+      },
+      "awayTeam": {
+        "providerTeamId": 8,
+        "name": "Colombia"
+      },
+      "goals": {
+        "home": 1,
+        "away": 3
+      }
+    },
+    {
+      "providerFixtureId": 1489387,
+      "kickoffAt": "2026-06-18T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 5529,
+        "name": "Canada"
+      },
+      "awayTeam": {
+        "providerTeamId": 1569,
+        "name": "Qatar"
+      },
+      "goals": {
+        "home": 6,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489388,
+      "kickoffAt": "2026-06-19T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 16,
+        "name": "Mexico"
+      },
+      "awayTeam": {
+        "providerTeamId": 17,
+        "name": "South Korea"
+      },
+      "goals": {
+        "home": 1,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489389,
+      "kickoffAt": "2026-06-20T00:30:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 6,
+        "name": "Brazil"
+      },
+      "awayTeam": {
+        "providerTeamId": 2386,
+        "name": "Haiti"
+      },
+      "goals": {
+        "home": 3,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489390,
+      "kickoffAt": "2026-06-19T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 1108,
+        "name": "Scotland"
+      },
+      "awayTeam": {
+        "providerTeamId": 31,
+        "name": "Morocco"
+      },
+      "goals": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489391,
+      "kickoffAt": "2026-06-19T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 2384,
+        "name": "USA"
+      },
+      "awayTeam": {
+        "providerTeamId": 20,
+        "name": "Australia"
+      },
+      "goals": {
+        "home": 2,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489392,
+      "kickoffAt": "2026-06-21T00:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 2382,
+        "name": "Ecuador"
+      },
+      "awayTeam": {
+        "providerTeamId": 5530,
+        "name": "Curaçao"
+      },
+      "goals": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489393,
+      "kickoffAt": "2026-06-20T20:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 25,
+        "name": "Germany"
+      },
+      "awayTeam": {
+        "providerTeamId": 1501,
+        "name": "Ivory Coast"
+      },
+      "goals": {
+        "home": 2,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489394,
+      "kickoffAt": "2026-06-21T04:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 28,
+        "name": "Tunisia"
+      },
+      "awayTeam": {
+        "providerTeamId": 12,
+        "name": "Japan"
+      },
+      "goals": {
+        "home": 0,
+        "away": 4
+      }
+    },
+    {
+      "providerFixtureId": 1489395,
+      "kickoffAt": "2026-06-21T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 1,
+        "name": "Belgium"
+      },
+      "awayTeam": {
+        "providerTeamId": 22,
+        "name": "Iran"
+      },
+      "goals": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489396,
+      "kickoffAt": "2026-06-22T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 4673,
+        "name": "New Zealand"
+      },
+      "awayTeam": {
+        "providerTeamId": 32,
+        "name": "Egypt"
+      },
+      "goals": {
+        "home": 1,
+        "away": 3
+      }
+    },
+    {
+      "providerFixtureId": 1489397,
+      "kickoffAt": "2026-06-21T16:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 9,
+        "name": "Spain"
+      },
+      "awayTeam": {
+        "providerTeamId": 23,
+        "name": "Saudi Arabia"
+      },
+      "goals": {
+        "home": 4,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489398,
+      "kickoffAt": "2026-06-21T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 7,
+        "name": "Uruguay"
+      },
+      "awayTeam": {
+        "providerTeamId": 1533,
+        "name": "Cape Verde Islands"
+      },
+      "goals": {
+        "home": 2,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489399,
+      "kickoffAt": "2026-06-22T17:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 26,
+        "name": "Argentina"
+      },
+      "awayTeam": {
+        "providerTeamId": 775,
+        "name": "Austria"
+      },
+      "goals": {
+        "home": 2,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489400,
+      "kickoffAt": "2026-06-23T03:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 1548,
+        "name": "Jordan"
+      },
+      "awayTeam": {
+        "providerTeamId": 1532,
+        "name": "Algeria"
+      },
+      "goals": {
+        "home": 1,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489401,
+      "kickoffAt": "2026-06-23T00:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 1090,
+        "name": "Norway"
+      },
+      "awayTeam": {
+        "providerTeamId": 13,
+        "name": "Senegal"
+      },
+      "goals": {
+        "home": 3,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489402,
+      "kickoffAt": "2026-06-23T20:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 10,
+        "name": "England"
+      },
+      "awayTeam": {
+        "providerTeamId": 1504,
+        "name": "Ghana"
+      },
+      "goals": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489403,
+      "kickoffAt": "2026-06-23T23:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 11,
+        "name": "Panama"
+      },
+      "awayTeam": {
+        "providerTeamId": 3,
+        "name": "Croatia"
+      },
+      "goals": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489404,
+      "kickoffAt": "2026-06-23T17:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 27,
+        "name": "Portugal"
+      },
+      "awayTeam": {
+        "providerTeamId": 1568,
+        "name": "Uzbekistan"
+      },
+      "goals": {
+        "home": 5,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489405,
+      "kickoffAt": "2026-06-24T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 31,
+        "name": "Morocco"
+      },
+      "awayTeam": {
+        "providerTeamId": 2386,
+        "name": "Haiti"
+      },
+      "goals": {
+        "home": 4,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489406,
+      "kickoffAt": "2026-06-24T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1108,
+        "name": "Scotland"
+      },
+      "awayTeam": {
+        "providerTeamId": 6,
+        "name": "Brazil"
+      },
+      "goals": {
+        "home": 0,
+        "away": 3
+      }
+    },
+    {
+      "providerFixtureId": 1489407,
+      "kickoffAt": "2026-06-25T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1531,
+        "name": "South Africa"
+      },
+      "awayTeam": {
+        "providerTeamId": 17,
+        "name": "South Korea"
+      },
+      "goals": {
+        "home": 1,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489408,
+      "kickoffAt": "2026-06-24T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 15,
+        "name": "Switzerland"
+      },
+      "awayTeam": {
+        "providerTeamId": 5529,
+        "name": "Canada"
+      },
+      "goals": {
+        "home": 2,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489409,
+      "kickoffAt": "2026-06-25T20:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 5530,
+        "name": "Curaçao"
+      },
+      "awayTeam": {
+        "providerTeamId": 1501,
+        "name": "Ivory Coast"
+      },
+      "goals": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1489410,
+      "kickoffAt": "2026-06-25T20:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 2382,
+        "name": "Ecuador"
+      },
+      "awayTeam": {
+        "providerTeamId": 25,
+        "name": "Germany"
+      },
+      "goals": {
+        "home": 2,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489411,
+      "kickoffAt": "2026-06-26T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 2380,
+        "name": "Paraguay"
+      },
+      "awayTeam": {
+        "providerTeamId": 20,
+        "name": "Australia"
+      },
+      "goals": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489412,
+      "kickoffAt": "2026-06-25T23:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 28,
+        "name": "Tunisia"
+      },
+      "awayTeam": {
+        "providerTeamId": 1118,
+        "name": "Netherlands"
+      },
+      "goals": {
+        "home": 1,
+        "away": 3
+      }
+    },
+    {
+      "providerFixtureId": 1489413,
+      "kickoffAt": "2026-06-27T00:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1533,
+        "name": "Cape Verde Islands"
+      },
+      "awayTeam": {
+        "providerTeamId": 23,
+        "name": "Saudi Arabia"
+      },
+      "goals": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489414,
+      "kickoffAt": "2026-06-27T03:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 32,
+        "name": "Egypt"
+      },
+      "awayTeam": {
+        "providerTeamId": 22,
+        "name": "Iran"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489415,
+      "kickoffAt": "2026-06-27T03:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 4673,
+        "name": "New Zealand"
+      },
+      "awayTeam": {
+        "providerTeamId": 1,
+        "name": "Belgium"
+      },
+      "goals": {
+        "home": 1,
+        "away": 5
+      }
+    },
+    {
+      "providerFixtureId": 1489416,
+      "kickoffAt": "2026-06-26T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1090,
+        "name": "Norway"
+      },
+      "awayTeam": {
+        "providerTeamId": 2,
+        "name": "France"
+      },
+      "goals": {
+        "home": 1,
+        "away": 4
+      }
+    },
+    {
+      "providerFixtureId": 1489417,
+      "kickoffAt": "2026-06-27T00:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 7,
+        "name": "Uruguay"
+      },
+      "awayTeam": {
+        "providerTeamId": 9,
+        "name": "Spain"
+      },
+      "goals": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489418,
+      "kickoffAt": "2026-06-28T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1532,
+        "name": "Algeria"
+      },
+      "awayTeam": {
+        "providerTeamId": 775,
+        "name": "Austria"
+      },
+      "goals": {
+        "home": 3,
+        "away": 3
+      }
+    },
+    {
+      "providerFixtureId": 1489419,
+      "kickoffAt": "2026-06-27T23:30:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 8,
+        "name": "Colombia"
+      },
+      "awayTeam": {
+        "providerTeamId": 27,
+        "name": "Portugal"
+      },
+      "goals": {
+        "home": 0,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1489420,
+      "kickoffAt": "2026-06-27T21:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 3,
+        "name": "Croatia"
+      },
+      "awayTeam": {
+        "providerTeamId": 1504,
+        "name": "Ghana"
+      },
+      "goals": {
+        "home": 2,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1489421,
+      "kickoffAt": "2026-06-28T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1548,
+        "name": "Jordan"
+      },
+      "awayTeam": {
+        "providerTeamId": 26,
+        "name": "Argentina"
+      },
+      "goals": {
+        "home": 1,
+        "away": 3
+      }
+    },
+    {
+      "providerFixtureId": 1489422,
+      "kickoffAt": "2026-06-27T21:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 11,
+        "name": "Panama"
+      },
+      "awayTeam": {
+        "providerTeamId": 10,
+        "name": "England"
+      },
+      "goals": {
+        "home": 0,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1538999,
+      "kickoffAt": "2026-06-12T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 17,
+        "name": "South Korea"
+      },
+      "awayTeam": {
+        "providerTeamId": 770,
+        "name": "Czechia"
+      },
+      "goals": {
+        "home": 2,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539000,
+      "kickoffAt": "2026-06-12T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 5529,
+        "name": "Canada"
+      },
+      "awayTeam": {
+        "providerTeamId": 1113,
+        "name": "Bosnia & Herzegovina"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539001,
+      "kickoffAt": "2026-06-14T04:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 20,
+        "name": "Australia"
+      },
+      "awayTeam": {
+        "providerTeamId": 777,
+        "name": "Türkiye"
+      },
+      "goals": {
+        "home": 2,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1539002,
+      "kickoffAt": "2026-06-15T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 5,
+        "name": "Sweden"
+      },
+      "awayTeam": {
+        "providerTeamId": 28,
+        "name": "Tunisia"
+      },
+      "goals": {
+        "home": 5,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539003,
+      "kickoffAt": "2026-06-17T17:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 27,
+        "name": "Portugal"
+      },
+      "awayTeam": {
+        "providerTeamId": 1508,
+        "name": "Congo DR"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539004,
+      "kickoffAt": "2026-06-18T16:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 770,
+        "name": "Czechia"
+      },
+      "awayTeam": {
+        "providerTeamId": 1531,
+        "name": "South Africa"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539005,
+      "kickoffAt": "2026-06-18T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 15,
+        "name": "Switzerland"
+      },
+      "awayTeam": {
+        "providerTeamId": 1113,
+        "name": "Bosnia & Herzegovina"
+      },
+      "goals": {
+        "home": 4,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539006,
+      "kickoffAt": "2026-06-20T03:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 777,
+        "name": "Türkiye"
+      },
+      "awayTeam": {
+        "providerTeamId": 2380,
+        "name": "Paraguay"
+      },
+      "goals": {
+        "home": 0,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539007,
+      "kickoffAt": "2026-06-20T17:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 1118,
+        "name": "Netherlands"
+      },
+      "awayTeam": {
+        "providerTeamId": 5,
+        "name": "Sweden"
+      },
+      "goals": {
+        "home": 5,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539008,
+      "kickoffAt": "2026-06-24T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 8,
+        "name": "Colombia"
+      },
+      "awayTeam": {
+        "providerTeamId": 1508,
+        "name": "Congo DR"
+      },
+      "goals": {
+        "home": 1,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1539009,
+      "kickoffAt": "2026-06-24T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1113,
+        "name": "Bosnia & Herzegovina"
+      },
+      "awayTeam": {
+        "providerTeamId": 1569,
+        "name": "Qatar"
+      },
+      "goals": {
+        "home": 3,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539010,
+      "kickoffAt": "2026-06-25T01:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 770,
+        "name": "Czechia"
+      },
+      "awayTeam": {
+        "providerTeamId": 16,
+        "name": "Mexico"
+      },
+      "goals": {
+        "home": 0,
+        "away": 3
+      }
+    },
+    {
+      "providerFixtureId": 1539011,
+      "kickoffAt": "2026-06-25T23:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 12,
+        "name": "Japan"
+      },
+      "awayTeam": {
+        "providerTeamId": 5,
+        "name": "Sweden"
+      },
+      "goals": {
+        "home": 1,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539012,
+      "kickoffAt": "2026-06-26T02:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 777,
+        "name": "Türkiye"
+      },
+      "awayTeam": {
+        "providerTeamId": 2384,
+        "name": "USA"
+      },
+      "goals": {
+        "home": 3,
+        "away": 2
+      }
+    },
+    {
+      "providerFixtureId": 1539013,
+      "kickoffAt": "2026-06-27T23:30:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 1508,
+        "name": "Congo DR"
+      },
+      "awayTeam": {
+        "providerTeamId": 1568,
+        "name": "Uzbekistan"
+      },
+      "goals": {
+        "home": 3,
+        "away": 1
+      }
+    },
+    {
+      "providerFixtureId": 1539016,
+      "kickoffAt": "2026-06-16T22:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 1"
+      },
+      "homeTeam": {
+        "providerTeamId": 1567,
+        "name": "Iraq"
+      },
+      "awayTeam": {
+        "providerTeamId": 1090,
+        "name": "Norway"
+      },
+      "goals": {
+        "home": 1,
+        "away": 4
+      }
+    },
+    {
+      "providerFixtureId": 1539017,
+      "kickoffAt": "2026-06-22T21:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 2"
+      },
+      "homeTeam": {
+        "providerTeamId": 2,
+        "name": "France"
+      },
+      "awayTeam": {
+        "providerTeamId": 1567,
+        "name": "Iraq"
+      },
+      "goals": {
+        "home": 3,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1539074,
+      "kickoffAt": "2026-06-26T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Group Stage - 3"
+      },
+      "homeTeam": {
+        "providerTeamId": 13,
+        "name": "Senegal"
+      },
+      "awayTeam": {
+        "providerTeamId": 1567,
+        "name": "Iraq"
+      },
+      "goals": {
+        "home": 5,
+        "away": 0
+      }
+    },
+    {
+      "providerFixtureId": 1561329,
+      "kickoffAt": "2026-06-28T19:00:00.000Z",
+      "timezone": "UTC",
+      "normalizedStatus": "terminal_ft",
+      "providerStatus": "finished",
+      "providerStatusShort": "FT",
+      "elapsedMinutes": 90,
+      "competition": {
+        "providerCompetitionId": 1,
+        "name": "World Cup",
+        "country": "World",
+        "season": 2026,
+        "round": "Round of 32"
+      },
+      "homeTeam": {
+        "providerTeamId": 1531,
+        "name": "South Africa"
+      },
+      "awayTeam": {
+        "providerTeamId": 5529,
+        "name": "Canada"
+      },
+      "goals": {
+        "home": 0,
+        "away": 1
+      }
+    }
+  ]
+}
