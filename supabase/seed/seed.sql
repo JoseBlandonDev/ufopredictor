@@ -104,7 +104,7 @@ on conflict (slug) do update set
 insert into public.plans (id, name, slug, description, price, currency, billing_type, is_active)
 values
   ('00000000-0000-4000-8000-000000001001', 'Gratis', 'free', 'Señal diaria básica para revisar partidos de forma casual.', 0, 'USD', 'free', true),
-  ('00000000-0000-4000-8000-000000001002', 'World Cup Pass', 'world-cup-pass', 'Análisis premium para todos los partidos del Mundial 2026.', 29, 'USD', 'one_time', true),
+  ('00000000-0000-4000-8000-000000001002', 'World Cup Pass', 'world-cup-pass', 'Análisis premium para todos los partidos del Mundial 2026.', 10, 'USD', 'one_time', true),
   ('00000000-0000-4000-8000-000000001003', 'Pack de 10 partidos', '10-match-pack', 'Desbloquea lecturas premium para diez partidos seleccionados.', 12, 'USD', 'custom_pack', true),
   ('00000000-0000-4000-8000-000000001004', 'Pase fase eliminatoria', 'knockout-pass', 'Preparado para activarse en fases eliminatorias.', 18, 'USD', 'one_time', false),
   ('00000000-0000-4000-8000-000000001005', 'Pase por selección', 'team-pass', 'Sigue una selección durante todo el torneo.', 9, 'USD', 'one_time', false),

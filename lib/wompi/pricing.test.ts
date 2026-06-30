@@ -18,23 +18,23 @@ vi.mock("./config", () => ({
 describe("getWompiWorldCupPassPrice", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    requireWompiUsdCopRateMock.mockReturnValue(3435);
+    requireWompiUsdCopRateMock.mockReturnValue(3500);
   });
 
   it("returns canonical USD display plus exact COP checkout display", async () => {
     createSupabaseServerClientMock.mockResolvedValue({
       rpc: vi.fn().mockResolvedValue({
         data: [{
-          amount_in_cents: 6870000,
-          amount_cop: 68700,
+          amount_in_cents: 3500000,
+          amount_cop: 35000,
           currency: "COP",
-          price_usd_cents: 2000,
-          base_price_usd_cents: 2000,
+          price_usd_cents: 1000,
+          base_price_usd_cents: 1000,
           offer_price_usd_cents: null,
           offer_ends_at: null,
           is_offer_active: false,
           updated_at: "2026-06-19T12:00:00.000Z",
-          usd_cop_rate: 3435,
+          usd_cop_rate: 3500,
           converted_at: "2026-06-19T12:00:00.000Z",
         }],
         error: null,
@@ -46,10 +46,10 @@ describe("getWompiWorldCupPassPrice", () => {
 
     expect(price).toMatchObject({
       status: "available",
-      displayPrice: "US$20",
-      checkoutDisplay: "COP 68.700",
-      amountInCents: 6870000,
-      amountCop: 68700,
+      displayPrice: "US$10",
+      checkoutDisplay: "COP 35.000",
+      amountInCents: 3500000,
+      amountCop: 35000,
       currency: "COP",
     });
   });
@@ -58,16 +58,16 @@ describe("getWompiWorldCupPassPrice", () => {
     createSupabaseServerClientMock.mockResolvedValue({
       rpc: vi.fn().mockResolvedValue({
         data: [{
-          amount_in_cents: 5150000,
-          amount_cop: 51500,
+          amount_in_cents: 2800000,
+          amount_cop: 28000,
           currency: "COP",
-          price_usd_cents: 1500,
-          base_price_usd_cents: 2000,
-          offer_price_usd_cents: 1500,
+          price_usd_cents: 800,
+          base_price_usd_cents: 1000,
+          offer_price_usd_cents: 800,
           offer_ends_at: "2026-06-20T01:00:00.000Z",
           is_offer_active: true,
           updated_at: "2026-06-19T12:00:00.000Z",
-          usd_cop_rate: 3435,
+          usd_cop_rate: 3500,
           converted_at: "2026-06-19T12:00:00.000Z",
         }],
         error: null,
@@ -79,9 +79,9 @@ describe("getWompiWorldCupPassPrice", () => {
 
     expect(price).toMatchObject({
       status: "available",
-      displayPrice: "US$15",
-      checkoutDisplay: "COP 51.500",
-      offerPriceUsdCents: 1500,
+      displayPrice: "US$8",
+      checkoutDisplay: "COP 28.000",
+      offerPriceUsdCents: 800,
       isOfferActive: true,
     });
   });

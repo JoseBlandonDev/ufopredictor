@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 const SAFE_PRICING_UNAVAILABLE_MESSAGE =
   "La compra está temporalmente no disponible. Inténtalo nuevamente más tarde.";
+const FALLBACK_WORLD_CUP_PASS_DISPLAY_PRICE = "US$10";
 
 export default async function PricingPage() {
   const [worldCupPassPrice, user, viewerSummary] = await Promise.all([
@@ -65,7 +66,9 @@ export default async function PricingPage() {
             <div className="mt-5 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
               <div>
                 <p className="text-4xl font-semibold text-white">
-                  {worldCupPassPrice.status === "available" ? worldCupPassPrice.displayPrice : "US$20"}
+                  {worldCupPassPrice.status === "available"
+                    ? worldCupPassPrice.displayPrice
+                    : FALLBACK_WORLD_CUP_PASS_DISPLAY_PRICE}
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted)]">Pago único para todo el torneo publicado.</p>
                 <ul className="mt-5 space-y-2 text-sm text-[var(--muted)]">

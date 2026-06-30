@@ -7,7 +7,7 @@ describe("Wompi checkout helpers", () => {
   it("converts configured COP pesos to Wompi amount_in_cents", async () => {
     const { amountCopToWompiAmountInCents } = await import("./usd-pricing");
 
-    expect(amountCopToWompiAmountInCents(69900)).toBe(6990000);
+    expect(amountCopToWompiAmountInCents(35000)).toBe(3500000);
   });
 
   it("can build checkout with the DB-constrained Wompi amount", async () => {
@@ -22,16 +22,16 @@ describe("Wompi checkout helpers", () => {
         integritySecret: "test_integrity_xxx",
         currency: "COP",
         appUrl: "https://ufopredictor.com",
-        usdCopRate: 3435,
+        usdCopRate: 3500,
       },
       reference: "ufo_wc_20260617154512_abcdef123456",
-      amountInCents: 6990000,
+      amountInCents: 3500000,
       expirationTime: "2026-06-17T16:15:12.000Z",
     });
 
-    expect(payload.amountInCents).toBe(6990000);
+    expect(payload.amountInCents).toBe(3500000);
     expect(payload.currency).toBe("COP");
-    expect(payload.checkoutUrl).toContain("amount-in-cents=6990000");
+    expect(payload.checkoutUrl).toContain("amount-in-cents=3500000");
   });
 
   it("generates Wompi-safe unique references", async () => {

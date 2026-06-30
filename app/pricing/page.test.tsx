@@ -42,15 +42,15 @@ describe("PricingPage", () => {
     hasCurrentPremiumAccessMock.mockReturnValue(false);
     getWompiWorldCupPassPriceMock.mockResolvedValue({
       status: "available",
-      amountInCents: 6870000,
-      amountCop: 68700,
+      amountInCents: 3500000,
+      amountCop: 35000,
       currency: "COP",
-      displayPrice: "US$20",
-      checkoutDisplay: "COP 68.700",
-      priceUsdCents: 2000,
-      basePriceUsdCents: 2000,
+      displayPrice: "US$10",
+      checkoutDisplay: "COP 35.000",
+      priceUsdCents: 1000,
+      basePriceUsdCents: 1000,
       offerPriceUsdCents: null,
-      usdCopRate: 3435,
+      usdCopRate: 3500,
       convertedAt: "2026-06-19T12:00:00.000Z",
       offerEndsAt: null,
       isOfferActive: false,
@@ -60,9 +60,9 @@ describe("PricingPage", () => {
     const element = await PricingPage();
     const html = renderToStaticMarkup(element);
 
-    expect(html).toContain("US$20");
+    expect(html).toContain("US$10");
     expect(html).toContain("Wompi procesará el pago en pesos colombianos. Tu banco puede aplicar su propia conversión.");
-    expect(html).toContain("Cobro Wompi: COP 68.700");
+    expect(html).toContain("Cobro Wompi: COP 35.000");
     expect(html).toContain("Pase Mundial 2026");
     expect(html).toContain("Crear cuenta para comprar");
     expect(html).toContain("Probabilidad de que anoten ambos equipos");
@@ -82,15 +82,15 @@ describe("PricingPage", () => {
     hasCurrentPremiumAccessMock.mockReturnValue(false);
     getWompiWorldCupPassPriceMock.mockResolvedValue({
       status: "available",
-      amountInCents: 6870000,
-      amountCop: 68700,
+      amountInCents: 3500000,
+      amountCop: 35000,
       currency: "COP",
-      displayPrice: "US$20",
-      checkoutDisplay: "COP 68.700",
-      priceUsdCents: 2000,
-      basePriceUsdCents: 2000,
+      displayPrice: "US$10",
+      checkoutDisplay: "COP 35.000",
+      priceUsdCents: 1000,
+      basePriceUsdCents: 1000,
       offerPriceUsdCents: null,
-      usdCopRate: 3435,
+      usdCopRate: 3500,
       convertedAt: "2026-06-19T12:00:00.000Z",
       offerEndsAt: null,
       isOfferActive: false,
@@ -110,15 +110,15 @@ describe("PricingPage", () => {
     hasCurrentPremiumAccessMock.mockReturnValue(true);
     getWompiWorldCupPassPriceMock.mockResolvedValue({
       status: "available",
-      amountInCents: 6870000,
-      amountCop: 68700,
+      amountInCents: 3500000,
+      amountCop: 35000,
       currency: "COP",
-      displayPrice: "US$20",
-      checkoutDisplay: "COP 68.700",
-      priceUsdCents: 2000,
-      basePriceUsdCents: 2000,
+      displayPrice: "US$10",
+      checkoutDisplay: "COP 35.000",
+      priceUsdCents: 1000,
+      basePriceUsdCents: 1000,
       offerPriceUsdCents: null,
-      usdCopRate: 3435,
+      usdCopRate: 3500,
       convertedAt: "2026-06-19T12:00:00.000Z",
       offerEndsAt: null,
       isOfferActive: false,
@@ -152,6 +152,7 @@ describe("PricingPage", () => {
     const html = renderToStaticMarkup(element);
 
     expect(html).toContain("La compra está temporalmente no disponible. Inténtalo nuevamente más tarde.");
+    expect(html).toContain("US$10");
     expect(html).not.toContain("WOMPI_CHECKOUT_BUTTON");
     expect(html).not.toContain("Missing WOMPI_USD_COP_RATE");
   });

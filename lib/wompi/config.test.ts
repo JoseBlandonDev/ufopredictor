@@ -11,7 +11,7 @@ function setWompiEnv(overrides: Record<string, string | undefined> = {}) {
   process.env.WOMPI_PRIVATE_KEY = "prv_test_xxx";
   process.env.WOMPI_INTEGRITY_SECRET = "test_integrity_xxx";
   process.env.WOMPI_CURRENCY = "COP";
-  process.env.WOMPI_USD_COP_RATE = "3435";
+  process.env.WOMPI_USD_COP_RATE = "3500";
   process.env.NEXT_PUBLIC_APP_URL = "https://ufopredictor.com";
 
   for (const [key, value] of Object.entries(overrides)) {
@@ -56,7 +56,7 @@ describe("Wompi config", () => {
       env: "sandbox",
       currency: "COP",
       publicKey: "pub_test_xxx",
-      usdCopRate: 3435,
+      usdCopRate: 3500,
     });
   });
 
