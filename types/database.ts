@@ -427,6 +427,14 @@ export type MatchResultRow = {
   match_id: string;
   home_goals: number;
   away_goals: number;
+  decision_method: "ft" | "aet" | "pen";
+  regulation_home_goals: number | null;
+  regulation_away_goals: number | null;
+  after_extra_time_home_goals: number | null;
+  after_extra_time_away_goals: number | null;
+  penalty_home_goals: number | null;
+  penalty_away_goals: number | null;
+  advancing_team_id: string | null;
   verification_status: "pending_review" | "verified" | "rejected";
   intake_source: "mock" | "manual" | "csv_import" | "api_football";
   source_note: string | null;

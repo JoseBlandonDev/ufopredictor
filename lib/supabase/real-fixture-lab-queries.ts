@@ -35,6 +35,14 @@ type RealFixtureLabResult = Pick<
   | "id"
   | "home_goals"
   | "away_goals"
+  | "decision_method"
+  | "regulation_home_goals"
+  | "regulation_away_goals"
+  | "after_extra_time_home_goals"
+  | "after_extra_time_away_goals"
+  | "penalty_home_goals"
+  | "penalty_away_goals"
+  | "advancing_team_id"
   | "verification_status"
   | "intake_source"
   | "source_note"
@@ -324,7 +332,7 @@ export async function getAdminRealFixtureLabData(
         supabase.from("teams").select("id, name").eq("id", match.away_team_id).maybeSingle(),
         supabase
           .from("match_results")
-          .select("id, home_goals, away_goals, verification_status, intake_source, source_note, reviewed_at, reviewed_by")
+          .select("id, home_goals, away_goals, decision_method, regulation_home_goals, regulation_away_goals, after_extra_time_home_goals, after_extra_time_away_goals, penalty_home_goals, penalty_away_goals, advancing_team_id, verification_status, intake_source, source_note, reviewed_at, reviewed_by")
           .eq("match_id", match.id)
           .maybeSingle(),
         supabase

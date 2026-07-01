@@ -43,6 +43,14 @@ function getStatusMessage(args: { externalId?: string; evaluation?: string }) {
     };
   }
 
+  if (args.evaluation === "policy_unconfirmed") {
+    return {
+      tone: "info" as const,
+      title: "Evaluacion no habilitada",
+      body: `La evaluacion interna de ${args.externalId ?? "este fixture"} sigue bloqueada por la politica pendiente para knockout AET/PEN.`,
+    };
+  }
+
   if (args.evaluation) {
     return {
       tone: "warning" as const,
@@ -143,6 +151,23 @@ export default async function RealFixtureEvaluationQueuePage({
                       <p className="font-mono text-base text-white">
                         {row.homeGoals}-{row.awayGoals}
                       </p>
+                      <p className="mt-1 text-xs text-[var(--muted)]">method: {row.decisionMethod}</p>
+                      <p className="text-xs text-[var(--muted)]">
+                        regulation: {row.regulationHomeGoals ?? "n/a"}-{row.regulationAwayGoals ?? "n/a"}
+                      </p>
+                      {row.afterExtraTimeHomeGoals !== null && row.afterExtraTimeAwayGoals !== null ? (
+                        <p className="text-xs text-[var(--muted)]">
+                          after_et: {row.afterExtraTimeHomeGoals}-{row.afterExtraTimeAwayGoals}
+                        </p>
+                      ) : null}
+                      {row.penaltyHomeGoals !== null && row.penaltyAwayGoals !== null ? (
+                        <p className="text-xs text-[var(--muted)]">
+                          penalties: {row.penaltyHomeGoals}-{row.penaltyAwayGoals}
+                        </p>
+                      ) : null}
+                      {row.advancingTeamName ? (
+                        <p className="text-xs text-[var(--muted)]">advancing_team: {row.advancingTeamName}</p>
+                      ) : null}
                       <p className="mt-1 text-xs text-emerald-300">{row.verificationStatus}</p>
                     </td>
                     <td className="px-3 py-3 text-[var(--muted)]">
@@ -150,6 +175,11 @@ export default async function RealFixtureEvaluationQueuePage({
                         <p className="font-mono text-xs">internal: {row.internalPredictionId}</p>
                         <p>public_product: {row.latestPublicPredictionId ? "available" : "missing"}</p>
                         <p>evaluation: {row.evaluationStatus}</p>
+                        {row.evaluationIneligibleReason ? (
+                          <p className="text-xs text-[var(--warning)]">
+                            reason: {row.evaluationIneligibleReason}
+                          </p>
+                        ) : null}
                       </div>
                     </td>
                     <td className="px-3 py-3">
@@ -165,16 +195,20 @@ export default async function RealFixtureEvaluationQueuePage({
                       )}
                     </td>
                     <td className="px-3 py-3">
-                      <form action={persistRealFixtureEvaluationAction} className="space-y-2">
-                        <input type="hidden" name="predictionVersionId" value={row.internalPredictionId} />
-                        <input type="hidden" name="externalId" value={row.externalId} />
-                        <input type="hidden" name="returnTo" value={QUEUE_PATH} />
-                        <SubmitButton
-                          idleLabel="Persist evaluation"
-                          pendingLabel="Persisting..."
-                          className={ACCENT_BUTTON_CLASS}
-                        />
-                      </form>
+                      {row.evaluationStatus === "pending" ? (
+                        <form action={persistRealFixtureEvaluationAction} className="space-y-2">
+                          <input type="hidden" name="predictionVersionId" value={row.internalPredictionId} />
+                          <input type="hidden" name="externalId" value={row.externalId} />
+                          <input type="hidden" name="returnTo" value={QUEUE_PATH} />
+                          <SubmitButton
+                            idleLabel="Persist evaluation"
+                            pendingLabel="Persisting..."
+                            className={ACCENT_BUTTON_CLASS}
+                          />
+                        </form>
+                      ) : (
+                        <p className="text-xs text-[var(--warning)]">Policy confirmation required</p>
+                      )}
                     </td>
                   </tr>
                 ))}

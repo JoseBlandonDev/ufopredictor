@@ -36,6 +36,14 @@ type PublicMatchDetailRow = {
   venue_city: string | null;
   verified_home_goals: number | null;
   verified_away_goals: number | null;
+  result_decision_method: "ft" | "aet" | "pen" | null;
+  verified_regulation_home_goals: number | null;
+  verified_regulation_away_goals: number | null;
+  verified_after_extra_time_home_goals: number | null;
+  verified_after_extra_time_away_goals: number | null;
+  verified_penalty_home_goals: number | null;
+  verified_penalty_away_goals: number | null;
+  verified_advancing_team_name: string | null;
   result_verification_status: "verified" | null;
 };
 
@@ -73,6 +81,14 @@ export type PublicMatchDetailView = {
   verifiedResult: {
     homeGoals: number;
     awayGoals: number;
+    decisionMethod: "ft" | "aet" | "pen";
+    regulationHomeGoals: number | null;
+    regulationAwayGoals: number | null;
+    afterExtraTimeHomeGoals: number | null;
+    afterExtraTimeAwayGoals: number | null;
+    penaltyHomeGoals: number | null;
+    penaltyAwayGoals: number | null;
+    advancingTeamName: string | null;
     verificationStatus: "verified";
   } | null;
   prediction: PublicMatchPredictionView | null;
@@ -234,6 +250,14 @@ function toVerifiedPublicResult(
   return {
     homeGoals,
     awayGoals,
+    decisionMethod: match.result_decision_method ?? "ft",
+    regulationHomeGoals: match.verified_regulation_home_goals,
+    regulationAwayGoals: match.verified_regulation_away_goals,
+    afterExtraTimeHomeGoals: match.verified_after_extra_time_home_goals,
+    afterExtraTimeAwayGoals: match.verified_after_extra_time_away_goals,
+    penaltyHomeGoals: match.verified_penalty_home_goals,
+    penaltyAwayGoals: match.verified_penalty_away_goals,
+    advancingTeamName: match.verified_advancing_team_name,
     verificationStatus: "verified" as const,
   };
 }
@@ -253,7 +277,7 @@ export async function getPublicMatchDetailData(
   const { data: matchData, error: matchError } = await supabase
     .from("public_match_details")
     .select(
-      "match_slug, match_id, kickoff_at, stage, status, competition_name, competition_slug, competition_access_key, competition_id, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, home_team_id, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, away_team_id, venue_name, venue_city, verified_home_goals, verified_away_goals, result_verification_status",
+      "match_slug, match_id, kickoff_at, stage, status, competition_name, competition_slug, competition_access_key, competition_id, home_team_name, home_team_slug, home_team_logo_url, home_team_flag_url, home_team_id, away_team_name, away_team_slug, away_team_logo_url, away_team_flag_url, away_team_id, venue_name, venue_city, verified_home_goals, verified_away_goals, result_decision_method, verified_regulation_home_goals, verified_regulation_away_goals, verified_after_extra_time_home_goals, verified_after_extra_time_away_goals, verified_penalty_home_goals, verified_penalty_away_goals, verified_advancing_team_name, result_verification_status",
     )
     .eq("match_slug", slug)
     .maybeSingle();

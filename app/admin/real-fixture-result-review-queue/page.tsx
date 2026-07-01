@@ -81,6 +81,14 @@ function getStatusMessage(args: { externalId?: string; result?: string; manual?:
     };
   }
 
+  if (args.manual === "unsupported_knockout") {
+    return {
+      tone: "warning" as const,
+      title: "Conciliacion manual bloqueada",
+      body: "Los fixtures knockout AET/PEN deben resolverse con el flujo estructurado respaldado por el proveedor, no con el formulario legado de dos goles.",
+    };
+  }
+
   if (args.manual) {
     return {
       tone: "warning" as const,
@@ -183,6 +191,23 @@ export default async function RealFixtureResultReviewQueuePage({
                       <p className="font-mono text-base text-white">
                         {row.homeGoals}-{row.awayGoals}
                       </p>
+                      <p className="mt-1 text-xs text-[var(--muted)]">method: {row.decisionMethod}</p>
+                      <p className="text-xs text-[var(--muted)]">
+                        regulation: {row.regulationHomeGoals ?? "n/a"}-{row.regulationAwayGoals ?? "n/a"}
+                      </p>
+                      {row.afterExtraTimeHomeGoals !== null && row.afterExtraTimeAwayGoals !== null ? (
+                        <p className="text-xs text-[var(--muted)]">
+                          after_et: {row.afterExtraTimeHomeGoals}-{row.afterExtraTimeAwayGoals}
+                        </p>
+                      ) : null}
+                      {row.penaltyHomeGoals !== null && row.penaltyAwayGoals !== null ? (
+                        <p className="text-xs text-[var(--muted)]">
+                          penalties: {row.penaltyHomeGoals}-{row.penaltyAwayGoals}
+                        </p>
+                      ) : null}
+                      {row.advancingTeamName ? (
+                        <p className="text-xs text-[var(--muted)]">advancing_team: {row.advancingTeamName}</p>
+                      ) : null}
                       <p className="mt-1 text-xs text-[var(--warning)]">{row.verificationStatus}</p>
                     </td>
                     <td className="px-3 py-3 text-[var(--muted)]">
@@ -237,10 +262,10 @@ export default async function RealFixtureResultReviewQueuePage({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold">Manual result reconciliation</h2>
-            <p className="mt-1 max-w-3xl text-sm text-[var(--muted)]">
-              Fixtures exactos del Mundial con kickoff pasado y sin `match_result`. Crear aqui solo genera
-              un `pending_review`; la verificacion y la evaluacion siguen ocurriendo en pasos separados.
-            </p>
+          <p className="mt-1 max-w-3xl text-sm text-[var(--muted)]">
+            Fixtures exactos del Mundial con kickoff pasado y sin `match_result`. Crear aqui solo genera
+            un `pending_review`; la verificacion y la evaluacion siguen ocurriendo en pasos separados.
+          </p>
           </div>
           <span className="rounded-md border border-[var(--warning)]/25 bg-[var(--warning)]/10 px-3 py-1 text-xs text-[var(--warning)]">
             official-source required
@@ -252,6 +277,7 @@ export default async function RealFixtureResultReviewQueuePage({
           <p className="mt-2">Submission creates a pending review only.</p>
           <p className="mt-2">Verification is a separate protected action.</p>
           <p className="mt-2">Original prediction probabilities remain immutable.</p>
+          <p className="mt-2">Knockout AET/PEN fixtures require the provider-backed structured result path.</p>
         </div>
 
         {queueData.manualCandidates.length === 0 ? (

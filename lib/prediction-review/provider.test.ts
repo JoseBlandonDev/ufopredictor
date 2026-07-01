@@ -16,6 +16,12 @@ function buildFixture(overrides?: Partial<ProviderFixture>): ProviderFixture {
     homeTeam: { providerTeamId: 1, name: "USA", winner: null },
     awayTeam: { providerTeamId: 2, name: "Türkiye", winner: null },
     goals: { home: null, away: null },
+    score: {
+      halftime: { home: null, away: null },
+      fulltime: { home: null, away: null },
+      extratime: { home: null, away: null },
+      penalty: { home: null, away: null },
+    },
     ...overrides,
   };
 }

@@ -141,6 +141,19 @@ export function evaluatePrediction(
     };
   }
 
+  if (result.decisionMethod === "aet" || result.decisionMethod === "pen") {
+    return {
+      status: "not_evaluable",
+      predictionVersionId: prediction.predictionVersionId,
+      matchId: prediction.matchId,
+      warnings: [],
+      reason: "knockout_evaluation_policy_unconfirmed",
+      metrics: null,
+      errorSummary: "Knockout AET/PEN evaluation is blocked until the settlement policy is confirmed.",
+      predictionResultsPayload: null,
+    };
+  }
+
   const predictedScore = parseScore(prediction.mostLikelyScore);
 
   if (!predictedScore) {

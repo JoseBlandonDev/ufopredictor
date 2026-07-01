@@ -257,7 +257,7 @@ export async function persistLabEvaluationAction(formData: FormData) {
   ] = await Promise.all([
     supabase
       .from("match_results")
-      .select("match_id, home_goals, away_goals, verification_status")
+      .select("match_id, home_goals, away_goals, decision_method, verification_status")
       .eq("match_id", labMatch.id)
       .maybeSingle(),
     supabase
@@ -273,6 +273,10 @@ export async function persistLabEvaluationAction(formData: FormData) {
 
   if (!result || result.verification_status !== "verified") {
     redirectWithEvaluationStatus("unverified");
+  }
+
+  if (result.decision_method === "aet" || result.decision_method === "pen") {
+    redirectWithEvaluationStatus("not_evaluable");
   }
 
   const markets = resolveEvaluationMarkets((marketData ?? []) as StoredMarket[]);
@@ -302,6 +306,7 @@ export async function persistLabEvaluationAction(formData: FormData) {
       matchId: result.match_id,
       homeGoals: result.home_goals,
       awayGoals: result.away_goals,
+      decisionMethod: result.decision_method,
       verificationStatus: result.verification_status,
     },
   );

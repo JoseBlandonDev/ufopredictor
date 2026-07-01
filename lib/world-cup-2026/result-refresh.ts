@@ -19,6 +19,7 @@ type MatchAccessScope = "admin_only" | "public" | "premium" | "lab_only";
 type MatchIntakeSource = "mock" | "manual" | "csv_import" | "api_football";
 type MatchResultVerificationStatus = "pending_review" | "verified" | "rejected";
 type PredictionRunScope = "public_product" | "internal_lab";
+type MatchDecisionMethod = "ft" | "aet" | "pen";
 
 type StoredMatchRow = {
   id: string;
@@ -59,6 +60,14 @@ type StoredMatchResultRow = {
   match_id: string;
   home_goals: number;
   away_goals: number;
+  decision_method: MatchDecisionMethod;
+  regulation_home_goals: number | null;
+  regulation_away_goals: number | null;
+  after_extra_time_home_goals: number | null;
+  after_extra_time_away_goals: number | null;
+  penalty_home_goals: number | null;
+  penalty_away_goals: number | null;
+  advancing_team_id: string | null;
   verification_status: MatchResultVerificationStatus;
   intake_source: MatchIntakeSource;
   source_note: string | null;
@@ -181,8 +190,28 @@ type ResultAction =
   | "verified_conflict"
   | "rejected_conflict";
 
-type EvaluationAction = "none" | "create" | "update" | "already_stored" | "failure";
+type EvaluationAction =
+  | "none"
+  | "create"
+  | "update"
+  | "already_stored"
+  | "ineligible"
+  | "failure";
 type MatchStatusAction = "none" | "update";
+
+type StructuredMatchResult = {
+  decisionMethod: MatchDecisionMethod;
+  homeGoals: number;
+  awayGoals: number;
+  regulationHomeGoals: number;
+  regulationAwayGoals: number;
+  afterExtraTimeHomeGoals: number | null;
+  afterExtraTimeAwayGoals: number | null;
+  penaltyHomeGoals: number | null;
+  penaltyAwayGoals: number | null;
+  advancingTeamId: string | null;
+  advancingTeamName: string | null;
+};
 
 export type WorldCupResultRefreshRow = {
   matchId: string;
@@ -202,14 +231,24 @@ export type WorldCupResultRefreshRow = {
   providerStatusShort: string | null;
   providerHomeGoals: number | null;
   providerAwayGoals: number | null;
+  providerHalftimeHomeGoals: number | null;
+  providerHalftimeAwayGoals: number | null;
+  providerFulltimeHomeGoals: number | null;
+  providerFulltimeAwayGoals: number | null;
+  providerExtratimeHomeGoals: number | null;
+  providerExtratimeAwayGoals: number | null;
+  providerPenaltyHomeGoals: number | null;
+  providerPenaltyAwayGoals: number | null;
   providerTerminalResult: boolean;
   trustedAutoVerifyEligible: boolean;
   statusAction: MatchStatusAction;
   nextStoredStatus: MatchStatus | null;
   resultAction: ResultAction;
   evaluationAction: EvaluationAction;
+  structuredResult: StructuredMatchResult | null;
   exceptionReason: string | null;
   conflictSummary: string | null;
+  evaluationIneligibleReason: string | null;
   evaluationFailureReason: string | null;
   resultAlreadyIdentical: boolean;
   evaluationAlreadyStored: boolean;
@@ -238,6 +277,7 @@ export type WorldCupResultRefreshReport = {
     evaluationsCreated: number;
     evaluationsUpdated: number;
     evaluationsAlreadyStored: number;
+    evaluationsIneligible: number;
     exceptionsOrConflicts: number;
     skippedRows: number;
   };
@@ -253,6 +293,7 @@ export type WorldCupResultRefreshApplyCounts = {
   evaluationsCreated: number;
   evaluationsUpdated: number;
   evaluationsAlreadyStored: number;
+  evaluationsIneligible: number;
   exceptionsOrConflicts: number;
   skipped: number;
   evaluationFailures: number;
@@ -280,6 +321,14 @@ export type WorldCupResultRefreshWriteAdapter = {
       | "match_id"
       | "home_goals"
       | "away_goals"
+      | "decision_method"
+      | "regulation_home_goals"
+      | "regulation_away_goals"
+      | "after_extra_time_home_goals"
+      | "after_extra_time_away_goals"
+      | "penalty_home_goals"
+      | "penalty_away_goals"
+      | "advancing_team_id"
       | "verification_status"
       | "intake_source"
       | "source_note"
@@ -295,6 +344,14 @@ export type WorldCupResultRefreshWriteAdapter = {
         StoredMatchResultRow,
         | "home_goals"
         | "away_goals"
+        | "decision_method"
+        | "regulation_home_goals"
+        | "regulation_away_goals"
+        | "after_extra_time_home_goals"
+        | "after_extra_time_away_goals"
+        | "penalty_home_goals"
+        | "penalty_away_goals"
+        | "advancing_team_id"
         | "verification_status"
         | "intake_source"
         | "source_note"
@@ -736,6 +793,248 @@ function buildPendingReviewExceptionSourceNote(args: {
   ].join(" ");
 }
 
+function resolveAdvancingTeam(args: {
+  providerFixture: ProviderFixture;
+  match: StoredMatchRow;
+  homeTeamName: string;
+  awayTeamName: string;
+}): { status: "ready"; teamId: string; teamName: string } | { status: "failure"; reason: string } {
+  const homeWinner = args.providerFixture.homeTeam.winner;
+  const awayWinner = args.providerFixture.awayTeam.winner;
+
+  if (homeWinner === true && awayWinner === false) {
+    return {
+      status: "ready",
+      teamId: args.match.home_team_id,
+      teamName: args.homeTeamName,
+    };
+  }
+
+  if (homeWinner === false && awayWinner === true) {
+    return {
+      status: "ready",
+      teamId: args.match.away_team_id,
+      teamName: args.awayTeamName,
+    };
+  }
+
+  if (homeWinner === null || awayWinner === null) {
+    return {
+      status: "failure",
+      reason: "missing_winner_flags",
+    };
+  }
+
+  return {
+    status: "failure",
+    reason: "contradictory_winner_flags",
+  };
+}
+
+function resolveStructuredResult(args: {
+  match: StoredMatchRow;
+  providerFixture: ProviderFixture;
+  homeTeamName: string;
+  awayTeamName: string;
+}): { status: "ready"; result: StructuredMatchResult } | { status: "failure"; reason: string } {
+  const { providerFixture } = args;
+  const aggregateHomeGoals = providerFixture.goals.home;
+  const aggregateAwayGoals = providerFixture.goals.away;
+  const regulationHomeGoals = providerFixture.score.fulltime.home;
+  const regulationAwayGoals = providerFixture.score.fulltime.away;
+  const extraTimeHomeGoals = providerFixture.score.extratime.home;
+  const extraTimeAwayGoals = providerFixture.score.extratime.away;
+  const penaltyHomeGoals = providerFixture.score.penalty.home;
+  const penaltyAwayGoals = providerFixture.score.penalty.away;
+
+  if (providerFixture.statusShort === "FT") {
+    if (typeof aggregateHomeGoals !== "number" || typeof aggregateAwayGoals !== "number") {
+      return {
+        status: "failure",
+        reason: "provider_finished_missing_terminal_football_score",
+      };
+    }
+
+    return {
+      status: "ready",
+      result: {
+        decisionMethod: "ft",
+        homeGoals: aggregateHomeGoals,
+        awayGoals: aggregateAwayGoals,
+        regulationHomeGoals:
+          typeof regulationHomeGoals === "number" ? regulationHomeGoals : aggregateHomeGoals,
+        regulationAwayGoals:
+          typeof regulationAwayGoals === "number" ? regulationAwayGoals : aggregateAwayGoals,
+        afterExtraTimeHomeGoals: null,
+        afterExtraTimeAwayGoals: null,
+        penaltyHomeGoals: null,
+        penaltyAwayGoals: null,
+        advancingTeamId: null,
+        advancingTeamName: null,
+      },
+    };
+  }
+
+  if (providerFixture.statusShort !== "AET" && providerFixture.statusShort !== "PEN") {
+    return {
+      status: "failure",
+      reason: "unsupported_terminal_status",
+    };
+  }
+
+  if (typeof regulationHomeGoals !== "number" || typeof regulationAwayGoals !== "number") {
+    return {
+      status: "failure",
+      reason:
+        providerFixture.statusShort === "AET"
+          ? "incomplete_aet_data_missing_fulltime_score"
+          : "incomplete_pen_data_missing_fulltime_score",
+    };
+  }
+
+  const advancingTeam = resolveAdvancingTeam(args);
+  if (advancingTeam.status === "failure") {
+    return {
+      status: "failure",
+      reason:
+        providerFixture.statusShort === "AET"
+          ? `incomplete_aet_data_${advancingTeam.reason}`
+          : `incomplete_pen_data_${advancingTeam.reason}`,
+    };
+  }
+
+  if (typeof extraTimeHomeGoals !== "number" || typeof extraTimeAwayGoals !== "number") {
+    return {
+      status: "failure",
+      reason:
+        providerFixture.statusShort === "AET"
+          ? "incomplete_aet_data_missing_extratime_score"
+          : "incomplete_pen_data_missing_extratime_score",
+    };
+  }
+
+  const terminalHomeGoals = regulationHomeGoals + extraTimeHomeGoals;
+  const terminalAwayGoals = regulationAwayGoals + extraTimeAwayGoals;
+
+  if (typeof aggregateHomeGoals === "number" && aggregateHomeGoals !== terminalHomeGoals) {
+    return {
+      status: "failure",
+      reason:
+        providerFixture.statusShort === "AET"
+          ? "incomplete_aet_data_extratime_mismatch"
+          : "incomplete_pen_data_extratime_mismatch",
+    };
+  }
+
+  if (typeof aggregateAwayGoals === "number" && aggregateAwayGoals !== terminalAwayGoals) {
+    return {
+      status: "failure",
+      reason:
+        providerFixture.statusShort === "AET"
+          ? "incomplete_aet_data_extratime_mismatch"
+          : "incomplete_pen_data_extratime_mismatch",
+    };
+  }
+
+  if (providerFixture.statusShort === "AET") {
+    if (regulationHomeGoals !== regulationAwayGoals) {
+      return {
+        status: "failure",
+        reason: "aet_regulation_score_not_draw",
+      };
+    }
+
+    if (terminalHomeGoals === terminalAwayGoals) {
+      return {
+        status: "failure",
+        reason: "incomplete_aet_data_terminal_draw",
+      };
+    }
+
+    if (
+      (terminalHomeGoals > terminalAwayGoals && advancingTeam.teamId !== args.match.home_team_id) ||
+      (terminalAwayGoals > terminalHomeGoals && advancingTeam.teamId !== args.match.away_team_id)
+    ) {
+      return {
+        status: "failure",
+        reason: "reversed_winner_data",
+      };
+    }
+
+    return {
+      status: "ready",
+      result: {
+        decisionMethod: "aet",
+        homeGoals: terminalHomeGoals,
+        awayGoals: terminalAwayGoals,
+        regulationHomeGoals,
+        regulationAwayGoals,
+        afterExtraTimeHomeGoals: terminalHomeGoals,
+        afterExtraTimeAwayGoals: terminalAwayGoals,
+        penaltyHomeGoals: null,
+        penaltyAwayGoals: null,
+        advancingTeamId: advancingTeam.teamId,
+        advancingTeamName: advancingTeam.teamName,
+      },
+    };
+  }
+
+  if (regulationHomeGoals !== regulationAwayGoals) {
+    return {
+      status: "failure",
+      reason: "pen_regulation_score_not_draw",
+    };
+  }
+
+  if (typeof penaltyHomeGoals !== "number" || typeof penaltyAwayGoals !== "number") {
+    return {
+      status: "failure",
+      reason: "missing_penalty_score",
+    };
+  }
+
+  if (penaltyHomeGoals === penaltyAwayGoals) {
+    return {
+      status: "failure",
+      reason: "equal_penalty_score",
+    };
+  }
+
+  if (terminalHomeGoals !== terminalAwayGoals) {
+    return {
+      status: "failure",
+      reason: "penalty_terminal_score_not_draw",
+    };
+  }
+
+  if (
+    (penaltyHomeGoals > penaltyAwayGoals && advancingTeam.teamId !== args.match.home_team_id) ||
+    (penaltyAwayGoals > penaltyHomeGoals && advancingTeam.teamId !== args.match.away_team_id)
+  ) {
+    return {
+      status: "failure",
+      reason: "reversed_winner_data",
+    };
+  }
+
+  return {
+    status: "ready",
+    result: {
+      decisionMethod: "pen",
+      homeGoals: terminalHomeGoals,
+      awayGoals: terminalAwayGoals,
+      regulationHomeGoals,
+      regulationAwayGoals,
+      afterExtraTimeHomeGoals: terminalHomeGoals,
+      afterExtraTimeAwayGoals: terminalAwayGoals,
+      penaltyHomeGoals,
+      penaltyAwayGoals,
+      advancingTeamId: advancingTeam.teamId,
+      advancingTeamName: advancingTeam.teamName,
+    },
+  };
+}
+
 function isPredictionTopScoresArray(value: unknown): value is Array<{ score: string; probability: number }> {
   return (
     Array.isArray(value) &&
@@ -787,6 +1086,7 @@ function buildEvaluationPayload(args: {
     matchId: string;
     homeGoals: number;
     awayGoals: number;
+    decisionMethod?: MatchDecisionMethod;
   };
 }): { status: "ready"; payload: StoredPredictionEvaluationPayload } | { status: "failure"; reason: string } {
   const topScores = isPredictionTopScoresArray(args.prediction.top_scores_json)
@@ -821,6 +1121,7 @@ function buildEvaluationPayload(args: {
       matchId: args.result.matchId,
       homeGoals: args.result.homeGoals,
       awayGoals: args.result.awayGoals,
+      decisionMethod: args.result.decisionMethod,
       verificationStatus: "verified",
     },
   );
@@ -841,12 +1142,33 @@ function buildEvaluationPayload(args: {
   };
 }
 
-function sameResultScore(
-  existingResult: Pick<StoredMatchResultRow, "home_goals" | "away_goals"> | null,
-  homeGoals: number,
-  awayGoals: number,
+function sameStructuredResult(
+  existingResult: Pick<
+    StoredMatchResultRow,
+    | "home_goals"
+    | "away_goals"
+    | "decision_method"
+    | "regulation_home_goals"
+    | "regulation_away_goals"
+    | "after_extra_time_home_goals"
+    | "after_extra_time_away_goals"
+    | "penalty_home_goals"
+    | "penalty_away_goals"
+    | "advancing_team_id"
+  > | null,
+  nextResult: StructuredMatchResult,
 ) {
-  return !!existingResult && existingResult.home_goals === homeGoals && existingResult.away_goals === awayGoals;
+  return !!existingResult &&
+    existingResult.home_goals === nextResult.homeGoals &&
+    existingResult.away_goals === nextResult.awayGoals &&
+    existingResult.decision_method === nextResult.decisionMethod &&
+    existingResult.regulation_home_goals === nextResult.regulationHomeGoals &&
+    existingResult.regulation_away_goals === nextResult.regulationAwayGoals &&
+    existingResult.after_extra_time_home_goals === nextResult.afterExtraTimeHomeGoals &&
+    existingResult.after_extra_time_away_goals === nextResult.afterExtraTimeAwayGoals &&
+    existingResult.penalty_home_goals === nextResult.penaltyHomeGoals &&
+    existingResult.penalty_away_goals === nextResult.penaltyAwayGoals &&
+    existingResult.advancing_team_id === nextResult.advancingTeamId;
 }
 
 function sameEvaluationPayload(
@@ -862,6 +1184,58 @@ function sameEvaluationPayload(
     existing.exact_score_correct === payload.exact_score_correct &&
     existing.goal_error === payload.goal_error &&
     existing.error_summary === payload.error_summary;
+}
+
+function buildStructuredResultConflictSummary(
+  existingResult: Pick<
+    StoredMatchResultRow,
+    | "home_goals"
+    | "away_goals"
+    | "decision_method"
+    | "regulation_home_goals"
+    | "regulation_away_goals"
+    | "after_extra_time_home_goals"
+    | "after_extra_time_away_goals"
+    | "penalty_home_goals"
+    | "penalty_away_goals"
+    | "advancing_team_id"
+  >,
+  nextResult: StructuredMatchResult,
+) {
+  return [
+    `stored_verified_score=${existingResult.home_goals}-${existingResult.away_goals}`,
+    `provider_score=${nextResult.homeGoals}-${nextResult.awayGoals}`,
+    `stored_method=${existingResult.decision_method}`,
+    `provider_method=${nextResult.decisionMethod}`,
+    `stored_score=${existingResult.home_goals}-${existingResult.away_goals}`,
+    `stored_regulation=${existingResult.regulation_home_goals}-${existingResult.regulation_away_goals}`,
+    `provider_regulation=${nextResult.regulationHomeGoals}-${nextResult.regulationAwayGoals}`,
+    `stored_after_et=${existingResult.after_extra_time_home_goals}-${existingResult.after_extra_time_away_goals}`,
+    `provider_after_et=${nextResult.afterExtraTimeHomeGoals}-${nextResult.afterExtraTimeAwayGoals}`,
+    `stored_penalties=${existingResult.penalty_home_goals}-${existingResult.penalty_away_goals}`,
+    `provider_penalties=${nextResult.penaltyHomeGoals}-${nextResult.penaltyAwayGoals}`,
+    `stored_advancing_team_id=${existingResult.advancing_team_id}`,
+    `provider_advancing_team_id=${nextResult.advancingTeamId}`,
+  ].join(" ");
+}
+
+function buildLegacyPendingReviewResult(args: {
+  providerHomeGoals: number;
+  providerAwayGoals: number;
+}): StructuredMatchResult {
+  return {
+    decisionMethod: "ft",
+    homeGoals: args.providerHomeGoals,
+    awayGoals: args.providerAwayGoals,
+    regulationHomeGoals: args.providerHomeGoals,
+    regulationAwayGoals: args.providerAwayGoals,
+    afterExtraTimeHomeGoals: null,
+    afterExtraTimeAwayGoals: null,
+    penaltyHomeGoals: null,
+    penaltyAwayGoals: null,
+    advancingTeamId: null,
+    advancingTeamName: null,
+  };
 }
 
 function summarizeRowOutcome(row: WorldCupResultRefreshRow) {
@@ -1073,6 +1447,14 @@ export function planWorldCupResultRefresh(args: {
     const providerRound = providerFixture?.competition.round ?? null;
     const providerHomeGoals = providerFixture?.goals.home ?? null;
     const providerAwayGoals = providerFixture?.goals.away ?? null;
+    const providerHalftimeHomeGoals = providerFixture?.score.halftime.home ?? null;
+    const providerHalftimeAwayGoals = providerFixture?.score.halftime.away ?? null;
+    const providerFulltimeHomeGoals = providerFixture?.score.fulltime.home ?? null;
+    const providerFulltimeAwayGoals = providerFixture?.score.fulltime.away ?? null;
+    const providerExtratimeHomeGoals = providerFixture?.score.extratime.home ?? null;
+    const providerExtratimeAwayGoals = providerFixture?.score.extratime.away ?? null;
+    const providerPenaltyHomeGoals = providerFixture?.score.penalty.home ?? null;
+    const providerPenaltyAwayGoals = providerFixture?.score.penalty.away ?? null;
     const providerTerminalResult =
       providerFixture !== null &&
       providerFixture.status === "finished" &&
@@ -1085,8 +1467,10 @@ export function planWorldCupResultRefresh(args: {
     let trustedAutoVerifyEligible = false;
     let resultAction: ResultAction = "none";
     let evaluationAction: EvaluationAction = "none";
+    let structuredResult: StructuredMatchResult | null = null;
     let exceptionReason: string | null = null;
     let conflictSummary: string | null = null;
+    let evaluationIneligibleReason: string | null = null;
     let evaluationFailureReason: string | null = null;
     let resultAlreadyIdentical = false;
     let evaluationAlreadyStored = false;
@@ -1101,10 +1485,25 @@ export function planWorldCupResultRefresh(args: {
       conflictSummary = fixtureIdentity.reason;
     } else {
       const providerScoresPresent =
-        typeof providerHomeGoals === "number" && typeof providerAwayGoals === "number";
+        typeof providerHomeGoals === "number" &&
+        typeof providerAwayGoals === "number";
+      const structuredResultResolution =
+        providerFixture.status === "finished"
+          ? resolveStructuredResult({
+              match,
+              providerFixture,
+              homeTeamName,
+              awayTeamName,
+            })
+          : null;
+
+      if (structuredResultResolution?.status === "ready") {
+        structuredResult = structuredResultResolution.result;
+      }
+
       trustedAutoVerifyEligible =
         providerFixture.status === "finished" &&
-        providerScoresPresent &&
+        structuredResult !== null &&
         isSupportedTrustedTerminalStatus({
           fixtureIdentity,
           providerFixture,
@@ -1112,26 +1511,84 @@ export function planWorldCupResultRefresh(args: {
 
       if (trustedAutoVerifyEligible) {
         if (existingResult?.verification_status === "verified") {
-          if (sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!)) {
+          if (sameStructuredResult(existingResult, structuredResult!)) {
             resultAction = "already_identical";
             resultAlreadyIdentical = true;
           } else {
             resultAction = "verified_conflict";
-            conflictSummary = `stored_verified_score=${existingResult.home_goals}-${existingResult.away_goals} provider_score=${providerHomeGoals}-${providerAwayGoals}`;
+            conflictSummary = buildStructuredResultConflictSummary(existingResult, structuredResult!);
           }
         } else if (existingResult?.verification_status === "rejected") {
           resultAction = "rejected_conflict";
-          conflictSummary = `existing_result_rejected provider_score=${providerHomeGoals}-${providerAwayGoals}`;
+          conflictSummary = `existing_result_rejected provider_score=${structuredResult!.homeGoals}-${structuredResult!.awayGoals}`;
         } else if (existingResult?.verification_status === "pending_review") {
           resultAction = "update_to_verified";
         } else {
           resultAction = "create_verified";
         }
-      } else if (providerFixture.status === "finished" && providerScoresPresent) {
-        if (fixtureIdentity.mode === "knockout_runtime" && providerFixture.statusShort === "AET") {
-          exceptionReason = "unsupported_extra_time_semantics";
-        } else if (fixtureIdentity.mode === "knockout_runtime" && providerFixture.statusShort === "PEN") {
-          exceptionReason = "unsupported_penalty_semantics";
+      } else if (
+        providerFixture.status === "finished" &&
+        structuredResult &&
+        fixtureIdentity.mode === "knockout_runtime" &&
+        (providerFixture.statusShort === "AET" || providerFixture.statusShort === "PEN")
+      ) {
+        evaluationAction = "ineligible";
+        evaluationIneligibleReason = "knockout_evaluation_policy_unconfirmed";
+
+        if (existingResult?.verification_status === "verified") {
+          if (sameStructuredResult(existingResult, structuredResult)) {
+            resultAction = "already_identical";
+            resultAlreadyIdentical = true;
+          } else {
+            resultAction = "verified_conflict";
+            conflictSummary = buildStructuredResultConflictSummary(existingResult, structuredResult);
+          }
+        } else if (existingResult?.verification_status === "rejected") {
+          resultAction = "rejected_conflict";
+          conflictSummary = `existing_result_rejected provider_method=${structuredResult.decisionMethod}`;
+        } else if (existingResult?.verification_status === "pending_review") {
+          resultAction = "verified_conflict";
+          conflictSummary = "existing_pending_review_result_conflicts_with_structured_verified_refresh";
+        } else {
+          resultAction = "create_verified";
+        }
+      } else if (
+        providerFixture.status === "finished" &&
+        providerScoresPresent &&
+        fixtureIdentity.mode !== "knockout_runtime" &&
+        providerFixture.statusShort !== "FT"
+      ) {
+        structuredResult = buildLegacyPendingReviewResult({
+          providerHomeGoals,
+          providerAwayGoals,
+        });
+        exceptionReason = "unsupported_terminal_status_for_group_stage";
+
+        if (existingResult?.verification_status === "verified") {
+          if (!sameStructuredResult(existingResult, structuredResult)) {
+            resultAction = "verified_conflict";
+            conflictSummary = buildStructuredResultConflictSummary(existingResult, structuredResult);
+          } else {
+            resultAction = "already_identical";
+            resultAlreadyIdentical = true;
+          }
+        } else if (existingResult?.verification_status === "rejected") {
+          resultAction = "rejected_conflict";
+        } else if (existingResult?.verification_status === "pending_review") {
+          if (
+            sameStructuredResult(existingResult, structuredResult) &&
+            existingResult.intake_source === "api_football"
+          ) {
+            resultAction = "already_pending_review_exception";
+          } else {
+            resultAction = "update_pending_review_exception";
+          }
+        } else {
+          resultAction = "create_pending_review_exception";
+        }
+      } else if (providerFixture.status === "finished") {
+        if (structuredResultResolution?.status === "failure") {
+          exceptionReason = structuredResultResolution.reason;
         } else {
           exceptionReason =
             providerFixture.statusShort === "FT"
@@ -1139,9 +1596,9 @@ export function planWorldCupResultRefresh(args: {
               : "unsupported_terminal_status_for_group_stage";
 
           if (existingResult?.verification_status === "verified") {
-            if (!sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!)) {
+            if (!sameStructuredResult(existingResult, structuredResult!)) {
               resultAction = "verified_conflict";
-              conflictSummary = `stored_verified_score=${existingResult.home_goals}-${existingResult.away_goals} provider_score=${providerHomeGoals}-${providerAwayGoals}`;
+              conflictSummary = buildStructuredResultConflictSummary(existingResult, structuredResult!);
             } else {
               resultAction = "already_identical";
               resultAlreadyIdentical = true;
@@ -1150,7 +1607,7 @@ export function planWorldCupResultRefresh(args: {
             resultAction = "rejected_conflict";
           } else if (existingResult?.verification_status === "pending_review") {
             if (
-              sameResultScore(existingResult, providerHomeGoals!, providerAwayGoals!) &&
+              sameStructuredResult(existingResult, structuredResult!) &&
               existingResult.intake_source === "api_football"
             ) {
               resultAction = "already_pending_review_exception";
@@ -1161,8 +1618,6 @@ export function planWorldCupResultRefresh(args: {
             resultAction = "create_pending_review_exception";
           }
         }
-      } else if (providerFixture.status === "finished" && !providerScoresPresent) {
-        exceptionReason = "provider_finished_missing_score";
       } else if (providerFixture.status === "cancelled") {
         exceptionReason = "provider_cancelled";
       } else if (providerFixture.status === "abandoned") {
@@ -1174,24 +1629,26 @@ export function planWorldCupResultRefresh(args: {
       const verifiedResultScore =
         trustedAutoVerifyEligible &&
         !conflictSummary &&
-        providerScoresPresent &&
+        structuredResult !== null &&
         (resultAction === "create_verified" ||
           resultAction === "update_to_verified" ||
           resultAction === "already_identical")
           ? {
               matchId: match.id,
-              homeGoals: providerHomeGoals!,
-              awayGoals: providerAwayGoals!,
+              homeGoals: structuredResult.homeGoals,
+              awayGoals: structuredResult.awayGoals,
+              decisionMethod: structuredResult.decisionMethod,
             }
           : existingResult?.verification_status === "verified"
             ? {
                 matchId: match.id,
                 homeGoals: existingResult.home_goals,
                 awayGoals: existingResult.away_goals,
+                decisionMethod: existingResult.decision_method,
               }
             : null;
 
-      if (verifiedResultScore) {
+      if (verifiedResultScore && evaluationAction !== "ineligible") {
         const latestInternalPrediction = (predictionVersionsByMatchId.get(match.id) ?? []).find(
           (prediction) =>
             prediction.run_scope === WORLD_CUP_RESULT_REFRESH_RUN_SCOPE &&
@@ -1242,14 +1699,24 @@ export function planWorldCupResultRefresh(args: {
       providerStatusShort,
       providerHomeGoals,
       providerAwayGoals,
+      providerHalftimeHomeGoals,
+      providerHalftimeAwayGoals,
+      providerFulltimeHomeGoals,
+      providerFulltimeAwayGoals,
+      providerExtratimeHomeGoals,
+      providerExtratimeAwayGoals,
+      providerPenaltyHomeGoals,
+      providerPenaltyAwayGoals,
       providerTerminalResult,
       trustedAutoVerifyEligible,
       statusAction,
       nextStoredStatus,
       resultAction,
       evaluationAction,
+      structuredResult,
       exceptionReason,
       conflictSummary,
+      evaluationIneligibleReason,
       evaluationFailureReason,
       resultAlreadyIdentical,
       evaluationAlreadyStored,
@@ -1278,6 +1745,7 @@ export function planWorldCupResultRefresh(args: {
     evaluationsCreated: rows.filter((row) => row.evaluationAction === "create").length,
     evaluationsUpdated: rows.filter((row) => row.evaluationAction === "update").length,
     evaluationsAlreadyStored: rows.filter((row) => row.evaluationAlreadyStored).length,
+    evaluationsIneligible: rows.filter((row) => row.evaluationAction === "ineligible").length,
     exceptionsOrConflicts: rows.filter((row) => summarizeRowOutcome(row).isException).length,
     skippedRows: rows.filter((row) => summarizeRowOutcome(row).isSkipped).length,
   };
@@ -1344,6 +1812,7 @@ export async function applyWorldCupResultRefreshPlan(args: {
     evaluationsCreated: 0,
     evaluationsUpdated: 0,
     evaluationsAlreadyStored: 0,
+    evaluationsIneligible: 0,
     exceptionsOrConflicts: 0,
     skipped: 0,
     evaluationFailures: 0,
@@ -1380,13 +1849,11 @@ export async function applyWorldCupResultRefreshPlan(args: {
     const existingResult = resultByMatchId.get(row.matchId) ?? null;
     const providerFixture =
       row.apiFootballFixtureId === null ? null : providerFixtureById.get(row.apiFootballFixtureId) ?? null;
-    const providerHomeGoals = providerFixture?.goals.home ?? row.providerHomeGoals;
-    const providerAwayGoals = providerFixture?.goals.away ?? row.providerAwayGoals;
+    const structuredResult = row.structuredResult;
 
     if (
       providerFixture &&
-      typeof providerHomeGoals === "number" &&
-      typeof providerAwayGoals === "number" &&
+      structuredResult &&
       (row.resultAction === "create_verified" || row.resultAction === "update_to_verified")
     ) {
       const sourceNote = buildVerifiedResultSourceNote({
@@ -1395,8 +1862,16 @@ export async function applyWorldCupResultRefreshPlan(args: {
         providerResponseAt: args.providerResponseAt,
       });
       const payload = {
-        home_goals: providerHomeGoals,
-        away_goals: providerAwayGoals,
+        home_goals: structuredResult.homeGoals,
+        away_goals: structuredResult.awayGoals,
+        decision_method: structuredResult.decisionMethod,
+        regulation_home_goals: structuredResult.regulationHomeGoals,
+        regulation_away_goals: structuredResult.regulationAwayGoals,
+        after_extra_time_home_goals: structuredResult.afterExtraTimeHomeGoals,
+        after_extra_time_away_goals: structuredResult.afterExtraTimeAwayGoals,
+        penalty_home_goals: structuredResult.penaltyHomeGoals,
+        penalty_away_goals: structuredResult.penaltyAwayGoals,
+        advancing_team_id: structuredResult.advancingTeamId,
         verification_status: "verified" as const,
         intake_source: "api_football" as const,
         source_note: sourceNote,
@@ -1416,6 +1891,14 @@ export async function applyWorldCupResultRefreshPlan(args: {
         await args.writeAdapter.updateMatchResult(existingResult.id, payload);
         existingResult.home_goals = payload.home_goals;
         existingResult.away_goals = payload.away_goals;
+        existingResult.decision_method = payload.decision_method;
+        existingResult.regulation_home_goals = payload.regulation_home_goals;
+        existingResult.regulation_away_goals = payload.regulation_away_goals;
+        existingResult.after_extra_time_home_goals = payload.after_extra_time_home_goals;
+        existingResult.after_extra_time_away_goals = payload.after_extra_time_away_goals;
+        existingResult.penalty_home_goals = payload.penalty_home_goals;
+        existingResult.penalty_away_goals = payload.penalty_away_goals;
+        existingResult.advancing_team_id = payload.advancing_team_id;
         existingResult.verification_status = payload.verification_status;
         existingResult.intake_source = payload.intake_source;
         existingResult.source_note = payload.source_note;
@@ -1428,8 +1911,7 @@ export async function applyWorldCupResultRefreshPlan(args: {
       counts.resultsVerified += 1;
     } else if (
       providerFixture &&
-      typeof providerHomeGoals === "number" &&
-      typeof providerAwayGoals === "number" &&
+      structuredResult &&
       (row.resultAction === "create_pending_review_exception" ||
         row.resultAction === "update_pending_review_exception")
     ) {
@@ -1439,8 +1921,16 @@ export async function applyWorldCupResultRefreshPlan(args: {
         reason: row.exceptionReason ?? "exception",
       });
       const payload = {
-        home_goals: providerHomeGoals,
-        away_goals: providerAwayGoals,
+        home_goals: structuredResult.homeGoals,
+        away_goals: structuredResult.awayGoals,
+        decision_method: structuredResult.decisionMethod,
+        regulation_home_goals: structuredResult.regulationHomeGoals,
+        regulation_away_goals: structuredResult.regulationAwayGoals,
+        after_extra_time_home_goals: structuredResult.afterExtraTimeHomeGoals,
+        after_extra_time_away_goals: structuredResult.afterExtraTimeAwayGoals,
+        penalty_home_goals: structuredResult.penaltyHomeGoals,
+        penalty_away_goals: structuredResult.penaltyAwayGoals,
+        advancing_team_id: structuredResult.advancingTeamId,
         verification_status: "pending_review" as const,
         intake_source: "api_football" as const,
         source_note: sourceNote,
@@ -1460,6 +1950,14 @@ export async function applyWorldCupResultRefreshPlan(args: {
         await args.writeAdapter.updateMatchResult(existingResult.id, payload);
         existingResult.home_goals = payload.home_goals;
         existingResult.away_goals = payload.away_goals;
+        existingResult.decision_method = payload.decision_method;
+        existingResult.regulation_home_goals = payload.regulation_home_goals;
+        existingResult.regulation_away_goals = payload.regulation_away_goals;
+        existingResult.after_extra_time_home_goals = payload.after_extra_time_home_goals;
+        existingResult.after_extra_time_away_goals = payload.after_extra_time_away_goals;
+        existingResult.penalty_home_goals = payload.penalty_home_goals;
+        existingResult.penalty_away_goals = payload.penalty_away_goals;
+        existingResult.advancing_team_id = payload.advancing_team_id;
         existingResult.verification_status = payload.verification_status;
         existingResult.intake_source = payload.intake_source;
         existingResult.source_note = payload.source_note;
@@ -1472,6 +1970,11 @@ export async function applyWorldCupResultRefreshPlan(args: {
 
     if (row.evaluationAction === "already_stored") {
       counts.evaluationsAlreadyStored += 1;
+      continue;
+    }
+
+    if (row.evaluationAction === "ineligible") {
+      counts.evaluationsIneligible += 1;
       continue;
     }
 
@@ -1503,6 +2006,7 @@ export async function applyWorldCupResultRefreshPlan(args: {
         matchId: row.matchId,
         homeGoals: verifiedResult.home_goals,
         awayGoals: verifiedResult.away_goals,
+        decisionMethod: verifiedResult.decision_method,
       },
     });
 
@@ -1566,6 +2070,7 @@ export function summarizeWorldCupResultRefreshReport(report: WorldCupResultRefre
     `evaluations_created=${report.summary.evaluationsCreated}`,
     `evaluations_updated=${report.summary.evaluationsUpdated}`,
     `evaluations_already_stored=${report.summary.evaluationsAlreadyStored}`,
+    `evaluations_ineligible=${report.summary.evaluationsIneligible}`,
     `exceptions_or_conflicts=${report.summary.exceptionsOrConflicts}`,
     `skipped_rows=${report.summary.skippedRows}`,
   ];

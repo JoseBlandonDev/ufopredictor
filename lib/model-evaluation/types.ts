@@ -2,6 +2,7 @@ export type MatchOutcome = "home" | "draw" | "away";
 export type BttsSelection = "yes" | "no";
 export type OverUnder25Selection = "over" | "under";
 export type VerificationStatus = "pending_review" | "verified" | "rejected";
+export type MatchDecisionMethod = "ft" | "aet" | "pen";
 
 export type ProbabilityOption<Selection extends string> = {
   selection: Selection;
@@ -39,6 +40,7 @@ export type MatchResultInput = {
   matchId: string;
   homeGoals: number;
   awayGoals: number;
+  decisionMethod?: MatchDecisionMethod;
   verificationStatus: VerificationStatus;
 };
 
@@ -106,7 +108,11 @@ export type NonEvaluablePredictionEvaluation = {
   predictionVersionId: string;
   matchId: string;
   warnings: string[];
-  reason: "result_not_verified" | "invalid_predicted_score" | "match_id_mismatch";
+  reason:
+    | "result_not_verified"
+    | "invalid_predicted_score"
+    | "match_id_mismatch"
+    | "knockout_evaluation_policy_unconfirmed";
   metrics: null;
   errorSummary: string;
   predictionResultsPayload: null;
