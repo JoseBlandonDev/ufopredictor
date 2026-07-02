@@ -49,6 +49,51 @@ function parseScoreline(scoreline: string) {
   };
 }
 
+type ScenarioMatchState = "fulfilled" | "scoreline_match" | null;
+
+function resolveScenarioMatchState(args: {
+  parsedScoreline: ReturnType<typeof parseScoreline>;
+  verifiedResult: PublicMatchDetailView["verifiedResult"];
+}): ScenarioMatchState {
+  const { parsedScoreline, verifiedResult } = args;
+
+  if (
+    parsedScoreline === null ||
+    verifiedResult === null ||
+    verifiedResult.verificationStatus !== "verified"
+  ) {
+    return null;
+  }
+
+  if (
+    verifiedResult.decisionMethod === "ft" &&
+    parsedScoreline.homeGoals === verifiedResult.homeGoals &&
+    parsedScoreline.awayGoals === verifiedResult.awayGoals
+  ) {
+    return "fulfilled";
+  }
+
+  if (verifiedResult.decisionMethod === "aet") {
+    return null;
+  }
+
+  if (
+    verifiedResult.decisionMethod === "pen" &&
+    verifiedResult.regulationHomeGoals !== null &&
+    verifiedResult.regulationAwayGoals !== null &&
+    verifiedResult.afterExtraTimeHomeGoals !== null &&
+    verifiedResult.afterExtraTimeAwayGoals !== null &&
+    verifiedResult.regulationHomeGoals === verifiedResult.afterExtraTimeHomeGoals &&
+    verifiedResult.regulationAwayGoals === verifiedResult.afterExtraTimeAwayGoals &&
+    parsedScoreline.homeGoals === verifiedResult.regulationHomeGoals &&
+    parsedScoreline.awayGoals === verifiedResult.regulationAwayGoals
+  ) {
+    return "scoreline_match";
+  }
+
+  return null;
+}
+
 function buildVerifiedResultCopy(
   verifiedResult: NonNullable<PublicMatchDetailView["verifiedResult"]>,
   homeTeamName: string,
@@ -182,20 +227,17 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
 
   const scenarioMatches = representativeScenarios.map((scenario) => {
     const parsed = parseScoreline(scenario.scoreline);
-    const fulfilled =
-      parsed !== null &&
-      match.verifiedResult !== null &&
-      match.verifiedResult.verificationStatus === "verified" &&
-      match.verifiedResult.decisionMethod === "ft" &&
-      parsed.homeGoals === match.verifiedResult.homeGoals &&
-      parsed.awayGoals === match.verifiedResult.awayGoals;
+    const matchState = resolveScenarioMatchState({
+      parsedScoreline: parsed,
+      verifiedResult: match.verifiedResult,
+    });
 
     return {
       scenario,
-      fulfilled,
+      matchState,
     };
   });
-  const anyExactScenarioMatch = scenarioMatches.some((entry) => entry.fulfilled);
+  const anyExactScenarioMatch = scenarioMatches.some((entry) => entry.matchState !== null);
   const verifiedResultCopy = match.verifiedResult
     ? buildVerifiedResultCopy(match.verifiedResult, homeTeamName, awayTeamName)
     : null;
@@ -454,12 +496,14 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
               <article className="rounded-xl border border-white/10 bg-white/[0.03] p-4 lg:col-span-2">
                 <p className="text-sm font-medium">Escenarios representativos del partido</p>
                 <div className="mt-3 grid gap-3 xl:grid-cols-3">
-                  {scenarioMatches.map(({ scenario, fulfilled }, index) => (
+                  {scenarioMatches.map(({ scenario, matchState }, index) => (
                     <article
                       key={`${scenario.title}:${scenario.scoreline}`}
                       className={
-                        fulfilled
+                        matchState === "fulfilled"
                           ? "rounded-xl border border-emerald-400/40 bg-emerald-500/8 p-4"
+                          : matchState === "scoreline_match"
+                            ? "rounded-xl border border-sky-400/40 bg-sky-500/8 p-4"
                           : index === 0
                             ? "rounded-xl border border-[var(--accent)]/25 bg-[#050b14]/75 p-4"
                             : "rounded-xl border border-white/10 bg-[#050b14]/60 p-4"
@@ -469,17 +513,25 @@ export default async function MatchDetailPage({ params }: { params: Promise<{ sl
                         <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                           {scenario.title}
                         </p>
-                        {fulfilled ? (
+                        {matchState === "fulfilled" ? (
                           <span className="ufo-pill border-emerald-400/35 bg-emerald-500/12 text-emerald-200">
                             Escenario cumplido
+                          </span>
+                        ) : matchState === "scoreline_match" ? (
+                          <span className="ufo-pill border-sky-400/35 bg-sky-500/12 text-sky-100">
+                            Marcador coincidente
                           </span>
                         ) : null}
                       </div>
                       <p className="mt-3 font-mono text-3xl">{scenario.scoreline}</p>
                       <p className="mt-2 text-sm text-[var(--muted)]">{scenario.probabilityLabel}</p>
-                      {fulfilled ? (
+                      {matchState === "fulfilled" ? (
                         <p className="mt-3 text-sm text-emerald-100">
                           Este escenario coincidió exactamente con el resultado final verificado.
+                        </p>
+                      ) : matchState === "scoreline_match" ? (
+                        <p className="mt-3 text-sm text-sky-100">
+                          Este escenario coincidió con el marcador antes de los penales.
                         </p>
                       ) : null}
                       <p className="mt-3 text-sm text-[var(--muted)]">{scenario.explanation}</p>

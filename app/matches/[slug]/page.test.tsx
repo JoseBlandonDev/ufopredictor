@@ -127,6 +127,7 @@ describe("MatchDetailPage", () => {
         verifiedResult: {
           homeGoals: 1,
           awayGoals: 0,
+          decisionMethod: "ft",
           verificationStatus: "verified",
         },
       }),
@@ -152,6 +153,7 @@ describe("MatchDetailPage", () => {
         verifiedResult: {
           homeGoals: 3,
           awayGoals: 1,
+          decisionMethod: "ft",
           verificationStatus: "verified",
         },
       }),
@@ -228,6 +230,7 @@ describe("MatchDetailPage", () => {
         verifiedResult: {
           homeGoals: 1,
           awayGoals: 0,
+          decisionMethod: "ft",
           verificationStatus: "verified",
         },
         premiumAccess: { status: "authorized", mode: "historical_preview" },
@@ -252,6 +255,200 @@ describe("MatchDetailPage", () => {
     expect(html).toContain("Dentro del modelo, esta lectura todavía deja espacio para varios desenlaces.");
     expect(html).not.toContain("Ambos equipos marcan (BTTS)");
     expect(html).not.toContain("Más / Menos de 2,5 goles");
+  });
+
+  it("recognizes an exact representative scoreline for verified AET results without changing settlement policy", async () => {
+    getPublicMatchDetailDataMock.mockResolvedValue({
+      status: "ready",
+      match: buildMatch({
+        status: "finished",
+        verifiedResult: {
+          homeGoals: 2,
+          awayGoals: 1,
+          decisionMethod: "aet",
+          verificationStatus: "verified",
+          regulationHomeGoals: 1,
+          regulationAwayGoals: 1,
+          afterExtraTimeHomeGoals: 2,
+          afterExtraTimeAwayGoals: 1,
+          penaltyHomeGoals: null,
+          penaltyAwayGoals: null,
+          advancingTeamName: "Germany",
+        },
+      }),
+    });
+
+    const html = renderToStaticMarkup(
+      await MatchDetailPage({
+        params: Promise.resolve({ slug: "world-cup-2026-germany-vs-saudi-arabia-2026-06-22" }),
+      }),
+    );
+
+    expect(html).not.toContain("Marcador coincidente");
+    expect(html).not.toContain("Escenario cumplido");
+    expect(html).toContain(
+      "Ninguno de los tres escenarios representativos coincidió exactamente con el marcador final.",
+    );
+    expect(html).toContain("después del tiempo extra");
+  });
+
+  it("recognizes an exact representative scoreline for verified PEN results using the football score before penalties", async () => {
+    getPublicMatchDetailDataMock.mockResolvedValue({
+      status: "ready",
+      match: buildMatch({
+        premiumProjection: {
+          status: "authorized",
+          payload: {
+            markets: [],
+            narrative: {
+              locale: "es",
+              premiumAnalysis: "Alemania mantiene una ligera ventaja base.",
+            },
+            modelDetail: {
+              expectedGoals: { home: 1.76, away: 0.98 },
+              topScorelines: [
+                { score: "1-0", probability: 16.2 },
+                { score: "1-1", probability: 14.4 },
+                { score: "2-0", probability: 11.8 },
+              ],
+              bothTeamsToScore: { yesProbability: 58.4, noProbability: 41.6 },
+              totalGoals25: { overProbability: 55.1, underProbability: 44.9 },
+              confidence: { score: 65, riskLevel: "medium" },
+            },
+            confidenceContext: null,
+          },
+        },
+        status: "finished",
+        verifiedResult: {
+          homeGoals: 1,
+          awayGoals: 1,
+          decisionMethod: "pen",
+          verificationStatus: "verified",
+          regulationHomeGoals: 1,
+          regulationAwayGoals: 1,
+          afterExtraTimeHomeGoals: 1,
+          afterExtraTimeAwayGoals: 1,
+          penaltyHomeGoals: 3,
+          penaltyAwayGoals: 4,
+          advancingTeamName: "Saudi Arabia",
+        },
+      }),
+    });
+
+    const html = renderToStaticMarkup(
+      await MatchDetailPage({
+        params: Promise.resolve({ slug: "world-cup-2026-germany-vs-saudi-arabia-2026-06-22" }),
+      }),
+    );
+
+    expect(html).toContain("Marcador coincidente");
+    expect(html).toContain("Este escenario coincidió con el marcador antes de los penales.");
+    expect(html).not.toContain("Escenario cumplido");
+    expect(html).toContain("avanzó 3-4 en penales");
+  });
+
+  it("marks duplicate FT representative scorelines independently when they match the verified final score", async () => {
+    getPublicMatchDetailDataMock.mockResolvedValue({
+      status: "ready",
+      match: buildMatch({
+        premiumProjection: {
+          status: "authorized",
+          payload: {
+            markets: [],
+            narrative: {
+              locale: "es",
+              premiumAnalysis: "Alemania mantiene una ligera ventaja base.",
+            },
+            modelDetail: {
+              expectedGoals: { home: 1.76, away: 0.98 },
+              topScorelines: [
+                { score: "1-1", probability: 16.2 },
+                { score: "1-1", probability: 14.4 },
+                { score: "2-0", probability: 11.8 },
+              ],
+              bothTeamsToScore: { yesProbability: 58.4, noProbability: 41.6 },
+              totalGoals25: { overProbability: 55.1, underProbability: 44.9 },
+              confidence: { score: 65, riskLevel: "medium" },
+            },
+            confidenceContext: null,
+          },
+        },
+        status: "finished",
+        verifiedResult: {
+          homeGoals: 1,
+          awayGoals: 1,
+          decisionMethod: "ft",
+          verificationStatus: "verified",
+        },
+      }),
+    });
+
+    const html = renderToStaticMarkup(
+      await MatchDetailPage({
+        params: Promise.resolve({ slug: "world-cup-2026-germany-vs-saudi-arabia-2026-06-22" }),
+      }),
+    );
+
+    expect(html).toContain("Escenario cumplido");
+    expect(html).not.toContain(
+      "Ninguno de los tres escenarios representativos coincidió exactamente con el marcador final.",
+    );
+  });
+
+  it("does not mark PEN scoreline matches when extra time changed the score after regulation", async () => {
+    getPublicMatchDetailDataMock.mockResolvedValue({
+      status: "ready",
+      match: buildMatch({
+        premiumProjection: {
+          status: "authorized",
+          payload: {
+            markets: [],
+            narrative: {
+              locale: "es",
+              premiumAnalysis: "Alemania mantiene una ligera ventaja base.",
+            },
+            modelDetail: {
+              expectedGoals: { home: 1.76, away: 0.98 },
+              topScorelines: [
+                { score: "1-1", probability: 16.2 },
+                { score: "2-2", probability: 14.4 },
+                { score: "2-0", probability: 11.8 },
+              ],
+              bothTeamsToScore: { yesProbability: 58.4, noProbability: 41.6 },
+              totalGoals25: { overProbability: 55.1, underProbability: 44.9 },
+              confidence: { score: 65, riskLevel: "medium" },
+            },
+            confidenceContext: null,
+          },
+        },
+        status: "finished",
+        verifiedResult: {
+          homeGoals: 2,
+          awayGoals: 2,
+          decisionMethod: "pen",
+          verificationStatus: "verified",
+          regulationHomeGoals: 1,
+          regulationAwayGoals: 1,
+          afterExtraTimeHomeGoals: 2,
+          afterExtraTimeAwayGoals: 2,
+          penaltyHomeGoals: 2,
+          penaltyAwayGoals: 3,
+          advancingTeamName: "Saudi Arabia",
+        },
+      }),
+    });
+
+    const html = renderToStaticMarkup(
+      await MatchDetailPage({
+        params: Promise.resolve({ slug: "world-cup-2026-germany-vs-saudi-arabia-2026-06-22" }),
+      }),
+    );
+
+    expect(html).not.toContain("Marcador coincidente");
+    expect(html).not.toContain("Escenario cumplido");
+    expect(html).toContain(
+      "Ninguno de los tres escenarios representativos coincidió exactamente con el marcador final.",
+    );
   });
 
   it("does not unlock historical premium content for unverified results", async () => {
